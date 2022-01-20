@@ -21,7 +21,6 @@ import React, { useState } from 'react';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import HighTable from '@/components/HighTable';
 import { useRequest } from '@/hooks';
-import { useTranslation } from 'react-i18next';
 import { timestampFormat } from '@/utils';
 import Charts from '@/components/Charts';
 import { CommonInterface } from '../common';
@@ -30,8 +29,6 @@ import { getFormContent, toChartData, toTableData, getTableColumns, auditList } 
 type Props = CommonInterface;
 
 const Comp: React.FC<Props> = ({ inlongGroupId }) => {
-  const { t } = useTranslation();
-
   const [form] = useForm();
 
   const [query, setQuery] = useState({
@@ -40,42 +37,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     dt: +new Date(),
   });
 
-  // const test = [
-  //   {
-  //     auditId: 1,
-  //     auditSet: [
-  //       {
-  //         logTs: '2022-01-01',
-  //         count: 123,
-  //       },
-  //       {
-  //         logTs: '2022-01-02',
-  //         count: 83,
-  //       },
-  //       {
-  //         logTs: '2022-01-03',
-  //         count: 126,
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     auditId: 2,
-  //     auditSet: [
-  //       {
-  //         logTs: '2022-01-01',
-  //         count: 153,
-  //       },
-  //       {
-  //         logTs: '2022-01-02',
-  //         count: 101,
-  //       },
-  //       {
-  //         logTs: '2022-01-03',
-  //         count: 121,
-  //       },
-  //     ],
-  //   },
-  // ];
   const { data = [], run } = useRequest(
     {
       url: '/audit/list',
