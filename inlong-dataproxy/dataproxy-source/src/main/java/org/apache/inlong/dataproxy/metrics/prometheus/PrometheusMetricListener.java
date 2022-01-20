@@ -58,6 +58,8 @@ import org.slf4j.LoggerFactory;
 import io.prometheus.client.Collector;
 import io.prometheus.client.CounterMetricFamily;
 import io.prometheus.client.exporter.HTTPServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
