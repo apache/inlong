@@ -179,14 +179,16 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                     }
                 }
                 if (errorMsgBody != 0) {
-                    reply = AuditReply.newBuilder().setMessage("Error writing to controller,data "
+                    reply = AuditReply.newBuilder().setRequestId(auditRequest.getRequestId())
+                            .setMessage("Error writing to controller,data "
                             + "will discard. error body num = "
                             + errorMsgBody).setRspCode(RSP_CODE.FAILED).build();
                 }
             }
         }
         if (reply == null) {
-            reply = AuditReply.newBuilder().setRspCode(RSP_CODE.SUCCESS).build();
+            reply = AuditReply.newBuilder().setRequestId(auditRequest.getRequestId())
+                    .setRspCode(RSP_CODE.SUCCESS).build();
         }
         return reply;
     }
