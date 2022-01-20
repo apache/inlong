@@ -36,7 +36,8 @@ import org.apache.inlong.sort.protocol.FieldInfo;
         property = "type")
 @JsonSubTypes({
         @Type(value = ClickHouseSinkInfo.class, name = Constants.SINK_TYPE_CLICKHOUSE),
-        @Type(value = HiveSinkInfo.class, name = Constants.SINK_TYPE_HIVE)}
+        @Type(value = HiveSinkInfo.class, name = Constants.SINK_TYPE_HIVE),
+        @Type(value = IcebergSinkInfo.class, name = Constants.SINK_TYPE_ICEBERG)}
 )
 public abstract class SinkInfo implements Serializable {
 

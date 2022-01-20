@@ -24,15 +24,18 @@ import java.io.File;
 import java.io.IOException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.types.Row;
+import org.apache.iceberg.flink.TableLoader;
+import org.apache.iceberg.flink.sink.FlinkSink;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
+import org.apache.inlong.sort.protocol.sink.IcebergSinkInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
+import org.apache.inlong.sort.singletenant.flink.utils.CommonUtils;
 import org.apache.inlong.sort.util.ParameterTool;
 
 public class Entrance {
@@ -96,7 +99,6 @@ public class Entrance {
             SinkInfo sinkInfo) {
         final String sinkType = checkNotNull(config.getString(Constants.SINK_TYPE));
         final int sinkParallelism = config.getInteger(Constants.SINK_PARALLELISM);
-        SingleOutputStreamOperator<?> sinkStream = null;
 
         // TODO : implement sink functions below
         switch (sinkType) {
@@ -105,6 +107,16 @@ public class Entrance {
             case Constants.SINK_TYPE_HIVE:
                 break;
             case Constants.SINK_TYPE_ICEBERG:
+                Preconditions.checkState(sinkInfo instanceof IcebergSinkInfo);
+                IcebergSinkInfo icebergSinkInfo = (IcebergSinkInfo) sinkInfo;
+                TableLoader tableLoader = TableLoader.fromHadoopTable(
+                        icebergSinkInfo.getTableLocation(),
+                        new org.apache.hadoop.conf.Configuration());
+
+                FlinkSink.forRow(sourceStream, CommonUtils.getTableSchema(sinkInfo))
+                        .tableLoader(tableLoader)
+                        .writeParallelism(sinkParallelism)
+                        .build();
                 break;
             case Constants.SINK_TYPE_KAFKA:
                 break;
