@@ -33,8 +33,8 @@ images:
   tubemqServer:
     repository: inlong/tubemq-all
     tag: latest
-  managerWeb:
-    repository: inlong/manager-web
+  manager:
+    repository: inlong/manager
     tag: latest
   mysql:
     repository: mysql
@@ -63,7 +63,7 @@ agent:
   replicaCount: 1
   ports:
     agent: 8008
-    managerOpenApi: ${managerWeb.containerPort}
+    managerOpenApi: ${manager.containerPort}
     dataProxy: ${dataproxy.containerPort}
 
 dashboard:
@@ -79,7 +79,7 @@ dataproxy:
   component: "dataproxy"
   replicaCount: 1
   containerPort: 46801
-  managerOpenApiPort: ${managerWeb.containerPort}
+  managerOpenApiPort: ${manager.containerPort}
 
 tubemqManager:
   component: "tubemq-manager"
@@ -88,8 +88,8 @@ tubemqManager:
   mysqlUser: "root"
   mysqlPassword: ${mysql.rootPassword}
 
-managerWeb:
-  component: "manager-web"
+manager:
+  component: "manager"
   replicaCount: 1
   ports:
     webPort: 8083
