@@ -27,7 +27,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class TaskEventListenerFactory implements EventListenerFactory<TaskEventListener>, PluginBinder {
 
-
     @Override
     public TaskEventListener getEventListener(WorkflowContext context) {
         return null;
