@@ -20,6 +20,7 @@ package org.apache.inlong.sort.standalone;
 import org.apache.flume.node.Application;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.metrics.MetricObserver;
+import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
@@ -44,6 +45,14 @@ public class SortStandaloneApplication {
             cluster.start();
             // metrics
             MetricObserver.init(CommonPropertiesHolder.get());
+            AuditUtils.initAudit();
+            Runtime.getRuntime().addShutdownHook(new Thread("sortstandalone-shutdown-hook") {
+
+                @Override
+                public void run() {
+                    AuditUtils.sendReport();
+                }
+            });
             Thread.sleep(5000);
         } catch (Exception e) {
             LOG.error("A fatal error occurred while running. Exception follows.", e);

@@ -20,11 +20,14 @@ package org.apache.inlong.sort.standalone.metrics;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.Event;
 import org.apache.inlong.commons.config.metrics.CountMetric;
 import org.apache.inlong.commons.config.metrics.Dimension;
 import org.apache.inlong.commons.config.metrics.MetricDomain;
 import org.apache.inlong.commons.config.metrics.MetricItem;
+import org.apache.inlong.commons.msg.AttributeConstants;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.utils.Constants;
 
 /**
@@ -109,15 +112,101 @@ public class SortMetricItem extends MetricItem {
 
     /**
      * fillInlongId
-     * 
+     *
      * @param event
      * @param dimensions
      */
     public static void fillInlongId(Event event, Map<String, String> dimensions) {
         Map<String, String> headers = event.getHeaders();
-        String inlongGroupId = headers.getOrDefault(Constants.INLONG_GROUP_ID, "-");
-        String inlongStreamId = headers.getOrDefault(Constants.INLONG_STREAM_ID, "-");
+        String inlongGroupId = getInlongGroupId(headers);
+        String inlongStreamId = getInlongStreamId(headers);
         dimensions.put(KEY_INLONG_GROUP_ID, inlongGroupId);
         dimensions.put(KEY_INLONG_STREAM_ID, inlongStreamId);
+    }
+
+    /**
+     * fillAuditFormatTime
+     * 
+     * @param event
+     * @param dimensions
+     */
+    public static void fillAuditFormatTime(Event event, Map<String, String> dimensions) {
+        long msgTime = getLogTime(event);
+        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
+    }
+
+    /**
+     * getAuditFormatTime
+     * 
+     * @param  msgTime
+     * @return
+     */
+    public static long getAuditFormatTime(long msgTime) {
+        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        return auditFormatTime;
+    }
+
+    /**
+     * getInlongGroupId
+     * 
+     * @param  headers
+     * @return
+     */
+    public static String getInlongGroupId(Map<String, String> headers) {
+        String inlongGroupId = headers.get(Constants.INLONG_GROUP_ID);
+        if (inlongGroupId == null) {
+            inlongGroupId = headers.getOrDefault(Constants.TOPIC, "");
+        }
+        return inlongGroupId;
+    }
+
+    /**
+     * getInlongStreamId
+     * 
+     * @param  headers
+     * @return
+     */
+    public static String getInlongStreamId(Map<String, String> headers) {
+        String inlongStreamId = headers.get(Constants.INLONG_STREAM_ID);
+        if (inlongStreamId == null) {
+            inlongStreamId = headers.getOrDefault(AttributeConstants.INTERFACE_ID, "");
+        }
+        return inlongStreamId;
+    }
+
+    /**
+     * getLogTime
+     * 
+     * @param  headers
+     * @return
+     */
+    public static long getLogTime(Map<String, String> headers) {
+        String strLogTime = headers.get(Constants.HEADER_KEY_MSG_TIME);
+        if (strLogTime == null) {
+            strLogTime = headers.get(AttributeConstants.DATA_TIME);
+        }
+        if (strLogTime == null) {
+            return System.currentTimeMillis();
+        }
+        long logTime = NumberUtils.toLong(strLogTime, 0);
+        if (logTime == 0) {
+            logTime = System.currentTimeMillis();
+        }
+        return logTime;
+    }
+
+    /**
+     * getLogTime
+     * 
+     * @param  event
+     * @return
+     */
+    public static long getLogTime(Event event) {
+        if (event != null) {
+            Map<String, String> headers = event.getHeaders();
+            return getLogTime(headers);
+        }
+        return System.currentTimeMillis();
     }
 }
