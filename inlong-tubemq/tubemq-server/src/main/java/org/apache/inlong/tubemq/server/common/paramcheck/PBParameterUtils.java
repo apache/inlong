@@ -400,6 +400,7 @@ public class PBParameterUtils {
     /**
      * Check the existing topic name info
      *
+     * @param isProduce      whether to call on the production side
      * @param topicName      the topic name to be checked.
      * @param partitionId    the partition ID where the topic locates
      * @param metadataManager the metadata manager which contains topic information
@@ -407,28 +408,41 @@ public class PBParameterUtils {
      * @param result         the checked result
      * @return the check result
      */
-    public static boolean getTopicNamePartIdInfo(String topicName, int partitionId,
+    public static boolean getTopicNamePartIdInfo(boolean isProduce,
+                                                 String topicName, int partitionId,
                                                  MetadataManager metadataManager,
                                                  StringBuilder strBuffer,
                                                  ProcessResult result) {
+        // Check and get topic name
         if (!getStringParameter(WebFieldDef.TOPICNAME,
                 topicName, strBuffer, result)) {
             return result.isSuccess();
         }
-        String tmpValue = (String) result.getRetData();
-        TopicMetadata topicMetadata = metadataManager.getTopicMetadata(tmpValue);
+        String tgtTopicName = (String) result.getRetData();
+        // Check if it is an allowed calling relationship
+        if (isProduce) {
+            if (tgtTopicName.equals(TServerConstants.OFFSET_HISTORY_NAME)) {
+                result.setFailResult(TErrCodeConstants.FORBIDDEN,
+                        strBuffer.append(WebFieldDef.TOPICNAME.name)
+                                .append(" ").append(tgtTopicName)
+                                .append(" does not allow producers to send data!").toString());
+                strBuffer.delete(0, strBuffer.length());
+                return result.isSuccess();
+            }
+        }
+        TopicMetadata topicMetadata = metadataManager.getTopicMetadata(tgtTopicName);
         if (topicMetadata == null) {
             result.setFailResult(TErrCodeConstants.FORBIDDEN,
                     strBuffer.append(WebFieldDef.TOPICNAME.name)
-                            .append(" ").append(tmpValue)
+                            .append(" ").append(tgtTopicName)
                             .append(" not existed, please check your configure").toString());
             strBuffer.delete(0, strBuffer.length());
             return result.isSuccess();
         }
-        if (metadataManager.isClosedTopic(tmpValue)) {
+        if (metadataManager.isClosedTopic(tgtTopicName)) {
             result.setFailResult(TErrCodeConstants.FORBIDDEN,
                     strBuffer.append(WebFieldDef.TOPICNAME.name)
-                            .append(" ").append(tmpValue)
+                            .append(" ").append(tgtTopicName)
                             .append(" has been closed").toString());
             strBuffer.delete(0, strBuffer.length());
             return result.isSuccess();
@@ -438,7 +452,7 @@ public class PBParameterUtils {
         if ((realPartition < 0) || (realPartition >= topicMetadata.getNumPartitions())) {
             result.setFailResult(TErrCodeConstants.FORBIDDEN,
                     strBuffer.append(WebFieldDef.PARTITIONID.name)
-                            .append(" ").append(tmpValue).append("-").append(partitionId)
+                            .append(" ").append(tgtTopicName).append("-").append(partitionId)
                             .append(" not existed, please check your configure").toString());
             strBuffer.delete(0, strBuffer.length());
             return result.isSuccess();

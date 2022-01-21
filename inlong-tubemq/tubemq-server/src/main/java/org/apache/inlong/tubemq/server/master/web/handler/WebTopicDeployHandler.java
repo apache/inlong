@@ -536,10 +536,8 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 sBuffer.append(",");
             }
             maxMsgSizeInMB = defSetting.getMaxMsgSizeInMB();
-            if (ctrlEntity != null) {
-                maxMsgSizeInMB = ctrlEntity.getMaxMsgSizeInMB();
-                enableAuthCtrl = ctrlEntity.getAuthCtrlStatus().isEnable();
-            }
+            maxMsgSizeInMB = ctrlEntity.getMaxMsgSizeInMB();
+            enableAuthCtrl = ctrlEntity.getAuthCtrlStatus().isEnable();
             sBuffer.append("{\"topicName\":\"").append(entry.getKey())
                     .append("\",\"maxMsgSizeInMB\":").append(maxMsgSizeInMB)
                     .append(",\"topicInfo\":[");

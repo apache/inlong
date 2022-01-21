@@ -19,6 +19,7 @@ package org.apache.inlong.tubemq.server.common.fielddef;
 
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.RegexDef;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 
@@ -94,9 +95,9 @@ public enum WebFieldDef {
             "Broker web port", RegexDef.TMP_NUMBER),
 
     CREATEDATE(25, "createDate", "cDate", WebFieldType.STRING,
-            "Record creation date", TBaseConstants.META_MAX_DATEVALUE_LENGTH),
+            "Record creation date", DateTimeConvertUtils.LENGTH_YYYYMMDDHHMMSS),
     MODIFYDATE(26, "modifyDate", "mDate", WebFieldType.STRING,
-            "Record modification date", TBaseConstants.META_MAX_DATEVALUE_LENGTH),
+            "Record modification date", DateTimeConvertUtils.LENGTH_YYYYMMDDHHMMSS),
     HOSTNAME(27, "hostName", "hostName", WebFieldType.STRING,
             "Host name information", TBaseConstants.META_MAX_CLIENT_HOSTNAME_LENGTH),
     CLIENTID(28, "clientId", "clientId", WebFieldType.STRING,
@@ -251,7 +252,12 @@ public enum WebFieldDef {
     ONLYAUTOFBD(90, "onlyAutoForbidden", "oAfb",
                  WebFieldType.BOOLEAN, "only auto forbidden abnormal broker info."),
     ONLYENABLETLS(91, "onlyEnableTLS", "oEtls",
-                WebFieldType.BOOLEAN, "only enable tls broker info.");
+                WebFieldType.BOOLEAN, "only enable tls broker info."),
+    RECORDTIME(92, "recordTime", "rt", WebFieldType.STRING,
+            "The record time of the historical offset of the consume group",
+               DateTimeConvertUtils.LENGTH_YYYYMMDDHHMMSS),
+    MAXRETRYCOUNT(93, "maxRetryCnt", "mrc", WebFieldType.INT,
+            "Max retry query turns", RegexDef.TMP_NUMBER);
 
     public final int id;
     public final String name;

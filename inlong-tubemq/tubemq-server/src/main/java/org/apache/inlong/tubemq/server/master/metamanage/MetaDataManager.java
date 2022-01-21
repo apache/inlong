@@ -80,7 +80,7 @@ public class MetaDataManager implements Server {
 
     private volatile boolean isStarted = false;
     private volatile boolean isStopped = false;
-    private MetaStoreService metaStoreService;
+    private final MetaStoreService metaStoreService;
     private long serviceStartTime = System.currentTimeMillis();
 
     public MetaDataManager(TMaster tMaster) {
@@ -239,7 +239,7 @@ public class MetaDataManager implements Server {
                     disableCsmTopicSet.add(topicItem);
                 }
                 // check if consume group is required filter consume
-                if (ctrlEntity.isEnableFilterConsume()) {
+                if (ctrlEntity != null && ctrlEntity.isEnableFilterConsume()) {
                     enableFltCsmTopicSet.add(topicItem);
                 }
             }
@@ -261,7 +261,7 @@ public class MetaDataManager implements Server {
                                           Set<String> enableFltCsmTopicSet,
                                           Map<String, TreeSet<String>> reqTopicCondMap,
                                           StringBuilder sBuffer, ProcessResult result) {
-        if (enableFltCsmTopicSet == null && enableFltCsmTopicSet.isEmpty()) {
+        if (enableFltCsmTopicSet == null || enableFltCsmTopicSet.isEmpty()) {
             result.setSuccResult("Ok!");
             return result.isSuccess();
         }
@@ -297,11 +297,9 @@ public class MetaDataManager implements Server {
             for (String item : condItemSet) {
                 if (!allowedCondStr.contains(sBuffer.append(TokenConstants.ARRAY_SEP)
                         .append(item).append(TokenConstants.ARRAY_SEP).toString())) {
-                    List<String> unAuthConds = unAuthorizedCondMap.get(topicName);
-                    if (unAuthConds == null) {
-                        unAuthConds = new ArrayList<>();
-                        unAuthorizedCondMap.put(topicName, unAuthConds);
-                    }
+                    List<String> unAuthConds =
+                            unAuthorizedCondMap.computeIfAbsent(
+                                    topicName, k -> new ArrayList<>());
                     unAuthConds.add(item);
                 }
                 sBuffer.delete(0, sBuffer.length());
@@ -323,7 +321,7 @@ public class MetaDataManager implements Server {
                                           Set<String> enableFltCsmTopicSet,
                                           Map<String, TreeSet<String>> reqTopicCondMap,
                                           StringBuilder sBuffer, ProcessResult result) {
-        if (enableFltCsmTopicSet == null && enableFltCsmTopicSet.isEmpty()) {
+        if (enableFltCsmTopicSet == null || enableFltCsmTopicSet.isEmpty()) {
             result.setSuccResult("Ok!");
             return result.isSuccess();
         }
@@ -359,11 +357,9 @@ public class MetaDataManager implements Server {
             for (String item : condItemSet) {
                 if (!allowedCondStr.contains(sBuffer.append(TokenConstants.ARRAY_SEP)
                         .append(item).append(TokenConstants.ARRAY_SEP).toString())) {
-                    List<String> unAuthConds = unAuthorizedCondMap.get(topicName);
-                    if (unAuthConds == null) {
-                        unAuthConds = new ArrayList<>();
-                        unAuthorizedCondMap.put(topicName, unAuthConds);
-                    }
+                    List<String> unAuthConds =
+                            unAuthorizedCondMap.computeIfAbsent(
+                                    topicName, k -> new ArrayList<>());
                     unAuthConds.add(item);
                 }
                 sBuffer.delete(0, sBuffer.length());
@@ -984,6 +980,11 @@ public class MetaDataManager implements Server {
             return new TopicProcessResult(deployEntity.getBrokerId(),
                     deployEntity.getTopicName(), result);
         }
+        // Check the fixed configuration field value of the system topic
+        if (!validSysTopicConfigure(deployEntity, sBuffer, result)) {
+            return new TopicProcessResult(deployEntity.getBrokerId(),
+                    deployEntity.getTopicName(), result);
+        }
         // add topic control configure
         if (!addIfAbsentTopicCtrlConf(deployEntity,
                 deployEntity.getTopicName(), sBuffer, result)) {
@@ -1021,9 +1022,9 @@ public class MetaDataManager implements Server {
             // update current deployment configure
             if (curEntity == null) {
                 result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                        sBuffer.append("Not found the topic ").append(curEntity.getTopicName())
+                        sBuffer.append("Not found the topic ").append(deployEntity.getTopicName())
                                 .append("'s deploy configure in broker=")
-                                .append(curEntity.getBrokerId())
+                                .append(deployEntity.getBrokerId())
                                 .append(", please confirm the configure first!").toString());
                 sBuffer.delete(0, sBuffer.length());
                 return new TopicProcessResult(deployEntity.getBrokerId(),
@@ -2009,4 +2010,41 @@ public class MetaDataManager implements Server {
 
     // //////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Verify the validity of the configuration value for the system topic
+     *
+     * @param deployEntity   the topic configuration that needs to be added or updated
+     * @param sBuffer  the print info string buffer
+     * @param result   the process result return
+     * @return true if success otherwise false
+     */
+    private boolean validSysTopicConfigure(TopicDeployEntity deployEntity,
+                                           StringBuilder sBuffer, ProcessResult result) {
+        if (!TServerConstants.OFFSET_HISTORY_NAME.equals(deployEntity.getTopicName())) {
+            return true;
+        }
+        if (deployEntity.getNumTopicStores()
+                != TServerConstants.OFFSET_HISTORY_NUMSTORES) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
+                    sBuffer.append("For system topic")
+                            .append(TServerConstants.OFFSET_HISTORY_NAME)
+                            .append(", the TopicStores value(")
+                            .append(TServerConstants.OFFSET_HISTORY_NUMSTORES)
+                            .append(") cannot be changed!").toString());
+            sBuffer.delete(0, sBuffer.length());
+            return result.isSuccess();
+        }
+        if (deployEntity.getNumPartitions()
+                != TServerConstants.OFFSET_HISTORY_NUMPARTS) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
+                    sBuffer.append("For system topic")
+                            .append(TServerConstants.OFFSET_HISTORY_NAME)
+                            .append(", the Partition value(")
+                            .append(TServerConstants.OFFSET_HISTORY_NUMPARTS)
+                            .append(") cannot be changed!").toString());
+            sBuffer.delete(0, sBuffer.length());
+            return result.isSuccess();
+        }
+        return true;
+    }
 }

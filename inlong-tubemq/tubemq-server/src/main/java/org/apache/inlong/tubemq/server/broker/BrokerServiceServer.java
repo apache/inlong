@@ -618,7 +618,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         final String producerId = (String) result.getRetData();
         // get and check topicName and partitionId field
         final int partitionId = request.getPartitionId();
-        if (!PBParameterUtils.getTopicNamePartIdInfo(request.getTopicName(),
+        if (!PBParameterUtils.getTopicNamePartIdInfo(true, request.getTopicName(),
                 partitionId, this.metadataManager, strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
@@ -787,102 +787,6 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 logger.error("Put history offset failed ", ex);
             }
         }
-    }
-
-    /***
-     * get group current offset from storage
-     *
-     * @param groupNameSet group set
-     * @param recordStamp  query stored time stamp
-     * @param strBuff  string buffer
-     *
-     * @return   process success or failure
-     */
-    public boolean getMessagesByTimeStamp(Set<String> groupNameSet,
-                                          long recordStamp,
-                                          StringBuilder strBuff) {
-        MessageStore msgStore;
-        // check storage status
-        if (!this.started.get()
-                || ServiceStatusHolder.isReadServiceStop()) {
-            strBuff.append("{\"result\":false,\"errCode\":")
-                    .append(TErrCodeConstants.SERVICE_UNAVAILABLE)
-                    .append(",\"errMsg\":\"Read StoreService temporary unavailable!\"}");
-            return false;
-        }
-        // get offset history storage
-        try {
-            msgStore = storeManager.getOrCreateMessageStore(
-                    TServerConstants.OFFSET_HISTORY_NAME, 0);
-        } catch (Throwable ex) {
-            strBuff.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append("Invalid parameter: not found the store by topicName(")
-                    .append(TServerConstants.OFFSET_HISTORY_NAME).append(")!\"}");
-            return false;
-        }
-        // locate start offset
-        long requestOffset = msgStore.getStartOffsetByTimeStamp(recordStamp);
-        // read history data
-        int totalCnt = 0;
-        int msgTypeCode;
-        int partitionId;
-        GetMessageResult getMessageResult;
-        ConsumerNodeInfo consumerNodeInfo;
-        Set<String> filterCodes = new HashSet<>();
-        strBuff.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
-        for (String groupName : groupNameSet) {
-            // locate partition and msgtype
-            msgTypeCode = groupName.hashCode();
-            partitionId = Math.abs(msgTypeCode) % TServerConstants.OFFSET_HISTORY_NUMPARTS;
-            // build filter conditions
-            filterCodes.clear();
-            filterCodes.add(groupName);
-            // build consumer node information
-            consumerNodeInfo = new ConsumerNodeInfo(tubeBroker.getStoreManager(),
-                    "offsetConsumer", filterCodes, "", System.currentTimeMillis(), "");
-            if (totalCnt++ > 0) {
-                strBuff.append(",");
-            }
-            try {
-                getMessageResult = msgStore.getMessages(303, requestOffset,
-                        partitionId, consumerNodeInfo, TServerConstants.OFFSET_HISTORY_NAME,
-                        storeManager.getMaxMsgTransferSize(), recordStamp);
-                if ((getMessageResult.transferedMessageList == null)
-                        || (getMessageResult.transferedMessageList.isEmpty())) {
-                    strBuff.append("{\"groupName\":\"").append(groupName)
-                            .append("\",\"result\":false,\"errMsg\":\"Could not find record!\"}");
-                    continue;
-                }
-            } catch (Throwable e2) {
-                strBuff.append("{\"groupName\":\"").append(groupName)
-                        .append("\",\"result\":false,\"errMsg\":\"Get Message failure: ")
-                        .append(e2.getMessage()).append("\"}");
-                continue;
-            }
-            boolean found = false;
-            List<Message> messageList = DataConverterUtil.convertMessage(
-                    TServerConstants.OFFSET_HISTORY_NAME, getMessageResult.transferedMessageList);
-            for (Message message : messageList) {
-                if (message == null) {
-                    continue;
-                }
-                if (!groupName.equals(message.getAttrValue(
-                        TServerConstants.TOKEN_OFFSET_GROUP))) {
-                    continue;
-                }
-                found = true;
-                strBuff.append("{\"groupName\":\"").append(groupName)
-                        .append("\",\"result\":true,\"errMsg\":\"ok\",\"record\":")
-                        .append(StringUtils.newStringUtf8(message.getData())).append("}");
-                break;
-            }
-            if (!found) {
-                strBuff.append("{\"groupName\":\"").append(groupName)
-                        .append("\",\"result\":false,\"errMsg\":\"Could not find record!\"}");
-            }
-        }
-        strBuff.append("],\"dataCount\":").append(totalCnt).append("}");
-        return true;
     }
 
     /***
@@ -1322,7 +1226,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         final String groupName = (String) result.getRetData();
         int partitionId = request.getPartitionId();
         // get and check topicName and partitionId field
-        if (!PBParameterUtils.getTopicNamePartIdInfo(request.getTopicName(),
+        if (!PBParameterUtils.getTopicNamePartIdInfo(false, request.getTopicName(),
                 partitionId, this.metadataManager, strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
