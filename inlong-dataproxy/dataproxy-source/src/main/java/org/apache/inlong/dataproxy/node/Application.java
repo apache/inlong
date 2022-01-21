@@ -405,6 +405,7 @@ public class Application {
 
                 @Override
                 public void run() {
+                    AuditUtils.sendReport();
                     appReference.stop();
                 }
             });

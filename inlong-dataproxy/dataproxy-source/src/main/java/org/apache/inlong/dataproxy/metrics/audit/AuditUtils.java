@@ -57,14 +57,6 @@ public class AuditUtils {
         // IS_AUDIT
         IS_AUDIT = BooleanUtils.toBoolean(ConfigManager.getInstance().getCommonProperties().get(AUDIT_KEY_IS_AUDIT));
         if (IS_AUDIT) {
-            // AuditConfig
-            String filePath = ConfigManager.getInstance().getCommonProperties().getOrDefault(AUDIT_KEY_FILE_PATH,
-                    AUDIT_DEFAULT_FILE_PATH);
-            int maxCacheRow = NumberUtils.toInt(
-                    ConfigManager.getInstance().getCommonProperties().get(AUDIT_KEY_MAX_CACHE_ROWS),
-                    AUDIT_DEFAULT_MAX_CACHE_ROWS);
-            AuditConfig auditConfig = new AuditConfig(filePath, maxCacheRow);
-            AuditImp.getInstance().setAuditConfig(auditConfig);
             // AuditProxy
             String strIpPorts = ConfigManager.getInstance().getCommonProperties().get(AUDIT_KEY_PROXYS);
             HashSet<String> proxys = new HashSet<>();
@@ -75,6 +67,14 @@ public class AuditUtils {
                 }
             }
             AuditImp.getInstance().setAuditProxy(proxys);
+            // AuditConfig
+            String filePath = ConfigManager.getInstance().getCommonProperties().getOrDefault(AUDIT_KEY_FILE_PATH,
+                    AUDIT_DEFAULT_FILE_PATH);
+            int maxCacheRow = NumberUtils.toInt(
+                    ConfigManager.getInstance().getCommonProperties().get(AUDIT_KEY_MAX_CACHE_ROWS),
+                    AUDIT_DEFAULT_MAX_CACHE_ROWS);
+            AuditConfig auditConfig = new AuditConfig(filePath, maxCacheRow);
+            AuditImp.getInstance().setAuditConfig(auditConfig);
         }
     }
 
@@ -82,7 +82,7 @@ public class AuditUtils {
      * add
      * 
      * @param auditID
-     * @param message
+     * @param event
      */
     public static void add(int auditID, Event event) {
         if (IS_AUDIT && event != null) {
@@ -138,5 +138,12 @@ public class AuditUtils {
     public static long getAuditFormatTime(long msgTime) {
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
         return auditFormatTime;
+    }
+
+    /**
+     * sendReport
+     */
+    public static void sendReport() {
+        AuditImp.getInstance().sendReport();
     }
 }
