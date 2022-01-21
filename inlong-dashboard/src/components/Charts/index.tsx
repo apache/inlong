@@ -19,7 +19,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import * as echarts from 'echarts/core';
-import { Empty } from 'antd';
 import throttle from 'lodash/throttle';
 import { CanvasRenderer } from 'echarts/renderers';
 import { BarChart, LineChart } from 'echarts/charts';
@@ -66,8 +65,7 @@ const Charts: React.FC<Props> = ({
     const resize = throttle(() => {
       if (chart) chart.resize();
     }, 1000);
-
-    chart = echarts.init(dom, null, { renderer: 'svg' });
+    chart = echarts.init(dom, null);
     if (Object.keys(option).length) {
       // init option
       chart.setOption(merge(option));
@@ -96,21 +94,7 @@ const Charts: React.FC<Props> = ({
     }
   }, [chartIns, option, isEmpty, forceUpdate]);
 
-  const emptyStyle = {
-    height: `${height}px`,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: 0,
-  };
-
-  return (
-    <div>
-      {/* The DOM is not destroyed and hidden is used to prevent the canvas from rendering when there is data to switch from no data. */}
-      <div ref={domRef} style={{ display: isEmpty ? 'none' : 'block', height: `${height}px` }} />
-      {isEmpty && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} style={emptyStyle} />}
-    </div>
-  );
+  return <div ref={domRef} style={{ height: `${height}px` }} />;
 };
 
 export default Charts;
