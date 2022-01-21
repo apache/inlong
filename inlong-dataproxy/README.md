@@ -1,6 +1,6 @@
 # Send Message To Multi-pulsar Cluster
 
-# flum.conf
+# flume.conf
 conf for use multi-pulsar cluster demo is like flume-mulit-pulsar-demo.conf
 when use pulsar ,you can config these parameters to flume.conf like flume-mulit-pulsar-demo.conf:
 

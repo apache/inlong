@@ -78,7 +78,7 @@ public class CreatePulsarGroupTaskListener implements TaskEventListener {
             return ListenerResult.success();
         }
 
-        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(clusterBean.getPulsarAdminUrl())) {
+        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(bizInfo, clusterBean.getPulsarAdminUrl())) {
             String tenant = clusterBean.getDefaultTenant();
             String namespace = bizInfo.getMqResourceObj();
 
@@ -93,7 +93,7 @@ public class CreatePulsarGroupTaskListener implements TaskEventListener {
                 // Create a subscription in the Pulsar cluster (cross-region), you need to ensure that the Topic exists
                 for (String cluster : pulsarClusters) {
                     String url = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
-                    try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(url)) {
+                    try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(bizInfo, url)) {
                         boolean exist = pulsarOptService.topicIsExists(pulsarAdmin, tenant, namespace, topic);
 
                         if (!exist) {

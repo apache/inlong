@@ -23,12 +23,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.pojo.business.BusinessExtInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveSortInfo;
+import org.apache.inlong.manager.common.settings.BusinessSettings;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.BusinessEntity;
@@ -36,7 +39,6 @@ import org.apache.inlong.manager.dao.entity.StorageHiveFieldEntity;
 import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageHiveFieldEntityMapper;
-import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.common.event.ListenerResult;
 import org.apache.inlong.manager.common.event.task.TaskEvent;
@@ -86,8 +88,6 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
     private StorageHiveEntityMapper storageHiveMapper;
     @Autowired
     private StorageHiveFieldEntityMapper hiveFieldMapper;
-    @Autowired
-    private DataStreamService dataStreamService;
 
     @Override
     public TaskEvent event() {
@@ -120,7 +120,7 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
                 log.debug("hive storage info: {}", hiveInfo);
             }
 
-            DataFlowInfo dataFlowInfo = getDataFlowInfo(business, hiveInfo);
+            DataFlowInfo dataFlowInfo = getDataFlowInfo(businessInfo, hiveInfo);
             if (log.isDebugEnabled()) {
                 log.debug("try to push hive config to sort: {}", JsonUtils.toJson(dataFlowInfo));
             }
@@ -141,7 +141,7 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
         return ListenerResult.success();
     }
 
-    private DataFlowInfo getDataFlowInfo(BusinessEntity businessEntity, StorageHiveSortInfo hiveInfo) {
+    private DataFlowInfo getDataFlowInfo(BusinessInfo businessInfo, StorageHiveSortInfo hiveInfo) {
         String groupId = hiveInfo.getInlongGroupId();
         String streamId = hiveInfo.getInlongStreamId();
         List<StorageHiveFieldEntity> fieldList = hiveFieldMapper.selectHiveFields(groupId, streamId);
@@ -150,7 +150,7 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
             throw new WorkflowListenerException("no hive fields for groupId=" + groupId + ", streamId=" + streamId);
         }
 
-        SourceInfo sourceInfo = getSourceInfo(businessEntity, hiveInfo, fieldList);
+        SourceInfo sourceInfo = getSourceInfo(businessInfo, hiveInfo, fieldList);
         SinkInfo sinkInfo = getSinkInfo(hiveInfo, fieldList);
 
         // push information
@@ -221,52 +221,43 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
     /**
      * Get source info
      */
-    private SourceInfo getSourceInfo(BusinessEntity businessEntity, StorageHiveSortInfo info,
+    private SourceInfo getSourceInfo(BusinessInfo businessInfo, StorageHiveSortInfo storageInfo,
             List<StorageHiveFieldEntity> fieldList) {
         DeserializationInfo deserializationInfo = null;
-        boolean isDbType = BizConstant.DATA_SOURCE_DB.equals(info.getDataSourceType());
+        boolean isDbType = BizConstant.DATA_SOURCE_DB.equals(storageInfo.getDataSourceType());
         if (!isDbType) {
             // FILE and auto push source, the data format is TEXT or KEY-VALUE, temporarily use TDMsgCsv
-            String dataType = info.getDataType();
+            String dataType = storageInfo.getDataType();
             if (BizConstant.DATA_TYPE_TEXT.equalsIgnoreCase(dataType)
                     || BizConstant.DATA_TYPE_KEY_VALUE.equalsIgnoreCase(dataType)) {
                 // Use the field separator from the data stream
-                char separator = (char) Integer.parseInt(info.getSourceSeparator());
+                char separator = (char) Integer.parseInt(storageInfo.getSourceSeparator());
                 // TODO support escape
                 /*Character escape = null;
                 if (info.getDataEscapeChar() != null) {
                     escape = info.getDataEscapeChar().charAt(0);
                 }*/
                 // Whether to delete the first separator, the default is false for the time being
-                deserializationInfo = new TDMsgCsvDeserializationInfo(info.getInlongStreamId(), separator);
+                deserializationInfo = new TDMsgCsvDeserializationInfo(storageInfo.getInlongStreamId(), separator);
             }
         }
 
         // The number and order of the source fields must be the same as the target fields
         SourceInfo sourceInfo = null;
         // Get the source field, if there is no partition field in source, add the partition field to the end
-        List<FieldInfo> sourceFields = getSourceFields(fieldList, info.getPrimaryPartition());
+        List<FieldInfo> sourceFields = getSourceFields(fieldList, storageInfo.getPrimaryPartition());
 
-        String middleWare = businessEntity.getMiddlewareType();
+        String middleWare = businessInfo.getMiddlewareType();
         if (BizConstant.MIDDLEWARE_TUBE.equalsIgnoreCase(middleWare)) {
             String masterAddress = clusterBean.getTubeMaster();
             Preconditions.checkNotNull(masterAddress, "tube cluster address cannot be empty");
-            String topic = businessEntity.getMqResourceObj();
+            String topic = businessInfo.getMqResourceObj();
             // The consumer group name is: taskName_topicName_consumer_group
             String consumerGroup = clusterBean.getAppName() + "_" + topic + "_consumer_group";
             sourceInfo = new TubeSourceInfo(topic, masterAddress, consumerGroup,
                     deserializationInfo, sourceFields.toArray(new FieldInfo[0]));
         } else if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middleWare)) {
-            String tenant = clusterBean.getDefaultTenant();
-            String namespace = businessEntity.getMqResourceObj();
-            String pulsarTopic = info.getMqResourceObj();
-            // Full name of Topic in Pulsar
-            String fullTopicName = "persistent://" + tenant + "/" + namespace + "/" + pulsarTopic;
-            String adminUrl = clusterBean.getPulsarAdminUrl();
-            String serviceUrl = clusterBean.getPulsarServiceUrl();
-            String consumerGroup = clusterBean.getAppName() + "_" + pulsarTopic + "_consumer_group";
-            sourceInfo = new PulsarSourceInfo(adminUrl, serviceUrl, fullTopicName, consumerGroup,
-                    deserializationInfo, sourceFields.toArray(new FieldInfo[0]));
+            sourceInfo = createPulsarSourceInfo(businessInfo, storageInfo, deserializationInfo, sourceFields);
         }
 
         return sourceInfo;
@@ -312,6 +303,45 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
         }
 
         return fieldInfoList;
+    }
+
+    private PulsarSourceInfo createPulsarSourceInfo(BusinessInfo businessInfo,
+            StorageHiveSortInfo storageInfo,
+            DeserializationInfo deserializationInfo,
+            List<FieldInfo> sourceFields) {
+        final String tenant = clusterBean.getDefaultTenant();
+        final String namespace = businessInfo.getMqResourceObj();
+        final String pulsarTopic = storageInfo.getMqResourceObj();
+        // Full name of Topic in Pulsar
+        final String fullTopicName = "persistent://" + tenant + "/" + namespace + "/" + pulsarTopic;
+        final String consumerGroup = clusterBean.getAppName() + "_" + pulsarTopic + "_consumer_group";
+        String adminUrl = null;
+        String serviceUrl = null;
+        String authentication = null;
+        if (CollectionUtils.isNotEmpty(businessInfo.getExtList())) {
+            for (BusinessExtInfo extInfo : businessInfo.getExtList()) {
+                if (BusinessSettings.PULSAR_SERVICE_URL.equals(extInfo.getKeyName())
+                        && StringUtils.isNotEmpty(extInfo.getKeyValue())) {
+                    serviceUrl = extInfo.getKeyValue();
+                }
+                if (BusinessSettings.PULSAR_AUTHENTICATION.equals(extInfo.getKeyName())
+                        && StringUtils.isNotEmpty(extInfo.getKeyValue())) {
+                    authentication = extInfo.getKeyValue();
+                }
+                if (BusinessSettings.PULSAR_ADMIN_URL.equals(extInfo.getKeyName())
+                        && StringUtils.isNotEmpty(extInfo.getKeyValue())) {
+                    adminUrl = extInfo.getKeyValue();
+                }
+            }
+        }
+        if (StringUtils.isEmpty(adminUrl)) {
+            adminUrl = clusterBean.getPulsarAdminUrl();
+        }
+        if (StringUtils.isEmpty(serviceUrl)) {
+            serviceUrl = clusterBean.getPulsarServiceUrl();
+        }
+        return new PulsarSourceInfo(adminUrl, serviceUrl, fullTopicName, consumerGroup,
+                deserializationInfo, sourceFields.toArray(new FieldInfo[0]), authentication);
     }
 
     @Override

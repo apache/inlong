@@ -137,6 +137,7 @@ public class MultiTopicPulsarSourceFunction extends RichParallelSourceFunction<S
                 pulsarSourceInfo.getServiceUrl(),
                 pulsarSourceInfo.getTopic(),
                 pulsarSourceInfo.getSubscriptionName(),
+                pulsarSourceInfo.getAuthentication(),
                 new SerializedRecordDeserializationSchema(dataFlowId),
                 config);
         pulsarSourceFunction.setRuntimeContext(getRuntimeContext());
