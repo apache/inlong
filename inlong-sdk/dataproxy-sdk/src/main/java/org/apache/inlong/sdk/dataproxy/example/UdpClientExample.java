@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.dataproxy.demo;
+package org.apache.inlong.sdk.dataproxy.example;
 
 import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
 import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_ENCRYPT;
@@ -52,9 +52,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
 
-public class UdpClientDemo {
+public class UdpClientExample {
 
-    private static final Logger logger = LoggerFactory.getLogger(UdpClientDemo.class);
+    private static final Logger logger = LoggerFactory.getLogger(UdpClientExample.class);
 
     private static SequentialID idGenerator = new SequentialID(Utils.getLocalIp());
 
@@ -65,10 +65,13 @@ public class UdpClientDemo {
         String busIp = "127.0.0.1";
         int busPort = 46802;
         String attr = "";
-        UdpClientDemo demo = new UdpClientDemo();
+        UdpClientExample demo = new UdpClientExample();
         Channel channel = demo.initUdpChannel();
         /*
-         * send message must
+         * It is recommended to use msg type 7. For others, please refer to the official related
+         * documents
+         * Therefore, use type 7 to assemble the message.
+         * For other types, please refer to the sdk source code
          */
         try {
             int count = 0;
@@ -184,9 +187,9 @@ public class UdpClientDemo {
                             endAttr = endAttr + "&";
                         }
                         EncryptInfo encryptInfo = encryptEntry.getRsaEncryptInfo();
-                        endAttr = endAttr + "_userName=" + object.getUserName() + "&_encyVersion=" +
-                                encryptInfo.getVersion() + "&_encyDesKey=" +
-                                encryptInfo.getRsaEncryptedKey();
+                        endAttr = endAttr + "_userName=" + object.getUserName() + "&_encyVersion="
+                                + encryptInfo.getVersion() + "&_encyDesKey="
+                                + encryptInfo.getRsaEncryptedKey();
                         body = EncryptUtil.desEncrypt(body, encryptInfo.getDesKey());
                     }
                 }
@@ -194,7 +197,8 @@ public class UdpClientDemo {
                     if (Utils.isNotBlank(endAttr)) {
                         endAttr = endAttr + "&";
                     }
-                    endAttr = (endAttr + "bid=" + object.getGroupId() + "&tid=" + object.getStreamId());
+                    endAttr = (endAttr + "bid=" + object.getGroupId() + "&tid="
+                            + object.getStreamId());
                 }
                 if (Utils.isNotBlank(object.getMsgUUID())) {
                     if (Utils.isNotBlank(endAttr)) {
@@ -209,7 +213,8 @@ public class UdpClientDemo {
                 if (object.isCompress()) {
                     msgType |= FLAG_ALLOW_COMPRESS;
                 }
-                totalLength = totalLength + body.length + endAttr.getBytes("utf8").length;
+                totalLength = totalLength + body.length
+                        + endAttr.getBytes("utf8").length;
                 buf.writeInt(totalLength);
                 buf.writeByte(msgType);
                 buf.writeShort(object.getGroupIdNum());
