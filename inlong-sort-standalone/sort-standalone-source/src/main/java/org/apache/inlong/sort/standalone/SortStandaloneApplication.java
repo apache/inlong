@@ -46,6 +46,13 @@ public class SortStandaloneApplication {
             // metrics
             MetricObserver.init(CommonPropertiesHolder.get());
             AuditUtils.initAudit();
+            Runtime.getRuntime().addShutdownHook(new Thread("sortstandalone-shutdown-hook") {
+
+                @Override
+                public void run() {
+                    AuditUtils.sendReport();
+                }
+            });
             Thread.sleep(5000);
         } catch (Exception e) {
             LOG.error("A fatal error occurred while running. Exception follows.", e);

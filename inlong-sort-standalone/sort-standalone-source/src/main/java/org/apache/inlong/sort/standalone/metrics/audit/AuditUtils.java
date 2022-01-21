@@ -55,14 +55,6 @@ public class AuditUtils {
         // IS_AUDIT
         IS_AUDIT = BooleanUtils.toBoolean(CommonPropertiesHolder.getString(AUDIT_KEY_IS_AUDIT));
         if (IS_AUDIT) {
-            // AuditConfig
-            String filePath = CommonPropertiesHolder.getString(AUDIT_KEY_FILE_PATH,
-                    AUDIT_DEFAULT_FILE_PATH);
-            int maxCacheRow = NumberUtils.toInt(
-                    CommonPropertiesHolder.getString(AUDIT_KEY_MAX_CACHE_ROWS),
-                    AUDIT_DEFAULT_MAX_CACHE_ROWS);
-            AuditConfig auditConfig = new AuditConfig(filePath, maxCacheRow);
-            AuditImp.getInstance().setAuditConfig(auditConfig);
             // AuditProxy
             String strIpPorts = CommonPropertiesHolder.getString(AUDIT_KEY_PROXYS);
             HashSet<String> proxys = new HashSet<>();
@@ -73,6 +65,14 @@ public class AuditUtils {
                 }
             }
             AuditImp.getInstance().setAuditProxy(proxys);
+            // AuditConfig
+            String filePath = CommonPropertiesHolder.getString(AUDIT_KEY_FILE_PATH,
+                    AUDIT_DEFAULT_FILE_PATH);
+            int maxCacheRow = NumberUtils.toInt(
+                    CommonPropertiesHolder.getString(AUDIT_KEY_MAX_CACHE_ROWS),
+                    AUDIT_DEFAULT_MAX_CACHE_ROWS);
+            AuditConfig auditConfig = new AuditConfig(filePath, maxCacheRow);
+            AuditImp.getInstance().setAuditConfig(auditConfig);
         }
     }
 
@@ -105,5 +105,12 @@ public class AuditUtils {
             long logTime = SortMetricItem.getLogTime(headers);
             AuditImp.getInstance().add(auditID, inlongGroupId, inlongStreamId, logTime, 1, event.getBody().length);
         }
+    }
+
+    /**
+     * sendReport
+     */
+    public static void sendReport() {
+        AuditImp.getInstance().sendReport();
     }
 }
