@@ -71,9 +71,9 @@ public class PrometheusMetricListener extends Collector implements MetricListene
     public static final int DEFAULT_PROMETHEUS_HTTP_PORT = 8080;
     public static final String DEFAULT_DIMENSION_LABEL = "dimension";
 
+    private String metricName;
     private SortMetricItem metricItem;
     private Map<String, AtomicLong> metricValueMap = new ConcurrentHashMap<>();
-    private String metricName;
     protected HTTPServer httpServer;
     private Map<String, MetricItemValue> dimensionMetricValueMap = new ConcurrentHashMap<>();
     private List<String> dimensionKeys = new ArrayList<>();
@@ -82,11 +82,12 @@ public class PrometheusMetricListener extends Collector implements MetricListene
      * Constructor
      */
     public PrometheusMetricListener() {
+        this.metricName = CommonPropertiesHolder.getString(KEY_CLUSTER_ID);
         this.metricItem = new SortMetricItem();
-        this.metricItem.clusterId = CommonPropertiesHolder.getString(KEY_CLUSTER_ID);
+        this.metricItem.clusterId = metricName;
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         StringBuilder beanName = new StringBuilder();
-        beanName.append(JMX_DOMAIN).append(DOMAIN_SEPARATOR).append("type=DataProxyCounter");
+        beanName.append(JMX_DOMAIN).append(DOMAIN_SEPARATOR).append("type=SortStandalonePrometheus");
         String strBeanName = beanName.toString();
         try {
             ObjectName objName = new ObjectName(strBeanName);
@@ -115,6 +116,7 @@ public class PrometheusMetricListener extends Collector implements MetricListene
         int httpPort = CommonPropertiesHolder.getInteger(KEY_PROMETHEUS_HTTP_PORT, DEFAULT_PROMETHEUS_HTTP_PORT);
         try {
             this.httpServer = new HTTPServer(httpPort);
+            this.register();
         } catch (IOException e) {
             LOG.error("exception while register prometheus http server:{},error:{}", metricName, e.getMessage());
         }
