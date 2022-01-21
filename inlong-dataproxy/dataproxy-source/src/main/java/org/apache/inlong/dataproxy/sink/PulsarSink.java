@@ -310,9 +310,9 @@ public class PulsarSink extends AbstractSink implements Configurable,
              * switch for lots of metrics
              */
             if (isNewMetricOn) {
-                monitorIndex = new MonitorIndex("Sink", statIntervalSec, maxMonitorCnt);
+                monitorIndex = new MonitorIndex("Pulsar_Sink", statIntervalSec, maxMonitorCnt);
             }
-            monitorIndexExt = new MonitorIndexExt("TDBus_monitors#" + this.getName(),
+            monitorIndexExt = new MonitorIndexExt("Data_proxy_monitors#" + this.getName(),
                     statIntervalSec, maxMonitorCnt);
         }
 
@@ -323,7 +323,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
         try {
             initTopicSet(new HashSet<String>(topicProperties.values()));
         } catch (Exception e) {
-            logger.info("meta sink start publish topic fail.",e);
+            logger.info("pulsar sink start publish topic fail.",e);
         }
 
         for (int i = 0; i < sinkThreadPool.length; i++) {
@@ -332,7 +332,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
                     + i);
             sinkThreadPool[i].start();
         }
-        logger.debug("meta sink started");
+        logger.debug("pulsar sink started");
     }
 
     @Override
@@ -354,7 +354,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
             try {
                 monitorIndex.shutDown();
             } catch (Exception e) {
-                logger.warn("statrunner interrupted");
+                logger.warn("stat runner interrupted");
             }
         }
         if (sinkThreadPool != null) {
@@ -406,7 +406,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
             try {
                 tx.rollback();
             } catch (Throwable e) {
-                logger.error("metasink transaction rollback exception",e);
+                logger.error("pulsar sink transaction rollback exception",e);
 
             }
         } finally {
@@ -463,7 +463,8 @@ public class PulsarSink extends AbstractSink implements Configurable,
                     }
 
                     /*
-                     * SINK_INTF#metasink1#topic#streamId#clientIp#busIP#pkgTime#successCnt#packcnt
+                     * SINK_INTF#pulsarsink1#topic#streamId#clientIp#busIP#pkgTime#successCnt
+                     * #packcnt
                      * #packsize#failCnt
                      */
                     StringBuilder newbase = new StringBuilder();
@@ -505,7 +506,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
     }
 
     @Override
-    public void handleMessageSendSuccess(Object result,  EventStat eventStat) {
+    public void handleMessageSendSuccess(String topic, Object result,  EventStat eventStat) {
         /*
          * Statistics pulsar performance
          */
@@ -522,19 +523,19 @@ public class PulsarSink extends AbstractSink implements Configurable,
         if (nowCnt % logEveryNEvents == 0 && nowCnt != lastSuccessSendCnt.get()) {
             lastSuccessSendCnt.set(nowCnt);
             t2 = System.currentTimeMillis();
-            logger.info("metasink {}, succ put {} events to pulsar,"
+            logger.info("Pulsar sink {}, succ put {} events to pulsar,"
                     + " in the past {} millsec", new Object[] {
                     getName(), (nowCnt - oldCnt), (t2 - t1)
             });
             t1 = t2;
         }
-        monitorIndexExt.incrementAndGet("METASINK_SUCCESS");
+        monitorIndexExt.incrementAndGet("PULSAR_SINK_SUCCESS");
         editStatistic(eventStat.getEvent(), null, result.toString());
     }
 
     @Override
-    public void handleMessageSendException(EventStat eventStat,  Object e) {
-        monitorIndexExt.incrementAndGet("METASINK_EXP");
+    public void handleMessageSendException(String topic, EventStat eventStat,  Object e) {
+        monitorIndexExt.incrementAndGet("PULSAR_SINK_EXP");
         if (e instanceof TooLongFrameException) {
             PulsarSink.this.overflow = true;
         } else if (e instanceof ProducerQueueIsFullError) {

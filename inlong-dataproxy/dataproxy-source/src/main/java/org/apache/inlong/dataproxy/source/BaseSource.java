@@ -20,15 +20,18 @@ package org.apache.inlong.dataproxy.source;
 import com.google.common.base.Preconditions;
 import java.lang.reflect.Constructor;
 import org.apache.commons.lang.StringUtils;
+import org.apache.flume.ChannelSelector;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.FlumeException;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.conf.Configurables;
 import org.apache.flume.source.AbstractSource;
+import org.apache.inlong.dataproxy.channel.FailoverChannelProcessor;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.commons.monitor.MonitorIndex;
 import org.apache.inlong.commons.monitor.MonitorIndexExt;
+import org.apache.inlong.dataproxy.utils.FailoverChannelProcessorHolder;
 import org.jboss.netty.bootstrap.Bootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -122,6 +125,13 @@ public abstract class BaseSource
 
   @Override
   public synchronized void start() {
+    if (customProcessor) {
+      ChannelSelector selector = getChannelProcessor().getSelector();
+      FailoverChannelProcessor newProcessor = new FailoverChannelProcessor(selector);
+      newProcessor.configure(this.context);
+      setChannelProcessor(newProcessor);
+      FailoverChannelProcessorHolder.setChannelProcessor(newProcessor);
+    }
     super.start();
     /*
      * init monitor logic
@@ -166,6 +176,7 @@ public abstract class BaseSource
 
   @Override
   public void configure(Context context) {
+
     this.context = context;
 
     port = context.getInteger(ConfigConstants.CONFIG_PORT);
@@ -214,8 +225,6 @@ public abstract class BaseSource
     Preconditions.checkArgument(!topic.isEmpty(), "topic is empty");
     attr = attr.trim();
     Preconditions.checkArgument(!attr.isEmpty(), "attr is empty");
-
-    filterEmptyMsg = context.getBoolean(ConfigConstants.FILTER_EMPTY_MSG, false);
 
     statIntervalSec = context.getInteger(ConfigConstants.STAT_INTERVAL_SEC, INTERVAL_SEC);
     Preconditions.checkArgument((statIntervalSec >= STAT_INTERVAL_MUST_THAN), "statIntervalSec must be >= 0");
