@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.dataproxy.demo;
+package org.apache.inlong.sdk.dataproxy.example;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +27,8 @@ import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpClientDemo {
-    private static final Logger logger = LoggerFactory.getLogger(HttpClientDemo.class);
+public class HttpClientExample {
+    private static final Logger logger = LoggerFactory.getLogger(HttpClientExample.class);
 
     private static String body = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-|";
 
@@ -89,7 +89,8 @@ public class HttpClientDemo {
             bodyList.add(body1);
             bodyList.add(body1);
             bodyList.add(body1);
-            sender.asyncSendMessage(bodyList, groupId, streamId, System.currentTimeMillis(), 20,
+            sender.asyncSendMessage(bodyList, groupId, streamId, System.currentTimeMillis(),
+                    20,
                     TimeUnit.SECONDS, new MyMessageCallBack());
             if (count % 1000 == 0) {
                 TimeUnit.SECONDS.sleep(1);

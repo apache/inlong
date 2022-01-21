@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.dataproxy.demo;
+package org.apache.inlong.sdk.dataproxy.example;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
