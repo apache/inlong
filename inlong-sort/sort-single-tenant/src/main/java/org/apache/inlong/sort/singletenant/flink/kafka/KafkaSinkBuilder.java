@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.flink.kafka;
+package org.apache.inlong.sort.singletenant.flink.kafka;
 
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkFixedPartitioner;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.configuration.Configuration;
+import org.apache.inlong.sort.singletenant.flink.serialization.SerializationSchemaBuilder;
 import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
@@ -37,34 +37,21 @@ public class KafkaSinkBuilder {
     public static SinkFunction<Row> buildKafkaSink(
             KafkaSinkInfo kafkaSinkInfo,
             Map<String, Object> properties,
-            CheckpointingMode checkpointingMode,
             Configuration config
     ) {
         String topic = kafkaSinkInfo.getTopic();
         Properties producerProperties = buildProducerProperties(properties, kafkaSinkInfo.getAddress());
-        FlinkKafkaProducer.Semantic semantic = convertModeToSemantic(checkpointingMode);
         SerializationSchema<Row> serializationSchema =
-                KafkaSerializationSchemaBuilder.buildSerializationSchema(kafkaSinkInfo.getSerializationInfo());
+                SerializationSchemaBuilder.buildSerializationSchema(kafkaSinkInfo.getSerializationInfo());
 
         return new FlinkKafkaProducer<>(
                 topic,
                 serializationSchema,
                 producerProperties,
                 new FlinkFixedPartitioner<>(),
-                semantic,
+                FlinkKafkaProducer.Semantic.EXACTLY_ONCE,
                 config.getInteger(SINK_KAFKA_PRODUCER_POOL_SIZE)
         );
-    }
-
-    private static FlinkKafkaProducer.Semantic convertModeToSemantic(CheckpointingMode mode) {
-        switch (mode) {
-            case AT_LEAST_ONCE:
-                return FlinkKafkaProducer.Semantic.AT_LEAST_ONCE;
-            case EXACTLY_ONCE:
-                return FlinkKafkaProducer.Semantic.EXACTLY_ONCE;
-            default:
-                return FlinkKafkaProducer.Semantic.NONE;
-        }
     }
 
     private static Properties buildProducerProperties(Map<String, Object> properties, String address) {

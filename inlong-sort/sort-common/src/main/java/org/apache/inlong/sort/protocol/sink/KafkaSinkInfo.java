@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.protocol.sink;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
@@ -27,9 +28,6 @@ public class KafkaSinkInfo extends SinkInfo {
 
     private static final long serialVersionUID = 161617117094475954L;
 
-    @JsonProperty("version")
-    private final String kafkaVersion;
-
     @JsonProperty("address")
     private final String address;
 
@@ -39,23 +37,17 @@ public class KafkaSinkInfo extends SinkInfo {
     @JsonProperty("serialization_info")
     private final SerializationInfo serializationInfo;
 
+    @JsonCreator
     public KafkaSinkInfo(
             @JsonProperty("fields") FieldInfo[] fields,
-            @JsonProperty("version") String kafkaVersion,
             @JsonProperty("address") String address,
             @JsonProperty("topic") String topic,
             @JsonProperty("serialization_info") SerializationInfo serializationInfo
     ) {
         super(fields);
-        this.kafkaVersion = kafkaVersion;
         this.address = address;
         this.topic = topic;
         this.serializationInfo = serializationInfo;
-    }
-
-    @JsonProperty("version")
-    public String getKafkaVersion() {
-        return kafkaVersion;
     }
 
     @JsonProperty("address")
@@ -84,14 +76,13 @@ public class KafkaSinkInfo extends SinkInfo {
         }
 
         KafkaSinkInfo that = (KafkaSinkInfo) o;
-        return Objects.equals(kafkaVersion, that.kafkaVersion)
-                && Objects.equals(address, that.address)
+        return Objects.equals(address, that.address)
                 && Objects.equals(topic, that.topic)
                 && Objects.equals(serializationInfo, that.serializationInfo);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(kafkaVersion, address, topic, serializationInfo);
+        return Objects.hash(address, topic, serializationInfo);
     }
 }

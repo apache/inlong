@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.flink.kafka;
+package org.apache.inlong.sort.singletenant.flink.serialization;
 
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.types.Row;
@@ -23,7 +23,7 @@ import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 
 import java.nio.charset.StandardCharsets;
 
-public class KafkaSerializationSchemaBuilder {
+public class SerializationSchemaBuilder {
 
     // TODO: support json, canal and avro format
     public static SerializationSchema<Row> buildSerializationSchema(SerializationInfo serializationInfo) {
