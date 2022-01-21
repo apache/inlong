@@ -54,8 +54,8 @@
         <module>format-base</module>
         <module>format-csv</module>
         <module>format-kv</module>
-        <module>format-tdmsg-base</module>
-        <module>format-tdmsg-csv</module>
+        <module>format-inlongmsg-base</module>
+        <module>format-inlongmsg-csv</module>
     </modules>
 
     <properties>

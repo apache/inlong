@@ -30,7 +30,7 @@ import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.flink.Record;
 import org.apache.inlong.sort.flink.SerializedRecord;
-import org.apache.inlong.sort.flink.TDMsgMixedSerializedRecord;
+import org.apache.inlong.sort.flink.InLongMsgMixedSerializedRecord;
 import org.apache.inlong.sort.flink.metrics.MetricData;
 import org.apache.inlong.sort.flink.metrics.MetricData.MetricSource;
 import org.apache.inlong.sort.flink.metrics.MetricData.MetricType;
@@ -61,7 +61,7 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
 
     private transient Object schemaLock;
 
-    private transient MultiTenancyTDMsgMixedDeserializer multiTenancyTdMsgMixedDeserializer;
+    private transient MultiTenancyInLongMsgMixedDeserializer multiTenancyInLongMsgMixedDeserializer;
 
     private transient MultiTenancyDeserializer multiTenancyDeserializer;
 
@@ -81,7 +81,7 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
     @Override
     public void open(org.apache.flink.configuration.Configuration parameters) throws Exception {
         schemaLock = new Object();
-        multiTenancyTdMsgMixedDeserializer = new MultiTenancyTDMsgMixedDeserializer();
+        multiTenancyInLongMsgMixedDeserializer = new MultiTenancyInLongMsgMixedDeserializer();
         multiTenancyDeserializer = new MultiTenancyDeserializer();
         fieldMappingTransformer = new FieldMappingTransformer();
         recordTransformer = new RecordTransformer(config.getInteger(Constants.ETL_RECORD_SERIALIZATION_BUFFER_SIZE));
@@ -164,10 +164,11 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
                 collector.collect(serializedSinkRecord);
             });
 
-            if (serializedRecord instanceof TDMsgMixedSerializedRecord) {
-                final TDMsgMixedSerializedRecord tdmsgRecord = (TDMsgMixedSerializedRecord) serializedRecord;
+            if (serializedRecord instanceof InLongMsgMixedSerializedRecord) {
+                final InLongMsgMixedSerializedRecord
+                        inlongmsgRecord = (InLongMsgMixedSerializedRecord) serializedRecord;
                 synchronized (schemaLock) {
-                    multiTenancyTdMsgMixedDeserializer.deserialize(tdmsgRecord, transformCollector);
+                    multiTenancyInLongMsgMixedDeserializer.deserialize(inlongmsgRecord, transformCollector);
                 }
             } else {
                 synchronized (schemaLock) {
@@ -196,7 +197,7 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
         @Override
         public void addDataFlow(DataFlowInfo dataFlowInfo) throws Exception {
             synchronized (schemaLock) {
-                multiTenancyTdMsgMixedDeserializer.addDataFlow(dataFlowInfo);
+                multiTenancyInLongMsgMixedDeserializer.addDataFlow(dataFlowInfo);
                 multiTenancyDeserializer.addDataFlow(dataFlowInfo);
                 fieldMappingTransformer.addDataFlow(dataFlowInfo);
                 recordTransformer.addDataFlow(dataFlowInfo);
@@ -210,7 +211,7 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
         @Override
         public void updateDataFlow(DataFlowInfo dataFlowInfo) throws Exception {
             synchronized (schemaLock) {
-                multiTenancyTdMsgMixedDeserializer.updateDataFlow(dataFlowInfo);
+                multiTenancyInLongMsgMixedDeserializer.updateDataFlow(dataFlowInfo);
                 multiTenancyDeserializer.updateDataFlow(dataFlowInfo);
                 fieldMappingTransformer.updateDataFlow(dataFlowInfo);
                 recordTransformer.updateDataFlow(dataFlowInfo);
@@ -224,7 +225,7 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
         @Override
         public void removeDataFlow(DataFlowInfo dataFlowInfo) throws Exception {
             synchronized (schemaLock) {
-                multiTenancyTdMsgMixedDeserializer.removeDataFlow(dataFlowInfo);
+                multiTenancyInLongMsgMixedDeserializer.removeDataFlow(dataFlowInfo);
                 multiTenancyDeserializer.removeDataFlow(dataFlowInfo);
                 fieldMappingTransformer.removeDataFlow(dataFlowInfo);
                 recordTransformer.removeDataFlow(dataFlowInfo);

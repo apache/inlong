@@ -37,7 +37,7 @@ import org.apache.inlong.commons.monitor.CounterGroupExt;
 import org.apache.inlong.commons.monitor.MonitorIndex;
 import org.apache.inlong.commons.monitor.MonitorIndexExt;
 import org.apache.inlong.commons.monitor.StatConstants;
-import org.apache.inlong.commons.msg.TDMsg1;
+import org.apache.inlong.commons.msg.InLongMsg;
 import org.apache.inlong.commons.util.NetworkUtils;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
@@ -128,14 +128,14 @@ public class SimpleMessageHandler
             msgCount = "1";
         }
 
-        TDMsg1 tdMsg = TDMsg1.newTDMsg(true);
+        InLongMsg inLongMsg = InLongMsg.newInLongMsg(true);
         String charset = (String) context.get(HttpSourceConstants.CHARSET);
         if (charset == null || "".equals(charset)) {
             charset = "UTF-8";
         }
         String body = (String) context.get(HttpSourceConstants.BODY);
         try {
-            tdMsg.addMsg(newAttrBuffer.toString(), body.getBytes(charset));
+            inLongMsg.addMsg(newAttrBuffer.toString(), body.getBytes(charset));
         } catch (UnsupportedEncodingException e) {
             throw new MessageProcessException(e);
         }
@@ -147,9 +147,9 @@ public class SimpleMessageHandler
         headers.put(ConfigConstants.REMOTE_IP_KEY, strRemoteIP);
         headers.put(ConfigConstants.REMOTE_IDC_KEY, DEFAULT_REMOTE_IDC_VALUE);
         headers.put(ConfigConstants.MSG_COUNTER_KEY, msgCount);
-        byte[] data = tdMsg.buildArray();
+        byte[] data = inLongMsg.buildArray();
         headers.put(ConfigConstants.TOTAL_LEN, String.valueOf(data.length));
-        String pkgTime = dateFormator.get().format(tdMsg.getCreatetime());
+        String pkgTime = dateFormator.get().format(inLongMsg.getCreatetime());
         headers.put(ConfigConstants.PKG_TIME_KEY, pkgTime);
         Event event = EventBuilder.withBody(data, headers);
 
@@ -178,7 +178,7 @@ public class SimpleMessageHandler
             monitorIndex
                     .addAndGet(new String(newbase), Integer.parseInt(msgCount), 1, data.length, 0);
         }
-        tdMsg.reset();
+        inLongMsg.reset();
 
         long beginTime = System.currentTimeMillis();
         try {

@@ -23,7 +23,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessin
 import org.apache.inlong.sort.protocol.deserialization.CsvDeserializationInfo;
 import java.io.IOException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.inlong.sort.protocol.deserialization.TDMsgCsvDeserializationInfo;
+import org.apache.inlong.sort.protocol.deserialization.InLongMsgCsvDeserializationInfo;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo.PartitionStrategy;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
@@ -44,7 +44,7 @@ public class DeserializationInfoTest {
         DataFlowInfo dataFlowInfo = new DataFlowInfo(
             1,
             new TubeSourceInfo("topic" + System.currentTimeMillis(), "ma", "cg",
-                new TDMsgCsvDeserializationInfo("tid", ','), new FieldInfo[0]),
+                new InLongMsgCsvDeserializationInfo("tid", ','), new FieldInfo[0]),
             new ClickHouseSinkInfo("url", "dn", "tn", "un", "pw",
                 false, PartitionStrategy.HASH, "pk", new FieldInfo[0], new String[0],
                 100, 100, 100));
