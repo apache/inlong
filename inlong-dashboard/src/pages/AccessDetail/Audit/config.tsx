@@ -22,21 +22,18 @@ import { Button } from 'antd';
 import dayjs from 'dayjs';
 import i18n from '@/i18n';
 
-export const auditList = ['InLong Api', 'InLong Agent', 'InLong DataProxy', 'Inlong Sort'].reduce(
-  (acc, item, index) => {
-    return acc.concat([
-      {
-        label: `${item} ${i18n.t('pages.AccessDetail.Audit.Receive')}`,
-        value: index * 2 + 1,
-      },
-      {
-        label: `${item} ${i18n.t('pages.AccessDetail.Audit.Send')}`,
-        value: index * 2 + 2,
-      },
-    ]);
-  },
-  [],
-);
+export const auditList = ['Agent', 'DataProxy', 'Sort'].reduce((acc, item, index) => {
+  return acc.concat([
+    {
+      label: `${item} ${i18n.t('pages.AccessDetail.Audit.Receive')}`,
+      value: index * 2 + 3,
+    },
+    {
+      label: `${item} ${i18n.t('pages.AccessDetail.Audit.Send')}`,
+      value: index * 2 + 4,
+    },
+  ]);
+}, []);
 
 const auditMap = auditList.reduce(
   (acc, cur) => ({
@@ -46,7 +43,8 @@ const auditMap = auditList.reduce(
   {},
 );
 
-export const toChartData = source => {
+export const toChartData = (source, sourceDataMap) => {
+  const xAxisData = Object.keys(sourceDataMap);
   return {
     legend: {
       data: source.map(item => auditMap[item.auditId]?.label),
@@ -56,7 +54,7 @@ export const toChartData = source => {
     },
     xAxis: {
       type: 'category',
-      data: source[0]?.auditSet?.map(item => item.logTs),
+      data: xAxisData,
     },
     yAxis: {
       type: 'value',
@@ -64,45 +62,27 @@ export const toChartData = source => {
     series: source.map(item => ({
       name: auditMap[item.auditId]?.label,
       type: 'line',
-      data: item.auditSet.map(k => k.count),
+      data: xAxisData.map(logTs => sourceDataMap[logTs]?.[item.auditId] || 0),
     })),
   };
 };
 
-export const toTableData = source => {
-  const flatArr = source.reduce(
-    (acc, cur) =>
-      acc.concat(
-        cur.auditSet.map(item => ({
-          ...item,
-          auditId: cur.auditId,
-        })),
-      ),
-    [],
-  );
-  const objData = flatArr.reduce((acc, cur) => {
-    if (!acc[cur.logTs]) {
-      acc[cur.logTs] = {};
-    }
-    acc[cur.logTs] = {
-      ...acc[cur.logTs],
-      [cur.auditId]: cur.count,
-    };
-    return acc;
-  }, {});
-  return Object.keys(objData).map(logTs => ({
-    ...objData[logTs],
+export const toTableData = (source, sourceDataMap) => {
+  return Object.keys(sourceDataMap).map(logTs => ({
+    ...sourceDataMap[logTs],
     logTs,
   }));
 };
 
-export const getFormContent = (inlongGroupId, initialValues, onSearch) => [
+export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStreamSuccess) => [
   {
     type: 'select',
     label: i18n.t('pages.AccessDetail.Audit.DataStream'),
     name: 'inlongStreamId',
     props: {
+      dropdownMatchSelectWidth: false,
       options: {
+        requestAuto: true,
         requestService: {
           url: '/datastream/list',
           params: {
@@ -117,6 +97,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch) => [
               label: item.inlongStreamId,
               value: item.inlongStreamId,
             })) || [],
+          onSuccess: onDataStreamSuccess,
         },
       },
     },
@@ -157,6 +138,7 @@ export const getTableColumns = source => {
   const data = source.map(item => ({
     title: auditMap[item.auditId]?.label || item.auditId,
     dataIndex: item.auditId,
+    render: text => text || 0,
   }));
   return [
     {
