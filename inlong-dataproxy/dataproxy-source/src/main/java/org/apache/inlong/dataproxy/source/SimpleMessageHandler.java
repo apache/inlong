@@ -43,12 +43,12 @@ import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.commons.msg.TDMsg1;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.exception.MessageIDException;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
+import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -453,10 +453,10 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
             Event event = this.parseProxyMessage2Event(commonHeaders, message);
             try {
                 processor.processEvent(event);
-                this.addMetric(true, event.getBody().length);
+                this.addMetric(true, event.getBody().length, event);
             } catch (Throwable ex) {
                 logger.error("Error writting to channel,data will discard.", ex);
-                this.addMetric(false, event.getBody().length);
+                this.addMetric(false, event.getBody().length, event);
                 throw new ChannelException("ProcessEvent error can't write event to channel.");
             }
         }
@@ -580,7 +580,7 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
         logger.info("message received");
         if (msgEvent == null) {
             logger.error("get null messageevent, just skip");
-            this.addMetric(false, 0);
+            this.addMetric(false, 0, null);
             return;
         }
         ChannelBuffer cb = ((ChannelBuffer) msgEvent.getMessage());
@@ -590,7 +590,7 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
         if (len == 0 && this.filterEmptyMsg) {
             logger.warn("skip empty msg.");
             cb.clear();
-            this.addMetric(false, 0);
+            this.addMetric(false, 0, null);
             return;
         }
 
@@ -599,27 +599,27 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
         try {
             resultMap = serviceProcessor.extractData(cb, remoteChannel, msgEvent);
         } catch (MessageIDException ex) {
-            this.addMetric(false, 0);
+            this.addMetric(false, 0, null);
             throw new IOException(ex.getCause());
         }
 
         if (resultMap == null) {
             logger.info("result is null");
-            this.addMetric(false, 0);
+            this.addMetric(false, 0, null);
             return;
         }
 
         MsgType msgType = (MsgType) resultMap.get(ConfigConstants.MSG_TYPE);
         if (MsgType.MSG_HEARTBEAT.equals(msgType)) {
             remoteChannel.write(heartbeatBuffer, remoteSocketAddress);
-            this.addMetric(false, 0);
+            this.addMetric(false, 0, null);
             return;
         }
 
         if (MsgType.MSG_BIN_HEARTBEAT.equals(msgType)) {
 //            ChannelBuffer binBuffer = getBinHeart(resultMap,msgType);
 //            remoteChannel.write(binBuffer, remoteSocketAddress);
-            this.addMetric(false, 0);
+            this.addMetric(false, 0, null);
             return;
         }
 
@@ -650,10 +650,10 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
                 Event event = EventBuilder.withBody(body, headers);
                 try {
                     processor.processEvent(event);
-                    this.addMetric(true, body.length);
+                    this.addMetric(true, body.length, event);
                 } catch (Throwable ex) {
                     logger.error("Error writing to controller,data will discard.", ex);
-                    this.addMetric(false, body.length);
+                    this.addMetric(false, body.length, event);
                     throw new ChannelException(
                             "Process Controller Event error can't write event to channel.");
                 }
@@ -671,10 +671,10 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
                 Event event = EventBuilder.withBody(body, headers);
                 try {
                     processor.processEvent(event);
-                    this.addMetric(true, body.length);
+                    this.addMetric(true, body.length, event);
                 } catch (Throwable ex) {
                     logger.error("Error writing to controller,data will discard.", ex);
-                    this.addMetric(false, body.length);
+                    this.addMetric(false, body.length, event);
                     throw new ChannelException(
                             "Process Controller Event error can't write event to channel.");
                 }
@@ -722,21 +722,20 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
      * 
      * @param result
      * @param size
+     * @param event
      */
-    private void addMetric(boolean result, long size) {
+    private void addMetric(boolean result, long size, Event event) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
         dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, source.getName());
         dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, source.getName());
-        dimensions.put(DataProxyMetricItem.KEY_INLONG_GROUP_ID, "");
-        dimensions.put(DataProxyMetricItem.KEY_INLONG_STREAM_ID, "");
-        long msgTime = System.currentTimeMillis();
-        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
-        dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
+        DataProxyMetricItem.fillInlongId(event, dimensions);
+        DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
         DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
         if (result) {
             metricItem.readSuccessCount.incrementAndGet();
             metricItem.readSuccessSize.addAndGet(size);
+            AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
         } else {
             metricItem.readFailCount.incrementAndGet();
             metricItem.readFailSize.addAndGet(size);
