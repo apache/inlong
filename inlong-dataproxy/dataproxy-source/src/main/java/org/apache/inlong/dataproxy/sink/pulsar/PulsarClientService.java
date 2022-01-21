@@ -166,7 +166,7 @@ public class PulsarClientService {
         }
 
         Map<String, String> proMap = new HashMap<>();
-        proMap.put("tdbusip", localIp);
+        proMap.put("data_proxy_ip", localIp);
         String streamId = "";
         if (event.getHeaders().containsKey(AttributeConstants.INTERFACE_ID)) {
             streamId = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
@@ -179,11 +179,11 @@ public class PulsarClientService {
         forCallBackP.getProducer().newMessage().properties(proMap).value(event.getBody())
                 .sendAsync().thenAccept((msgId) -> {
             forCallBackP.setCanUseSend(true);
-            sendMessageCallBack.handleMessageSendSuccess((MessageIdImpl)msgId, es);
+            sendMessageCallBack.handleMessageSendSuccess(topic, (MessageIdImpl)msgId, es);
 
         }).exceptionally((e) -> {
             forCallBackP.setCanUseSend(false);
-            sendMessageCallBack.handleMessageSendException(es, e);
+            sendMessageCallBack.handleMessageSendException(topic, es, e);
             return null;
         });
         return true;
@@ -235,7 +235,6 @@ public class PulsarClientService {
     }
 
     public List<TopicProducerInfo> initTopicProducer(String topic) {
-        logger.info("initTopicProducer topic = {}", topic);
         List<TopicProducerInfo> producerInfoList = producerInfoMap.computeIfAbsent(topic, (k) -> {
             List<TopicProducerInfo> newList = new ArrayList<>();
             if (pulsarClients != null) {
