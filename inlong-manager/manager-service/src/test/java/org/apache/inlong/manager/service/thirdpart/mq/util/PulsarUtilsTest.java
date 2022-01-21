@@ -58,6 +58,21 @@ public class PulsarUtilsTest {
             Authentication authentication = (Authentication) auth.get(admin);
             Assert.assertTrue(authentication != null);
 
+            BusinessExtInfo businessExtInfo3 = new BusinessExtInfo();
+            businessExtInfo3.setId(3);
+            businessExtInfo3.setInlongGroupId("group1");
+            businessExtInfo3.setKeyName(BusinessSettings.PULSAR_AUTHENTICATION_TYPE);
+            businessExtInfo3.setKeyValue("token1");
+            businessExtInfoList.add(businessExtInfo3);
+            try {
+                admin = PulsarUtils.getPulsarAdmin(businessInfo, defaultServiceUrl);
+            } catch (Exception e) {
+                if (e instanceof IllegalArgumentException) {
+                    Assert.assertTrue(
+                            ((IllegalArgumentException) e).getMessage().contains("illegal authentication type"));
+                }
+            }
+
             businessExtInfoList = new ArrayList<>();
             businessInfo.setExtList(businessExtInfoList);
             admin = PulsarUtils.getPulsarAdmin(businessInfo, defaultServiceUrl);

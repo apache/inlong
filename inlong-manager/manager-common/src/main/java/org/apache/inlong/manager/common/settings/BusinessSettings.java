@@ -25,4 +25,8 @@ public class BusinessSettings {
 
     public static String PULSAR_AUTHENTICATION = "pulsar.authentication";
 
+    public static String PULSAR_AUTHENTICATION_TYPE = "pulsar.authentication.type";
+
+    public static String DEFAULT_PULSAR_AUTHENTICATION_TYPE = "token";
+
 }

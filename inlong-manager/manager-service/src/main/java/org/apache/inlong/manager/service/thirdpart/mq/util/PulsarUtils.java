@@ -46,10 +46,15 @@ public class PulsarUtils {
         List<BusinessExtInfo> businessExtInfoList = businessInfo.getExtList();
         String pulsarServiceUrl = null;
         String pulsarAuthentication = null;
+        String pulsarAuthenticationType = BusinessSettings.DEFAULT_PULSAR_AUTHENTICATION_TYPE;
         for (BusinessExtInfo extInfo : businessExtInfoList) {
             if (BusinessSettings.PULSAR_ADMIN_URL.equals(extInfo.getKeyName())
                     && StringUtils.isNotEmpty(extInfo.getKeyValue())) {
                 pulsarServiceUrl = extInfo.getKeyValue();
+            }
+            if (BusinessSettings.PULSAR_AUTHENTICATION_TYPE.equals(extInfo.getKeyName())
+                    && StringUtils.isNotEmpty(extInfo.getKeyValue())) {
+                pulsarAuthenticationType = extInfo.getKeyValue();
             }
             if (BusinessSettings.PULSAR_AUTHENTICATION.equals(extInfo.getKeyName())
                     && StringUtils.isNotEmpty(extInfo.getKeyValue())) {
@@ -61,7 +66,7 @@ public class PulsarUtils {
         } else if (StringUtils.isEmpty(pulsarAuthentication)) {
             return getPulsarAdmin(pulsarServiceUrl);
         } else {
-            return getPulsarAdmin(pulsarServiceUrl, pulsarAuthentication);
+            return getPulsarAdmin(pulsarServiceUrl, pulsarAuthentication, pulsarAuthenticationType);
         }
     }
 
@@ -72,10 +77,15 @@ public class PulsarUtils {
         return PulsarAdmin.builder().serviceHttpUrl(serviceHttpUrl).build();
     }
 
-    public static PulsarAdmin getPulsarAdmin(String serviceHttpUrl, String authentication)
+    public static PulsarAdmin getPulsarAdmin(String serviceHttpUrl, String authentication, String authenticationType)
             throws PulsarClientException {
-        return PulsarAdmin.builder().serviceHttpUrl(serviceHttpUrl)
-                .authentication(AuthenticationFactory.token(authentication)).build();
+        if (BusinessSettings.DEFAULT_PULSAR_AUTHENTICATION_TYPE.equals(authenticationType)) {
+            return PulsarAdmin.builder().serviceHttpUrl(serviceHttpUrl)
+                    .authentication(AuthenticationFactory.token(authentication)).build();
+        } else {
+            throw new IllegalArgumentException(
+                    String.format("illegal authentication type for pulsar : %s", authenticationType));
+        }
     }
 
     public static List<String> getPulsarClusters(PulsarAdmin pulsarAdmin) throws PulsarAdminException {
