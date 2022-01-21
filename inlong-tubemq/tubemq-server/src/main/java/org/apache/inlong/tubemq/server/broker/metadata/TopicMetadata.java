@@ -57,7 +57,7 @@ public class TopicMetadata {
     // expire policy.
     private String deletePolicy = "delete,168h";
     // the max cache size for topic.
-    private int memCacheMsgSize = 1 * 1024 * 1024;
+    private int memCacheMsgSize = 1024 * 1024;
     // the max cache message count for topic.
     private int memCacheMsgCnt = 5 * 1024;
     // the max interval(milliseconds) that topic's memory cache will flush to disk.
@@ -70,8 +70,8 @@ public class TopicMetadata {
     /***
      * Build TopicMetadata from brokerDefMetadata(default config) and topicMetaConfInfo(custom config).
      *
-     * @param brokerDefMetadata
-     * @param topicMetaConfInfo
+     * @param brokerDefMetadata    the default topic meta configure
+     * @param topicMetaConfInfo    the topic meta configure
      */
     public TopicMetadata(final BrokerDefMetadata brokerDefMetadata, String topicMetaConfInfo) {
         if (TStringUtils.isBlank(topicMetaConfInfo)) {
@@ -156,6 +156,35 @@ public class TopicMetadata {
                 this.minMemCacheSize = calcResult.getF1();
             }
         }
+    }
+
+    /***
+     * Build TopicMetadata by default topic meta and the special field values.
+     *
+     * @param brokerDefMetadata    the default topic meta configure
+     * @param topicName            the topic name
+     * @param numTopicStores       the topic store count
+     * @param numPartitions        the topic partition count
+     */
+    public TopicMetadata(BrokerDefMetadata brokerDefMetadata,
+                         String topicName, int numTopicStores,
+                         int numPartitions) {
+        this.topic = topicName;
+        this.numTopicStores = numTopicStores;
+        this.numPartitions = numPartitions;
+        this.acceptPublish = brokerDefMetadata.isAcceptPublish();
+        this.acceptSubscribe = brokerDefMetadata.isAcceptSubscribe();
+        this.unflushThreshold = brokerDefMetadata.getUnflushThreshold();
+        this.unflushInterval = brokerDefMetadata.getUnflushInterval();
+        this.deleteWhen = brokerDefMetadata.getDeleteWhen();
+        this.deletePolicy = brokerDefMetadata.getDeletePolicy();
+        this.statusId = TStatusConstants.STATUS_TOPIC_OK;
+        this.unflushDataHold = brokerDefMetadata.getUnflushDataHold();
+        this.memCacheMsgSize = brokerDefMetadata.getMemCacheMsgSize();
+        this.memCacheMsgCnt = brokerDefMetadata.getMemCacheMsgCnt();
+        this.memCacheFlushIntvl = brokerDefMetadata.getMemCacheFlushInterval();
+        this.maxMsgSize = ClusterConfigHolder.getMaxMsgSize();
+        this.minMemCacheSize = ClusterConfigHolder.getMinMemCacheSize();
     }
 
     private TopicMetadata(String topic, int unflushThreshold,
@@ -442,8 +471,8 @@ public class TopicMetadata {
     /***
      * Each property will be compared, in case of the new added properties.
      *
-     * @param other
-     * @return
+     * @param other    the compare object
+     * @return         whether is equal
      */
     public boolean isPropertyEquals(final TopicMetadata other) {
         return (this.numPartitions == other.numPartitions
