@@ -18,8 +18,11 @@
 package org.apache.inlong.sort.flink.hive;
 
 import com.google.common.base.Preconditions;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.runtime.state.CheckpointListener;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
@@ -29,6 +32,7 @@ import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
+import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.flink.SerializedRecord;
@@ -40,6 +44,7 @@ import org.apache.inlong.sort.meta.MetaManager.DataFlowInfoListener;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
+import org.apache.inlong.sort.util.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +66,11 @@ public class HiveMultiTenantWriter extends ProcessFunction<SerializedRecord, Par
 
     private transient ProcessFunctionContext proxyContext;
 
+    // dataflow id -> Pair<group id, stream id>
+    private transient Map<Long, Pair<String, String>> inLongGroupIdAndStreamIdMap;
+
+    private transient AuditImp auditImp;
+
     public HiveMultiTenantWriter(Configuration configuration) {
         this.configuration = Preconditions.checkNotNull(configuration);
     }
@@ -73,6 +83,13 @@ public class HiveMultiTenantWriter extends ProcessFunction<SerializedRecord, Par
         MetaManager metaManager = MetaManager.getInstance(configuration);
         metaManager.registerDataFlowInfoListener(new DataFlowInfoListenerImpl());
         proxyContext = new ProcessFunctionContext();
+
+        inLongGroupIdAndStreamIdMap = new HashMap<>();
+        String auditHostAndPorts = configuration.getString(Constants.METRICS_AUDIT_SDK_HOSTS);
+        if (auditHostAndPorts != null) {
+            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(","))));
+            auditImp = AuditImp.getInstance();
+        }
     }
 
     @Override
@@ -86,6 +103,10 @@ public class HiveMultiTenantWriter extends ProcessFunction<SerializedRecord, Par
                 writer.close();
             }
             hiveWriters.clear();
+        }
+
+        if (auditImp != null) {
+            auditImp.sendReport();
         }
     }
 
@@ -126,6 +147,20 @@ public class HiveMultiTenantWriter extends ProcessFunction<SerializedRecord, Par
 
             hiveWriter.processElement(recordTransformer.toRecord(serializedRecord).getRow(),
                     proxyContext.setContext(context), collector);
+
+            if (auditImp != null) {
+                Pair<String, String> groupIdAndStreamId = inLongGroupIdAndStreamIdMap.getOrDefault(
+                        serializedRecord.getDataFlowId(),
+                        Pair.of("", ""));
+
+                auditImp.add(
+                        Constants.METRIC_AUDIT_ID_FOR_OUTPUT,
+                        groupIdAndStreamId.getLeft(),
+                        groupIdAndStreamId.getRight(),
+                        serializedRecord.getTimestampMillis(),
+                        1,
+                        serializedRecord.getData().length);
+            }
         }
     }
 
@@ -176,6 +211,10 @@ public class HiveMultiTenantWriter extends ProcessFunction<SerializedRecord, Par
                 hiveWriter.open(new org.apache.flink.configuration.Configuration());
                 hiveWriters.put(dataFlowId, hiveWriter);
                 recordTransformer.addDataFlow(dataFlowInfo);
+
+                inLongGroupIdAndStreamIdMap.put(
+                        dataFlowInfo.getId(),
+                        CommonUtils.getInLongGroupIdAndStreamId(dataFlowInfo));
             }
         }
 
@@ -195,6 +234,8 @@ public class HiveMultiTenantWriter extends ProcessFunction<SerializedRecord, Par
                     existingHiveWriter.close();
                 }
                 recordTransformer.removeDataFlow(dataFlowInfo);
+
+                inLongGroupIdAndStreamIdMap.remove(dataFlowInfo.getId());
             }
         }
 

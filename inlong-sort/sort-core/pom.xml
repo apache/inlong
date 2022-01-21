@@ -170,6 +170,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>audit-sdk</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-test-utils_${flink.scala.binary.version}</artifactId>
             <version>${flink.version}</version>

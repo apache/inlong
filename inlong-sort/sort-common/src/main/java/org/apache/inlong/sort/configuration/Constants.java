@@ -40,6 +40,12 @@ public class Constants {
 
     public static final String METRIC_DATA_OUTPUT_TAG_ID = "metric_data_side_output";
 
+    public static final int METRIC_AUDIT_ID_FOR_INPUT = 7;
+
+    public static final int METRIC_AUDIT_ID_FOR_OUTPUT = 8;
+
+    public static final String INLONG_GROUP_ID = "inlong.group.id";
+
     // ------------------------------------------------------------------------
     //  Operator uid
     // ------------------------------------------------------------------------
@@ -286,6 +292,11 @@ public class Constants {
         key("metrics.aggregator.window.size")
             .defaultValue(5)
             .withDescription("minutes");
+
+    public static final ConfigOption<String> METRICS_AUDIT_SDK_HOSTS =
+            key("metrics.audit.sdk.hosts")
+                    .noDefaultValue()
+                    .withDescription("Host address for reporting audit metrics. e.g. 0.0.0.0:54041,0.0.0.1:54041");
 
     // ------------------------------------------------------------------------
     //  Single tenant related
