@@ -47,7 +47,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.inlong.commons.config.metrics.MetricRegister;
 import org.apache.inlong.commons.config.metrics.MetricValue;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.metrics.MetricItemValue;
@@ -179,7 +178,8 @@ public class PrometheusMetricListener extends Collector implements MetricListene
     @Override
     public List<MetricFamilySamples> collect() {
         // total
-        CounterMetricFamily totalCounter = new CounterMetricFamily(metricName + ".total", "help",
+        CounterMetricFamily totalCounter = new CounterMetricFamily(metricName + "&group=total",
+                "The metrics of SortStandalone node.",
                 Arrays.asList("dimension"));
         totalCounter.addMetric(Arrays.asList(M_READ_SUCCESS_COUNT), metricItem.readSuccessCount.get());
         totalCounter.addMetric(Arrays.asList(M_READ_SUCCESS_SIZE), metricItem.readSuccessSize.get());
@@ -201,7 +201,8 @@ public class PrometheusMetricListener extends Collector implements MetricListene
         mfs.add(totalCounter);
 
         // id dimension
-        CounterMetricFamily idCounter = new CounterMetricFamily(metricName + ".id", "help", this.dimensionKeys);
+        CounterMetricFamily idCounter = new CounterMetricFamily(metricName + "&group=id",
+                "The metrics of inlong datastream.", this.dimensionKeys);
         for (Entry<String, MetricItemValue> entry : this.dimensionMetricValueMap.entrySet()) {
             MetricItemValue itemValue = entry.getValue();
             // read
