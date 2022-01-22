@@ -18,8 +18,10 @@
 package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.manager.common.enums.BizConstant;
+import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
+import org.apache.inlong.manager.dao.mapper.BusinessExtEntityMapper;
 import org.apache.inlong.manager.web.ServiceBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,19 +29,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 
 /**
- * Business Service Test
+ * Business service test
  */
 @TestComponent
 public class BusinessServiceTest extends ServiceBaseTest {
 
+    private final String globalGroupId = "b_group1";
+    private final String globalGroupName = "group1";
+    private final String globalOperator = "test_user";
+
+    @Autowired
+    BusinessExtEntityMapper businessExtMapper;
     @Autowired
     private BusinessService businessService;
 
     public String saveBusiness(String groupName, String operator) {
-        BusinessInfo businessInfo = new BusinessInfo();
+        BusinessInfo businessInfo;
+        try {
+            businessInfo = businessService.get(globalGroupId);
+            if (businessInfo != null) {
+                return businessInfo.getInlongGroupId();
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+
+        businessInfo = new BusinessInfo();
         businessInfo.setName(groupName);
         businessInfo.setMiddlewareType(BizConstant.MIDDLEWARE_PULSAR);
         businessInfo.setCreator(operator);
+        businessInfo.setStatus(EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode());
 
         BusinessPulsarInfo pulsarInfo = new BusinessPulsarInfo();
         pulsarInfo.setMiddlewareType(BizConstant.MIDDLEWARE_PULSAR);
@@ -53,19 +72,11 @@ public class BusinessServiceTest extends ServiceBaseTest {
     }
 
     @Test
-    public void testSave() {
-        String groupName = "test_group1";
-        String operator = "test_user";
-        String groupId = this.saveBusiness(groupName, operator);
+    public void testSaveAndDelete() {
+        String groupId = this.saveBusiness(globalGroupName, globalOperator);
         Assert.assertNotNull(groupId);
-    }
 
-    @Test
-    public void testDelete() {
-        String groupName = "test_group2";
-        String operator = "test_user";
-        String groupId = this.saveBusiness(groupName, operator);
-        boolean result = businessService.delete(groupId, operator);
+        boolean result = businessService.delete(groupId, globalOperator);
         Assert.assertTrue(result);
     }
 
