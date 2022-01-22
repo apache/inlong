@@ -17,27 +17,25 @@
 
 package org.apache.inlong.manager.common.pojo.datastorage;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Date;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.BizConstant;
 
 /**
- * Basic data storage information
+ * Basic request of data storage
  */
 @Data
-@ApiModel("Basic data storage information")
+@ApiModel("Basic request of data storage")
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "storageType")
 @JsonSubTypes({
-        @Type(value = StorageHiveInfo.class, name = BizConstant.STORAGE_HIVE)
+        @Type(value = StorageHiveRequest.class, name = BizConstant.STORAGE_HIVE)
 })
-public class BaseStorageInfo {
+public class BaseStorageRequest {
 
     private Integer id;
 
@@ -52,27 +50,5 @@ public class BaseStorageInfo {
 
     @ApiModelProperty("Data storage period, unit: day")
     private Integer storagePeriod;
-
-    @ApiModelProperty("Status")
-    private Integer status;
-
-    @ApiModelProperty("Previous State")
-    private Integer previousStatus;
-
-    @ApiModelProperty("is deleted? 0: deleted, 1: not deleted")
-    private Integer isDeleted = 0;
-
-    private String creator;
-
-    private String modifier;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createTime;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date modifyTime;
-
-    @ApiModelProperty("Temporary view, string in JSON format")
-    private String tempView;
 
 }

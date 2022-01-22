@@ -120,34 +120,7 @@
         <foreach collection="extList" separator="," index="index" item="item">
             (#{item.id}, #{item.inlongGroupId}, #{item.keyName}, #{item.keyValue}, #{item.isDeleted})
         </foreach>
-        ON DUPLICATE KEY UPDATE
-        id = values(id),
-        inlong_group_id = values(inlong_group_id),
-        key_name = values(key_name),
-        key_value = values(key_value),
-        is_deleted = values(is_deleted)
     </insert>
-    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.BusinessExtEntity">
-        update business_ext
-        <set>
-            <if test="inlongGroupId != null">
-                inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
-            </if>
-            <if test="keyName != null">
-                key_name = #{keyName,jdbcType=VARCHAR},
-            </if>
-            <if test="keyValue != null">
-                key_value = #{keyValue,jdbcType=VARCHAR},
-            </if>
-            <if test="isDeleted != null">
-                is_deleted = #{isDeleted,jdbcType=INTEGER},
-            </if>
-            <if test="modifyTime != null">
-                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
-            </if>
-        </set>
-        where id = #{id,jdbcType=INTEGER}
-    </update>
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.BusinessExtEntity">
         update business_ext
         set inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},

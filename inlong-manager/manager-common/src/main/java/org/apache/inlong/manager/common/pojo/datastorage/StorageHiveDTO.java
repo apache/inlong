@@ -20,14 +20,15 @@ package org.apache.inlong.manager.common.pojo.datastorage;
 import lombok.Data;
 
 /**
- * Hive info for Sort config
+ * Hive info
  */
 @Data
-public class StorageHiveSortInfo {
+public class StorageHiveDTO {
 
     private Integer id;
     private String inlongGroupId;
     private String inlongStreamId;
+    private Integer enableCreateTable;
 
     // Hive server info
     private String jdbcUrl;

@@ -35,8 +35,6 @@ public interface BusinessExtEntityMapper {
 
     List<BusinessExtEntity> selectByGroupId(String groupId);
 
-    int updateByPrimaryKeySelective(BusinessExtEntity record);
-
     int updateByPrimaryKey(BusinessExtEntity record);
 
     BusinessExtEntity selectByGroupIdAndKeyName(String groupId, String keyName);

@@ -26,15 +26,18 @@ import lombok.ToString;
 import org.apache.inlong.manager.common.enums.BizConstant;
 
 /**
- * Interaction objects for Hive storage
+ * Request of the Hive storage info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Interaction objects for Hive storage")
-public class StorageHiveInfo extends BaseStorageInfo {
+@ApiModel(value = "Request of the Hive storage info")
+public class StorageHiveRequest extends BaseStorageRequest {
 
     private String storageType = BizConstant.STORAGE_HIVE;
+
+    @ApiModelProperty("Whether to enable create table, 1: enable, 0: disable, default is 1")
+    private Integer enableCreateTable = 1;
 
     @ApiModelProperty("Hive JDBC URL")
     private String jdbcUrl;
@@ -81,16 +84,10 @@ public class StorageHiveInfo extends BaseStorageInfo {
     @ApiModelProperty("Data field separator")
     private String dataSeparator;
 
-    @ApiModelProperty("Data storage period in Hive, unit: Day")
-    private Integer storagePeriod;
-
-    @ApiModelProperty("Backend operation log")
-    private String optLog;
-
-    @ApiModelProperty("hive table field list")
+    @ApiModelProperty("Hive table field list")
     private List<StorageHiveFieldInfo> hiveFieldList;
 
-    @ApiModelProperty("other ext info list")
+    @ApiModelProperty("Other ext info list")
     private List<StorageExtInfo> extList;
 
 }

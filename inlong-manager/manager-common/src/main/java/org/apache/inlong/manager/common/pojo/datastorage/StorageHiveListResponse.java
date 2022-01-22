@@ -17,29 +17,38 @@
 
 package org.apache.inlong.manager.common.pojo.datastorage;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Date;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
- * Paging list of data storage
+ * Response of Hive storage list
  */
 @Data
-public class BaseStorageListVO {
+@EqualsAndHashCode(callSuper = true)
+@ApiModel("Response of Hive storage paging list")
+public class StorageHiveListResponse extends BaseStorageListResponse {
 
-    @ApiModelProperty(value = "Primary key")
-    private Integer id;
+    @ApiModelProperty("target database name")
+    private String dbName;
 
-    @ApiModelProperty(value = "Status")
-    private Integer status;
+    @ApiModelProperty("target table name")
+    private String tableName;
 
-    @ApiModelProperty(value = "Business group id")
-    private String inlongGroupId;
+    @ApiModelProperty("username")
+    private String username;
 
-    @ApiModelProperty(value = "Data stream id")
-    private String inlongStreamId;
+    @ApiModelProperty("JDBC URL")
+    private String jdbcUrl;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date modifyTime;
+    @ApiModelProperty("HDFS defaultFS")
+    private String hdfsDefaultFs;
+
+    @ApiModelProperty("partition type, like: H-hour, D-day, W-week, M-month, O-once, R-regulation")
+    private String partitionType;
+
+    @ApiModelProperty("storage period, unit: day")
+    private Integer storagePeriod;
+
 }

@@ -30,7 +30,7 @@ import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.pojo.business.BusinessExtInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveSortInfo;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveDTO;
 import org.apache.inlong.manager.common.settings.BusinessSettings;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -112,8 +112,8 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
 
         // if streamId not null, just push the config belongs to the groupId and the streamId
         String streamId = form.getInlongStreamId();
-        List<StorageHiveSortInfo> hiveInfoList = storageHiveMapper.selectHiveSortInfoByIdentifier(groupId, streamId);
-        for (StorageHiveSortInfo hiveInfo : hiveInfoList) {
+        List<StorageHiveDTO> hiveInfoList = storageHiveMapper.selectAllHiveConfig(groupId, streamId);
+        for (StorageHiveDTO hiveInfo : hiveInfoList) {
             Integer storageId = hiveInfo.getId();
 
             if (log.isDebugEnabled()) {
@@ -141,7 +141,7 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
         return ListenerResult.success();
     }
 
-    private DataFlowInfo getDataFlowInfo(BusinessInfo businessInfo, StorageHiveSortInfo hiveInfo) {
+    private DataFlowInfo getDataFlowInfo(BusinessInfo businessInfo, StorageHiveDTO hiveInfo) {
         String groupId = hiveInfo.getInlongGroupId();
         String streamId = hiveInfo.getInlongStreamId();
         List<StorageHiveFieldEntity> fieldList = hiveFieldMapper.selectHiveFields(groupId, streamId);
@@ -157,7 +157,7 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
         return new DataFlowInfo(hiveInfo.getId(), sourceInfo, sinkInfo);
     }
 
-    private HiveSinkInfo getSinkInfo(StorageHiveSortInfo hiveInfo, List<StorageHiveFieldEntity> fieldList) {
+    private HiveSinkInfo getSinkInfo(StorageHiveDTO hiveInfo, List<StorageHiveFieldEntity> fieldList) {
         if (hiveInfo.getJdbcUrl() == null) {
             throw new WorkflowListenerException("hive server url cannot be empty");
         }
@@ -221,7 +221,7 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
     /**
      * Get source info
      */
-    private SourceInfo getSourceInfo(BusinessInfo businessInfo, StorageHiveSortInfo storageInfo,
+    private SourceInfo getSourceInfo(BusinessInfo businessInfo, StorageHiveDTO storageInfo,
             List<StorageHiveFieldEntity> fieldList) {
         DeserializationInfo deserializationInfo = null;
         boolean isDbType = BizConstant.DATA_SOURCE_DB.equals(storageInfo.getDataSourceType());
@@ -306,7 +306,7 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
     }
 
     private PulsarSourceInfo createPulsarSourceInfo(BusinessInfo businessInfo,
-            StorageHiveSortInfo storageInfo,
+            StorageHiveDTO storageInfo,
             DeserializationInfo deserializationInfo,
             List<FieldInfo> sourceFields) {
         final String tenant = clusterBean.getDefaultTenant();

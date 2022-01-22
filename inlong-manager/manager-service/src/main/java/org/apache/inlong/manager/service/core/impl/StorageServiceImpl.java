@@ -27,8 +27,9 @@ import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageListVO;
+import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageListResponse;
+import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageRequest;
+import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageResponse;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageApproveInfo;
 import org.apache.inlong.manager.common.pojo.datastorage.StoragePageRequest;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageSummaryInfo;
@@ -59,7 +60,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public Integer save(BaseStorageInfo storageInfo, String operator) {
+    public Integer save(BaseStorageRequest storageInfo, String operator) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("begin to save storage info={}", storageInfo);
         }
@@ -96,12 +97,12 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
     }
 
     @Override
-    public BaseStorageInfo getById(String storageType, Integer id) {
+    public BaseStorageResponse getById(String storageType, Integer id) {
         LOGGER.debug("begin to get storage by storageType={}, id={}", storageType, id);
         Preconditions.checkNotNull(id, "storage id is null");
         Preconditions.checkNotNull(storageType, "storageType is empty");
 
-        BaseStorageInfo storageInfo;
+        BaseStorageResponse storageInfo;
         if (BizConstant.STORAGE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
             storageInfo = hiveOperation.getHiveStorage(id);
         } else {
@@ -114,28 +115,28 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
     }
 
     @Override
-    public int getCountByIdentifier(String groupId, String streamId) {
+    public Integer getCountByIdentifier(String groupId, String streamId) {
         LOGGER.debug("begin to get storage count by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
         Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
-        int count = hiveStorageMapper.selectCountByIdentifier(groupId, streamId);
+        Integer count = hiveStorageMapper.selectCountByIdentifier(groupId, streamId);
 
         LOGGER.info("the storage count={} by groupId={}, streamId={}", count, groupId, streamId);
         return count;
     }
 
     @Override
-    public List<BaseStorageInfo> listByIdentifier(String groupId, String streamId) {
+    public List<BaseStorageResponse> listByIdentifier(String groupId, String streamId) {
         LOGGER.debug("begin to list storage by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
         // Query HDFS, HIVE, ES storage information and encapsulate it in the result set
-        List<BaseStorageInfo> storageInfoList = new ArrayList<>();
-        hiveOperation.setHiveStorageInfo(groupId, streamId, storageInfoList);
+        List<BaseStorageResponse> responseList = new ArrayList<>();
+        hiveOperation.setHiveStorageResponse(groupId, streamId, responseList);
 
         LOGGER.info("success to list storage info");
-        return storageInfoList;
+        return responseList;
     }
 
     @Override
@@ -155,7 +156,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
     }
 
     @Override
-    public PageInfo<? extends BaseStorageListVO> listByCondition(StoragePageRequest request) {
+    public PageInfo<? extends BaseStorageListResponse> listByCondition(StoragePageRequest request) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("begin to list storage page by {}", request);
         }
@@ -164,7 +165,7 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
         String storageType = request.getStorageType();
         Preconditions.checkNotNull(storageType, "storageType is empty");
 
-        PageInfo<? extends BaseStorageListVO> page;
+        PageInfo<? extends BaseStorageListResponse> page;
         if (BizConstant.STORAGE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
             page = hiveOperation.getHiveStorageList(request);
         } else {
@@ -178,25 +179,25 @@ public class StorageServiceImpl extends StorageBaseOperation implements StorageS
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean update(BaseStorageInfo storageInfo, String operator) {
+    public boolean update(BaseStorageRequest storageRequest, String operator) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to update storage info={}", storageInfo);
+            LOGGER.debug("begin to update storage info={}", storageRequest);
         }
 
-        Preconditions.checkNotNull(storageInfo, "storage info is empty");
-        String groupId = storageInfo.getInlongGroupId();
+        Preconditions.checkNotNull(storageRequest, "storage info is empty");
+        String groupId = storageRequest.getInlongGroupId();
         Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
-        String streamId = storageInfo.getInlongStreamId();
+        String streamId = storageRequest.getInlongStreamId();
         Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be modified
         BusinessEntity businessEntity = super.checkBizIsTempStatus(groupId);
 
-        String storageType = storageInfo.getStorageType();
+        String storageType = storageRequest.getStorageType();
         Preconditions.checkNotNull(storageType, "storageType is empty");
 
         if (BizConstant.STORAGE_HIVE.equals(storageType.toUpperCase(Locale.ROOT))) {
-            hiveOperation.updateHiveStorage(businessEntity.getStatus(), storageInfo, operator);
+            hiveOperation.updateHiveStorage(businessEntity.getStatus(), storageRequest, operator);
         } else {
             LOGGER.error("the storageType={} not support", storageType);
             throw new BusinessException(BizErrorCodeEnum.STORAGE_TYPE_NOT_SUPPORTED);

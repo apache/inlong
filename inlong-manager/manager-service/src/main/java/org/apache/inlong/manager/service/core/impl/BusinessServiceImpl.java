@@ -104,7 +104,7 @@ public class BusinessServiceImpl implements BusinessService {
         entity.setModifier(operator);
         entity.setCreateTime(new Date());
         businessMapper.insertSelective(entity);
-        this.saveExt(groupId, businessInfo.getExtList());
+        this.saveOrUpdateExt(groupId, businessInfo.getExtList());
 
         if (BizConstant.MIDDLEWARE_PULSAR.equals(businessInfo.getMiddlewareType())) {
             BusinessPulsarInfo pulsarInfo = (BusinessPulsarInfo) businessInfo.getMqExtInfo();
@@ -223,7 +223,7 @@ public class BusinessServiceImpl implements BusinessService {
         businessMapper.updateByIdentifierSelective(entity);
 
         // Save extended information
-        this.updateExt(groupId, businessInfo.getExtList());
+        this.saveOrUpdateExt(groupId, businessInfo.getExtList());
 
         // Update the Pulsar info
         if (BizConstant.MIDDLEWARE_PULSAR.equals(businessInfo.getMiddlewareType())) {
@@ -420,28 +420,16 @@ public class BusinessServiceImpl implements BusinessService {
         return true;
     }
 
-    /**
-     * Update extended information
-     * <p/>First physically delete the existing extended information, and then add this batch of extended information
-     */
     @Transactional(rollbackFor = Throwable.class)
-    void updateExt(String groupId, List<BusinessExtInfo> extInfoList) {
-        LOGGER.debug("begin to update business ext, groupId={}, ext={}", groupId, extInfoList);
-        try {
-            businessExtMapper.deleteAllByGroupId(groupId);
-            saveExt(groupId, extInfoList);
-            LOGGER.info("success to update business ext");
-        } catch (Exception e) {
-            LOGGER.error("failed to update business ext: ", e);
-            throw new BusinessException(BizErrorCodeEnum.BUSINESS_SAVE_FAILED);
-        }
-    }
+    @Override
+    public void saveOrUpdateExt(String groupId, List<BusinessExtInfo> infoList) {
+        LOGGER.debug("begin to save or update business ext info, groupId={}, ext={}", groupId, infoList);
+        businessExtMapper.deleteAllByGroupId(groupId);
 
-    @Transactional(rollbackFor = Throwable.class)
-    void saveExt(String groupId, List<BusinessExtInfo> infoList) {
         if (CollectionUtils.isEmpty(infoList)) {
             return;
         }
+
         List<BusinessExtEntity> entityList = CommonBeanUtils.copyListProperties(infoList, BusinessExtEntity::new);
         Date date = new Date();
         for (BusinessExtEntity entity : entityList) {
@@ -449,6 +437,7 @@ public class BusinessServiceImpl implements BusinessService {
             entity.setModifyTime(date);
         }
         businessExtMapper.insertAll(entityList);
+        LOGGER.info("success to save or update business ext for groupId={}", groupId);
     }
 
 }

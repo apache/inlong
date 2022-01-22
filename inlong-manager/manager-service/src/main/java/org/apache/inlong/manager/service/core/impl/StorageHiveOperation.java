@@ -29,11 +29,13 @@ import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageInfo;
+import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageRequest;
+import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageResponse;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageExtInfo;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveFieldInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveListVO;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveListResponse;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveRequest;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveResponse;
 import org.apache.inlong.manager.common.pojo.datastorage.StoragePageRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -71,10 +73,10 @@ public class StorageHiveOperation extends StorageBaseOperation {
     /**
      * Save HIVE storage information
      *
-     * @param storageInfo Storage i formation
+     * @param storageInfo Storage information
      * @return Id after saving
      */
-    public int saveHiveStorage(BaseStorageInfo storageInfo, String operator) {
+    public int saveHiveStorage(BaseStorageRequest storageInfo, String operator) {
         String groupId = storageInfo.getInlongGroupId();
         // Make sure that there is no HIVE storage information under the current groupId and streamId
         // (the two are mutually exclusive, only one can exist)
@@ -82,11 +84,14 @@ public class StorageHiveOperation extends StorageBaseOperation {
                 .selectByIdentifier(groupId, storageInfo.getInlongStreamId());
         Preconditions.checkEmpty(storageExist, "HIVE storage already exist under the groupId and streamId");
 
-        StorageHiveInfo hiveInfo = (StorageHiveInfo) storageInfo;
+        StorageHiveRequest hiveInfo = (StorageHiveRequest) storageInfo;
         StorageHiveEntity entity = CommonBeanUtils.copyProperties(hiveInfo, StorageHiveEntity::new);
 
         // Set the encoding type and field splitter
         DataStreamEntity streamEntity = dataStreamMapper.selectByIdentifier(groupId, entity.getInlongStreamId());
+        if (streamEntity == null) {
+            throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_NOT_FOUND);
+        }
         String dataEncoding = streamEntity.getDataEncoding() == null
                 ? StandardCharsets.UTF_8.displayName() : streamEntity.getDataEncoding();
         entity.setDataEncoding(dataEncoding);
@@ -97,7 +102,9 @@ public class StorageHiveOperation extends StorageBaseOperation {
         entity.setStatus(EntityStatus.DATA_STORAGE_NEW.getCode());
         entity.setCreator(operator);
         entity.setModifier(operator);
-        entity.setCreateTime(new Date());
+        Date now = new Date();
+        entity.setCreateTime(now);
+        entity.setCreateTime(now);
         hiveStorageMapper.insertSelective(entity);
 
         int id = entity.getId();
@@ -113,7 +120,7 @@ public class StorageHiveOperation extends StorageBaseOperation {
     /**
      * According to groupId and streamId, query the HIVE storage information to which it belongs
      */
-    public void setHiveStorageInfo(String groupId, String streamId, List<BaseStorageInfo> storageInfoList) {
+    public void setHiveStorageResponse(String groupId, String streamId, List<BaseStorageResponse> requestList) {
         List<StorageHiveEntity> hiveEntities = hiveStorageMapper.selectByIdentifier(groupId, streamId);
 
         if (CollectionUtils.isEmpty(hiveEntities)) {
@@ -134,11 +141,11 @@ public class StorageHiveOperation extends StorageBaseOperation {
             List<StorageHiveFieldInfo> fieldInfoList = CommonBeanUtils
                     .copyListProperties(fieldEntityList, StorageHiveFieldInfo::new);
 
-            StorageHiveInfo hiveInfo = CommonBeanUtils.copyProperties(hiveEntity, StorageHiveInfo::new);
+            StorageHiveResponse hiveInfo = CommonBeanUtils.copyProperties(hiveEntity, StorageHiveResponse::new);
             hiveInfo.setStorageType(storageType);
             hiveInfo.setExtList(CommonBeanUtils.copyListProperties(extEntities, StorageExtInfo::new));
             hiveInfo.setHiveFieldList(fieldInfoList);
-            storageInfoList.add(hiveInfo);
+            requestList.add(hiveInfo);
         }
     }
 
@@ -224,24 +231,24 @@ public class StorageHiveOperation extends StorageBaseOperation {
      * @param id Storage ID
      * @return Storage information
      */
-    public BaseStorageInfo getHiveStorage(Integer id) {
+    public BaseStorageResponse getHiveStorage(Integer id) {
         StorageHiveEntity entity = hiveStorageMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("hive storage not found by id={}", id);
             return null;
         }
 
-        StorageHiveInfo hiveInfo = CommonBeanUtils.copyProperties(entity, StorageHiveInfo::new);
+        StorageHiveResponse response = CommonBeanUtils.copyProperties(entity, StorageHiveResponse::new);
         String storageType = BizConstant.STORAGE_HIVE;
         List<StorageExtEntity> extEntityList = storageExtMapper.selectByStorageTypeAndId(storageType, id);
         List<StorageExtInfo> extInfoList = CommonBeanUtils.copyListProperties(extEntityList, StorageExtInfo::new);
-        hiveInfo.setExtList(extInfoList);
+        response.setExtList(extInfoList);
 
         List<StorageHiveFieldEntity> entities = hiveFieldMapper.selectByStorageId(id);
         List<StorageHiveFieldInfo> infos = CommonBeanUtils.copyListProperties(entities, StorageHiveFieldInfo::new);
-        hiveInfo.setHiveFieldList(infos);
+        response.setHiveFieldList(infos);
 
-        return hiveInfo;
+        return response;
     }
 
     /**
@@ -250,15 +257,16 @@ public class StorageHiveOperation extends StorageBaseOperation {
      * @param request Query conditions
      * @return Store the paged results of the list
      */
-    public PageInfo<StorageHiveListVO> getHiveStorageList(StoragePageRequest request) {
+    public PageInfo<StorageHiveListResponse> getHiveStorageList(StoragePageRequest request) {
         LOGGER.info("begin to list hive storage page by {}", request);
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<StorageHiveEntity> entityPage = (Page<StorageHiveEntity>) hiveStorageMapper.selectByCondition(request);
-        List<StorageHiveListVO> detailList = CommonBeanUtils.copyListProperties(entityPage, StorageHiveListVO::new);
+        List<StorageHiveListResponse> detailList = CommonBeanUtils.copyListProperties(entityPage,
+                StorageHiveListResponse::new);
 
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
-        PageInfo<StorageHiveListVO> page = new PageInfo<>(detailList);
+        PageInfo<StorageHiveListResponse> page = new PageInfo<>(detailList);
         page.setTotal(entityPage.getTotal());
 
         LOGGER.info("success to list hive storage");
@@ -273,8 +281,8 @@ public class StorageHiveOperation extends StorageBaseOperation {
      * @param operator Operator
      * @return Updated id
      */
-    public Integer updateHiveStorage(Integer bizStatus, BaseStorageInfo storageInfo, String operator) {
-        StorageHiveInfo hiveInfo = (StorageHiveInfo) storageInfo;
+    public Integer updateHiveStorage(Integer bizStatus, BaseStorageRequest storageInfo, String operator) {
+        StorageHiveRequest hiveInfo = (StorageHiveRequest) storageInfo;
         // id exists, update, otherwise add
         Integer id = hiveInfo.getId();
         if (id != null) {

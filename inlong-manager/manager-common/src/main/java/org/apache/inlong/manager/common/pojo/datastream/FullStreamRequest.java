@@ -25,14 +25,14 @@ import org.apache.inlong.manager.common.pojo.datasource.SourceDbBasicInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceFileBasicInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageInfo;
+import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageRequest;
 
 /**
- * All information on the data stream page, including data stream, data source, and data storage
+ * All request info on the data stream page, including data stream, data source, and data storage
  */
 @Data
-@ApiModel("All information of the data flow page")
-public class FullPageInfo {
+@ApiModel("All request info on the data stream page")
+public class FullStreamRequest {
 
     @ApiModelProperty("Data stream information")
     private DataStreamInfo streamInfo;
@@ -50,6 +50,6 @@ public class FullPageInfo {
     private List<SourceDbDetailInfo> dbDetailInfoList;
 
     @ApiModelProperty("Data storage information")
-    private List<BaseStorageInfo> storageInfo;
+    private List<BaseStorageRequest> storageInfo;
 
 }

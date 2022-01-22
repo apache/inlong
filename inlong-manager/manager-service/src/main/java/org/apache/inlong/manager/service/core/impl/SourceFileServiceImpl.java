@@ -229,7 +229,7 @@ public class SourceFileServiceImpl implements SourceFileService {
 
         List<SourceFileDetailEntity> entities = fileDetailMapper.selectByIdentifier(groupId, streamId);
         if (CollectionUtils.isEmpty(entities)) {
-            LOGGER.error("file data source detail not found");
+            LOGGER.warn("file data source detail not found");
             // throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DETAIL_NOTFOUND);
             return Collections.emptyList();
         }
