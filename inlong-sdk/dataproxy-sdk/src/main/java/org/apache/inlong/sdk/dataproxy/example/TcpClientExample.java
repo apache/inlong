@@ -149,14 +149,14 @@ public class TcpClientExample {
                                     String.valueOf(System.currentTimeMillis()), 20,
                                     TimeUnit.SECONDS, extraAttrMap);
                         } catch (Exception ex) {
-                            logger.info("messageSender " + curCount + " " +
-                                    (System.currentTimeMillis() - start) + " " + result);
+                            logger.info("messageSender " + curCount + " "
+                                    + (System.currentTimeMillis() - start) + " " + result);
                         }
                         result = messageSender.sendMessage(bodylist, groupId, streamId, 0,
                                 String.valueOf(System.currentTimeMillis()), 20,
                                 TimeUnit.SECONDS);
-                        logger.info("messageSender " + curCount + " " +
-                                (System.currentTimeMillis() - start) + " " + result);
+                        logger.info("messageSender " + curCount + " "
+                                + (System.currentTimeMillis() - start) + " " + result);
                         bodylist.clear();
                     }
                     break;
