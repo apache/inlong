@@ -177,7 +177,7 @@ public class UdpClientExample {
 
             if (body != null) {
                 if (object.isCompress()) {
-                    body = processCompress(body);//压缩
+                    body = processCompress(body);
                 }
                 String endAttr = object.getCommonattr();
                 if (object.isEncrypt()) {
@@ -266,10 +266,12 @@ public class UdpClientExample {
         ConnectionlessBootstrap bootstrap =
                 new ConnectionlessBootstrap(new NioDatagramChannelFactory());
         bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+            
             @Override
             public ChannelPipeline getPipeline() throws Exception {
                 ChannelPipeline pipeline = Channels.pipeline();
                 pipeline.addLast("handler", new SimpleChannelUpstreamHandler() {
+
                     @Override
                     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
                             throws Exception {
@@ -279,6 +281,7 @@ public class UdpClientExample {
                         System.out.println("from server:" + msg);
                         super.messageReceived(ctx, e);
                     }
+
                     @Override
                     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
                             throws Exception {
