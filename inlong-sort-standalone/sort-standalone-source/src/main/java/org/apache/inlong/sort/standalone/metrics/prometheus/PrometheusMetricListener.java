@@ -144,7 +144,7 @@ public class PrometheusMetricListener extends Collector implements MetricListene
             // id dimension
             String dimensionKey = itemValue.getKey();
             MetricItemValue dimensionMetricValue = this.dimensionMetricValueMap.get(dimensionKey);
-            if (dimensionKey == null) {
+            if (dimensionMetricValue == null) {
                 dimensionMetricValue = new MetricItemValue(dimensionKey, new ConcurrentHashMap<String, String>(),
                         new ConcurrentHashMap<String, MetricValue>());
                 this.dimensionMetricValueMap.putIfAbsent(dimensionKey, dimensionMetricValue);
