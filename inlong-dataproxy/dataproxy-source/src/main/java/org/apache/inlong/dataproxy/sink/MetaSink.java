@@ -46,6 +46,7 @@ import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
+import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
@@ -571,27 +572,25 @@ public class MetaSink extends AbstractSink implements Configurable {
         /**
          * addMetric
          * 
-         * @param currentRecord
-         * @param topic
+         * @param event
          * @param result
-         * @param size
+         * @param sendTime
          */
-        private void addMetric(Event currentRecord, boolean result, long sendTime) {
+        private void addMetric(Event event, boolean result, long sendTime) {
             Map<String, String> dimensions = new HashMap<>();
             dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, MetaSink.this.getName());
             dimensions.put(DataProxyMetricItem.KEY_SINK_ID, MetaSink.this.getName());
-            if (currentRecord.getHeaders().containsKey(TOPIC)) {
-                dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, currentRecord.getHeaders().get(TOPIC));
-            } else {
-                dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, "");
-            }
+            dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, event.getHeaders().getOrDefault(TOPIC, ""));
+            DataProxyMetricItem.fillInlongId(event, dimensions);
+            DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
             DataProxyMetricItem metricItem = MetaSink.this.metricItemSet.findMetricItem(dimensions);
             if (result) {
                 metricItem.sendSuccessCount.incrementAndGet();
-                metricItem.sendSuccessSize.addAndGet(currentRecord.getBody().length);
+                metricItem.sendSuccessSize.addAndGet(event.getBody().length);
+                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
                 if (sendTime > 0) {
                     long currentTime = System.currentTimeMillis();
-                    long msgTime = NumberUtils.toLong(currentRecord.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
+                    long msgTime = NumberUtils.toLong(event.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
                             sendTime);
                     long sinkDuration = currentTime - sendTime;
                     long nodeDuration = currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
@@ -602,7 +601,7 @@ public class MetaSink extends AbstractSink implements Configurable {
                 }
             } else {
                 metricItem.sendFailCount.incrementAndGet();
-                metricItem.sendFailSize.addAndGet(currentRecord.getBody().length);
+                metricItem.sendFailSize.addAndGet(event.getBody().length);
             }
         }
 

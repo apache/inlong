@@ -39,6 +39,7 @@ import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
 import org.apache.inlong.sort.standalone.dispatch.DispatchProfile;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
+import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
@@ -250,6 +251,9 @@ public class HiveSinkContext extends SinkContext {
         if (result) {
             metricItem.sendSuccessCount.addAndGet(count);
             metricItem.sendSuccessSize.addAndGet(size);
+            currentRecord.getEvents().forEach((event) -> {
+                AuditUtils.add(AuditUtils.AUDIT_ID_SEND_SUCCESS, event);
+            });
             if (sendTime > 0) {
                 long currentTime = System.currentTimeMillis();
                 long sinkDuration = currentTime - sendTime;
@@ -272,7 +276,7 @@ public class HiveSinkContext extends SinkContext {
     /**
      * getHiveConnection
      * 
-     * @return Connection
+     * @return                        Connection
      * @throws SQLException
      * @throws ClassNotFoundException
      */

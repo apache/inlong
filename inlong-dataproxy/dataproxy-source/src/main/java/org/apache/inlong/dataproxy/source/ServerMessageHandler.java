@@ -22,8 +22,6 @@ import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_DATA
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_GROUPID;
 import static org.apache.inlong.dataproxy.source.SimpleTcpSource.blacklist;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -34,12 +32,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.source.AbstractSource;
+import org.apache.inlong.commons.monitor.MonitorIndex;
+import org.apache.inlong.commons.monitor.MonitorIndexExt;
 import org.apache.inlong.commons.msg.TDMsg1;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
 import org.apache.inlong.dataproxy.config.ConfigManager;
@@ -49,8 +50,7 @@ import org.apache.inlong.dataproxy.exception.ErrorCode;
 import org.apache.inlong.dataproxy.exception.MessageIDException;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
-import org.apache.inlong.commons.monitor.MonitorIndex;
-import org.apache.inlong.commons.monitor.MonitorIndexExt;
+import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -63,6 +63,9 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 
 /**
  * Server message handler
@@ -469,7 +472,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 try {
                     processor.processEvent(event);
                     monitorIndexExt.incrementAndGet("EVENT_SUCCESS");
-                    this.addMetric(true, data.length);
+                    this.addMetric(true, data.length, event);
                     monitorIndex.addAndGet(new String(newbase),
                             Integer.parseInt(proxyMetricMsgCnt), 1, data.length, 0);
                 } catch (Throwable ex) {
@@ -477,7 +480,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                     monitorIndexExt.incrementAndGet("EVENT_DROPPED");
                     monitorIndex.addAndGet(new String(newbase), 0,0,0,
                             Integer.parseInt(proxyMetricMsgCnt));
-                    this.addMetric(false, data.length);
+                    this.addMetric(false, data.length, event);
                     throw new ChannelException("ProcessEvent error can't write event to channel.");
                 }
             }
@@ -579,7 +582,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
         logger.debug("message received");
         if (e == null) {
             logger.error("get null messageevent, just skip");
-            this.addMetric(false, 0);
+            this.addMetric(false, 0, null);
             return;
         }
         ChannelBuffer cb = ((ChannelBuffer) e.getMessage());
@@ -589,7 +592,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
         if (len == 0 && this.filterEmptyMsg) {
             logger.warn("skip empty msg.");
             cb.clear();
-            this.addMetric(false, 0);
+            this.addMetric(false, 0, null);
             return;
         }
 
@@ -599,25 +602,25 @@ public class ServerMessageHandler extends SimpleChannelHandler {
             resultMap = serviceDecoder.extractData(cb, remoteChannel, e);
         } catch (MessageIDException ex) {
             logger.error("MessageIDException ex = {}", ex);
-            this.addMetric(false, 0);
+            this.addMetric(false, 0, null);
             throw new IOException(ex.getCause());
         }
 
         if (resultMap == null) {
             logger.info("result is null");
-            this.addMetric(false, 0);
+            this.addMetric(false, 0, null);
             return;
         }
 
         MsgType msgType = (MsgType) resultMap.get(ConfigConstants.MSG_TYPE);
         if (MsgType.MSG_HEARTBEAT.equals(msgType)) {
             remoteChannel.write(heartbeatBuffer, remoteSocketAddress);
-            this.addMetric(false, 0);
+            this.addMetric(false, 0, null);
             return;
         }
 
         if (MsgType.MSG_BIN_HEARTBEAT.equals(msgType)) {
-            this.addMetric(false, 0);
+            this.addMetric(false, 0, null);
             return;
         }
 
@@ -649,10 +652,10 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 Event event = EventBuilder.withBody(body, headers);
                 try {
                     processor.processEvent(event);
-                    this.addMetric(true, body.length);
+                    this.addMetric(true, body.length, event);
                 } catch (Throwable ex) {
                     logger.error("Error writing to controller,data will discard.", ex);
-                    this.addMetric(false, body.length);
+                    this.addMetric(false, body.length, event);
                     throw new ChannelException(
                             "Process Controller Event error can't write event to channel.");
                 }
@@ -669,10 +672,10 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 Event event = EventBuilder.withBody(body, headers);
                 try {
                     processor.processEvent(event);
-                    this.addMetric(true, body.length);
+                    this.addMetric(true, body.length, event);
                 } catch (Throwable ex) {
                     logger.error("Error writing to controller,data will discard.", ex);
-                    this.addMetric(false, body.length);
+                    this.addMetric(false, body.length, event);
                     throw new ChannelException(
                             "Process Controller Event error can't write event to channel.");
                 }
@@ -726,25 +729,23 @@ public class ServerMessageHandler extends SimpleChannelHandler {
 
     /**
      * addMetric
-<<<<<<< HEAD
      * 
-=======
-     *
->>>>>>> add udp feature
      * @param result
      * @param size
+     * @param event
      */
-    private void addMetric(boolean result, long size) {
+    private void addMetric(boolean result, long size, Event event) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
         dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, source.getName());
         dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, source.getName());
-        dimensions.put(DataProxyMetricItem.KEY_INLONG_GROUP_ID, "");
-        dimensions.put(DataProxyMetricItem.KEY_INLONG_STREAM_ID, "");
+        DataProxyMetricItem.fillInlongId(event, dimensions);
+        DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
         DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
         if (result) {
             metricItem.readSuccessCount.incrementAndGet();
             metricItem.readSuccessSize.addAndGet(size);
+            AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
         } else {
             metricItem.readFailCount.incrementAndGet();
             metricItem.readFailSize.addAndGet(size);
