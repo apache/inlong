@@ -48,7 +48,7 @@ import org.slf4j.Logger;
  */
 public class MetricListenerRunnable implements Runnable {
 
-    public static final Logger LOG = InlongLoggerFactory.getLogger(MetricObserver.class);
+    public static final Logger LOG = InlongLoggerFactory.getLogger(MetricListenerRunnable.class);
 
     private String domain;
     private List<MetricListener> listenerList;
