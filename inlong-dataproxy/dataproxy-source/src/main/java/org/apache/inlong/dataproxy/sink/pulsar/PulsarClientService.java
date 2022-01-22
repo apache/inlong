@@ -244,7 +244,6 @@ public class PulsarClientService {
         builder.serviceUrl(pulsarUrl)
                 .connectionTimeout(clientTimeout, TimeUnit.SECONDS);
         return builder.build();
-
     }
 
     public List<TopicProducerInfo> initTopicProducer(String topic) {
