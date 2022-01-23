@@ -75,6 +75,11 @@
             <artifactId>hadoop-common</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-kafka_${flink.scala.binary.version}</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>
