@@ -24,6 +24,7 @@
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
+        <result column="enable_create_table" jdbcType="TINYINT" property="enableCreateTable"/>
         <result column="jdbc_url" jdbcType="VARCHAR" property="jdbcUrl"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
@@ -51,14 +52,13 @@
         <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
-        <result column="temp_view" jdbcType="LONGVARCHAR" property="tempView"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, inlong_group_id, inlong_stream_id, jdbc_url, username, password, db_name, table_name,
+        id, inlong_group_id, inlong_stream_id, enable_create_table, jdbc_url, username, password, db_name, table_name,
         hdfs_default_fs, warehouse_dir, partition_interval, partition_unit, primary_partition, secondary_partition,
-        partition_creation_strategy, file_format, data_encoding, data_separator, storage_period, opt_log,
-        status, previous_status, is_deleted, creator, modifier, create_time, modify_time, temp_view
+        partition_creation_strategy, file_format, data_encoding, data_separator, storage_period,
+        opt_log, status, previous_status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -141,9 +141,8 @@
           and s.inlong_group_id = #{groupId, jdbcType=VARCHAR}
           and s.inlong_stream_id = #{streamId, jdbcType=VARCHAR}
     </select>
-    <select id="selectHiveSortInfoByIdentifier"
-            resultType="org.apache.inlong.manager.common.pojo.datastorage.StorageHiveSortInfo">
-        SELECT hive.id,
+    <select id="selectAllHiveConfig" resultType="org.apache.inlong.manager.common.pojo.datastorage.StorageHiveDTO">
+        select hive.id,
                hive.inlong_group_id,
                hive.inlong_stream_id,
 
@@ -173,7 +172,7 @@
                stream.description,
                stream.data_separator as sourceSeparator,
                stream.data_escape_char
-        FROM data_stream stream,
+        from data_stream stream,
              storage_hive hive
         <where>
             stream.is_deleted = 0
@@ -195,28 +194,28 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
-        insert into storage_hive (id, inlong_group_id, inlong_stream_id,
+        insert into storage_hive (id, inlong_group_id,
+                                  inlong_stream_id, enable_create_table,
                                   jdbc_url, username, password,
                                   db_name, table_name, hdfs_default_fs,
                                   warehouse_dir, partition_interval,
                                   partition_unit, primary_partition,
                                   secondary_partition, partition_creation_strategy,
                                   file_format, data_encoding, data_separator,
-                                  storage_period, opt_log,
-                                  status, previous_status, is_deleted,
-                                  creator, modifier, create_time,
-                                  modify_time, temp_view)
-        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
+                                  storage_period, opt_log, status,
+                                  previous_status, is_deleted, creator,
+                                  modifier, create_time, modify_time)
+        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR},
+                #{inlongStreamId,jdbcType=VARCHAR}, #{enableCreateTable,jdbcType=TINYINT},
                 #{jdbcUrl,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
                 #{dbName,jdbcType=VARCHAR}, #{tableName,jdbcType=VARCHAR}, #{hdfsDefaultFs,jdbcType=VARCHAR},
                 #{warehouseDir,jdbcType=VARCHAR}, #{partitionInterval,jdbcType=INTEGER},
                 #{partitionUnit,jdbcType=VARCHAR}, #{primaryPartition,jdbcType=VARCHAR},
                 #{secondaryPartition,jdbcType=VARCHAR}, #{partitionCreationStrategy,jdbcType=VARCHAR},
                 #{fileFormat,jdbcType=VARCHAR}, #{dataEncoding,jdbcType=VARCHAR}, #{dataSeparator,jdbcType=VARCHAR},
-                #{storagePeriod,jdbcType=INTEGER}, #{optLog,jdbcType=VARCHAR},
-                #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
-                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
-                #{modifyTime,jdbcType=TIMESTAMP}, #{tempView,jdbcType=LONGVARCHAR})
+                #{storagePeriod,jdbcType=INTEGER}, #{optLog,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+                #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
+                #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">
@@ -230,6 +229,9 @@
             </if>
             <if test="inlongStreamId != null">
                 inlong_stream_id,
+            </if>
+            <if test="enableCreateTable != null">
+                enable_create_table,
             </if>
             <if test="jdbcUrl != null">
                 jdbc_url,
@@ -303,9 +305,6 @@
             <if test="modifyTime != null">
                 modify_time,
             </if>
-            <if test="tempView != null">
-                temp_view,
-            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -316,6 +315,9 @@
             </if>
             <if test="inlongStreamId != null">
                 #{inlongStreamId,jdbcType=VARCHAR},
+            </if>
+            <if test="enableCreateTable != null">
+                #{enableCreateTable,jdbcType=TINYINT},
             </if>
             <if test="jdbcUrl != null">
                 #{jdbcUrl,jdbcType=VARCHAR},
@@ -389,9 +391,6 @@
             <if test="modifyTime != null">
                 #{modifyTime,jdbcType=TIMESTAMP},
             </if>
-            <if test="tempView != null">
-                #{tempView,jdbcType=LONGVARCHAR},
-            </if>
         </trim>
     </insert>
 
@@ -403,6 +402,9 @@
             </if>
             <if test="inlongStreamId != null">
                 inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
+            </if>
+            <if test="enableCreateTable != null">
+                enable_create_table = #{enableCreateTable,jdbcType=TINYINT},
             </if>
             <if test="jdbcUrl != null">
                 jdbc_url = #{jdbcUrl,jdbcType=VARCHAR},
@@ -476,9 +478,6 @@
             <if test="modifyTime != null">
                 modify_time = #{modifyTime,jdbcType=TIMESTAMP},
             </if>
-            <if test="tempView != null">
-                temp_view = #{tempView,jdbcType=LONGVARCHAR},
-            </if>
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
@@ -486,6 +485,7 @@
         update storage_hive
         set inlong_group_id             = #{inlongGroupId,jdbcType=VARCHAR},
             inlong_stream_id            = #{inlongStreamId,jdbcType=VARCHAR},
+            enable_create_table         = #{enableCreateTable,jdbcType=TINYINT},
             jdbc_url                    = #{jdbcUrl,jdbcType=VARCHAR},
             username                    = #{username,jdbcType=VARCHAR},
             password                    = #{password,jdbcType=VARCHAR},
@@ -509,8 +509,7 @@
             creator                     = #{creator,jdbcType=VARCHAR},
             modifier                    = #{modifier,jdbcType=VARCHAR},
             create_time                 = #{createTime,jdbcType=TIMESTAMP},
-            modify_time                 = #{modifyTime,jdbcType=TIMESTAMP},
-            temp_view                   = #{tempView,jdbcType=LONGVARCHAR}
+            modify_time                 = #{modifyTime,jdbcType=TIMESTAMP}
         where id = #{id,jdbcType=INTEGER}
     </update>
     <update id="updateStorageStatusById" parameterType="org.apache.inlong.manager.dao.entity.StorageHiveEntity">

@@ -19,7 +19,7 @@ package org.apache.inlong.manager.dao.mapper;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveSortInfo;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveDTO;
 import org.apache.inlong.manager.common.pojo.datastorage.StoragePageRequest;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageSummaryInfo;
 import org.apache.inlong.manager.dao.entity.StorageHiveEntity;
@@ -90,7 +90,7 @@ public interface StorageHiveEntityMapper {
      * @param streamId Data stream id, if is null, get all configs under the group id
      * @return Hive Sort config
      */
-    List<StorageHiveSortInfo> selectHiveSortInfoByIdentifier(@Param("groupId") String groupId,
+    List<StorageHiveDTO> selectAllHiveConfig(@Param("groupId") String groupId,
             @Param("streamId") String streamId);
 
 }

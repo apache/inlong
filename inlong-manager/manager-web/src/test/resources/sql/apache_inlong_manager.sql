@@ -570,6 +570,7 @@ CREATE TABLE `storage_hive`
     `id`                          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id`             varchar(128) NOT NULL COMMENT 'Owning business group id',
     `inlong_stream_id`            varchar(128) NOT NULL COMMENT 'Owning data stream id',
+    `enable_create_table`         tinyint(1)            DEFAULT 1 COMMENT 'Whether to enable create table, 1: enable, 0: disable, default is 1',
     `jdbc_url`                    varchar(255)          DEFAULT NULL COMMENT 'Hive JDBC connection URL, such as "jdbc:hive2://127.0.0.1:10000"',
     `username`                    varchar(128)          DEFAULT NULL COMMENT 'Username',
     `password`                    varchar(255)          DEFAULT NULL COMMENT 'User password',

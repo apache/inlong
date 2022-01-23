@@ -36,7 +36,8 @@ import org.apache.inlong.manager.common.pojo.datasource.SourceDbBasicInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceFileBasicInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageInfo;
+import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageRequest;
+import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageResponse;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageSummaryInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamExtInfo;
@@ -46,8 +47,9 @@ import org.apache.inlong.manager.common.pojo.datastream.DataStreamListVO;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamTopicVO;
-import org.apache.inlong.manager.common.pojo.datastream.FullPageInfo;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageUpdateInfo;
+import org.apache.inlong.manager.common.pojo.datastream.FullStreamRequest;
+import org.apache.inlong.manager.common.pojo.datastream.FullStreamResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.BusinessEntity;
@@ -330,7 +332,7 @@ public class DataStreamServiceImpl implements DataStreamService {
      * According to groupId and streamId, query the number of associated undeleted data storage
      */
     private boolean hasDataStorage(String groupId, String streamId) {
-        int count = storageService.getCountByIdentifier(groupId, streamId);
+        Integer count = storageService.getCountByIdentifier(groupId, streamId);
         return count > 0;
     }
 
@@ -373,12 +375,12 @@ public class DataStreamServiceImpl implements DataStreamService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean saveAll(FullPageInfo fullPageInfo, String operator) {
+    public boolean saveAll(FullStreamRequest fullStreamRequest, String operator) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to save all stream page info: {}", fullPageInfo);
+            LOGGER.debug("begin to save all stream page info: {}", fullStreamRequest);
         }
-        Preconditions.checkNotNull(fullPageInfo, "fullPageInfo is empty");
-        DataStreamInfo streamInfo = fullPageInfo.getStreamInfo();
+        Preconditions.checkNotNull(fullStreamRequest, "fullStreamRequest is empty");
+        DataStreamInfo streamInfo = fullStreamRequest.getStreamInfo();
         Preconditions.checkNotNull(streamInfo, "data stream info is empty");
 
         // Check whether it can be added: check by lower-level specific services
@@ -388,28 +390,28 @@ public class DataStreamServiceImpl implements DataStreamService {
         this.save(streamInfo, operator);
 
         // 2.1 Save file data source information
-        if (fullPageInfo.getFileBasicInfo() != null) {
-            sourceFileService.saveBasic(fullPageInfo.getFileBasicInfo(), operator);
+        if (fullStreamRequest.getFileBasicInfo() != null) {
+            sourceFileService.saveBasic(fullStreamRequest.getFileBasicInfo(), operator);
         }
-        if (CollectionUtils.isNotEmpty(fullPageInfo.getFileDetailInfoList())) {
-            for (SourceFileDetailInfo detailInfo : fullPageInfo.getFileDetailInfoList()) {
+        if (CollectionUtils.isNotEmpty(fullStreamRequest.getFileDetailInfoList())) {
+            for (SourceFileDetailInfo detailInfo : fullStreamRequest.getFileDetailInfoList()) {
                 sourceFileService.saveDetail(detailInfo, operator);
             }
         }
 
         // 2.2 Save DB data source information
-        if (fullPageInfo.getDbBasicInfo() != null) {
-            sourceDbService.saveBasic(fullPageInfo.getDbBasicInfo(), operator);
+        if (fullStreamRequest.getDbBasicInfo() != null) {
+            sourceDbService.saveBasic(fullStreamRequest.getDbBasicInfo(), operator);
         }
-        if (CollectionUtils.isNotEmpty(fullPageInfo.getDbDetailInfoList())) {
-            for (SourceDbDetailInfo detailInfo : fullPageInfo.getDbDetailInfoList()) {
+        if (CollectionUtils.isNotEmpty(fullStreamRequest.getDbDetailInfoList())) {
+            for (SourceDbDetailInfo detailInfo : fullStreamRequest.getDbDetailInfoList()) {
                 sourceDbService.saveDetail(detailInfo, operator);
             }
         }
 
         // 3. Save data storage information
-        if (CollectionUtils.isNotEmpty(fullPageInfo.getStorageInfo())) {
-            for (BaseStorageInfo storageInfo : fullPageInfo.getStorageInfo()) {
+        if (CollectionUtils.isNotEmpty(fullStreamRequest.getStorageInfo())) {
+            for (BaseStorageRequest storageInfo : fullStreamRequest.getStorageInfo()) {
                 storageService.save(storageInfo, operator);
             }
         }
@@ -420,14 +422,14 @@ public class DataStreamServiceImpl implements DataStreamService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean batchSaveAll(List<FullPageInfo> fullPageInfoList, String operator) {
-        if (CollectionUtils.isEmpty(fullPageInfoList)) {
+    public boolean batchSaveAll(List<FullStreamRequest> fullStreamRequestList, String operator) {
+        if (CollectionUtils.isEmpty(fullStreamRequestList)) {
             return true;
         }
-        LOGGER.info("begin to batch save all stream page info, batch size={}", fullPageInfoList.size());
+        LOGGER.info("begin to batch save all stream page info, batch size={}", fullStreamRequestList.size());
 
         // Check if it can be added
-        DataStreamInfo firstStream = fullPageInfoList.get(0).getStreamInfo();
+        DataStreamInfo firstStream = fullStreamRequestList.get(0).getStreamInfo();
         Preconditions.checkNotNull(firstStream, "data stream info is empty");
         String groupId = firstStream.getInlongGroupId();
         this.checkBizIsTempStatus(groupId);
@@ -438,7 +440,7 @@ public class DataStreamServiceImpl implements DataStreamService {
         // and the ones with is_deleted=0 should be deleted
         streamMapper.deleteAllByGroupId(groupId);
 
-        for (FullPageInfo pageInfo : fullPageInfoList) {
+        for (FullStreamRequest pageInfo : fullStreamRequestList) {
             // 1.1 Delete the data stream extensions and fields corresponding to groupId and streamId
             DataStreamInfo streamInfo = pageInfo.getStreamInfo();
             String streamId = streamInfo.getInlongStreamId();
@@ -461,7 +463,7 @@ public class DataStreamServiceImpl implements DataStreamService {
     }
 
     @Override
-    public PageInfo<FullPageInfo> listAllWithGroupId(DataStreamPageRequest request) {
+    public PageInfo<FullStreamResponse> listAllWithGroupId(DataStreamPageRequest request) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("begin to list full data stream page by {}", request);
         }
@@ -483,14 +485,14 @@ public class DataStreamServiceImpl implements DataStreamService {
         List<DataStreamInfo> streamInfoList = CommonBeanUtils.copyListProperties(page, DataStreamInfo::new);
 
         // Convert and encapsulate the paged results
-        List<FullPageInfo> fullPageInfoList = new ArrayList<>(streamInfoList.size());
+        List<FullStreamResponse> responseList = new ArrayList<>(streamInfoList.size());
         for (DataStreamInfo streamInfo : streamInfoList) {
             // 2.1 Set the extended information and field information of the data stream
             String streamId = streamInfo.getInlongStreamId();
             setStreamExtAndField(groupId, streamId, streamInfo);
 
             // 2.3 Set the data stream to the result sub-object
-            FullPageInfo pageInfo = new FullPageInfo();
+            FullStreamResponse pageInfo = new FullStreamResponse();
             pageInfo.setStreamInfo(streamInfo);
 
             // 3. Query the basic and detailed information of the data source
@@ -520,14 +522,14 @@ public class DataStreamServiceImpl implements DataStreamService {
             }
 
             // 4. Query various data storage and its extended information, field information
-            List<BaseStorageInfo> storageInfoList = storageService.listByIdentifier(groupId, streamId);
+            List<BaseStorageResponse> storageInfoList = storageService.listByIdentifier(groupId, streamId);
             pageInfo.setStorageInfo(storageInfoList);
 
             // 5. Add a single result to the paginated list
-            fullPageInfoList.add(pageInfo);
+            responseList.add(pageInfo);
         }
 
-        PageInfo<FullPageInfo> pageInfo = new PageInfo<>(fullPageInfoList);
+        PageInfo<FullStreamResponse> pageInfo = new PageInfo<>(responseList);
         pageInfo.setTotal(pageInfo.getTotal());
 
         LOGGER.info("success to list full data stream info");

@@ -25,8 +25,9 @@ import org.apache.inlong.manager.common.pojo.datastream.DataStreamListVO;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamTopicVO;
-import org.apache.inlong.manager.common.pojo.datastream.FullPageInfo;
+import org.apache.inlong.manager.common.pojo.datastream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageUpdateInfo;
+import org.apache.inlong.manager.common.pojo.datastream.FullStreamResponse;
 
 /**
  * data stream service layer interface
@@ -109,22 +110,22 @@ public interface DataStreamService {
     /**
      * Save all information related to the data stream, its data source, and data storage
      *
-     * @param fullPageInfo All information on the page
+     * @param fullStreamRequest All information on the page
      * @param operator Edit person's name
      * @return Whether the save was successful
      */
-    boolean saveAll(FullPageInfo fullPageInfo, String operator);
+    boolean saveAll(FullStreamRequest fullStreamRequest, String operator);
 
     /**
      * Save data streams, their data sources, and all information related to data storage in batches
      *
-     * @param fullPageInfoList List of data stream page information
+     * @param fullStreamRequestList List of data stream page information
      * @param operator Edit person's name
      * @return Whether the save was successful
      * @apiNote This interface is only used when creating a new business. To ensure data consistency,
      *         all associated data needs to be physically deleted, and then added
      */
-    boolean batchSaveAll(List<FullPageInfo> fullPageInfoList, String operator);
+    boolean batchSaveAll(List<FullStreamRequest> fullStreamRequestList, String operator);
 
     /**
      * Paging query all data of the data stream page under the specified groupId
@@ -132,7 +133,7 @@ public interface DataStreamService {
      * @param request Query
      * @return Paging list of all data on the data stream page
      */
-    PageInfo<FullPageInfo> listAllWithGroupId(DataStreamPageRequest request);
+    PageInfo<FullStreamResponse> listAllWithGroupId(DataStreamPageRequest request);
 
     /**
      * Modify all data streams (including basic information about data sources)

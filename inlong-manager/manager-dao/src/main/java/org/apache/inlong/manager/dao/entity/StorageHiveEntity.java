@@ -28,6 +28,9 @@ public class StorageHiveEntity implements Serializable {
     private Integer id;
     private String inlongGroupId;
     private String inlongStreamId;
+
+    private Integer enableCreateTable;
+
     private String jdbcUrl;
     private String username;
     private String password;
@@ -55,6 +58,5 @@ public class StorageHiveEntity implements Serializable {
     private String modifier;
     private Date createTime;
     private Date modifyTime;
-    private String tempView;
 
 }

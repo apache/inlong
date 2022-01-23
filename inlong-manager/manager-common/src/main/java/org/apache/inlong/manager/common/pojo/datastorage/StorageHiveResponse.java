@@ -17,8 +17,10 @@
 
 package org.apache.inlong.manager.common.pojo.datastorage;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,15 +28,18 @@ import lombok.ToString;
 import org.apache.inlong.manager.common.enums.BizConstant;
 
 /**
- * Interaction objects for Hive storage
+ * Response of the Hive storage info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Interaction objects for Hive storage")
-public class StorageHiveInfo extends BaseStorageInfo {
+@ApiModel(value = "Response of the Hive storage info")
+public class StorageHiveResponse extends BaseStorageResponse {
 
     private String storageType = BizConstant.STORAGE_HIVE;
+
+    @ApiModelProperty("Whether to enable create table")
+    private Integer enableCreateTable;
 
     @ApiModelProperty("Hive JDBC URL")
     private String jdbcUrl;
@@ -81,11 +86,26 @@ public class StorageHiveInfo extends BaseStorageInfo {
     @ApiModelProperty("Data field separator")
     private String dataSeparator;
 
-    @ApiModelProperty("Data storage period in Hive, unit: Day")
-    private Integer storagePeriod;
-
     @ApiModelProperty("Backend operation log")
     private String optLog;
+
+    @ApiModelProperty("Status")
+    private Integer status;
+
+    @ApiModelProperty("Previous State")
+    private Integer previousStatus;
+
+    @ApiModelProperty("Creator")
+    private String creator;
+
+    @ApiModelProperty("modifier")
+    private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
 
     @ApiModelProperty("hive table field list")
     private List<StorageHiveFieldInfo> hiveFieldList;

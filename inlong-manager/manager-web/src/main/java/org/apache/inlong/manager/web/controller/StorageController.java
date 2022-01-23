@@ -25,8 +25,9 @@ import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageListVO;
+import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageRequest;
+import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageListResponse;
+import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageResponse;
 import org.apache.inlong.manager.common.pojo.datastorage.StoragePageRequest;
 import org.apache.inlong.manager.common.pojo.query.ColumnInfoBean;
 import org.apache.inlong.manager.common.pojo.query.ConnectionInfo;
@@ -60,7 +61,7 @@ public class StorageController {
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save storage information")
-    public Response<Integer> save(@RequestBody BaseStorageInfo storageInfo) {
+    public Response<Integer> save(@RequestBody BaseStorageRequest storageInfo) {
         return Response.success(storageService.save(storageInfo, LoginUserUtil.getLoginUserDetail().getUserName()));
     }
 
@@ -70,20 +71,20 @@ public class StorageController {
             @ApiImplicitParam(name = "storageType", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     })
-    public Response<BaseStorageInfo> get(@RequestParam String storageType, @PathVariable Integer id) {
+    public Response<BaseStorageResponse> get(@RequestParam String storageType, @PathVariable Integer id) {
         return Response.success(storageService.getById(storageType, id));
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ApiOperation(value = "Query data storage list based on conditions")
-    public Response<PageInfo<? extends BaseStorageListVO>> listByCondition(StoragePageRequest request) {
+    public Response<PageInfo<? extends BaseStorageListResponse>> listByCondition(StoragePageRequest request) {
         return Response.success(storageService.listByCondition(request));
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Modify data storage information")
-    public Response<Boolean> update(@RequestBody BaseStorageInfo storageInfo) {
+    public Response<Boolean> update(@RequestBody BaseStorageRequest storageInfo) {
         return Response.success(storageService.update(storageInfo, LoginUserUtil.getLoginUserDetail().getUserName()));
     }
 

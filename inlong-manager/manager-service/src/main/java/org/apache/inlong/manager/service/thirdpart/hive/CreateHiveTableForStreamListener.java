@@ -19,13 +19,13 @@ package org.apache.inlong.manager.service.thirdpart.hive;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveSortInfo;
-import org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.common.event.ListenerResult;
 import org.apache.inlong.manager.common.event.task.TaskEvent;
 import org.apache.inlong.manager.common.event.task.TaskEventListener;
 import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveDTO;
+import org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper;
+import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,16 +53,12 @@ public class CreateHiveTableForStreamListener implements TaskEventListener {
         String streamId = form.getInlongStreamId();
         log.info("begin create hive table for groupId={}, streamId={}", groupId, streamId);
 
-        List<StorageHiveSortInfo> hiveConfig = hiveEntityMapper.selectHiveSortInfoByIdentifier(groupId, streamId);
-        if (hiveConfig == null || hiveConfig.size() == 0) {
-            return ListenerResult.success();
-        }
-        for (StorageHiveSortInfo info : hiveConfig) {
-            hiveTableOperator.createHiveTable(groupId, info);
-        }
+        List<StorageHiveDTO> configList = hiveEntityMapper.selectAllHiveConfig(groupId, streamId);
+        hiveTableOperator.createHiveResource(groupId, configList);
 
-        log.info("finish create hive table for business {} - {} ", groupId, streamId);
-        return ListenerResult.success();
+        String result = "success to create hive table for group [" + groupId + "], stream [" + streamId + "]";
+        log.info(result);
+        return ListenerResult.success(result);
     }
 
     @Override
