@@ -94,7 +94,7 @@ public class MetricListenerRunnable implements Runnable {
      * @throws ClassNotFoundException
      */
     @SuppressWarnings("unchecked")
-    private List<MetricItemValue> getItemValues() throws InstanceNotFoundException, AttributeNotFoundException,
+    public List<MetricItemValue> getItemValues() throws InstanceNotFoundException, AttributeNotFoundException,
             ReflectionException, MBeanException, MalformedObjectNameException, ClassNotFoundException {
         StringBuilder beanName = new StringBuilder();
         beanName.append(MetricRegister.JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR)

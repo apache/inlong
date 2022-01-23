@@ -146,6 +146,8 @@ public class TestMetricListenerRunnable {
         List<MetricListener> listeners = new ArrayList<>();
         listeners.add(listener);
         MetricListenerRunnable runnable = new MetricListenerRunnable("DataProxy", listeners);
+        List<MetricItemValue> itemValues = runnable.getItemValues();
+        assertEquals(itemValues.size(), 4);
         runnable.run();
     }
 }
