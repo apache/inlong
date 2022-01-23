@@ -52,12 +52,12 @@ import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.MetricItemValue;
 import org.apache.inlong.dataproxy.metrics.MetricListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.prometheus.client.Collector;
 import io.prometheus.client.CounterMetricFamily;
 import io.prometheus.client.exporter.HTTPServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -70,10 +70,9 @@ public class PrometheusMetricListener extends Collector implements MetricListene
     public static final int DEFAULT_PROMETHEUS_HTTP_PORT = 8080;
     public static final String DEFAULT_DIMENSION_LABEL = "dimension";
 
-    //
+    private String metricName;
     private DataProxyMetricItem metricItem;
     private Map<String, AtomicLong> metricValueMap = new ConcurrentHashMap<>();
-    private String metricName;
     protected HTTPServer httpServer;
     private Map<String, MetricItemValue> dimensionMetricValueMap = new ConcurrentHashMap<>();
     private List<String> dimensionKeys = new ArrayList<>();
@@ -82,19 +81,20 @@ public class PrometheusMetricListener extends Collector implements MetricListene
      * Constructor
      */
     public PrometheusMetricListener() {
+        this.metricName = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
         this.metricItem = new DataProxyMetricItem();
-        this.metricItem.clusterId = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
+        this.metricItem.clusterId = metricName;
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         StringBuilder beanName = new StringBuilder();
-        beanName.append(JMX_DOMAIN).append(DOMAIN_SEPARATOR).append("type=DataProxyCounter");
-        this.metricName = beanName.toString();
+        beanName.append(JMX_DOMAIN).append(DOMAIN_SEPARATOR).append("type=DataProxyPrometheus");
+        String strBeanName = beanName.toString();
         try {
-            ObjectName objName = new ObjectName(metricName);
+            ObjectName objName = new ObjectName(strBeanName);
             mbs.registerMBean(metricItem, objName);
         } catch (Exception ex) {
-            LOG.error("exception while register mbean:{},error:{}", metricName, ex.getMessage());
+            LOG.error("exception while register mbean:{},error:{}", strBeanName, ex);
         }
-        //
+        // prepare metric value map
         metricValueMap.put(M_READ_SUCCESS_COUNT, metricItem.readSuccessCount);
         metricValueMap.put(M_READ_SUCCESS_SIZE, metricItem.readSuccessSize);
         metricValueMap.put(M_READ_FAIL_COUNT, metricItem.readFailCount);
@@ -115,6 +115,7 @@ public class PrometheusMetricListener extends Collector implements MetricListene
         int httpPort = CommonPropertiesHolder.getInteger(KEY_PROMETHEUS_HTTP_PORT, DEFAULT_PROMETHEUS_HTTP_PORT);
         try {
             this.httpServer = new HTTPServer(httpPort);
+            this.register();
         } catch (IOException e) {
             LOG.error("exception while register prometheus http server:{},error:{}", metricName, e.getMessage());
         }
@@ -142,7 +143,7 @@ public class PrometheusMetricListener extends Collector implements MetricListene
             // id dimension
             String dimensionKey = itemValue.getKey();
             MetricItemValue dimensionMetricValue = this.dimensionMetricValueMap.get(dimensionKey);
-            if (dimensionKey == null) {
+            if (dimensionMetricValue == null) {
                 dimensionMetricValue = new MetricItemValue(dimensionKey, new ConcurrentHashMap<String, String>(),
                         new ConcurrentHashMap<String, MetricValue>());
                 this.dimensionMetricValueMap.putIfAbsent(dimensionKey, dimensionMetricValue);
@@ -202,7 +203,7 @@ public class PrometheusMetricListener extends Collector implements MetricListene
 
         // id dimension
         CounterMetricFamily idCounter = new CounterMetricFamily(metricName + "&group=id",
-                "The metrics of inlong dataflow.", this.dimensionKeys);
+                "The metrics of inlong datastream.", this.dimensionKeys);
         for (Entry<String, MetricItemValue> entry : this.dimensionMetricValueMap.entrySet()) {
             MetricItemValue itemValue = entry.getValue();
             // read
