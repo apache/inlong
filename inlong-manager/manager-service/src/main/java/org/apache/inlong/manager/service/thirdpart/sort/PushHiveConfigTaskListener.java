@@ -51,7 +51,7 @@ import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
-import org.apache.inlong.sort.protocol.deserialization.TDMsgCsvDeserializationInfo;
+import org.apache.inlong.sort.protocol.deserialization.InLongMsgCsvDeserializationInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFileFormat;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveTimePartitionInfo;
@@ -226,7 +226,7 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
         DeserializationInfo deserializationInfo = null;
         boolean isDbType = BizConstant.DATA_SOURCE_DB.equals(storageInfo.getDataSourceType());
         if (!isDbType) {
-            // FILE and auto push source, the data format is TEXT or KEY-VALUE, temporarily use TDMsgCsv
+            // FILE and auto push source, the data format is TEXT or KEY-VALUE, temporarily use InLongMsgCsv
             String dataType = storageInfo.getDataType();
             if (BizConstant.DATA_TYPE_TEXT.equalsIgnoreCase(dataType)
                     || BizConstant.DATA_TYPE_KEY_VALUE.equalsIgnoreCase(dataType)) {
@@ -238,7 +238,7 @@ public class PushHiveConfigTaskListener implements TaskEventListener {
                     escape = info.getDataEscapeChar().charAt(0);
                 }*/
                 // Whether to delete the first separator, the default is false for the time being
-                deserializationInfo = new TDMsgCsvDeserializationInfo(storageInfo.getInlongStreamId(), separator);
+                deserializationInfo = new InLongMsgCsvDeserializationInfo(storageInfo.getInlongStreamId(), separator);
             }
         }
 

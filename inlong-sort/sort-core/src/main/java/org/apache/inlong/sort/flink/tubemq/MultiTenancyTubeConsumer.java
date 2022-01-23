@@ -39,7 +39,7 @@ import org.apache.flink.util.TimeUtils;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.flink.SerializedRecord;
-import org.apache.inlong.sort.flink.TDMsgMixedSerializedRecord;
+import org.apache.inlong.sort.flink.InLongMsgMixedSerializedRecord;
 import org.apache.inlong.sort.meta.MetaManager;
 import org.apache.inlong.sort.util.CommonUtils;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
@@ -386,7 +386,7 @@ public class MultiTenancyTubeConsumer {
                 synchronized (context.getCheckpointLock()) {
                     for (Message message : consumeResult.getMessageList()) {
                         // TODO, optimize for single tid or no tid topic
-                        context.collect(new TDMsgMixedSerializedRecord(
+                        context.collect(new InLongMsgMixedSerializedRecord(
                                 topic, System.currentTimeMillis(), message.getData()));
                     }
                     final String partitionKey = consumeResult.getPartitionKey();

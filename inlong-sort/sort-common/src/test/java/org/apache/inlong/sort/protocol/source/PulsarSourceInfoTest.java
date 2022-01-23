@@ -23,7 +23,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMap
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
-import org.apache.inlong.sort.protocol.deserialization.TDMsgCsvDeserializationInfo;
+import org.apache.inlong.sort.protocol.deserialization.InLongMsgCsvDeserializationInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public class PulsarSourceInfoTest {
                 new FieldInfo("f1", StringFormatInfo.INSTANCE),
                 new FieldInfo("f2", StringFormatInfo.INSTANCE)
         };
-        DeserializationInfo deserializationInfo = new TDMsgCsvDeserializationInfo("stream", ',');
+        DeserializationInfo deserializationInfo = new InLongMsgCsvDeserializationInfo("stream", ',');
 
         PulsarSourceInfo pulsarSourceInfo = new PulsarSourceInfo(
                 "http://127.0.0.1:8080",
@@ -54,7 +54,7 @@ public class PulsarSourceInfoTest {
             Assert.assertTrue(pulsarSourceInfo.getServiceUrl().equals("pulsar://127.0.0.1:6650"));
             Assert.assertTrue(pulsarSourceInfo.getTopic().equals("business"));
             Assert.assertTrue(pulsarSourceInfo.getSubscriptionName().equals("consumer"));
-            Assert.assertTrue(pulsarSourceInfo.getDeserializationInfo() instanceof TDMsgCsvDeserializationInfo);
+            Assert.assertTrue(pulsarSourceInfo.getDeserializationInfo() instanceof InLongMsgCsvDeserializationInfo);
             Assert.assertTrue(pulsarSourceInfo.getAuthentication() == null);
         } catch (JsonProcessingException e) {
             Assert.fail();

@@ -32,10 +32,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>audit-common</artifactId>
             <version>${project.version}</version>
@@ -291,6 +287,7 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring.plugin.version}</version>
                     <executions>
                         <execution>
                             <id>repackage</id>
@@ -324,7 +321,7 @@
                         <dependency>
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-maven-plugin</artifactId>
-                            <version>2.3.3.RELEASE</version>
+                            <version>${spring.plugin.version}</version>
                         </dependency>
                     </dependencies>
                     <executions>
@@ -371,10 +368,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.plugin.version}</version>
                 <configuration>
                     <layout>ZIP</layout>
                     <includes>
-                        <!-- 打包时，本jar包不包含其他依赖包 ， 否则打出的jar包还是很大 -->
                         <include>
                             <groupId>nothing</groupId>
                             <artifactId>nothing</artifactId>

@@ -32,7 +32,7 @@ import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
-import org.apache.inlong.sort.protocol.deserialization.TDMsgDeserializationInfo;
+import org.apache.inlong.sort.protocol.deserialization.InLongMsgDeserializationInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,8 +102,8 @@ public class CommonUtils {
 
             // Get stream id
             final DeserializationInfo deserializationInfo = dataFlowInfo.getSourceInfo().getDeserializationInfo();
-            if (deserializationInfo instanceof TDMsgDeserializationInfo) {
-                streamId = ((TDMsgDeserializationInfo) deserializationInfo).getTid();
+            if (deserializationInfo instanceof InLongMsgDeserializationInfo) {
+                streamId = ((InLongMsgDeserializationInfo) deserializationInfo).getTid();
             }
 
         }
