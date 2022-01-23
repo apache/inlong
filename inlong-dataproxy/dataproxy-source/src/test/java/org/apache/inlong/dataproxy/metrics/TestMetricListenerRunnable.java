@@ -26,7 +26,6 @@ import java.util.Map;
 import org.apache.inlong.commons.config.metrics.MetricRegister;
 import org.apache.inlong.commons.config.metrics.MetricUtils;
 import org.apache.inlong.commons.config.metrics.MetricValue;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -54,10 +53,12 @@ public class TestMetricListenerRunnable {
     private static String keySink2;
 
     /**
-     * setup
+     * testResult
+     * 
+     * @throws Exception
      */
-    @BeforeClass
-    public static void setup() {
+    @Test
+    public void testResult() throws Exception {
         itemSet = new DataProxyMetricItemSet(CLUSTER_ID);
         MetricRegister.register(itemSet);
         // prepare
@@ -76,15 +77,6 @@ public class TestMetricListenerRunnable {
         itemSink.inlongGroupId = INLONG_GROUP_ID1;
         itemSink.inlongStreamId = INLONG_STREAM_ID;
         dimSink = itemSink.getDimensions();
-    }
-
-    /**
-     * testResult
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testResult() throws Exception {
         // increase source
         DataProxyMetricItem item = null;
         item = itemSet.findMetricItem(dimSource);
