@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is use to process CLI Broker Admin process.
+ * This class is use to process CLI Broker Admin process for script #{bin/tubemq-broker-admin.sh}.
  *
  *
  */
@@ -56,6 +56,11 @@ public class CliBrokerAdmin extends CliAbstractBase {
 
     }
 
+    /**
+     * Call the broker's HTTP API by the tubemq-broker-admin.sh script
+     * @param args     Call parameter array,
+     *                 the relevant parameters are dynamic mode, which is parsed by CommandLine.
+     */
     public boolean processParams(String[] args) throws Exception {
         // parse parameters and check value
         CommandLine cli = parser.parse(options, args);

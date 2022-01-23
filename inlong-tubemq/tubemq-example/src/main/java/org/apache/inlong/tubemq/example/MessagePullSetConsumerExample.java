@@ -60,13 +60,18 @@ public final class MessagePullSetConsumerExample {
     private static final ConcurrentHashMap<String, MessageSessionFactory> multSessFtyMap =
             new ConcurrentHashMap<>();
 
-    // The 1st parameter masterServers format is master1_ip:port[,master2_ip:port],
-    //     the master address(es) to connect to;
-    // The 2nd parameter subTopicAndFiterItems format is topic_1[[:filterCond_1.1[;filterCond_1.2]][,topic_2]]
-    //     the topic(s) (and filter condition set) to consume on.
-    // The 3rd parameter groupName is the name of consumer group
-    // The 4th parameter consumeCount is the amount of messages that need to be consumed
-    // The 5th  parameter fetchThreadCnt is the count of fetch thread
+    /***
+     * Consume messages with setting bootstrap offset in Pull mode through multi-session factory instances.
+     *
+     * @param args   Startup parameter array, including the following parts:
+     *               The 1st parameter masterServers is the master address(es) to connect to,
+     *                       format is master1_ip:port[,master2_ip:port];
+     *               The 2nd parameter subTopicAndFiterItems the topic(s) (and filter condition set) to consume on,
+     *                       format is topic_1[[:filterCond_1.1[;filterCond_1.2]][,topic_2]];
+     *               The 3rd parameter groupName is the name of consumer group;
+     *               The 4th parameter consumeCount is the amount of messages that need to be consumed;
+     *               The 5th  parameter fetchThreadCnt is the count of fetch thread.
+     */
     public static void main(String[] args) throws Throwable {
         // 1. get and initial parameters
         final String masterServers = args[0];

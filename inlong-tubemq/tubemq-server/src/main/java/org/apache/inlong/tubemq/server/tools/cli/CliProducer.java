@@ -46,7 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is use to process CLI Producer process.
+ * This class is use to process CLI Producer process for script #{bin/tubemq-producer-test.sh}.
  *
  *
  */
@@ -179,7 +179,9 @@ public class CliProducer extends CliAbstractBase {
         return true;
     }
 
-    // initial tubemq client order by caller required
+    /**
+     * Initializes the TubeMQ producer client(s) with the specified requirements.
+     */
     public void initTask() throws Exception {
         // initial client configure
         TubeClientConfig clientConfig = new TubeClientConfig(masterServers);
@@ -312,6 +314,11 @@ public class CliProducer extends CliAbstractBase {
         }
     }
 
+    /**
+     * Produce messages called by the tubemq-producer-test.sh script.
+     * @param args     Call parameter array,
+     *                 the relevant parameters are dynamic mode, which is parsed by CommandLine.
+     */
     public static void main(String[] args) {
         CliProducer cliProducer = new CliProducer();
         try {

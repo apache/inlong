@@ -30,7 +30,7 @@ public abstract class CliAbstractBase {
     protected final String commandName;
     protected Options options = new Options();
     protected CommandLineParser parser = new DefaultParser();
-    private HelpFormatter formatter = new HelpFormatter();
+    private final HelpFormatter formatter = new HelpFormatter();
 
     public CliAbstractBase(String commandName) {
         this.commandName = commandName;

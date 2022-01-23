@@ -162,7 +162,7 @@ public class MessageStore implements Closeable {
      * @param msgSizeLimit         the max read size
      * @param reqRcvTime           the timestamp of the record to be checked
      * @return                     read result
-     * @throws IOException         exception while process
+     * @throws IOException         the exception during processing
      */
     public GetMessageResult getMessages(int reqSwitch, long requestOffset,
                                         int partitionId, ConsumerNodeInfo consumerNodeInfo,
@@ -339,7 +339,7 @@ public class MessageStore implements Closeable {
      * @param sentAddr        the address to send the message to
      *
      * @return                the process result
-     * @throws IOException    exception while process
+     * @throws IOException    the exception during processing
      */
     public boolean appendMsg(AppendResult appendResult, int dataLength,
                              int dataCheckSum, byte[] data,
@@ -366,7 +366,7 @@ public class MessageStore implements Closeable {
      * @param waitRetryMs     the wait duration while retry
      *
      * @return                the process result
-     * @throws IOException    exception while process
+     * @throws IOException    the exception during processing
      */
     public boolean appendMsg2(AppendResult appendResult, int dataLength,
                               int dataCheckSum, byte[] data,
@@ -484,7 +484,7 @@ public class MessageStore implements Closeable {
     /***
      * Flush file store to disk.
      *
-     * @throws IOException exception while process
+     * @throws IOException the exception during processing
      */
     public void flushFile() throws IOException {
         if (this.closed.get()) {
@@ -498,7 +498,7 @@ public class MessageStore implements Closeable {
     /***
      * Flush memory store to file.
      *
-     * @throws IOException exception while process
+     * @throws IOException the exception during processing
      */
     public void flushMemCacheData() throws IOException {
         if (this.closed.get()) {
@@ -682,7 +682,7 @@ public class MessageStore implements Closeable {
      * @param appendResult      the append result
      *
      * @return                  the append result
-     * @throws IOException      exception while process
+     * @throws IOException      the exception during processing
      */
     private boolean triggerFlushAndAddMsg(int partitionId, int keyCode,
                                           long receivedTime, int entryLength,

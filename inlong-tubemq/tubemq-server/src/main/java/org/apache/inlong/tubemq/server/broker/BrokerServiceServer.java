@@ -265,11 +265,11 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     /***
      * Handle consumer's getMessageRequest.
      *
-     * @param request
-     * @param rmtAddress
-     * @param overtls
-     * @return
-     * @throws Throwable
+     * @param request        the http request
+     * @param rmtAddress     the remote node address
+     * @param overtls        whether over TLS
+     * @return               the response message
+     * @throws Throwable     the exception during processing
      */
     @Override
     public GetMessageResponseB2C getMessagesC2B(GetMessageRequestC2B request,
@@ -419,20 +419,20 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     /***
      * Query offset, then read data.
      *
-     * @param msgStore
-     * @param consumerNodeInfo
-     * @param group
-     * @param topic
-     * @param partitionId
-     * @param lastConsumed
-     * @param isManualCommitOffset
-     * @param sentAddr
-     * @param brokerAddr
-     * @param rmtAddrInfo
-     * @param isEscFlowCtrl
-     * @param sb
-     * @return
-     * @throws IOException
+     * @param msgStore                the message store instance
+     * @param consumerNodeInfo        the consumer node instance
+     * @param group                   the consume group name
+     * @param topic                   the topic name
+     * @param partitionId             the partition id
+     * @param lastConsumed            whether the last messages has been consumed
+     * @param isManualCommitOffset    whether manual commit offset
+     * @param sentAddr                the remote ip
+     * @param brokerAddr              the broker ip
+     * @param rmtAddrInfo             the remote address
+     * @param isEscFlowCtrl           whether escape flow control
+     * @param sb                      the string buffer
+     * @return    the query result
+     * @throws IOException the exception during processing
      */
     private GetMessageResult getMessages(final MessageStore msgStore,
                                          final ConsumerNodeInfo consumerNodeInfo,
@@ -490,13 +490,13 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     /***
      * Get message snapshot by given parameters.
      *
-     * @param topicName
-     * @param partitionId
-     * @param msgCount
-     * @param filterCondSet
-     * @param sb
-     * @return
-     * @throws Exception
+     * @param topicName        the topic name
+     * @param partitionId      the partition id
+     * @param msgCount         the message count need to query
+     * @param filterCondSet    the filter condition set
+     * @param sb               the string buffer
+     * @return                 the messages returned
+     * @throws Exception       the exception during processing
      */
     public StringBuilder getMessageSnapshot(String topicName, int partitionId,
                                             int msgCount, final Set<String> filterCondSet,
@@ -553,7 +553,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 List<String> transferMessageList = new ArrayList<>();
                 List<TransferedMessage> tmpMsgList = getMessageResult.transferedMessageList;
                 List<Message> messageList = DataConverterUtil.convertMessage(topicName, tmpMsgList);
-                int startPos = messageList.size() - msgCount < 0 ? 0 : messageList.size() - msgCount;
+                int startPos = Math.max(messageList.size() - msgCount, 0);
                 for (; startPos < messageList.size(); startPos++) {
                     String msgItem = new String(
                             Base64.encodeBase64(messageList.get(startPos).getData()));
@@ -581,11 +581,11 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     /***
      * Handle producer's sendMessage request.
      *
-     * @param request
-     * @param rmtAddress
-     * @param overtls
-     * @return
-     * @throws Throwable
+     * @param request       the request
+     * @param rmtAddress    the remote ip
+     * @param overtls       whether transfer over TLS
+     * @return              the response
+     * @throws Throwable    the exception during processing
      */
     @Override
     public SendMessageResponseB2P sendMessageP2B(SendMessageRequestP2B request,
@@ -792,11 +792,11 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     /***
      * Handle consumer register request.
      *
-     * @param request
-     * @param rmtAddress
-     * @param overtls
-     * @return
-     * @throws Throwable
+     * @param request       the request
+     * @param rmtAddress    the remote address
+     * @param overtls       whether transfer over TLS
+     * @return              the response
+     * @throws Throwable    the exception during processing
      */
     @Override
     public RegisterResponseB2C consumerRegisterC2B(RegisterRequestC2B request,
@@ -902,16 +902,16 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     /***
      * Handle consumer's register request.
      *
-     * @param clientId
-     * @param groupName
-     * @param topicName
-     * @param partStr
-     * @param filterCondSet
-     * @param overtls
-     * @param request
-     * @param builder
-     * @param strBuffer
-     * @return
+     * @param clientId        the client id
+     * @param groupName       the group name
+     * @param topicName       the topic name
+     * @param partStr         the group-topic-partitionId key
+     * @param filterCondSet   the filter condition set
+     * @param overtls      whether transfer over TLS
+     * @param request         the request
+     * @param builder      the response builder
+     * @param strBuffer    the string buffer
+     * @return             the response
      */
     private RegisterResponseB2C inProcessConsumerRegister(final String clientId, final String groupName,
                                                           final String topicName, final String partStr,
@@ -998,15 +998,15 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     /***
      * Handle consumer's unregister request.
      *
-     * @param clientId
-     * @param groupName
-     * @param topicName
-     * @param partStr
-     * @param request
-     * @param overtls
-     * @param builder
-     * @param strBuffer
-     * @return
+     * @param clientId     the client id
+     * @param groupName    the group name
+     * @param topicName    the topic name
+     * @param partStr      the group-topic-partitionId key
+     * @param request      the request
+     * @param overtls      whether transfer over TLS
+     * @param builder      the response builder
+     * @param strBuffer    the string buffer
+     * @return             the response
      */
     private RegisterResponseB2C inProcessConsumerUnregister(final String clientId, final String groupName,
                                                             final String topicName, final String partStr,
@@ -1067,11 +1067,11 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     /***
      * Handle consumer's heartbeat request.
      *
-     * @param request
-     * @param rmtAddress
-     * @param overtls
-     * @return
-     * @throws Throwable
+     * @param request        the request
+     * @param rmtAddress     the remote address
+     * @param overtls        whether transfer over TLS
+     * @return               the response
+     * @throws Throwable     the exception during processing
      */
     @Override
     public HeartBeatResponseB2C consumerHeartbeatC2B(HeartBeatRequestC2B request,
@@ -1188,11 +1188,11 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     /***
      * Handle consumer's commit offset request.
      *
-     * @param request
-     * @param rmtAddress
-     * @param overtls
-     * @return
-     * @throws Throwable
+     * @param request        the request
+     * @param rmtAddress     the remote address
+     * @param overtls        whether transfer over TLS
+     * @return               the response
+     * @throws Throwable     the exception during processing
      */
     @Override
     public CommitOffsetResponseB2C consumerCommitC2B(CommitOffsetRequestC2B request,

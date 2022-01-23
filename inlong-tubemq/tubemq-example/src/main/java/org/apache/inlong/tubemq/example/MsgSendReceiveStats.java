@@ -56,10 +56,10 @@ public class MsgSendReceiveStats implements Runnable {
                     }
                     if (isProducer) {
                         logger.info("********* Current {} Message sent count is {}, dlt is {}",
-                                new Object[]{entry.getKey(), currCount, (currCount - befCount.get())});
+                                entry.getKey(), currCount, (currCount - befCount.get()));
                     } else {
                         logger.info("********* Current {} Message received count is {}, dlt is {}",
-                                new Object[]{entry.getKey(), currCount, (currCount - befCount.get())});
+                                entry.getKey(), currCount, (currCount - befCount.get()));
                     }
                     befCountMap.get(entry.getKey()).set(currCount);
                 }
@@ -70,6 +70,12 @@ public class MsgSendReceiveStats implements Runnable {
         }
     }
 
+    /***
+     * Record the number of messages by topicName dimension
+     *
+     * @param topicName   topic name
+     * @param msgCnt      message count
+     */
     public void addMsgCount(final String topicName, int msgCnt) {
         if (msgCnt > 0) {
             AtomicLong currCount = counterMap.get(topicName);

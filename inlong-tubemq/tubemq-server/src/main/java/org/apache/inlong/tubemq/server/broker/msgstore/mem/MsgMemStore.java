@@ -289,7 +289,7 @@ public class MsgMemStore implements Closeable {
      *
      * @param msgFileStore    the file storage
      * @param strBuffer       the message buffer
-     * @throws IOException    the exception while process
+     * @throws IOException    the exception during processing
      */
     public void batchFlush(MsgFileStore msgFileStore,
                            StringBuilder strBuffer) throws Throwable {

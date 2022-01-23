@@ -45,9 +45,15 @@ import java.util.Set;
  *     until it transitions to the Replica state. If you attempt to remove an active Master, a MasterStateException
  *     is thrown.
  */
-
 public class BdbGroupAdmin {
 
+    /**
+     * Remove a node from a BDB-JE replication group.
+     * @param args   Startup parameter array, including the following parts:
+     *               The 1st parameter is replication group name;
+     *               The 2nd parameter is helperHost address, format is ip:port;
+     *               The 3nd parameter is need remove node name.
+     */
     public static void main(final String[] args) throws Exception {
 
         if (args == null || args.length != 3) {

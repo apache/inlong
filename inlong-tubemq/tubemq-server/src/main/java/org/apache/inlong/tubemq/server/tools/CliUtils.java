@@ -26,8 +26,20 @@ import org.apache.commons.cli.Options;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
+/**
+ * Cli related utils
+ *
+ */
 public class CliUtils {
 
+    /**
+     * Get and verify the configuration file path.
+     * @param args     Call parameter array,
+     *                 the relevant parameters are dynamic mode, which is parsed by CommandLine.
+     * @param result    the find result
+     *
+     * @return          whether success or failure
+     */
     public static boolean getConfigFilePath(final String[] args, ProcessResult result) {
         // build file option
         Options options = new Options();

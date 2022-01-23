@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * abstract class provides while loop and sleeping facility. If an unhandled exception, the threads
  * exit is logged. Implementers just need to add checking if there is work to be done and if so, do
  * it.
- * <p/>
+ *
  * Don't subclass Chore if the task relies on being woken up for something to do, such as an entry
  * being added to a queue, etc.
  *
@@ -40,6 +40,8 @@ public abstract class Chore extends HasThread {
     private final Sleeper sleeper;
 
     /**
+     * Initial Chore object
+     * @param name    the chore thread name
      * @param p       Period at which we should run. Will be adjusted appropriately should we find
      *                work and it takes time to complete.
      * @param stopper When {@link Stoppable#isStopped()} is true, this thread will cleanup and exit
@@ -52,7 +54,7 @@ public abstract class Chore extends HasThread {
     }
 
     /**
-     * @see Thread#run()
+     * The chore thread processing logic
      */
     @Override
     public void run() {

@@ -134,6 +134,15 @@ public class PBParameterUtils {
         return retResult;
     }
 
+    /**
+     * Check the validity of the bootstrap Offset information specified by the consumer.
+     *
+     * @param csmType        the topic list to be checked.
+     * @param reqTopicSet    the subscribed topic set
+     * @param requiredParts  the specified partitionKey-bootstrap offset map
+     * @param strBuffer      the string buffer used to construct the result
+     * @return the check result
+     */
     public static ParamCheckResult checkConsumerOffsetSetInfo(ConsumeType csmType,
                                                               final Set<String> reqTopicSet,
                                                               final String requiredParts,
@@ -188,6 +197,17 @@ public class PBParameterUtils {
         return retResult;
     }
 
+    /**
+     * Check the validity of consumer parameters
+     *  which specify partition boostrap Offset and use server-side balancing.
+     *
+     * @param inConsumerInfo      the consumer information
+     * @param masterConfig        the master configure
+     * @param defMetaDataManager  the cluster meta information
+     * @param brokerRunManager    the broker running information
+     * @param strBuffer           the string buffer used to construct the result
+     * @return the check result
+     */
     public static ParamCheckResult checkConsumerInputInfo(ConsumerInfo inConsumerInfo,
                                                           MasterConfig masterConfig,
                                                           MetaDataManager defMetaDataManager,
@@ -231,7 +251,7 @@ public class PBParameterUtils {
                 brokerRunManager.getSubTopicMaxBrokerCount(inConsumerInfo.getTopicSet());
         int curBClientRate = (int) Math.floor(maxBrokerCount / inConsumerInfo.getSourceCount());
         if (curBClientRate > allowRate) {
-            int minClientCnt = (int) (maxBrokerCount / allowRate);
+            int minClientCnt = maxBrokerCount / allowRate;
             if (maxBrokerCount % allowRate != 0) {
                 minClientCnt += 1;
             }

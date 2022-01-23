@@ -17,6 +17,7 @@
 
 package org.apache.inlong.tubemq.server.broker;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -96,13 +97,19 @@ public class TubeBroker implements Stoppable {
     private MasterService masterService;
     private boolean requireReportConf = false;
     private boolean isOnline = false;
-    private AtomicBoolean shutdown = new AtomicBoolean(true);
+    private final AtomicBoolean shutdown = new AtomicBoolean(true);
     private final AtomicBoolean isKeepAlive = new AtomicBoolean(false);
     private final AtomicLong lastRegTime = new AtomicLong(0);
-    private AtomicBoolean shutdownHooked = new AtomicBoolean(false);
-    private AtomicLong heartbeatErrors = new AtomicLong(0);
+    private final AtomicBoolean shutdownHooked = new AtomicBoolean(false);
+    private final AtomicLong heartbeatErrors = new AtomicLong(0);
     private int maxReleaseTryCnt = 10;
 
+    /**
+     * Initial broker instance.
+     *
+     * @param tubeConfig      the initial configure
+     * @throws IOException    the exception during processing
+     */
     public TubeBroker(final BrokerConfig tubeConfig) throws Exception {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "1");
@@ -194,7 +201,7 @@ public class TubeBroker implements Stoppable {
     /***
      * Start broker service.
      *
-     * @throws Exception
+     * @throws Exception  the exception during processing
      */
     public void start() throws Exception {
         logger.info("Starting tube server...");
@@ -396,7 +403,7 @@ public class TubeBroker implements Stoppable {
     /***
      * Register to master. Try multi times if failed.
      *
-     * @throws StartupException
+     * @throws StartupException  the exception during processing
      */
     private void register2Master() throws StartupException {
         int remainingRetry = 5;
@@ -505,8 +512,8 @@ public class TubeBroker implements Stoppable {
     /***
      * Build register request to master.
      *
-     * @return
-     * @throws Exception
+     * @return             the register request object
+     * @throws Exception   the exception during processing
      */
     private RegisterRequestB2M createMasterRegisterRequest() throws Exception {
         RegisterRequestB2M.Builder builder = RegisterRequestB2M.newBuilder();

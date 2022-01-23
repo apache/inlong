@@ -85,6 +85,13 @@ public class MessageStoreManager implements StoreService {
     // the status that is deleting topic.
     private final AtomicBoolean isRemovingTopic = new AtomicBoolean(false);
 
+    /**
+     * Initial the message-store manager.
+     *
+     * @param tubeBroker      the broker instance
+     * @param tubeConfig      the initial configure
+     * @throws IOException    the exception during processing
+     */
     public MessageStoreManager(final TubeBroker tubeBroker,
                                final BrokerConfig tubeConfig) throws IOException {
         super();
@@ -280,10 +287,10 @@ public class MessageStoreManager implements StoreService {
     /***
      * Get or create message store.
      *
-     * @param topic
-     * @param partition
-     * @return
-     * @throws IOException
+     * @param topic           the topic name
+     * @param partition       the partition id
+     * @return                the message-store instance
+     * @throws IOException    the exception during processing
      */
     @Override
     public MessageStore getOrCreateMessageStore(final String topic,
@@ -342,13 +349,13 @@ public class MessageStoreManager implements StoreService {
     /***
      * Get message from store.
      *
-     * @param msgStore
-     * @param topic
-     * @param partitionId
-     * @param msgCount
-     * @param filterCondSet
-     * @return
-     * @throws IOException
+     * @param msgStore        the message-store
+     * @param topic           the topic name
+     * @param partitionId     the partition id
+     * @param msgCount        the message count to read
+     * @param filterCondSet   the filter condition set
+     * @return                the query result
+     * @throws IOException    the exception during processing
      */
     public GetMessageResult getMessages(final MessageStore msgStore,
                                         final String topic,
@@ -520,9 +527,9 @@ public class MessageStoreManager implements StoreService {
     /***
      * Load stores sequential.
      *
-     * @param tubeConfig
-     * @throws IOException
-     * @throws InterruptedException
+     * @param tubeConfig             the broker's configure
+     * @throws IOException           the exception during processing
+     * @throws InterruptedException  the exception during processing
      */
     private void loadMessageStores(final BrokerConfig tubeConfig)
             throws IOException, InterruptedException {
@@ -623,8 +630,8 @@ public class MessageStoreManager implements StoreService {
     /***
      * Load stores in parallel.
      *
-     * @param tasks
-     * @throws InterruptedException
+     * @param tasks                    the load tasks
+     * @throws InterruptedException    the exception during processing
      */
     private void loadStoresInParallel(List<Callable<MessageStore>> tasks) throws InterruptedException {
         ExecutorService executor =
@@ -661,6 +668,12 @@ public class MessageStoreManager implements StoreService {
         }
     }
 
+    /***
+     * Refresh message-store's dynamic configures
+     *
+     * @param oldTopicConfigMap     the stored topic configure map
+     * @param newTopicConfigMap     the newly topic configure map
+     */
     public void refreshMessageStoresHoldVals(Map<String, TopicMetadata> oldTopicConfigMap,
                                              Map<String, TopicMetadata> newTopicConfigMap) {
         if (((newTopicConfigMap == null) || newTopicConfigMap.isEmpty())
