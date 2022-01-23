@@ -23,7 +23,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-/***
+/**
  * BrokerMetadataManage test
  */
 public class BrokerMetadataManagerTest {

@@ -43,10 +43,21 @@ import org.apache.inlong.tubemq.server.common.utils.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Topic Storage File(s) Repair Tool
+ *
+ */
 public class StoreRepairAdmin {
     private static final Logger logger =
             LoggerFactory.getLogger(StoreRepairAdmin.class);
 
+    /**
+     * Repair topic storage files, rebuild index files by existing data files
+     * @param args   Startup parameter array, including the following parts:
+     *               The 1st parameter is the path of topic storage files;
+     *               The 2nd parameter is the topic name(s) that needs to be repaired,
+     *                   if not specified, all topics in the storage path will be repaired.
+     */
     public static void main(final String[] args) throws Exception {
         if (args == null || args.length < 1) {
             System.out.println(

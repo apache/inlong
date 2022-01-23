@@ -49,12 +49,17 @@ public final class MessageProducerExample {
     private static MessageSessionFactory sessionFactory;
     private static MessageProducer messageProducer;
 
-    // The 1st parameter masterServers format is master1_ip:port[,master2_ip:port],
-    //     the master address(es) to connect to;
-    // The 2nd parameter pubTopicAndFilterItems format is topic_1[[:filterCond_1.1[;filterCond_1.2]][,topic_2]]
-    //     the topic(s) (and filter condition set) to publish to.
-    // The 3rd parameter msgCount is the message amount that needs to be sent
-    // The 4th parameter pkgSize is the message's body size that needs to be sent
+    /**
+     * Produce messages through a single-session factory instance.
+     *
+     * @param args   Startup parameter array, including the following parts:
+     *               The 1st parameter masterServers is the master address(es) to connect to,
+     *                       format is master1_ip:port[,master2_ip:port];
+     *               The 2nd parameter pubTopicAndFilterItems is the topic(s) (and filter condition set) to publish to,
+     *                       format is topic_1[[:filterCond_1.1[;filterCond_1.2]][,topic_2]];
+     *               The 3rd parameter msgCount is the message amount that needs to be sent;
+     *               The 4th parameter pkgSize is the message's body size that needs to be sent.
+     */
     public static void main(String[] args) throws Throwable {
         // 1. get and initial parameters
         final String masterServers = args[0];

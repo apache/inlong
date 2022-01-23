@@ -60,7 +60,7 @@ import org.jboss.netty.handler.ssl.SslHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Netty Rpc Server
  */
 public class NettyRpcServer implements ServiceRpcServer {

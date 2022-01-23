@@ -40,7 +40,7 @@ import org.apache.inlong.tubemq.server.common.offsetstorage.ZkOffsetStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Default offset manager.
  * Conduct consumer's commit offset operation and consumer's offset that has consumed but not committed.
  */
@@ -91,7 +91,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         logger.info("[Offset Manager] Offset Manager service stopped!");
     }
 
-    /***
+    /**
      * Load offset.
      *
      * @param msgStore
@@ -152,7 +152,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return regInfo;
     }
 
-    /***
+    /**
      * Get offset by parameters.
      *
      * @param msgStore
@@ -236,7 +236,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         }
     }
 
-    /***
+    /**
      * Commit offset.
      *
      * @param group
@@ -270,7 +270,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return updatedOffset;
     }
 
-    /***
+    /**
      * Reset offset.
      *
      * @param store
@@ -305,7 +305,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return oldOffset;
     }
 
-    /***
+    /**
      * Get temp offset.
      *
      * @param group
@@ -328,7 +328,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return 0;
     }
 
-    /***
+    /**
      * Get in-memory and in zk group set
      *
      * @return booked group in memory and in zk
@@ -343,7 +343,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return groupSet;
     }
 
-    /***
+    /**
      * Get in-memory group set
      *
      * @return booked group in memory
@@ -354,7 +354,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return cacheGroup;
     }
 
-    /***
+    /**
      * Get in-zookeeper but not in memory's group set
      *
      * @return booked group in zookeeper
@@ -372,10 +372,11 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return unUsedGroups;
     }
 
-    /***
+    /**
      * Get the topic set subscribed by the consumer group
-     * @param group
-     * @return topic set subscribed
+     *
+     * @param group    the queries group name
+     * @return         the topic set subscribed
      */
     @Override
     public Set<String> getGroupSubInfo(String group) {
@@ -395,7 +396,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return result;
     }
 
-    /***
+    /**
      * Get group's offset by Specified topic-partitions
      * @param group
      * @param topicPartMap
@@ -453,7 +454,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return result;
     }
 
-    /***
+    /**
      * Get online groups' offset information
      *
      * @return group offset info in memory or zk
@@ -488,7 +489,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return result;
     }
 
-    /***
+    /**
      * Reset offset.
      *
      * @param groups              the groups to reset offset
@@ -533,7 +534,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return changed;
     }
 
-    /***
+    /**
      * Delete offset.
      *
      * @param onlyMemory
@@ -580,7 +581,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         }
     }
 
-    /***
+    /**
      * Set temp offset.
      *
      * @param group
@@ -623,7 +624,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         }
     }
 
-    /***
+    /**
      * Commit temp offsets.
      */
     private void commitTmpOffsets() {
@@ -660,7 +661,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         BrokerMetricsHolder.updSyncZKDurations(System.currentTimeMillis() - startTime);
     }
 
-    /***
+    /**
      * Load or create offset.
      *
      * @param group

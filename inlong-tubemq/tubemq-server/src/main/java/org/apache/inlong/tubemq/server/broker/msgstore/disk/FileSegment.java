@@ -32,7 +32,7 @@ import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Segment file. Topic contains multi FileSegments. Each FileSegment contains data file and index file.
  * It is mini particle of topic expire policy. It will be marked deleted when expired.
  */
@@ -199,7 +199,7 @@ public class FileSegment implements Segment {
         }
     }
 
-    /***
+    /**
      * Messages can only be appended to the last FileSegment.
      * The last FileSegment is writable, the others are mutable.
      *
@@ -237,7 +237,7 @@ public class FileSegment implements Segment {
         return this.start + offset;
     }
 
-    /***
+    /**
      * Flush file cache to disk.
      *
      * @param force whether to brush
@@ -276,7 +276,7 @@ public class FileSegment implements Segment {
                 && offset <= this.start + this.getCachedSize() - 1);
     }
 
-    /***
+    /**
      * Release reference to this FileSegment.
      * File's channel will be closed when the reference decreased to 0.
      */
@@ -295,7 +295,7 @@ public class FileSegment implements Segment {
         return start + cachedSize.get();
     }
 
-    /***
+    /**
      * Return the position that have been flushed to disk.
      *
      * @return the position that have been flushed to disk
@@ -310,7 +310,7 @@ public class FileSegment implements Segment {
         return mutable;
     }
 
-    /***
+    /**
      * Set FileSegment to readonly.
      *
      * @param mutable mutable or immutable
@@ -390,7 +390,7 @@ public class FileSegment implements Segment {
         }
     }
 
-    /***
+    /**
      * read index record's append time.
      * @param reqOffset request offset.
      * @return message append time.
@@ -410,7 +410,7 @@ public class FileSegment implements Segment {
         return readUnit.getLong(DataStoreUtils.INDEX_POS_TIME_RECV);
     }
 
-    /***
+    /**
      * Check whether this FileSegment is expired, and set expire status.
      * The last FileSegment cannot be marked expired.
      *

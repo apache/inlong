@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * FileSegments management. Contains two types FileSegment: data and index.
  */
 public class FileSegmentList implements SegmentList {
@@ -56,7 +56,7 @@ public class FileSegmentList implements SegmentList {
         return segmentList.get();
     }
 
-    /***
+    /**
      * Return segment by the given offset.
      *
      * @param offset     the position to search
@@ -85,7 +85,7 @@ public class FileSegmentList implements SegmentList {
         }
     }
 
-    /***
+    /**
      * Check each FileSegment whether is expired, and set expire status.
      *
      * @param checkTimestamp   current check timestamp
@@ -107,7 +107,7 @@ public class FileSegmentList implements SegmentList {
         return hasExpired;
     }
 
-    /***
+    /**
      * Check FileSegments whether is expired, close all expired FileSegments, and then delete these files.
      *
      * @param sb   string buffer
@@ -174,7 +174,7 @@ public class FileSegmentList implements SegmentList {
         return curViews[curViews.length - 1];
     }
 
-    /***
+    /**
      * Return the start position of these FileSegments.
      *
      * @return  the first position
@@ -199,7 +199,7 @@ public class FileSegmentList implements SegmentList {
         return  last;
     }
 
-    /***
+    /**
      * Return the max position of these FileSegments.
      *
      * @return   the latest position
@@ -230,7 +230,7 @@ public class FileSegmentList implements SegmentList {
         return last.getRightAppendTime();
     }
 
-    /***
+    /**
      * Return the max position that have been flushed to disk.
      *
      * @return  the latest committed offset

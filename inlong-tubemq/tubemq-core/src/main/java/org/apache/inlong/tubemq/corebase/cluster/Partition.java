@@ -51,10 +51,10 @@ public class Partition implements Comparable<Partition>, Serializable {
         this.builderPartitionStr();
     }
 
-    /********
+    /**
      * create a Partition with full part info String
      *
-     * @param strPartInfo
+     * @param strPartInfo   the partition information in string format
      */
     public Partition(String strPartInfo) {
         this.broker =
@@ -65,7 +65,7 @@ public class Partition implements Comparable<Partition>, Serializable {
         this.builderPartitionStr();
     }
 
-    /******
+    /**
      * create a Partition with full broker and part info string
      *
      * @param broker

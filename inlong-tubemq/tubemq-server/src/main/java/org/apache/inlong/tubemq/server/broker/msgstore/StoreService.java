@@ -24,7 +24,7 @@ import java.util.Set;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordInfo;
 import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
 
-/***
+/**
  * Store service interface.
  */
 public interface StoreService {

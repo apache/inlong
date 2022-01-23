@@ -25,7 +25,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
-/***
+/**
  * NettyProtocolEncoder test.
  */
 public class NettyProtocolEncoderTest {

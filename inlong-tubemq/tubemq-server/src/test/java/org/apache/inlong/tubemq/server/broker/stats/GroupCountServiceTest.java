@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
 
-/***
+/**
  * GroupCountService test.
  */
 public class GroupCountServiceTest {

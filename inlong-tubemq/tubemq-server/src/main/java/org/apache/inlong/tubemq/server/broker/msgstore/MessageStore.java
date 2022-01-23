@@ -54,7 +54,7 @@ import org.apache.inlong.tubemq.server.common.utils.IdWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Topic's message storage. It's a logical topic storage. Contains multi types storage: data in memory,
  * data in disk, and statistics of produce and consume.
  */
@@ -151,7 +151,7 @@ public class MessageStore implements Closeable {
         this.lastMemFlushTime.set(System.currentTimeMillis());
     }
 
-    /***
+    /**
      * Get message from message store. Support the given offset, filter.
      *
      * @param reqSwitch            read message from where
@@ -162,7 +162,7 @@ public class MessageStore implements Closeable {
      * @param msgSizeLimit         the max read size
      * @param reqRcvTime           the timestamp of the record to be checked
      * @return                     read result
-     * @throws IOException         exception while process
+     * @throws IOException         the exception during processing
      */
     public GetMessageResult getMessages(int reqSwitch, long requestOffset,
                                         int partitionId, ConsumerNodeInfo consumerNodeInfo,
@@ -298,7 +298,7 @@ public class MessageStore implements Closeable {
         return retResult;
     }
 
-    /***
+    /**
      * Get start offset by timestamp.
      *
      * @param timestamp  timestamp
@@ -326,7 +326,7 @@ public class MessageStore implements Closeable {
         }
     }
 
-    /***
+    /**
      * Append msg to store.
      *
      * @param appendResult    the append result
@@ -339,7 +339,7 @@ public class MessageStore implements Closeable {
      * @param sentAddr        the address to send the message to
      *
      * @return                the process result
-     * @throws IOException    exception while process
+     * @throws IOException    the exception during processing
      */
     public boolean appendMsg(AppendResult appendResult, int dataLength,
                              int dataCheckSum, byte[] data,
@@ -350,7 +350,7 @@ public class MessageStore implements Closeable {
                 System.currentTimeMillis(), 3, 2);
     }
 
-    /***
+    /**
      * Append msg to store.
      *
      * @param appendResult    the append result
@@ -366,7 +366,7 @@ public class MessageStore implements Closeable {
      * @param waitRetryMs     the wait duration while retry
      *
      * @return                the process result
-     * @throws IOException    exception while process
+     * @throws IOException    the exception during processing
      */
     public boolean appendMsg2(AppendResult appendResult, int dataLength,
                               int dataCheckSum, byte[] data,
@@ -429,7 +429,7 @@ public class MessageStore implements Closeable {
         return this.msgFileStatisInfo;
     }
 
-    /***
+    /**
      * Execute cleanup policy.
      *
      * @param onlyCheck   whether only check status
@@ -445,7 +445,7 @@ public class MessageStore implements Closeable {
         return msgFileStore.runClearupPolicy(onlyCheck);
     }
 
-    /***
+    /**
      * Refresh unflush threshold
      *
      * @param topicMetadata   topic meta data
@@ -481,10 +481,10 @@ public class MessageStore implements Closeable {
         }
     }
 
-    /***
+    /**
      * Flush file store to disk.
      *
-     * @throws IOException exception while process
+     * @throws IOException the exception during processing
      */
     public void flushFile() throws IOException {
         if (this.closed.get()) {
@@ -495,10 +495,10 @@ public class MessageStore implements Closeable {
         msgFileStore.flushDiskFile();
     }
 
-    /***
+    /**
      * Flush memory store to file.
      *
-     * @throws IOException exception while process
+     * @throws IOException the exception during processing
      */
     public void flushMemCacheData() throws IOException {
         if (this.closed.get()) {
@@ -669,7 +669,7 @@ public class MessageStore implements Closeable {
         return memCacheSize;
     }
 
-    /***
+    /**
      * Append message and trigger flush operation.
      *
      * @param partitionId       the partitionId for reading messages
@@ -682,7 +682,7 @@ public class MessageStore implements Closeable {
      * @param appendResult      the append result
      *
      * @return                  the append result
-     * @throws IOException      exception while process
+     * @throws IOException      the exception during processing
      */
     private boolean triggerFlushAndAddMsg(int partitionId, int keyCode,
                                           long receivedTime, int entryLength,

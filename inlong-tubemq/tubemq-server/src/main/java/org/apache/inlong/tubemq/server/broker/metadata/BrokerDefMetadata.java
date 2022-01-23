@@ -20,7 +20,7 @@ package org.apache.inlong.tubemq.server.broker.metadata;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
-/***
+/**
  * Default metadata for broker, it mainly contains topic default config(partitions count, delete policy...).
  * These metadata will be overwrite if explicitly be set.
  */

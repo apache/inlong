@@ -31,7 +31,7 @@ import org.apache.inlong.tubemq.server.common.TStatusConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Broker's metadata management util. Metadata contains broker's default configurations, topics,
  * topic that will be deleted, and broker's policy definition.
  * Metadata is got from Master service, it will refresh in heartbeat between broker and master.
@@ -168,7 +168,7 @@ public class BrokerMetadataManager implements MetadataManager {
         return removedTopicConfigMap;
     }
 
-    /***
+    /**
      * Get hard removed topics. Hard removed means the disk files is deleted, cannot be recovery.
      * Topic will be deleted in two phases, the first is mark topic's file delete, the second is delete the disk files.
      *
@@ -204,7 +204,7 @@ public class BrokerMetadataManager implements MetadataManager {
         this.lastRptBrokerMetaConfId = lastRptBrokerMetaConfId;
     }
 
-    /***
+    /**
      * Update broker's metadata in memory, then fire these metadata take effect.
      * These params are got from Master Service.
      *
@@ -276,7 +276,7 @@ public class BrokerMetadataManager implements MetadataManager {
         this.propertyChangeSupport.firePropertyChange("unflushInterval", null, null);
     }
 
-    /***
+    /**
      * Update will be deleted topics info. These params are got from Master Service.
      *
      * @param isTakeRemoveTopics         whether take removed topics
@@ -345,7 +345,7 @@ public class BrokerMetadataManager implements MetadataManager {
         this.propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
     }
 
-    /***
+    /**
      * Add historical offset storage topic by default
      *
      * @param brokerDefMeta      broker default meta configure

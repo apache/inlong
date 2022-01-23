@@ -50,7 +50,7 @@ import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 
-/***
+/**
  * Broker's web servlet. Used for admin operation, like query consumer's status etc.
  */
 public class BrokerAdminServlet extends AbstractWebHandler {
@@ -109,7 +109,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                 "adminQueryGroupHistoryOffSet", false);
     }
 
-    /***
+    /**
      * Query all API methods supported by this version.
      *
      * @param req      request
@@ -130,7 +130,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         sBuffer.append("],\"totalCnt\":").append(index).append("}");
     }
 
-    /***
+    /**
      * Query broker's all consumer info.
      *
      * @param req      request
@@ -218,7 +218,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         strBuff.append("],\"totalCnt\":").append(index).append("}");
     }
 
-    /***
+    /**
      * Query broker's all message store info.
      *
      * @param req      request
@@ -284,7 +284,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         sBuilder.append("],\"totalCnt\":").append(recordId).append("}");
     }
 
-    /***
+    /**
      * Get memory store status info.
      *
      * @param req      request
@@ -342,7 +342,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         sBuffer.append("],\"totalCount\":").append(recordId).append("}");
     }
 
-    /***
+    /**
      * Manual set offset.
      *
      * @param req      request
@@ -430,7 +430,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         }
     }
 
-    /***
+    /**
      * Query snapshot message set.
      *
      * @param req      request
@@ -474,7 +474,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                 .getMessageSnapshot(topicName, partitionId, msgCount, filterCondStrSet, sBuffer);
     }
 
-    /***
+    /**
      * Query consumer group offset.
      *
      * @param req      request
@@ -563,7 +563,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         sBuffer.append("}");
     }
 
-    /***
+    /**
      * Query the consumed partition information of online consumer.
      *
      * @param req      request
@@ -590,7 +590,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         sBuffer.append("],\"totalCnt\":").append(totalCnt).append("}");
     }
 
-    /***
+    /**
      * Query topic's publish info on the Broker.
      *
      * @param req      request
@@ -634,7 +634,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         sBuffer.append("],\"dataCount\":").append(totalCnt).append("}");
     }
 
-    /***
+    /**
      * Query all consumer groups booked on the Broker.
      *
      * @param req      request
@@ -695,7 +695,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         sBuffer.append("],\"dataCount\":").append(totalCnt).append("}");
     }
 
-    /***
+    /**
      * Query consumer group offset.
      *
      * @param req      request
@@ -769,7 +769,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         sBuffer.append("],\"totalCnt\":").append(totalCnt).append("}");
     }
 
-    /***
+    /**
      * Query consumer group history offset by timestamp.
      *
      * @param req      request
@@ -842,7 +842,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
     }
 
-    /***
+    /**
      * Query group's offset records stored in broker.
      *
      * @param msgStore       history offset store
@@ -937,7 +937,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         }
     }
 
-    /***
+    /**
      * Add or Modify consumer group offset.
      *
      * @param req      request
@@ -999,7 +999,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
     }
 
-    /***
+    /**
      * Clone consume group offset, clone A group's offset to other group.
      *
      * @param req      request
@@ -1064,7 +1064,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
     }
 
-    /***
+    /**
      * Remove consume group offset.
      *
      * @param req      request

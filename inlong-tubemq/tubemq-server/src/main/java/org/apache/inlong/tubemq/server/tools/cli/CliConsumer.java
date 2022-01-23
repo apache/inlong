@@ -50,9 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is use to process CLI Consumer process.
- *
- *
+ * This class is use to process CLI Consumer process for script #{bin/tubemq-consumer-test.sh}.
  */
 public class CliConsumer extends CliAbstractBase {
 
@@ -184,7 +182,9 @@ public class CliConsumer extends CliAbstractBase {
         return true;
     }
 
-    // initial tubemq client order by caller required
+    /**
+     * Initializes the TubeMQ consumer client(s) with the specified requirements.
+     */
     public void initTask() throws Exception {
         // initial consumer configure
         ConsumerConfig consumerConfig =
@@ -369,6 +369,11 @@ public class CliConsumer extends CliAbstractBase {
         }
     }
 
+    /**
+     * Consume messages called by the tubemq-consumer-test.sh script.
+     * @param args     Call parameter array,
+     *                 the relevant parameters are dynamic mode, which is parsed by CommandLine.
+     */
     public static void main(String[] args) {
         CliConsumer cliConsumer = new CliConsumer();
         try {

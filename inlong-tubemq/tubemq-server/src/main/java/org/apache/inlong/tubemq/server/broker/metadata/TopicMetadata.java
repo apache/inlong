@@ -28,7 +28,7 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.TStatusConstants;
 
-/***
+/**
  * Topic's metadata. Contains topic name, partitions count, etc.
  */
 public class TopicMetadata {
@@ -67,7 +67,7 @@ public class TopicMetadata {
     // the allowed min memory cache size
     private int minMemCacheSize = TBaseConstants.META_VALUE_UNDEFINED;
 
-    /***
+    /**
      * Build TopicMetadata from brokerDefMetadata(default config) and topicMetaConfInfo(custom config).
      *
      * @param brokerDefMetadata    the default topic meta configure
@@ -158,7 +158,7 @@ public class TopicMetadata {
         }
     }
 
-    /***
+    /**
      * Build TopicMetadata by default topic meta and the special field values.
      *
      * @param brokerDefMetadata    the default topic meta configure
@@ -468,7 +468,7 @@ public class TopicMetadata {
         return true;
     }
 
-    /***
+    /**
      * Each property will be compared, in case of the new added properties.
      *
      * @param other    the compare object

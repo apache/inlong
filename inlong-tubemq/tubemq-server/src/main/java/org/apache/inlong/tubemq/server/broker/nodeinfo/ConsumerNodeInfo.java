@@ -26,7 +26,7 @@ import org.apache.inlong.tubemq.corebase.policies.FlowCtrlRuleHandler;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 
-/***
+/**
  * Consumer node info, which broker contains.
  */
 public class ConsumerNodeInfo {
@@ -36,14 +36,14 @@ public class ConsumerNodeInfo {
     private final MessageStoreManager storeManager;
     // consumer id
     private String consumerId;
-    private String sessionKey;
-    private long sessionTime;
+    private final String sessionKey;
+    private final long sessionTime;
     // is filter consumer or not
     private boolean isFilterConsume = false;
     // filter conditions in string format
-    private Set<String> filterCondStrs = new HashSet<>(10);
+    private final Set<String> filterCondStrs = new HashSet<>(10);
     // filter conditions in int format
-    private Set<Integer> filterCondCode = new HashSet<>(10);
+    private final Set<Integer> filterCondCode = new HashSet<>(10);
     // consumer's address
     private String rmtAddrInfo;
     private boolean isSupportLimit = false;
@@ -57,7 +57,7 @@ public class ConsumerNodeInfo {
     private FlowCtrlResult curFlowCtrlVal =
             new FlowCtrlResult(Long.MAX_VALUE, 0);
     private long nextLimitUpdateTime = 0;
-    private AtomicInteger qryPriorityId =
+    private final AtomicInteger qryPriorityId =
             new AtomicInteger(TBaseConstants.META_VALUE_UNDEFINED);
     private long createTime = System.currentTimeMillis();
 
@@ -226,7 +226,7 @@ public class ConsumerNodeInfo {
         return this.rmtAddrInfo;
     }
 
-    /***
+    /**
      * Recalculate message limit value.
      *
      * @param curDataDlt

@@ -34,7 +34,7 @@ import org.ini4j.Profile.Section;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Config of broker. Read from broker.ini config file.
  */
 public class BrokerConfig extends AbstractFileConfig {
@@ -197,7 +197,7 @@ public class BrokerConfig extends AbstractFileConfig {
         }
     }
 
-    /***
+    /**
      * Load config from broker.ini by section.
      *
      * @param iniConf  configure section

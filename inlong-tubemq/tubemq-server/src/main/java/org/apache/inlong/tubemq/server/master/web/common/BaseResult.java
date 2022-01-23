@@ -30,8 +30,8 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
 /**
  * Paging algorithm package.
- *   * <p/>
- *   * Pagination must be set: TotalItem (the total number of bars), the default is 0,
+ *
+ * Pagination must be set: TotalItem (the total number of bars), the default is 0,
  * should be set in dao PageSize (number of pages per page), should be set in the web
  * layer QueryBase defaults to 20, subclasses can be overwritten getDefaultPageSize()
  * Modify CurrentPage (current page), default is 1, home page, should be set in the
@@ -39,15 +39,15 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
  * (the current page starts recording position, counting from 1) PageLastItem
  * (current page last recording position) On the page, the number of pages displayed
  * per page should be: lines , the current page name should be: page
- *   * <p/>
- *   * Add the render link function at the same time,
+ *
+ * Add the render link function at the same time,
  * the subclass overrides the getParameters method and returns valid parameters.
  */
 public class BaseResult implements Serializable {
     private static final long serialVersionUID = 8807356835558347735L;
-    private static final Integer defaultPageSize = new Integer(20);
-    private static final Integer defaultFirstPage = new Integer(1);
-    private static final Integer defaultTotalItem = new Integer(0);
+    private static final Integer defaultPageSize = 20;
+    private static final Integer defaultFirstPage = 1;
+    private static final Integer defaultTotalItem = 0;
     /**
      * max page size
      */
@@ -70,8 +70,12 @@ public class BaseResult implements Serializable {
 
     /**
      * parse date
+     *
+     * @param dateTime   the string date time
+     * @param format     the date format
+     * @param def        the defalut date value
      */
-    public static final Date parseDate(String dateTime, String format, Date def) {
+    public static Date parseDate(String dateTime, String format, Date def) {
         Date date = def;
         try {
             DateFormat formatter = new SimpleDateFormat(format);
@@ -92,7 +96,7 @@ public class BaseResult implements Serializable {
      *
      * @return Encoded string
      */
-    public static final String jsEncode(String str) {
+    public static String jsEncode(String str) {
         if (null == str) {
             return null;
         }
@@ -125,7 +129,7 @@ public class BaseResult implements Serializable {
      *
      * @return Encoded string
      */
-    public static final String jsDecode(String str) {
+    public static String jsDecode(String str) {
         if (null == str) {
             return null;
         }
@@ -171,6 +175,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Get default page size.
+     *
      * @return Returns the defaultPageSize.
      */
     protected Integer getDefaultPageSize() {
@@ -206,6 +212,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Get current page value
+     *
      * @return Returns the currentPage.
      */
     public Integer getCurrentPage() {
@@ -217,10 +225,12 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Set current page value
+     *
      * @param cPage The currentPage to set.
      */
     public void setCurrentPage(Integer cPage) {
-        if ((cPage == null) || (cPage.intValue() <= 0)) {
+        if ((cPage == null) || (cPage <= 0)) {
             this.currentPage = null;
         } else {
             this.currentPage = cPage;
@@ -247,6 +257,7 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Get page size value
      * @return Returns the pageSize.
      */
     public Integer getPageSize() {
@@ -258,11 +269,13 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Set page size value
+     *
      * @param pSize The pageSize to set.
      */
     public void setPageSize(Integer pSize) {
 
-        if ((pSize == null) || (pSize.intValue() < 0)) {
+        if ((pSize == null) || (pSize < 0)) {
             this.pageSize = null;
         } else if (pSize > MAX_PAGE_SIZE || pSize < 1) {
             throw new IllegalArgumentException("The number of displayed pages per page ranges from 1~" + MAX_PAGE_SIZE);
@@ -294,8 +307,10 @@ public class BaseResult implements Serializable {
     }
 
     /**
-     * @param pageSizeString
-     * @return
+     * Determine if the string is blank
+     *
+     * @param pageSizeString   pagesize value
+     * @return result
      */
     private boolean isBlankString(String pageSizeString) {
         if (pageSizeString == null) {
@@ -307,6 +322,7 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Get total item value
      * @return Returns the totalItem.
      */
     public Integer getTotalItem() {
@@ -319,6 +335,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Set total item value
+     *
      * @param tItem The totalItem to set.
      */
     public void setTotalItem(Integer tItem) {
@@ -368,14 +386,12 @@ public class BaseResult implements Serializable {
         int assumeLast = pgSize * cPage;
         int totalItem = getTotalItem().intValue();
 
-        if (assumeLast > totalItem) {
-            return totalItem;
-        } else {
-            return assumeLast;
-        }
+        return Math.min(assumeLast, totalItem);
     }
 
     /**
+     * Get end row value
+     *
      * @return Returns the endRow.
      */
     public int getEndRow() {
@@ -383,6 +399,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Set end row value
+     *
      * @param endRow The endRow to set.
      */
     public void setEndRow(int endRow) {
@@ -390,6 +408,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Get start row value
+     *
      * @return Returns the startRow.
      */
     public int getStartRow() {
@@ -397,6 +417,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Set start row value
+     *
      * @param startRow The startRow to set.
      */
     public void setStartRow(int startRow) {
@@ -421,6 +443,8 @@ public class BaseResult implements Serializable {
 
     /**
      * When the time is queried, the end time is 23:59:59
+     *
+     * @param dateString    the sting date value
      */
     protected String addDateEndPostfix(String dateString) {
         if (TStringUtils.isBlank(dateString)) {
@@ -432,6 +456,8 @@ public class BaseResult implements Serializable {
 
     /**
      * When the time is queried, the start time is 00:00:00
+     *
+     * @param dateString    the string date value
      */
     protected String addDateStartPostfix(String dateString) {
         if (TStringUtils.isBlank(dateString)) {
@@ -487,6 +513,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Get ajax prefix value
+     *
      * @return Returns the ajaxPrefix.
      */
     public String getAjaxPrefix() {
@@ -494,6 +522,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Set ajax prefix
+     *
      * @param ajaxPrefix The ajaxPrefix to set.
      */
     public BaseResult setAjaxPrefix(String ajaxPrefix) {
@@ -502,6 +532,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Get ajaxSuffix value
+     *
      * @return Returns the ajaxSuffix.
      */
     public String getAjaxSuffix() {
@@ -509,6 +541,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Set ajax suffix
+     *
      * @param ajaxSuffix The ajaxSuffix to set.
      */
     public BaseResult setAjaxSuffix(String ajaxSuffix) {
@@ -517,6 +551,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Get charset
+     *
      * @return Returns the charset.
      */
     public String getCharset() {
@@ -524,6 +560,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Set charset
+     *
      * @param charset The charset to set.
      */
     public BaseResult setCharset(String charset) {
@@ -533,6 +571,8 @@ public class BaseResult implements Serializable {
 
     /**
      * Remove a parameter
+     *
+     * @param key    the Key that need to be removed
      */
     public BaseResult remove(Object key) {
         if (null == this.removeObject) {
@@ -544,6 +584,9 @@ public class BaseResult implements Serializable {
 
     /**
      * Temporarily modify the value of a parameter
+     *
+     * @param key   the Key that need to be modified
+     * @param val   the new value
      */
     public BaseResult replace(Object key, Object val) {
         if (null != key && null != val) {
@@ -556,6 +599,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Get source
+     *
      * @return Returns the from.
      */
     public String getFrom() {
@@ -563,6 +608,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * set source
+     *
      * @param from The from to set.
      */
     public void setFrom(String from) {
@@ -570,6 +617,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Get whether to escape
+     *
      * @return Returns the escape.
      */
     public boolean isEscape() {
@@ -577,6 +626,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Set escape
+     *
      * @param escape The escape to set.
      */
     public BaseResult setEscape(boolean escape) {
@@ -585,6 +636,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Get whether to escape js
+     *
      * @return Returns the jsEscape.
      */
     public final boolean isJsEscape() {

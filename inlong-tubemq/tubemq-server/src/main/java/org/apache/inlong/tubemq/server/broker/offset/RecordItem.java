@@ -19,7 +19,7 @@ package org.apache.inlong.tubemq.server.broker.offset;
 
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 
-/***
+/**
  * The offset snapshot of the consumer group on the partition.
  */
 public class RecordItem {
