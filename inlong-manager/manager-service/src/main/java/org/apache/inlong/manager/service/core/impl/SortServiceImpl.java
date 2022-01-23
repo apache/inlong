@@ -17,23 +17,25 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse;
+import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.SortTaskConfig;
 import org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity;
 import org.apache.inlong.manager.service.core.SortClusterConfigService;
+import org.apache.inlong.manager.service.core.SortIdParamsService;
 import org.apache.inlong.manager.service.core.SortService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Sort service implementation.
  */
-@Slf4j
 @Service
 public class SortServiceImpl implements SortService {
 
@@ -42,10 +44,14 @@ public class SortServiceImpl implements SortService {
     @Autowired
     private SortClusterConfigService sortClusterConfigService;
 
+    @Autowired
+    private SortIdParamsService sortIdParamsService;
+
     @Override
     public SortClusterConfigResponse getClusterConfig(String clusterName, String md5) {
         LOGGER.info("start getClusterConfig");
 
+        // check if cluster name is valid or not.
         if (StringUtils.isBlank(clusterName)) {
             String errMsg = "Blank cluster name";
             LOGGER.info(errMsg);
@@ -53,6 +59,7 @@ public class SortServiceImpl implements SortService {
                     .msg(errMsg).build();
         }
 
+        // check if there is any task.
         List<SortClusterConfgiEntity> tasks = sortClusterConfigService.selectTasksByClusterName(clusterName);
         if (tasks == null || tasks.isEmpty()) {
             String errMsg = "There is not any task for cluster" + clusterName;
@@ -61,8 +68,39 @@ public class SortServiceImpl implements SortService {
                     .msg(errMsg).build();
         }
 
+        // add task configs
+        List<SortTaskConfig> taskConfigs = new ArrayList<>();
+        tasks.forEach(clusterConfig -> taskConfigs.add(this.getTaskConfig(clusterConfig)));
         return SortClusterConfigResponse.builder()
+                .tasks(taskConfigs)
                 .msg("success").build();
+    }
+
+    private SortTaskConfig getTaskConfig(SortClusterConfgiEntity clusterConfig) {
+        List<Map<String, String>> idParams = this.getIdParams(clusterConfig.getTaskName());
+
+        return SortTaskConfig.builder()
+                .taskName(clusterConfig.getTaskName())
+                .type(clusterConfig.getSinkType())
+                .idParams(idParams)
+                .sinkParams(null)
+                .build();
+    }
+
+    private List<Map<String, String>> getIdParams(String taskName) {
+        List<Map<String, String>> baseIdParams = sortIdParamsService.selectByTaskName(taskName);
+        for (Map<String, String> baseIdParam : baseIdParams) {
+            addExtensionIdParams(baseIdParam);
+        }
+        return baseIdParams;
+    }
+
+    /**
+     * TODO Add extension id params by different type of ids
+     * @param baseIdParams Basic id params.
+     */
+    private void addExtensionIdParams(Map<String, String> baseIdParams) {
+
     }
 
 }

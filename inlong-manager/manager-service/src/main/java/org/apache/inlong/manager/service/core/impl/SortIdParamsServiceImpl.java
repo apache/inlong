@@ -17,25 +17,25 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity;
-import org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper;
-import org.apache.inlong.manager.service.core.SortClusterConfigService;
+import org.apache.inlong.manager.dao.mapper.SortIdParamsEntityMapper;
+import org.apache.inlong.manager.service.core.SortIdParamsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * Sort cluster config service implementation.
+ * Sort id params service implementation.
  */
 @Service
-public class SortClusterConfigServiceImpl implements SortClusterConfigService {
+public class SortIdParamsServiceImpl implements SortIdParamsService {
 
     @Autowired
-    private SortClusterConfgiEntityMapper sortClusterConfgiEntityMapper;
+    private SortIdParamsEntityMapper sortIdParamsEntityMapper;
 
     @Override
-    public List<SortClusterConfgiEntity> selectTasksByClusterName(String clusterName) {
-        return sortClusterConfgiEntityMapper.selectTasksByClusterName(clusterName);
+    public List<Map<String, String>> selectByTaskName(String taskName) {
+        return sortIdParamsEntityMapper.selectByTaskName(taskName);
     }
 }

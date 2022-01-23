@@ -15,37 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sort;
+package org.apache.inlong.manager.dao.entity;
 
-import io.swagger.annotations.ApiModel;
-import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
-import java.util.Map;
+import java.io.Serializable;
 
 @Data
-@Builder
-@ApiModel("Sort cluster config")
-public class SortClusterConfigResponse {
-    String msg;
-    int code;
-    String md5;
-    List<SortTaskConfig> tasks;
-
-    @Builder
-    @Data
-    public static class SortClusterConfig {
-        String clusterName;
-        List<SortTaskConfig> sortTasks;
-    }
-
-    @Builder
-    @Data
-    public static class SortTaskConfig {
-        String taskName;
-        String type;
-        List<Map<String, String>> idParams;
-        Map<String, String> sinkParams;
-    }
+public class SortIdParamsEntity implements Serializable {
+    private Integer id;
+    private String taskName;
+    private String type;
+    private String groupId;
+    private String streamId;
+    private static final long serialVersionUID = 1L;
 }

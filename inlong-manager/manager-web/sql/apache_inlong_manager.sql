@@ -1146,4 +1146,21 @@ CREATE TABLE `sort_cluster_config`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Sort cluster config table';
 
+-- ----------------------------
+-- Table structure for id_params
+-- ----------------------------
+DROP TABLE IF EXISTS `sort_id_params`;
+CREATE TABLE `sort_id_params`
+(
+    `id`               int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `task_name`        varchar(128)  NOT NULL COMMENT 'Task name',
+    `type`             varchar(128)  NOT NULL COMMENT 'Type of id params',
+    `group_id`         varchar(128)  NOT NULL COMMENT 'Inlong group id',
+    `stream_id`        varchar(128)  NULL COMMENT 'Inlong stream id',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Sort id params table';
+
+
+
 SET FOREIGN_KEY_CHECKS = 1;

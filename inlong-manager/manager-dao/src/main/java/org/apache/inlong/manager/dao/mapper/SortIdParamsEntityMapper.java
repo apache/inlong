@@ -15,27 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.impl;
+package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity;
-import org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper;
-import org.apache.inlong.manager.service.core.SortClusterConfigService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.apache.inlong.manager.dao.entity.SortIdParamsEntity;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
-/**
- * Sort cluster config service implementation.
- */
-@Service
-public class SortClusterConfigServiceImpl implements SortClusterConfigService {
+@Repository
+public interface SortIdParamsEntityMapper {
+    int deleteByPrimaryKey(Integer id);
 
-    @Autowired
-    private SortClusterConfgiEntityMapper sortClusterConfgiEntityMapper;
+    int insert(SortIdParamsEntity record);
 
-    @Override
-    public List<SortClusterConfgiEntity> selectTasksByClusterName(String clusterName) {
-        return sortClusterConfgiEntityMapper.selectTasksByClusterName(clusterName);
-    }
+    int insertSelective(SortIdParamsEntity record);
+
+    SortIdParamsEntity selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(SortIdParamsEntity record);
+
+    int updateByPrimaryKey(SortIdParamsEntity record);
+
+    List<Map<String, String>> selectByTaskName(String taskName);
 }
