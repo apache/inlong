@@ -47,7 +47,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.inlong.commons.config.metrics.MetricRegister;
 import org.apache.inlong.commons.config.metrics.MetricValue;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.metrics.MetricItemValue;
@@ -66,14 +65,14 @@ import io.prometheus.client.exporter.HTTPServer;
  */
 public class PrometheusMetricListener extends Collector implements MetricListener {
 
-    public static final Logger LOG = LoggerFactory.getLogger(MetricRegister.class);
+    public static final Logger LOG = LoggerFactory.getLogger(PrometheusMetricListener.class);
     public static final String KEY_PROMETHEUS_HTTP_PORT = "prometheusHttpPort";
     public static final int DEFAULT_PROMETHEUS_HTTP_PORT = 8080;
     public static final String DEFAULT_DIMENSION_LABEL = "dimension";
 
+    private String metricName;
     private SortMetricItem metricItem;
     private Map<String, AtomicLong> metricValueMap = new ConcurrentHashMap<>();
-    private String metricName;
     protected HTTPServer httpServer;
     private Map<String, MetricItemValue> dimensionMetricValueMap = new ConcurrentHashMap<>();
     private List<String> dimensionKeys = new ArrayList<>();
@@ -82,11 +81,12 @@ public class PrometheusMetricListener extends Collector implements MetricListene
      * Constructor
      */
     public PrometheusMetricListener() {
+        this.metricName = CommonPropertiesHolder.getString(KEY_CLUSTER_ID);
         this.metricItem = new SortMetricItem();
-        this.metricItem.clusterId = CommonPropertiesHolder.getString(KEY_CLUSTER_ID);
+        this.metricItem.clusterId = metricName;
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         StringBuilder beanName = new StringBuilder();
-        beanName.append(JMX_DOMAIN).append(DOMAIN_SEPARATOR).append("type=DataProxyCounter");
+        beanName.append(JMX_DOMAIN).append(DOMAIN_SEPARATOR).append("type=SortStandalonePrometheus");
         String strBeanName = beanName.toString();
         try {
             ObjectName objName = new ObjectName(strBeanName);
@@ -115,6 +115,7 @@ public class PrometheusMetricListener extends Collector implements MetricListene
         int httpPort = CommonPropertiesHolder.getInteger(KEY_PROMETHEUS_HTTP_PORT, DEFAULT_PROMETHEUS_HTTP_PORT);
         try {
             this.httpServer = new HTTPServer(httpPort);
+            this.register();
         } catch (IOException e) {
             LOG.error("exception while register prometheus http server:{},error:{}", metricName, e.getMessage());
         }
@@ -142,7 +143,7 @@ public class PrometheusMetricListener extends Collector implements MetricListene
             // id dimension
             String dimensionKey = itemValue.getKey();
             MetricItemValue dimensionMetricValue = this.dimensionMetricValueMap.get(dimensionKey);
-            if (dimensionKey == null) {
+            if (dimensionMetricValue == null) {
                 dimensionMetricValue = new MetricItemValue(dimensionKey, new ConcurrentHashMap<String, String>(),
                         new ConcurrentHashMap<String, MetricValue>());
                 this.dimensionMetricValueMap.putIfAbsent(dimensionKey, dimensionMetricValue);
@@ -177,7 +178,8 @@ public class PrometheusMetricListener extends Collector implements MetricListene
     @Override
     public List<MetricFamilySamples> collect() {
         // total
-        CounterMetricFamily totalCounter = new CounterMetricFamily(metricName + ".total", "help",
+        CounterMetricFamily totalCounter = new CounterMetricFamily(metricName + "&group=total",
+                "The metrics of SortStandalone node.",
                 Arrays.asList("dimension"));
         totalCounter.addMetric(Arrays.asList(M_READ_SUCCESS_COUNT), metricItem.readSuccessCount.get());
         totalCounter.addMetric(Arrays.asList(M_READ_SUCCESS_SIZE), metricItem.readSuccessSize.get());
@@ -199,7 +201,8 @@ public class PrometheusMetricListener extends Collector implements MetricListene
         mfs.add(totalCounter);
 
         // id dimension
-        CounterMetricFamily idCounter = new CounterMetricFamily(metricName + ".id", "help", this.dimensionKeys);
+        CounterMetricFamily idCounter = new CounterMetricFamily(metricName + "&group=id",
+                "The metrics of inlong datastream.", this.dimensionKeys);
         for (Entry<String, MetricItemValue> entry : this.dimensionMetricValueMap.entrySet()) {
             MetricItemValue itemValue = entry.getValue();
             // read

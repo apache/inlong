@@ -213,6 +213,7 @@ public class HiveSink extends AbstractSink implements Configurable {
             // new runnable
             WriteHdfsFileRunnable writeTask = new WriteHdfsFileRunnable(context, idFile, dispatchProfile);
             context.getOutputPool().execute(writeTask);
+            context.addSendMetric(dispatchProfile, context.getTaskName());
             dispatchProfile = this.dispatchQueue.poll();
         }
     }
