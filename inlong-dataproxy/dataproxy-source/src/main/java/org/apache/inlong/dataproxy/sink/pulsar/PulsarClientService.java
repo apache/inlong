@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
@@ -33,6 +34,8 @@ import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.sink.EventStat;
 import org.apache.inlong.commons.monitor.LogCounter;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
+import org.apache.pulsar.client.api.AuthenticationFactory;
+import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
@@ -50,6 +53,9 @@ public class PulsarClientService {
      * properties key for pulsar client
      */
     private static String PULSAR_SERVER_URL_LIST = "pulsar_server_url_list";
+    private static String PULSAR_TOKEN = "pulsar_token";
+    private static String PULSAR_AUTH_TYPE = "pulsar_auth_type";
+    private static String PULSAR_DEFAULT_AUTH_TYPE = "token";
 
     /*
      * properties key pulsar producer
@@ -74,7 +80,8 @@ public class PulsarClientService {
      * for pulsar client
      */
     private String[] pulsarServerUrls;
-
+    private String token;
+    private String authType;
     /*
      * for producer
      */
@@ -100,6 +107,8 @@ public class PulsarClientService {
         String pulsarServerUrlList = context.getString(PULSAR_SERVER_URL_LIST);
         Preconditions.checkState(pulsarServerUrlList != null, "No pulsar server url specified");
         pulsarServerUrls = pulsarServerUrlList.split("\\|");
+        token = context.getString(PULSAR_TOKEN);
+        authType = context.getString(PULSAR_AUTH_TYPE, PULSAR_DEFAULT_AUTH_TYPE);
         Preconditions.checkState(pulsarServerUrls != null && pulsarServerUrls.length > 0, "No "
                 + "pulsar server url config");
         sendTimeout = context.getInteger(SEND_TIMEOUT, DEFAULT_SEND_TIMEOUT_MILL);
@@ -228,10 +237,13 @@ public class PulsarClientService {
     }
 
     private PulsarClient initPulsarClient(String pulsarUrl) throws Exception {
-        return PulsarClient.builder()
-                .serviceUrl(pulsarUrl)
-                .connectionTimeout(clientTimeout, TimeUnit.SECONDS)
-                .build();
+        ClientBuilder builder = PulsarClient.builder();
+        if (PULSAR_DEFAULT_AUTH_TYPE.equals(authType) && StringUtils.isNotEmpty(token)) {
+            builder.authentication(AuthenticationFactory.token(token));
+        }
+        builder.serviceUrl(pulsarUrl)
+                .connectionTimeout(clientTimeout, TimeUnit.SECONDS);
+        return builder.build();
     }
 
     public List<TopicProducerInfo> initTopicProducer(String topic) {
