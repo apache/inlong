@@ -937,7 +937,6 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         }
     }
 
-
     /***
      * Add or Modify consumer group offset.
      *
