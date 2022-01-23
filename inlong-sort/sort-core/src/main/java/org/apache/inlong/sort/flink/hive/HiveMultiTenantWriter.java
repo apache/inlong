@@ -78,13 +78,14 @@ public class HiveMultiTenantWriter extends ProcessFunction<SerializedRecord, Par
     @Override
     public void open(org.apache.flink.configuration.Configuration parameters) throws Exception {
         hiveWriters = new HashMap<>();
+        inLongGroupIdAndStreamIdMap = new HashMap<>();
+
         recordTransformer = new RecordTransformer(
                 configuration.getInteger(Constants.ETL_RECORD_SERIALIZATION_BUFFER_SIZE));
         MetaManager metaManager = MetaManager.getInstance(configuration);
         metaManager.registerDataFlowInfoListener(new DataFlowInfoListenerImpl());
         proxyContext = new ProcessFunctionContext();
 
-        inLongGroupIdAndStreamIdMap = new HashMap<>();
         String auditHostAndPorts = configuration.getString(Constants.METRICS_AUDIT_SDK_HOSTS);
         if (auditHostAndPorts != null) {
             AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(","))));
