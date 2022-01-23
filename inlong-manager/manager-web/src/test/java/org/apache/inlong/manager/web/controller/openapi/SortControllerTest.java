@@ -51,7 +51,7 @@ public class SortControllerTest {
      * @throws Exception Exceptions to request generating.
      */
     @Test
-    public void TestGetSortClusterConfig() throws Exception {
+    public void testGetSortClusterConfig() throws Exception {
         RequestBuilder request =
                 get("/openapi/sort/getClusterConfig")
                         .param("clusterName", "testName")
