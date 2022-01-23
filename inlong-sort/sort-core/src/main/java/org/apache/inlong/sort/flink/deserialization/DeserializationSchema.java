@@ -84,12 +84,13 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
         multiTenancyInLongMsgMixedDeserializer = new MultiTenancyInLongMsgMixedDeserializer();
         multiTenancyDeserializer = new MultiTenancyDeserializer();
         fieldMappingTransformer = new FieldMappingTransformer();
+        inLongGroupIdAndStreamIdMap = new HashMap<>();
+
         recordTransformer = new RecordTransformer(config.getInteger(Constants.ETL_RECORD_SERIALIZATION_BUFFER_SIZE));
         metaManager = MetaManager.getInstance(config);
         metaManager.registerDataFlowInfoListener(new DataFlowInfoListenerImpl());
         enableOutputMetrics = config.getBoolean(Constants.METRICS_ENABLE_OUTPUT);
 
-        inLongGroupIdAndStreamIdMap = new HashMap<>();
         String auditHostAndPorts = config.getString(Constants.METRICS_AUDIT_SDK_HOSTS);
         if (auditHostAndPorts != null) {
             AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(","))));
