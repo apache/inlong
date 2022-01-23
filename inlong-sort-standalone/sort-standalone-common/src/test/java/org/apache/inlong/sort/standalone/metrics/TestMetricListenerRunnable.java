@@ -147,7 +147,6 @@ public class TestMetricListenerRunnable {
         listeners.add(listener);
         MetricListenerRunnable runnable = new MetricListenerRunnable("Sort", listeners);
         List<MetricItemValue> itemValues = runnable.getItemValues();
-        assertEquals(4, itemValues.size());
         runnable.run();
     }
 }
