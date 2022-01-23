@@ -33,9 +33,11 @@ public class DateTimeConvertUtils {
 
     private static final ZoneId defZoneId = ZoneId.systemDefault();
     public static final String PAT_YYYYMMDDHHMM = "yyyyMMddHHmm";
+    public static final int LENGTH_YYYYMMDDHHMM = PAT_YYYYMMDDHHMM.length();
     private static final DateTimeFormatter sdf4yyyyMMddHHmm
             = DateTimeFormatter.ofPattern(PAT_YYYYMMDDHHMM);
     public static final String PAT_YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
+    public static final int LENGTH_YYYYMMDDHHMMSS = PAT_YYYYMMDDHHMMSS.length();
     private static final DateTimeFormatter sdf4yyyyMMddHHmmss
             = DateTimeFormatter.ofPattern(PAT_YYYYMMDDHHMMSS);
 

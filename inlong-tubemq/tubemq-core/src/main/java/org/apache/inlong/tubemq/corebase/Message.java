@@ -125,12 +125,12 @@ public class Message implements Serializable {
         }
         if (TStringUtils.isNotBlank(msgTime)) {
             String tmpMsgTime = msgTime.trim();
-            if (tmpMsgTime.length() != DateTimeConvertUtils.PAT_YYYYMMDDHHMM.length()) {
+            if (tmpMsgTime.length() != DateTimeConvertUtils.LENGTH_YYYYMMDDHHMM) {
                 throw new IllegalArgumentException(strBuff
                         .append("Illegal parameter: msgTime's value must '")
                         .append(DateTimeConvertUtils.PAT_YYYYMMDDHHMM)
                         .append("' format and length must equal ")
-                        .append(DateTimeConvertUtils.PAT_YYYYMMDDHHMM.length()).toString());
+                        .append(DateTimeConvertUtils.LENGTH_YYYYMMDDHHMM).toString());
             }
             try {
                 DateTimeConvertUtils.yyyyMMddHHmm2ms(tmpMsgTime);
