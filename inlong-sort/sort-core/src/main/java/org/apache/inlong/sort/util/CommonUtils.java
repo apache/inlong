@@ -17,17 +17,22 @@
 
 package org.apache.inlong.sort.util;
 
-import org.apache.inlong.sort.formats.base.TableFormatUtils;
-import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.RowFormatInfo;
-import org.apache.inlong.sort.protocol.FieldInfo;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.api.java.typeutils.runtime.RowSerializer;
+import org.apache.inlong.sort.configuration.Constants;
+import org.apache.inlong.sort.formats.base.TableFormatUtils;
+import org.apache.inlong.sort.formats.common.FormatInfo;
+import org.apache.inlong.sort.formats.common.RowFormatInfo;
+import org.apache.inlong.sort.protocol.DataFlowInfo;
+import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
+import org.apache.inlong.sort.protocol.deserialization.TDMsgDeserializationInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,5 +87,27 @@ public class CommonUtils {
         }
 
         return (RowSerializer) new RowTypeInfo(typeInformations).createSerializer(new ExecutionConfig());
+    }
+
+    public static Pair<String, String> getInLongGroupIdAndStreamId(DataFlowInfo dataFlowInfo) {
+        String groupId = "";
+        String streamId = "";
+
+        if (dataFlowInfo != null) {
+            // Get group id
+            Map<String, Object> properties = dataFlowInfo.getProperties();
+            if (properties != null) {
+                groupId = properties.getOrDefault(Constants.INLONG_GROUP_ID, "").toString();
+            }
+
+            // Get stream id
+            final DeserializationInfo deserializationInfo = dataFlowInfo.getSourceInfo().getDeserializationInfo();
+            if (deserializationInfo instanceof TDMsgDeserializationInfo) {
+                streamId = ((TDMsgDeserializationInfo) deserializationInfo).getTid();
+            }
+
+        }
+
+        return Pair.of(groupId, streamId);
     }
 }

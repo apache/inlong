@@ -18,8 +18,14 @@
 package org.apache.inlong.sort.flink.deserialization;
 
 import com.google.common.base.Preconditions;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
+import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.flink.Record;
@@ -34,6 +40,7 @@ import org.apache.inlong.sort.meta.MetaManager;
 import org.apache.inlong.sort.meta.MetaManager.DataFlowInfoListener;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.flink.util.OutputTag;
+import org.apache.inlong.sort.util.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +69,11 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
 
     private transient Boolean enableOutputMetrics;
 
+    // dataflow id -> Pair<group id, stream id>
+    private transient Map<Long, Pair<String, String>> inLongGroupIdAndStreamIdMap;
+
+    private transient AuditImp auditImp;
+
     public DeserializationSchema(Configuration config) {
         this.config = Preconditions.checkNotNull(config);
     }
@@ -76,6 +88,13 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
         metaManager = MetaManager.getInstance(config);
         metaManager.registerDataFlowInfoListener(new DataFlowInfoListenerImpl());
         enableOutputMetrics = config.getBoolean(Constants.METRICS_ENABLE_OUTPUT);
+
+        inLongGroupIdAndStreamIdMap = new HashMap<>();
+        String auditHostAndPorts = config.getString(Constants.METRICS_AUDIT_SDK_HOSTS);
+        if (auditHostAndPorts != null) {
+            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(","))));
+            auditImp = AuditImp.getInstance();
+        }
     }
 
     @Override
@@ -83,6 +102,10 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
         if (metaManager != null) {
             metaManager.close();
             metaManager = null;
+        }
+
+        if (auditImp != null) {
+            auditImp.sendReport();
         }
     }
 
@@ -122,7 +145,23 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
                     context.output(METRIC_DATA_OUTPUT_TAG, metricData);
                 }
 
-                collector.collect(recordTransformer.toSerializedRecord(sinkRecord));
+                SerializedRecord serializedSinkRecord = recordTransformer.toSerializedRecord(sinkRecord);
+
+                if (auditImp != null) {
+                    Pair<String, String> groupIdAndStreamId = inLongGroupIdAndStreamIdMap.getOrDefault(
+                            serializedRecord.getDataFlowId(),
+                            Pair.of("", ""));
+
+                    auditImp.add(
+                            Constants.METRIC_AUDIT_ID_FOR_INPUT,
+                            groupIdAndStreamId.getLeft(),
+                            groupIdAndStreamId.getRight(),
+                            sinkRecord.getTimestampMillis(),
+                            1,
+                            serializedSinkRecord.getData().length);
+                }
+
+                collector.collect(serializedSinkRecord);
             });
 
             if (serializedRecord instanceof TDMsgMixedSerializedRecord) {
@@ -161,6 +200,10 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
                 multiTenancyDeserializer.addDataFlow(dataFlowInfo);
                 fieldMappingTransformer.addDataFlow(dataFlowInfo);
                 recordTransformer.addDataFlow(dataFlowInfo);
+
+                inLongGroupIdAndStreamIdMap.put(
+                        dataFlowInfo.getId(),
+                        CommonUtils.getInLongGroupIdAndStreamId(dataFlowInfo));
             }
         }
 
@@ -171,6 +214,10 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
                 multiTenancyDeserializer.updateDataFlow(dataFlowInfo);
                 fieldMappingTransformer.updateDataFlow(dataFlowInfo);
                 recordTransformer.updateDataFlow(dataFlowInfo);
+
+                inLongGroupIdAndStreamIdMap.put(
+                        dataFlowInfo.getId(),
+                        CommonUtils.getInLongGroupIdAndStreamId(dataFlowInfo));
             }
         }
 
@@ -181,6 +228,8 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
                 multiTenancyDeserializer.removeDataFlow(dataFlowInfo);
                 fieldMappingTransformer.removeDataFlow(dataFlowInfo);
                 recordTransformer.removeDataFlow(dataFlowInfo);
+
+                inLongGroupIdAndStreamIdMap.remove(dataFlowInfo.getId());
             }
         }
     }
