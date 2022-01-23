@@ -44,7 +44,7 @@ import org.apache.inlong.tubemq.server.common.utils.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Message file's storage. Contains data file and index file.
  */
 public class MsgFileStore implements Closeable {
@@ -102,7 +102,7 @@ public class MsgFileStore implements Closeable {
         this.lastFlushTime.set(System.currentTimeMillis());
     }
 
-    /***
+    /**
      * Batch append message to file segment
      *
      * @param sb             string buffer
@@ -221,7 +221,7 @@ public class MsgFileStore implements Closeable {
         }
     }
 
-    /***
+    /**
      * Get message from index and data files.
      *
      * @param partitionId           the partitionId for reading messages
@@ -382,7 +382,7 @@ public class MsgFileStore implements Closeable {
                 totalSize, countMap, transferedMessageList);
     }
 
-    /***
+    /**
      * Get the segment start Offset that contains the specified timestamp
      *
      * @param timestamp           the specified timestamp
@@ -454,7 +454,7 @@ public class MsgFileStore implements Closeable {
         }
     }
 
-    /***
+    /**
      * Clean expired data files and index files.
      *
      * @param onlyCheck   whether to check only
@@ -479,7 +479,7 @@ public class MsgFileStore implements Closeable {
         return (hasExpiredDataSegs || hasExpiredIndexSegs);
     }
 
-    /***
+    /**
      * Flush data to disk at interval.
      *
      * @throws IOException the exception during processing

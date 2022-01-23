@@ -123,7 +123,7 @@ public class DataConverterUtil {
         return topicList;
     }
 
-    /*********
+    /**
      * convert string info to @link BrokerInfo
      *
      * @param strBrokerInfos return a BrokerInfo Map
@@ -143,7 +143,7 @@ public class DataConverterUtil {
         return brokerInfoMap;
     }
 
-    /*********
+    /**
      * convert string info to  a map of TopicCondition TreeSet
      *
      * @param strTopicConditions return a map of TopicCondition TreeSet

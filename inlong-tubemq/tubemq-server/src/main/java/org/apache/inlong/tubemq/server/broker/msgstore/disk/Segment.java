@@ -21,14 +21,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-/***
+/**
  * Storage segment, usually implemented in file format.
  */
 public interface Segment {
 
     void close();
 
-    /***
+    /**
      * Messages can only be appended to the last FileSegment.
      * The last FileSegment is writable, the others are mutable.
      *
@@ -72,7 +72,7 @@ public interface Segment {
 
     void relViewRef();
 
-    /***
+    /**
      * Read data to buffer from absolute position.
      *
      * @param bf          buffer to store data
@@ -80,7 +80,7 @@ public interface Segment {
      */
     void read(ByteBuffer bf, long absOffset) throws IOException;
 
-    /***
+    /**
      * Read data to buffer from relative position.
      *
      * @param bf          buffer to store data

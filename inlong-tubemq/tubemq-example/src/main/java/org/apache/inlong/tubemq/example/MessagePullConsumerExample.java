@@ -50,7 +50,7 @@ public final class MessagePullConsumerExample {
     private static PullMessageConsumer pullConsumer;
     private static MessageSessionFactory sessionFactory;
 
-    /***
+    /**
      * Consume messages in Pull mode through a single-session factory instance.
      *
      * @param args   Startup parameter array, including the following parts:

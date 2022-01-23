@@ -59,7 +59,7 @@ import org.apache.inlong.tubemq.server.common.TStatusConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Message storage management. It contains all topics on broker. In charge of store, expire, and flush operation,
  */
 public class MessageStoreManager implements StoreService {
@@ -268,7 +268,7 @@ public class MessageStoreManager implements StoreService {
         }
     }
 
-    /***
+    /**
      * Get message store by topic.
      *
      * @param topic  query topic name
@@ -284,7 +284,7 @@ public class MessageStoreManager implements StoreService {
         return map.values();
     }
 
-    /***
+    /**
      * Get or create message store.
      *
      * @param topic           the topic name
@@ -346,7 +346,7 @@ public class MessageStoreManager implements StoreService {
         return this.tubeBroker;
     }
 
-    /***
+    /**
      * Get message from store.
      *
      * @param msgStore        the message-store
@@ -394,7 +394,7 @@ public class MessageStoreManager implements StoreService {
         return Collections.unmodifiableMap(this.dataStores);
     }
 
-    /***
+    /**
      * Query topic's publish info.
      *
      * @param topicSet query's topic set
@@ -451,7 +451,7 @@ public class MessageStoreManager implements StoreService {
         return topicPubStoreInfoMap;
     }
 
-    /***
+    /**
      * Query topic's publish info.
      *
      * @param groupOffsetMap query's topic set
@@ -524,7 +524,7 @@ public class MessageStoreManager implements StoreService {
         return fileSet;
     }
 
-    /***
+    /**
      * Load stores sequential.
      *
      * @param tubeConfig             the broker's configure
@@ -627,7 +627,7 @@ public class MessageStoreManager implements StoreService {
                 .append((System.currentTimeMillis() - start) / 1000).append(" secs").toString());
     }
 
-    /***
+    /**
      * Load stores in parallel.
      *
      * @param tasks                    the load tasks
@@ -668,7 +668,7 @@ public class MessageStoreManager implements StoreService {
         }
     }
 
-    /***
+    /**
      * Refresh message-store's dynamic configures
      *
      * @param oldTopicConfigMap     the stored topic configure map

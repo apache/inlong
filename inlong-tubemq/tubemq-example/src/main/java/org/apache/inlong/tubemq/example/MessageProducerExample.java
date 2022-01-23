@@ -49,7 +49,7 @@ public final class MessageProducerExample {
     private static MessageSessionFactory sessionFactory;
     private static MessageProducer messageProducer;
 
-    /***
+    /**
      * Produce messages through a single-session factory instance.
      *
      * @param args   Startup parameter array, including the following parts:

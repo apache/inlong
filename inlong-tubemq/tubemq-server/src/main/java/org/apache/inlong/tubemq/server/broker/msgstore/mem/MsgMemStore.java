@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.nio.ch.DirectBuffer;
 
-/***
+/**
  * Message's memory storage. It use direct memory store messages that received but not have been flushed to disk.
  */
 public class MsgMemStore implements Closeable {
@@ -84,7 +84,7 @@ public class MsgMemStore implements Closeable {
         this.writeIndexStartPos = writeIndexStartPos;
     }
 
-    /***
+    /**
      * Append message to memory cache
      *
      * @param msgMemStatisInfo  statistical information object
@@ -145,7 +145,7 @@ public class MsgMemStore implements Closeable {
         return true;
     }
 
-    /***
+    /**
      * Read from memory, read index, then data.
      *
      * @param lstRdDataOffset       the recent data offset read before
@@ -284,7 +284,7 @@ public class MsgMemStore implements Closeable {
                 lstRdIndexOffset, readedSize, lastDataRdOff, totalReadSize, cacheMsgList);
     }
 
-    /***
+    /**
      * Batch flush memory data to disk.
      *
      * @param msgFileStore    the file storage

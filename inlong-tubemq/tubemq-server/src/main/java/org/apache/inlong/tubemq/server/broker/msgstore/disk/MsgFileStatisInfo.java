@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 
-/***
+/**
  * Statistics of message file. Contains read, write, failed, etc.
  */
 public class MsgFileStatisInfo {

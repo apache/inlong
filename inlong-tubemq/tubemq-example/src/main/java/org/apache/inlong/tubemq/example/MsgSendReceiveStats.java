@@ -70,7 +70,7 @@ public class MsgSendReceiveStats implements Runnable {
         }
     }
 
-    /***
+    /**
      * Record the number of messages by topicName dimension
      *
      * @param topicName   topic name

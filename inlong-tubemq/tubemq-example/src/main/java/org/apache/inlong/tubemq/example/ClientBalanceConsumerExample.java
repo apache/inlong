@@ -65,7 +65,7 @@ public final class ClientBalanceConsumerExample {
     private static final ConcurrentHashMap<String, Long> partitionOffsetMap =
             new ConcurrentHashMap<>();
 
-    /***
+    /**
      * Consume messages in Pull mode by assigning partitions by the client.
      *
      * @param args   Startup parameter array, including the following parts:

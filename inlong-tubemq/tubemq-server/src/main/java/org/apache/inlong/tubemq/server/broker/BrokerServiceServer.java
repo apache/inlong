@@ -85,7 +85,7 @@ import org.apache.inlong.tubemq.server.common.utils.RowLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Broker service. Receive and conduct client's request, store messages, query messages, print statistics, etc.
  */
 public class BrokerServiceServer implements BrokerReadService, BrokerWriteService, Server {
@@ -137,7 +137,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 this.tubeConfig.getConsumerRegTimeoutMs(), consumerListener);
     }
 
-    /***
+    /**
      * Start broker service
      *
      * @throws Exception
@@ -212,7 +212,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         this.started.set(true);
     }
 
-    /***
+    /**
      * Stop broker service.
      */
     @Override
@@ -226,26 +226,26 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         logger.info("BrokerService server stopped");
     }
 
-    /***
+    /**
      * Get broker's registered consumer info
      *
-     * @return
+     * @return query result
      */
     public Map<String, ConsumerNodeInfo> getConsumerRegisterMap() {
         return consumerRegisterMap;
     }
 
-    /***
+    /**
      * Get consumer's info by store key.
      *
-     * @param storeKey
-     * @return
+     * @param storeKey   the query key
+     * @return           the consumer nodeinfo object
      */
     public ConsumerNodeInfo getConsumerNodeInfo(String storeKey) {
         return consumerRegisterMap.get(storeKey);
     }
 
-    /***
+    /**
      * Get consumer's register time.
      *
      * @param consumerId
@@ -262,7 +262,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         return (timeoutInfo.getTimeoutTime() - heartbeatManager.getConsumerTimeoutDlt());
     }
 
-    /***
+    /**
      * Handle consumer's getMessageRequest.
      *
      * @param request        the http request
@@ -416,7 +416,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
     }
 
-    /***
+    /**
      * Query offset, then read data.
      *
      * @param msgStore                the message store instance
@@ -487,7 +487,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
     }
 
-    /***
+    /**
      * Get message snapshot by given parameters.
      *
      * @param topicName        the topic name
@@ -578,7 +578,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
     }
 
-    /***
+    /**
      * Handle producer's sendMessage request.
      *
      * @param request       the request
@@ -704,7 +704,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
     }
 
-    /***
+    /**
      * append group current offset to storage
      *
      * @param groupOffsetMap group offset information
@@ -789,7 +789,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
     }
 
-    /***
+    /**
      * Handle consumer register request.
      *
      * @param request       the request
@@ -899,7 +899,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
     }
 
-    /***
+    /**
      * Handle consumer's register request.
      *
      * @param clientId        the client id
@@ -995,7 +995,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
     }
 
-    /***
+    /**
      * Handle consumer's unregister request.
      *
      * @param clientId     the client id
@@ -1064,7 +1064,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         return builder.build();
     }
 
-    /***
+    /**
      * Handle consumer's heartbeat request.
      *
      * @param request        the request
@@ -1185,7 +1185,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         return builder.build();
     }
 
-    /***
+    /**
      * Handle consumer's commit offset request.
      *
      * @param request        the request
@@ -1310,7 +1310,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 : consumerNodeInfo.getQryPriorityId();
     }
 
-    /***
+    /**
      * Consumer timeout handler. Update consumer's info if exists consumer timeout.
      */
     public class ConsumerTimeoutListener implements TimeoutListener {

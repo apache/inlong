@@ -62,7 +62,7 @@ import org.apache.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Tube broker server. In charge of init each components, and communicating to master.
  */
 public class TubeBroker implements Stoppable {
@@ -198,7 +198,7 @@ public class TubeBroker implements Stoppable {
         return brokerServiceServer;
     }
 
-    /***
+    /**
      * Start broker service.
      *
      * @throws Exception  the exception during processing
@@ -400,7 +400,7 @@ public class TubeBroker implements Stoppable {
         }
     }
 
-    /***
+    /**
      * Register to master. Try multi times if failed.
      *
      * @throws StartupException  the exception during processing
@@ -509,7 +509,7 @@ public class TubeBroker implements Stoppable {
         return defSetting;
     }
 
-    /***
+    /**
      * Build register request to master.
      *
      * @return             the register request object
@@ -557,10 +557,10 @@ public class TubeBroker implements Stoppable {
         return builder.build();
     }
 
-    /***
+    /**
      * Build heartbeat request to master.
      *
-     * @return
+     * @return the HeartRequestB2M request object
      */
     private HeartRequestB2M createBrokerHeartBeatRequest() {
         HeartRequestB2M.Builder builder = HeartRequestB2M.newBuilder();
@@ -609,10 +609,10 @@ public class TubeBroker implements Stoppable {
         return builder.build();
     }
 
-    /***
+    /**
      * Build close request to master.
      *
-     * @return
+     * @return the CloseRequestB2M request object
      */
     private CloseRequestB2M createMasterCloseRequest() {
         CloseRequestB2M.Builder builder = CloseRequestB2M.newBuilder();
@@ -624,10 +624,10 @@ public class TubeBroker implements Stoppable {
         return builder.build();
     }
 
-    /***
+    /**
      * Build master certificate info.
      *
-     * @return
+     * @return  the MasterCertificateInfo builder
      */
     private ClientMaster.MasterCertificateInfo.Builder genMasterCertificateInfo() {
         ClientMaster.MasterCertificateInfo.Builder authInfoBuilder = null;
@@ -640,7 +640,7 @@ public class TubeBroker implements Stoppable {
         return authInfoBuilder;
     }
 
-    /***
+    /**
      * Shutdown hook.
      */
     private final class ShutdownHook extends Thread {

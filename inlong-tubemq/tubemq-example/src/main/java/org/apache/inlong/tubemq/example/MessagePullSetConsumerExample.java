@@ -60,7 +60,7 @@ public final class MessagePullSetConsumerExample {
     private static final ConcurrentHashMap<String, MessageSessionFactory> multSessFtyMap =
             new ConcurrentHashMap<>();
 
-    /***
+    /**
      * Consume messages with setting bootstrap offset in Pull mode through multi-session factory instances.
      *
      * @param args   Startup parameter array, including the following parts:

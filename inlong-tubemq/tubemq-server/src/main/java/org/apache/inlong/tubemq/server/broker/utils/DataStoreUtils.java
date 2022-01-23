@@ -29,7 +29,7 @@ import org.apache.inlong.tubemq.corebase.utils.MessageFlagUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.broker.stats.CountItem;
 
-/***
+/**
  * Storage util. Used for data and index file storage format.
  */
 public class DataStoreUtils {
@@ -103,15 +103,15 @@ public class DataStoreUtils {
         return nf.format(offset) + fileSuffix;
     }
 
-    /***
+    /**
      * Convert inner message to protobuf format, then reply to client.
      *
-     * @param dataBuffer
-     * @param dataTotalSize
-     * @param countMap
-     * @param statisKeyBase
-     * @param sBuilder
-     * @return
+     * @param dataBuffer      the raw stored data
+     * @param dataTotalSize   the data size
+     * @param countMap        the statistics map
+     * @param statisKeyBase   the statistics key prefix
+     * @param sBuilder        the string buffer
+     * @return                the converted messages
      */
     public static ClientBroker.TransferedMessage getTransferMsg(final ByteBuffer dataBuffer, int dataTotalSize,
                                                                 final HashMap<String, CountItem> countMap,

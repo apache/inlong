@@ -54,7 +54,7 @@ import org.apache.inlong.tubemq.server.common.utils.IdWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Topic's message storage. It's a logical topic storage. Contains multi types storage: data in memory,
  * data in disk, and statistics of produce and consume.
  */
@@ -151,7 +151,7 @@ public class MessageStore implements Closeable {
         this.lastMemFlushTime.set(System.currentTimeMillis());
     }
 
-    /***
+    /**
      * Get message from message store. Support the given offset, filter.
      *
      * @param reqSwitch            read message from where
@@ -298,7 +298,7 @@ public class MessageStore implements Closeable {
         return retResult;
     }
 
-    /***
+    /**
      * Get start offset by timestamp.
      *
      * @param timestamp  timestamp
@@ -326,7 +326,7 @@ public class MessageStore implements Closeable {
         }
     }
 
-    /***
+    /**
      * Append msg to store.
      *
      * @param appendResult    the append result
@@ -350,7 +350,7 @@ public class MessageStore implements Closeable {
                 System.currentTimeMillis(), 3, 2);
     }
 
-    /***
+    /**
      * Append msg to store.
      *
      * @param appendResult    the append result
@@ -429,7 +429,7 @@ public class MessageStore implements Closeable {
         return this.msgFileStatisInfo;
     }
 
-    /***
+    /**
      * Execute cleanup policy.
      *
      * @param onlyCheck   whether only check status
@@ -445,7 +445,7 @@ public class MessageStore implements Closeable {
         return msgFileStore.runClearupPolicy(onlyCheck);
     }
 
-    /***
+    /**
      * Refresh unflush threshold
      *
      * @param topicMetadata   topic meta data
@@ -481,7 +481,7 @@ public class MessageStore implements Closeable {
         }
     }
 
-    /***
+    /**
      * Flush file store to disk.
      *
      * @throws IOException the exception during processing
@@ -495,7 +495,7 @@ public class MessageStore implements Closeable {
         msgFileStore.flushDiskFile();
     }
 
-    /***
+    /**
      * Flush memory store to file.
      *
      * @throws IOException the exception during processing
@@ -669,7 +669,7 @@ public class MessageStore implements Closeable {
         return memCacheSize;
     }
 
-    /***
+    /**
      * Append message and trigger flush operation.
      *
      * @param partitionId       the partitionId for reading messages

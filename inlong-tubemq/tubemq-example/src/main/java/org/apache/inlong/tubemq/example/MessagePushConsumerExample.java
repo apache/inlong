@@ -54,7 +54,7 @@ public final class MessagePushConsumerExample {
     private static MessageSessionFactory sessionFactory;
     private static final Map<String, PushMessageConsumer> consumerMap = new HashMap<>();
 
-    /***
+    /**
      * Consume messages in Push mode through a single-session factory instance.
      *
      * @param args   Startup parameter array, including the following parts:

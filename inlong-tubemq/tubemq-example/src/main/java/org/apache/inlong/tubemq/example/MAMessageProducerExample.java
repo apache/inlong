@@ -54,7 +54,7 @@ public class MAMessageProducerExample {
     private static final AtomicLong totalSentCnt = new AtomicLong(0);
     private static ExecutorService sendExecutorService;
 
-    /***
+    /**
      * Produce messages through multi-session factory instances.
      *
      * @param args   Startup parameter array, including the following parts:

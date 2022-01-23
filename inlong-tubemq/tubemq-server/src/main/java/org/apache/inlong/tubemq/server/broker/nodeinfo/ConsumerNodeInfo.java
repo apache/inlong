@@ -26,7 +26,7 @@ import org.apache.inlong.tubemq.corebase.policies.FlowCtrlRuleHandler;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 
-/***
+/**
  * Consumer node info, which broker contains.
  */
 public class ConsumerNodeInfo {
@@ -226,7 +226,7 @@ public class ConsumerNodeInfo {
         return this.rmtAddrInfo;
     }
 
-    /***
+    /**
      * Recalculate message limit value.
      *
      * @param curDataDlt

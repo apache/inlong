@@ -17,7 +17,7 @@
 
 package org.apache.inlong.tubemq.server.broker.exception;
 
-/***
+/**
  * Save offset occur error throw this Exception.
  */
 public class OffsetStoreException extends Exception {

@@ -26,7 +26,7 @@ import org.apache.inlong.tubemq.corebase.daemon.AbstractDaemonService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Statistics of broker. It use two CountSet alternatively print statistics to log.
  */
 public class GroupCountService extends AbstractDaemonService implements CountService {
