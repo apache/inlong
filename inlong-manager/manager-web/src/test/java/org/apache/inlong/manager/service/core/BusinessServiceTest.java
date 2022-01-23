@@ -17,10 +17,14 @@
 
 package org.apache.inlong.manager.service.core;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.pojo.business.BusinessExtInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
+import org.apache.inlong.manager.dao.entity.BusinessExtEntity;
 import org.apache.inlong.manager.dao.mapper.BusinessExtEntityMapper;
 import org.apache.inlong.manager.web.ServiceBaseTest;
 import org.junit.Assert;
@@ -78,6 +82,37 @@ public class BusinessServiceTest extends ServiceBaseTest {
 
         boolean result = businessService.delete(groupId, globalOperator);
         Assert.assertTrue(result);
+    }
+
+    @Test
+    public void testSaveAndUpdateExt() {
+        // check insert
+        BusinessExtInfo businessExtInfo1 = new BusinessExtInfo();
+        businessExtInfo1.setId(1);
+        businessExtInfo1.setInlongGroupId(globalGroupId);
+        businessExtInfo1.setKeyName("pulsar_url");
+        businessExtInfo1.setKeyValue("http://127.0.0.1:8080");
+
+        BusinessExtInfo businessExtInfo2 = new BusinessExtInfo();
+        businessExtInfo2.setId(2);
+        businessExtInfo2.setInlongGroupId(globalGroupId);
+        businessExtInfo2.setKeyName("pulsar_secret");
+        businessExtInfo2.setKeyValue("QWEASDZXC");
+
+        List<BusinessExtInfo> businessExtInfoList = Arrays.asList(businessExtInfo1, businessExtInfo2);
+        businessService.saveOrUpdateExt(globalGroupId, businessExtInfoList);
+
+        List<BusinessExtEntity> extEntityList = businessExtMapper.selectByGroupId(globalGroupId);
+        Assert.assertEquals(2, extEntityList.size());
+        Assert.assertEquals("pulsar_url", extEntityList.get(0).getKeyName());
+        Assert.assertEquals("http://127.0.0.1:8080", extEntityList.get(0).getKeyValue());
+
+        // check update
+        businessExtInfo1.setKeyValue("http://127.0.0.1:8081");
+        businessService.saveOrUpdateExt(globalGroupId, businessExtInfoList);
+        extEntityList = businessExtMapper.selectByGroupId(globalGroupId);
+        Assert.assertEquals(2, extEntityList.size());
+        Assert.assertEquals("http://127.0.0.1:8081", extEntityList.get(0).getKeyValue());
     }
 
 }
