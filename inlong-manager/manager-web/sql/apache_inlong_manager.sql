@@ -1132,5 +1132,18 @@ CREATE TABLE `db_collector_detail_task`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='db collector detail task table';
 
+-- ----------------------------
+-- Table structure for sort_cluster_config
+-- ----------------------------
+DROP TABLE IF EXISTS `sort_cluster_config`;
+CREATE TABLE `sort_cluster_config`
+(
+    `id`            int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `cluster_name`  varchar(128)  NOT NULL COMMENT 'Cluster name',
+    `task_name`     varchar(128)  NOT NULL COMMENT 'Task name',
+    `sink_type`     varchar(128)  NOT NULL COMMENT 'Type of sink',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Sort cluster config table';
 
 SET FOREIGN_KEY_CHECKS = 1;
