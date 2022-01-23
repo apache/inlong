@@ -60,4 +60,15 @@ public class SortControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
     }
+
+    @Test
+    public void testEmptyClusterNameWhenGet() throws Exception {
+        RequestBuilder request =
+                get("/openapi/sort/getClusterConfig")
+                        .param("clusterName", "  ")
+                        .param("md5", "testMd5");
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
 }
