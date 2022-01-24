@@ -20,7 +20,7 @@ package org.apache.inlong.tubemq.server.broker.msgstore.mem;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-/***
+/**
  * Result set of read operation from memory.
  */
 public class GetCacheMsgResult {

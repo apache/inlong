@@ -23,7 +23,7 @@ import org.apache.inlong.tubemq.server.broker.TubeBroker;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-/***
+/**
  * Broker's http server.
  */
 public class WebServer implements Server {

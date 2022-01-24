@@ -34,6 +34,7 @@ public class WriteHdfsFileRunnable implements Runnable {
     private final HiveSinkContext context;
     private final HdfsIdFile idFile;
     private final DispatchProfile profile;
+    private final long sendTime;
 
     /**
      * Constructor
@@ -46,6 +47,7 @@ public class WriteHdfsFileRunnable implements Runnable {
         this.context = context;
         this.idFile = idFile;
         this.profile = profile;
+        this.sendTime = System.currentTimeMillis();
     }
 
     /**
@@ -55,6 +57,7 @@ public class WriteHdfsFileRunnable implements Runnable {
     public void run() {
         synchronized (idFile) {
             if (!idFile.isOpen()) {
+                context.addSendResultMetric(profile, context.getTaskName(), false, sendTime);
                 context.getDispatchQueue().offer(profile);
                 return;
             }
@@ -67,8 +70,10 @@ public class WriteHdfsFileRunnable implements Runnable {
                     output.writeByte(HdfsIdFile.SEPARATOR_MESSAGE);
                 }
                 output.flush();
+                context.addSendResultMetric(profile, context.getTaskName(), true, sendTime);
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
+                context.addSendResultMetric(profile, context.getTaskName(), false, sendTime);
                 context.getDispatchQueue().offer(profile);
             }
         }

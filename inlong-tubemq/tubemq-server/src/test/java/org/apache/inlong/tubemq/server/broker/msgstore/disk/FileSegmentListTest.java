@@ -24,7 +24,7 @@ import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-/***
+/**
  * FileSegmentList test
  */
 public class FileSegmentListTest {

@@ -22,6 +22,7 @@ import org.apache.inlong.commons.config.metrics.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItemSet;
+import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.source.SourceContext;
 
 import javax.annotation.Nullable;
@@ -81,17 +82,19 @@ public final class SortSdkSourceContext extends SourceContext {
         final Map<String, String> dimensions = this.createSortSdkSourceDimensionMap(event, sortId, topic);
         final SortMetricItem metricItem = metricItemSet.findMetricItem(dimensions);
         final int msgSize = event != null ? event.getBody().length : -1;
-        this.reportToMetric(metricItem, fetchResult, msgSize);
+        this.reportToMetric(event, metricItem, fetchResult, msgSize);
     }
 
     /**
      * Selector of metric report flow.
      *
+     * @param event The fetched event. May be <b>null</b> when fetch failed occurs.
      * @param item MetricItem that report to.
      * @param fetchResult Result of fetching, SUCCESS or FAILURE.
      * @param size The fetch length. -1 means fetch failure.
      */
     private void reportToMetric(
+            @Nullable final ProfileEvent event,
             @NotNull final SortMetricItem item,
             final FetchResult fetchResult,
             final int size) {
@@ -99,6 +102,7 @@ public final class SortSdkSourceContext extends SourceContext {
         switch (fetchResult) {
             case SUCCESS:
                 reportToMetric(item.readSuccessCount, item.readSuccessSize, size);
+                AuditUtils.add(AuditUtils.AUDIT_ID_READ_SUCCESS, event);
                 break;
             case FAILURE:
                 reportToMetric(item.readFailCount, item.readFailSize, size);

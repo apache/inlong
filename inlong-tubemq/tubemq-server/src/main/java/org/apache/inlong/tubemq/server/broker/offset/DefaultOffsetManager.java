@@ -34,13 +34,14 @@ import org.apache.inlong.tubemq.server.broker.BrokerConfig;
 import org.apache.inlong.tubemq.server.broker.metrics.BrokerMetricsHolder;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
+import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.offsetstorage.OffsetStorage;
 import org.apache.inlong.tubemq.server.common.offsetstorage.OffsetStorageInfo;
 import org.apache.inlong.tubemq.server.common.offsetstorage.ZkOffsetStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Default offset manager.
  * Conduct consumer's commit offset operation and consumer's offset that has consumed but not committed.
  */
@@ -91,17 +92,17 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         logger.info("[Offset Manager] Offset Manager service stopped!");
     }
 
-    /***
+    /**
      * Load offset.
      *
-     * @param msgStore
-     * @param group
-     * @param topic
-     * @param partitionId
-     * @param readStatus
-     * @param reqOffset
-     * @param sBuilder
-     * @return
+     * @param msgStore       the message store instance
+     * @param group          the consume group name
+     * @param topic          the consumed topic name
+     * @param partitionId    the consumed partition id
+     * @param readStatus     the consume behavior of the consumer group
+     * @param reqOffset      the bootstrap offset
+     * @param sBuilder       the string buffer
+     * @return               the loaded offset information
      */
     @Override
     public OffsetStorageInfo loadOffset(final MessageStore msgStore, final String group,
@@ -141,28 +142,31 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         if (!isFirstCreate) {
             sBuilder.append(",Continue");
         }
-        logger.info(sBuilder.append(",loaded offset=").append(curOffset)
-                .append(",required offset=").append(reqOffset)
-                .append(",current offset=").append(regInfo.getOffset())
+        long currentOffset = regInfo.getOffset();
+        long offsetDelta = indexMaxOffset - currentOffset;
+        logger.info(sBuilder.append(",requestOffset=").append(reqOffset)
+                .append(",loadedOffset=").append(curOffset)
+                .append(",currentOffset=").append(currentOffset)
                 .append(",maxOffset=").append(indexMaxOffset)
-                .append(",offset delta=").append(indexMaxOffset - regInfo.getOffset())
-                .append(",group=").append(group).append(",topic=").append(topic)
-                .append(",partitionId=").append(partitionId).toString());
+                .append(",offsetDelta=").append(offsetDelta)
+                .append(",lagLevel=").append(getLagLevel(offsetDelta))
+                .append(",group=").append(group)
+                .append(",topic-part=").append(offsetCacheKey).toString());
         sBuilder.delete(0, sBuilder.length());
         return regInfo;
     }
 
-    /***
+    /**
      * Get offset by parameters.
      *
-     * @param msgStore
-     * @param group
-     * @param topic
-     * @param partitionId
-     * @param isManCommit
-     * @param lastConsumed
-     * @param sb
-     * @return
+     * @param msgStore       the message store instance
+     * @param group          the consume group name
+     * @param topic          the consumed topic name
+     * @param partitionId    the consumed partition id
+     * @param isManCommit    whether manual commit offset
+     * @param lastConsumed   whether the latest fetch is consumed
+     * @param sb             the string buffer
+     * @return               the current offset
      */
     @Override
     public long getOffset(final MessageStore msgStore, final String group,
@@ -185,10 +189,10 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         if (requestOffset >= maxOffset) {
             if (requestOffset > maxOffset && brokerConfig.isUpdateConsumerOffsets()) {
                 logger.warn(sb
-                        .append("[Offset Manager] Offset is bigger than current max offset, reset! requestOffset=")
+                        .append("[Offset Manager] requestOffset is bigger than maxOffset, reset! requestOffset=")
                         .append(requestOffset).append(",maxOffset=").append(maxOffset)
-                        .append(",group=").append(group).append(",topic=").append(topic)
-                        .append(",partitionId=").append(partitionId).toString());
+                        .append(",group=").append(group)
+                        .append(",topic-part=").append(offsetCacheKey).toString());
                 sb.delete(0, sb.length());
                 setTmpOffset(group, offsetCacheKey, maxOffset - requestOffset);
                 if (!isManCommit) {
@@ -198,10 +202,10 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
             return -requestOffset;
         } else if (requestOffset < minOffset) {
             logger.warn(sb
-                    .append("[Offset Manager] Offset is lower than current min offset, reset! requestOffset=")
+                    .append("[Offset Manager] requestOffset is lower than minOffset, reset! requestOffset=")
                     .append(requestOffset).append(",minOffset=").append(minOffset)
-                    .append(",group=").append(group).append(",topic=").append(topic)
-                    .append(",partitionId=").append(partitionId).toString());
+                    .append(",group=").append(group)
+                    .append(",topic-part=").append(offsetCacheKey).toString());
             sb.delete(0, sb.length());
             setTmpOffset(group, offsetCacheKey, minOffset - requestOffset);
             requestOffset = commitOffset(group, topic, partitionId, true);
@@ -236,14 +240,14 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         }
     }
 
-    /***
+    /**
      * Commit offset.
      *
-     * @param group
-     * @param topic
-     * @param partitionId
-     * @param isConsumed
-     * @return
+     * @param group         the consume group name
+     * @param topic         the consumed topic name
+     * @param partitionId   the consumed partition id
+     * @param isConsumed    whether the latest fetch is consumed
+     * @return              the current offset
      */
     @Override
     public long commitOffset(final String group, final String topic,
@@ -264,22 +268,21 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         if (logger.isDebugEnabled()) {
             logger.debug(new StringBuilder(512)
                     .append("[Offset Manager] Update offset finished, offset=").append(updatedOffset)
-                    .append(",group=").append(group).append(",topic=").append(topic)
-                    .append(",partitionId=").append(partitionId).toString());
+                    .append(",group=").append(group).append(",topic-part=").append(offsetCacheKey).toString());
         }
         return updatedOffset;
     }
 
-    /***
+    /**
      * Reset offset.
      *
-     * @param store
-     * @param group
-     * @param topic
-     * @param partitionId
-     * @param reSetOffset
-     * @param modifier
-     * @return
+     * @param store          the message store instance
+     * @param group          the consume group name
+     * @param topic          the consumed topic name
+     * @param partitionId    the consumed partition id
+     * @param reSetOffset    the reset offset
+     * @param modifier       the modifier
+     * @return               the current offset
      */
     @Override
     public long resetOffset(final MessageStore store, final String group,
@@ -287,31 +290,36 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                             long reSetOffset, final String modifier) {
         long oldOffset = -1;
         if (store != null) {
-            reSetOffset = MixedUtils.mid(reSetOffset,
-                    store.getIndexMinOffset(), store.getIndexMaxOffset());
+            long indexMaxOffset = store.getIndexMaxOffset();
+            reSetOffset = MixedUtils.mid(reSetOffset, store.getIndexMinOffset(), indexMaxOffset);
             String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
             getAndResetTmpOffset(group, offsetCacheKey);
             OffsetStorageInfo regInfo =
                     loadOrCreateOffset(group, topic, partitionId, offsetCacheKey, 0);
             oldOffset = regInfo.getAndSetOffset(reSetOffset);
+            long currentOffset = regInfo.getOffset();
+            long offsetDelta = indexMaxOffset - currentOffset;
             logger.info(new StringBuilder(512)
                     .append("[Offset Manager] Manual update offset by modifier=")
-                    .append(modifier).append(",reset offset=").append(reSetOffset)
-                    .append(",old offset=").append(oldOffset)
-                    .append(",updated offset=").append(regInfo.getOffset())
-                    .append(",group=").append(group).append(",topic=").append(topic)
-                    .append(",partitionId=").append(partitionId).toString());
+                    .append(modifier).append(",resetOffset=").append(reSetOffset)
+                    .append(",loadedOffset=").append(oldOffset)
+                    .append(",currentOffset=").append(currentOffset)
+                    .append(",maxOffset=").append(indexMaxOffset)
+                    .append(",offsetDelta=").append(offsetDelta)
+                    .append(",lagLevel=").append(getLagLevel(offsetDelta))
+                    .append(",group=").append(group)
+                    .append(",topic-part=").append(offsetCacheKey).toString());
         }
         return oldOffset;
     }
 
-    /***
+    /**
      * Get temp offset.
      *
-     * @param group
-     * @param topic
-     * @param partitionId
-     * @return
+     * @param group          the consume group name
+     * @param topic          the consumed topic name
+     * @param partitionId    the consumed partition id
+     * @return               the inflight offset
      */
     @Override
     public long getTmpOffset(final String group, final String topic, int partitionId) {
@@ -328,33 +336,31 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return 0;
     }
 
-    /***
+    /**
      * Get in-memory and in zk group set
      *
      * @return booked group in memory and in zk
      */
     @Override
     public Set<String> getBookedGroups() {
-        Set<String> groupSet = new HashSet<>();
-        groupSet.addAll(cfmOffsetMap.keySet());
+        Set<String> groupSet =
+                new HashSet<>(cfmOffsetMap.keySet());
         Map<String, Set<String>> localGroups =
                 zkOffsetStorage.queryZkAllGroupTopicInfos();
         groupSet.addAll(localGroups.keySet());
         return groupSet;
     }
 
-    /***
+    /**
      * Get in-memory group set
      *
      * @return booked group in memory
      */
     public Set<String> getInMemoryGroups() {
-        Set<String> cacheGroup = new HashSet<>();
-        cacheGroup.addAll(cfmOffsetMap.keySet());
-        return cacheGroup;
+        return new HashSet<>(cfmOffsetMap.keySet());
     }
 
-    /***
+    /**
      * Get in-zookeeper but not in memory's group set
      *
      * @return booked group in zookeeper
@@ -372,10 +378,11 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return unUsedGroups;
     }
 
-    /***
+    /**
      * Get the topic set subscribed by the consumer group
-     * @param group
-     * @return topic set subscribed
+     *
+     * @param group    the queries group name
+     * @return         the topic set subscribed
      */
     @Override
     public Set<String> getGroupSubInfo(String group) {
@@ -395,10 +402,11 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return result;
     }
 
-    /***
+    /**
      * Get group's offset by Specified topic-partitions
-     * @param group
-     * @param topicPartMap
+     *
+     * @param group           the consume group that to query
+     * @param topicPartMap    the topic partition map that to query
      * @return group offset info in memory or zk
      */
     @Override
@@ -453,7 +461,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return result;
     }
 
-    /***
+    /**
      * Get online groups' offset information
      *
      * @return group offset info in memory or zk
@@ -488,7 +496,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return result;
     }
 
-    /***
+    /**
      * Reset offset.
      *
      * @param groups              the groups to reset offset
@@ -522,23 +530,23 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                 changed = true;
                 logger.info(strBuidler
                         .append("[Offset Manager] Update offset by modifier=")
-                        .append(modifier).append(",reset offset=").append(tuple3.getF2())
-                        .append(",old offset=").append(oldOffset)
-                        .append(",updated offset=").append(regInfo.getOffset())
+                        .append(modifier).append(",resetOffset=").append(tuple3.getF2())
+                        .append(",loadedOffset=").append(oldOffset)
+                        .append(",currentOffset=").append(regInfo.getOffset())
                         .append(",group=").append(group)
-                        .append(",topic-partId=").append(offsetCacheKey).toString());
+                        .append(",topic-part=").append(offsetCacheKey).toString());
                 strBuidler.delete(0, strBuidler.length());
             }
         }
         return changed;
     }
 
-    /***
+    /**
      * Delete offset.
      *
-     * @param onlyMemory
-     * @param groupTopicPartMap
-     * @param modifier
+     * @param onlyMemory          whether only memory cached value
+     * @param groupTopicPartMap   need removed group and topic map
+     * @param modifier            the modifier
      */
     @Override
     public void deleteGroupOffset(boolean onlyMemory,
@@ -580,13 +588,13 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         }
     }
 
-    /***
+    /**
      * Set temp offset.
      *
-     * @param group
-     * @param offsetCacheKey
-     * @param origOffset
-     * @return
+     * @param group               the consume group name
+     * @param offsetCacheKey      the offset store key
+     * @param origOffset          the set value
+     * @return                    the current inflight offset
      */
     private long setTmpOffset(final String group, final String offsetCacheKey, long origOffset) {
         long tmpOffset = origOffset - origOffset % DataStoreUtils.STORE_INDEX_HEAD_LEN;
@@ -623,7 +631,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         }
     }
 
-    /***
+    /**
      * Commit temp offsets.
      */
     private void commitTmpOffsets() {
@@ -660,15 +668,15 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         BrokerMetricsHolder.updSyncZKDurations(System.currentTimeMillis() - startTime);
     }
 
-    /***
+    /**
      * Load or create offset.
      *
-     * @param group
-     * @param topic
-     * @param partitionId
-     * @param offsetCacheKey
-     * @param defOffset
-     * @return
+     * @param group            the consume group name
+     * @param topic            the consumed topic name
+     * @param partitionId      the consumed partition id
+     * @param offsetCacheKey   the offset store key
+     * @param defOffset        the default offset if not found
+     * @return                 the stored offset object
      */
     private OffsetStorageInfo loadOrCreateOffset(final String group, final String topic,
                                                  int partitionId, final String offsetCacheKey,
@@ -745,6 +753,11 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     private String getOffsetCacheKey(String topic, int partitionId) {
         return new StringBuilder(256).append(topic)
                 .append("-").append(partitionId).toString();
+    }
+
+    private int getLagLevel(long lagValue) {
+        return (lagValue > TServerConstants.CFG_OFFSET_RESET_MID_ALARM_CHECK)
+                ? 2 : (lagValue > TServerConstants.CFG_OFFSET_RESET_MIN_ALARM_CHECK) ? 1 : 0;
     }
 
 }

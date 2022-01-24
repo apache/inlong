@@ -30,7 +30,7 @@ public abstract class CliAbstractBase {
     protected final String commandName;
     protected Options options = new Options();
     protected CommandLineParser parser = new DefaultParser();
-    private HelpFormatter formatter = new HelpFormatter();
+    private final HelpFormatter formatter = new HelpFormatter();
 
     public CliAbstractBase(String commandName) {
         this.commandName = commandName;
@@ -53,7 +53,7 @@ public abstract class CliAbstractBase {
      *
      */
     public void version() {
-        System.out.println("TubeMQ " + TubeServerVersion.BROKER_VERSION);
+        System.out.println("TubeMQ " + TubeServerVersion.SERVER_VERSION);
         System.exit(0);
     }
 

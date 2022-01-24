@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 
-/***
+/**
  * Statistics of message memory. Contains read, write, failed, etc. It's similar to MsgFileStatisInfo.
  */
 public class MsgMemStatisInfo {
@@ -56,7 +56,7 @@ public class MsgMemStatisInfo {
         }
     }
 
-    /***
+    /**
      * Add write fail count statistic.
      */
     public void addWriteFailCount() {
@@ -76,7 +76,7 @@ public class MsgMemStatisInfo {
         }
     }
 
-    /***
+    /**
      * Add full type count statistic.
      *
      * @param timeRecv
@@ -110,7 +110,7 @@ public class MsgMemStatisInfo {
         }
     }
 
-    /***
+    /**
      * Add memory flush count statistic.
      *
      * @param isTimeOut
@@ -135,10 +135,10 @@ public class MsgMemStatisInfo {
         }
     }
 
-    /***
+    /**
      * Add flush time statistic.
      *
-     * @param flushTIme
+     * @param flushTIme the flush time
      */
     public void addFlushTimeStatis(long flushTIme) {
         if (isStart.get()) {
@@ -159,7 +159,7 @@ public class MsgMemStatisInfo {
         }
     }
 
-    /***
+    /**
      * Add message size statistic.
      *
      * @param timeRecv
@@ -188,11 +188,11 @@ public class MsgMemStatisInfo {
         }
     }
 
-    /***
+    /**
      * Get current message size status info.
      *
-     * @param needRefresh
-     * @return
+     * @param needRefresh  Whether the statistics block needs to be refreshed
+     * @return        the statistics data
      */
     public String getCurMsgSizeStatisInfo(boolean needRefresh) {
         MemStatisItemSet oldCountSet;

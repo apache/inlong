@@ -217,6 +217,11 @@ public class ConsumeGroupInfo {
         }
     }
 
+    /**
+     * Get the client nodes that need to be balanced
+     *
+     * @return     the client nodes
+     */
     public RebProcessInfo getNeedBalanceNodes() {
         List<String> needProcessList = new ArrayList<>();
         List<String> needEscapeList = new ArrayList<>();
@@ -243,6 +248,11 @@ public class ConsumeGroupInfo {
         return new RebProcessInfo(needProcessList, needEscapeList);
     }
 
+    /**
+     * Update the client nodes status that has completed balancing
+     *
+     * @param processList the client nodes that has completed balancing
+     */
     public void setBalanceNodeProcessed(List<String> processList) {
         if (processList == null
                 || processList.isEmpty()
@@ -269,22 +279,27 @@ public class ConsumeGroupInfo {
         csmCtrlId.set(System.currentTimeMillis());
     }
 
-    public void updCsmTopicMetaInfo(Map<String, String> result) {
+    /**
+     * Update topic meta information
+     *
+     * @param newMetaInfoMap  the newly acquired topic metadata
+     */
+    public void updCsmTopicMetaInfo(Map<String, String> newMetaInfoMap) {
         lastMetaInfoFreshTime.set(System.currentTimeMillis());
-        if (result == null || result.isEmpty()) {
+        if (newMetaInfoMap == null || newMetaInfoMap.isEmpty()) {
             return;
         }
         String newConfig;
         String curCOnfig;
         boolean isChanged = false;
-        Set<String> newTopics = result.keySet();
+        Set<String> newTopics = newMetaInfoMap.keySet();
         Set<String> curTopics = topicMetaInfoMap.keySet();
         if (newTopics.size() != curTopics.size()
                 || !newTopics.containsAll(curTopics)) {
             isChanged = true;
         } else {
             for (String topicKey : newTopics) {
-                newConfig = result.get(topicKey);
+                newConfig = newMetaInfoMap.get(topicKey);
                 curCOnfig = topicMetaInfoMap.get(topicKey);
                 if (newConfig == null) {
                     continue;
@@ -297,7 +312,7 @@ public class ConsumeGroupInfo {
         }
         if (isChanged) {
             for (String newTopic : newTopics) {
-                topicMetaInfoMap.put(newTopic, result.get(newTopic));
+                topicMetaInfoMap.put(newTopic, newMetaInfoMap.get(newTopic));
             }
             topicMetaInfoId.set(System.currentTimeMillis());
         }
@@ -632,7 +647,7 @@ public class ConsumeGroupInfo {
         }
         // check the topic conditions of consumption
         boolean isCondEqual = true;
-        if (topicConditions == null || topicConditions.isEmpty()) {
+        if (topicConditions.isEmpty()) {
             if (!inConsumer.getTopicConditions().isEmpty()) {
                 isCondEqual = false;
                 sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())

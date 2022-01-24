@@ -60,6 +60,11 @@ public class ConfigFileParser {
         return parse();
     }
 
+    /**
+     * Parse website configure file information
+     *
+     * @return    the website configure object
+     */
     public WebConfig parse() throws Exception {
         SAXReader reader = new SAXReader();
         WebConfig config = new WebConfig();

@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +44,7 @@ import org.apache.inlong.tubemq.server.common.utils.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Message file's storage. Contains data file and index file.
  */
 public class MsgFileStore implements Closeable {
@@ -103,7 +102,7 @@ public class MsgFileStore implements Closeable {
         this.lastFlushTime.set(System.currentTimeMillis());
     }
 
-    /***
+    /**
      * Batch append message to file segment
      *
      * @param sb             string buffer
@@ -222,7 +221,7 @@ public class MsgFileStore implements Closeable {
         }
     }
 
-    /***
+    /**
      * Get message from index and data files.
      *
      * @param partitionId           the partitionId for reading messages
@@ -383,7 +382,7 @@ public class MsgFileStore implements Closeable {
                 totalSize, countMap, transferedMessageList);
     }
 
-    /***
+    /**
      * Get the segment start Offset that contains the specified timestamp
      *
      * @param timestamp           the specified timestamp
@@ -455,7 +454,7 @@ public class MsgFileStore implements Closeable {
         }
     }
 
-    /***
+    /**
      * Clean expired data files and index files.
      *
      * @param onlyCheck   whether to check only
@@ -480,10 +479,10 @@ public class MsgFileStore implements Closeable {
         return (hasExpiredDataSegs || hasExpiredIndexSegs);
     }
 
-    /***
+    /**
      * Flush data to disk at interval.
      *
-     * @throws IOException exception while process
+     * @throws IOException the exception during processing
      */
     public void flushDiskFile() throws IOException {
         long checkTimestamp = System.currentTimeMillis();
@@ -598,16 +597,10 @@ public class MsgFileStore implements Closeable {
             accum.add(new FileSegment(offsetIfCreate, newFile, segType));
         } else {
             // The list of segments is required to be arranged continuously from low to high
-            Collections.sort(accum, new Comparator<Segment>() {
+            accum.sort(new Comparator<Segment>() {
                 @Override
                 public int compare(final Segment o1, final Segment o2) {
-                    if (o1.getStart() == o2.getStart()) {
-                        return 0;
-                    } else if (o1.getStart() > o2.getStart()) {
-                        return 1;
-                    } else {
-                        return -1;
-                    }
+                    return Long.compare(o1.getStart(), o2.getStart());
                 }
             });
             validateSegments(segTypeStr, accum);

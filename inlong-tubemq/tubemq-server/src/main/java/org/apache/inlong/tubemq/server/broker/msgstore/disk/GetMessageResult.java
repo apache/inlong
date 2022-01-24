@@ -24,7 +24,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker.TransferedMessage;
 import org.apache.inlong.tubemq.server.broker.stats.CountItem;
 
-/***
+/**
  * Broker's reply to Consumer's GetMessage request.
  */
 public class GetMessageResult {

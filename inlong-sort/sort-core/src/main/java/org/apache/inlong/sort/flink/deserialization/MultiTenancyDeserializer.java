@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sort.flink.deserialization;
 
-import static org.apache.inlong.sort.formats.tdmsg.TDMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
-import static org.apache.inlong.sort.formats.tdmsg.TDMsgUtils.DEFAULT_TIME_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.HashMap;
@@ -28,12 +28,12 @@ import org.apache.inlong.sort.flink.Record;
 import org.apache.inlong.sort.flink.SerializedRecord;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
-import org.apache.inlong.sort.formats.tdmsgcsv.TDMsgCsvFormatDeserializer;
+import org.apache.inlong.sort.formats.inlongmsgcsv.InLongMsgCsvFormatDeserializer;
 import org.apache.inlong.sort.meta.MetaManager.DataFlowInfoListener;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
-import org.apache.inlong.sort.protocol.deserialization.TDMsgCsvDeserializationInfo;
+import org.apache.inlong.sort.protocol.deserialization.InLongMsgCsvDeserializationInfo;
 import org.apache.inlong.sort.util.CommonUtils;
 
 public class MultiTenancyDeserializer implements DataFlowInfoListener, Deserializer<SerializedRecord, Record> {
@@ -79,20 +79,21 @@ public class MultiTenancyDeserializer implements DataFlowInfoListener, Deseriali
         final RowFormatInfo rowFormatInfo = CommonUtils.generateRowFormatInfo(fields);
 
         final Deserializer<SerializedRecord, Record> deserializer;
-        if (deserializationInfo instanceof TDMsgCsvDeserializationInfo) {
-            TDMsgCsvDeserializationInfo tdMsgCsvDeserializationInfo = (TDMsgCsvDeserializationInfo) deserializationInfo;
-            TDMsgCsvFormatDeserializer tdMsgCsvFormatDeserializer = new TDMsgCsvFormatDeserializer(
+        if (deserializationInfo instanceof InLongMsgCsvDeserializationInfo) {
+            InLongMsgCsvDeserializationInfo
+                    inLongMsgCsvDeserializationInfo = (InLongMsgCsvDeserializationInfo) deserializationInfo;
+            InLongMsgCsvFormatDeserializer inLongMsgCsvFormatDeserializer = new InLongMsgCsvFormatDeserializer(
                     rowFormatInfo,
                     DEFAULT_TIME_FIELD_NAME,
                     DEFAULT_ATTRIBUTES_FIELD_NAME,
                     TableFormatConstants.DEFAULT_CHARSET,
-                    tdMsgCsvDeserializationInfo.getDelimiter(),
+                    inLongMsgCsvDeserializationInfo.getDelimiter(),
                     null,
                     null,
                     null,
-                    tdMsgCsvDeserializationInfo.isDeleteHeadDelimiter(),
+                    inLongMsgCsvDeserializationInfo.isDeleteHeadDelimiter(),
                     TableFormatConstants.DEFAULT_IGNORE_ERRORS);
-            deserializer = new TDMsgDeserializer(tdMsgCsvFormatDeserializer);
+            deserializer = new InLongMsgDeserializer(inLongMsgCsvFormatDeserializer);
         } else {
             // TODO, support more formats here
             throw new UnsupportedOperationException(

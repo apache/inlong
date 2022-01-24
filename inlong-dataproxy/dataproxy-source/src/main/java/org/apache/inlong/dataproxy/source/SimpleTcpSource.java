@@ -100,7 +100,6 @@ public class SimpleTcpSource extends BaseSource
 
     protected String topic;
 
-    //
     private DataProxyMetricItemSet metricItemSet;
 
     public SimpleTcpSource() {
@@ -204,7 +203,6 @@ public class SimpleTcpSource extends BaseSource
         MetricRegister.register(metricItemSet);
         checkBlackListThread = new CheckBlackListThread();
         checkBlackListThread.start();
-
         ThreadRenamingRunnable.setThreadNameDeterminer(ThreadNameDeterminer.CURRENT);
         ChannelFactory factory =
                 new NioServerSocketChannelFactory(

@@ -71,7 +71,8 @@ public class CreatePulsarTopicForStreamTaskListener implements QueueOperateListe
         }
 
         log.info("begin to create pulsar topic for groupId={}, streamId={}", groupId, streamId);
-        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(clusterBean.getPulsarAdminUrl())) {
+        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(businessInfo,
+                clusterBean.getPulsarAdminUrl())) {
             List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
             for (String cluster : pulsarClusters) {
                 String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
@@ -95,7 +96,7 @@ public class CreatePulsarTopicForStreamTaskListener implements QueueOperateListe
             partition = partitionNum;
         }
 
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(serviceHttpUrl)) {
+        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(bizInfo, serviceHttpUrl)) {
             PulsarTopicBean topicBean = PulsarTopicBean.builder()
                     .tenant(clusterBean.getDefaultTenant())
                     .namespace(bizInfo.getMqResourceObj())

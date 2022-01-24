@@ -18,8 +18,10 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
+import java.util.List;
 import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessCountVO;
+import org.apache.inlong.manager.common.pojo.business.BusinessExtInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessListVO;
 import org.apache.inlong.manager.common.pojo.business.BusinessPageRequest;
@@ -116,5 +118,14 @@ public interface BusinessService {
      * @return whether succeed
      */
     boolean updateAfterApprove(BusinessApproveInfo approveInfo, String operator);
+
+    /**
+     * Save or update extended information
+     * <p/>First physically delete the existing extended information, and then add this batch of extended information
+     *
+     * @param groupId Group id
+     * @param infoList Ext info list
+     */
+    void saveOrUpdateExt(String groupId, List<BusinessExtInfo> infoList);
 
 }

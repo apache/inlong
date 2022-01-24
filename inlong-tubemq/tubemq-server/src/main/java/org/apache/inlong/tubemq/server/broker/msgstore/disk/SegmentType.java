@@ -17,7 +17,7 @@
 
 package org.apache.inlong.tubemq.server.broker.msgstore.disk;
 
-/***
+/**
  * Segment's type, data and index.
  */
 public enum SegmentType {

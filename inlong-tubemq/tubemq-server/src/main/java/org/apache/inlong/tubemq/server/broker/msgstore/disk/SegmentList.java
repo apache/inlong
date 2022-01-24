@@ -19,7 +19,7 @@ package org.apache.inlong.tubemq.server.broker.msgstore.disk;
 
 import java.io.IOException;
 
-/***
+/**
  * Segment list.
  */
 public interface SegmentList {

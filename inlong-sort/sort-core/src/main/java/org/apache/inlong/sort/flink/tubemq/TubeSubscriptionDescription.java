@@ -20,7 +20,7 @@ package org.apache.inlong.sort.flink.tubemq;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import org.apache.inlong.sort.protocol.deserialization.TDMsgDeserializationInfo;
+import org.apache.inlong.sort.protocol.deserialization.InLongMsgDeserializationInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ public class TubeSubscriptionDescription implements Serializable {
     private String consumerGroup;
 
     /**
-     * Each topic might include multiple data flow if it's packed by TDMsg.
+     * Each topic might include multiple data flow if it's packed by InLongMsg.
      */
     private final Map<Long, TubeDataFlowDescription> dataFlows = new HashMap<>();
 
@@ -194,8 +194,8 @@ public class TubeSubscriptionDescription implements Serializable {
 
         public static TubeDataFlowDescription generate(long dataFlowId, TubeSourceInfo tubeSourceInfo) {
             String tid = null;
-            if (tubeSourceInfo.getDeserializationInfo() instanceof TDMsgDeserializationInfo) {
-                tid = ((TDMsgDeserializationInfo) tubeSourceInfo.getDeserializationInfo()).getTid();
+            if (tubeSourceInfo.getDeserializationInfo() instanceof InLongMsgDeserializationInfo) {
+                tid = ((InLongMsgDeserializationInfo) tubeSourceInfo.getDeserializationInfo()).getTid();
             }
             return new TubeDataFlowDescription(dataFlowId, tid);
         }

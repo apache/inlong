@@ -25,6 +25,10 @@ import org.apache.inlong.commons.config.metrics.CountMetric;
 import org.apache.inlong.commons.config.metrics.Dimension;
 import org.apache.inlong.commons.config.metrics.MetricDomain;
 import org.apache.inlong.commons.config.metrics.MetricItem;
+import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
 
 /**
@@ -112,10 +116,50 @@ public class DataProxyMetricItem extends MetricItem {
      */
     public static void fillInlongId(Event event, Map<String, String> dimensions) {
         Map<String, String> headers = event.getHeaders();
-        String inlongGroupId = headers.getOrDefault(Constants.INLONG_GROUP_ID, "");
-        String inlongStreamId = headers.getOrDefault(Constants.INLONG_STREAM_ID, "");
+        String inlongGroupId = getInlongGroupId(headers);
+        String inlongStreamId = getInlongStreamId(headers);
         dimensions.put(KEY_INLONG_GROUP_ID, inlongGroupId);
         dimensions.put(KEY_INLONG_STREAM_ID, inlongStreamId);
+    }
+
+    /**
+     * fillAuditFormatTime
+     * 
+     * @param event
+     * @param dimensions
+     */
+    public static void fillAuditFormatTime(Event event, Map<String, String> dimensions) {
+        long msgTime = AuditUtils.getLogTime(event);
+        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
+    }
+
+    /**
+     * getInlongGroupId
+     * 
+     * @param  headers
+     * @return
+     */
+    public static String getInlongGroupId(Map<String, String> headers) {
+        String inlongGroupId = headers.get(Constants.INLONG_GROUP_ID);
+        if (inlongGroupId == null) {
+            inlongGroupId = headers.getOrDefault(ConfigConstants.TOPIC_KEY, "");
+        }
+        return inlongGroupId;
+    }
+
+    /**
+     * getInlongStreamId
+     * 
+     * @param  headers
+     * @return
+     */
+    public static String getInlongStreamId(Map<String, String> headers) {
+        String inlongStreamId = headers.get(Constants.INLONG_STREAM_ID);
+        if (inlongStreamId == null) {
+            inlongStreamId = headers.getOrDefault(AttributeConstants.INTERFACE_ID, "");
+        }
+        return inlongStreamId;
     }
 
     /**

@@ -242,7 +242,7 @@ DROP TABLE IF EXISTS `consumption`;
 CREATE TABLE `consumption`
 (
     `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `consumer_group_name` varchar(255) DEFAULT NULL COMMENT 'consumer group name',
+    `consumer_group_name` varchar(255)      DEFAULT NULL COMMENT 'consumer group name',
     `consumer_group_id`   varchar(255) NOT NULL COMMENT 'Consumer group ID',
     `in_charges`          varchar(512) NOT NULL COMMENT 'Person in charge of consumption',
     `inlong_group_id`     varchar(255) NOT NULL COMMENT 'Business group id',
@@ -355,7 +355,7 @@ CREATE TABLE `data_stream`
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_stream_id`       varchar(128) NOT NULL COMMENT 'Data stream id, non-deleted globally unique',
     `inlong_group_id`        varchar(128) NOT NULL COMMENT 'Owning business group id',
-    `name`                   varchar(64)  DEFAULT NULL COMMENT 'The name of the data stream page display, can be Chinese',
+    `name`                   varchar(64)       DEFAULT NULL COMMENT 'The name of the data stream page display, can be Chinese',
     `description`            varchar(256)      DEFAULT '' COMMENT 'Introduction to data stream',
     `mq_resource_obj`        varchar(128)      DEFAULT NULL COMMENT 'MQ resource object, in the data stream, Tube is data_stream_id, Pulsar is Topic',
     `data_source_type`       varchar(32)       DEFAULT 'FILE' COMMENT 'Data source type, including: FILE, DB, Auto-Push (DATA_PROXY_SDK, HTTP)',
@@ -604,6 +604,7 @@ CREATE TABLE `storage_hive`
     `id`                          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id`             varchar(128) NOT NULL COMMENT 'Owning business group id',
     `inlong_stream_id`            varchar(128) NOT NULL COMMENT 'Owning data stream id',
+    `enable_create_table`         tinyint(1)        DEFAULT 1 COMMENT 'Whether to enable create table, 1: enable, 0: disable, default is 1',
     `jdbc_url`                    varchar(255)      DEFAULT NULL COMMENT 'Hive JDBC connection URL, such as "jdbc:hive2://127.0.0.1:10000"',
     `username`                    varchar(128)      DEFAULT NULL COMMENT 'Username',
     `password`                    varchar(255)      DEFAULT NULL COMMENT 'User password',
@@ -1106,30 +1107,43 @@ CREATE TABLE `flume_sink_ext`
 DROP TABLE IF EXISTS `db_collector_detail_task`;
 CREATE TABLE `db_collector_detail_task`
 (
-    `id`                    int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `main_id`               varchar(128) NOT NULL COMMENT 'main task id',
-    `type`                  int(11)      NOT NULL COMMENT 'task type',
-    `time_var`              varchar(64)  NOT NULL COMMENT 'time variable',
-    `db_type`               int(11)      NOT NULL COMMENT 'db type',
-    `ip`                    varchar(64)  NOT NULL COMMENT 'db ip',
-    `port`                  int(11)      NOT NULL COMMENT 'db port',
-    `db_name`               varchar(64)  NULL COMMENT 'db name',
-    `user`                  varchar(64)  NULL COMMENT 'user name',
-    `password`              varchar(64)  NULL COMMENT 'password',
-    `sql_statement`         varchar(256) NULL COMMENT 'sql statement',
-    `offset`                int(11)      NOT NULL COMMENT 'offset for the data source',
-    `total_limit`           int(11)      NOT NULL COMMENT 'total limit in a task',
-    `once_limit`            int(11)      NOT NULL COMMENT 'limit for one query',
-    `time_limit`            int(11)      NOT NULL COMMENT 'time limit for task',
-    `retry_times`           int(11)      NOT NULL COMMENT 'max retry times if task failes',
-    `group_id`              varchar(64)  NULL COMMENT 'group id',
-    `stream_id`             varchar(64)  NULL COMMENT 'stream id',
-    `state`                 int(11)      NOT NULL COMMENT 'task state',
-    `create_time`           timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
-    `modify_time`           timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
+    `id`            int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `main_id`       varchar(128) NOT NULL COMMENT 'main task id',
+    `type`          int(11)      NOT NULL COMMENT 'task type',
+    `time_var`      varchar(64)  NOT NULL COMMENT 'time variable',
+    `db_type`       int(11)      NOT NULL COMMENT 'db type',
+    `ip`            varchar(64)  NOT NULL COMMENT 'db ip',
+    `port`          int(11)      NOT NULL COMMENT 'db port',
+    `db_name`       varchar(64)  NULL COMMENT 'db name',
+    `user`          varchar(64)  NULL COMMENT 'user name',
+    `password`      varchar(64)  NULL COMMENT 'password',
+    `sql_statement` varchar(256) NULL COMMENT 'sql statement',
+    `offset`        int(11)      NOT NULL COMMENT 'offset for the data source',
+    `total_limit`   int(11)      NOT NULL COMMENT 'total limit in a task',
+    `once_limit`    int(11)      NOT NULL COMMENT 'limit for one query',
+    `time_limit`    int(11)      NOT NULL COMMENT 'time limit for task',
+    `retry_times`   int(11)      NOT NULL COMMENT 'max retry times if task failes',
+    `group_id`      varchar(64)  NULL COMMENT 'group id',
+    `stream_id`     varchar(64)  NULL COMMENT 'stream id',
+    `state`         int(11)      NOT NULL COMMENT 'task state',
+    `create_time`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
+    `modify_time`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='db collector detail task table';
 
+-- ----------------------------
+-- Table structure for sort_cluster_config
+-- ----------------------------
+DROP TABLE IF EXISTS `sort_cluster_config`;
+CREATE TABLE `sort_cluster_config`
+(
+    `id`            int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `cluster_name`  varchar(128)  NOT NULL COMMENT 'Cluster name',
+    `task_name`     varchar(128)  NOT NULL COMMENT 'Task name',
+    `sink_type`     varchar(128)  NOT NULL COMMENT 'Type of sink',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Sort cluster config table';
 
 SET FOREIGN_KEY_CHECKS = 1;

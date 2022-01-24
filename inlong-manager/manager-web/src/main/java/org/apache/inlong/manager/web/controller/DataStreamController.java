@@ -29,8 +29,9 @@ import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamListVO;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
-import org.apache.inlong.manager.common.pojo.datastream.FullPageInfo;
+import org.apache.inlong.manager.common.pojo.datastream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageUpdateInfo;
+import org.apache.inlong.manager.common.pojo.datastream.FullStreamResponse;
 import org.apache.inlong.manager.common.util.LoginUserUtil;
 import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
@@ -64,14 +65,14 @@ public class DataStreamController {
     @RequestMapping(value = "/saveAll", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save data stream page information ,including source and storage")
-    public Response<Boolean> saveAll(@RequestBody FullPageInfo pageInfo) {
+    public Response<Boolean> saveAll(@RequestBody FullStreamRequest pageInfo) {
         return Response.success(dataStreamService.saveAll(pageInfo, LoginUserUtil.getLoginUserDetail().getUserName()));
     }
 
     @RequestMapping(value = "/batchSaveAll", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Batch save data stream page information ,including source and storage")
-    public Response<Boolean> batchSaveAll(@RequestBody List<FullPageInfo> infoList) {
+    public Response<Boolean> batchSaveAll(@RequestBody List<FullStreamRequest> infoList) {
         boolean result = dataStreamService.batchSaveAll(infoList, LoginUserUtil.getLoginUserDetail().getUserName());
         return Response.success(result);
     }
@@ -95,7 +96,7 @@ public class DataStreamController {
 
     @RequestMapping(value = "/listAll", method = RequestMethod.GET)
     @ApiOperation(value = "Paging query all data of the data stream page under the specified groupId")
-    public Response<PageInfo<FullPageInfo>> listAllWithGroupId(DataStreamPageRequest request) {
+    public Response<PageInfo<FullStreamResponse>> listAllWithGroupId(DataStreamPageRequest request) {
         request.setCurrentUser(LoginUserUtil.getLoginUserDetail().getUserName());
         return Response.success(dataStreamService.listAllWithGroupId(request));
     }

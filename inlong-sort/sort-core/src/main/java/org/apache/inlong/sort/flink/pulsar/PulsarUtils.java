@@ -37,9 +37,11 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.util.StringUtils;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.admin.internal.PulsarAdminImpl;
+import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.MessageRoutingMode;
 import org.apache.pulsar.client.api.Producer;
@@ -65,6 +67,7 @@ public class PulsarUtils {
 
     public static PulsarClient createClient(
             String serviceUrl,
+            String authentication,
             Configuration configuration
     ) throws PulsarClientException {
 
@@ -90,7 +93,14 @@ public class PulsarUtils {
         clientConfigurationData
                 .setKeepAliveIntervalSeconds((int) keepAliveInterval.getSeconds());
 
-        return new PulsarClientImpl(clientConfigurationData);
+        if (StringUtils.isNullOrWhitespaceOnly(authentication)) {
+            return new PulsarClientImpl(clientConfigurationData);
+        } else {
+            return PulsarClient.builder()
+                    .serviceUrl(serviceUrl)
+                    .authentication(AuthenticationFactory.token(authentication)).build();
+        }
+
     }
 
     public static Reader<byte[]> createReader(
@@ -141,8 +151,17 @@ public class PulsarUtils {
     }
 
     public static PulsarAdmin createAdmin(
-            String adminUrl
-    ) throws PulsarClientException {
+            String adminUrl,
+            String authentication) throws PulsarClientException {
+        if (StringUtils.isNullOrWhitespaceOnly(authentication)) {
+            return createAdmin(adminUrl);
+        } else {
+            return PulsarAdmin.builder().serviceHttpUrl(adminUrl)
+                    .authentication(AuthenticationFactory.token(authentication)).build();
+        }
+    }
+
+    public static PulsarAdmin createAdmin(String adminUrl) throws PulsarClientException {
         return new PulsarAdminImpl(adminUrl, new ClientConfigurationData());
     }
 

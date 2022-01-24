@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 import org.apache.inlong.tubemq.server.common.utils.AppendResult;
 import org.junit.Test;
 
-/***
+/**
  * MsgMemStore test.
  */
 public class MsgMemStoreTest {

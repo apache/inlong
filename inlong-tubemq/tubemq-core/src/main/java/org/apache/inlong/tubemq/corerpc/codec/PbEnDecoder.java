@@ -24,7 +24,7 @@ import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.inlong.tubemq.corerpc.RpcConstants;
 
-/***
+/**
  * PB corresponding method, service type codec util tools
  */
 public class PbEnDecoder {

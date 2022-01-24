@@ -19,7 +19,7 @@ package org.apache.inlong.tubemq.server.broker.stats;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-/***
+/**
  * Statistic of message, contains message's count and message's size.
  */
 public class CountItem {

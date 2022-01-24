@@ -35,7 +35,6 @@ public class TBaseConstants {
     public static final int META_MAX_PARTITION_COUNT = 100;
     public static final int META_MAX_BROKER_IP_LENGTH = 32;
     public static final int META_MAX_USERNAME_LENGTH = 64;
-    public static final int META_MAX_DATEVALUE_LENGTH = 14;
     public static final int META_MAX_CALLBACK_STRING_LENGTH = 128;
     public static final int META_MAX_TOPICNAME_LENGTH = 64;
     public static final int META_MAX_GROUPNAME_LENGTH = 1024;

@@ -917,15 +917,6 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                 sBuffer.delete(0, sBuffer.length());
                 return result.isSuccess();
             }
-            if (!topicName.matches(TBaseConstants.META_TMP_STRING_VALUE)) {
-                result.setFailResult(TErrCodeConstants.BAD_REQUEST,
-                        sBuffer.append("Parameter error: the value of ").append(topicName)
-                                .append(" in topicName parameter must begin with a letter,")
-                                .append(" can only contain characters,numbers,and underscores")
-                                .toString());
-                sBuffer.delete(0, sBuffer.length());
-                return result.isSuccess();
-            }
             // check topic's filter condition value
             filterCondSet = entry.getValue();
             newFilterCondSet = new TreeSet<>();

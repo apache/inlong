@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
-/***
+/**
  * DataStoreUtils test.
  */
 public class DataStoreUtilsTest {

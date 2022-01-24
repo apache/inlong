@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Consumption Service Test
+ * Consumption service test
  */
 public class ConsumptionServiceTest extends ServiceBaseTest {
 

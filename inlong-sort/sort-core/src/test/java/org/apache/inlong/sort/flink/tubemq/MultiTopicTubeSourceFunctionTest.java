@@ -27,7 +27,7 @@ import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.flink.tubemq.MultiTopicTubeSourceFunction.SourceEvent;
 import org.apache.inlong.sort.flink.tubemq.MultiTopicTubeSourceFunction.SourceEventType;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.deserialization.TDMsgCsvDeserializationInfo;
+import org.apache.inlong.sort.protocol.deserialization.InLongMsgCsvDeserializationInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import org.apache.inlong.sort.util.TestLogger;
 import java.util.ArrayList;
@@ -69,7 +69,7 @@ public class MultiTopicTubeSourceFunctionTest extends TestLogger {
                 topic,
                 masterAddress,
                 null,
-                new TDMsgCsvDeserializationInfo(tid, ',', true),
+                new InLongMsgCsvDeserializationInfo(tid, ',', true),
                 new FieldInfo[0]);
     }
 

@@ -1203,11 +1203,15 @@ public class WebParameterUtils {
         // check value's pattern
         if (fieldDef.regexCheck) {
             if (!paramVal.matches(fieldDef.regexDef.getPattern())) {
-                result.setFailResult(sBuffer.append("illegal value for ")
-                        .append(fieldDef.name).append(", value ")
-                        .append(fieldDef.regexDef.getErrMsgTemp()).toString());
-                sBuffer.delete(0, sBuffer.length());
-                return false;
+                if ((fieldDef != WebFieldDef.TOPICNAME
+                        && fieldDef != WebFieldDef.COMPSTOPICNAME)
+                        || !paramVal.equals(TServerConstants.OFFSET_HISTORY_NAME)) {
+                    result.setFailResult(sBuffer.append("illegal value for ")
+                            .append(fieldDef.name).append(", value ")
+                            .append(fieldDef.regexDef.getErrMsgTemp()).toString());
+                    sBuffer.delete(0, sBuffer.length());
+                    return false;
+                }
             }
         }
         result.setSuccResult(paramVal);
@@ -1432,68 +1436,6 @@ public class WebParameterUtils {
             }
         }
         return batchOpGroupNames;
-    }
-
-    /**
-     * check and get batched topic names
-     *
-     * @param inputTopicName the topic name string value
-     * @param checkEmpty     whether check data emtpy
-     * @param checkRange     whether check topic in range
-     * @param checkedTopicList topics current configured
-     * @param sb             the string process space
-     * @return the batched topic names
-     */
-    public static Set<String> getBatchTopicNames(String inputTopicName,
-                                                 boolean checkEmpty,
-                                                 boolean checkRange,
-                                                 Set<String> checkedTopicList,
-                                                 StringBuilder sb) throws Exception {
-        Set<String> batchOpTopicNames = new HashSet<>();
-        if (TStringUtils.isNotBlank(inputTopicName)) {
-            inputTopicName = escDoubleQuotes(inputTopicName.trim());
-        }
-        if (TStringUtils.isBlank(inputTopicName)) {
-            if (checkEmpty) {
-                throw new Exception("Illegal value: required topicName parameter");
-            }
-            return batchOpTopicNames;
-        }
-        String[] strTopicNames = inputTopicName.split(TokenConstants.ARRAY_SEP);
-        if (strTopicNames.length > TServerConstants.CFG_BATCH_RECORD_OPERATE_MAX_COUNT) {
-            throw new Exception(sb.append("Illegal value: topicName's batch count over max count ")
-                    .append(TServerConstants.CFG_BATCH_RECORD_OPERATE_MAX_COUNT).toString());
-        }
-        for (int i = 0; i < strTopicNames.length; i++) {
-            if (TStringUtils.isBlank(strTopicNames[i])) {
-                continue;
-            }
-            String topicName = strTopicNames[i].trim();
-            if (topicName.length() > TBaseConstants.META_MAX_TOPICNAME_LENGTH) {
-                throw new Exception(sb.append("Illegal value: the max length of ")
-                        .append(topicName).append(" in topicName parameter over ")
-                        .append(TBaseConstants.META_MAX_TOPICNAME_LENGTH)
-                        .append(" characters").toString());
-            }
-            if (!topicName.matches(TBaseConstants.META_TMP_STRING_VALUE)) {
-                throw new Exception(sb.append("Illegal value: the value of ")
-                    .append(topicName).append(" in topicName parameter must begin with a letter,")
-                    .append(" can only contain characters,numbers,and underscores").toString());
-            }
-            if (checkRange) {
-                if (!checkedTopicList.contains(topicName)) {
-                    throw new Exception(sb.append("Illegal value: topic(").append(topicName)
-                            .append(") not configure in master's topic configure, please configure first!").toString());
-                }
-            }
-            batchOpTopicNames.add(topicName);
-        }
-        if (batchOpTopicNames.isEmpty()) {
-            if (checkEmpty) {
-                throw new Exception("Illegal value: Null value of topicName parameter");
-            }
-        }
-        return batchOpTopicNames;
     }
 
     /**

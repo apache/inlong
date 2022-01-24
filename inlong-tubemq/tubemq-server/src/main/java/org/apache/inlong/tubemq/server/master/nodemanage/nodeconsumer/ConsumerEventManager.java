@@ -118,8 +118,8 @@ public class ConsumerEventManager {
      * Removes and returns the first consumer event from event map
      * disconnect event have priority over connect event
      *
-     * @param consumerId
-     * @return the first consumer removed from the event map
+     * @param consumerId    the consumer id that need removed
+     * @return              the first consumer removed from the event map
      */
     public ConsumerEvent removeFirst(String consumerId) {
         ConsumerEvent event = null;
@@ -163,6 +163,11 @@ public class ConsumerEventManager {
         return unfinishedCount.get();
     }
 
+    /**
+     * Update the rounds of consumer groups dealing with balancing tasks
+     *
+     * @param groupHasUnfinishedEvent   the consumer groups dealing with balancing tasks
+     */
     public void updateUnfinishedCountMap(Set<String> groupHasUnfinishedEvent) {
         if (groupHasUnfinishedEvent.isEmpty()) {
             groupUnfinishedCountMap.clear();

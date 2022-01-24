@@ -21,7 +21,7 @@ import java.io.IOException;
 import org.apache.inlong.tubemq.corebase.utils.AbstractSamplePrint;
 import org.slf4j.Logger;
 
-/***
+/**
  * Compressed print broker's statistics.
  */
 public class BrokerSamplePrint extends AbstractSamplePrint {

@@ -85,7 +85,7 @@ import org.apache.inlong.tubemq.server.common.utils.RowLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Broker service. Receive and conduct client's request, store messages, query messages, print statistics, etc.
  */
 public class BrokerServiceServer implements BrokerReadService, BrokerWriteService, Server {
@@ -137,7 +137,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 this.tubeConfig.getConsumerRegTimeoutMs(), consumerListener);
     }
 
-    /***
+    /**
      * Start broker service
      *
      * @throws Exception
@@ -212,7 +212,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         this.started.set(true);
     }
 
-    /***
+    /**
      * Stop broker service.
      */
     @Override
@@ -226,26 +226,26 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         logger.info("BrokerService server stopped");
     }
 
-    /***
+    /**
      * Get broker's registered consumer info
      *
-     * @return
+     * @return query result
      */
     public Map<String, ConsumerNodeInfo> getConsumerRegisterMap() {
         return consumerRegisterMap;
     }
 
-    /***
+    /**
      * Get consumer's info by store key.
      *
-     * @param storeKey
-     * @return
+     * @param storeKey   the query key
+     * @return           the consumer nodeinfo object
      */
     public ConsumerNodeInfo getConsumerNodeInfo(String storeKey) {
         return consumerRegisterMap.get(storeKey);
     }
 
-    /***
+    /**
      * Get consumer's register time.
      *
      * @param consumerId
@@ -262,14 +262,14 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         return (timeoutInfo.getTimeoutTime() - heartbeatManager.getConsumerTimeoutDlt());
     }
 
-    /***
+    /**
      * Handle consumer's getMessageRequest.
      *
-     * @param request
-     * @param rmtAddress
-     * @param overtls
-     * @return
-     * @throws Throwable
+     * @param request        the http request
+     * @param rmtAddress     the remote node address
+     * @param overtls        whether over TLS
+     * @return               the response message
+     * @throws Throwable     the exception during processing
      */
     @Override
     public GetMessageResponseB2C getMessagesC2B(GetMessageRequestC2B request,
@@ -416,23 +416,23 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
     }
 
-    /***
+    /**
      * Query offset, then read data.
      *
-     * @param msgStore
-     * @param consumerNodeInfo
-     * @param group
-     * @param topic
-     * @param partitionId
-     * @param lastConsumed
-     * @param isManualCommitOffset
-     * @param sentAddr
-     * @param brokerAddr
-     * @param rmtAddrInfo
-     * @param isEscFlowCtrl
-     * @param sb
-     * @return
-     * @throws IOException
+     * @param msgStore                the message store instance
+     * @param consumerNodeInfo        the consumer node instance
+     * @param group                   the consume group name
+     * @param topic                   the topic name
+     * @param partitionId             the partition id
+     * @param lastConsumed            whether the last messages has been consumed
+     * @param isManualCommitOffset    whether manual commit offset
+     * @param sentAddr                the remote ip
+     * @param brokerAddr              the broker ip
+     * @param rmtAddrInfo             the remote address
+     * @param isEscFlowCtrl           whether escape flow control
+     * @param sb                      the string buffer
+     * @return    the query result
+     * @throws IOException the exception during processing
      */
     private GetMessageResult getMessages(final MessageStore msgStore,
                                          final ConsumerNodeInfo consumerNodeInfo,
@@ -487,16 +487,16 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
     }
 
-    /***
+    /**
      * Get message snapshot by given parameters.
      *
-     * @param topicName
-     * @param partitionId
-     * @param msgCount
-     * @param filterCondSet
-     * @param sb
-     * @return
-     * @throws Exception
+     * @param topicName        the topic name
+     * @param partitionId      the partition id
+     * @param msgCount         the message count need to query
+     * @param filterCondSet    the filter condition set
+     * @param sb               the string buffer
+     * @return                 the messages returned
+     * @throws Exception       the exception during processing
      */
     public StringBuilder getMessageSnapshot(String topicName, int partitionId,
                                             int msgCount, final Set<String> filterCondSet,
@@ -553,7 +553,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 List<String> transferMessageList = new ArrayList<>();
                 List<TransferedMessage> tmpMsgList = getMessageResult.transferedMessageList;
                 List<Message> messageList = DataConverterUtil.convertMessage(topicName, tmpMsgList);
-                int startPos = messageList.size() - msgCount < 0 ? 0 : messageList.size() - msgCount;
+                int startPos = Math.max(messageList.size() - msgCount, 0);
                 for (; startPos < messageList.size(); startPos++) {
                     String msgItem = new String(
                             Base64.encodeBase64(messageList.get(startPos).getData()));
@@ -578,14 +578,14 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
     }
 
-    /***
+    /**
      * Handle producer's sendMessage request.
      *
-     * @param request
-     * @param rmtAddress
-     * @param overtls
-     * @return
-     * @throws Throwable
+     * @param request       the request
+     * @param rmtAddress    the remote ip
+     * @param overtls       whether transfer over TLS
+     * @return              the response
+     * @throws Throwable    the exception during processing
      */
     @Override
     public SendMessageResponseB2P sendMessageP2B(SendMessageRequestP2B request,
@@ -618,7 +618,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         final String producerId = (String) result.getRetData();
         // get and check topicName and partitionId field
         final int partitionId = request.getPartitionId();
-        if (!PBParameterUtils.getTopicNamePartIdInfo(request.getTopicName(),
+        if (!PBParameterUtils.getTopicNamePartIdInfo(true, request.getTopicName(),
                 partitionId, this.metadataManager, strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
@@ -704,7 +704,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
     }
 
-    /***
+    /**
      * append group current offset to storage
      *
      * @param groupOffsetMap group offset information
@@ -789,110 +789,14 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
     }
 
-    /***
-     * get group current offset from storage
-     *
-     * @param groupNameSet group set
-     * @param recordStamp  query stored time stamp
-     * @param strBuff  string buffer
-     *
-     * @return   process success or failure
-     */
-    public boolean getMessagesByTimeStamp(Set<String> groupNameSet,
-                                          long recordStamp,
-                                          StringBuilder strBuff) {
-        MessageStore msgStore;
-        // check storage status
-        if (!this.started.get()
-                || ServiceStatusHolder.isReadServiceStop()) {
-            strBuff.append("{\"result\":false,\"errCode\":")
-                    .append(TErrCodeConstants.SERVICE_UNAVAILABLE)
-                    .append(",\"errMsg\":\"Read StoreService temporary unavailable!\"}");
-            return false;
-        }
-        // get offset history storage
-        try {
-            msgStore = storeManager.getOrCreateMessageStore(
-                    TServerConstants.OFFSET_HISTORY_NAME, 0);
-        } catch (Throwable ex) {
-            strBuff.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append("Invalid parameter: not found the store by topicName(")
-                    .append(TServerConstants.OFFSET_HISTORY_NAME).append(")!\"}");
-            return false;
-        }
-        // locate start offset
-        long requestOffset = msgStore.getStartOffsetByTimeStamp(recordStamp);
-        // read history data
-        int totalCnt = 0;
-        int msgTypeCode;
-        int partitionId;
-        GetMessageResult getMessageResult;
-        ConsumerNodeInfo consumerNodeInfo;
-        Set<String> filterCodes = new HashSet<>();
-        strBuff.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
-        for (String groupName : groupNameSet) {
-            // locate partition and msgtype
-            msgTypeCode = groupName.hashCode();
-            partitionId = Math.abs(msgTypeCode) % TServerConstants.OFFSET_HISTORY_NUMPARTS;
-            // build filter conditions
-            filterCodes.clear();
-            filterCodes.add(groupName);
-            // build consumer node information
-            consumerNodeInfo = new ConsumerNodeInfo(tubeBroker.getStoreManager(),
-                    "offsetConsumer", filterCodes, "", System.currentTimeMillis(), "");
-            if (totalCnt++ > 0) {
-                strBuff.append(",");
-            }
-            try {
-                getMessageResult = msgStore.getMessages(303, requestOffset,
-                        partitionId, consumerNodeInfo, TServerConstants.OFFSET_HISTORY_NAME,
-                        storeManager.getMaxMsgTransferSize(), recordStamp);
-                if ((getMessageResult.transferedMessageList == null)
-                        || (getMessageResult.transferedMessageList.isEmpty())) {
-                    strBuff.append("{\"groupName\":\"").append(groupName)
-                            .append("\",\"result\":false,\"errMsg\":\"Could not find record!\"}");
-                    continue;
-                }
-            } catch (Throwable e2) {
-                strBuff.append("{\"groupName\":\"").append(groupName)
-                        .append("\",\"result\":false,\"errMsg\":\"Get Message failure: ")
-                        .append(e2.getMessage()).append("\"}");
-                continue;
-            }
-            boolean found = false;
-            List<Message> messageList = DataConverterUtil.convertMessage(
-                    TServerConstants.OFFSET_HISTORY_NAME, getMessageResult.transferedMessageList);
-            for (Message message : messageList) {
-                if (message == null) {
-                    continue;
-                }
-                if (!groupName.equals(message.getAttrValue(
-                        TServerConstants.TOKEN_OFFSET_GROUP))) {
-                    continue;
-                }
-                found = true;
-                strBuff.append("{\"groupName\":\"").append(groupName)
-                        .append("\",\"result\":true,\"errMsg\":\"ok\",\"record\":")
-                        .append(StringUtils.newStringUtf8(message.getData())).append("}");
-                break;
-            }
-            if (!found) {
-                strBuff.append("{\"groupName\":\"").append(groupName)
-                        .append("\",\"result\":false,\"errMsg\":\"Could not find record!\"}");
-            }
-        }
-        strBuff.append("],\"dataCount\":").append(totalCnt).append("}");
-        return true;
-    }
-
-    /***
+    /**
      * Handle consumer register request.
      *
-     * @param request
-     * @param rmtAddress
-     * @param overtls
-     * @return
-     * @throws Throwable
+     * @param request       the request
+     * @param rmtAddress    the remote address
+     * @param overtls       whether transfer over TLS
+     * @return              the response
+     * @throws Throwable    the exception during processing
      */
     @Override
     public RegisterResponseB2C consumerRegisterC2B(RegisterRequestC2B request,
@@ -995,19 +899,19 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
     }
 
-    /***
+    /**
      * Handle consumer's register request.
      *
-     * @param clientId
-     * @param groupName
-     * @param topicName
-     * @param partStr
-     * @param filterCondSet
-     * @param overtls
-     * @param request
-     * @param builder
-     * @param strBuffer
-     * @return
+     * @param clientId        the client id
+     * @param groupName       the group name
+     * @param topicName       the topic name
+     * @param partStr         the group-topic-partitionId key
+     * @param filterCondSet   the filter condition set
+     * @param overtls      whether transfer over TLS
+     * @param request         the request
+     * @param builder      the response builder
+     * @param strBuffer    the string buffer
+     * @return             the response
      */
     private RegisterResponseB2C inProcessConsumerRegister(final String clientId, final String groupName,
                                                           final String topicName, final String partStr,
@@ -1091,18 +995,18 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
     }
 
-    /***
+    /**
      * Handle consumer's unregister request.
      *
-     * @param clientId
-     * @param groupName
-     * @param topicName
-     * @param partStr
-     * @param request
-     * @param overtls
-     * @param builder
-     * @param strBuffer
-     * @return
+     * @param clientId     the client id
+     * @param groupName    the group name
+     * @param topicName    the topic name
+     * @param partStr      the group-topic-partitionId key
+     * @param request      the request
+     * @param overtls      whether transfer over TLS
+     * @param builder      the response builder
+     * @param strBuffer    the string buffer
+     * @return             the response
      */
     private RegisterResponseB2C inProcessConsumerUnregister(final String clientId, final String groupName,
                                                             final String topicName, final String partStr,
@@ -1160,14 +1064,14 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         return builder.build();
     }
 
-    /***
+    /**
      * Handle consumer's heartbeat request.
      *
-     * @param request
-     * @param rmtAddress
-     * @param overtls
-     * @return
-     * @throws Throwable
+     * @param request        the request
+     * @param rmtAddress     the remote address
+     * @param overtls        whether transfer over TLS
+     * @return               the response
+     * @throws Throwable     the exception during processing
      */
     @Override
     public HeartBeatResponseB2C consumerHeartbeatC2B(HeartBeatRequestC2B request,
@@ -1281,14 +1185,14 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         return builder.build();
     }
 
-    /***
+    /**
      * Handle consumer's commit offset request.
      *
-     * @param request
-     * @param rmtAddress
-     * @param overtls
-     * @return
-     * @throws Throwable
+     * @param request        the request
+     * @param rmtAddress     the remote address
+     * @param overtls        whether transfer over TLS
+     * @return               the response
+     * @throws Throwable     the exception during processing
      */
     @Override
     public CommitOffsetResponseB2C consumerCommitC2B(CommitOffsetRequestC2B request,
@@ -1322,7 +1226,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         final String groupName = (String) result.getRetData();
         int partitionId = request.getPartitionId();
         // get and check topicName and partitionId field
-        if (!PBParameterUtils.getTopicNamePartIdInfo(request.getTopicName(),
+        if (!PBParameterUtils.getTopicNamePartIdInfo(false, request.getTopicName(),
                 partitionId, this.metadataManager, strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
@@ -1406,7 +1310,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 : consumerNodeInfo.getQryPriorityId();
     }
 
-    /***
+    /**
      * Consumer timeout handler. Update consumer's info if exists consumer timeout.
      */
     public class ConsumerTimeoutListener implements TimeoutListener {

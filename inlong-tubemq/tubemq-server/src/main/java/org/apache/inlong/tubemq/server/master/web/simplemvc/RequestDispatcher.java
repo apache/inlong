@@ -51,7 +51,7 @@ public class RequestDispatcher {
     /**
      * Construct RequestDispatcher from web config
      *
-     * @param config
+     * @param config  the web configure object
      */
     public RequestDispatcher(WebConfig config) {
         this.config = config;
@@ -141,9 +141,9 @@ public class RequestDispatcher {
     /**
      * Build action key as "type/target"
      *
-     * @param type
-     * @param target
-     * @return
+     * @param type    the type value
+     * @param target  the target value
+     * @return    the key
      */
     public String getActionKey(String type, String target) {
         return new StringBuilder(256).append(type)
@@ -153,9 +153,9 @@ public class RequestDispatcher {
     /**
      * Build template name as "type/target.vm"
      *
-     * @param type
-     * @param target
-     * @return
+     * @param type     the type value
+     * @param target   the target value
+     * @return         the result
      */
     public String getTemplateName(String type, String target) {
         return new StringBuilder(256).append(type)

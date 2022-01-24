@@ -22,7 +22,7 @@ import java.util.Map;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 
-/***
+/**
  * The offset snapshot of the consumer group on the broker.
  */
 public class OffsetRecordInfo {
@@ -35,7 +35,7 @@ public class OffsetRecordInfo {
         this.groupName = groupName;
     }
 
-    /***
+    /**
      * Add confirmed offset of topic-partitionId.
      *
      * @param topicName      topic name
@@ -58,7 +58,7 @@ public class OffsetRecordInfo {
         return histOffsetMap;
     }
 
-    /***
+    /**
      * Build consumption offset information in string format
      *
      * @param strBuff     string buffer

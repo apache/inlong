@@ -17,6 +17,7 @@
 
 package org.apache.inlong.tubemq.server.broker;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -61,7 +62,7 @@ import org.apache.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
  * Tube broker server. In charge of init each components, and communicating to master.
  */
 public class TubeBroker implements Stoppable {
@@ -96,13 +97,19 @@ public class TubeBroker implements Stoppable {
     private MasterService masterService;
     private boolean requireReportConf = false;
     private boolean isOnline = false;
-    private AtomicBoolean shutdown = new AtomicBoolean(true);
+    private final AtomicBoolean shutdown = new AtomicBoolean(true);
     private final AtomicBoolean isKeepAlive = new AtomicBoolean(false);
     private final AtomicLong lastRegTime = new AtomicLong(0);
-    private AtomicBoolean shutdownHooked = new AtomicBoolean(false);
-    private AtomicLong heartbeatErrors = new AtomicLong(0);
+    private final AtomicBoolean shutdownHooked = new AtomicBoolean(false);
+    private final AtomicLong heartbeatErrors = new AtomicLong(0);
     private int maxReleaseTryCnt = 10;
 
+    /**
+     * Initial broker instance.
+     *
+     * @param tubeConfig      the initial configure
+     * @throws IOException    the exception during processing
+     */
     public TubeBroker(final BrokerConfig tubeConfig) throws Exception {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "1");
@@ -191,10 +198,10 @@ public class TubeBroker implements Stoppable {
         return brokerServiceServer;
     }
 
-    /***
+    /**
      * Start broker service.
      *
-     * @throws Exception
+     * @throws Exception  the exception during processing
      */
     public void start() throws Exception {
         logger.info("Starting tube server...");
@@ -249,7 +256,7 @@ public class TubeBroker implements Stoppable {
         isOnline = true;
         logger.info(new StringBuilder(512)
                 .append("Start tube server successfully, broker version=")
-                .append(TubeServerVersion.BROKER_VERSION).toString());
+                .append(TubeServerVersion.SERVER_VERSION).toString());
     }
 
     public synchronized void reloadConfig() {
@@ -304,7 +311,7 @@ public class TubeBroker implements Stoppable {
         return new StringBuilder(512).append(tubeConfig.getBrokerId()).append(":")
                 .append(tubeConfig.getHostName()).append(":")
                 .append(tubeConfig.getPort()).append(":")
-                .append(TubeServerVersion.BROKER_VERSION).toString();
+                .append(TubeServerVersion.SERVER_VERSION).toString();
     }
 
     private void procConfigFromHeartBeat(StringBuilder sBuilder,
@@ -393,10 +400,10 @@ public class TubeBroker implements Stoppable {
         }
     }
 
-    /***
+    /**
      * Register to master. Try multi times if failed.
      *
-     * @throws StartupException
+     * @throws StartupException  the exception during processing
      */
     private void register2Master() throws StartupException {
         int remainingRetry = 5;
@@ -502,11 +509,11 @@ public class TubeBroker implements Stoppable {
         return defSetting;
     }
 
-    /***
+    /**
      * Build register request to master.
      *
-     * @return
-     * @throws Exception
+     * @return             the register request object
+     * @throws Exception   the exception during processing
      */
     private RegisterRequestB2M createMasterRegisterRequest() throws Exception {
         RegisterRequestB2M.Builder builder = RegisterRequestB2M.newBuilder();
@@ -550,10 +557,10 @@ public class TubeBroker implements Stoppable {
         return builder.build();
     }
 
-    /***
+    /**
      * Build heartbeat request to master.
      *
-     * @return
+     * @return the HeartRequestB2M request object
      */
     private HeartRequestB2M createBrokerHeartBeatRequest() {
         HeartRequestB2M.Builder builder = HeartRequestB2M.newBuilder();
@@ -602,10 +609,10 @@ public class TubeBroker implements Stoppable {
         return builder.build();
     }
 
-    /***
+    /**
      * Build close request to master.
      *
-     * @return
+     * @return the CloseRequestB2M request object
      */
     private CloseRequestB2M createMasterCloseRequest() {
         CloseRequestB2M.Builder builder = CloseRequestB2M.newBuilder();
@@ -617,10 +624,10 @@ public class TubeBroker implements Stoppable {
         return builder.build();
     }
 
-    /***
+    /**
      * Build master certificate info.
      *
-     * @return
+     * @return  the MasterCertificateInfo builder
      */
     private ClientMaster.MasterCertificateInfo.Builder genMasterCertificateInfo() {
         ClientMaster.MasterCertificateInfo.Builder authInfoBuilder = null;
@@ -633,7 +640,7 @@ public class TubeBroker implements Stoppable {
         return authInfoBuilder;
     }
 
-    /***
+    /**
      * Shutdown hook.
      */
     private final class ShutdownHook extends Thread {

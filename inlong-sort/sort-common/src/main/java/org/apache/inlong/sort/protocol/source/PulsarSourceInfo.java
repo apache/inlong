@@ -37,6 +37,8 @@ public class PulsarSourceInfo extends SourceInfo {
 
     private final String subscriptionName;
 
+    private final String authentication;
+
     @JsonCreator
     public PulsarSourceInfo(
             @JsonProperty("admin_url") String adminUrl,
@@ -44,13 +46,15 @@ public class PulsarSourceInfo extends SourceInfo {
             @JsonProperty("topic") String topic,
             @JsonProperty("subscription_name") String subscriptionName,
             @JsonProperty("deserialization_info") DeserializationInfo deserializationInfo,
-            @JsonProperty("fields") FieldInfo[] fields) {
+            @JsonProperty("fields") FieldInfo[] fields,
+            @JsonProperty("authentication") String authentication) {
         super(fields, deserializationInfo);
 
         this.adminUrl = checkNotNull(adminUrl);
         this.serviceUrl = checkNotNull(serviceUrl);
         this.topic = checkNotNull(topic);
         this.subscriptionName = checkNotNull(subscriptionName);
+        this.authentication = authentication;
     }
 
     @JsonProperty("admin_url")
@@ -73,6 +77,11 @@ public class PulsarSourceInfo extends SourceInfo {
         return subscriptionName;
     }
 
+    @JsonProperty("authentication")
+    public String getAuthentication() {
+        return authentication;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -88,6 +97,7 @@ public class PulsarSourceInfo extends SourceInfo {
                 && Objects.equals(adminUrl, other.adminUrl)
                 && Objects.equals(serviceUrl, other.serviceUrl)
                 && Objects.equals(subscriptionName, other.subscriptionName)
-                && Objects.equals(topic, other.topic);
+                && Objects.equals(topic, other.topic)
+                && Objects.equals(authentication, other.authentication);
     }
 }

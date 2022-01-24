@@ -19,8 +19,9 @@ package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
 import java.util.List;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageListVO;
+import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageListResponse;
+import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageRequest;
+import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageResponse;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageApproveInfo;
 import org.apache.inlong.manager.common.pojo.datastorage.StoragePageRequest;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageSummaryInfo;
@@ -37,7 +38,7 @@ public interface StorageService {
      * @param operator Edit person's name
      * @return Primary key after saving
      */
-    Integer save(BaseStorageInfo storageInfo, String operator);
+    Integer save(BaseStorageRequest storageInfo, String operator);
 
     /**
      * Query storage information based on id
@@ -46,7 +47,7 @@ public interface StorageService {
      * @param storageType Storage type
      * @return Store information
      */
-    BaseStorageInfo getById(String storageType, Integer id);
+    BaseStorageResponse getById(String storageType, Integer id);
 
     /**
      * Query storage information based on business group id and data stream id
@@ -56,7 +57,7 @@ public interface StorageService {
      * @return Store information list
      * @apiNote Storage types only support temporarily: HIVE
      */
-    List<BaseStorageInfo> listByIdentifier(String groupId, String streamId);
+    List<BaseStorageResponse> listByIdentifier(String groupId, String streamId);
 
     /**
      * Query stored summary information based on business group id and data stream id, including storage cluster
@@ -75,7 +76,7 @@ public interface StorageService {
      * @param streamId Data stream id
      * @return Number of stored information
      */
-    int getCountByIdentifier(String groupId, String streamId);
+    Integer getCountByIdentifier(String groupId, String streamId);
 
     /**
      * Paging query storage information based on conditions
@@ -83,16 +84,16 @@ public interface StorageService {
      * @param request Paging request
      * @return Store information list
      */
-    PageInfo<? extends BaseStorageListVO> listByCondition(StoragePageRequest request);
+    PageInfo<? extends BaseStorageListResponse> listByCondition(StoragePageRequest request);
 
     /**
      * Modify data storage information
      *
-     * @param storageInfo Information that needs to be modified
+     * @param storageRequest Information that needs to be modified
      * @param operator Edit person's name
      * @return whether succeed
      */
-    boolean update(BaseStorageInfo storageInfo, String operator);
+    boolean update(BaseStorageRequest storageRequest, String operator);
 
     /**
      * Delete data storage information based on id

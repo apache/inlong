@@ -66,4 +66,7 @@ public class BizConstant {
 
     public static final String PREFIX_RLQ = "rlq"; // prefix of the Topic of the retry letter queue
 
+    public static final Integer ENABLE_CREATE_TABLE = 1; // Enable create table
+
+    public static final Integer DISABLE_CREATE_TABLE = 0; // Disable create table
 }

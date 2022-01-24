@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.fail;
 
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.deserialization.TDMsgCsvDeserializationInfo;
+import org.apache.inlong.sort.protocol.deserialization.InLongMsgCsvDeserializationInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import org.apache.inlong.sort.util.TestLogger;
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class TubeSubscriptionDescriptionTest extends TestLogger {
                 topic,
                 masterAddress,
                 null,
-                new TDMsgCsvDeserializationInfo(tid, ',', true),
+                new InLongMsgCsvDeserializationInfo(tid, ',', true),
                 new FieldInfo[0]);
         description.addDataFlow(dataFlowId, tubeSourceInfo);
 
@@ -68,7 +68,7 @@ public class TubeSubscriptionDescriptionTest extends TestLogger {
                 topic,
                 masterAddress,
                 null,
-                new TDMsgCsvDeserializationInfo(tid, ',', true),
+                new InLongMsgCsvDeserializationInfo(tid, ',', true),
                 new FieldInfo[0]);
         description.addDataFlow(dataFlowId, tubeSourceInfo1);
         final String tid2 = "10002";
@@ -77,7 +77,7 @@ public class TubeSubscriptionDescriptionTest extends TestLogger {
                 topic,
                 masterAddress,
                 consumerGroup,
-                new TDMsgCsvDeserializationInfo(tid2, ',', true),
+                new InLongMsgCsvDeserializationInfo(tid2, ',', true),
                 new FieldInfo[0]);
         final long dataFlowId2 = 10086L;
         description.addDataFlow(dataFlowId2, tubeSourceInfo2);

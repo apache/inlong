@@ -30,7 +30,7 @@ cat >"$outputDirectory/org/apache/inlong/tubemq/server/common/TubeServerVersion.
 package org.apache.inlong.tubemq.server.common;
 
 public class TubeServerVersion {
-    public static final String BROKER_VERSION = "$version";
+    public static final String SERVER_VERSION = "$version";
 }
 EOF
 

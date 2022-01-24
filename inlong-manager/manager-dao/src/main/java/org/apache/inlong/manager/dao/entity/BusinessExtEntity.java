@@ -29,7 +29,7 @@ public class BusinessExtEntity implements Serializable {
     private String inlongGroupId;
     private String keyName;
     private String keyValue;
-    private Integer isDeleted;
+    private Integer isDeleted = 0;
     private Date modifyTime;
 
 }

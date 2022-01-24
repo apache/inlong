@@ -82,7 +82,7 @@ public class CreatePulsarGroupForStreamTaskListener implements QueueOperateListe
             return ListenerResult.success();
         }
 
-        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(clusterBean.getPulsarAdminUrl())) {
+        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(bizInfo, clusterBean.getPulsarAdminUrl())) {
             // Query data storage info based on groupId and streamId
             List<String> storageTypeList = storageService.getStorageTypeList(groupId, streamId);
             if (storageTypeList == null || storageTypeList.size() == 0) {
@@ -103,7 +103,7 @@ public class CreatePulsarGroupForStreamTaskListener implements QueueOperateListe
             String namespace = bizInfo.getMqResourceObj();
             for (String cluster : pulsarClusters) {
                 String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
-                try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(serviceUrl)) {
+                try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(bizInfo, serviceUrl)) {
                     boolean exist = pulsarOptService.topicIsExists(pulsarAdmin, tenant, namespace, topic);
                     if (!exist) {
                         String fullTopic = tenant + "/" + namespace + "/" + topic;
