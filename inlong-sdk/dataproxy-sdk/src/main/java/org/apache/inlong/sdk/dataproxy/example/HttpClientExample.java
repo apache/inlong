@@ -24,8 +24,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.HttpProxySender;
 import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HttpClientExample {
 
