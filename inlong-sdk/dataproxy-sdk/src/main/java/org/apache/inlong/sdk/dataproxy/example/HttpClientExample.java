@@ -28,12 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HttpClientExample {
-    private static final Logger logger = LoggerFactory.getLogger(HttpClientExample.class);
-
-    private static String body = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-|";
 
     public static void main(String[] args) {
-        long sentCount = 10;
         /*
          * 1. if 'isLocalVisit' is true use local config from file in ${configBasePath}
          * directory/${dataProxyGroupId}
@@ -50,52 +46,51 @@ public class HttpClientExample {
          * 2. if 'isLocalVisit' is false
          *  sdk will get config from manager auto.
          */
-        boolean isLocalVisit = true;
-        String dataProxyGroupId = "test";
-        String groupId = "test_group_id";
-        String streamId = "test_stream_id";
+        String dataProxyGroup = "test";
+        String inlongGroupId = "test_group_id";
+        String inlongStreamId = "test_stream_id";
         String configBasePath = "/data/inlong/dataproxy/conf";
-        String managerServerIp = "127.0.0.1";
-        String managerServerPort = "8080";
+        String inLongManagerAddr = "127.0.0.1";
+        String inLongManagerPort = "8080";
         String localIP = "127.0.0.1";
         String netTag = "";
+        String messageBody = "inlong message body!";
 
+        HttpProxySender sender = getMessageSender(localIP, inLongManagerAddr,
+                inLongManagerPort, netTag, dataProxyGroup, false, false,
+                configBasePath);
+
+        sendHttpMessage(sender, inlongGroupId, inlongStreamId, messageBody);
+    }
+
+    public static HttpProxySender getMessageSender(String localIP, String inLongManagerAddr,
+            String inLongManagerPort, String netTag, String dataProxyGroup,
+            boolean isLocalVisit, boolean isReadProxyIPFromLocal,
+            String configBasePath) {
         ProxyClientConfig proxyConfig = null;
+        HttpProxySender sender = null;
         try {
-            proxyConfig = new ProxyClientConfig(localIP, isLocalVisit, managerServerIp,
-                    Integer.valueOf(managerServerPort),
-                    groupId, netTag);
-            proxyConfig.setGroupId(dataProxyGroupId);
+            proxyConfig = new ProxyClientConfig(localIP, isLocalVisit, inLongManagerAddr,
+                    Integer.valueOf(inLongManagerPort),
+                    dataProxyGroup, netTag);
+            proxyConfig.setGroupId(dataProxyGroup);
             proxyConfig.setConfStoreBasePath(configBasePath);
-            proxyConfig.setReadProxyIPFromLocal(true);
+            proxyConfig.setReadProxyIPFromLocal(isReadProxyIPFromLocal);
             proxyConfig.setDiscardOldMessage(true);
-
-            HttpProxySender sender = new HttpProxySender(proxyConfig);
-
-            sendHttpMessage(sender, sentCount, groupId, streamId);
+            sender = new HttpProxySender(proxyConfig);
         } catch (ProxysdkException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return sender;
     }
 
-    public static void sendHttpMessage(HttpProxySender sender, long sentCount, String groupId,
-            String streamId) throws Exception {
-        int count = 0;
-        String body1 = "Inlong_dataproxy";
-        while (count < sentCount) {
-            List<String> bodyList = new ArrayList<>();
-            bodyList.add(body1);
-            bodyList.add(body1);
-            bodyList.add(body1);
-            sender.asyncSendMessage(bodyList, groupId, streamId, System.currentTimeMillis(),
-                    20,
-                    TimeUnit.SECONDS, new MyMessageCallBack());
-            if (count % 1000 == 0) {
-                TimeUnit.SECONDS.sleep(1);
-            }
-            count++;
-        }
+    public static void sendHttpMessage(HttpProxySender sender, String inlongGroupId,
+            String inlongStreamId, String messageBody) {
+        List<String> bodyList = new ArrayList<>();
+        bodyList.add(messageBody);
+        sender.asyncSendMessage(bodyList, inlongGroupId, inlongStreamId, System.currentTimeMillis(),
+                20, TimeUnit.SECONDS, new MyMessageCallBack());
     }
 }
