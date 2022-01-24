@@ -58,6 +58,7 @@
         <log4j.version>2.17.1</log4j.version>
         <mockito.version>2.23.0</mockito.version>
         <jakarta.validation.version>2.0.2</jakarta.validation.version>
+        <elasticsearch-version>6.8.13</elasticsearch-version>
     </properties>
 
     <dependencies>
@@ -239,6 +240,31 @@
             <scope>compile</scope>
             <version>${jakarta.validation.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-client</artifactId>
+            <version>${elasticsearch-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>${elasticsearch-version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <version>${elasticsearch-version}</version>
+        </dependency>    
     </dependencies>
 
 </project>
