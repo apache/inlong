@@ -85,6 +85,9 @@ public class AuditUtils {
      * sendReport
      */
     public static void sendReport() {
+        if (!IS_AUDIT) {
+            return;
+        }
         AuditImp.getInstance().sendReport();
     }
 }
