@@ -158,6 +158,7 @@ public class AgentManager extends AbstractDaemon {
 
     @Override
     public void start() throws Exception {
+        AuditUtils.initAudit();
         LOGGER.info("starting agent manager");
         triggerManager.start();
         jobManager.start();

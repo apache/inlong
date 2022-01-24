@@ -41,7 +41,7 @@ public class AuditUtils {
     public static final int AUDIT_ID_AGENT_READ_SUCCESS = 3;
     public static final int AUDIT_ID_AGENT_SEND_SUCCESS = 4;
 
-    private static boolean IS_AUDIT = true;
+    private static boolean IS_AUDIT = false;
 
     /**
      * initAudit
