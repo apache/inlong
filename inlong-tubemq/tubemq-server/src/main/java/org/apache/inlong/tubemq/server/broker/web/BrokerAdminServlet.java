@@ -47,6 +47,7 @@ import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
 import org.apache.inlong.tubemq.server.broker.utils.GroupOffsetInfo;
 import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
+import org.apache.inlong.tubemq.server.common.TubeServerVersion;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 
@@ -62,6 +63,9 @@ public class BrokerAdminServlet extends AbstractWebHandler {
 
     @Override
     public void registerWebApiMethod() {
+        // query broker's version
+        innRegisterWebMethod("admin_query_server_version",
+                "adminQueryBrokerVersion", false);
         // query consumer group's offset
         innRegisterWebMethod("admin_query_group_offset",
                 "adminQueryCurrentGroupOffSet", false);
@@ -128,6 +132,19 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                     .append(",\"method\":\"").append(method).append("\"}");
         }
         sBuffer.append("],\"totalCnt\":").append(index).append("}");
+    }
+
+    /**
+     * Query Broker's version
+     *
+     * @param req      request
+     * @param sBuffer  process result
+     */
+    public void adminQueryBrokerVersion(HttpServletRequest req,
+                                        StringBuilder sBuffer) {
+        sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Ok\",\"data\":[")
+                .append("{\"version\":\"").append(TubeServerVersion.SERVER_VERSION)
+                .append("\"}]}");
     }
 
     /**
