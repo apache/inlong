@@ -15,27 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.event.task;
+package org.apache.inlong.manager.common.plugin;
 
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.model.WorkflowContext;
+import lombok.Data;
 
-public interface StorageOperateListener extends TaskEventListener {
+/**
+ * pluginDefinition should be defined in *.jar/META-INF/plugin.yaml
+ * for example:
+ *    name: test
+ *    description: this plugin is use for test
+ *    pluginClass: org.apache.inlong.plugin.testPlugin
+ *    javaVersion: 1.8 or 8
+ */
+@Data
+public class PluginDefinition {
 
-    StorageOperateListener DEFAULT_STORAGE_OPERATE_LISTENER = new StorageOperateListener() {
-        @Override
-        public TaskEvent event() {
-            return TaskEvent.COMPLETE;
-        }
+    /**
+     * name of plugin
+     */
+    private String name;
 
-        @Override
-        public ListenerResult listen(WorkflowContext context) throws Exception {
-            return ListenerResult.success();
-        }
+    /**
+     * description of plugin to be used for user help
+     */
+    private String description;
 
-        @Override
-        public boolean async() {
-            return false;
-        }
-    };
+    /**
+     * java_version of plugin to be used for check validate
+     */
+    private String javaVersion;
+
+    /**
+     * the full class name of plugin
+     */
+    private String pluginClass;
 }

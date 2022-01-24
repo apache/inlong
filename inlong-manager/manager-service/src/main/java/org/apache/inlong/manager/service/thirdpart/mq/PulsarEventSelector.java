@@ -15,27 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.event.task;
+package org.apache.inlong.manager.service.thirdpart.mq;
 
-import org.apache.inlong.manager.common.event.ListenerResult;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.BizConstant;
+import org.apache.inlong.manager.common.event.EventSelector;
 import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 
-public interface StorageOperateListener extends TaskEventListener {
+@Slf4j
+public class PulsarEventSelector implements EventSelector {
 
-    StorageOperateListener DEFAULT_STORAGE_OPERATE_LISTENER = new StorageOperateListener() {
-        @Override
-        public TaskEvent event() {
-            return TaskEvent.COMPLETE;
-        }
-
-        @Override
-        public ListenerResult listen(WorkflowContext context) throws Exception {
-            return ListenerResult.success();
-        }
-
-        @Override
-        public boolean async() {
+    @Override
+    public boolean accept(WorkflowContext context) {
+        BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
+        String middlewareType = form.getBusinessInfo().getMiddlewareType();
+        if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
             return false;
         }
-    };
+        log.warn("no need to create pulsar subscription group for groupId={}, as the middlewareType={}",
+                form.getInlongGroupId(), middlewareType);
+        return true;
+    }
 }

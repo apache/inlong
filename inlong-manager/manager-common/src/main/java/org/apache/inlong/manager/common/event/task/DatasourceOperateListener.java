@@ -17,6 +17,26 @@
 
 package org.apache.inlong.manager.common.event.task;
 
+import org.apache.inlong.manager.common.event.ListenerResult;
+import org.apache.inlong.manager.common.model.WorkflowContext;
+
 public interface DatasourceOperateListener extends TaskEventListener {
+
+    DatasourceOperateListener DEFAULT_DS_OPERATE_LISTENER = new DatasourceOperateListener() {
+        @Override
+        public TaskEvent event() {
+            return TaskEvent.COMPLETE;
+        }
+
+        @Override
+        public ListenerResult listen(WorkflowContext context) throws Exception {
+            return ListenerResult.success();
+        }
+
+        @Override
+        public boolean async() {
+            return false;
+        }
+    };
 
 }

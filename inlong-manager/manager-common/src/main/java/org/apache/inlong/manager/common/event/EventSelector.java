@@ -24,6 +24,6 @@ import org.apache.inlong.manager.common.model.WorkflowContext;
  */
 public interface EventSelector {
 
-    boolean apply(WorkflowContext context);
+    boolean accept(WorkflowContext context);
 
 }

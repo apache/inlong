@@ -15,15 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.event;
+package org.apache.inlong.manager.service.thirdpart.sort;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.event.EventSelector;
 import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.springframework.stereotype.Component;
 
-/**
- * factory to get EventListener based on WorkflowContext
- * @param <EL>
- */
-public interface EventListenerFactory<EL extends EventListener> {
+@Component
+@Slf4j
+public class ZkSortEventSelector implements EventSelector {
 
-    EL getEventListener(WorkflowContext context);
+    @Override
+    public boolean accept(WorkflowContext context) {
+        //todo check if push sort config to zookeeper
+        return true;
+    }
 }

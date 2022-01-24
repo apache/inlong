@@ -17,6 +17,26 @@
 
 package org.apache.inlong.manager.common.event.task;
 
+import org.apache.inlong.manager.common.event.ListenerResult;
+import org.apache.inlong.manager.common.model.WorkflowContext;
+
 public interface QueueOperateListener extends TaskEventListener {
+
+    QueueOperateListener DEFAULT_QUEUE_OPERATE_LISTENER = new QueueOperateListener() {
+        @Override
+        public TaskEvent event() {
+            return TaskEvent.COMPLETE;
+        }
+
+        @Override
+        public ListenerResult listen(WorkflowContext context) throws Exception {
+            return ListenerResult.success();
+        }
+
+        @Override
+        public boolean async() {
+            return false;
+        }
+    };
 
 }

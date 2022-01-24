@@ -15,27 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.event.task;
+package org.apache.inlong.manager.service.core.plugin;
 
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.model.WorkflowContext;
+import java.util.Map;
+import org.apache.inlong.manager.common.plugin.PluginDefinition;
+import org.junit.Assert;
+import org.junit.Test;
 
-public interface StorageOperateListener extends TaskEventListener {
+public class PluginClassLoaderTest {
 
-    StorageOperateListener DEFAULT_STORAGE_OPERATE_LISTENER = new StorageOperateListener() {
-        @Override
-        public TaskEvent event() {
-            return TaskEvent.COMPLETE;
-        }
+    @Test
+    public void testLoadPlugin() {
+        String path = this.getClass().getClassLoader().getResource("").getPath();
+        PluginClassLoader pluginClassLoader = PluginClassLoader.getFromPluginUrl(path + "plugins",
+                Thread.currentThread()
+                        .getContextClassLoader());
+        Map<String, PluginDefinition> pluginDefinitionMap = pluginClassLoader.getPluginDefinitions();
+        Assert.assertTrue(pluginDefinitionMap.size() == 1);
+    }
 
-        @Override
-        public ListenerResult listen(WorkflowContext context) throws Exception {
-            return ListenerResult.success();
-        }
-
-        @Override
-        public boolean async() {
-            return false;
-        }
-    };
 }

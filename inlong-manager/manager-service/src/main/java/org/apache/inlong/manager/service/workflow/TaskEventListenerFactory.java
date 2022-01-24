@@ -17,23 +17,147 @@
 
 package org.apache.inlong.manager.service.workflow;
 
-import org.apache.inlong.manager.common.event.EventListenerFactory;
-import org.apache.inlong.manager.common.event.task.TaskEventListener;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.PostConstruct;
+import org.apache.commons.collections.MapUtils;
+import org.apache.inlong.manager.common.event.EventSelector;
+import org.apache.inlong.manager.common.event.task.DatasourceOperateListener;
+import org.apache.inlong.manager.common.event.task.QueueOperateListener;
+import org.apache.inlong.manager.common.event.task.SortOperateListener;
+import org.apache.inlong.manager.common.event.task.StorageOperateListener;
 import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.common.plugin.PluginBinder;
+import org.apache.inlong.manager.common.plugin.ProcessPlugin;
+import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableListener;
+import org.apache.inlong.manager.service.thirdpart.hive.HiveStoreEventSelector;
+import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarGroupTaskListener;
+import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarResourceTaskListener;
+import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeGroupTaskListener;
+import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeTopicTaskListener;
+import org.apache.inlong.manager.service.thirdpart.mq.PulsarEventSelector;
+import org.apache.inlong.manager.service.thirdpart.mq.TubeEventSelector;
+import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigTaskListener;
+import org.apache.inlong.manager.service.thirdpart.sort.ZkSortEventSelector;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TaskEventListenerFactory implements EventListenerFactory<TaskEventListener>, PluginBinder {
+public class TaskEventListenerFactory implements PluginBinder {
 
-    @Override
-    public TaskEventListener getEventListener(WorkflowContext context) {
-        return null;
+    private Map<DatasourceOperateListener, EventSelector> dsOperateListeners;
+
+    private Map<StorageOperateListener, EventSelector> storageOperateListeners;
+
+    private Map<QueueOperateListener, EventSelector> queueOperateListeners;
+
+    private Map<SortOperateListener, EventSelector> sortOperateListeners;
+
+    @Autowired
+    private CreateTubeTopicTaskListener createTubeTopicTaskListener;
+    @Autowired
+    private CreateTubeGroupTaskListener createTubeGroupTaskListener;
+    @Autowired
+    private CreatePulsarResourceTaskListener createPulsarResourceTaskListener;
+    @Autowired
+    private CreatePulsarGroupTaskListener createPulsarGroupTaskListener;
+
+    @Autowired
+    private CreateHiveTableListener createHiveTableListener;
+    @Autowired
+    private HiveStoreEventSelector hiveStoreEventSelector;
+
+    @Autowired
+    private PushHiveConfigTaskListener pushHiveConfigTaskListener;
+    @Autowired
+    private ZkSortEventSelector zkSortEventSelector;
+
+    @PostConstruct
+    public void init() {
+        dsOperateListeners = new LinkedHashMap<>();
+        storageOperateListeners = new LinkedHashMap<>();
+        storageOperateListeners.put(createHiveTableListener, hiveStoreEventSelector);
+        queueOperateListeners = new LinkedHashMap<>();
+        queueOperateListeners.put(createTubeTopicTaskListener, new TubeEventSelector());
+        queueOperateListeners.put(createTubeGroupTaskListener, new TubeEventSelector());
+        queueOperateListeners.put(createPulsarResourceTaskListener, new PulsarEventSelector());
+        queueOperateListeners.put(createPulsarGroupTaskListener, new PulsarEventSelector());
+        sortOperateListeners = new LinkedHashMap<>();
+        sortOperateListeners.put(pushHiveConfigTaskListener, zkSortEventSelector);
+    }
+
+    public List<DatasourceOperateListener> getDSOperateListener(WorkflowContext context) {
+        List<DatasourceOperateListener> listeners = new ArrayList<>();
+        for (Map.Entry<DatasourceOperateListener, EventSelector> entry : dsOperateListeners.entrySet()) {
+            EventSelector selector = entry.getValue();
+            if (selector != null && selector.accept(context)) {
+                listeners.add(entry.getKey());
+            }
+        }
+        return listeners;
+    }
+
+    public List<StorageOperateListener> getStorageOperateListener(WorkflowContext context) {
+        List<StorageOperateListener> listeners = new ArrayList<>();
+        for (Map.Entry<StorageOperateListener, EventSelector> entry : storageOperateListeners.entrySet()) {
+            EventSelector selector = entry.getValue();
+            if (selector != null && selector.accept(context)) {
+                listeners.add(entry.getKey());
+            }
+        }
+        return listeners;
+    }
+
+    public List<QueueOperateListener> getQueueOperateListener(WorkflowContext context) {
+        List<QueueOperateListener> listeners = new ArrayList<>();
+        for (Map.Entry<QueueOperateListener, EventSelector> entry : queueOperateListeners.entrySet()) {
+            EventSelector selector = entry.getValue();
+            if (selector != null && selector.accept(context)) {
+                listeners.add(entry.getKey());
+            }
+        }
+        return listeners;
+    }
+
+    public List<SortOperateListener> getSortOperateListener(WorkflowContext context) {
+        List<SortOperateListener> listeners = new ArrayList<>();
+        for (Map.Entry<SortOperateListener, EventSelector> entry : sortOperateListeners.entrySet()) {
+            EventSelector selector = entry.getValue();
+            if (selector != null && selector.accept(context)) {
+                listeners.add(entry.getKey());
+            }
+        }
+        return listeners;
     }
 
     @Override
     public void acceptPlugin(Plugin plugin) {
-
+        if (!(plugin instanceof ProcessPlugin)) {
+            return;
+        }
+        ProcessPlugin processPlugin = (ProcessPlugin) plugin;
+        Map<DatasourceOperateListener, EventSelector> pluginDsOperateListeners =
+                processPlugin.createDSOperateListeners();
+        if (MapUtils.isNotEmpty(pluginDsOperateListeners)) {
+            dsOperateListeners.putAll(processPlugin.createDSOperateListeners());
+        }
+        Map<StorageOperateListener, EventSelector> pluginStorageOperateListeners =
+                processPlugin.createStorageOperateListeners();
+        if (MapUtils.isNotEmpty(pluginStorageOperateListeners)) {
+            storageOperateListeners.putAll(pluginStorageOperateListeners);
+        }
+        Map<QueueOperateListener, EventSelector> pluginQueueOperateListeners =
+                processPlugin.createQueueOperateListeners();
+        if (MapUtils.isNotEmpty(pluginQueueOperateListeners)) {
+            queueOperateListeners.putAll(pluginQueueOperateListeners);
+        }
+        Map<SortOperateListener, EventSelector> pluginSortOperateListeners =
+                processPlugin.createSortOperateListeners();
+        if (MapUtils.isNotEmpty(pluginSortOperateListeners)) {
+            sortOperateListeners.putAll(pluginSortOperateListeners);
+        }
     }
 }
