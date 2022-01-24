@@ -30,6 +30,6 @@ echo  */>> %tubeServerVersion%
 echo package org.apache.inlong.tubemq.server.common;>> %tubeServerVersion%
 echo,>> %tubeServerVersion%
 echo public class TubeServerVersion {>> %tubeServerVersion%
-echo     public static final String BROKER_VERSION = "%version%";>> %tubeServerVersion%
+echo     public static final String SERVER_VERSION = "%version%";>> %tubeServerVersion%
 echo } >> %tubeServerVersion%
 

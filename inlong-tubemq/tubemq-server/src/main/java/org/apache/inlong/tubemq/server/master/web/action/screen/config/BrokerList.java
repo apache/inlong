@@ -98,7 +98,7 @@ public class BrokerList implements Action {
                 brokerVO.setPartitionCount(totalPartitionNum);
                 brokerVO.setReadable(true);
                 brokerVO.setWritable(true);
-                brokerVO.setVersion(TubeServerVersion.BROKER_VERSION);
+                brokerVO.setVersion(TubeServerVersion.SERVER_VERSION);
                 brokerVO.setStatus(1);
                 brokerVO.setLastOpTime(new Date());
                 brokerVOList.add(brokerVO);
