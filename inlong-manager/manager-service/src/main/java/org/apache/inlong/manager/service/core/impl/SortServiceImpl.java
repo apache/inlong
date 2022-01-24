@@ -78,10 +78,10 @@ public class SortServiceImpl implements SortService {
 
     private SortTaskConfig getTaskConfig(SortClusterConfgiEntity clusterConfig) {
         List<Map<String, String>> idParams = this.getIdParams(clusterConfig.getTaskName());
-
+        // TODO add method that get sink params
         return SortTaskConfig.builder()
                 .taskName(clusterConfig.getTaskName())
-                .type(clusterConfig.getSinkType())
+                .sinkType(clusterConfig.getSinkType())
                 .idParams(idParams)
                 .sinkParams(null)
                 .build();

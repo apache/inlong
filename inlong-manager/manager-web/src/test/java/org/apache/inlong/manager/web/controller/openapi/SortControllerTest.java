@@ -21,6 +21,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
+import org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity;
+import org.apache.inlong.manager.dao.entity.SortIdParamsEntity;
+import org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper;
+import org.apache.inlong.manager.dao.mapper.SortIdParamsEntityMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +34,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringRunner.class)
@@ -41,9 +46,21 @@ public class SortControllerTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
+    // todo Service do not support insert method now, use mappers to insert data.
+    @Autowired
+    private SortIdParamsEntityMapper sortIdParamsEntityMapper;
+
+    @Autowired
+    private SortClusterConfgiEntityMapper sortClusterConfgiEntityMapper;
+
     @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        sortIdParamsEntityMapper.insert(this.prepareIdParamsEntity(1, "kafka"));
+        sortIdParamsEntityMapper.insert(this.prepareIdParamsEntity(2, "pulsar"));
+        sortIdParamsEntityMapper.insert(this.prepareIdParamsEntity(3, "hive"));
+        sortClusterConfgiEntityMapper.insert(this.prepareClusterConfigEntity(1, "kafka"));
+        sortClusterConfgiEntityMapper.insert(this.prepareClusterConfigEntity(2, "pulsar"));
     }
 
     /**
@@ -51,10 +68,11 @@ public class SortControllerTest {
      * @throws Exception Exceptions to request generating.
      */
     @Test
+    @Transactional
     public void testGetSortClusterConfig() throws Exception {
         RequestBuilder request =
                 get("/openapi/sort/getClusterConfig")
-                        .param("clusterName", "testName")
+                        .param("clusterName", "testCluster")
                         .param("md5", "testMd5");
         mockMvc.perform(request)
                 .andExpect(status().isOk())
@@ -71,4 +89,24 @@ public class SortControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
     }
+
+    private SortIdParamsEntity prepareIdParamsEntity(int idx, String type) {
+        return SortIdParamsEntity.builder()
+                .id(idx)
+                .groupId(String.valueOf(idx))
+                .streamId(String.valueOf(idx))
+                .taskName("testTask" + idx)
+                .type(type)
+                .build();
+    }
+
+    private SortClusterConfgiEntity prepareClusterConfigEntity(int idx, String sinkType) {
+        return SortClusterConfgiEntity.builder()
+                .clusterName("testCluster")
+                .id(idx)
+                .taskName("testTask" + idx)
+                .sinkType(sinkType)
+                .build();
+    }
+
 }

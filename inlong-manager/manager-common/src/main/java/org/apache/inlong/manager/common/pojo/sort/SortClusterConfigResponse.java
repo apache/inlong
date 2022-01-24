@@ -44,7 +44,7 @@ public class SortClusterConfigResponse {
     @Data
     public static class SortTaskConfig {
         String taskName;
-        String type;
+        String sinkType;
         List<Map<String, String>> idParams;
         Map<String, String> sinkParams;
     }
