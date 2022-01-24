@@ -57,7 +57,6 @@ public class TcpClientExample {
          * 2. if isLocalVisit is false, will get dataproxy server info from manager
          * so we must ensure that the manager server url is configured correctly!
          */
-        boolean isLocalVisit = true;
         String configBasePath = "/data/inlong/config";
 
         String inLongManagerAddr = "127.0.0.1";
@@ -72,7 +71,7 @@ public class TcpClientExample {
         TcpClientExample tcpClientExample = new TcpClientExample();
         DefaultMessageSender sender = tcpClientExample
                 .getMessageSender(localIP, inLongManagerAddr, inLongManagerPort, netTag,
-                        dataProxyGroup, true, true, configBasePath, msgType);
+                        dataProxyGroup, false, false, configBasePath, msgType);
         tcpClientExample.sendTcpMessage(sender, inlongGroupId, inlongStreamId,
                 messageBody, System.currentTimeMillis());
     }
