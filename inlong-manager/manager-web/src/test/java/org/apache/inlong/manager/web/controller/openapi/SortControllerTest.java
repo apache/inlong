@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.web.controller.openapi;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-
 import org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity;
 import org.apache.inlong.manager.dao.entity.SortIdParamsEntity;
 import org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper;
@@ -37,21 +33,22 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class SortControllerTest {
 
     private MockMvc mockMvc;
 
-    @Autowired
-    private WebApplicationContext webApplicationContext;
+    @Autowired private WebApplicationContext webApplicationContext;
 
     // todo Service do not support insert method now, use mappers to insert data.
-    @Autowired
-    private SortIdParamsEntityMapper sortIdParamsEntityMapper;
+    @Autowired private SortIdParamsEntityMapper sortIdParamsEntityMapper;
 
-    @Autowired
-    private SortClusterConfgiEntityMapper sortClusterConfgiEntityMapper;
+    @Autowired private SortClusterConfgiEntityMapper sortClusterConfgiEntityMapper;
 
     @Before
     public void setUp() {
@@ -65,6 +62,7 @@ public class SortControllerTest {
 
     /**
      * Test if the interface works.
+     *
      * @throws Exception Exceptions to request generating.
      */
     @Test
@@ -74,9 +72,17 @@ public class SortControllerTest {
                 get("/openapi/sort/getClusterConfig")
                         .param("clusterName", "testCluster")
                         .param("md5", "testMd5");
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andDo(print());
+        mockMvc.perform(request).andExpect(status().isOk()).andDo(print());
+    }
+
+    @Test
+    public void testErrorSinkType() throws Exception {
+        sortIdParamsEntityMapper.insert(this.prepareIdParamsEntity(3, "hive"));
+        RequestBuilder request =
+                get("/openapi/sort/getClusterConfig")
+                        .param("clusterName", "  ")
+                        .param("md5", "testMd5");
+        mockMvc.perform(request).andExpect(status().isOk()).andDo(print());
     }
 
     @Test
@@ -85,9 +91,7 @@ public class SortControllerTest {
                 get("/openapi/sort/getClusterConfig")
                         .param("clusterName", "  ")
                         .param("md5", "testMd5");
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andDo(print());
+        mockMvc.perform(request).andExpect(status().isOk()).andDo(print());
     }
 
     private SortIdParamsEntity prepareIdParamsEntity(int idx, String type) {
@@ -108,5 +112,4 @@ public class SortControllerTest {
                 .sinkType(sinkType)
                 .build();
     }
-
 }

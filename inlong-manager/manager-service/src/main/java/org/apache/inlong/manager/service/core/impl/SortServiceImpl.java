@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse;
+import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.SinkType;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.SortTaskConfig;
 import org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity;
 import org.apache.inlong.manager.service.core.SortClusterConfigService;
@@ -33,19 +34,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Sort service implementation.
- */
+/** Sort service implementation. */
 @Service
 public class SortServiceImpl implements SortService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortServiceImpl.class);
 
-    @Autowired
-    private SortClusterConfigService sortClusterConfigService;
+    @Autowired private SortClusterConfigService sortClusterConfigService;
 
-    @Autowired
-    private SortIdParamsService sortIdParamsService;
+    @Autowired private SortIdParamsService sortIdParamsService;
 
     @Override
     public SortClusterConfigResponse getClusterConfig(String clusterName, String md5) {
@@ -55,25 +52,29 @@ public class SortServiceImpl implements SortService {
         if (StringUtils.isBlank(clusterName)) {
             String errMsg = "Blank cluster name";
             LOGGER.info(errMsg);
-            return SortClusterConfigResponse.builder()
-                    .msg(errMsg).build();
+            return SortClusterConfigResponse.builder().msg(errMsg).build();
         }
 
         // check if there is any task.
-        List<SortClusterConfgiEntity> tasks = sortClusterConfigService.selectTasksByClusterName(clusterName);
+        List<SortClusterConfgiEntity> tasks =
+                sortClusterConfigService.selectTasksByClusterName(clusterName);
         if (tasks == null || tasks.isEmpty()) {
             String errMsg = "There is not any task for cluster" + clusterName;
             LOGGER.info(errMsg);
-            return SortClusterConfigResponse.builder()
-                    .msg(errMsg).build();
+            return SortClusterConfigResponse.builder().msg(errMsg).build();
         }
 
         // add task configs
         List<SortTaskConfig> taskConfigs = new ArrayList<>();
-        tasks.forEach(clusterConfig -> taskConfigs.add(this.getTaskConfig(clusterConfig)));
-        return SortClusterConfigResponse.builder()
-                .tasks(taskConfigs)
-                .msg("success").build();
+        try {
+            tasks.forEach(clusterConfig -> taskConfigs.add(this.getTaskConfig(clusterConfig)));
+        } catch (IllegalArgumentException ex) {
+            String errMsg = "Got illegal sink type from db, " + ex.getMessage();
+            LOGGER.info(errMsg);
+            return SortClusterConfigResponse.builder().msg(errMsg).build();
+        }
+
+        return SortClusterConfigResponse.builder().tasks(taskConfigs).msg("success").build();
     }
 
     private SortTaskConfig getTaskConfig(SortClusterConfgiEntity clusterConfig) {
@@ -81,7 +82,7 @@ public class SortServiceImpl implements SortService {
         // TODO add method that get sink params
         return SortTaskConfig.builder()
                 .taskName(clusterConfig.getTaskName())
-                .sinkType(clusterConfig.getSinkType())
+                .sinkType(SinkType.valueOf(clusterConfig.getSinkType()))
                 .idParams(idParams)
                 .sinkParams(null)
                 .build();
@@ -97,10 +98,8 @@ public class SortServiceImpl implements SortService {
 
     /**
      * TODO Add extension id params by different type of ids
+     *
      * @param baseIdParams Basic id params.
      */
-    private void addExtensionIdParams(Map<String, String> baseIdParams) {
-
-    }
-
+    private void addExtensionIdParams(Map<String, String> baseIdParams) {}
 }

@@ -44,8 +44,21 @@ public class SortClusterConfigResponse {
     @Data
     public static class SortTaskConfig {
         String taskName;
-        String sinkType;
+        SinkType sinkType;
         List<Map<String, String>> idParams;
         Map<String, String> sinkParams;
+    }
+
+    public enum SinkType {
+        /** kafka */
+        KAFKA,
+        /** pulsar */
+        PULSAR,
+        /** hive */
+        HIVE,
+        /** es */
+        ElasticSearch,
+        /** unknown */
+        UNKNOWN
     }
 }
