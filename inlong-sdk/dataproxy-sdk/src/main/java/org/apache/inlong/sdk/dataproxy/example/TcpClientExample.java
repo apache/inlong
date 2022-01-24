@@ -18,6 +18,7 @@
 
 package org.apache.inlong.sdk.dataproxy.example;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,13 +38,11 @@ public class TcpClientExample {
 
     public static String localIP = "127.0.0.1";
 
-    private int curCount = 0;
-
     public static void main() {
 
         String dataProxyGroup = "test_test";
-        String groupId = "test_test";
-        String streamId = "test_test";
+        String inlongGroupId = "test_test";
+        String inlongStreamId = "test_test";
         String netTag = "";
 
         /*
@@ -68,202 +67,46 @@ public class TcpClientExample {
          * It is recommended to use type 7. For others, please refer to the official related documents
          */
         int msgType = 7;
-
-        /*
-         * 0 : single msg/once and sync
-         * 2 : multi-messages/once and sync
-         * 3 : single msg/once and async
-         * 4 : multi-messages/once and async
-         */
-        int sendType = 3;
-        int bodySize = 1024;
-        String randomMessageBody = "inglong-message-random-body!";
-        int sendCount = 10;
+        String messageBody = "inglong-message-random-body!";
 
         TcpClientExample tcpClientExample = new TcpClientExample();
         DefaultMessageSender sender = tcpClientExample
-                .getMessageSender(inLongManagerAddr, inLongManagerPort, groupId, netTag,
-                        dataProxyGroup, isLocalVisit, configBasePath, msgType);
-        tcpClientExample
-                .sendMessage(sender, sendType, randomMessageBody, bodySize, groupId, streamId,
-                        sendCount);
+                .getMessageSender(localIP, inLongManagerAddr, inLongManagerPort, netTag,
+                        dataProxyGroup, true, true, configBasePath, msgType);
+        tcpClientExample.sendTcpMessage(sender, inlongGroupId, inlongStreamId,
+                messageBody, System.currentTimeMillis());
     }
 
-    public DefaultMessageSender getMessageSender(String inLongManagerAddr, String inLongManagerPort,
-            String groupId, String netTag, String dataProxyGroup, boolean isLocalVisit,
-            String configBasePath, int msgtype) {
+    public DefaultMessageSender getMessageSender(String localIP, String inLongManagerAddr, String inLongManagerPort,
+            String netTag, String dataProxyGroup, boolean isLocalVisit, boolean isReadProxyIPFromLocal,
+            String configBasePath, int msgType) {
         ProxyClientConfig dataProxyConfig = null;
         DefaultMessageSender messageSender = null;
         try {
             dataProxyConfig = new ProxyClientConfig(localIP, isLocalVisit, inLongManagerAddr,
-                    Integer.valueOf(inLongManagerPort), groupId, netTag);
-            dataProxyConfig.setAliveConnections(3);
+                    Integer.valueOf(inLongManagerPort), dataProxyGroup, netTag);
             if (StringUtils.isNotEmpty(configBasePath)) {
                 dataProxyConfig.setConfStoreBasePath(configBasePath);
             }
-            dataProxyConfig.setGroupId(dataProxyGroup);
-            dataProxyConfig.setReadProxyIPFromLocal(true);
+            dataProxyConfig.setReadProxyIPFromLocal(isReadProxyIPFromLocal);
             messageSender = DefaultMessageSender.generateSenderByClusterId(dataProxyConfig);
-            messageSender.setSupportLF(false);
-            messageSender.setMsgtype(msgtype);
+            messageSender.setMsgtype(msgType);
         } catch (Exception e) {
             logger.error("getMessageSender has exception e = {}", e);
         }
         return messageSender;
     }
 
-    public void sendMessage(DefaultMessageSender messageSender, int sendType,
-            String randomMessageBody, int bodysize, String groupId, String streamId,
-            int sentCount) {
+    public void sendTcpMessage(DefaultMessageSender sender, String inlongGroupId,
+            String inlongStreamId, String messageBody, long dt) {
         SendResult result = null;
-        long start = System.currentTimeMillis();
-        ArrayList<byte[]> bodylist = new ArrayList<byte[]>();
-        Map<String, String> extraAttrMap = new HashMap<>();
-        curCount = 0;
-        do {
-            start = System.currentTimeMillis();
-            try {
-                switch (sendType) {
-                    case 0: {
-                        String messageBody = getRandomString(randomMessageBody, bodysize);
-                        result = messageSender
-                                .sendMessage(messageBody.getBytes("utf8"),
-                                        groupId, streamId, 0,
-                                        String.valueOf(System.currentTimeMillis()), 20,
-                                        TimeUnit.SECONDS);
-                        if (result == SendResult.OK) {
-                            logger.info("messageSender {} costTime{}", curCount,
-                                    System.currentTimeMillis() - start);
-                        }
-                    }
-                    break;
-
-                    case 1: {
-                        String messageBody = getRandomString(randomMessageBody, bodysize);
-                        for (int i = 0; i < 5; i++) {
-                            bodylist.add(messageBody.getBytes("utf8"));
-                            messageBody = getRandomString(randomMessageBody, bodysize);
-                        }
-                        try {
-                            result = messageSender.sendMessage(bodylist, groupId, streamId, 0,
-                                    String.valueOf(System.currentTimeMillis()), 20,
-                                    TimeUnit.SECONDS, extraAttrMap);
-                        } catch (Exception ex) {
-                            logger.info("messageSender " + curCount + " "
-                                    + (System.currentTimeMillis() - start) + " " + result);
-                        }
-                        result = messageSender.sendMessage(bodylist, groupId, streamId, 0,
-                                String.valueOf(System.currentTimeMillis()), 20,
-                                TimeUnit.SECONDS);
-                        logger.info("messageSender " + curCount + " "
-                                + (System.currentTimeMillis() - start) + " " + result);
-                        bodylist.clear();
-                    }
-                    break;
-
-                    case 2: {
-                        SendMessageCallback mySendMessageCallBack = new MyMessageCallBack();
-                        String messageBody = getRandomString(randomMessageBody, bodysize);
-                        for (int i = 0; i < 5; i++) {
-                            bodylist.add(messageBody.getBytes("utf8"));
-                            messageBody = getRandomString(randomMessageBody, bodysize);
-                        }
-                        messageSender.asyncSendMessage(mySendMessageCallBack, bodylist, groupId,
-                                streamId, 0, String.valueOf(System.currentTimeMillis()),
-                                20, TimeUnit.SECONDS);
-                        bodylist.clear();
-                    }
-                    break;
-
-                    case 3: {
-                        String messageBody = getRandomString(randomMessageBody, bodysize);
-                        SendMessageCallback mySendMessageCallBack = new SendMessageCallback() {
-                            @Override
-                            public void onMessageAck(SendResult sendResult) {
-                                logger.info("messageSender count=" + String.valueOf(curCount)
-                                        + ",cost time=" + String.valueOf(System.currentTimeMillis())
-                                        + ",result=" + sendResult);
-                            }
-
-                            @Override
-                            public void onException(Throwable throwable) {
-                                logger.info("messageSender count=" + String.valueOf(curCount)
-                                        + ",cost time=" + String.valueOf(System.currentTimeMillis())
-                                        + ",result=" + throwable);
-                            }
-                        };
-                        messageSender.asyncSendMessage(mySendMessageCallBack,
-                                messageBody.getBytes("utf8"), groupId, streamId, 0,
-                                String.valueOf(System.currentTimeMillis() / 1000), 20,
-                                TimeUnit.SECONDS);
-
-                    }
-                    break;
-
-                    case 4: {
-                        String messageBody = getRandomString(randomMessageBody, bodysize);
-                        String result2 = messageSender
-                                .sendMessageFile(messageBody.getBytes("utf8"),
-                                        groupId, "test",
-                                        System.currentTimeMillis(),
-                                        (int) (System.currentTimeMillis() / 1000),
-                                        String.valueOf(System.currentTimeMillis()), 20,
-                                        TimeUnit.SECONDS);
-                        logger.info("messageSender count= {} ,cost time= {}, result= " + result2,
-                                String.valueOf(curCount),
-                                String.valueOf(System.currentTimeMillis() - start));
-                    }
-                    break;
-
-                    case 5: {
-                        MyFileCallBack mySendMessageCallBack = new MyFileCallBack();
-                        String messageBody = getRandomString(randomMessageBody, bodysize);
-                        messageSender.asyncsendMessageProxy(mySendMessageCallBack,
-                                messageBody.getBytes("utf8"), groupId, streamId, 0,
-                                (int) System.currentTimeMillis() / 1000, localIP,
-                                String.valueOf(System.currentTimeMillis()), 20,
-                                TimeUnit.SECONDS);
-                        logger.info(
-                                "messageSender count=" + String.valueOf(curCount) + ",cost time="
-                                        + String.valueOf(System.currentTimeMillis() - start));
-                    }
-                    break;
-
-                    default: {
-                        String messageBody = getRandomString(randomMessageBody, bodysize);
-                        for (int i = 0; i < 5; i++) {
-                            bodylist.add(messageBody.getBytes("utf8"));
-                            messageBody = getRandomString(randomMessageBody, bodysize);
-                        }
-                        SendMessageCallback mySendMessageCallBack = new MyMessageCallBack();
-                        messageSender.asyncSendMessage(mySendMessageCallBack, bodylist, groupId,
-                                streamId, 0, String.valueOf(System.currentTimeMillis()),
-                                20, TimeUnit.SECONDS);
-                        bodylist.clear();
-                    }
-                    break;
-                }
-            } catch (Throwable e1) {
-                logger.error("Sent message failure, type={}, msg {}", sendType, e1);
-                e1.printStackTrace();
-            }
-            curCount++;
-        } while (curCount <= sentCount);
-        logger.error("Sent message finished, sentCount={}", curCount);
         try {
-            Thread.sleep(100000);
-        } catch (InterruptedException e) {
+            result = sender.sendMessage(messageBody.getBytes("utf8"),inlongGroupId, inlongStreamId,
+                    0, String.valueOf(dt), 20, TimeUnit.SECONDS);
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-    }
-
-    public static String getRandomString(String messageRandomBody, int length) {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < length; i++) {
-            int number = new Random().nextInt(messageRandomBody.length());
-            sb.append(messageRandomBody.charAt(number));
-        }
-        return sb.toString();
+        logger.info("messageSender {}", result);
     }
 
 }
