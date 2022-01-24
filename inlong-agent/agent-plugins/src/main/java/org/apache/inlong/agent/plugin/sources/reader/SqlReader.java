@@ -21,6 +21,8 @@ import static java.sql.Types.BINARY;
 import static java.sql.Types.BLOB;
 import static java.sql.Types.LONGVARBINARY;
 import static java.sql.Types.VARBINARY;
+import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_STREAM_ID;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -30,11 +32,13 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
@@ -52,6 +56,9 @@ import org.slf4j.LoggerFactory;
 public class SqlReader implements Reader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlReader.class);
+
+    private String inlongGroupId;
+    private String inlongStreamId;
 
     private static final String SQL_READER_TAG_NAME = "AgentSqlMetric";
 
@@ -98,10 +105,10 @@ public class SqlReader implements Reader {
 
         if (ConfigUtil.isPrometheusEnabled()) {
             this.sqlFileMetric = new PluginPrometheusMetric(
-                AgentUtils.getUniqId(SQL_READER_TAG_NAME, metricsIndex.incrementAndGet()));
+                    AgentUtils.getUniqId(SQL_READER_TAG_NAME, metricsIndex.incrementAndGet()));
         } else {
             this.sqlFileMetric = new PluginJmxMetric(
-                AgentUtils.getUniqId(SQL_READER_TAG_NAME, metricsIndex.incrementAndGet()));
+                    AgentUtils.getUniqId(SQL_READER_TAG_NAME, metricsIndex.incrementAndGet()));
         }
     }
 
@@ -128,6 +135,8 @@ public class SqlReader implements Reader {
                     }
                     lineColumns.add(dataValue);
                 }
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
+                        inlongGroupId, inlongStreamId, System.currentTimeMillis());
                 sqlFileMetric.incReadNum();
 
                 return generateMessage(lineColumns);
@@ -186,6 +195,8 @@ public class SqlReader implements Reader {
 
     @Override
     public void init(JobProfile jobConf) {
+        inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID);
+        inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, "");
         int batchSize = jobConf.getInt(JOB_DATABASE_BATCH_SIZE, DEFAULT_JOB_DATABASE_BATCH_SIZE);
         String userName = jobConf.get(JOB_DATABASE_USER);
         String password = jobConf.get(JOB_DATABASE_PASSWORD);
@@ -193,17 +204,17 @@ public class SqlReader implements Reader {
         int port = jobConf.getInt(JOB_DATABASE_PORT);
 
         String driverClass = jobConf.get(JOB_DATABASE_DRIVER_CLASS,
-            DEFAULT_JOB_DATABASE_DRIVER_CLASS);
+                DEFAULT_JOB_DATABASE_DRIVER_CLASS);
         separator = jobConf.get(JOB_DATABASE_SEPARATOR, STD_FIELD_SEPARATOR_SHORT);
         finished = false;
         try {
             String databaseType = jobConf.get(JOB_DATABASE_TYPE, MYSQL);
             String url = String.format("jdbc:%s://%s:%d", databaseType, hostName, port);
             conn = AgentDbUtils.getConnectionFailover(
-                driverClass, url, userName, password);
+                    driverClass, url, userName, password);
             if (databaseType.equals(MYSQL)) {
                 statement = conn.createStatement(
-                    ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+                        ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
                 statement.setFetchSize(Integer.MIN_VALUE);
                 resultSet = statement.executeQuery(sql);
             } else {
