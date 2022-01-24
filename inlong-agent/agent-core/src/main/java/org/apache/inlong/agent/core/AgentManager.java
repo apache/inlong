@@ -40,7 +40,6 @@ import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.JobProfileDb;
 import org.apache.inlong.agent.db.LocalProfile;
 import org.apache.inlong.agent.db.TriggerProfileDb;
-import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -158,7 +157,6 @@ public class AgentManager extends AbstractDaemon {
 
     @Override
     public void start() throws Exception {
-        AuditUtils.initAudit();
         LOGGER.info("starting agent manager");
         triggerManager.start();
         jobManager.start();
@@ -190,8 +188,6 @@ public class AgentManager extends AbstractDaemon {
      */
     @Override
     public void stop() throws Exception {
-        AuditUtils.sendReport();
-
         if (configJetty != null) {
             configJetty.close();
         }
