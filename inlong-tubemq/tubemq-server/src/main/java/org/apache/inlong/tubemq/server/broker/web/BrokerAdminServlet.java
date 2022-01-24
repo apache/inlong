@@ -882,7 +882,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         GetMessageResult getMessageResult;
         // locate partitionId and filter-item
         msgTypeCode = groupName.hashCode();
-        partitionId = Math.abs(msgTypeCode) % (TServerConstants.OFFSET_HISTORY_NUMPARTS - 1);
+        partitionId = Math.abs(msgTypeCode) % TServerConstants.OFFSET_HISTORY_NUMPARTS;
         // build filter conditions
         Set<String> filterCodes = new HashSet<>();
         filterCodes.add(groupName);
