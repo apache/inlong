@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.server.common;
 
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 
 public final class TServerConstants {
 
@@ -92,4 +93,9 @@ public final class TServerConstants {
     public static final long CFG_DEFAULT_GROUP_OFFSET_SCAN_DUR = 60000L;
     public static final long CFG_MIN_GROUP_OFFSET_SCAN_DUR = 30000L;
     public static final long CFG_MAX_GROUP_OFFSET_SCAN_DUR = 480000L;
+
+    public static final long CFG_OFFSET_RESET_MIN_ALARM_CHECK =
+            DataStoreUtils.STORE_INDEX_HEAD_LEN * 100000L;
+    public static final long CFG_OFFSET_RESET_MID_ALARM_CHECK =
+            DataStoreUtils.STORE_INDEX_HEAD_LEN * 1000000L;
 }
