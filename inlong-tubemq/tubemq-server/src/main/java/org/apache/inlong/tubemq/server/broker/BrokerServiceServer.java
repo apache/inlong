@@ -740,7 +740,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             }
             // build record info;
             msgTypeCode = entry.getKey().hashCode();
-            partitionId = Math.abs(msgTypeCode) % TServerConstants.OFFSET_HISTORY_NUMPARTS;
+            partitionId = Math.abs(msgTypeCode) % (TServerConstants.OFFSET_HISTORY_NUMPARTS - 1);
             // get msg data
             entry.getValue().buildRecordInfo(strBuff, storeTime);
             dataValue = StringUtils.getBytesUtf8(strBuff.toString());
