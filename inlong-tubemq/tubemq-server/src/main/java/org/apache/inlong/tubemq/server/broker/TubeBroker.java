@@ -256,7 +256,7 @@ public class TubeBroker implements Stoppable {
         isOnline = true;
         logger.info(new StringBuilder(512)
                 .append("Start tube server successfully, broker version=")
-                .append(TubeServerVersion.BROKER_VERSION).toString());
+                .append(TubeServerVersion.SERVER_VERSION).toString());
     }
 
     public synchronized void reloadConfig() {
@@ -311,7 +311,7 @@ public class TubeBroker implements Stoppable {
         return new StringBuilder(512).append(tubeConfig.getBrokerId()).append(":")
                 .append(tubeConfig.getHostName()).append(":")
                 .append(tubeConfig.getPort()).append(":")
-                .append(TubeServerVersion.BROKER_VERSION).toString();
+                .append(TubeServerVersion.SERVER_VERSION).toString();
     }
 
     private void procConfigFromHeartBeat(StringBuilder sBuilder,

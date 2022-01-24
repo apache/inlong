@@ -53,7 +53,7 @@ public abstract class CliAbstractBase {
      *
      */
     public void version() {
-        System.out.println("TubeMQ " + TubeServerVersion.BROKER_VERSION);
+        System.out.println("TubeMQ " + TubeServerVersion.SERVER_VERSION);
         System.exit(0);
     }
 
