@@ -59,8 +59,6 @@ public class InternalHttpSender {
     private final ProxyClientConfig proxyClientConfig;
     private final ConcurrentHashSet<HostInfo> hostList;
 
-    private static final int DEFAULT_PORT = 8000;
-
     private final LinkedBlockingQueue<HttpMessage> messageCache;
     private final ExecutorService workerServices = Executors
             .newCachedThreadPool();
@@ -186,7 +184,8 @@ public class InternalHttpSender {
                 httpClient = constructHttpClient(timeout, timeUnit);
             }
 
-            String url = "http://" + hostInfo.getHostName() + ":" + DEFAULT_PORT + "/manager/message";
+            String url = "http://" + hostInfo.getHostName() + ":" + hostInfo.getPortNumber()
+                    + "/dataproxy/message";
 
             httpPost = new HttpPost(url);
             httpPost.setHeader(HttpHeaders.CONNECTION, "close");

@@ -31,6 +31,8 @@ public class ConfigConstants {
 
     public static final String MAX_MSG_LENGTH = "max-msg-length";
 
+    public static final String CUSTOM_CHANNEL_PROCESSOR = "custom-cp";
+
     public static final String TCP_NO_DELAY = "tcpNoDelay";
 
     public static final String KEEP_ALIVE = "keepAlive";

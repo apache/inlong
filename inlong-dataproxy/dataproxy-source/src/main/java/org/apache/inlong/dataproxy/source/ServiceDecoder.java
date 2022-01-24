@@ -21,10 +21,10 @@ import java.util.Map;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.MessageEvent;
 
 /**
  * decoder interface definition
- *
  */
 public interface ServiceDecoder {
 
@@ -32,11 +32,10 @@ public interface ServiceDecoder {
 
     /**
      * extract data from buffer and convert it into map.
-     *
      * @param cb
      * @param channel
      * @return
      * @throws
      */
-    Map<String, Object> extractData(ChannelBuffer cb, Channel channel) throws Exception;
+    Map<String, Object> extractData(ChannelBuffer cb, Channel channel, MessageEvent e) throws Exception;
 }

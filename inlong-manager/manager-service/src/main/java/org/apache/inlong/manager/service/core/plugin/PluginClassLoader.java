@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -103,7 +104,9 @@ public class PluginClassLoader extends URLClassLoader {
             }
             JarFile pluginJar = new JarFile(jarFile);
             String pluginDef = readPluginDef(pluginJar);
+            pluginDef = pluginDef.replaceAll("[\\x00]+","");
             PluginDefinition definition = yamlMapper.readValue(pluginDef, PluginDefinition.class);
+            addURL(new URL("file://" + jarFile.getAbsolutePath()));
             checkPluginValid(jarFile, definition);
             definitions.add(definition);
         }
@@ -146,7 +149,7 @@ public class PluginClassLoader extends URLClassLoader {
                 buffer.put((byte) bt);
             }
         }
-        return new String(buffer.array());
+        return new String(buffer.array(), StandardCharsets.UTF_8);
     }
 
     private static void checkClassLoader(ClassLoader classLoader) {

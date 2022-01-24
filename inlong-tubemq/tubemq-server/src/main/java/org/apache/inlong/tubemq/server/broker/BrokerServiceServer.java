@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.server.broker;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -49,6 +50,7 @@ import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
 import org.apache.inlong.tubemq.corebase.utils.CheckSum;
 import org.apache.inlong.tubemq.corebase.utils.DataConverterUtil;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.ServiceStatusHolder;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corerpc.RpcConfig;
@@ -63,6 +65,7 @@ import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordInfo;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
 import org.apache.inlong.tubemq.server.broker.stats.CountService;
 import org.apache.inlong.tubemq.server.broker.stats.GroupCountService;
@@ -466,7 +469,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             sb.delete(0, sb.length());
             GetMessageResult msgQueryResult =
                     msgStore.getMessages(reqSwitch, requestOffset,
-                            partitionId, consumerNodeInfo, baseKey, msgDataSizeLimit);
+                            partitionId, consumerNodeInfo, baseKey, msgDataSizeLimit, 0);
             offsetManager.bookOffset(group, topic, partitionId,
                     msgQueryResult.lastReadOffset, isManualCommitOffset,
                     msgQueryResult.transferedMessageList.isEmpty(), sb);
@@ -699,6 +702,187 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                     .append((ex.getMessage() != null ? ex.getMessage() : " ")).toString());
             return builder.build();
         }
+    }
+
+    /***
+     * append group current offset to storage
+     *
+     * @param groupOffsetMap group offset information
+     * @param brokerAddrId broker Address id
+     * @param storeTime store time
+     * @param retryCnt  retry count
+     * @param waitRetryMs  wait duration on overflow
+     * @param strBuff    string buffer
+     */
+    public void appendGroupOffsetInfo(Map<String, OffsetRecordInfo> groupOffsetMap,
+                                      int brokerAddrId, long storeTime, int retryCnt,
+                                      long waitRetryMs, StringBuilder strBuff) {
+        if (groupOffsetMap == null || groupOffsetMap.isEmpty()) {
+            return;
+        }
+        int checkSum;
+        int msgTypeCode;
+        int partitionId;
+        byte[] dataValue;
+        byte[] attrData;
+        ByteBuffer rcdBuff;
+        byte[] msgData;
+        int msgLength;
+        int msgFlag = 1;
+        String baseKey;
+        MessageStore msgStore;
+        AppendResult appendResult = new AppendResult();
+        // get store time
+        String sendTime = DateTimeConvertUtils.ms2yyyyMMddHHmm(storeTime);
+        for (Map.Entry<String, OffsetRecordInfo> entry : groupOffsetMap.entrySet()) {
+            if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            // build record info;
+            msgTypeCode = entry.getKey().hashCode();
+            partitionId = Math.abs(msgTypeCode) % TServerConstants.OFFSET_HISTORY_NUMPARTS;
+            // get msg data
+            entry.getValue().buildRecordInfo(strBuff, storeTime);
+            dataValue = StringUtils.getBytesUtf8(strBuff.toString());
+            strBuff.delete(0, strBuff.length());
+            // get msg attributes
+            strBuff.append(TokenConstants.TOKEN_MSG_TYPE)
+                    .append(TokenConstants.EQ).append(msgTypeCode)
+                    .append(TokenConstants.ARRAY_SEP)
+                    .append(TokenConstants.TOKEN_MSG_TIME)
+                    .append(TokenConstants.EQ).append(sendTime)
+                    .append(TokenConstants.ARRAY_SEP)
+                    .append(TServerConstants.TOKEN_OFFSET_GROUP)
+                    .append(TokenConstants.EQ).append(entry.getKey());
+            attrData = StringUtils.getBytesUtf8(strBuff.toString());
+            strBuff.delete(0, strBuff.length());
+            // build binary record
+            rcdBuff = ByteBuffer.allocate(4 + attrData.length + dataValue.length);
+            rcdBuff.putInt(attrData.length);
+            rcdBuff.put(attrData);
+            rcdBuff.put(dataValue);
+            msgData = rcdBuff.array();
+            // get msg length and check-sum
+            msgLength = msgData.length;
+            checkSum = CheckSum.crc32(msgData);
+            // store record
+            try {
+                msgStore = storeManager.getOrCreateMessageStore(
+                        TServerConstants.OFFSET_HISTORY_NAME, partitionId);
+                if (msgStore.appendMsg2(appendResult, msgLength, checkSum, msgData,
+                        msgTypeCode, msgFlag, partitionId, brokerAddrId, storeTime,
+                        retryCnt, waitRetryMs)) {
+                    baseKey = strBuff.append(TServerConstants.OFFSET_HISTORY_NAME)
+                            .append("#").append(tubeConfig.getHostName())
+                            .append("#").append(tubeConfig.getHostName())
+                            .append("#").append(partitionId)
+                            .append("#").append(sendTime).toString();
+                    putCounterGroup.add(baseKey, 1L, msgLength);
+                    strBuff.delete(0, strBuff.length());
+                } else {
+                    logger.warn("Put history offset overflow !");
+                }
+            } catch (Throwable ex) {
+                strBuff.delete(0, strBuff.length());
+                logger.error("Put history offset failed ", ex);
+            }
+        }
+    }
+
+    /***
+     * get group current offset from storage
+     *
+     * @param groupNameSet group set
+     * @param recordStamp  query stored time stamp
+     * @param strBuff  string buffer
+     *
+     * @return   process success or failure
+     */
+    public boolean getMessagesByTimeStamp(Set<String> groupNameSet,
+                                          long recordStamp,
+                                          StringBuilder strBuff) {
+        MessageStore msgStore;
+        // check storage status
+        if (!this.started.get()
+                || ServiceStatusHolder.isReadServiceStop()) {
+            strBuff.append("{\"result\":false,\"errCode\":")
+                    .append(TErrCodeConstants.SERVICE_UNAVAILABLE)
+                    .append(",\"errMsg\":\"Read StoreService temporary unavailable!\"}");
+            return false;
+        }
+        // get offset history storage
+        try {
+            msgStore = storeManager.getOrCreateMessageStore(
+                    TServerConstants.OFFSET_HISTORY_NAME, 0);
+        } catch (Throwable ex) {
+            strBuff.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
+                    .append("Invalid parameter: not found the store by topicName(")
+                    .append(TServerConstants.OFFSET_HISTORY_NAME).append(")!\"}");
+            return false;
+        }
+        // locate start offset
+        long requestOffset = msgStore.getStartOffsetByTimeStamp(recordStamp);
+        // read history data
+        int totalCnt = 0;
+        int msgTypeCode;
+        int partitionId;
+        GetMessageResult getMessageResult;
+        ConsumerNodeInfo consumerNodeInfo;
+        Set<String> filterCodes = new HashSet<>();
+        strBuff.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
+        for (String groupName : groupNameSet) {
+            // locate partition and msgtype
+            msgTypeCode = groupName.hashCode();
+            partitionId = Math.abs(msgTypeCode) % TServerConstants.OFFSET_HISTORY_NUMPARTS;
+            // build filter conditions
+            filterCodes.clear();
+            filterCodes.add(groupName);
+            // build consumer node information
+            consumerNodeInfo = new ConsumerNodeInfo(tubeBroker.getStoreManager(),
+                    "offsetConsumer", filterCodes, "", System.currentTimeMillis(), "");
+            if (totalCnt++ > 0) {
+                strBuff.append(",");
+            }
+            try {
+                getMessageResult = msgStore.getMessages(303, requestOffset,
+                        partitionId, consumerNodeInfo, TServerConstants.OFFSET_HISTORY_NAME,
+                        storeManager.getMaxMsgTransferSize(), recordStamp);
+                if ((getMessageResult.transferedMessageList == null)
+                        || (getMessageResult.transferedMessageList.isEmpty())) {
+                    strBuff.append("{\"groupName\":\"").append(groupName)
+                            .append("\",\"result\":false,\"errMsg\":\"Could not find record!\"}");
+                    continue;
+                }
+            } catch (Throwable e2) {
+                strBuff.append("{\"groupName\":\"").append(groupName)
+                        .append("\",\"result\":false,\"errMsg\":\"Get Message failure: ")
+                        .append(e2.getMessage()).append("\"}");
+                continue;
+            }
+            boolean found = false;
+            List<Message> messageList = DataConverterUtil.convertMessage(
+                    TServerConstants.OFFSET_HISTORY_NAME, getMessageResult.transferedMessageList);
+            for (Message message : messageList) {
+                if (message == null) {
+                    continue;
+                }
+                if (!groupName.equals(message.getAttrValue(
+                        TServerConstants.TOKEN_OFFSET_GROUP))) {
+                    continue;
+                }
+                found = true;
+                strBuff.append("{\"groupName\":\"").append(groupName)
+                        .append("\",\"result\":true,\"errMsg\":\"ok\",\"record\":")
+                        .append(StringUtils.newStringUtf8(message.getData())).append("}");
+                break;
+            }
+            if (!found) {
+                strBuff.append("{\"groupName\":\"").append(groupName)
+                        .append("\",\"result\":false,\"errMsg\":\"Could not find record!\"}");
+            }
+        }
+        strBuff.append("],\"dataCount\":").append(totalCnt).append("}");
+        return true;
     }
 
     /***

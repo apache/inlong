@@ -22,26 +22,46 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.common.plugin.PluginBinder;
 import org.apache.inlong.manager.common.plugin.PluginDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 public class PluginsService {
 
-    public static final String PLUGIN_LOC = "/plugins";
+    public static final String DEFAULT_PLUGIN_LOC = "/plugins";
 
+    @Setter
+    @Getter
+    @Value("${plugin.location?:}")
+    private String pluginLoc;
+
+    @Getter
     @Autowired
     private List<PluginBinder> pluginBinders;
 
+    @Getter
+    private List<Plugin> plugins = new ArrayList<>();
+
     public PluginsService() {
-        Path path = Paths.get(PLUGIN_LOC).toAbsolutePath();
-        log.info("search for plugin in {}", PLUGIN_LOC);
+        if (StringUtils.isBlank(pluginLoc)) {
+            pluginLoc = DEFAULT_PLUGIN_LOC;
+        }
+        pluginReload();
+    }
+
+    public void pluginReload() {
+        Path path = Paths.get(pluginLoc).toAbsolutePath();
+        log.info("search for plugin in {}", pluginLoc);
         if (!path.toFile().exists()) {
             log.warn("plugin directory not found");
             return;
@@ -50,7 +70,7 @@ public class PluginsService {
                 Thread.currentThread().getContextClassLoader());
         Map<String, PluginDefinition> pluginDefinitions = pluginLoader.getPluginDefinitions();
         if (MapUtils.isEmpty(pluginDefinitions)) {
-            log.warn("pluginDefinition not found in {}", PLUGIN_LOC);
+            log.warn("pluginDefinition not found in {}", pluginLoc);
             return;
         }
         List<Plugin> plugins = new ArrayList<>();
@@ -64,6 +84,7 @@ public class PluginsService {
                 throw new RuntimeException(e.getMessage());
             }
         }
+        this.plugins.addAll(plugins);
         for (PluginBinder pluginBinder : pluginBinders) {
             for (Plugin plugin : plugins) {
                 pluginBinder.acceptPlugin(plugin);

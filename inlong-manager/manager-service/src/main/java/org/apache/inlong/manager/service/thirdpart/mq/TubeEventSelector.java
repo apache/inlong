@@ -32,10 +32,10 @@ public class TubeEventSelector implements EventSelector {
         BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
         BusinessInfo businessInfo = form.getBusinessInfo();
         if (BizConstant.MIDDLEWARE_TUBE.equalsIgnoreCase(businessInfo.getMiddlewareType())) {
-            return false;
+            return true;
         }
         log.warn("not need to create tube resource for groupId={}, as the middleware type is {}",
                 businessInfo.getMiddlewareType(), form.getInlongGroupId());
-        return true;
+        return false;
     }
 }

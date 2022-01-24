@@ -15,17 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.business;
+package org.apache.inlong.manager.service.core.plugin;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
+import org.junit.Assert;
+import org.junit.Test;
 
-@Configuration
-public class BaseConfig {
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
+public class JarHellTest {
+
+    @Test
+    public void testJavaVersion() {
+        JarHell.checkJavaVersion("test_java", "1.8");
+        try {
+            JarHell.checkJavaVersion("test_java", "1.81");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            Assert.assertTrue(e instanceof RuntimeException);
+        }
     }
 
 }

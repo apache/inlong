@@ -23,6 +23,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.config.TLSConfig;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
+import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
@@ -96,9 +97,9 @@ public class BrokerConfig extends AbstractFileConfig {
     // socket receive buffer
     private long socketRecvBuffer = -1;
     // read io exception max count
-    private int allowedReadIOExcptCnt = 10;
+    private int allowedReadIOExcptCnt = 3;
     // write io exception max count
-    private int allowedWriteIOExcptCnt = 10;
+    private int allowedWriteIOExcptCnt = 3;
     //
     private long visitTokenCheckInValidTimeMs = 120000;
     private long ioExcptStatsDurationMs = 120000;
@@ -112,7 +113,11 @@ public class BrokerConfig extends AbstractFileConfig {
     private boolean visitMasterAuth = false;
     private String visitName = "";
     private String visitPassword = "";
-    private long authValidTimeStampPeriodMs = TBaseConstants.CFG_DEFAULT_AUTH_TIMESTAMP_VALID_INTERVAL;
+    private long authValidTimeStampPeriodMs =
+            TBaseConstants.CFG_DEFAULT_AUTH_TIMESTAMP_VALID_INTERVAL;
+    // the scan storage cycle for consume group offset
+    private long groupOffsetScanDurMs =
+            TServerConstants.CFG_DEFAULT_GROUP_OFFSET_SCAN_DUR;
 
     public BrokerConfig() {
         super();
@@ -173,6 +178,10 @@ public class BrokerConfig extends AbstractFileConfig {
         return socketRecvBuffer;
     }
 
+    public long getGroupOffsetScanDurMs() {
+        return groupOffsetScanDurMs;
+    }
+
     @Override
     protected void loadFileSectAttributes(final Ini iniConf) {
         this.loadBrokerSectConf(iniConf);
@@ -191,7 +200,7 @@ public class BrokerConfig extends AbstractFileConfig {
     /***
      * Load config from broker.ini by section.
      *
-     * @param iniConf
+     * @param iniConf  configure section
      */
     private void loadBrokerSectConf(final Ini iniConf) {
         // #lizard forgives
@@ -224,7 +233,8 @@ public class BrokerConfig extends AbstractFileConfig {
             }
         }
         if (TStringUtils.isBlank(brokerSect.get("masterAddressList"))) {
-            throw new IllegalArgumentException(new StringBuilder(256).append("masterAddressList is null or Blank in ")
+            throw new IllegalArgumentException(new StringBuilder(256)
+                    .append("masterAddressList is null or Blank in ")
                     .append(SECT_TOKEN_BROKER).append(" section!").toString());
         }
         this.masterAddressList = brokerSect.get("masterAddressList");
@@ -238,8 +248,8 @@ public class BrokerConfig extends AbstractFileConfig {
         }
         if (TStringUtils.isNotBlank(brokerSect.get("logClearupDurationMs"))) {
             this.logClearupDurationMs = getLong(brokerSect, "logClearupDurationMs");
-            if (this.logClearupDurationMs < 1 * 60 * 1000) {
-                this.logClearupDurationMs = 1 * 60 * 1000;
+            if (this.logClearupDurationMs < 60 * 1000) {
+                this.logClearupDurationMs = 60 * 1000;
             }
         }
         if (TStringUtils.isNotBlank(brokerSect.get("logFlushDiskDurMs"))) {
@@ -328,7 +338,8 @@ public class BrokerConfig extends AbstractFileConfig {
         }
         if (this.visitMasterAuth) {
             if (TStringUtils.isBlank(brokerSect.get("visitName"))) {
-                throw new IllegalArgumentException(new StringBuilder(256).append("visitName is null or Blank in ")
+                throw new IllegalArgumentException(new StringBuilder(256)
+                        .append("visitName is null or Blank in ")
                         .append(SECT_TOKEN_BROKER).append(" section!").toString());
             }
             if (TStringUtils.isBlank(brokerSect.get("visitPassword"))) {
@@ -338,6 +349,12 @@ public class BrokerConfig extends AbstractFileConfig {
             }
             this.visitName = brokerSect.get("visitName").trim();
             this.visitPassword = brokerSect.get("visitPassword").trim();
+        }
+        if (TStringUtils.isNotBlank(brokerSect.get("groupOffsetScanDurMs"))) {
+            this.groupOffsetScanDurMs =
+                    MixedUtils.mid(getLong(brokerSect, "groupOffsetScanDurMs"),
+                            TServerConstants.CFG_MIN_GROUP_OFFSET_SCAN_DUR,
+                            TServerConstants.CFG_MAX_GROUP_OFFSET_SCAN_DUR);
         }
     }
 

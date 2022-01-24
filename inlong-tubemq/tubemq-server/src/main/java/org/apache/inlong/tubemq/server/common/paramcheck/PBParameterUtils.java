@@ -29,6 +29,7 @@ import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.broker.metadata.MetadataManager;
 import org.apache.inlong.tubemq.server.broker.metadata.TopicMetadata;
+import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
@@ -62,9 +63,21 @@ public class PBParameterUtils {
         Set<String> transTopicList = new HashSet<>();
         if (!reqTopicLst.isEmpty()) {
             for (String topic : reqTopicLst) {
-                if (TStringUtils.isNotBlank(topic)) {
-                    transTopicList.add(topic.trim());
+                if (TStringUtils.isBlank(topic)) {
+                    continue;
                 }
+                topic = topic.trim();
+                // filter system topic OFFSET_HISTORY_NAME
+                if (topic.equals(TServerConstants.OFFSET_HISTORY_NAME)) {
+                    retResult.setCheckResult(false,
+                            TErrCodeConstants.BAD_REQUEST,
+                            strBuffer.append("System Topic ")
+                                    .append(TServerConstants.OFFSET_HISTORY_NAME)
+                                    .append(" does not allow client produce data!").toString());
+                    strBuffer.delete(0, strBuffer.length());
+                    return retResult;
+                }
+                transTopicList.add(topic);
             }
         }
         if (transTopicList.size() > TBaseConstants.META_MAX_BOOKED_TOPIC_COUNT) {

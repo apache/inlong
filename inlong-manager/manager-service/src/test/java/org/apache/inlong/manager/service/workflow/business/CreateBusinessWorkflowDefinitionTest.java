@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.service.workflow.business;
 
-import org.junit.Assert;
 import org.apache.inlong.manager.common.model.definition.Process;
+import org.apache.inlong.manager.service.BaseTest;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

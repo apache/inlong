@@ -31,10 +31,10 @@ public class PulsarEventSelector implements EventSelector {
         BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
         String middlewareType = form.getBusinessInfo().getMiddlewareType();
         if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
-            return false;
+            return true;
         }
         log.warn("no need to create pulsar subscription group for groupId={}, as the middlewareType={}",
                 form.getInlongGroupId(), middlewareType);
-        return true;
+        return false;
     }
 }

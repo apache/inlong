@@ -20,49 +20,20 @@
 import React from 'react';
 import { Button } from 'antd';
 import dayjs from 'dayjs';
+import i18n from '@/i18n';
 
-export const auditList = [
-  {
-    label: 'InLongApi接收成功',
-    value: 1,
-  },
-  {
-    label: 'InLongApi发送成功',
-    value: 2,
-  },
-  {
-    label: 'InLongAgent接收成功',
-    value: 3,
-  },
-  {
-    label: 'InLongAgent发送成功',
-    value: 4,
-  },
-  {
-    label: 'InLongDataProxy接收成功',
-    value: 5,
-  },
-  {
-    label: 'InLongDataProxy发送成功',
-    value: 6,
-  },
-  {
-    label: 'InLong分发服务1接收成功',
-    value: 7,
-  },
-  {
-    label: 'InLong分发服务1发送成功',
-    value: 8,
-  },
-  {
-    label: 'InLong分发服务2接收成功',
-    value: 9,
-  },
-  {
-    label: 'InLong分发服务2发送成功',
-    value: 10,
-  },
-];
+export const auditList = ['Agent', 'DataProxy', 'Sort'].reduce((acc, item, index) => {
+  return acc.concat([
+    {
+      label: `${item} ${i18n.t('pages.AccessDetail.Audit.Receive')}`,
+      value: index * 2 + 3,
+    },
+    {
+      label: `${item} ${i18n.t('pages.AccessDetail.Audit.Send')}`,
+      value: index * 2 + 4,
+    },
+  ]);
+}, []);
 
 const auditMap = auditList.reduce(
   (acc, cur) => ({
@@ -72,7 +43,8 @@ const auditMap = auditList.reduce(
   {},
 );
 
-export const toChartData = source => {
+export const toChartData = (source, sourceDataMap) => {
+  const xAxisData = Object.keys(sourceDataMap);
   return {
     legend: {
       data: source.map(item => auditMap[item.auditId]?.label),
@@ -82,7 +54,7 @@ export const toChartData = source => {
     },
     xAxis: {
       type: 'category',
-      data: source[0]?.auditSet?.map(item => item.logTs),
+      data: xAxisData,
     },
     yAxis: {
       type: 'value',
@@ -90,46 +62,27 @@ export const toChartData = source => {
     series: source.map(item => ({
       name: auditMap[item.auditId]?.label,
       type: 'line',
-      data: item.auditSet.map(k => k.count),
+      data: xAxisData.map(logTs => sourceDataMap[logTs]?.[item.auditId] || 0),
     })),
   };
 };
 
-export const toTableData = source => {
-  const flatArr = source.reduce(
-    (acc, cur) =>
-      acc.concat(
-        cur.auditSet.map(item => ({
-          ...item,
-          auditId: cur.auditId,
-        })),
-      ),
-    [],
-  );
-  const objData = flatArr.reduce((acc, cur) => {
-    if (!acc[cur.logTs]) {
-      acc[cur.logTs] = {};
-    }
-    acc[cur.logTs] = {
-      ...acc[cur.logTs],
-      [cur.auditId]: cur.count,
-    };
-    return acc;
-  }, {});
-  return Object.keys(objData).map(logTs => ({
-    ...objData[logTs],
+export const toTableData = (source, sourceDataMap) => {
+  return Object.keys(sourceDataMap).map(logTs => ({
+    ...sourceDataMap[logTs],
     logTs,
   }));
 };
 
-export const getFormContent = (inlongGroupId, initialValues, onSearch) => [
+export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStreamSuccess) => [
   {
     type: 'select',
-    label: '数据流',
+    label: i18n.t('pages.AccessDetail.Audit.DataStream'),
     name: 'inlongStreamId',
-
     props: {
+      dropdownMatchSelectWidth: false,
       options: {
+        requestAuto: true,
         requestService: {
           url: '/datastream/list',
           params: {
@@ -144,6 +97,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch) => [
               label: item.inlongStreamId,
               value: item.inlongStreamId,
             })) || [],
+          onSuccess: onDataStreamSuccess,
         },
       },
     },
@@ -151,7 +105,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch) => [
   },
   {
     type: 'datepicker',
-    label: '查询日期',
+    label: i18n.t('pages.AccessDetail.Audit.Date'),
     name: 'dt',
     initialValue: dayjs(initialValues.dt),
     props: {
@@ -161,7 +115,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch) => [
   },
   {
     type: 'select',
-    label: '展示内容',
+    label: i18n.t('pages.AccessDetail.Audit.AuditIds'),
     name: 'auditIds',
     initialValue: initialValues.auditIds,
     props: {
@@ -174,7 +128,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch) => [
   {
     type: (
       <Button type="primary" onClick={onSearch}>
-        查询
+        {i18n.t('pages.AccessDetail.Audit.Search')}
       </Button>
     ),
   },
@@ -184,10 +138,11 @@ export const getTableColumns = source => {
   const data = source.map(item => ({
     title: auditMap[item.auditId]?.label || item.auditId,
     dataIndex: item.auditId,
+    render: text => text || 0,
   }));
   return [
     {
-      title: '时间',
+      title: i18n.t('pages.AccessDetail.Audit.Time'),
       dataIndex: 'logTs',
     },
   ].concat(data);

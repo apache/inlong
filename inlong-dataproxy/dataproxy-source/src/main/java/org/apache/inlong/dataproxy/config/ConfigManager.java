@@ -41,9 +41,6 @@ import org.apache.inlong.dataproxy.config.holder.PropertiesConfigHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class ConfigManager {
 
     public static final List<ConfigHolder> CONFIG_HOLDER_LIST = new ArrayList<ConfigHolder>();

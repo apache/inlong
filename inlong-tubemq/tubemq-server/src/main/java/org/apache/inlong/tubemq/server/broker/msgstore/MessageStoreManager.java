@@ -51,6 +51,8 @@ import org.apache.inlong.tubemq.server.broker.metadata.MetadataManager;
 import org.apache.inlong.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordInfo;
+import org.apache.inlong.tubemq.server.broker.offset.RecordItem;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
 import org.apache.inlong.tubemq.server.common.TStatusConstants;
@@ -79,9 +81,9 @@ public class MessageStoreManager implements StoreService {
     // message on memory sink to disk operation scheduler.
     private final ScheduledExecutorService unFlushMemScheduler;
     // max transfer size.
-    private int maxMsgTransferSize;
+    private final int maxMsgTransferSize;
     // the status that is deleting topic.
-    private AtomicBoolean isRemovingTopic = new AtomicBoolean(false);
+    private final AtomicBoolean isRemovingTopic = new AtomicBoolean(false);
 
     public MessageStoreManager(final TubeBroker tubeBroker,
                                final BrokerConfig tubeConfig) throws IOException {
@@ -262,8 +264,8 @@ public class MessageStoreManager implements StoreService {
     /***
      * Get message store by topic.
      *
-     * @param topic
-     * @return
+     * @param topic  query topic name
+     * @return       the queried topic's store list
      */
     @Override
     public Collection<MessageStore> getMessageStoresByTopic(final String topic) {
@@ -366,7 +368,7 @@ public class MessageStoreManager implements StoreService {
             }
             requestOffset = maxOffset - maxIndexReadSize < 0 ? 0L : maxOffset - maxIndexReadSize;
             return msgStore.getMessages(303, requestOffset, partitionId,
-                    consumerNodeInfo, topic, this.maxMsgTransferSize);
+                    consumerNodeInfo, topic, this.maxMsgTransferSize, 0);
         } catch (Throwable e1) {
             return new GetMessageResult(false, TErrCodeConstants.INTERNAL_SERVER_ERROR,
                     requestOffset, 0, "Get message failure, errMsg=" + e1.getMessage());
@@ -440,6 +442,50 @@ public class MessageStoreManager implements StoreService {
             topicPubStoreInfoMap.put(topic, storeInfoMap);
         }
         return topicPubStoreInfoMap;
+    }
+
+    /***
+     * Query topic's publish info.
+     *
+     * @param groupOffsetMap query's topic set
+     *
+     */
+    @Override
+    public void getTopicPublishInfos(Map<String, OffsetRecordInfo> groupOffsetMap) {
+        MessageStore store = null;
+        for (Map.Entry<String, OffsetRecordInfo> entry : groupOffsetMap.entrySet()) {
+            if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            Map<String, Map<Integer, RecordItem>> topicOffsetMap =
+                    entry.getValue().getOffsetMap();
+            // Get offset records by topic
+            for (Map.Entry<String, Map<Integer, RecordItem>> entryTopic
+                    : topicOffsetMap.entrySet()) {
+                if (entryTopic == null
+                        || entryTopic.getKey() == null
+                        || entryTopic.getValue() == null) {
+                    continue;
+                }
+                // Get message store instance
+                Map<Integer, MessageStore> storeMap =
+                        dataStores.get(entryTopic.getKey());
+                if (storeMap == null) {
+                    continue;
+                }
+                for (Map.Entry<Integer, RecordItem> entryRcd
+                        : entryTopic.getValue().entrySet()) {
+                    store = storeMap.get(entryRcd.getValue().getStoreId());
+                    if (store == null) {
+                        continue;
+                    }
+                    // Append current max, min offset
+                    entryRcd.getValue().addStoreInfo(store.getIndexMinOffset(),
+                            store.getIndexMaxOffset(), store.getDataMinOffset(),
+                            store.getDataMaxOffset());
+                }
+            }
+        }
     }
 
     private Set<File> getLogDirSet(final BrokerConfig tubeConfig) throws IOException {

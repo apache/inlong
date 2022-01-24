@@ -17,8 +17,13 @@
 
 package org.apache.inlong.manager.service.core.plugin;
 
+import com.google.common.collect.Lists;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.common.plugin.PluginDefinition;
+import org.apache.inlong.manager.common.plugin.ProcessPlugin;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,6 +37,22 @@ public class PluginClassLoaderTest {
                         .getContextClassLoader());
         Map<String, PluginDefinition> pluginDefinitionMap = pluginClassLoader.getPluginDefinitions();
         Assert.assertTrue(pluginDefinitionMap.size() == 1);
+        PluginDefinition pluginDefinition = Lists.newArrayList(pluginDefinitionMap.values()).get(0);
+        Assert.assertTrue(pluginDefinition != null);
+        String pluginClass = pluginDefinition.getPluginClass();
+        Assert.assertTrue(StringUtils.isNotEmpty(pluginClass));
+        try {
+            Class cls = pluginClassLoader.loadClass(pluginClass);
+            Plugin plugin = (Plugin) cls.getDeclaredConstructor().newInstance();
+            Assert.assertTrue(plugin instanceof ProcessPlugin);
+        } catch (ClassNotFoundException
+                | NoSuchMethodException
+                | InstantiationException
+                | IllegalAccessException
+                | InvocationTargetException e) {
+            System.out.println(e.getMessage());
+            Assert.fail();
+        }
     }
 
 }

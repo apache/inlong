@@ -158,7 +158,7 @@ public class AuditImp {
     /**
      * Report audit data
      */
-    private synchronized void sendReport() {
+    public synchronized void sendReport() {
         manager.clearBuffer();
         resetStat();
         // Retrieve statistics from the list of objects without statistics to be eliminated

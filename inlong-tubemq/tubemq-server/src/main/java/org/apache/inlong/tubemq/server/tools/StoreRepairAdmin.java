@@ -379,7 +379,7 @@ public class StoreRepairAdmin {
                                 curPartSeg =
                                         new FileSegment(queueOffset, newFile, SegmentType.INDEX);
                             }
-                            curPartSeg.append(indexBuffer);
+                            curPartSeg.append(indexBuffer, timeRecv, timeRecv);
                             gQueueOffset += DataStoreUtils.STORE_INDEX_HEAD_LEN;
                             if (curPartSeg.getCachedSize() >= maxIndexSegmentSize) {
                                 curPartSeg.flush(true);

@@ -17,11 +17,10 @@
  * under the License.
  */
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import HighTable from '@/components/HighTable';
 import { useRequest } from '@/hooks';
-import { useTranslation } from 'react-i18next';
 import { timestampFormat } from '@/utils';
 import Charts from '@/components/Charts';
 import { CommonInterface } from '../common';
@@ -30,53 +29,15 @@ import { getFormContent, toChartData, toTableData, getTableColumns, auditList } 
 type Props = CommonInterface;
 
 const Comp: React.FC<Props> = ({ inlongGroupId }) => {
-  const { t } = useTranslation();
-
   const [form] = useForm();
 
   const [query, setQuery] = useState({
     inlongStreamId: '',
-    auditIds: auditList.slice(0, 2).map(item => item.value),
+    auditIds: auditList.map(item => item.value),
     dt: +new Date(),
   });
 
-  // const test = [
-  //   {
-  //     auditId: 1,
-  //     auditSet: [
-  //       {
-  //         logTs: '2022-01-01',
-  //         count: 123,
-  //       },
-  //       {
-  //         logTs: '2022-01-02',
-  //         count: 83,
-  //       },
-  //       {
-  //         logTs: '2022-01-03',
-  //         count: 126,
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     auditId: 2,
-  //     auditSet: [
-  //       {
-  //         logTs: '2022-01-01',
-  //         count: 153,
-  //       },
-  //       {
-  //         logTs: '2022-01-02',
-  //         count: 101,
-  //       },
-  //       {
-  //         logTs: '2022-01-03',
-  //         count: 121,
-  //       },
-  //     ],
-  //   },
-  // ];
-  const { data = [], run } = useRequest(
+  const { data: sourceData = [], run } = useRequest(
     {
       url: '/audit/list',
       params: {
@@ -91,9 +52,44 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     },
   );
 
+  const sourceDataMap = useMemo(() => {
+    const flatArr = sourceData
+      .reduce(
+        (acc, cur) =>
+          acc.concat(
+            cur.auditSet.map(item => ({
+              ...item,
+              auditId: cur.auditId,
+            })),
+          ),
+        [],
+      )
+      .sort((a, b) => +new Date(a.logTs) - +new Date(b.logTs));
+    const output = flatArr.reduce((acc, cur) => {
+      if (!acc[cur.logTs]) {
+        acc[cur.logTs] = {};
+      }
+      acc[cur.logTs] = {
+        ...acc[cur.logTs],
+        [cur.auditId]: cur.count,
+      };
+      return acc;
+    }, {});
+    return output;
+  }, [sourceData]);
+
   const onSearch = async () => {
     await form.validateFields();
     run();
+  };
+
+  const onDataStreamSuccess = data => {
+    const defaultDataStream = data[0]?.value;
+    if (defaultDataStream) {
+      form.setFieldsValue({ inlongStreamId: defaultDataStream });
+      setQuery(prev => ({ ...prev, inlongStreamId: defaultDataStream }));
+      run();
+    }
   };
 
   return (
@@ -102,7 +98,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         <FormGenerator
           form={form}
           layout="inline"
-          content={getFormContent(inlongGroupId, query, onSearch)}
+          content={getFormContent(inlongGroupId, query, onSearch, onDataStreamSuccess)}
           style={{ marginBottom: 30 }}
           onFilter={allValues =>
             setQuery({
@@ -111,13 +107,13 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
             })
           }
         />
-        <Charts height={400} isEmpty={!data.length} option={toChartData(data)} />
+        <Charts height={400} option={toChartData(sourceData, sourceDataMap)} />
       </div>
 
       <HighTable
         table={{
-          columns: getTableColumns(data),
-          dataSource: toTableData(data),
+          columns: getTableColumns(sourceData),
+          dataSource: toTableData(sourceData, sourceDataMap),
           rowKey: 'logTs',
         }}
       />
