@@ -148,7 +148,7 @@ public abstract class KafkaSinkTestBase {
     protected abstract void prepareData();
 
     @After
-    public void clean() throws IOException {
+    public void clean() throws Exception {
         kafkaConsumer.close();
         kafkaAdmin.close();
         kafkaServer.shutdown();
