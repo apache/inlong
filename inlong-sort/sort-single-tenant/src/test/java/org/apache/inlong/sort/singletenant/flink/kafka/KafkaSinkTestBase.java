@@ -66,7 +66,6 @@ public abstract class KafkaSinkTestBase {
     public static TemporaryFolder tempFolder = new TemporaryFolder();
 
     private final int zkTimeout = 30000;
-    private final String topic = "test_kafka_sink";
 
     private TestingServer zkServer;
 
@@ -77,20 +76,21 @@ public abstract class KafkaSinkTestBase {
     private Properties kafkaClientProperties;
 
     // prepare data below in subclass
+    protected String topic;
     protected List<Row> testRows;
     protected FieldInfo[] fieldInfos;
     protected SerializationInfo serializationInfo;
 
     @Before
     public void setup() throws Exception {
+        prepareData();
+
         startZK();
         startKafkaServer();
         prepareKafkaClientProps();
         kafkaAdmin = AdminClient.create(kafkaClientProperties);
         addTopic();
         kafkaConsumer = new KafkaConsumer<>(kafkaClientProperties);
-
-        prepareData();
     }
 
     private void startZK() throws Exception {
@@ -149,10 +149,18 @@ public abstract class KafkaSinkTestBase {
 
     @After
     public void clean() throws Exception {
+        // Test2
         kafkaConsumer.close();
+        kafkaConsumer = null;
+
         kafkaAdmin.close();
+        kafkaAdmin = null;
+
         kafkaServer.shutdown();
+        kafkaServer = null;
+
         zkServer.close();
+        zkServer = null;
     }
 
     @Test(timeout = 3 * 60 * 1000)
