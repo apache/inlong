@@ -17,8 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constants.CommonConstants.*;
 import static org.apache.inlong.agent.constants.JobConstants.DEFAULT_JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_FILE_MAX_WAIT;
 
@@ -167,8 +166,8 @@ public class TextFileReader implements Reader {
             LOGGER.info("file name for task is {}, md5 is {}", file, md5);
             stream = Files.newBufferedReader(file.toPath()).lines().skip(position);
             iterator = stream.iterator();
-            inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID);
-            inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, "");
+            inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
+            inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
         } catch (Exception ex) {
             throw new FileException("error init stream for " + file.getPath(), ex);
         }
