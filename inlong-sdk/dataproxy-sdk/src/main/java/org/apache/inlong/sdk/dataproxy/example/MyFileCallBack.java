@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.dataproxy.demo;
+package org.apache.inlong.sdk.dataproxy.example;
 
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.FileCallback;
