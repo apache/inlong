@@ -69,6 +69,16 @@
             <directory>../inlong-dashboard/build</directory>
             <outputDirectory>inlong-dashboard</outputDirectory>
         </fileSet>
+        <!-- package InLong Standalone bin-->
+        <fileSet>
+            <directory>../bin</directory>
+            <outputDirectory>bin</outputDirectory>
+        </fileSet>
+        <!-- package InLong Standalone conf-->
+        <fileSet>
+            <directory>../conf</directory>
+            <outputDirectory>conf</outputDirectory>
+        </fileSet>
     </fileSets>
 
 </assembly>
