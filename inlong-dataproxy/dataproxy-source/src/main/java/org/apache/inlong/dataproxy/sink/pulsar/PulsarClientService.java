@@ -66,7 +66,7 @@ public class PulsarClientService {
     private static String SEND_TIMEOUT = "send_timeout_mill";
     private static String CLIENT_TIMEOUT = "client_timeout_second";
     private static String ENABLE_BATCH = "enable_batch";
-    private static String PULSAR_IO_THREADS = "pulsar_io_threads";
+    private static String PULSAR_IO_THREADS = "io_threads";
     private static String PULSAR_CONNECTIONS_PRE_BROKER = "connections_pre_broker";
     private static String BLOCK_IF_QUEUE_FULL = "block_if_queue_full";
     private static String MAX_PENDING_MESSAGES = "max_pending_messages";
@@ -75,7 +75,6 @@ public class PulsarClientService {
 
     private static int DEFAULT_PULSAR_IO_THREADS = Math.max(1, SystemPropertyUtil
             .getInt("io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
-
     private static int DEFAULT_CONNECTIONS_PRE_BROKER = 1;
     private static int DEFAULT_SEND_TIMEOUT_MILL = 30 * 1000;
     private static int DEFAULT_CLIENT_TIMEOUT_SECOND = 30;
