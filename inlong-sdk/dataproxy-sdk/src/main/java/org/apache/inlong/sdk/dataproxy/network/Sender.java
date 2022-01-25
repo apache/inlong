@@ -534,12 +534,8 @@ public class Sender {
                 throw new ProxysdkException("ASYNC_CALLBACK_BUFFER_FULL");
             }
         }
-        ConcurrentHashMap<String, QueueObject> tmpQueueMap = new ConcurrentHashMap<>();
         ConcurrentHashMap<String, QueueObject> msgQueueMap =
-                callbacks.putIfAbsent(client.getChannel(), tmpQueueMap);
-        if (msgQueueMap == null) {
-            msgQueueMap = tmpQueueMap;
-        }
+                callbacks.computeIfAbsent(client.getChannel(), (k) -> new ConcurrentHashMap<>());
         QueueObject queueObject = msgQueueMap.putIfAbsent(
                 encodeObject.getMessageId(),
                 new QueueObject(System.currentTimeMillis(), callback, size, timeout, timeUnit));
