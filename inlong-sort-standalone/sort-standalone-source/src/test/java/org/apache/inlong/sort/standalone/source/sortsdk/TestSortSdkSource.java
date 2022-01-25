@@ -45,8 +45,8 @@ public class TestSortSdkSource {
     @Before
     public void setUp() {
         PowerMockito.mockStatic(LoggerFactory.class);
-        Logger LOG = PowerMockito.mock(Logger.class);
-        PowerMockito.when(LoggerFactory.getLogger(Mockito.any(Class.class))).thenReturn(LOG);
+        Logger log = PowerMockito.mock(Logger.class);
+        PowerMockito.when(LoggerFactory.getLogger(Mockito.any(Class.class))).thenReturn(log);
         PowerMockito.mockStatic(MetricRegister.class);
 
         PowerMockito.mockStatic(SortClusterConfigHolder.class);
