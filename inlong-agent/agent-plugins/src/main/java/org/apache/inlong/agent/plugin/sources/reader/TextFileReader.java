@@ -17,7 +17,11 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import static org.apache.inlong.agent.constants.CommonConstants.*;
+import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
+
 import static org.apache.inlong.agent.constants.JobConstants.DEFAULT_JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_FILE_MAX_WAIT;
 
