@@ -96,10 +96,7 @@ public class SortServiceImpl implements SortService {
         return baseIdParams;
     }
 
-    /**
-     * TODO Add extension id params by different type of ids
-     *
-     * @param baseIdParams Basic id params.
-     */
-    private void addExtensionIdParams(Map<String, String> baseIdParams) {}
+    private void addExtensionIdParams(Map<String, String> baseIdParams) {
+        // TODO Add extension id params by different type of ids
+    }
 }
