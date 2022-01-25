@@ -71,6 +71,7 @@
         <module>sort-dist</module>
         <module>sort-formats</module>
         <module>sort-single-tenant</module>
+        <module>sort-connectors</module>
     </modules>
 
     <dependencies>
@@ -383,6 +384,12 @@
                         <artifactId>log4j-core</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>ru.yandex.clickhouse</groupId>
+                <artifactId>clickhouse-jdbc</artifactId>
+                <version>${clickhouse-jdbc.version}</version>
             </dependency>
 
         </dependencies>
