@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.web.controller.openapi;
 
 import org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity;
-import org.apache.inlong.manager.dao.entity.SortIdParamsEntity;
+import org.apache.inlong.manager.dao.entity.SortTaskIdParamEntity;
 import org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper;
-import org.apache.inlong.manager.dao.mapper.SortIdParamsEntityMapper;
+import org.apache.inlong.manager.dao.mapper.SortTaskIdParamEntityMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,18 +46,18 @@ public class SortControllerTest {
     @Autowired private WebApplicationContext webApplicationContext;
 
     // todo Service do not support insert method now, use mappers to insert data.
-    @Autowired private SortIdParamsEntityMapper sortIdParamsEntityMapper;
+    @Autowired private SortTaskIdParamEntityMapper taskIdParamEntityMapper;
 
     @Autowired private SortClusterConfgiEntityMapper sortClusterConfgiEntityMapper;
 
     @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-        sortIdParamsEntityMapper.insert(this.prepareIdParamsEntity(1, "kafka"));
-        sortIdParamsEntityMapper.insert(this.prepareIdParamsEntity(2, "pulsar"));
-        sortIdParamsEntityMapper.insert(this.prepareIdParamsEntity(3, "hive"));
-        sortClusterConfgiEntityMapper.insert(this.prepareClusterConfigEntity(1, "kafka"));
-        sortClusterConfgiEntityMapper.insert(this.prepareClusterConfigEntity(2, "pulsar"));
+        taskIdParamEntityMapper.insert(this.prepareIdParamsEntity("testTask1", 1));
+        taskIdParamEntityMapper.insert(this.prepareIdParamsEntity("testTask1", 2));
+        taskIdParamEntityMapper.insert(this.prepareIdParamsEntity("testTask2", 1));
+        sortClusterConfgiEntityMapper.insert(this.prepareClusterConfigEntity("testTask1", "kafka"));
+        sortClusterConfgiEntityMapper.insert(this.prepareClusterConfigEntity("testTask2", "kafka"));
     }
 
     /**
@@ -76,16 +76,19 @@ public class SortControllerTest {
     }
 
     @Test
+    @Transactional
     public void testErrorSinkType() throws Exception {
-        sortIdParamsEntityMapper.insert(this.prepareIdParamsEntity(3, "hive"));
+        sortClusterConfgiEntityMapper.insert(
+                this.prepareClusterConfigEntity("testTask1", "error type"));
         RequestBuilder request =
                 get("/openapi/sort/getClusterConfig")
-                        .param("clusterName", "  ")
+                        .param("clusterName", "testCluster")
                         .param("md5", "testMd5");
         mockMvc.perform(request).andExpect(status().isOk()).andDo(print());
     }
 
     @Test
+    @Transactional
     public void testEmptyClusterNameWhenGet() throws Exception {
         RequestBuilder request =
                 get("/openapi/sort/getClusterConfig")
@@ -94,21 +97,20 @@ public class SortControllerTest {
         mockMvc.perform(request).andExpect(status().isOk()).andDo(print());
     }
 
-    private SortIdParamsEntity prepareIdParamsEntity(int idx, String type) {
-        return SortIdParamsEntity.builder()
-                .id(idx)
+    private SortTaskIdParamEntity prepareIdParamsEntity(String task, int idx) {
+        return SortTaskIdParamEntity.builder()
                 .groupId(String.valueOf(idx))
                 .streamId(String.valueOf(idx))
-                .taskName("testTask" + idx)
-                .type(type)
+                .taskName(task)
+                .paramKey("paramKey" + idx)
+                .paramValue("paramValue" + idx)
                 .build();
     }
 
-    private SortClusterConfgiEntity prepareClusterConfigEntity(int idx, String sinkType) {
+    private SortClusterConfgiEntity prepareClusterConfigEntity(String taskName, String sinkType) {
         return SortClusterConfgiEntity.builder()
                 .clusterName("testCluster")
-                .id(idx)
-                .taskName("testTask" + idx)
+                .taskName(taskName)
                 .sinkType(sinkType)
                 .build();
     }

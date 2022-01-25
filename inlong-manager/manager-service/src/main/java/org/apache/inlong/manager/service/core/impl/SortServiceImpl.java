@@ -23,7 +23,7 @@ import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.Sink
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.SortTaskConfig;
 import org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity;
 import org.apache.inlong.manager.service.core.SortClusterConfigService;
-import org.apache.inlong.manager.service.core.SortIdParamsService;
+import org.apache.inlong.manager.service.core.SortTaskIdParamService;
 import org.apache.inlong.manager.service.core.SortService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class SortServiceImpl implements SortService {
 
     @Autowired private SortClusterConfigService sortClusterConfigService;
 
-    @Autowired private SortIdParamsService sortIdParamsService;
+    @Autowired private SortTaskIdParamService sortTaskIdParamService;
 
     @Override
     public SortClusterConfigResponse getClusterConfig(String clusterName, String md5) {
@@ -50,7 +50,7 @@ public class SortServiceImpl implements SortService {
 
         // check if cluster name is valid or not.
         if (StringUtils.isBlank(clusterName)) {
-            String errMsg = "Blank cluster name";
+            String errMsg = "Blank cluster name, return nothing";
             LOGGER.info(errMsg);
             return SortClusterConfigResponse.builder().msg(errMsg).build();
         }
@@ -78,25 +78,14 @@ public class SortServiceImpl implements SortService {
     }
 
     private SortTaskConfig getTaskConfig(SortClusterConfgiEntity clusterConfig) {
-        List<Map<String, String>> idParams = this.getIdParams(clusterConfig.getTaskName());
+        List<Map<String, String>> idParams =
+                sortTaskIdParamService.selectByTaskName(clusterConfig.getTaskName());
         // TODO add method that get sink params
         return SortTaskConfig.builder()
                 .taskName(clusterConfig.getTaskName())
-                .sinkType(SinkType.valueOf(clusterConfig.getSinkType()))
+                .sinkType(SinkType.valueOf(clusterConfig.getSinkType().toUpperCase()))
                 .idParams(idParams)
                 .sinkParams(null)
                 .build();
-    }
-
-    private List<Map<String, String>> getIdParams(String taskName) {
-        List<Map<String, String>> baseIdParams = sortIdParamsService.selectByTaskName(taskName);
-        for (Map<String, String> baseIdParam : baseIdParams) {
-            addExtensionIdParams(baseIdParam);
-        }
-        return baseIdParams;
-    }
-
-    private void addExtensionIdParams(Map<String, String> baseIdParams) {
-        // TODO Add extension id params by different type of ids
     }
 }

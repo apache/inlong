@@ -20,15 +20,17 @@ package org.apache.inlong.manager.dao.entity;
 import lombok.Builder;
 import lombok.Data;
 
-import java.io.Serializable;
-
 @Data
 @Builder
-public class SortIdParamsEntity implements Serializable {
+public class SortTaskIdParamEntity {
     private Integer id;
     private String taskName;
-    private String type;
     private String groupId;
     private String streamId;
-    private static final long serialVersionUID = 1L;
+    private String paramKey;
+    private String paramValue;
+
+    public String getKey() {
+        return groupId.concat(streamId);
+    }
 }

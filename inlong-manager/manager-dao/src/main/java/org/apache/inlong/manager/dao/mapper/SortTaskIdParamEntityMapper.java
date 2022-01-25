@@ -17,25 +17,24 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.dao.entity.SortIdParamsEntity;
+import org.apache.inlong.manager.dao.entity.SortTaskIdParamEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 
 @Repository
-public interface SortIdParamsEntityMapper {
+public interface SortTaskIdParamEntityMapper {
     int deleteByPrimaryKey(Integer id);
 
-    int insert(SortIdParamsEntity record);
+    int insert(SortTaskIdParamEntity record);
 
-    int insertSelective(SortIdParamsEntity record);
+    int insertSelective(SortTaskIdParamEntity record);
 
-    SortIdParamsEntity selectByPrimaryKey(Integer id);
+    SortTaskIdParamEntity selectByPrimaryKey(Integer id);
 
-    int updateByPrimaryKeySelective(SortIdParamsEntity record);
+    int updateByPrimaryKeySelective(SortTaskIdParamEntity record);
 
-    int updateByPrimaryKey(SortIdParamsEntity record);
+    int updateByPrimaryKey(SortTaskIdParamEntity record);
 
-    List<Map<String, String>> selectByTaskName(String taskName);
+    List<SortTaskIdParamEntity> selectByTaskName(String taskName);
 }

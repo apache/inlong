@@ -17,40 +17,39 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.apache.inlong.manager.dao.mapper.SortIdParamsEntityMapper">
-  <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.SortIdParamsEntity">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.SortTaskIdParamEntityMapper">
+  <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.SortTaskIdParamEntity">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="task_name" jdbcType="VARCHAR" property="taskName" />
-    <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="group_id" jdbcType="VARCHAR" property="groupId" />
     <result column="stream_id" jdbcType="VARCHAR" property="streamId" />
+    <result column="param_key" jdbcType="VARCHAR" property="paramKey" />
+    <result column="param_value" jdbcType="VARCHAR" property="paramValue" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, type, group_id, stream_id
-  </sql>
-  <sql id="Base_id_params">
-    task_name, type, group_id, stream_id
+    id, task_name, group_id, stream_id, param_key, param_value
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
-    from sort_id_params
+    from sort_task_id_param
     where id = #{id,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from sort_id_params
+    delete from sort_task_id_param
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.SortIdParamsEntity">
-    insert into sort_id_params (id, task_name, type, 
-      group_id, stream_id)
-    values (#{id,jdbcType=INTEGER}, #{taskName,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{groupId,jdbcType=VARCHAR}, #{streamId,jdbcType=VARCHAR})
+  <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.SortTaskIdParamEntity">
+    insert into sort_task_id_param (id, task_name, group_id,
+      stream_id, param_key, param_value
+      )
+    values (#{id,jdbcType=INTEGER}, #{taskName,jdbcType=VARCHAR}, #{groupId,jdbcType=VARCHAR},
+      #{streamId,jdbcType=VARCHAR}, #{paramKey,jdbcType=VARCHAR}, #{paramValue,jdbcType=VARCHAR}
+      )
   </insert>
-  <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.SortIdParamsEntity">
-    insert into sort_id_params
+  <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.SortTaskIdParamEntity">
+    insert into sort_task_id_param
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -58,14 +57,17 @@
       <if test="taskName != null">
         task_name,
       </if>
-      <if test="type != null">
-        type,
-      </if>
       <if test="groupId != null">
         group_id,
       </if>
       <if test="streamId != null">
         stream_id,
+      </if>
+      <if test="paramKey != null">
+        param_key,
+      </if>
+      <if test="paramValue != null">
+        param_value,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -75,25 +77,25 @@
       <if test="taskName != null">
         #{taskName,jdbcType=VARCHAR},
       </if>
-      <if test="type != null">
-        #{type,jdbcType=VARCHAR},
-      </if>
       <if test="groupId != null">
         #{groupId,jdbcType=VARCHAR},
       </if>
       <if test="streamId != null">
         #{streamId,jdbcType=VARCHAR},
       </if>
+      <if test="paramKey != null">
+        #{paramKey,jdbcType=VARCHAR},
+      </if>
+      <if test="paramValue != null">
+        #{paramValue,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.SortIdParamsEntity">
-    update sort_id_params
+  <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.SortTaskIdParamEntity">
+    update sort_task_id_param
     <set>
       <if test="taskName != null">
         task_name = #{taskName,jdbcType=VARCHAR},
-      </if>
-      <if test="type != null">
-        type = #{type,jdbcType=VARCHAR},
       </if>
       <if test="groupId != null">
         group_id = #{groupId,jdbcType=VARCHAR},
@@ -101,21 +103,28 @@
       <if test="streamId != null">
         stream_id = #{streamId,jdbcType=VARCHAR},
       </if>
+      <if test="paramKey != null">
+        param_key = #{paramKey,jdbcType=VARCHAR},
+      </if>
+      <if test="paramValue != null">
+        param_value = #{paramValue,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.SortIdParamsEntity">
-    update sort_id_params
+  <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.SortTaskIdParamEntity">
+    update sort_task_id_param
     set task_name = #{taskName,jdbcType=VARCHAR},
-      type = #{type,jdbcType=VARCHAR},
       group_id = #{groupId,jdbcType=VARCHAR},
-      stream_id = #{streamId,jdbcType=VARCHAR}
+      stream_id = #{streamId,jdbcType=VARCHAR},
+      param_key = #{paramKey,jdbcType=VARCHAR},
+      param_value = #{paramValue,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <select id="selectByTaskName" parameterType="java.lang.String" resultType="java.util.HashMap">
+  <select id="selectByTaskName" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
-    <include refid="Base_id_params" />
-    from sort_id_params
+    <include refid="Base_Column_List" />
+    from sort_task_id_param
     where task_name = #{taskName,jdbcType=VARCHAR}
   </select>
 </mapper>

@@ -15,27 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.impl;
-
-import org.apache.inlong.manager.dao.mapper.SortIdParamsEntityMapper;
-import org.apache.inlong.manager.service.core.SortIdParamsService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+package org.apache.inlong.manager.service.core;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * Sort id params service implementation.
+ * Sort id params service.
  */
-@Service
-public class SortIdParamsServiceImpl implements SortIdParamsService {
+public interface SortTaskIdParamService {
 
-    @Autowired
-    private SortIdParamsEntityMapper sortIdParamsEntityMapper;
-
-    @Override
-    public List<Map<String, String>> selectByTaskName(String taskName) {
-        return sortIdParamsEntityMapper.selectByTaskName(taskName);
-    }
+    /**
+     * Select all id params by task name.
+     * @param taskName Task name.
+     * @return List of all id params.
+     */
+    List<Map<String, String>> selectByTaskName(String taskName);
 }
