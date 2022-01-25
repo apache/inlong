@@ -26,6 +26,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,6 +124,7 @@ public class AgentMain {
         CommandLine cl = initOptions(args);
         assert cl != null;
         initAgentConf(cl);
+        AuditUtils.initAudit();
         AgentManager manager = new AgentManager();
         try {
             manager.start();
@@ -141,7 +143,7 @@ public class AgentMain {
             LOGGER.error("exception caught", ex);
         } finally {
             manager.stop();
-
+            AuditUtils.sendReport();
             if (metricsServer != null) {
                 metricsServer.stop();
             }

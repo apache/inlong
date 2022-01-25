@@ -19,10 +19,10 @@
 
 package org.apache.inlong.agent.utils;
 
+import org.apache.inlong.agent.conf.AgentConfiguration;
+
 import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_PROMETHEUS_ENABLE;
 import static org.apache.inlong.agent.constants.AgentConstants.PROMETHEUS_ENABLE;
-
-import org.apache.inlong.agent.conf.AgentConfiguration;
 
 public class ConfigUtil {
 
@@ -30,5 +30,4 @@ public class ConfigUtil {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         return conf.getBoolean(PROMETHEUS_ENABLE, DEFAULT_PROMETHEUS_ENABLE);
     }
-
 }
