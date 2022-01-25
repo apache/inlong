@@ -24,6 +24,7 @@ import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.common.utils.Bytes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,11 +57,11 @@ public class RowToStringKafkaSinkTest extends KafkaSinkTestBase {
     }
 
     @Override
-    protected void verifyData(ConsumerRecords<String, String> records) {
+    protected void verifyData(ConsumerRecords<String, Bytes> records) {
         List<String> results = new ArrayList<>();
-        for (ConsumerRecord<String, String> record : records) {
+        for (ConsumerRecord<String, Bytes> record : records) {
             assertNull(record.key());
-            results.add(record.value());
+            results.add(new String(record.value().get()));
         }
 
         List<String> expectedData = new ArrayList<>();

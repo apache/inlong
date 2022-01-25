@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.singletenant.flink.kafka;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
@@ -38,7 +39,7 @@ public class KafkaSinkBuilder {
             KafkaSinkInfo kafkaSinkInfo,
             Map<String, Object> properties,
             Configuration config
-    ) {
+    ) throws JsonProcessingException {
         String topic = kafkaSinkInfo.getTopic();
         Properties producerProperties = buildProducerProperties(properties, kafkaSinkInfo.getAddress());
         SerializationSchema<Row> serializationSchema =

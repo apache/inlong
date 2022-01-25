@@ -35,13 +35,17 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.network.ListenerName;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
+import org.apache.kafka.common.serialization.BytesDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.common.utils.Time;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.Option;
 import scala.collection.mutable.ArraySeq;
 
@@ -62,6 +66,8 @@ import static org.apache.inlong.sort.singletenant.flink.kafka.KafkaSinkBuilder.b
 
 public abstract class KafkaSinkTestBase {
 
+    public static final Logger LOGGER = LoggerFactory.getLogger(KafkaSinkTestBase.class);
+
     @ClassRule
     public static TemporaryFolder tempFolder = new TemporaryFolder();
 
@@ -72,7 +78,7 @@ public abstract class KafkaSinkTestBase {
     private KafkaServer kafkaServer;
     private String brokerConnStr;
     private AdminClient kafkaAdmin;
-    private KafkaConsumer<String, String> kafkaConsumer;
+    private KafkaConsumer<String, Bytes> kafkaConsumer;
     private Properties kafkaClientProperties;
 
     // prepare data below in subclass
@@ -133,7 +139,7 @@ public abstract class KafkaSinkTestBase {
         kafkaClientProperties.setProperty("auto.offset.reset", "earliest");
         kafkaClientProperties.setProperty("max.poll.records", "1000");
         kafkaClientProperties.setProperty("key.deserializer", StringDeserializer.class.getName());
-        kafkaClientProperties.setProperty("value.deserializer", StringDeserializer.class.getName());
+        kafkaClientProperties.setProperty("value.deserializer", BytesDeserializer.class.getName());
     }
 
     private void addTopic() throws InterruptedException, TimeoutException, ExecutionException {
@@ -163,25 +169,25 @@ public abstract class KafkaSinkTestBase {
     }
 
     @Test(timeout = 3 * 60 * 1000)
-    public void testKafkaSink() throws InterruptedException {
+    public void testKafkaSink() throws Exception {
         TestingSource testingSource = createTestingSource();
         final ExecutorService executorService = Executors.newSingleThreadExecutor();
         CountDownLatch testFinishedCountDownLatch = new CountDownLatch(1);
         executorService.execute(() -> {
             StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-            env.addSource(testingSource).addSink(
-                    buildKafkaSink(
-                            new KafkaSinkInfo(fieldInfos, brokerConnStr, topic, serializationInfo),
-                            new HashMap<>(),
-                            new Configuration()
-                    )
-            );
 
             try {
+                env.addSource(testingSource).addSink(
+                        buildKafkaSink(
+                                new KafkaSinkInfo(fieldInfos, brokerConnStr, topic, serializationInfo),
+                                new HashMap<>(),
+                                new Configuration()
+                        )
+                );
                 env.execute();
                 testFinishedCountDownLatch.await();
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("Error occurred when executing flink test job: ", e);
             }
         });
 
@@ -190,10 +196,10 @@ public abstract class KafkaSinkTestBase {
         testFinishedCountDownLatch.countDown();
     }
 
-    private void verify() throws InterruptedException {
+    private void verify() throws Exception {
         kafkaConsumer.subscribe(Collections.singleton(topic));
         while (true) {
-            ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofSeconds(1));
+            ConsumerRecords<String, Bytes> records = kafkaConsumer.poll(Duration.ofSeconds(1));
             if (records.isEmpty() || records.count() != testRows.size()) {
                 //noinspection BusyWait
                 Thread.sleep(1000);
@@ -206,7 +212,7 @@ public abstract class KafkaSinkTestBase {
         }
     }
 
-    protected abstract void verifyData(ConsumerRecords<String, String> records);
+    protected abstract void verifyData(ConsumerRecords<String, Bytes> records) throws IOException;
 
     private TestingSource createTestingSource() {
         TestingSource testingSource = new TestingSource();

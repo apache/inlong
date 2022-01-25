@@ -17,8 +17,42 @@
 
 package org.apache.inlong.sort.protocol.serialization;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Objects;
+
 public class AvroSerializationInfo implements SerializationInfo {
 
     private static final long serialVersionUID = 8446721117598285868L;
 
+    @JsonProperty("record_name")
+    private final String recordName;
+
+    @JsonCreator
+    public AvroSerializationInfo(@JsonProperty("record_name") String recordName) {
+        this.recordName = recordName;
+    }
+
+    @JsonProperty("record_name")
+    public String getRecordName() {
+        return recordName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AvroSerializationInfo that = (AvroSerializationInfo) o;
+        return Objects.equals(recordName, that.recordName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(recordName);
+    }
 }

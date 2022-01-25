@@ -17,24 +17,31 @@
 
 package org.apache.inlong.sort.singletenant.flink.serialization;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
+import org.apache.flink.formats.avro.AvroRowSerializationSchema;
 import org.apache.flink.formats.json.JsonRowSerializationSchema;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.serialization.AvroSerializationInfo;
 import org.apache.inlong.sort.protocol.serialization.JsonSerializationInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.apache.inlong.sort.singletenant.flink.serialization.AvroUtils.buildAvroRecordSchemaInJson;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertFieldInfosToRowTypeInfo;
 
 public class RowSerializationSchemaFactory {
 
-    public static SerializationSchema<Row> build(SinkInfo sinkInfo, SerializationInfo serializationInfo) {
+    public static SerializationSchema<Row> build(SinkInfo sinkInfo, SerializationInfo serializationInfo)
+            throws JsonProcessingException {
         if (serializationInfo instanceof JsonSerializationInfo) {
             return buildJsonRowSerializationSchema(sinkInfo.getFields());
+        } else if (serializationInfo instanceof AvroSerializationInfo) {
+            return buildAvroRowSerializationSchema(sinkInfo.getFields(), (AvroSerializationInfo) serializationInfo);
         } else {
             return buildStringRowSerializationSchema();
         }
@@ -51,9 +58,12 @@ public class RowSerializationSchemaFactory {
         return null;
     }
 
-    private static SerializationSchema<Row> buildAvroRowSerializationSchema(SerializationInfo serializationInfo) {
-        // TODO
-        return null;
+    private static SerializationSchema<Row> buildAvroRowSerializationSchema(
+            FieldInfo[] fieldInfos,
+            AvroSerializationInfo avroSerializationInfo
+    ) throws JsonProcessingException {
+        String avroSchemaInJson = buildAvroRecordSchemaInJson(fieldInfos, avroSerializationInfo);
+        return new AvroRowSerializationSchema(avroSchemaInJson);
     }
 
     private static SerializationSchema<Row> buildStringRowSerializationSchema() {

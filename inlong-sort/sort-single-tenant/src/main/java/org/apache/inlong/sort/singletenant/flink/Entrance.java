@@ -20,6 +20,7 @@ package org.apache.inlong.sort.singletenant.flink;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.singletenant.flink.kafka.KafkaSinkBuilder.buildKafkaSink;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.IOException;
@@ -102,7 +103,7 @@ public class Entrance {
             DataStream<Row> sourceStream,
             Configuration config,
             SinkInfo sinkInfo,
-            Map<String, Object> properties) {
+            Map<String, Object> properties) throws JsonProcessingException {
         final String sinkType = checkNotNull(config.getString(Constants.SINK_TYPE));
         final int sinkParallelism = config.getInteger(Constants.SINK_PARALLELISM);
 
