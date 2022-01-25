@@ -14,25 +14,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#Initialize the configuration files of inlong components
+# Initialize the configuration files of inlong components
 
-#tubemqMaster Default port
+# tubemqMaster Default port
 tubemqMaster_port=8715
-#inlong  manager Default env
+# inlong  manager Default env
 spring_profiles_active=dev
 
 basePath=$(cd `dirname $0`;cd ..; pwd)
 echo $basePath
 source $basePath/conf/standalone.conf
 
-echo  "1.Replace agent configuration parameters"
+echo  "Replace agent configuration parameters"
 cd $basePath/inlong-agent/conf
 sed -i 's/agent.http.enable=.*/'''agent.http.enable=${agent_http_enable}'''/g' agent.properties
 sed -i 's/agent.local.ip=.*/'''agent.local.ip=${agent_local_ip}'''/g' agent.properties  
 sed -i 's/agent.manager.vip.http.host=.*/'''agent.manager.vip.http.host=${manager_server_hostname}'''/g' agent.properties 
 sed -i 's/agent.manager.vip.http.port=.*/'''agent.manager.vip.http.port=${manager_server_port}'''/g' agent.properties 
 
-echo "2.Replace dataproxy configuration parameters"
+echo "Replace dataproxy configuration parameters"
 cd $basePath/inlong-dataproxy/conf
 if [ $source_type == "pulsar" ];then
   if [ -f "flume-mulit-pulsar-demo.conf" ];then
@@ -53,7 +53,7 @@ sed -i 's/manager_hosts=.*/'''manager_hosts=${manager_server_hostname}:${manager
 
 cd $basePath/inlong-tubemq-server/conf
 if [ $source_type == "tubemq" ];then
-  echo "3.Replace tubemq server configuration parameters(Optional)"
+  echo "Replace tubemq server configuration parameters(Optional)"
   echo "Replace master.ini configuration"
   
   sed -i 's/hostName=.*/'''hostName=${tubemqMaster_hostName}'''/g' master.ini 
@@ -99,7 +99,7 @@ fi
  
 cd $basePath/inlong-tubemq-manager/conf
 if [ $source_type == "tubemq" ];then
-  echo "4.Replace tubemq manager configuration(Optional)"
+  echo "Replace tubemq manager configuration(Optional)"
   sed -i 's#jdbc:mysql://.*tubemanager#'''jdbc:mysql://${spring_datasource_hostname}:${spring_datasource_port}/tubemanager'''#g'  application.properties
   sed -i 's/spring.datasource.username=.*/'''spring.datasource.username=${spring_datasource_username}'''/g' application.properties
   sed -i 's/spring.datasource.password=.*/'''spring.datasource.password=${spring_datasource_password}'''/g' application.properties
@@ -108,7 +108,7 @@ if [ $source_type == "tubemq" ];then
 fi
 
 
-echo "5.Replace inlong manager configuration"
+echo "Replace inlong manager configuration"
 cd  $basePath/inlong-manager-web/conf
 
 sed -i 's/spring.profiles.active=.*/'''spring.profiles.active=${spring_profiles_active}'''/g' application.properties
