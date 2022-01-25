@@ -145,7 +145,7 @@ public abstract class KafkaSinkTestBase {
                 "The topic metadata failed to propagate to Kafka broker.");
     }
 
-    abstract protected void prepareData();
+    protected abstract void prepareData();
 
     @After
     public void clean() throws IOException {
@@ -199,7 +199,7 @@ public abstract class KafkaSinkTestBase {
         }
     }
 
-    abstract protected void verifyData(ConsumerRecords<String, String> records);
+    protected abstract void verifyData(ConsumerRecords<String, String> records);
 
     private TestingSource createTestingSource() {
         TestingSource testingSource = new TestingSource();

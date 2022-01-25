@@ -23,7 +23,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkFixedPartitioner;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.configuration.Configuration;
-import org.apache.inlong.sort.singletenant.flink.serialization.RowSerializationSchemaBuilder;
+import org.apache.inlong.sort.singletenant.flink.serialization.RowSerializationSchemaFactory;
 import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
@@ -42,7 +42,7 @@ public class KafkaSinkBuilder {
         String topic = kafkaSinkInfo.getTopic();
         Properties producerProperties = buildProducerProperties(properties, kafkaSinkInfo.getAddress());
         SerializationSchema<Row> serializationSchema =
-                RowSerializationSchemaBuilder.build(kafkaSinkInfo, kafkaSinkInfo.getSerializationInfo());
+                RowSerializationSchemaFactory.build(kafkaSinkInfo, kafkaSinkInfo.getSerializationInfo());
 
         return new FlinkKafkaProducer<>(
                 topic,

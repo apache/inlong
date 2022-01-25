@@ -34,8 +34,15 @@
     <packaging>pom</packaging>
 
     <properties>
+        <sort.project.encoding>UTF-8</sort.project.encoding>
+        <project.build.sourceEncoding>${sort.project.encoding}</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>${sort.project.encoding}</project.reporting.outputEncoding>
+        <maven.compiler.encoding>${sort.project.encoding}</maven.compiler.encoding>
+        <java.version>1.8</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+
         <flink.version>1.13.5</flink.version>
-        <flink.connector.version>1.9.3</flink.connector.version>
         <flink.scala.binary.version>2.11</flink.scala.binary.version>
         <guava.version>18.0</guava.version>
         <junit.version>4.12</junit.version>
@@ -165,7 +172,7 @@
 
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-connector-kafka_2.11</artifactId>
+                <artifactId>flink-connector-kafka_${flink.scala.binary.version}</artifactId>
                 <version>${flink.version}</version>
             </dependency>
 

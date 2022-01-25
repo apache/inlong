@@ -18,8 +18,6 @@
 
 package org.apache.inlong.sort.protocol.kafka;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.ProtocolBaseTest;
@@ -36,11 +34,6 @@ public class KafkaSinkInfoTest extends ProtocolBaseTest {
                 "testTopic",
                 new JsonSerializationInfo()
         );
-        try {
-            System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(expectedObject));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
 
         expectedJson = "{\n"
                 + "  \"type\" : \"kafka\",\n"
@@ -53,13 +46,7 @@ public class KafkaSinkInfoTest extends ProtocolBaseTest {
                 + "  \"address\" : \"testAddress\",\n"
                 + "  \"topic\" : \"testTopic\",\n"
                 + "  \"serialization_info\" : {\n"
-                + "    \"type\" : \"json\",\n"
-                + "    \"fields\" : [ {\n"
-                + "      \"name\" : \"field11\",\n"
-                + "      \"format_info\" : {\n"
-                + "        \"type\" : \"string\"\n"
-                + "      }\n"
-                + "    } ]\n"
+                + "    \"type\" : \"json\"\n"
                 + "  }\n"
                 + "}";
 
@@ -73,7 +60,7 @@ public class KafkaSinkInfoTest extends ProtocolBaseTest {
         unequalObj = new KafkaSinkInfo(
                 new FieldInfo[]{new FieldInfo("field1", new StringFormatInfo())},
                 "testAddress",
-                "testTopic",
+                "testTopic2",
                 new JsonSerializationInfo()
         );
     }

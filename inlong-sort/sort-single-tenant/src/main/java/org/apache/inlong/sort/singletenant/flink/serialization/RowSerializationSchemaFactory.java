@@ -30,7 +30,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertFieldInfosToRowTypeInfo;
 
-public class RowSerializationSchemaBuilder {
+public class RowSerializationSchemaFactory {
 
     public static SerializationSchema<Row> build(SinkInfo sinkInfo, SerializationInfo serializationInfo) {
         if (serializationInfo instanceof JsonSerializationInfo) {
