@@ -53,6 +53,38 @@ public class PulsarClientService {
     private static final LogCounter logPrinterA = new LogCounter(10, 100000, 60 * 1000);
 
     /*
+     * properties key for pulsar client
+     */
+    private static String PULSAR_SERVER_URL_LIST = "pulsar_server_url_list";
+    private static String PULSAR_TOKEN = "pulsar_token";
+    private static String PULSAR_AUTH_TYPE = "pulsar_auth_type";
+    private static String PULSAR_DEFAULT_AUTH_TYPE = "token";
+
+    /*
+     * properties key pulsar producer
+     */
+    private static String SEND_TIMEOUT = "send_timeout_mill";
+    private static String CLIENT_TIMEOUT = "client_timeout_second";
+    private static String ENABLE_BATCH = "enable_batch";
+    private static String PULSAR_IO_THREADS = "io_threads";
+    private static String PULSAR_CONNECTIONS_PRE_BROKER = "connections_pre_broker";
+    private static String BLOCK_IF_QUEUE_FULL = "block_if_queue_full";
+    private static String MAX_PENDING_MESSAGES = "max_pending_messages";
+    private static String MAX_BATCHING_MESSAGES = "max_batching_messages";
+    private static String RETRY_INTERVAL_WHEN_SEND_ERROR_MILL = "retry_interval_when_send_error_ms";
+
+    private static int DEFAULT_PULSAR_IO_THREADS = Math.max(1, SystemPropertyUtil
+            .getInt("io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
+    private static int DEFAULT_CONNECTIONS_PRE_BROKER = 1;
+    private static int DEFAULT_SEND_TIMEOUT_MILL = 30 * 1000;
+    private static int DEFAULT_CLIENT_TIMEOUT_SECOND = 30;
+    private static long DEFAULT_RETRY_INTERVAL_WHEN_SEND_ERROR_MILL = 30 * 1000L;
+    private static boolean DEFAULT_ENABLE_BATCH = true;
+    private static boolean DEFAULT_BLOCK_IF_QUEUE_FULL = true;
+    private static int DEFAULT_MAX_PENDING_MESSAGES = 10000;
+    private static int DEFAULT_MAX_BATCHING_MESSAGES = 1000;
+
+    /*
      * for pulsar client
      */
     private String[] pulsarServerUrls;
