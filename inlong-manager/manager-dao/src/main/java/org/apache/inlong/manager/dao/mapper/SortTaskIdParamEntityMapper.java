@@ -15,26 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.singletenant.flink.serialization;
+package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.types.Row;
-import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
+import org.apache.inlong.manager.dao.entity.SortTaskIdParamEntity;
+import org.springframework.stereotype.Repository;
 
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 
-public class SerializationSchemaBuilder {
+@Repository
+public interface SortTaskIdParamEntityMapper {
+    int deleteByPrimaryKey(Integer id);
 
-    // TODO: support json, canal and avro format
-    public static SerializationSchema<Row> buildSerializationSchema(SerializationInfo serializationInfo) {
-        return new SerializationSchema<Row>() {
+    int insert(SortTaskIdParamEntity record);
 
-            private static final long serialVersionUID = -6818985955456373916L;
+    int insertSelective(SortTaskIdParamEntity record);
 
-            @Override
-            public byte[] serialize(Row element) {
-                return element.toString().getBytes(StandardCharsets.UTF_8);
-            }
-        };
-    }
+    SortTaskIdParamEntity selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(SortTaskIdParamEntity record);
+
+    int updateByPrimaryKey(SortTaskIdParamEntity record);
+
+    List<SortTaskIdParamEntity> selectByTaskName(String taskName);
 }

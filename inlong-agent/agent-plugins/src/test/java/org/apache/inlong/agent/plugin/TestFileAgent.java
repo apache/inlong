@@ -18,6 +18,8 @@
 package org.apache.inlong.agent.plugin;
 
 import static org.apache.inlong.agent.constants.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
+import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_CYCLE_UNIT;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_DIR_FILTER_PATTERN;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_FILE_MAX_WAIT;
@@ -109,6 +111,8 @@ public class TestFileAgent {
                 profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testRootDir.toString(),
                     "hugeFile.[0-9].txt").toString());
                 profile.set(JOB_READ_WAIT_TIMEOUT, String.valueOf(readWaitTimeMilliseconds));
+                profile.set(PROXY_INLONG_GROUP_ID, "groupid");
+                profile.set(PROXY_INLONG_STREAM_ID, "streamid");
                 agent.submitJob(profile);
             }
         }

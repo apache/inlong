@@ -18,9 +18,11 @@
 
 package org.apache.inlong.sort.singletenant.flink.utils;
 
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.TableSchema.Builder;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
+import org.apache.inlong.sort.formats.common.TypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 
@@ -37,5 +39,22 @@ public class CommonUtils {
         }
 
         return builder.build();
+    }
+
+    public static org.apache.flink.api.java.typeutils.RowTypeInfo convertFieldInfosToRowTypeInfo(
+            FieldInfo[] fieldInfos
+    ) {
+        int length = fieldInfos.length;
+        TypeInformation<?>[] typeInformationArray = new TypeInformation[length];
+        String[] fieldNames = new String[length];
+        for (int i = 0; i < length; i++) {
+            FieldInfo fieldInfo = fieldInfos[i];
+            fieldNames[i] = fieldInfo.getName();
+
+            TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
+            typeInformationArray[i] = TableFormatUtils.getType(typeInfo);
+        }
+
+        return new org.apache.flink.api.java.typeutils.RowTypeInfo(typeInformationArray, fieldNames);
     }
 }

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
 import org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper;
 import org.apache.inlong.manager.service.core.SortClusterConfigService;
@@ -27,9 +26,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * Sort service implementation.
+ * Sort cluster config service implementation.
  */
-@Slf4j
 @Service
 public class SortClusterConfigServiceImpl implements SortClusterConfigService {
 

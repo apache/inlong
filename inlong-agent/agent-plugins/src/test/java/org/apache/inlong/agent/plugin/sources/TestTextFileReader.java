@@ -17,6 +17,8 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_DIR_FILTER_PATTERN;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_INSTANCE_ID;
@@ -35,6 +37,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
@@ -93,8 +96,10 @@ public class TestTextFileReader {
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
         jobConfiguration.set(JOB_DIR_FILTER_PATTERN, Paths.get(mainPath,
-            "[1-2].txt").toFile().getAbsolutePath());
+                "[1-2].txt").toFile().getAbsolutePath());
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
+        jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
+        jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
         TextFileSource fileSource = new TextFileSource();
         List<Reader> readerList = fileSource.split(jobConfiguration);
         Assert.assertEquals(2, readerList.size());
@@ -126,7 +131,10 @@ public class TestTextFileReader {
         }
         Files.write(localPath, afterList, StandardOpenOption.APPEND);
         TextFileReader reader = new TextFileReader(localPath.toFile(), 1000);
-        reader.init(new JobProfile());
+        JobProfile jobProfile = new JobProfile();
+        jobProfile.set(PROXY_INLONG_GROUP_ID, "groupid");
+        jobProfile.set(PROXY_INLONG_STREAM_ID, "streamid");
+        reader.init(jobProfile);
 
         Assert.assertEquals("world", new String(reader.read().getBody()));
 
@@ -136,6 +144,8 @@ public class TestTextFileReader {
     public void testTextTailTimeout() throws Exception {
         JobProfile jobProfile = new JobProfile();
         jobProfile.setInt(JOB_FILE_MAX_WAIT, 1);
+        jobProfile.set(PROXY_INLONG_GROUP_ID, "groupid");
+        jobProfile.set(PROXY_INLONG_STREAM_ID, "streamid");
         Path localPath = Paths.get(testDir.toString(), "test1.txt");
         TextFileReader reader = new TextFileReader(localPath.toFile(), 0);
         if (localPath.toFile().exists()) {

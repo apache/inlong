@@ -33,15 +33,32 @@ public class SortClusterConfigResponse {
     String md5;
     List<SortTaskConfig> tasks;
 
+    @Builder
+    @Data
     public static class SortClusterConfig {
         String clusterName;
         List<SortTaskConfig> sortTasks;
     }
 
+    @Builder
+    @Data
     public static class SortTaskConfig {
         String taskName;
-        String type;
+        SinkType sinkType;
         List<Map<String, String>> idParams;
         Map<String, String> sinkParams;
+    }
+
+    public enum SinkType {
+        /** kafka */
+        KAFKA,
+        /** pulsar */
+        PULSAR,
+        /** hive */
+        HIVE,
+        /** es */
+        ElasticSearch,
+        /** unknown */
+        UNKNOWN
     }
 }
