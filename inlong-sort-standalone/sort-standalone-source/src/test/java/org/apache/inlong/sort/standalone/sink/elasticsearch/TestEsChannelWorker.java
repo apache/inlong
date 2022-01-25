@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.flume.Transaction;
@@ -66,7 +64,6 @@ public class TestEsChannelWorker {
             // test
             EsChannelWorker worker = new EsChannelWorker(context, 0);
             worker.doRun();
-            assertEquals(true, (this.context.taskDispatchQueue() != null));
             worker.start();
             worker.close();
         } catch (Exception e) {
