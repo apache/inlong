@@ -15,50 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sort;
+package org.apache.inlong.manager.dao.entity;
 
-import io.swagger.annotations.ApiModel;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
-import java.util.Map;
-
 @Data
 @Builder
-@ApiModel("Sort cluster config")
-public class SortClusterConfigResponse {
-    String msg;
-    int code;
-    String md5;
-    List<SortTaskConfig> tasks;
+public class SortTaskIdParamEntity {
+    private Integer id;
+    private String taskName;
+    private String groupId;
+    private String streamId;
+    private String paramKey;
+    private String paramValue;
 
-    @Builder
-    @Data
-    public static class SortClusterConfig {
-        String clusterName;
-        List<SortTaskConfig> sortTasks;
-    }
-
-    @Builder
-    @Data
-    public static class SortTaskConfig {
-        String taskName;
-        SinkType sinkType;
-        List<Map<String, String>> idParams;
-        Map<String, String> sinkParams;
-    }
-
-    public enum SinkType {
-        /** kafka */
-        KAFKA,
-        /** pulsar */
-        PULSAR,
-        /** hive */
-        HIVE,
-        /** es */
-        ElasticSearch,
-        /** unknown */
-        UNKNOWN
+    public String getKey() {
+        return groupId.concat(streamId);
     }
 }

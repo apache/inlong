@@ -15,27 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.impl;
-
-import org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity;
-import org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper;
-import org.apache.inlong.manager.service.core.SortClusterConfigService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+package org.apache.inlong.manager.service.core;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * Sort cluster config service implementation.
+ * Sort id params service.
  */
-@Service
-public class SortClusterConfigServiceImpl implements SortClusterConfigService {
+public interface SortTaskIdParamService {
 
-    @Autowired
-    private SortClusterConfgiEntityMapper sortClusterConfgiEntityMapper;
-
-    @Override
-    public List<SortClusterConfgiEntity> selectTasksByClusterName(String clusterName) {
-        return sortClusterConfgiEntityMapper.selectTasksByClusterName(clusterName);
-    }
+    /**
+     * Select all id params by task name.
+     * @param taskName Task name.
+     * @return List of all id params.
+     */
+    List<Map<String, String>> selectByTaskName(String taskName);
 }
