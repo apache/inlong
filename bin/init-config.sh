@@ -18,7 +18,7 @@
 
 # tubemqMaster Default port
 tubemqMaster_port=8715
-# inlong  manager Default env
+# inlong manager Default env
 spring_profiles_active=dev
 
 basePath=$(
