@@ -38,7 +38,7 @@ import java.util.List;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({SortClusterConfigHolder.class, LoggerFactory.class, Logger.class, MetricRegister.class})
-public class SortSdkSourceTest {
+public class TestSortSdkSource {
 
     private Context mockContext;
 

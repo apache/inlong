@@ -115,7 +115,7 @@ public class EsOutputChannel extends Thread {
                             .setMaxConnPerRoute(context.getMaxConnect())
                             .setDefaultRequestConfig(requestConfig);
                 });
-                esClient = new RestHighLevelClient(builder);
+                esClient = EsSinkFactory.createRestHighLevelClient(builder);
             }
         } catch (Exception e) {
             LOG.error("init esclient failed.", e);
@@ -191,7 +191,7 @@ public class EsOutputChannel extends Thread {
      * 
      * @throws InterruptedException
      */
-    private void send() throws InterruptedException {
+    public void send() throws InterruptedException {
         EsIndexRequest indexRequest = null;
         try {
             BulkProcessor bulkProcessor = this.getBulkProcessor();

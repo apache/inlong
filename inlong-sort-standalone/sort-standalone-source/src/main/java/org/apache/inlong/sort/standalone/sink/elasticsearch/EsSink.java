@@ -61,7 +61,7 @@ public class EsSink extends AbstractSink implements Configurable {
                 this.workers.add(worker);
                 worker.start();
             }
-            this.outputChannel = new EsOutputChannel(context);
+            this.outputChannel = EsSinkFactory.createEsOutputChannel(context);
             this.outputChannel.init();
             this.outputChannel.start();
         } catch (Exception e) {
