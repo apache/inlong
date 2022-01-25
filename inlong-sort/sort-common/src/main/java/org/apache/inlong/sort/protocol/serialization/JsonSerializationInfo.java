@@ -21,4 +21,12 @@ public class JsonSerializationInfo implements SerializationInfo {
 
     private static final long serialVersionUID = -4774030753680011998L;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        return o != null && getClass() == o.getClass();
+    }
 }

@@ -22,6 +22,8 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Objects;
+
 public class FieldInfo {
     @JsonProperty("name")
     private final String name;
@@ -43,5 +45,22 @@ public class FieldInfo {
 
     public FormatInfo getFormatInfo() {
         return formatInfo;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        FieldInfo fieldInfo = (FieldInfo) o;
+        return name.equals(fieldInfo.name) && formatInfo.equals(fieldInfo.formatInfo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, formatInfo);
     }
 }
