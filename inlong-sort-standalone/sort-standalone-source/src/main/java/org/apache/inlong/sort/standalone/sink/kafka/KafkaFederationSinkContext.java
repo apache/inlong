@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.sort.standalone.sink.kafka;
 
 import org.apache.flume.Channel;
