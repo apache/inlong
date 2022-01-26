@@ -15,27 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.dao.entity;
 
-import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
-import org.springframework.stereotype.Repository;
+import lombok.Builder;
+import lombok.Data;
 
-import java.util.List;
+import java.io.Serializable;
 
-@Repository
-public interface SortClusterConfgiEntityMapper {
-    int deleteByPrimaryKey(Integer id);
-
-    int insert(SortClusterConfigEntity record);
-
-    int insertSelective(SortClusterConfigEntity record);
-
-    SortClusterConfigEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(SortClusterConfigEntity record);
-
-    int updateByPrimaryKey(SortClusterConfigEntity record);
-
-    List<SortClusterConfigEntity> selectTasksByClusterName(String clusterName);
-
+@Data
+@Builder
+public class SortClusterConfigEntity implements Serializable {
+    private Integer id;
+    private String clusterName;
+    private String taskName;
+    private String sinkType;
+    private static final long serialVersionUID = 1L;
 }

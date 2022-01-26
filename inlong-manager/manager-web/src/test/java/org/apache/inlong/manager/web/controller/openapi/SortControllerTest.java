@@ -17,7 +17,11 @@
 
 package org.apache.inlong.manager.web.controller.openapi;
 
-import org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
 import org.apache.inlong.manager.dao.entity.SortTaskIdParamEntity;
 import org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortTaskIdParamEntityMapper;
@@ -32,10 +36,6 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -107,8 +107,8 @@ public class SortControllerTest {
                 .build();
     }
 
-    private SortClusterConfgiEntity prepareClusterConfigEntity(String taskName, String sinkType) {
-        return SortClusterConfgiEntity.builder()
+    private SortClusterConfigEntity prepareClusterConfigEntity(String taskName, String sinkType) {
+        return SortClusterConfigEntity.builder()
                 .clusterName("testCluster")
                 .taskName(taskName)
                 .sinkType(sinkType)

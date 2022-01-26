@@ -19,7 +19,7 @@
 -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper">
-  <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity">
+  <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.SortClusterConfigEntity">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="cluster_name" jdbcType="VARCHAR" property="clusterName" />
     <result column="task_name" jdbcType="VARCHAR" property="taskName" />
@@ -38,13 +38,13 @@
     delete from sort_cluster_config
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity">
+  <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.SortClusterConfigEntity">
     insert into sort_cluster_config (id, cluster_name, task_name, 
       sink_type)
     values (#{id,jdbcType=INTEGER}, #{clusterName,jdbcType=VARCHAR}, #{taskName,jdbcType=VARCHAR}, 
       #{sinkType,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity">
+  <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.SortClusterConfigEntity">
     insert into sort_cluster_config
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -75,7 +75,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity">
+  <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.SortClusterConfigEntity">
     update sort_cluster_config
     <set>
       <if test="clusterName != null">
@@ -90,7 +90,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity">
+  <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.SortClusterConfigEntity">
     update sort_cluster_config
     set cluster_name = #{clusterName,jdbcType=VARCHAR},
       task_name = #{taskName,jdbcType=VARCHAR},

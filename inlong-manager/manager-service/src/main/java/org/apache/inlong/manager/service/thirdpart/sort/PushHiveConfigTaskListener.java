@@ -28,6 +28,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.event.ListenerResult;
+import org.apache.inlong.manager.common.event.task.SortOperateListener;
+import org.apache.inlong.manager.common.event.task.TaskEvent;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.business.BusinessExtInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveDTO;
@@ -40,11 +45,6 @@ import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageHiveFieldEntityMapper;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.task.TaskEvent;
-import org.apache.inlong.manager.common.event.task.TaskEventListener;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.sort.ZkTools;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
@@ -64,7 +64,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class PushHiveConfigTaskListener implements TaskEventListener {
+public class PushHiveConfigTaskListener implements SortOperateListener {
 
     private static final Map<String, String> PARTITION_TIME_FORMAT_MAP = new HashMap<>();
 

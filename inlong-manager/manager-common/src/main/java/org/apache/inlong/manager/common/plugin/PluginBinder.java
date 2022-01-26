@@ -15,17 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.common.plugin;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
+public interface PluginBinder {
 
-@Configuration
-public class BaseConfig {
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
+    void acceptPlugin(Plugin plugin);
 
 }

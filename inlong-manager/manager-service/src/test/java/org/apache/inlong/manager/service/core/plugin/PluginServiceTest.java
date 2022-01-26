@@ -15,27 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.impl;
-
-import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
-import org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper;
-import org.apache.inlong.manager.service.core.SortClusterConfigService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+package org.apache.inlong.manager.service.core.plugin;
 
 import java.util.List;
+import org.apache.inlong.manager.common.plugin.Plugin;
+import org.apache.inlong.manager.common.plugin.ProcessPlugin;
+import org.apache.inlong.manager.service.BaseTest;
+import org.junit.Assert;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Sort cluster config service implementation.
- */
-@Service
-public class SortClusterConfigServiceImpl implements SortClusterConfigService {
+public class PluginServiceTest extends BaseTest {
 
     @Autowired
-    private SortClusterConfgiEntityMapper sortClusterConfgiEntityMapper;
+    PluginService pluginService;
 
-    @Override
-    public List<SortClusterConfigEntity> selectTasksByClusterName(String clusterName) {
-        return sortClusterConfgiEntityMapper.selectTasksByClusterName(clusterName);
+    @Test
+    public void testReloadPlugin() {
+        String path = this.getClass().getClassLoader().getResource("").getPath();
+        pluginService.setPluginLoc(path + "plugins");
+        pluginService.pluginReload();
+        List<Plugin> pluginList = pluginService.getPlugins();
+        Assert.assertTrue(pluginList.size() == 1);
+        Assert.assertTrue(pluginList.get(0) instanceof ProcessPlugin);
     }
 }

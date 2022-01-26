@@ -15,27 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.service;
 
-import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
-import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-
-@Repository
-public interface SortClusterConfgiEntityMapper {
-    int deleteByPrimaryKey(Integer id);
-
-    int insert(SortClusterConfigEntity record);
-
-    int insertSelective(SortClusterConfigEntity record);
-
-    SortClusterConfigEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(SortClusterConfigEntity record);
-
-    int updateByPrimaryKey(SortClusterConfigEntity record);
-
-    List<SortClusterConfigEntity> selectTasksByClusterName(String clusterName);
+@Configuration
+public class BaseConfig {
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 
 }

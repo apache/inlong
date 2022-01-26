@@ -15,27 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.common.event;
 
-import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
-import org.springframework.stereotype.Repository;
+import org.apache.inlong.manager.common.model.WorkflowContext;
 
-import java.util.List;
+/**
+ * a selector allowing to decide which event is selected
+ */
+public interface EventSelector {
 
-@Repository
-public interface SortClusterConfgiEntityMapper {
-    int deleteByPrimaryKey(Integer id);
-
-    int insert(SortClusterConfigEntity record);
-
-    int insertSelective(SortClusterConfigEntity record);
-
-    SortClusterConfigEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(SortClusterConfigEntity record);
-
-    int updateByPrimaryKey(SortClusterConfigEntity record);
-
-    List<SortClusterConfigEntity> selectTasksByClusterName(String clusterName);
+    boolean accept(WorkflowContext context);
 
 }

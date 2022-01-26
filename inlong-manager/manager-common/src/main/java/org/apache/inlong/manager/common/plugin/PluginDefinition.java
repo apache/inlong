@@ -15,27 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.common.plugin;
 
-import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
-import org.springframework.stereotype.Repository;
+import lombok.Data;
 
-import java.util.List;
+/**
+ * pluginDefinition should be defined in *.jar/META-INF/plugin.yaml
+ * for example:
+ *    name: test
+ *    description: this plugin is use for test
+ *    pluginClass: org.apache.inlong.plugin.testPlugin
+ *    javaVersion: 1.8 or 8
+ */
+@Data
+public class PluginDefinition {
 
-@Repository
-public interface SortClusterConfgiEntityMapper {
-    int deleteByPrimaryKey(Integer id);
+    /**
+     * name of plugin
+     */
+    private String name;
 
-    int insert(SortClusterConfigEntity record);
+    /**
+     * description of plugin to be used for user help
+     */
+    private String description;
 
-    int insertSelective(SortClusterConfigEntity record);
+    /**
+     * java_version of plugin to be used for check validate
+     */
+    private String javaVersion;
 
-    SortClusterConfigEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(SortClusterConfigEntity record);
-
-    int updateByPrimaryKey(SortClusterConfigEntity record);
-
-    List<SortClusterConfigEntity> selectTasksByClusterName(String clusterName);
-
+    /**
+     * the full class name of plugin
+     */
+    private String pluginClass;
 }

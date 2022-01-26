@@ -15,27 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.common.event.task;
 
-import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
-import org.springframework.stereotype.Repository;
+import org.apache.inlong.manager.common.event.ListenerResult;
+import org.apache.inlong.manager.common.model.WorkflowContext;
 
-import java.util.List;
+public interface SortOperateListener extends TaskEventListener {
 
-@Repository
-public interface SortClusterConfgiEntityMapper {
-    int deleteByPrimaryKey(Integer id);
+    SortOperateListener DEFAULT_SORT_OPERATE_LISTENER = new SortOperateListener() {
+        @Override
+        public TaskEvent event() {
+            return TaskEvent.COMPLETE;
+        }
 
-    int insert(SortClusterConfigEntity record);
+        @Override
+        public ListenerResult listen(WorkflowContext context) throws Exception {
+            return ListenerResult.success();
+        }
 
-    int insertSelective(SortClusterConfigEntity record);
-
-    SortClusterConfigEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(SortClusterConfigEntity record);
-
-    int updateByPrimaryKey(SortClusterConfigEntity record);
-
-    List<SortClusterConfigEntity> selectTasksByClusterName(String clusterName);
-
+        @Override
+        public boolean async() {
+            return false;
+        }
+    };
 }

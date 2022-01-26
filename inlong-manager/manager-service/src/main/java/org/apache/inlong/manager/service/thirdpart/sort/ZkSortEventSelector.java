@@ -15,27 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.service.thirdpart.sort;
 
-import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
-import org.springframework.stereotype.Repository;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.event.EventSelector;
+import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
+@Component
+@Slf4j
+public class ZkSortEventSelector implements EventSelector {
 
-@Repository
-public interface SortClusterConfgiEntityMapper {
-    int deleteByPrimaryKey(Integer id);
-
-    int insert(SortClusterConfigEntity record);
-
-    int insertSelective(SortClusterConfigEntity record);
-
-    SortClusterConfigEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(SortClusterConfigEntity record);
-
-    int updateByPrimaryKey(SortClusterConfigEntity record);
-
-    List<SortClusterConfigEntity> selectTasksByClusterName(String clusterName);
-
+    @Override
+    public boolean accept(WorkflowContext context) {
+        //todo check if push sort config to zookeeper
+        return true;
+    }
 }

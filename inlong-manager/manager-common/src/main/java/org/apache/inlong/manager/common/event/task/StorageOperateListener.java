@@ -15,19 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.common.event.task;
 
-import lombok.Builder;
-import lombok.Data;
+import org.apache.inlong.manager.common.event.ListenerResult;
+import org.apache.inlong.manager.common.model.WorkflowContext;
 
-import java.io.Serializable;
+public interface StorageOperateListener extends TaskEventListener {
 
-@Data
-@Builder
-public class SortClusterConfgiEntity implements Serializable {
-    private Integer id;
-    private String clusterName;
-    private String taskName;
-    private String sinkType;
-    private static final long serialVersionUID = 1L;
+    StorageOperateListener DEFAULT_STORAGE_OPERATE_LISTENER = new StorageOperateListener() {
+        @Override
+        public TaskEvent event() {
+            return TaskEvent.COMPLETE;
+        }
+
+        @Override
+        public ListenerResult listen(WorkflowContext context) throws Exception {
+            return ListenerResult.success();
+        }
+
+        @Override
+        public boolean async() {
+            return false;
+        }
+    };
 }

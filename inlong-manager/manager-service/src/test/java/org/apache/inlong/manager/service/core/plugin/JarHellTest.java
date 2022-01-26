@@ -15,27 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.service.core.plugin;
 
-import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
-import org.springframework.stereotype.Repository;
+import org.junit.Assert;
+import org.junit.Test;
 
-import java.util.List;
+public class JarHellTest {
 
-@Repository
-public interface SortClusterConfgiEntityMapper {
-    int deleteByPrimaryKey(Integer id);
-
-    int insert(SortClusterConfigEntity record);
-
-    int insertSelective(SortClusterConfigEntity record);
-
-    SortClusterConfigEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(SortClusterConfigEntity record);
-
-    int updateByPrimaryKey(SortClusterConfigEntity record);
-
-    List<SortClusterConfigEntity> selectTasksByClusterName(String clusterName);
+    @Test
+    public void testJavaVersion() {
+        JarHell.checkJavaVersion("test_java", "1.8");
+        try {
+            JarHell.checkJavaVersion("test_java", "1.81");
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof IllegalArgumentException);
+            String msg = e.getMessage();
+            Assert.assertTrue(msg.contains("requires Java 1.8"));
+        }
+    }
 
 }
