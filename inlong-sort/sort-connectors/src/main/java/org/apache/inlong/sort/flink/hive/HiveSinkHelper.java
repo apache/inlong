@@ -23,6 +23,7 @@ import org.apache.flink.api.common.serialization.BulkWriter;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.Row;
+import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.flink.hive.formats.ParquetRowWriterBuilder;
 import org.apache.inlong.sort.flink.hive.formats.TextRowWriter;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
@@ -37,7 +38,9 @@ import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.TextFileFormat;
  */
 public class HiveSinkHelper {
 
-    public static BulkWriter.Factory<Row> createBulkWriterFactory(HiveSinkInfo hiveSinkInfo) {
+    public static BulkWriter.Factory<Row> createBulkWriterFactory(
+            HiveSinkInfo hiveSinkInfo,
+            Configuration config) {
         String[] fieldNames = getFieldNames(hiveSinkInfo).toArray(new String[0]);
         LogicalType[] fieldTypes = getFieldLogicalTypes(hiveSinkInfo).toArray(new LogicalType[0]);
         RowType rowType = RowType.of(fieldTypes, fieldNames);
@@ -46,7 +49,7 @@ public class HiveSinkHelper {
             return ParquetRowWriterBuilder.createWriterFactory(
                     rowType, (ParquetFileFormat) hiveFileFormat);
         } else if (hiveFileFormat instanceof TextFileFormat) {
-            return new TextRowWriter.Factory((TextFileFormat) hiveFileFormat);
+            return new TextRowWriter.Factory((TextFileFormat) hiveFileFormat, config);
         } else {
             throw new IllegalArgumentException("Unsupported hive file format " + hiveFileFormat.getClass().getName());
         }
