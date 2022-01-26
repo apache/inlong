@@ -35,6 +35,7 @@ public class RowToStringKafkaSinkTest extends KafkaSinkTestBase {
 
     @Override
     protected void prepareData() {
+        topic = "test_kafka_row_to_string";
         prepareKafkaSinkInfo();
         prepareTestRows();
     }
