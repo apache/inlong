@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.flink.hive.formats;
+package org.apache.inlong.sort.flink.hive.formats.parquet;
 
-import static org.apache.inlong.sort.flink.hive.formats.ParquetSchemaConverter.convertToParquetMessageType;
+import static org.apache.inlong.sort.flink.hive.formats.parquet.ParquetSchemaConverter.convertToParquetMessageType;
 
 import java.io.IOException;
 import java.util.HashMap;
