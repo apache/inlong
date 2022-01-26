@@ -37,6 +37,8 @@ public class CreateHiveTableEventSelectorTest extends BaseTest {
         workflowContext.setProcessForm(processForm);
         Assert.assertFalse(createHiveTableEventSelector.accept(workflowContext));
         processForm.setBusinessInfo(new BusinessInfo());
+        Assert.assertFalse(createHiveTableEventSelector.accept(workflowContext));
+        processForm.getBusinessInfo().setInlongGroupId("test");
         Assert.assertTrue(createHiveTableEventSelector.accept(workflowContext));
     }
 
