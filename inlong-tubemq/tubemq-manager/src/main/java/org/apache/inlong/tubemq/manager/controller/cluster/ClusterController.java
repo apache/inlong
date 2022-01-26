@@ -47,6 +47,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.apache.inlong.tubemq.manager.service.TubeConst.SUCCESS_CODE;
+
 @RestController
 @RequestMapping(path = "/v1/cluster")
 @Slf4j
@@ -96,9 +98,12 @@ public class ClusterController {
         if (!req.legal()) {
             return TubeMQResult.errorResult(TubeMQErrorConst.PARAM_ILLEGAL);
         }
-        TubeMQResult checkResult = masterService.checkMasterNodeStatus(req.getMasterIp(), req.getMasterWebPort());
-        if (checkResult.getErrCode() != TubeConst.SUCCESS_CODE) {
-            return TubeMQResult.errorResult("please check master ip and webPort");
+        List<String> masterIps = req.getMasterIps();
+        for (String masterIp : masterIps) {
+            TubeMQResult checkResult = masterService.checkMasterNodeStatus(masterIp, req.getMasterWebPort());
+            if (checkResult.getErrCode() != SUCCESS_CODE) {
+                return TubeMQResult.errorResult("please check master ip and webPort");
+            }
         }
         // 2. add cluster and master node
         clusterService.addClusterAndMasterNode(req);

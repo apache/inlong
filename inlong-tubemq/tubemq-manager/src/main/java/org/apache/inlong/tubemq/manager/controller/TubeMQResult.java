@@ -29,6 +29,8 @@ import org.apache.inlong.tubemq.manager.enums.ErrorCode;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TubeMQResult {
+    public static final int ERR_CODE = -1;
+
     private String errMsg = "";
     private int errCode = 0;
     private boolean result = true;
@@ -61,4 +63,7 @@ public class TubeMQResult {
                 .result(true).data(data).build();
     }
 
+    public boolean isError() {
+        return ERR_CODE == errCode;
+    }
 }
