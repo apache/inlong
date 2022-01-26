@@ -45,7 +45,7 @@ public class ProxyClientConfig {
     private String userName = "";
     private String secretKey = "";
     private String rsaPubKeyUrl = "";
-    private String confStoreBasePath = ".inlong/";
+    private String confStoreBasePath = System.getProperty("user.dir") + "/.inlong/";
     private boolean needVerServer = false;
     private String tlsServerCertFilePathAndName;
     private String tlsServerKey;
