@@ -80,7 +80,7 @@ public class ClickHouseSinkFunction extends RichSinkFunction<Tuple2<Boolean, Row
     }
 
     @Override
-    public void invoke(Tuple2<Boolean, Row> value) throws Exception {
+    public void invoke(Tuple2<Boolean, Row> value, Context context) throws Exception {
         outputFormat.writeRecord(value);
     }
 }
