@@ -36,13 +36,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class PluginsService {
+public class PluginService {
 
     public static final String DEFAULT_PLUGIN_LOC = "/plugins";
 
     @Setter
     @Getter
-    @Value("${plugin.location?:}")
+    @Value("${plugin.location?:''}")
     private String pluginLoc;
 
     @Getter
@@ -52,7 +52,7 @@ public class PluginsService {
     @Getter
     private List<Plugin> plugins = new ArrayList<>();
 
-    public PluginsService() {
+    public PluginService() {
         if (StringUtils.isBlank(pluginLoc)) {
             pluginLoc = DEFAULT_PLUGIN_LOC;
         }

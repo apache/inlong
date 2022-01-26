@@ -25,17 +25,17 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class PluginsServiceTest extends BaseTest {
+public class PluginServiceTest extends BaseTest {
 
     @Autowired
-    PluginsService pluginsService;
+    PluginService pluginService;
 
     @Test
     public void testReloadPlugin() {
         String path = this.getClass().getClassLoader().getResource("").getPath();
-        pluginsService.setPluginLoc(path + "plugins");
-        pluginsService.pluginReload();
-        List<Plugin> pluginList = pluginsService.getPlugins();
+        pluginService.setPluginLoc(path + "plugins");
+        pluginService.pluginReload();
+        List<Plugin> pluginList = pluginService.getPlugins();
         Assert.assertTrue(pluginList.size() == 1);
         Assert.assertTrue(pluginList.get(0) instanceof ProcessPlugin);
     }

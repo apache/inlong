@@ -20,7 +20,7 @@ package org.apache.inlong.manager.plugin;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.inlong.manager.common.event.EventSelector;
-import org.apache.inlong.manager.common.event.task.DatasourceOperateListener;
+import org.apache.inlong.manager.common.event.task.DataSourceOperateListener;
 import org.apache.inlong.manager.common.event.task.QueueOperateListener;
 import org.apache.inlong.manager.common.event.task.SortOperateListener;
 import org.apache.inlong.manager.common.event.task.StorageOperateListener;
@@ -29,7 +29,7 @@ import org.apache.inlong.manager.common.plugin.ProcessPlugin;
 public class EmptyProcessPlugin implements ProcessPlugin {
 
     @Override
-    public Map<DatasourceOperateListener, EventSelector> createDSOperateListeners() {
+    public Map<DataSourceOperateListener, EventSelector> createSourceOperateListeners() {
         return new LinkedHashMap<>();
     }
 

@@ -24,7 +24,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.common.event.EventSelector;
-import org.apache.inlong.manager.common.event.task.DatasourceOperateListener;
+import org.apache.inlong.manager.common.event.task.DataSourceOperateListener;
 import org.apache.inlong.manager.common.event.task.QueueOperateListener;
 import org.apache.inlong.manager.common.event.task.SortOperateListener;
 import org.apache.inlong.manager.common.event.task.StorageOperateListener;
@@ -33,7 +33,7 @@ import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.common.plugin.PluginBinder;
 import org.apache.inlong.manager.common.plugin.ProcessPlugin;
 import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableListener;
-import org.apache.inlong.manager.service.thirdpart.hive.HiveStoreEventSelector;
+import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableEventSelector;
 import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarGroupTaskListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarResourceTaskListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeGroupTaskListener;
@@ -48,7 +48,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TaskEventListenerFactory implements PluginBinder {
 
-    private Map<DatasourceOperateListener, EventSelector> dsOperateListeners;
+    private Map<DataSourceOperateListener, EventSelector> sourceOperateListeners;
 
     private Map<StorageOperateListener, EventSelector> storageOperateListeners;
 
@@ -68,7 +68,7 @@ public class TaskEventListenerFactory implements PluginBinder {
     @Autowired
     private CreateHiveTableListener createHiveTableListener;
     @Autowired
-    private HiveStoreEventSelector hiveStoreEventSelector;
+    private CreateHiveTableEventSelector createHiveTableEventSelector;
 
     @Autowired
     private PushHiveConfigTaskListener pushHiveConfigTaskListener;
@@ -77,9 +77,9 @@ public class TaskEventListenerFactory implements PluginBinder {
 
     @PostConstruct
     public void init() {
-        dsOperateListeners = new LinkedHashMap<>();
+        sourceOperateListeners = new LinkedHashMap<>();
         storageOperateListeners = new LinkedHashMap<>();
-        storageOperateListeners.put(createHiveTableListener, hiveStoreEventSelector);
+        storageOperateListeners.put(createHiveTableListener, createHiveTableEventSelector);
         queueOperateListeners = new LinkedHashMap<>();
         queueOperateListeners.put(createTubeTopicTaskListener, new TubeEventSelector());
         queueOperateListeners.put(createTubeGroupTaskListener, new TubeEventSelector());
@@ -89,9 +89,9 @@ public class TaskEventListenerFactory implements PluginBinder {
         sortOperateListeners.put(pushHiveConfigTaskListener, zkSortEventSelector);
     }
 
-    public List<DatasourceOperateListener> getDSOperateListener(WorkflowContext context) {
-        List<DatasourceOperateListener> listeners = new ArrayList<>();
-        for (Map.Entry<DatasourceOperateListener, EventSelector> entry : dsOperateListeners.entrySet()) {
+    public List<DataSourceOperateListener> getDSOperateListener(WorkflowContext context) {
+        List<DataSourceOperateListener> listeners = new ArrayList<>();
+        for (Map.Entry<DataSourceOperateListener, EventSelector> entry : sourceOperateListeners.entrySet()) {
             EventSelector selector = entry.getValue();
             if (selector != null && selector.accept(context)) {
                 listeners.add(entry.getKey());
@@ -139,10 +139,10 @@ public class TaskEventListenerFactory implements PluginBinder {
             return;
         }
         ProcessPlugin processPlugin = (ProcessPlugin) plugin;
-        Map<DatasourceOperateListener, EventSelector> pluginDsOperateListeners =
-                processPlugin.createDSOperateListeners();
+        Map<DataSourceOperateListener, EventSelector> pluginDsOperateListeners =
+                processPlugin.createSourceOperateListeners();
         if (MapUtils.isNotEmpty(pluginDsOperateListeners)) {
-            dsOperateListeners.putAll(processPlugin.createDSOperateListeners());
+            sourceOperateListeners.putAll(processPlugin.createSourceOperateListeners());
         }
         Map<StorageOperateListener, EventSelector> pluginStorageOperateListeners =
                 processPlugin.createStorageOperateListeners();

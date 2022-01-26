@@ -28,8 +28,9 @@ public class JarHellTest {
         try {
             JarHell.checkJavaVersion("test_java", "1.81");
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            Assert.assertTrue(e instanceof RuntimeException);
+            Assert.assertTrue(e instanceof IllegalArgumentException);
+            String msg = e.getMessage();
+            Assert.assertTrue(msg.contains("requires Java 1.8"));
         }
     }
 

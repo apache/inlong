@@ -50,7 +50,7 @@ public class PluginClassLoaderTest {
                 | InstantiationException
                 | IllegalAccessException
                 | InvocationTargetException e) {
-            System.out.println(e.getMessage());
+            Assert.assertTrue(e instanceof ClassNotFoundException);
             Assert.fail();
         }
     }

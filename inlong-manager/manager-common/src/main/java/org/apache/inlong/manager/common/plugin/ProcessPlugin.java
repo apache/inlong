@@ -19,14 +19,14 @@ package org.apache.inlong.manager.common.plugin;
 
 import java.util.Map;
 import org.apache.inlong.manager.common.event.EventSelector;
-import org.apache.inlong.manager.common.event.task.DatasourceOperateListener;
+import org.apache.inlong.manager.common.event.task.DataSourceOperateListener;
 import org.apache.inlong.manager.common.event.task.QueueOperateListener;
 import org.apache.inlong.manager.common.event.task.SortOperateListener;
 import org.apache.inlong.manager.common.event.task.StorageOperateListener;
 
 public interface ProcessPlugin extends Plugin {
 
-    default Map<DatasourceOperateListener, EventSelector> createDSOperateListeners() {
+    default Map<DataSourceOperateListener, EventSelector> createSourceOperateListeners() {
         return null;
     }
 
