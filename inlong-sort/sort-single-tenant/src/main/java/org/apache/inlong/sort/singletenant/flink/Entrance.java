@@ -24,7 +24,6 @@ import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -34,11 +33,13 @@ import org.apache.iceberg.flink.sink.FlinkSink;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
-import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
+import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
 import org.apache.inlong.sort.protocol.sink.IcebergSinkInfo;
+import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
+import org.apache.inlong.sort.singletenant.flink.clickhouse.ClickhouseRowSinkFunction;
 import org.apache.inlong.sort.singletenant.flink.utils.CommonUtils;
 import org.apache.inlong.sort.util.ParameterTool;
 
@@ -109,6 +110,13 @@ public class Entrance {
         // TODO : implement sink functions below
         switch (sinkType) {
             case Constants.SINK_TYPE_CLICKHOUSE:
+                Preconditions.checkState(sinkInfo instanceof ClickHouseSinkInfo);
+                ClickHouseSinkInfo clickHouseSinkInfo = (ClickHouseSinkInfo) sinkInfo;
+
+                sourceStream.addSink(new ClickhouseRowSinkFunction(clickHouseSinkInfo))
+                        .uid(Constants.SINK_UID)
+                        .name("Clickhouse Sink")
+                        .setParallelism(sinkParallelism);
                 break;
             case Constants.SINK_TYPE_HIVE:
                 break;
