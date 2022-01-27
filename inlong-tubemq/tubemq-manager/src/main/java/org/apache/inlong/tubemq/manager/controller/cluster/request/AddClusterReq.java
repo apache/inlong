@@ -18,11 +18,14 @@
 package org.apache.inlong.tubemq.manager.controller.cluster.request;
 
 import lombok.Data;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
 
 @Data
 public class AddClusterReq {
-    private String masterIp;
+    private List<String> masterIps;
     private String clusterName;
     private Integer masterPort;
     private Integer masterWebPort;
@@ -30,6 +33,6 @@ public class AddClusterReq {
     private String token;
 
     public boolean legal() {
-        return StringUtils.isNotBlank(masterIp) && masterPort != null && StringUtils.isNotBlank(token);
+        return CollectionUtils.isNotEmpty(masterIps) && masterPort != null && StringUtils.isNotBlank(token);
     }
 }
