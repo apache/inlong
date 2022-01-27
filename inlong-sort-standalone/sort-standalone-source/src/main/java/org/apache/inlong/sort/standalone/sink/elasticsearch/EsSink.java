@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
  * EsSink
  */
 public class EsSink extends AbstractSink implements Configurable {
@@ -52,9 +51,6 @@ public class EsSink extends AbstractSink implements Configurable {
         super.start();
         try {
             this.context = new EsSinkContext(getName(), parentContext, getChannel(), dispatchQueue);
-            if (getChannel() == null) {
-                LOG.error("channel is null");
-            }
             this.context.start();
             for (int i = 0; i < context.getMaxThreads(); i++) {
                 EsChannelWorker worker = new EsChannelWorker(context, i);

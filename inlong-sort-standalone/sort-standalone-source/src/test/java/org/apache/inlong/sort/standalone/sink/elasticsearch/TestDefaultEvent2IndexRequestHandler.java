@@ -36,7 +36,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 public class TestDefaultEvent2IndexRequestHandler {
 
     /**
-     * test
+     * test that ProfileEvent transform to EsIndexRequest
      */
     @Test
     public void test() {

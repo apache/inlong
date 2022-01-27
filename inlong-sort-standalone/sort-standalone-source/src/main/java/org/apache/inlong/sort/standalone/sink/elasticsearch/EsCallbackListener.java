@@ -55,7 +55,7 @@ public class EsCallbackListener implements BulkProcessor.Listener {
      */
     @Override
     public void beforeBulk(long executionId, BulkRequest request) {
-//      LOG.info("beforeBulk,executionId:" + executionId + ",request:" + request);
+        LOG.debug("beforeBulk,executionId:{},request:{}", executionId, request);
     }
 
     /**
@@ -67,15 +67,14 @@ public class EsCallbackListener implements BulkProcessor.Listener {
      */
     @Override
     public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-//      LOG.info("afterBulk,executionId:" + executionId + ",request:" + request + ",response:" + response);
+        LOG.debug("afterBulk,executionId,executionId:{},request:{},response:{}", executionId, request, response);
         BulkItemResponse[] itemResponses = response.getItems();
         List<DocWriteRequest<?>> requests = request.requests();
-        int itemSize = Math.min(itemResponses.length, requests.size());
         if (itemResponses.length != requests.size()) {
             LOG.error("BulkItemResponse size is not equal to IndexRequest size:requestSize:{},responseSize:{}",
                     requests.size(), itemResponses.length);
         }
-        for (int i = 0; i < itemSize; i++) {
+        for (int i = 0; i < itemResponses.length; i++) {
             // parameter
             EsIndexRequest requestItem = (EsIndexRequest) requests.get(i);
             BulkItemResponse responseItem = itemResponses[i];
