@@ -38,15 +38,15 @@ import java.util.List;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({SortClusterConfigHolder.class, LoggerFactory.class, Logger.class, MetricRegister.class})
-public class SortSdkSourceTest {
+public class TestSortSdkSource {
 
     private Context mockContext;
 
     @Before
     public void setUp() {
         PowerMockito.mockStatic(LoggerFactory.class);
-        Logger LOG = PowerMockito.mock(Logger.class);
-        PowerMockito.when(LoggerFactory.getLogger(Mockito.any(Class.class))).thenReturn(LOG);
+        Logger log = PowerMockito.mock(Logger.class);
+        PowerMockito.when(LoggerFactory.getLogger(Mockito.any(Class.class))).thenReturn(log);
         PowerMockito.mockStatic(MetricRegister.class);
 
         PowerMockito.mockStatic(SortClusterConfigHolder.class);
