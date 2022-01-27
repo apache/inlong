@@ -19,5 +19,8 @@
 # under the License.
 #
 cd "$(dirname "$0")"/../
-chmod 777 bin/audit-ng
-nohup bin/audit-ng agent --conf conf/ -f conf/audit.conf -n agent1 --no-reload-conf  > audit.log 2>&1 &
+prepare_file=conf/server.properties
+if [ ! -f "$prepare_file" ]; then
+  touch "$prepare_file"
+fi
+nohup bin/audit-proxy agent --conf conf/ -f conf/audit-proxy.conf -n agent1 --no-reload-conf  > audit-proxy.log 2>&1 &

@@ -31,6 +31,7 @@ import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.sink.EventStat;
 import org.apache.inlong.commons.monitor.LogCounter;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
@@ -197,9 +198,9 @@ public class PulsarClientService {
         TopicProducerInfo forCallBackP = producer;
         forCallBackP.getProducer().newMessage().properties(proMap).value(event.getBody())
                 .sendAsync().thenAccept((msgId) -> {
-            forCallBackP.setCanUseSend(true);
-            sendMessageCallBack.handleMessageSendSuccess(topic, (MessageIdImpl)msgId, es);
-
+                    AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
+                    forCallBackP.setCanUseSend(true);
+                    sendMessageCallBack.handleMessageSendSuccess(topic, (MessageIdImpl)msgId, es);
         }).exceptionally((e) -> {
             forCallBackP.setCanUseSend(false);
             sendMessageCallBack.handleMessageSendException(topic, es, e);

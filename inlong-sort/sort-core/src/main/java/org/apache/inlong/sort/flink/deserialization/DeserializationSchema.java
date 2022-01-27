@@ -91,10 +91,11 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
         metaManager.registerDataFlowInfoListener(new DataFlowInfoListenerImpl());
         enableOutputMetrics = config.getBoolean(Constants.METRICS_ENABLE_OUTPUT);
 
-        String auditHostAndPorts = config.getString(Constants.METRICS_AUDIT_SDK_HOSTS);
+        String auditHostAndPorts = config.getString(Constants.METRICS_AUDIT_PROXY_HOSTS);
         if (auditHostAndPorts != null) {
             AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(","))));
             auditImp = AuditImp.getInstance();
+            LOG.info("audit proxy address: " + auditHostAndPorts);
         }
     }
 
