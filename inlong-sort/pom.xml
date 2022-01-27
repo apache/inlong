@@ -63,6 +63,7 @@
         <pulsar.version>2.8.1</pulsar.version>
         <kafka.version>2.4.1</kafka.version>
         <lzo.core.version>1.0.6</lzo.core.version>
+        <avro.version>1.10.0</avro.version>
     </properties>
 
     <modules>
@@ -168,6 +169,13 @@
 
             <dependency>
                 <groupId>org.apache.flink</groupId>
+                <artifactId>flink-table-runtime-blink_${flink.scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
                 <artifactId>flink-parquet_${flink.scala.binary.version}</artifactId>
                 <version>${flink.version}</version>
             </dependency>
@@ -181,6 +189,12 @@
             <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-json</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-avro</artifactId>
                 <version>${flink.version}</version>
             </dependency>
 
@@ -368,6 +382,12 @@
                 <artifactId>kafka_${flink.scala.binary.version}</artifactId>
                 <version>${kafka.version}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -416,45 +436,13 @@
                     </argLine>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <shadedArtifactAttached>false</shadedArtifactAttached>
-                            <finalName>${project.artifactId}-${project.version}</finalName>
-                            <filters>
-                                <!-- Globally exclude log4j.properties from our JAR files. -->
-                                <filter>
-                                    <artifact>*</artifact>
-                                    <excludes>
-                                        <exclude>log4j.properties</exclude>
-                                        <exclude>log4j-test.properties</exclude>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>2.8.2</version>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
