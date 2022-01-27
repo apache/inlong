@@ -20,7 +20,12 @@ package org.apache.inlong.manager.service.thirdpart.mq;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
+import org.apache.inlong.manager.common.event.ListenerResult;
+import org.apache.inlong.manager.common.event.task.QueueOperateListener;
+import org.apache.inlong.manager.common.event.task.TaskEvent;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.dao.entity.DataStreamEntity;
@@ -30,11 +35,6 @@ import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.core.StorageService;
 import org.apache.inlong.manager.service.thirdpart.mq.util.PulsarUtils;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.task.TaskEvent;
-import org.apache.inlong.manager.common.event.task.TaskEventListener;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,7 +44,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class CreatePulsarGroupForStreamTaskListener implements TaskEventListener {
+public class CreatePulsarGroupForStreamTaskListener implements QueueOperateListener {
 
     @Autowired
     private ClusterBean clusterBean;

@@ -19,9 +19,9 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse;
+import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.SinkType;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.SortTaskConfig;
-import org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity;
 import org.apache.inlong.manager.service.core.SortClusterConfigService;
 import org.apache.inlong.manager.service.core.SortTaskIdParamService;
 import org.apache.inlong.manager.service.core.SortService;
@@ -56,8 +56,8 @@ public class SortServiceImpl implements SortService {
         }
 
         // check if there is any task.
-        List<SortClusterConfgiEntity> tasks =
-                sortClusterConfigService.selectTasksByClusterName(clusterName);
+        List<SortClusterConfigEntity> tasks = sortClusterConfigService.selectTasksByClusterName(clusterName);
+
         if (tasks == null || tasks.isEmpty()) {
             String errMsg = "There is not any task for cluster" + clusterName;
             LOGGER.info(errMsg);
@@ -77,7 +77,7 @@ public class SortServiceImpl implements SortService {
         return SortClusterConfigResponse.builder().tasks(taskConfigs).msg("success").build();
     }
 
-    private SortTaskConfig getTaskConfig(SortClusterConfgiEntity clusterConfig) {
+    private SortTaskConfig getTaskConfig(SortClusterConfigEntity clusterConfig) {
         List<Map<String, String>> idParams =
                 sortTaskIdParamService.selectByTaskName(clusterConfig.getTaskName());
         // TODO add method that get sink params

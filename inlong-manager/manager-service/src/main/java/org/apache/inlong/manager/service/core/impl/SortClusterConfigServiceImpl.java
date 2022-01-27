@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity;
+import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
 import org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper;
 import org.apache.inlong.manager.service.core.SortClusterConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class SortClusterConfigServiceImpl implements SortClusterConfigService {
     private SortClusterConfgiEntityMapper sortClusterConfgiEntityMapper;
 
     @Override
-    public List<SortClusterConfgiEntity> selectTasksByClusterName(String clusterName) {
+    public List<SortClusterConfigEntity> selectTasksByClusterName(String clusterName) {
         return sortClusterConfgiEntityMapper.selectTasksByClusterName(clusterName);
     }
 }

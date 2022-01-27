@@ -40,6 +40,7 @@ import static org.junit.Assert.assertNull;
 public class RowToJsonKafkaSinkTest extends KafkaSinkTestBase {
     @Override
     protected void prepareData() {
+        topic = "test_kafka_row_to_json";
         prepareKafkaSinkInfo();
         prepareTestRows();
     }

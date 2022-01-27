@@ -63,11 +63,15 @@ public class PulsarClientService {
     private static String SEND_TIMEOUT = "send_timeout_mill";
     private static String CLIENT_TIMEOUT = "client_timeout_second";
     private static String ENABLE_BATCH = "enable_batch";
+    private static String PULSAR_IO_THREADS = "pulsar_io_threads";
+    private static String PULSAR_CONNECTIONS_PRE_BROKER = "connections_pre_broker";
     private static String BLOCK_IF_QUEUE_FULL = "block_if_queue_full";
     private static String MAX_PENDING_MESSAGES = "max_pending_messages";
     private static String MAX_BATCHING_MESSAGES = "max_batching_messages";
     private static String RETRY_INTERVAL_WHEN_SEND_ERROR_MILL = "retry_interval_when_send_error_ms";
 
+    private static int DEFAULT_PULSAR_IO_THREADS = 1;
+    private static int DEFAULT_CONNECTIONS_PRE_BROKER = 1;
     private static int DEFAULT_SEND_TIMEOUT_MILL = 30 * 1000;
     private static int DEFAULT_CLIENT_TIMEOUT_SECOND = 30;
     private static long DEFAULT_RETRY_INTERVAL_WHEN_SEND_ERROR_MILL = 30 * 1000L;
@@ -96,6 +100,8 @@ public class PulsarClientService {
     public Map<String, AtomicLong> topicSendIndexMap;
     public List<PulsarClient> pulsarClients;
 
+    public int pulsarClientIoThreads;
+    public int pulsarConnectionsPreBroker;
     private String localIp = "127.0.0.1";
 
     /**
@@ -117,6 +123,10 @@ public class PulsarClientService {
         clientTimeout = context.getInteger(CLIENT_TIMEOUT, DEFAULT_CLIENT_TIMEOUT_SECOND);
         logger.debug("PulsarClientService " + SEND_TIMEOUT + " " + sendTimeout);
         Preconditions.checkArgument(sendTimeout > 0, "sendTimeout must be > 0");
+
+        pulsarClientIoThreads = context.getInteger(PULSAR_IO_THREADS, DEFAULT_PULSAR_IO_THREADS);
+        pulsarConnectionsPreBroker = context.getInteger(PULSAR_CONNECTIONS_PRE_BROKER,
+                DEFAULT_CONNECTIONS_PRE_BROKER);
 
         enableBatch = context.getBoolean(ENABLE_BATCH, DEFAULT_ENABLE_BATCH);
         blockIfQueueFull = context.getBoolean(BLOCK_IF_QUEUE_FULL, DEFAULT_BLOCK_IF_QUEUE_FULL);
@@ -242,6 +252,8 @@ public class PulsarClientService {
             builder.authentication(AuthenticationFactory.token(token));
         }
         builder.serviceUrl(pulsarUrl)
+                .ioThreads(pulsarClientIoThreads)
+                .connectionsPerBroker(pulsarConnectionsPreBroker)
                 .connectionTimeout(clientTimeout, TimeUnit.SECONDS);
         return builder.build();
     }
