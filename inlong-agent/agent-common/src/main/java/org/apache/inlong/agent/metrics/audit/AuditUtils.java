@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.audit.util.AuditConfig;
-import org.mortbay.log.Log;
 
 import java.util.HashSet;
 
