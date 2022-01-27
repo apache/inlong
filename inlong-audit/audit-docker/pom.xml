@@ -21,7 +21,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>org.apache.inlong</groupId>
-    <artifactId>inlong</artifactId>
+    <artifactId>inlong-audit</artifactId>
     <version>0.13.0-incubating-SNAPSHOT</version>
   </parent>
   <groupId>org.apache.inlong</groupId>
