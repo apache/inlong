@@ -18,8 +18,9 @@
 package org.apache.inlong.sort.singletenant.flink;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.apache.inlong.sort.singletenant.flink.kafka.KafkaSinkBuilder.buildKafkaSink;
+import static org.apache.inlong.sort.singletenant.flink.kafka.KafkaSinkBuilder.buildKafkaSinkStream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.IOException;
@@ -102,7 +103,7 @@ public class Entrance {
             DataStream<Row> sourceStream,
             Configuration config,
             SinkInfo sinkInfo,
-            Map<String, Object> properties) {
+            Map<String, Object> properties) throws JsonProcessingException {
         final String sinkType = checkNotNull(config.getString(Constants.SINK_TYPE));
         final int sinkParallelism = config.getInteger(Constants.SINK_PARALLELISM);
 
@@ -125,11 +126,7 @@ public class Entrance {
                         .build();
                 break;
             case Constants.SINK_TYPE_KAFKA:
-                sourceStream
-                        .addSink(buildKafkaSink((KafkaSinkInfo) sinkInfo, properties, config))
-                        .uid(Constants.SINK_UID)
-                        .name("Kafka Sink")
-                        .setParallelism(sinkParallelism);
+                buildKafkaSinkStream(sourceStream, (KafkaSinkInfo) sinkInfo, properties, config, sinkParallelism);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported sink type " + sinkType);
