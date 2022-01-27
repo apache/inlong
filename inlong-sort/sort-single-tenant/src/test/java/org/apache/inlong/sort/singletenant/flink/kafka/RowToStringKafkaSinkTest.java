@@ -18,12 +18,15 @@
 
 package org.apache.inlong.sort.singletenant.flink.kafka;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.singletenant.flink.serialization.RowSerializationSchemaFactory;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.common.utils.Bytes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,24 +34,19 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class RowToStringKafkaSinkTest extends KafkaSinkTestBase {
+public class RowToStringKafkaSinkTest extends KafkaSinkTestBaseForRow {
 
     @Override
-    protected void prepareData() {
+    protected void prepareData() throws JsonProcessingException {
         topic = "test_kafka_row_to_string";
-        prepareKafkaSinkInfo();
-        prepareTestRows();
-    }
+        serializationSchema = RowSerializationSchemaFactory.build(
+                new FieldInfo[]{
+                        new FieldInfo("f1", new StringFormatInfo()),
+                        new FieldInfo("f2", new DoubleFormatInfo())
+                },
+                null
+        );
 
-    private void prepareKafkaSinkInfo() {
-        fieldInfos = new FieldInfo[]{
-                new FieldInfo("f1", new StringFormatInfo()),
-                new FieldInfo("f2", new DoubleFormatInfo())
-        };
-        serializationInfo = null;
-    }
-
-    private void prepareTestRows() {
         testRows = new ArrayList<>();
         testRows.add(Row.of("f1", 12.0));
         testRows.add(Row.of("f2", 12.1));
@@ -56,11 +54,11 @@ public class RowToStringKafkaSinkTest extends KafkaSinkTestBase {
     }
 
     @Override
-    protected void verifyData(ConsumerRecords<String, String> records) {
+    protected void verifyData(ConsumerRecords<String, Bytes> records) {
         List<String> results = new ArrayList<>();
-        for (ConsumerRecord<String, String> record : records) {
+        for (ConsumerRecord<String, Bytes> record : records) {
             assertNull(record.key());
-            results.add(record.value());
+            results.add(new String(record.value().get()));
         }
 
         List<String> expectedData = new ArrayList<>();

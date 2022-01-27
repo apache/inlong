@@ -18,37 +18,39 @@
 
 package org.apache.inlong.sort.singletenant.flink.kafka;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServer;
 import org.apache.curator.test.TestingServer;
+import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.core.testutils.CommonTestUtils;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.types.Row;
-import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
-import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.network.ListenerName;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
+import org.apache.kafka.common.serialization.BytesDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.common.utils.Time;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.Option;
 import scala.collection.mutable.ArraySeq;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -58,9 +60,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
 import static org.apache.flink.util.NetUtils.hostAndPortToUrlString;
-import static org.apache.inlong.sort.singletenant.flink.kafka.KafkaSinkBuilder.buildKafkaSink;
 
-public abstract class KafkaSinkTestBase {
+public abstract class KafkaSinkTestBase<T> {
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(KafkaSinkTestBase.class);
 
     @ClassRule
     public static TemporaryFolder tempFolder = new TemporaryFolder();
@@ -70,16 +73,16 @@ public abstract class KafkaSinkTestBase {
     private TestingServer zkServer;
 
     private KafkaServer kafkaServer;
-    private String brokerConnStr;
     private AdminClient kafkaAdmin;
-    private KafkaConsumer<String, String> kafkaConsumer;
+    private KafkaConsumer<String, Bytes> kafkaConsumer;
     private Properties kafkaClientProperties;
+    protected String brokerConnStr;
 
     // prepare data below in subclass
     protected String topic;
     protected List<Row> testRows;
     protected FieldInfo[] fieldInfos;
-    protected SerializationInfo serializationInfo;
+    protected SerializationSchema<T> serializationSchema;
 
     @Before
     public void setup() throws Exception {
@@ -133,7 +136,7 @@ public abstract class KafkaSinkTestBase {
         kafkaClientProperties.setProperty("auto.offset.reset", "earliest");
         kafkaClientProperties.setProperty("max.poll.records", "1000");
         kafkaClientProperties.setProperty("key.deserializer", StringDeserializer.class.getName());
-        kafkaClientProperties.setProperty("value.deserializer", StringDeserializer.class.getName());
+        kafkaClientProperties.setProperty("value.deserializer", BytesDeserializer.class.getName());
     }
 
     private void addTopic() throws InterruptedException, TimeoutException, ExecutionException {
@@ -145,7 +148,7 @@ public abstract class KafkaSinkTestBase {
                 "The topic metadata failed to propagate to Kafka broker.");
     }
 
-    protected abstract void prepareData();
+    protected abstract void prepareData() throws JsonProcessingException;
 
     @After
     public void clean() throws IOException {
@@ -163,25 +166,19 @@ public abstract class KafkaSinkTestBase {
     }
 
     @Test(timeout = 3 * 60 * 1000)
-    public void testKafkaSink() throws InterruptedException {
+    public void testKafkaSink() throws Exception {
         TestingSource testingSource = createTestingSource();
         final ExecutorService executorService = Executors.newSingleThreadExecutor();
         CountDownLatch testFinishedCountDownLatch = new CountDownLatch(1);
         executorService.execute(() -> {
             StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-            env.addSource(testingSource).addSink(
-                    buildKafkaSink(
-                            new KafkaSinkInfo(fieldInfos, brokerConnStr, topic, serializationInfo),
-                            new HashMap<>(),
-                            new Configuration()
-                    )
-            );
 
             try {
+                buildJob(env, testingSource);
                 env.execute();
                 testFinishedCountDownLatch.await();
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("Error occurred when executing flink test job: ", e);
             }
         });
 
@@ -190,10 +187,12 @@ public abstract class KafkaSinkTestBase {
         testFinishedCountDownLatch.countDown();
     }
 
-    private void verify() throws InterruptedException {
+    protected abstract void buildJob(StreamExecutionEnvironment env, TestingSource testingSource);
+
+    private void verify() throws Exception {
         kafkaConsumer.subscribe(Collections.singleton(topic));
         while (true) {
-            ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofSeconds(1));
+            ConsumerRecords<String, Bytes> records = kafkaConsumer.poll(Duration.ofSeconds(1));
             if (records.isEmpty() || records.count() != testRows.size()) {
                 //noinspection BusyWait
                 Thread.sleep(1000);
@@ -206,7 +205,7 @@ public abstract class KafkaSinkTestBase {
         }
     }
 
-    protected abstract void verifyData(ConsumerRecords<String, String> records);
+    protected abstract void verifyData(ConsumerRecords<String, Bytes> records) throws IOException;
 
     private TestingSource createTestingSource() {
         TestingSource testingSource = new TestingSource();
