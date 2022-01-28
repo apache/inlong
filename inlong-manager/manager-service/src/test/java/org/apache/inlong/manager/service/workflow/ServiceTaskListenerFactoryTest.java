@@ -32,10 +32,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class TaskEventListenerFactoryTest extends BaseTest {
+public class ServiceTaskListenerFactoryTest extends BaseTest {
 
     @Autowired
-    TaskEventListenerFactory taskEventListenerFactory;
+    ServiceTaskListenerFactory serviceTaskListenerFactory;
 
     @Test
     public void testGetQueueOperateListener() {
@@ -46,13 +46,13 @@ public class TaskEventListenerFactoryTest extends BaseTest {
         businessInfo.setMiddlewareType(BizConstant.MIDDLEWARE_PULSAR);
         processForm.setBusinessInfo(businessInfo);
         context.setProcessForm(processForm);
-        List<QueueOperateListener> queueOperateListeners = taskEventListenerFactory.getQueueOperateListener(context);
+        List<QueueOperateListener> queueOperateListeners = serviceTaskListenerFactory.getQueueOperateListener(context);
         Assert.assertTrue(queueOperateListeners.size() == 2);
         Assert.assertTrue(queueOperateListeners.get(0) instanceof CreatePulsarResourceTaskListener);
         Assert.assertTrue(queueOperateListeners.get(1) instanceof CreatePulsarGroupTaskListener);
         //check tube listener
         businessInfo.setMiddlewareType(BizConstant.MIDDLEWARE_TUBE);
-        queueOperateListeners = taskEventListenerFactory.getQueueOperateListener(context);
+        queueOperateListeners = serviceTaskListenerFactory.getQueueOperateListener(context);
         Assert.assertTrue(queueOperateListeners.size() == 2);
         Assert.assertTrue(queueOperateListeners.get(0) instanceof CreateTubeTopicTaskListener);
         Assert.assertTrue(queueOperateListeners.get(1) instanceof CreateTubeGroupTaskListener);
