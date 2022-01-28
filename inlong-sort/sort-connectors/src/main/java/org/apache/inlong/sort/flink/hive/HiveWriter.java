@@ -26,9 +26,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.flink.api.common.serialization.BulkWriter;
+import org.apache.flink.api.common.state.CheckpointListener;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.core.fs.RecoverableWriter;
-import org.apache.flink.runtime.state.CheckpointListener;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
@@ -53,8 +53,8 @@ import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 /**
  * Hive sink writer.
  */
-public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo> implements CheckpointedFunction,
-        CheckpointListener {
+public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
+        implements CheckpointedFunction, CheckpointListener {
 
     private static final long serialVersionUID = 4293562058643851159L;
 

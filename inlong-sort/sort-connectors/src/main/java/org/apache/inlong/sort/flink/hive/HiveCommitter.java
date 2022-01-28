@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.flink.hive.partition.HivePartition;
+import org.apache.inlong.sort.flink.hive.partition.JdbcHivePartitionCommitPolicy;
 import org.apache.inlong.sort.flink.hive.partition.PartitionCommitInfo;
 import org.apache.inlong.sort.flink.hive.partition.PartitionCommitPolicy;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
@@ -55,6 +56,12 @@ public class HiveCommitter extends RichSinkFunction<PartitionCommitInfo> {
         this.configuration = configuration;
         this.hiveSinkInfo = hiveSinkInfo;
         this.commitPolicyFactory = checkNotNull(commitPolicyFactory);
+    }
+
+    public HiveCommitter(
+            Configuration configuration,
+            HiveSinkInfo hiveSinkInfo) {
+        this(configuration, hiveSinkInfo, new JdbcHivePartitionCommitPolicy.Factory());
     }
 
     @Override
