@@ -28,6 +28,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -39,6 +40,10 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
 
     private static final String FIELD_FORMAT = "format";
 
+    private static final int MIN_PRECISION = 0;
+    private static final int MAX_PRECISION = 9;
+    private static final int DEFAULT_PRECISION = 6;
+
     @JsonProperty(FIELD_FORMAT)
     @Nonnull
     private final String format;
@@ -47,18 +52,37 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
     @Nullable
     private final SimpleDateFormat simpleDateFormat;
 
+    @JsonProperty("precision")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private final Integer precision;
+
+    public TimestampFormatInfo(String format) {
+        this(format, DEFAULT_PRECISION);
+    }
+
     @JsonCreator
     public TimestampFormatInfo(
-            @JsonProperty(FIELD_FORMAT) @Nonnull String format
+            @JsonProperty(FIELD_FORMAT) @Nonnull String format,
+            @JsonProperty("precision") Integer precision
     ) {
         this.format = format;
 
         if (!format.equals("MICROS")
-                    && !format.equals("MILLIS")
-                    && !format.equals("SECONDS")) {
+                && !format.equals("MILLIS")
+                && !format.equals("SECONDS")) {
             this.simpleDateFormat = new SimpleDateFormat(format);
         } else {
             this.simpleDateFormat = null;
+        }
+
+        if (precision == null) {
+            this.precision = DEFAULT_PRECISION;
+        } else if (precision < MIN_PRECISION || precision > MAX_PRECISION) {
+            throw new IllegalArgumentException(
+                    String.format("Timestamp precision must be between %d and %d (both inclusive).",
+                            MIN_PRECISION, MAX_PRECISION));
+        } else {
+            this.precision = precision;
         }
     }
 
@@ -69,6 +93,10 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
     @Nonnull
     public String getFormat() {
         return format;
+    }
+
+    public Integer getPrecision() {
+        return precision;
     }
 
     @Override
@@ -143,16 +171,16 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
         }
 
         TimestampFormatInfo that = (TimestampFormatInfo) o;
-        return format.equals(that.format);
+        return format.equals(that.format) && Objects.equals(precision, that.precision);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(format);
+        return Objects.hash(format, precision);
     }
 
     @Override
     public String toString() {
-        return "TimestampFormatInfo{" + "format='" + format + '\'' + '}';
+        return "TimestampFormatInfo{format='" + format + '\'' + ", precision=" + precision + '}';
     }
 }

@@ -20,10 +20,13 @@ package org.apache.inlong.sort.formats.common;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Collections;
+
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 /**
@@ -62,5 +65,17 @@ public class TimestampFormatInfoTest extends FormatInfoTestBase {
     @Test(expected = ParseException.class)
     public void testUnmatchedText() throws ParseException {
         new TimestampFormatInfo("HH:mm:ss yyyy-MM-dd").deserialize("2020-03-22 11:12:13");
+    }
+
+    @Test
+    public void testJson() throws IOException {
+        String testJson = "{\n"
+                + "  \"type\" : \"timestamp\",\n"
+                + "  \"format\" : \"yyyy-MM-dd hh:mm:ss\""
+                + "}";
+
+        TimestampFormatInfo actualInfo = new ObjectMapper().readValue(testJson, TimestampFormatInfo.class);
+        TimestampFormatInfo expectedInfo = new TimestampFormatInfo("yyyy-MM-dd hh:mm:ss", 6);
+        assertEquals(expectedInfo, actualInfo);
     }
 }
