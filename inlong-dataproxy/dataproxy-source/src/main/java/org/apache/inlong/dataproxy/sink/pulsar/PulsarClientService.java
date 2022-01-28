@@ -41,6 +41,8 @@ import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.impl.MessageIdImpl;
+import org.apache.pulsar.shade.io.netty.util.NettyRuntime;
+import org.apache.pulsar.shade.io.netty.util.internal.SystemPropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +73,9 @@ public class PulsarClientService {
     private static String MAX_BATCHING_MESSAGES = "max_batching_messages";
     private static String RETRY_INTERVAL_WHEN_SEND_ERROR_MILL = "retry_interval_when_send_error_ms";
 
-    private static int DEFAULT_PULSAR_IO_THREADS = 1;
+    private static int DEFAULT_PULSAR_IO_THREADS = Math.max(1, SystemPropertyUtil
+            .getInt("io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
+
     private static int DEFAULT_CONNECTIONS_PRE_BROKER = 1;
     private static int DEFAULT_SEND_TIMEOUT_MILL = 30 * 1000;
     private static int DEFAULT_CLIENT_TIMEOUT_SECOND = 30;
@@ -194,7 +198,6 @@ public class PulsarClientService {
             streamId = event.getHeaders().get(AttributeConstants.INAME);
         }
         proMap.put(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
-        logger.debug("producer send msg!");
         TopicProducerInfo forCallBackP = producer;
         forCallBackP.getProducer().newMessage().properties(proMap).value(event.getBody())
                 .sendAsync().thenAccept((msgId) -> {
@@ -222,23 +225,25 @@ public class PulsarClientService {
         pulsarClients = new ArrayList<PulsarClient>();
         for (int i = 0; i < pulsarServerUrls.length; i++) {
             try {
-                logger.debug("index = {}, url = {}", i, pulsarServerUrls[i]);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("index = {}, url = {}", i, pulsarServerUrls[i]);
+                }
                 PulsarClient client = initPulsarClient(pulsarServerUrls[i]);
                 pulsarClients.add(client);
                 callBack.handleCreateClientSuccess(pulsarServerUrls[i]);
             } catch (PulsarClientException e) {
                 callBack.handleCreateClientException(pulsarServerUrls[i]);
-                logger.error("create connnection error in metasink, "
+                logger.error("create connnection error in pulsar sink, "
                         + "maybe pulsar master set error, please re-check.url{}, ex1 {}",
                         pulsarServerUrls[i],
-                        e.getMessage());
+                        e);
             } catch (Throwable e) {
                 callBack.handleCreateClientException(pulsarServerUrls[i]);
-                logger.error("create connnection error in metasink, "
+                logger.error("create connnection error in pulsar sink, "
                                 + "maybe pulsar master set error/shutdown in progress, please "
                                 + "re-check. url{}, ex2 {}",
                         pulsarServerUrls[i],
-                        e.getMessage());
+                        e);
             }
         }
         if (pulsarClients.size() == 0) {

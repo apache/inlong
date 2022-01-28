@@ -724,7 +724,9 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 topic = configManager.getTopicProperties().get(groupId);
             }
         }
-        logger.debug("Get topic by groupId = {} , streamId = {}", groupId, streamId);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Get topic by groupId = {} , streamId = {}", groupId, streamId);
+        }
         return topic;
     }
 
