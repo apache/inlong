@@ -25,5 +25,5 @@ import org.apache.inlong.manager.common.model.WorkflowContext;
  */
 public interface ServiceTaskListenerProvider<T extends TaskEventListener> {
 
-    public Iterable<T> get(WorkflowContext workflowContext, ServiceTaskType serviceTaskType);
+    Iterable<T> get(WorkflowContext workflowContext, ServiceTaskType serviceTaskType);
 }
