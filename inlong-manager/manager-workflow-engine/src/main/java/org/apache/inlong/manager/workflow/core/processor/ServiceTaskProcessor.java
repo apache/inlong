@@ -71,7 +71,7 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
     public void create(ServiceTask serviceTask, WorkflowContext context) {
         TaskInstance taskInstance = createTaskInstance(serviceTask, context);
         context.getNewTaskInstances().add(taskInstance);
-
+        serviceTask.initListeners(context);
         this.taskEventNotifier.notify(TaskEvent.CREATE, context);
     }
 

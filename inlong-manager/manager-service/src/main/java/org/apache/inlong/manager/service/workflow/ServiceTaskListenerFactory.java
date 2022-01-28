@@ -17,18 +17,23 @@
 
 package org.apache.inlong.manager.service.workflow;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
+import lombok.Setter;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.common.event.EventSelector;
 import org.apache.inlong.manager.common.event.task.DataSourceOperateListener;
 import org.apache.inlong.manager.common.event.task.QueueOperateListener;
 import org.apache.inlong.manager.common.event.task.SortOperateListener;
 import org.apache.inlong.manager.common.event.task.StorageOperateListener;
+import org.apache.inlong.manager.common.event.task.TaskEventListener;
 import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.model.definition.ServiceTaskListenerProvider;
+import org.apache.inlong.manager.common.model.definition.ServiceTaskType;
 import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.common.plugin.PluginBinder;
 import org.apache.inlong.manager.common.plugin.ProcessPlugin;
@@ -46,7 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TaskEventListenerFactory implements PluginBinder {
+public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskListenerProvider {
 
     private Map<DataSourceOperateListener, EventSelector> sourceOperateListeners;
 
@@ -57,20 +62,26 @@ public class TaskEventListenerFactory implements PluginBinder {
     private Map<SortOperateListener, EventSelector> sortOperateListeners;
 
     @Autowired
+    @Setter
     private CreateTubeTopicTaskListener createTubeTopicTaskListener;
     @Autowired
+    @Setter
     private CreateTubeGroupTaskListener createTubeGroupTaskListener;
     @Autowired
+    @Setter
     private CreatePulsarResourceTaskListener createPulsarResourceTaskListener;
     @Autowired
+    @Setter
     private CreatePulsarGroupTaskListener createPulsarGroupTaskListener;
 
     @Autowired
+    @Setter
     private CreateHiveTableListener createHiveTableListener;
     @Autowired
     private CreateHiveTableEventSelector createHiveTableEventSelector;
 
     @Autowired
+    @Setter
     private PushHiveConfigTaskListener pushHiveConfigTaskListener;
     @Autowired
     private ZkSortEventSelector zkSortEventSelector;
@@ -89,7 +100,34 @@ public class TaskEventListenerFactory implements PluginBinder {
         sortOperateListeners.put(pushHiveConfigTaskListener, zkSortEventSelector);
     }
 
-    public List<DataSourceOperateListener> getDSOperateListener(WorkflowContext context) {
+    public void clearListeners() {
+        sourceOperateListeners = new LinkedHashMap<>();
+        storageOperateListeners = new LinkedHashMap<>();
+        queueOperateListeners = new LinkedHashMap<>();
+        sortOperateListeners = new LinkedHashMap<>();
+    }
+
+    @Override
+    public List<TaskEventListener> get(WorkflowContext workflowContext, ServiceTaskType serviceTaskType) {
+        switch (serviceTaskType) {
+            case INIT_MQ:
+                List<QueueOperateListener> queueOperateListeners = getQueueOperateListener(workflowContext);
+                return Lists.newArrayList(queueOperateListeners);
+            case INIT_SORT:
+                List<SortOperateListener> sortOperateListeners = getSortOperateListener(workflowContext);
+                return Lists.newArrayList(sortOperateListeners);
+            case INIT_SOURCE:
+                List<DataSourceOperateListener> sourceOperateListeners = getSourceOperateListener(workflowContext);
+                return Lists.newArrayList(sourceOperateListeners);
+            case INIT_STORAGE:
+                List<StorageOperateListener> storageOperateListeners = getStorageOperateListener(workflowContext);
+                return Lists.newArrayList(storageOperateListeners);
+            default:
+                throw new IllegalArgumentException(String.format("UnSupport ServiceTaskType %s", serviceTaskType));
+        }
+    }
+
+    public List<DataSourceOperateListener> getSourceOperateListener(WorkflowContext context) {
         List<DataSourceOperateListener> listeners = new ArrayList<>();
         for (Map.Entry<DataSourceOperateListener, EventSelector> entry : sourceOperateListeners.entrySet()) {
             EventSelector selector = entry.getValue();

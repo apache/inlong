@@ -18,13 +18,6 @@
 package org.apache.inlong.manager.common.event.task;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
-import org.apache.inlong.manager.common.event.EventListenerManager;
-import org.apache.inlong.manager.common.event.EventListenerNotifier;
-import org.apache.inlong.manager.common.event.LogableEventListener;
-import org.apache.inlong.manager.common.model.WorkflowContext;
-import org.apache.inlong.manager.common.model.definition.Task;
-
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -32,8 +25,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.event.EventListenerManager;
+import org.apache.inlong.manager.common.event.EventListenerNotifier;
+import org.apache.inlong.manager.common.event.LogableEventListener;
+import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.model.definition.Task;
 
 /**
  * Process event notifier
