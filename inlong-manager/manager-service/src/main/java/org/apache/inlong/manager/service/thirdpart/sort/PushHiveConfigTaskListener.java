@@ -70,6 +70,8 @@ public class PushHiveConfigTaskListener implements SortOperateListener {
 
     private static final Map<String, TimeUnit> PARTITION_TIME_UNIT_MAP = new HashMap<>();
 
+    private static final String DATA_FLOW_GROUP_ID_KEY = "inlong.group.id";
+
     static {
         PARTITION_TIME_FORMAT_MAP.put("D", "yyyyMMdd");
         PARTITION_TIME_FORMAT_MAP.put("H", "yyyyMMddHH");
@@ -121,6 +123,8 @@ public class PushHiveConfigTaskListener implements SortOperateListener {
             }
 
             DataFlowInfo dataFlowInfo = getDataFlowInfo(businessInfo, hiveInfo);
+            // add extra properties for flow info
+            dataFlowInfo.getProperties().put(DATA_FLOW_GROUP_ID_KEY, groupId);
             if (log.isDebugEnabled()) {
                 log.debug("try to push hive config to sort: {}", JsonUtils.toJson(dataFlowInfo));
             }

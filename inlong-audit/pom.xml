@@ -33,11 +33,12 @@
     <name>Apache InLong - Audit</name>
 
     <modules>
-        <module>audit-source</module>
-        <module>audit-docker</module>
+        <module>audit-proxy</module>
         <module>audit-store</module>
         <module>audit-common</module>
         <module>audit-sdk</module>
+        <module>audit-release</module>
+        <module>audit-docker</module>
     </modules>
 
     <properties>

@@ -27,7 +27,6 @@ import org.apache.inlong.commons.config.metrics.MetricDomain;
 import org.apache.inlong.commons.config.metrics.MetricItem;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
 
@@ -143,7 +142,7 @@ public class DataProxyMetricItem extends MetricItem {
     public static String getInlongGroupId(Map<String, String> headers) {
         String inlongGroupId = headers.get(Constants.INLONG_GROUP_ID);
         if (inlongGroupId == null) {
-            inlongGroupId = headers.getOrDefault(ConfigConstants.TOPIC_KEY, "");
+            inlongGroupId = headers.getOrDefault(AttributeConstants.GROUP_ID, "");
         }
         return inlongGroupId;
     }
