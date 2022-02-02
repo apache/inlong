@@ -23,7 +23,7 @@
   <parent>
     <artifactId>tubemq-docker</artifactId>
     <groupId>org.apache.inlong</groupId>
-    <version>1.1.0-incubating-SNAPSHOT</version>
+    <version>1.0.0-incubating</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <name>Apache InLong - TubeMQ Docker Manager</name>
