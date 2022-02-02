@@ -29,13 +29,12 @@ enum INLONG_COMPRESSED_TYPE
 message MessagePackHeader {
   string inlongGroupId = 1;  //inlongGroupId 
   string inlongStreamId = 2;  //inlongStreamId 
-  string proxyName = 3;  //proxy node id, IP or conainer name
-  int64 packTime = 4; //pack time, milliseconds
-  int32 msgCount = 5;	//message count
-  int32 srcLength = 6;	//total length of raw messages body
-  int32 compressLen = 7;	//compress length of messages
-  INLONG_COMPRESSED_TYPE compressType = 8;  //compress type
-  map<string, string> params = 9;     //additional parameters
+  int64 packTime = 3; //pack time, milliseconds
+  int32 msgCount = 4;	//message count
+  int32 srcLength = 5;	//total length of raw messages body
+  int32 compressLen = 6;	//compress length of messages
+  INLONG_COMPRESSED_TYPE compressType = 7;  //compress type
+  map<string, string> params = 8;     //additional parameters
 }
 
 message MessageObj {
