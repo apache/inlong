@@ -28,7 +28,6 @@
         <version>1.1.0-incubating-SNAPSHOT</version>
     </parent>
     <packaging>pom</packaging>
-    <groupId>org.apache.inlong</groupId>
     <artifactId>inlong-sdk</artifactId>
     <name>Apache InLong - SDK</name>
 
@@ -39,8 +38,8 @@
     </modules>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <compiler.source>1.8</compiler.source>
+        <compiler.target>1.8</compiler.target>
         <flume.version>1.9.0</flume.version>
         <plugin.assembly.version>3.2.0</plugin.assembly.version>
         <netty.version>3.8.0.Final</netty.version>
@@ -50,8 +49,8 @@
         <guava.version>19.0</guava.version>
         <skipTests>false</skipTests>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <compiler.source>1.8</compiler.source>
-        <compiler.target>1.8</compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <protobuf-version>3.19.1</protobuf-version>
         <snappy-version>1.1.8.4</snappy-version>
         <fastjson.version>1.2.79</fastjson.version>
