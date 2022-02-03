@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-agent</artifactId>
-        <version>0.13.0-incubating-SNAPSHOT</version>
+        <version>1.1.0-incubating-SNAPSHOT</version>
     </parent>
     <artifactId>agent-common</artifactId>
     <modelVersion>4.0.0</modelVersion>
@@ -106,6 +106,12 @@
             <groupId>org.apache.inlong</groupId>
             <artifactId>audit-sdk</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     <build>

@@ -37,13 +37,12 @@ import org.apache.inlong.dataproxy.utils.Constants;
  * AuditUtils
  */
 public class AuditUtils {
-
     public static final String AUDIT_KEY_FILE_PATH = "audit.filePath";
     public static final String AUDIT_DEFAULT_FILE_PATH = "/data/inlong/audit/";
     public static final String AUDIT_KEY_MAX_CACHE_ROWS = "audit.maxCacheRows";
     public static final int AUDIT_DEFAULT_MAX_CACHE_ROWS = 2000000;
     public static final String AUDIT_KEY_PROXYS = "audit.proxys";
-    public static final String AUDIT_KEY_IS_AUDIT = "audit.isAudit";
+    public static final String AUDIT_KEY_IS_AUDIT = "audit.enable";
 
     public static final int AUDIT_ID_DATAPROXY_READ_SUCCESS = 5;
     public static final int AUDIT_ID_DATAPROXY_SEND_SUCCESS = 6;

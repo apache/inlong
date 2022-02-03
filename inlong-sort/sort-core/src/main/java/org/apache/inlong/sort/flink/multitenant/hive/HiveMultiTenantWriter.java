@@ -87,10 +87,11 @@ public class HiveMultiTenantWriter extends ProcessFunction<SerializedRecord, Par
         metaManager.registerDataFlowInfoListener(new DataFlowInfoListenerImpl());
         proxyContext = new ProcessFunctionContext();
 
-        String auditHostAndPorts = configuration.getString(Constants.METRICS_AUDIT_SDK_HOSTS);
+        String auditHostAndPorts = configuration.getString(Constants.METRICS_AUDIT_PROXY_HOSTS);
         if (auditHostAndPorts != null) {
             AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(","))));
             auditImp = AuditImp.getInstance();
+            LOG.info("audit proxy address: " + auditHostAndPorts);
         }
     }
 
@@ -154,7 +155,6 @@ public class HiveMultiTenantWriter extends ProcessFunction<SerializedRecord, Par
                 Pair<String, String> groupIdAndStreamId = inLongGroupIdAndStreamIdMap.getOrDefault(
                         serializedRecord.getDataFlowId(),
                         Pair.of("", ""));
-
                 auditImp.add(
                         Constants.METRIC_AUDIT_ID_FOR_OUTPUT,
                         groupIdAndStreamId.getLeft(),

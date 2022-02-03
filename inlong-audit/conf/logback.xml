@@ -18,11 +18,11 @@
  under the License.
 -->
 <configuration  scan="true" scanPeriod="60s">
-	<property name="PROJECT_NAME" value="audit-source"/>
+	<property name="PROJECT_NAME" value="audit"/>
 	<property name="LOG_BACK_DIR" value="logs"/>
 
 	<appender name="INFO_ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${LOG_BACK_DIR}/info.log</file>
+		<file>${LOG_BACK_DIR}/audit-proxy.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<!-- rollover daily -->
 			<fileNamePattern>${LOG_BACK_DIR}/info-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
@@ -89,26 +89,6 @@
 			<param name="Pattern"
 				   value="%d{yyyy-MM-dd HH:mm:ss.SSS}|%X{threadId}|%X{traceId}-%X{rpcId}|%level|%C|%M|%L|uid=%X{uid},deviceId=%X{deviceId},sessionId=%X{sessionId},requestId=%X{requestId},tradeId=%X{tradeId},clientIp=%X{clientIp}|%.-512msg|%X{callChain}%n"/>
 		</layout>
-	</appender>
-
-	<appender name="DefaultAppender"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${LOG_BACK_DIR}/log/agent_default.log</file>
-		<append>true</append>
-		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<fileNamePattern>${LOG_BACK_DIR}/log/otherdays/http_default-%d{yyyy-MM-dd}.%i.log
-			</fileNamePattern>
-			<minIndex>1</minIndex>
-			<maxIndex>10</maxIndex>
-		</rollingPolicy>
-		<triggeringPolicy
-			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<maxFileSize>16MB</maxFileSize>
-		</triggeringPolicy>
-		<encoder>
-			<pattern>%d{yyy-MM-dd HH:mm:ss,GMT+8} %p %t - %m%n</pattern>
-			<charset class="java.nio.charset.Charset">UTF-8</charset>
-		</encoder>
 	</appender>
 
 	<root level="DEBUG">

@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>0.13.0-incubating-SNAPSHOT</version>
+        <version>1.1.0-incubating-SNAPSHOT</version>
     </parent>
     <artifactId>inlong-dashboard</artifactId>
     <name>Apache InLong - Dashboard</name>

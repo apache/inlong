@@ -19,9 +19,5 @@
 # under the License.
 #
 
-cd "$(dirname "$0")"/../conf
-
-for i in {common.properties}
-  do
-    touch $i
-done
+# this program kills the audit store
+ps -ef |grep "inlong-audit" | grep -v grep|awk '{print $2}' | xargs kill -9

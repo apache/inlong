@@ -202,14 +202,14 @@ public class PulsarSink extends AbstractSink implements Configurable,
         /*
          * stat pulsar performance
          */
-        System.out.println("pulsarPerformanceTask!!!!!!");
+        logger.info("PulsarPerformanceTask!!!!!!");
         scheduledExecutorService.scheduleWithFixedDelay(pulsarPerformanceTask, 0L,
                 PRINT_INTERVAL, TimeUnit.SECONDS);
     }
 
     public PulsarSink() {
         super();
-        logger.debug("new instance of PulsarSink!");
+        logger.info("new instance of PulsarSink!");
     }
 
     /**
@@ -312,7 +312,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
             if (isNewMetricOn) {
                 monitorIndex = new MonitorIndex("Pulsar_Sink", statIntervalSec, maxMonitorCnt);
             }
-            monitorIndexExt = new MonitorIndexExt("Data_proxy_monitors#" + this.getName(),
+            monitorIndexExt = new MonitorIndexExt("Pulsar_Sink_monitors#" + this.getName(),
                     statIntervalSec, maxMonitorCnt);
         }
 
@@ -471,7 +471,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
                     newbase.append(this.getName()).append(SEPARATOR).append(topic).append(SEPARATOR)
                             .append(streamId).append(SEPARATOR).append(nodeIp)
                             .append(SEPARATOR).append(NetworkUtils.getLocalIp())
-                            .append(SEPARATOR).append(msgId).append(SEPARATOR)
+                            .append(SEPARATOR).append(SEPARATOR)
                             .append(event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
 
                     long messageSize = event.getBody().length;
@@ -673,8 +673,9 @@ public class PulsarSink extends AbstractSink implements Configurable,
                             topic = event.getHeaders().get(TOPIC);
                         }
                     }
-                    logger.debug("Event is {}, topic = {} ",event, topic);
-
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Event is {}, topic = {} ",event, topic);
+                    }
                     if (event == null) {
                         continue;
                     }

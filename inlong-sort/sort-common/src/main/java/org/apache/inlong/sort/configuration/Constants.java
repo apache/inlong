@@ -300,10 +300,11 @@ public class Constants {
             .defaultValue(5)
             .withDescription("minutes");
 
-    public static final ConfigOption<String> METRICS_AUDIT_SDK_HOSTS =
-            key("metrics.audit.sdk.hosts")
+    public static final ConfigOption<String> METRICS_AUDIT_PROXY_HOSTS =
+            key("metrics.audit.proxy.hosts")
                     .noDefaultValue()
-                    .withDescription("Host address for reporting audit metrics. e.g. 0.0.0.0:54041,0.0.0.1:54041");
+                    .withDescription("Audit proxy host address for reporting audit metrics. "
+                            + "e.g. 127.0.0.1:10081,0.0.0.1:10081");
 
     // ------------------------------------------------------------------------
     //  Single tenant related

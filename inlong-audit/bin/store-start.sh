@@ -22,7 +22,7 @@ bin_dir=$(dirname $0)
 base_dir=`cd -P $bin_dir/..;pwd`
 cd ..
 
-PID=$(ps -ef | grep "$base_dir" | grep -v grep | awk '{ print $2}')
+PID=$(ps -ef | grep "inlong-audit" | grep -v grep | awk '{ print $2}')
 
 if [ -n "$PID" ]; then
  echo "Application has already started."
@@ -45,11 +45,9 @@ fi
 
 JAVA_OPTS="-server -Xms2g -Xmx2g -XX:SurvivorRatio=2 -XX:+UseParallelGC"
 
-MAIN_CLASS="org.apache.inlong.store.Application"
-
 SERVERJAR=`ls -lt ${base_dir}/lib |grep audit-store | head -2 | tail -1 | awk '{print $NF}'`
 
-nohup $JAVA $JAVA_OPTS -Dloader.path="$base_dir/conf,$base_dir/lib/" -jar "$base_dir/lib/$SERVERJAR" > $base_dir/logs/nohup.out 2>&1 < /dev/null &
+nohup $JAVA $JAVA_OPTS -Dloader.path="$base_dir/conf,$base_dir/lib/" -jar "$base_dir/lib/$SERVERJAR" > $base_dir/logs/audit-store.log 2>&1 < /dev/null &
 
 PIDFILE="$base_dir/bin/PID"
 
