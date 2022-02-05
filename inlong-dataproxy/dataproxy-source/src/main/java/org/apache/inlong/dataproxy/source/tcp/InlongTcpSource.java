@@ -215,7 +215,8 @@ public class InlongTcpSource extends AbstractSource implements Configurable, Eve
             Preconditions.checkArgument((trafficClass == 0 || trafficClass == 96),
                     "trafficClass must be == 0 or == 96");
 
-            msgFactoryName = context.getString(ConfigConstants.MSG_FACTORY_NAME, InlongTcpChannelPipelineFactory.class.getName());
+            msgFactoryName = context.getString(ConfigConstants.MSG_FACTORY_NAME,
+                    InlongTcpChannelPipelineFactory.class.getName());
             msgFactoryName = msgFactoryName.trim();
             Preconditions.checkArgument(StringUtils.isNotBlank(msgFactoryName),
                     "msgFactoryName is empty");
