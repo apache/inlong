@@ -52,3 +52,17 @@ message MessagePack {
   MessagePackHeader header = 1;  //message pack header
   bytes compressBytes = 2;     //compressed bytes of MessageObjs serialization bytes, or MessageObjs serialization bytes(compressType=INLONG_NO_COMPRESS)
 }
+
+enum ResultCode{
+  SUCCUSS = 0;				// success
+  FAIL = -1;				// general error code
+  ERR_VERSION_ERROR = -101;	// not support version
+  ERR_LENGTH_ERROR = -102;	// error length, the length is negitive or over.
+  ERR_REJECT = -103;        // Proxy rejects the request, because proxy can not process more data, or the cache cluster can not be connected.
+  ERR_PACKAGE_ERROR = -104;	// request data can not be decoded with PB protocol.
+  ERR_ID_ERROR = -105;		// inlongGroupId or inlongStreamId is bad; The length is wrong, or the CRC check is wrong.
+}
+
+message ResponseInfo {
+  ResultCode result = 1;	//response result
+}
