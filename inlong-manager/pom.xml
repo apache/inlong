@@ -36,6 +36,7 @@
         <module>manager-service</module>
         <module>manager-web</module>
         <module>manager-docker</module>
+        <module>manager-plugin-examples</module>
     </modules>
 
     <properties>
