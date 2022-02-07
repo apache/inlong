@@ -24,12 +24,12 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-audit</artifactId>
-        <version>0.13.0-incubating-SNAPSHOT</version>
+        <version>1.1.0-incubating-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <name>Apache InLong - Audit Source</name>
+    <name>Apache InLong - Audit Proxy</name>
     <groupId>org.apache.inlong</groupId>
-    <artifactId>audit-source</artifactId>
+    <artifactId>audit-proxy</artifactId>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -79,30 +79,4 @@
             <optional>true</optional>
         </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>${plugin.assembly.version}</version>
-                <executions>
-                    <execution>
-                        <id>assemble</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>apache-inlong-audit-source-${project.version}</finalName>
-                            <outputDirectory>target</outputDirectory>
-                            <descriptors>
-                                <descriptor>assembly/assembly.xml</descriptor>
-                            </descriptors>
-                            <tarLongFileMode>posix</tarLongFileMode>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

@@ -18,10 +18,16 @@
 
 file_path=$(cd "$(dirname "$0")"/../;pwd)
 # config
-sed -i "s/PULSAR_BROKER_LIST/$PULSAR_BROKER_LIST/g" ${file_path}/conf/audit.conf
-sed -i "s/PULSAR_TOPIC/$PULSAR_TOPIC/g" ${file_path}/conf/audit.conf
+conf_file=${file_path}/conf/application.properties
+
+# replace the configuration
+sed -i "s/127.0.0.1:3306/${JDBC_URL}/g" "${conf_file}"
+sed -i "s/spring.datasource.druid.username=.*$/spring.datasource.druid.username=${USERNAME}/g" "${conf_file}"
+sed -i "s/spring.datasource.druid.password=.*$/spring.datasource.druid.password=${PASSWORD}/g" "${conf_file}"
+
 # start
-bash +x ${file_path}/bin/start.sh
+bash +x ${file_path}/bin/proxy-start.sh
+bash +x ${file_path}/bin/store-start.sh
 sleep 3
 # keep alive
-tail -F ${file_path}/logs/audit-source.log
+tail -F ${file_path}/logs/audit-*

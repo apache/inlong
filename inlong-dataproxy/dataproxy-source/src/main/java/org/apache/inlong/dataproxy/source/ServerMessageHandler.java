@@ -425,6 +425,8 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 }
 
                 headers.put(ConfigConstants.TOPIC_KEY, topicEntry.getKey());
+                headers.put(AttributeConstants.GROUP_ID,
+                        streamIdEntry.getValue().get(0).getGroupId());
                 headers.put(AttributeConstants.INTERFACE_ID, streamIdEntry.getKey());
                 headers.put(ConfigConstants.REMOTE_IP_KEY, strRemoteIP);
                 headers.put(ConfigConstants.REMOTE_IDC_KEY, DEFAULT_REMOTE_IDC_VALUE);
@@ -437,7 +439,6 @@ public class ServerMessageHandler extends SimpleChannelHandler {
 
                 String sequenceId = commonAttrMap.get(AttributeConstants.SEQUENCE_ID);
                 if (StringUtils.isNotEmpty(sequenceId)) {
-
                     StringBuilder sidBuilder = new StringBuilder();
                     sidBuilder.append(topicEntry.getKey()).append(SEPARATOR).append(streamIdEntry.getKey())
                             .append(SEPARATOR).append(sequenceId);
@@ -723,7 +724,9 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 topic = configManager.getTopicProperties().get(groupId);
             }
         }
-        logger.debug("Get topic by groupId = {} , streamId = {}", groupId, streamId);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Get topic by groupId = {} , streamId = {}", groupId, streamId);
+        }
         return topic;
     }
 

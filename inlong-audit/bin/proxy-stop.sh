@@ -19,9 +19,5 @@
 # under the License.
 #
 
-cd "$(dirname "$0")"/../conf
-
-for i in {server.properties}
-  do
-    touch $i
-done
+# this program kills the audit
+ps -ef | grep "org.apache.inlong.audit.node.Application" | grep "inlong-audit" | grep -v grep |awk '{print $2}' | xargs kill -9

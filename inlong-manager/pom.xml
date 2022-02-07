@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>0.13.0-incubating-SNAPSHOT</version>
+        <version>1.1.0-incubating-SNAPSHOT</version>
     </parent>
     <packaging>pom</packaging>
     <artifactId>inlong-manager</artifactId>
@@ -36,6 +36,7 @@
         <module>manager-service</module>
         <module>manager-web</module>
         <module>manager-docker</module>
+        <module>manager-plugin-examples</module>
     </modules>
 
     <properties>
@@ -64,6 +65,7 @@
         <httpcore.version>4.4.14</httpcore.version>
         <httpclient.version>4.5.13</httpclient.version>
         <junit.version>4.12</junit.version>
+        <mockito.version>3.6.28</mockito.version>
         <lombok.version>1.18.20</lombok.version>
         <ini4j.version>0.5.1</ini4j.version>
         <knife4j.version>2.0.5</knife4j.version>
@@ -433,6 +435,12 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
 
