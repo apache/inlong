@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.flink.core.fs.local.LocalDataOutputStream;
 import org.apache.flink.types.Row;
@@ -120,51 +121,25 @@ public class TextRowWriterTest {
     }
 
     public static boolean isSameFile(String fileName1, String fileName2) {
-        FileInputStream fis1 = null;
-        FileInputStream fis2 = null;
-
-        try {
-            fis1 = new FileInputStream(fileName1);
-            fis2 = new FileInputStream(fileName2);
-
+        try (FileInputStream fis1 = new FileInputStream(fileName1);
+                FileInputStream fis2 = new FileInputStream(fileName2)) {
             int len1 = fis1.available();
             int len2 = fis2.available();
 
             if (len1 == len2) {
-
                 byte[] data1 = new byte[len1];
                 byte[] data2 = new byte[len2];
 
                 fis1.read(data1);
                 fis2.read(data2);
 
-                for (int i = 0; i < len1; i++) {
-                    if (data1[i] != data2[i]) {
-                        return false;
-                    }
-                }
-                return true;
+                return Arrays.equals(data1, data2);
             } else {
                 return false;
             }
         } catch (IOException e) {
             e.printStackTrace();
             return false;
-        } finally {
-            if (fis1 != null) {
-                try {
-                    fis1.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (fis2 != null) {
-                try {
-                    fis2.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 }
