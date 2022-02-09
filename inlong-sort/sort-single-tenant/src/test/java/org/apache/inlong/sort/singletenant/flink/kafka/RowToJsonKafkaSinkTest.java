@@ -26,8 +26,6 @@ import org.apache.inlong.sort.formats.common.MapFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.JsonSerializationInfo;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class RowToJsonKafkaSinkTest extends KafkaSinkTestBase {
     @Override
@@ -72,13 +69,7 @@ public class RowToJsonKafkaSinkTest extends KafkaSinkTestBase {
     }
 
     @Override
-    protected void verifyData(ConsumerRecords<String, String> records) {
-        List<String> results = new ArrayList<>();
-        for (ConsumerRecord<String, String> record : records) {
-            assertNull(record.key());
-            results.add(record.value());
-        }
-
+    protected void verifyData(List<String> results) {
         List<String> expectedData = new ArrayList<>();
         expectedData.add("{\"f1\":\"zhangsan\",\"f2\":{\"high\":170.5},\"f3\":[123]}");
         expectedData.add("{\"f1\":\"lisi\",\"f2\":{\"high\":180.5},\"f3\":[1234]}");
