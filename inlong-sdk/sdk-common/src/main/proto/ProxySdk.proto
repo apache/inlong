@@ -1,0 +1,68 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package org.apache.inlong.sdk.commons.protocol;
+
+enum INLONG_COMPRESSED_TYPE
+{
+  INLONG_NO_COMPRESS = 0;
+  INLONG_GZ = 1;
+  INLONG_SNAPPY = 2;
+};
+
+message MessagePackHeader {
+  string inlongGroupId = 1;  //inlongGroupId 
+  string inlongStreamId = 2;  //inlongStreamId 
+  int64 packTime = 3; //pack time, milliseconds
+  int32 msgCount = 4;	//message count
+  int32 srcLength = 5;	//total length of raw messages body
+  int32 compressLen = 6;	//compress length of messages
+  INLONG_COMPRESSED_TYPE compressType = 7;  //compress type
+  map<string, string> params = 8;     //additional parameters
+}
+
+message MessageObj {
+  int64 msgTime = 1; //message generation time, milliseconds
+  string sourceIp = 2; // agent ip of message generation
+  bytes body = 3; //message body
+  map<string, string> params = 4;	//additional parameters
+}
+
+message MessageObjs {
+	repeated MessageObj msgs = 1;      //message list
+}
+
+message MessagePack {
+  MessagePackHeader header = 1;  //message pack header
+  bytes compressBytes = 2;     //compressed bytes of MessageObjs serialization bytes, or MessageObjs serialization bytes(compressType=INLONG_NO_COMPRESS)
+}
+
+enum ResultCode{
+  SUCCUSS = 0;				// success
+  FAIL = -1;				// general error code
+  ERR_VERSION_ERROR = -101;	// not support version
+  ERR_LENGTH_ERROR = -102;	// error length, the length is negitive or over.
+  ERR_REJECT = -103;        // Proxy rejects the request, because proxy can not process more data, or the cache cluster can not be connected.
+  ERR_PACKAGE_ERROR = -104;	// request data can not be decoded with PB protocol.
+  ERR_ID_ERROR = -105;		// inlongGroupId or inlongStreamId is bad; The length is wrong, or the CRC check is wrong.
+}
+
+message ResponseInfo {
+  ResultCode result = 1;	//response result
+}
