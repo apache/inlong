@@ -48,7 +48,7 @@
         <junit.version>4.12</junit.version>
         <hamcrest.version>1.3</hamcrest.version>
         <slf4j.version>1.7.15</slf4j.version>
-        <log4j.version>2.13.3</log4j.version>
+        <log4j.version>2.17.1</log4j.version>
         <mockito.version>3.6.28</mockito.version>
         <curator.version>2.12.0</curator.version>
         <log4j.configuration>log4j-test.properties</log4j.configuration>
