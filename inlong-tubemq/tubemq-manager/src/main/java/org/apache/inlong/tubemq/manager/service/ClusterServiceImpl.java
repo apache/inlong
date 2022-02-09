@@ -95,13 +95,15 @@ public class ClusterServiceImpl implements ClusterService {
         if (clusterEntry == null) {
             return;
         }
-        MasterEntry masterEntry = new MasterEntry();
-        masterEntry.setPort(req.getMasterPort());
-        masterEntry.setClusterId(clusterEntry.getClusterId());
-        masterEntry.setWebPort(req.getMasterWebPort());
-        masterEntry.setIp(req.getMasterIp());
-        masterEntry.setToken(req.getToken());
-        nodeService.addNode(masterEntry);
+        for (String masterIp : req.getMasterIps()) {
+            MasterEntry masterEntry = new MasterEntry();
+            masterEntry.setPort(req.getMasterPort());
+            masterEntry.setClusterId(clusterEntry.getClusterId());
+            masterEntry.setWebPort(req.getMasterWebPort());
+            masterEntry.setIp(masterIp);
+            masterEntry.setToken(req.getToken());
+            nodeService.addNode(masterEntry);
+        }
     }
 
 }

@@ -34,6 +34,8 @@ public class TubeMQResult {
     private boolean result = true;
     private Object data;
 
+    public static final int ERR_CODE = -1;
+
     private static Gson json = new Gson();
 
     public static TubeMQResult errorResult(String errorMsg) {
@@ -59,6 +61,10 @@ public class TubeMQResult {
     public static TubeMQResult successResult(Object data) {
         return TubeMQResult.builder().errCode(0)
                 .result(true).data(data).build();
+    }
+
+    public boolean isError() {
+        return ERR_CODE == errCode;
     }
 
 }
