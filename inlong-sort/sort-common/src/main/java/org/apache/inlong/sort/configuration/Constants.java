@@ -252,6 +252,12 @@ public class Constants {
                             + "This controls the frequency to check whether a part file should rollover based on"
                             + " 'sink.rolling-policy.rollover-interval'.");
 
+    public static final ConfigOption<Integer> SINK_HIVE_TEXT_BUFFER_SIZE =
+            key("sink.hive.text.buffer.size")
+                    .defaultValue(262144)
+                    .withDescription("Buffer size of Hive/THive sink text format (with compression or not), "
+                                             + "default size is 256KB");
+
     // ------------------------------------------------------------------------
     //  Checkpoint related configs
     // ------------------------------------------------------------------------
@@ -313,4 +319,13 @@ public class Constants {
             key("dataflow.info.file")
                     .noDefaultValue()
                     .withDescription("The file which contains dataflow info for a single tenant job");
+
+    // ------------------------------------------------------------------------
+    //  File format and compression related
+    // ------------------------------------------------------------------------
+    public enum CompressionType {
+        NONE,
+        GZIP,
+        LZO
+    }
 }

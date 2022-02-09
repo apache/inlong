@@ -17,12 +17,14 @@
 
 package org.apache.inlong.sort.protocol.sink;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.inlong.sort.configuration.Constants.CompressionType;
 import org.apache.inlong.sort.protocol.FieldInfo;
 
 import javax.annotation.Nullable;
@@ -191,14 +193,30 @@ public class HiveSinkInfo extends SinkInfo {
         @JsonProperty("splitter")
         private final Character splitter;
 
+        @JsonInclude(Include.NON_NULL)
+        @JsonProperty("compression_type")
+        private final CompressionType compressionType;
+
+        @JsonCreator
         public TextFileFormat(
-                @JsonProperty("splitter") Character splitter) {
+                @JsonProperty("splitter") Character splitter,
+                @JsonProperty("compression_type") CompressionType compressionType) {
             this.splitter = splitter;
+            this.compressionType = compressionType;
+        }
+
+        public TextFileFormat(@JsonProperty("splitter") Character splitter) {
+            this(splitter, CompressionType.NONE);
         }
 
         @JsonProperty("splitter")
         public Character getSplitter() {
             return splitter;
+        }
+
+        @JsonProperty("compression_type")
+        public CompressionType getCompressionType() {
+            return compressionType;
         }
     }
 
