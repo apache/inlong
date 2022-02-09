@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.core.plugin;
 
 import java.util.List;
+import java.util.Objects;
+
 import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.common.plugin.ProcessPlugin;
 import org.apache.inlong.manager.service.BaseTest;
@@ -32,11 +34,11 @@ public class PluginServiceTest extends BaseTest {
 
     @Test
     public void testReloadPlugin() {
-        String path = this.getClass().getClassLoader().getResource("").getPath();
+        String path = Objects.requireNonNull(this.getClass().getClassLoader().getResource("")).getPath();
         pluginService.setPluginLoc(path + "plugins");
         pluginService.pluginReload();
         List<Plugin> pluginList = pluginService.getPlugins();
-        Assert.assertTrue(pluginList.size() == 1);
+        Assert.assertTrue(pluginList.size() > 0);
         Assert.assertTrue(pluginList.get(0) instanceof ProcessPlugin);
     }
 }
