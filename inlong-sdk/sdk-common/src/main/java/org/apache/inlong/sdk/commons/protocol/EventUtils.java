@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
+import org.apache.inlong.sdk.commons.protocol.ProxySdk.MapFieldEntry;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessagePack;
@@ -152,7 +153,9 @@ public class EventUtils {
             MessageObj.Builder builder = MessageObj.newBuilder();
             builder.setMsgTime(event.getMsgTime());
             builder.setSourceIp(event.getSourceIp());
-            builder.putAllParams(event.getHeaders());
+            event.getHeaders().forEach((key, value) -> {
+                builder.addParams(MapFieldEntry.newBuilder().setKey(key).setValue(value));
+            });
             builder.setBody(ByteString.copyFrom(event.getBody()));
             objs.addMsgs(builder.build());
         }

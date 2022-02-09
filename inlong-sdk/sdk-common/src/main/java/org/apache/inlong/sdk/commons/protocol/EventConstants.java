@@ -22,7 +22,9 @@ package org.apache.inlong.sdk.commons.protocol;
  * EventConstants
  */
 public interface EventConstants {
-
+    String HEADER_KEY_VERSION = "version";
+    String HEADER_SDK_VERSION_1 = "1";
+    String HEADER_CACHE_VERSION_1 = "1";
     // sdk
     String INLONG_GROUP_ID = "inlongGroupId";
     String INLONG_STREAM_ID = "inlongStreamId";
@@ -31,6 +33,11 @@ public interface EventConstants {
     // proxy
     String HEADER_KEY_SOURCE_TIME = "sourceTime";
     String TOPIC = "topic";
+    String HEADER_KEY_PROXY_NAME = "proxyName";
+    String HEADER_KEY_PACK_TIME = "packTime";
+    String HEADER_KEY_MSG_COUNT = "msgCount";
+    String HEADER_KEY_SRC_LENGTH = "srcLength";
+    String HEADER_KEY_COMPRESS_TYPE = "compressType";
     // sort
     String HEADER_KEY_MESSAGE_KEY = "messageKey";
     String HEADER_KEY_MSG_OFFSET = "msgOffset";

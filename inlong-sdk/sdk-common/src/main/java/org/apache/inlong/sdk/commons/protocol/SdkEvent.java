@@ -54,6 +54,7 @@ public class SdkEvent extends SimpleEvent {
         super.setBody(body);
         this.uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
         this.msgTime = System.currentTimeMillis();
+        this.sourceIp = "127.0.0.1";
         Map<String, String> headers = super.getHeaders();
         headers.put(EventConstants.INLONG_GROUP_ID, inlongGroupId);
         headers.put(EventConstants.INLONG_STREAM_ID, inlongStreamId);
