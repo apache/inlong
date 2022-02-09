@@ -250,6 +250,8 @@
                         <exclude>**/tubemq-core/src/test/resources/*.keystore</exclude>
                         <!-- Test case : temporary data for test cases -->
                         <exclude>**/AgentBaseTestsHelper/**</exclude>
+                        <!-- Test case : example jar for test cases -->
+                        <exclude>**/manager-service/src/test/resources/plugins/manager-plugin-examples.jar</exclude>
 
                         <!-- Referenced 3rd codes -->
                         <exclude>**/resources/assets/lib/**</exclude>
