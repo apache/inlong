@@ -15,26 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.thirdpart.sort;
+package org.apache.inlong.manager.service.mocks;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.event.EventSelector;
+import org.apache.inlong.manager.common.event.ListenerResult;
+import org.apache.inlong.manager.common.event.task.DataSourceOperateListener;
+import org.apache.inlong.manager.common.event.task.TaskEvent;
 import org.apache.inlong.manager.common.model.WorkflowContext;
-import org.apache.inlong.manager.common.model.definition.ProcessForm;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
-import org.springframework.stereotype.Component;
 
-@Component
-@Slf4j
-public class ZkSortEventSelector implements EventSelector {
+public class MockDeleteSourceListener implements DataSourceOperateListener {
 
     @Override
-    public boolean accept(WorkflowContext context) {
-        ProcessForm processForm = context.getProcessForm();
-        if (processForm == null || !(processForm instanceof BusinessResourceWorkflowForm)) {
-            return false;
-        }
-        //todo check if push sort config to zookeeper
-        return true;
+    public TaskEvent event() {
+        return TaskEvent.COMPLETE;
+    }
+
+    @Override
+    public ListenerResult listen(WorkflowContext context) throws Exception {
+        return ListenerResult.success("Mock delete source success");
+    }
+
+    @Override
+    public boolean async() {
+        return false;
     }
 }

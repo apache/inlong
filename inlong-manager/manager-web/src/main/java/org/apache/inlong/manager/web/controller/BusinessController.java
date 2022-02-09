@@ -86,7 +86,7 @@ public class BusinessController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "groupId", value = "Business group id", dataTypeClass = String.class, required = true)
     public Response<Boolean> delete(@PathVariable String groupId) {
-        return Response.success(businessService.delete(groupId, LoginUserUtil.getLoginUserDetail().getUserName()));
+        return Response.success(bizProcessOperation.deleteProcess(groupId, LoginUserUtil.getLoginUserDetail().getUserName()));
     }
 
     @RequestMapping(value = "/exist/{groupId}", method = RequestMethod.GET)
@@ -108,6 +108,22 @@ public class BusinessController {
     public Response<WorkflowResult> startProcess(@PathVariable String groupId) {
         String username = LoginUserUtil.getLoginUserDetail().getUserName();
         return Response.success(bizProcessOperation.startProcess(groupId, username));
+    }
+
+    @RequestMapping(value = "suspendProcess/{groupId}", method = RequestMethod.POST)
+    @ApiOperation(value = "Suspend process")
+    @ApiImplicitParam(name = "groupId", value = "Business group id", dataTypeClass = String.class)
+    public Response<WorkflowResult> suspendProcess(@PathVariable String groupId) {
+        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        return Response.success(bizProcessOperation.suspendProcess(groupId, username));
+    }
+
+    @RequestMapping(value = "restartProcess/{groupId}", method = RequestMethod.POST)
+    @ApiOperation(value = "Restart process")
+    @ApiImplicitParam(name = "groupId", value = "Business group id", dataTypeClass = String.class)
+    public Response<WorkflowResult> restartProcess(@PathVariable String groupId) {
+        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        return Response.success(bizProcessOperation.restartProcess(groupId, username));
     }
 
     @RequestMapping(value = "getTopic/{groupId}", method = RequestMethod.GET)
