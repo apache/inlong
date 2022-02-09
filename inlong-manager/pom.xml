@@ -71,7 +71,7 @@
         <knife4j.version>2.0.5</knife4j.version>
         <swagger.version>3.0.0</swagger.version>
         <swagger-annotations.version>1.6.2</swagger-annotations.version>
-        <log4j.version>2.16.0</log4j.version>
+        <log4j.version>2.17.1</log4j.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <checkstyle.version>6.19</checkstyle.version>
