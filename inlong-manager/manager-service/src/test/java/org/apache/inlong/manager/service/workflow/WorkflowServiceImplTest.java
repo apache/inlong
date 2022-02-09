@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.apache.inlong.manager.common.enums.BizConstant;
+import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.event.ListenerResult;
 import org.apache.inlong.manager.common.event.task.TaskEvent;
 import org.apache.inlong.manager.common.event.task.TaskEventListener;
@@ -37,6 +38,13 @@ import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
 import org.apache.inlong.manager.service.BaseTest;
 import org.apache.inlong.manager.service.core.BusinessService;
+import org.apache.inlong.manager.service.mocks.MockDeleteSortListener;
+import org.apache.inlong.manager.service.mocks.MockDeleteSourceListener;
+import org.apache.inlong.manager.service.mocks.MockPlugin;
+import org.apache.inlong.manager.service.mocks.MockRestartSortListener;
+import org.apache.inlong.manager.service.mocks.MockRestartSourceListener;
+import org.apache.inlong.manager.service.mocks.MockStopSortListener;
+import org.apache.inlong.manager.service.mocks.MockStopSourceListener;
 import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarGroupTaskListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarResourceTaskListener;
@@ -44,11 +52,15 @@ import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeGroupTaskListene
 import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeTopicTaskListener;
 import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigTaskListener;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
+import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm;
+import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm.OperateType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class WorkflowServiceImplTest extends BaseTest {
+
+    private static final String OPERATOR = "admin";
 
     @Autowired
     WorkflowServiceImpl workflowService;
@@ -65,7 +77,7 @@ public class WorkflowServiceImplTest extends BaseTest {
 
     private BusinessResourceWorkflowForm form;
 
-    public void initBusinessForm(String middlewareType) {
+    public BusinessInfo initBusinessForm(String middlewareType) {
         processName = ProcessName.CREATE_BUSINESS_RESOURCE;
         applicant = "test_create_new_business";
         form = new BusinessResourceWorkflowForm();
@@ -78,7 +90,8 @@ public class WorkflowServiceImplTest extends BaseTest {
         businessInfo.setMiddlewareType(middlewareType);
         businessInfo.setMqExtInfo(new BusinessPulsarInfo());
         businessInfo.setMqResourceObj("test-queue");
-        businessService.save(businessInfo, "admin");
+        businessService.save(businessInfo, OPERATOR);
+        return businessInfo;
     }
 
     public void mockTaskListenerFactory() {
@@ -157,6 +170,85 @@ public class WorkflowServiceImplTest extends BaseTest {
         List<TaskEventListener> listeners = Lists.newArrayList(task.getName2EventListenerMap().values());
         Assert.assertTrue(listeners.get(0) instanceof CreateTubeTopicTaskListener);
         Assert.assertTrue(listeners.get(1) instanceof CreateTubeGroupTaskListener);
+    }
+
+    @Test
+    public void testSuspendProcess() {
+        BusinessInfo businessInfo = initBusinessForm(BizConstant.MIDDLEWARE_PULSAR);
+        businessInfo.setStatus(EntityStatus.BIZ_APPROVE_PASSED.getCode());
+        businessService.update(businessInfo, OPERATOR);
+        UpdateBusinessWorkflowForm form = new UpdateBusinessWorkflowForm();
+        form.setBusinessInfo(businessInfo);
+        form.setOperateType(OperateType.SUSPEND);
+        serviceTaskListenerFactory.acceptPlugin(new MockPlugin());
+        WorkflowContext context = workflowService.getWorkflowEngine().processService()
+                .start(ProcessName.SUSPEND_BUSINESS_WORKFLOW.name(), applicant, form);
+        WorkflowResult result = WorkflowResult.of(context);
+        ProcessView view = result.getProcessInfo();
+        Assert.assertTrue(view.getState() == ProcessState.COMPLETED);
+        Process process = context.getProcess();
+        Task stopSortTask = process.getTaskByName("stopSort");
+        Assert.assertTrue(stopSortTask instanceof ServiceTask);
+        List<TaskEventListener> listeners = Lists.newArrayList(stopSortTask.getName2EventListenerMap().values());
+        Assert.assertTrue(listeners.get(0) instanceof MockStopSortListener);
+        Task stopSourceTask = process.getTaskByName("stopDataSource");
+        Assert.assertTrue(stopSourceTask instanceof ServiceTask);
+        listeners = Lists.newArrayList(stopSourceTask.getName2EventListenerMap().values());
+        Assert.assertTrue(listeners.get(0) instanceof MockStopSourceListener);
+    }
+
+    @Test
+    public void testRestartProcess() {
+        BusinessInfo businessInfo = initBusinessForm(BizConstant.MIDDLEWARE_PULSAR);
+        businessInfo.setStatus(EntityStatus.BIZ_SUSPEND.getCode());
+        businessService.update(businessInfo, OPERATOR);
+        UpdateBusinessWorkflowForm form = new UpdateBusinessWorkflowForm();
+        form.setBusinessInfo(businessInfo);
+        form.setOperateType(OperateType.RESTART);
+        serviceTaskListenerFactory.acceptPlugin(new MockPlugin());
+        WorkflowContext context = workflowService.getWorkflowEngine().processService()
+                .start(ProcessName.RESTART_BUSINESS_WORKFLOW.name(), applicant, form);
+        WorkflowResult result = WorkflowResult.of(context);
+        ProcessView view = result.getProcessInfo();
+        Assert.assertTrue(view.getState() == ProcessState.COMPLETED);
+        Process process = context.getProcess();
+        Task restartSort = process.getTaskByName("restartSort");
+        Assert.assertTrue(restartSort instanceof ServiceTask);
+        List<TaskEventListener> listeners = Lists.newArrayList(restartSort.getName2EventListenerMap().values());
+        Assert.assertTrue(listeners.size() == 1);
+        Assert.assertTrue(listeners.get(0) instanceof MockRestartSortListener);
+        Task restartSourceTask = process.getTaskByName("restartDataSource");
+        Assert.assertTrue(restartSourceTask instanceof ServiceTask);
+        listeners = Lists.newArrayList(restartSourceTask.getName2EventListenerMap().values());
+        Assert.assertTrue(listeners.size() == 1);
+        Assert.assertTrue(listeners.get(0) instanceof MockRestartSourceListener);
+    }
+
+    @Test
+    public void testStopProcess() {
+        BusinessInfo businessInfo = initBusinessForm(BizConstant.MIDDLEWARE_PULSAR);
+        businessInfo.setStatus(EntityStatus.BIZ_RESTART.getCode());
+        businessService.update(businessInfo, OPERATOR);
+        UpdateBusinessWorkflowForm form = new UpdateBusinessWorkflowForm();
+        form.setBusinessInfo(businessInfo);
+        form.setOperateType(OperateType.DELETE);
+        serviceTaskListenerFactory.acceptPlugin(new MockPlugin());
+        WorkflowContext context = workflowService.getWorkflowEngine().processService()
+                .start(ProcessName.DELETE_BUSINESS_WORKFLOW.name(), applicant, form);
+        WorkflowResult result = WorkflowResult.of(context);
+        ProcessView view = result.getProcessInfo();
+        Assert.assertTrue(view.getState() == ProcessState.COMPLETED);
+        Process process = context.getProcess();
+        Task deleteSort = process.getTaskByName("deleteSort");
+        Assert.assertTrue(deleteSort instanceof ServiceTask);
+        List<TaskEventListener> listeners = Lists.newArrayList(deleteSort.getName2EventListenerMap().values());
+        Assert.assertTrue(listeners.size() == 1);
+        Assert.assertTrue(listeners.get(0) instanceof MockDeleteSortListener);
+        Task deleteSourceTask = process.getTaskByName("deleteDataSource");
+        Assert.assertTrue(deleteSourceTask instanceof ServiceTask);
+        listeners = Lists.newArrayList(deleteSourceTask.getName2EventListenerMap().values());
+        Assert.assertTrue(listeners.size() == 1);
+        Assert.assertTrue(listeners.get(0) instanceof MockDeleteSourceListener);
     }
 
 }

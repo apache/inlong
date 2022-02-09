@@ -114,9 +114,15 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
                 List<QueueOperateListener> queueOperateListeners = getQueueOperateListener(workflowContext);
                 return Lists.newArrayList(queueOperateListeners);
             case INIT_SORT:
+            case STOP_SORT:
+            case RESTART_SORT:
+            case DELETE_SORT:
                 List<SortOperateListener> sortOperateListeners = getSortOperateListener(workflowContext);
                 return Lists.newArrayList(sortOperateListeners);
             case INIT_SOURCE:
+            case STOP_SOURCE:
+            case RESTART_SOURCE:
+            case DELETE_SOURCE:
                 List<DataSourceOperateListener> sourceOperateListeners = getSourceOperateListener(workflowContext);
                 return Lists.newArrayList(sourceOperateListeners);
             case INIT_STORAGE:
