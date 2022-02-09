@@ -86,7 +86,8 @@ public class BusinessController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "groupId", value = "Business group id", dataTypeClass = String.class, required = true)
     public Response<Boolean> delete(@PathVariable String groupId) {
-        return Response.success(bizProcessOperation.deleteProcess(groupId, LoginUserUtil.getLoginUserDetail().getUserName()));
+        return Response.success(bizProcessOperation.deleteProcess(groupId, 
+                LoginUserUtil.getLoginUserDetail().getUserName()));
     }
 
     @RequestMapping(value = "/exist/{groupId}", method = RequestMethod.GET)
