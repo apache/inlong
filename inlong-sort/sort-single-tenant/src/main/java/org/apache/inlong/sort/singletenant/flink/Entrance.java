@@ -127,14 +127,24 @@ public class Entrance {
                 Preconditions.checkState(sinkInfo instanceof HiveSinkInfo);
                 HiveSinkInfo hiveSinkInfo = (HiveSinkInfo) sinkInfo;
 
-                sourceStream
-                        .process(new HiveWriter(config, dataflowId, hiveSinkInfo))
-                        .uid(Constants.SINK_UID)
-                        .name("Hive Sink")
-                        .setParallelism(sinkParallelism)
-                        .addSink(new HiveCommitter(config, hiveSinkInfo))
-                        .name("Hive Committer")
-                        .setParallelism(1);
+                if (hiveSinkInfo.getPartitions().length == 0) {
+                    // The committer operator is not necessary if partition is not existent.
+                    sourceStream
+                            .process(new HiveWriter(config, dataflowId, hiveSinkInfo))
+                            .uid(Constants.SINK_UID)
+                            .name("Hive Sink")
+                            .setParallelism(sinkParallelism);
+                } else {
+                    sourceStream
+                            .process(new HiveWriter(config, dataflowId, hiveSinkInfo))
+                            .uid(Constants.SINK_UID)
+                            .name("Hive Sink")
+                            .setParallelism(sinkParallelism)
+                            .addSink(new HiveCommitter(config, hiveSinkInfo))
+                            .name("Hive Committer")
+                            .setParallelism(1);
+                }
+
                 break;
             case Constants.SINK_TYPE_ICEBERG:
                 Preconditions.checkState(sinkInfo instanceof IcebergSinkInfo);
