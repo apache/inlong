@@ -46,6 +46,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 
+import java.util.Collections;
+
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -157,7 +159,7 @@ public class TestClusterController {
 
         AddClusterReq req = new AddClusterReq();
         req.setClusterName("test");
-        req.setMasterIp("127.0.0.1");
+        req.setMasterIps(Collections.singletonList("127.0.0.1"));
         req.setMasterWebPort(8080);
         req.setMasterPort(8089);
         req.setToken("abc");
@@ -172,7 +174,7 @@ public class TestClusterController {
                 .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(req));
         MvcResult result = mockMvc.perform(request).andReturn();
         String resultStr = result.getResponse().getContentAsString();
-        String expectRes = "{\"errMsg\":\"\",\"errCode\":0,\"result\":true,\"data\":null}";
+        String expectRes = "{\"errMsg\":\"\",\"errCode\":0,\"result\":true,\"data\":null,\"error\":false}";
         Assert.assertEquals(resultStr, expectRes);
     }
 }
