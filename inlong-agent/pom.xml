@@ -67,7 +67,7 @@
         <fastjson.version>1.2.68</fastjson.version>
         <sleepycat.version>7.3.7</sleepycat.version>
         <hippoclient.version>2.0.5</hippoclient.version>
-        <jetty.version>9.4.34.v20201102</jetty.version>
+        <jetty.version>9.4.44.v20210927</jetty.version>
         <rocksdb.version>6.14.6</rocksdb.version>
         <codec.version>1.15</codec.version>
         <lombok.version>1.18.12</lombok.version>
