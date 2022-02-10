@@ -45,7 +45,7 @@ public class EventUtils {
      * @param  inlongStreamId
      * @param  compressedType
      * @param  events
-     * @return                MessagePack
+     * @return MessagePack
      * @throws IOException
      */
     public static MessagePack encodeSdkEvents(String inlongGroupId, String inlongStreamId,
@@ -104,7 +104,7 @@ public class EventUtils {
      * @param  packBytes
      * @param  offset
      * @param  length
-     * @return             List,ProxyEvent
+     * @return List,ProxyEvent
      * @throws IOException
      */
     public static List<ProxyEvent> decodeSdkPack(byte[] packBytes, int offset, int length) throws IOException {
@@ -142,7 +142,7 @@ public class EventUtils {
      * 
      * @param  compressedType
      * @param  events
-     * @return
+     * @return byte array
      * @throws IOException
      */
     public static byte[] encodeCacheMessageBody(INLONG_COMPRESSED_TYPE compressedType, List<ProxyEvent> events)
@@ -184,7 +184,7 @@ public class EventUtils {
      * @param  inlongStreamId
      * @param  compressedType
      * @param  msgBody
-     * @return
+     * @return List,SortEvent
      * @throws IOException
      */
     public static List<SortEvent> decodeCacheMessageBody(String inlongGroupId, String inlongStreamId,
