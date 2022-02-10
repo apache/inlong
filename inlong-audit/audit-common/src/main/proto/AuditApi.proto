@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-syntax = "proto3";
+syntax = "proto2";
 
 package org.apache.inlong.audit.protocol;
 
@@ -26,11 +26,11 @@ message BaseCommand {
         AUDITREQUEST  = 2;
         AUDITREPLY    = 3;
     }
-    Type type                            = 1;
-    AuditRequest audit_request  = 2;
-    AuditReply audit_reply      = 3;
-    Ping ping                   = 4;
-    Pong pong                   = 5;
+    optional Type type                   = 1;
+    required AuditRequest audit_request  = 2;
+    optional AuditReply audit_reply      = 3;
+    optional Ping ping                   = 4;
+    optional Pong pong                   = 5;
 }
 
 message Ping {
@@ -40,27 +40,27 @@ message Pong {
 }
 
 message AuditRequest {
-  uint64 request_id = 1;
-  AuditMessageHeader msg_header = 2;
+  optional uint64 request_id = 1;
+  required AuditMessageHeader msg_header = 2;
   repeated AuditMessageBody msg_body = 3;
 }
 
 message AuditMessageHeader {
-  string ip = 1;
-  string docker_id = 2;
-  string thread_id = 3;
-  uint64 sdk_ts = 4;
-  uint64 packet_id = 5;
+  required string ip = 1;
+  optional string docker_id = 2;
+  optional string thread_id = 3;
+  required uint64 sdk_ts = 4;
+  required uint64 packet_id = 5;
 }
 
 message AuditMessageBody {
-  uint64 log_ts = 1;
-  string inlong_group_id= 2;
-  string inlong_stream_id= 3;
-  string audit_id = 4;
-  uint64 count = 5;
-  uint64 size = 6;
-  int64  delay = 7;
+  required uint64 log_ts = 1;
+  required string inlong_group_id= 2;
+  required string inlong_stream_id= 3;
+  required string audit_id = 4;
+  required uint64 count = 5;
+  required uint64 size = 6;
+  required int64  delay = 7;
 }
 
 message AuditReply {
@@ -69,7 +69,7 @@ message AuditReply {
     FAILED   = 1;
     DISASTER = 2;
   }
-  uint64 request_id = 1;
-  RSP_CODE rsp_code = 2;
-  string message = 3;
+  optional uint64 request_id = 1;
+  required RSP_CODE rsp_code = 2;
+  optional string message = 3;
 }
