@@ -29,7 +29,7 @@
     </parent>
     <packaging>pom</packaging>
     <artifactId>inlong-sort-standalone</artifactId>
-    <name>Apache InLong - Sort - Standalone</name>
+    <name>Apache InLong - Sort Standalone</name>
 
     <modules>
         <module>sort-standalone-common</module>

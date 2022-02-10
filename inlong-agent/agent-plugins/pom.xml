@@ -78,7 +78,7 @@
 
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-dataproxy-sdk</artifactId>
+            <artifactId>dataproxy-sdk</artifactId>
             <version>1.0.0-incubating</version>
         </dependency>
         <dependency>

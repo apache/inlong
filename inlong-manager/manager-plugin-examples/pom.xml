@@ -24,9 +24,9 @@
         <groupId>org.apache.inlong</groupId>
         <version>1.0.0-incubating</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-
     <artifactId>manager-plugin-examples</artifactId>
+    <modelVersion>4.0.0</modelVersion>
+    <name>Apache InLong - Manager Plugin Examples</name>
 
     <dependencies>
         <dependency>

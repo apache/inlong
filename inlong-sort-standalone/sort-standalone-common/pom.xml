@@ -27,7 +27,7 @@
         <version>1.0.0-incubating</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <name>Apache InLong - SortStandalone Common</name>
+    <name>Apache InLong - Sort Standalone Common</name>
     <artifactId>sort-standalone-common</artifactId>
 
     <properties>
