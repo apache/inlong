@@ -28,8 +28,6 @@ public class HistogramTest {
 
     @Test
     public void testSimpleHistogram() {
-        Map<String, Long> tmpMap = new LinkedHashMap();
-        StringBuilder strBuff = new StringBuilder(512);
         SimpleHistogram histogram =
                 new SimpleHistogram("stats", "api");
         // test getValue by StringBuilder
@@ -37,6 +35,7 @@ public class HistogramTest {
         histogram.update(100000L);
         histogram.update(3000L);
         histogram.update(-5L);
+        StringBuilder strBuff = new StringBuilder(512);
         histogram.getValue(strBuff, false);
         String result1 = "\"api_stats\":{\"count\":4,\"min\":-5,\"max\":100000}";
         Assert.assertEquals(result1, strBuff.toString());
@@ -46,6 +45,7 @@ public class HistogramTest {
         histogram.update(10000L);
         histogram.update(900000L);
         histogram.update(10L);
+        Map<String, Long> tmpMap = new LinkedHashMap();
         histogram.getValue(tmpMap, false);
         Assert.assertEquals(tmpMap.get("api_stats_count").longValue(), 8L);
         Assert.assertEquals(tmpMap.get("api_stats_max").longValue(), 900000L);
@@ -79,8 +79,6 @@ public class HistogramTest {
 
     @Test
     public void testESTHistogram() {
-        Map<String, Long> tmpMap = new LinkedHashMap();
-        StringBuilder strBuff = new StringBuilder(512);
         ESTHistogram estHistogram =
                 new ESTHistogram("dlt", "disk");
         estHistogram.update(30L);
@@ -91,12 +89,15 @@ public class HistogramTest {
         estHistogram.update(131072L);
         estHistogram.update(131100L);
         // test get value by strBuff
+        StringBuilder strBuff = new StringBuilder(512);
         estHistogram.getValue(strBuff, false);
-        String result1 =
-                "\"disk_dlt\":{\"count\":7,\"min\":-5,\"max\":131100,\"cells\":{\"cell_0t1\":1,\"cell_16t31\":1,\"cell_512t1023\":1,\"cell_65536t131071\":2,\"cell_131072tMax\":2}}";
+        String result1 = "\"disk_dlt\":{\"count\":7,\"min\":-5,\"max\":131100,"
+                + "\"cells\":{\"cell_0t1\":1,\"cell_16t31\":1,\"cell_512t1023\":1"
+                + ",\"cell_65536t131071\":2,\"cell_131072tMax\":2}}";
         Assert.assertEquals(result1, strBuff.toString());
         strBuff.delete(0, strBuff.length());
         // test for map
+        Map<String, Long> tmpMap = new LinkedHashMap();
         estHistogram.getValue(tmpMap, false);
         Assert.assertEquals(tmpMap.get("disk_dlt_count").longValue(), 7L);
         Assert.assertEquals(tmpMap.get("disk_dlt_max").longValue(), 131100L);
