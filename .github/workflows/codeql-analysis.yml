@@ -19,7 +19,7 @@ name: InLong Vulnerabilities Scan
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, 'INLONG-*' ]
   pull_request:
     branches: [ master, 'INLONG-*' ]
 
@@ -35,7 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'cpp', 'java', 'javascript', 'python' ]
+        language: [ 'java' ]
 
     steps:
       - name: Checkout
@@ -47,5 +47,27 @@ jobs:
         with:
           languages: ${{ matrix.language }}
 
+      # build project
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 8
+          distribution: adopt
+
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/org/apache/inlong
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build with Maven
+        run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests
+        env:
+          CI: false
+
+      # Perform CodeQL Analysis
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
