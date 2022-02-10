@@ -255,13 +255,13 @@ Apache License Version 2.0:
    - org.mortbay.jetty:jetty:jetty-6.1.26.jar
    - org.mortbay.jetty:jetty-util:jetty-util-6.1.26.jar
    - org.mortbay.jetty:servlet-api:servlet-api-2.5-20110124.jar
-   - org.eclipse.jetty:jetty-http:jetty-http-9.4.6.v20170531.jar
-   - org.eclipse.jetty:jetty-io:jetty-io-9.4.6.v20170531.jar
-   - org.eclipse.jetty:jetty-jmx:jetty-jmx-9.4.6.v20170531.jar
-   - org.eclipse.jetty:jetty-security:jetty-security-9.4.6.v20170531.jar
-   - org.eclipse.jetty:jetty-server:jetty-server-9.4.6.v20170531.jar
-   - org.eclipse.jetty:jetty-servlet:jetty-servlet-9.4.6.v20170531.jar
-   - org.eclipse.jetty:jetty-util:jetty-util-9.4.6.v20170531.jar
+   - org.eclipse.jetty:jetty-http:jetty-http-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-io:jetty-io-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-jmx:jetty-jmx-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-security:jetty-security-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-server:jetty-server-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-servlet:jetty-servlet-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-util:jetty-util-9.4.44.v20210927.jar
  * Joda-Time
    - joda-time:joda-time:joda-time-2.9.9.jar
  * FindBugs-jsr305
