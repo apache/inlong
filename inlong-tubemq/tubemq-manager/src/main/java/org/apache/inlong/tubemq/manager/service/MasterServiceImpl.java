@@ -23,9 +23,11 @@ import com.google.gson.Gson;
 
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -128,14 +130,30 @@ public class MasterServiceImpl implements MasterService {
         if (clusterId == null) {
             return null;
         }
-        MasterEntry master = masterRepository
-                .findMasterEntryByClusterIdEquals(
-                        clusterId);
-        if (master == null) {
-            throw new RuntimeException("cluster id "
-                    + clusterId + "no master node, please check");
+        List<MasterEntry> masters = getMasterNodes(clusterId);
+
+        for (MasterEntry masterEntry : masters) {
+            if (!checkMasterNodeStatus(masterEntry.getIp(),
+                    masterEntry.getWebPort()).isError()) {
+                return masterEntry;
+            }
         }
-        return master;
+
+        throw new RuntimeException("cluster id " + clusterId + "no master node, please check");
+    }
+
+    @Override
+    public List<MasterEntry> getMasterNodes(Long clusterId) {
+        if (clusterId == null) {
+            return null;
+        }
+        List<MasterEntry> masters = masterRepository
+                .findMasterEntriesByClusterIdEquals(
+                        clusterId);
+        if (CollectionUtils.isEmpty(masters)) {
+            throw new RuntimeException("cluster id " + clusterId + "no master node, please check");
+        }
+        return masters;
     }
 
     @Override

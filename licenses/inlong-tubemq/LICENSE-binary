@@ -220,8 +220,8 @@ Apache License Version 2.0:
    - org.apache.zookeeper:zookeeper:zookeeper-3.4.3.jar
  * Apache Commons
    - commons-codec:commons-codec:commons-codec-1.10.jar
-   - commons-collections:commons-collections:commons-collections-3.2.1.jar
-   - commons-io:commons-io:commons-io-2.1.jar
+   - commons-collections:commons-collections:commons-collections-3.2.2.jar
+   - commons-io:commons-io:commons-io-2.11.0.jar
    - commons-lang:commons-lang:commons-lang-2.6.jar
    - commons-beanutils:commons-beanutils:commons-beanutils-1.7.0.jar
    - commons-digester:commons-digester:commons-digester-1.8.jar
@@ -237,12 +237,12 @@ Apache License Version 2.0:
    - org.apache.httpcomponents:httpclient:httpclient-4.5.13.jar
    - org.apache.httpcomponents:httpcore:httpcore-4.4.13.jar
  * Jetty
-   - org.eclipse.jetty:jetty-server:jetty-server-9.4.31.v20200723.jar
-   - org.eclipse.jetty:jetty-http:jetty-http-9.4.31.v20200723.jar
-   - org.eclipse.jetty:jetty-util:jetty-util-9.4.31.v20200723.jar
-   - org.eclipse.jetty:jetty-io:jetty-io-9.4.31.v20200723.jar
-   - org.eclipse.jetty:jetty-servlet:jetty-servlet-9.4.31.v20200723.jar
-   - org.eclipse.jetty:jetty-security:jetty-security-9.4.31.v20200723.jar
+   - org.eclipse.jetty:jetty-server:jetty-server-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-http:jetty-http-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-util:jetty-util-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-io:jetty-io-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-servlet:jetty-servlet-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-security:jetty-security-9.4.44.v20210927.jar
  * ini4j
    - org.ini4j:ini4j:ini4j-0.5.1.jar
  * Spring Framework

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity;
+import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
 
 import java.util.List;
 
@@ -31,5 +31,5 @@ public interface SortClusterConfigService {
      * @param clusterName Name of sort cluster.
      * @return List of tasks, including task name and sink type.
      */
-    List<SortClusterConfgiEntity> selectTasksByClusterName(String clusterName);
+    List<SortClusterConfigEntity> selectTasksByClusterName(String clusterName);
 }

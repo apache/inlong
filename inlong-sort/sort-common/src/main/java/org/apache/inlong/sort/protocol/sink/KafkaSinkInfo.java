@@ -75,6 +75,10 @@ public class KafkaSinkInfo extends SinkInfo {
             return false;
         }
 
+        if (!super.equals(o)) {
+            return false;
+        }
+
         KafkaSinkInfo that = (KafkaSinkInfo) o;
         return Objects.equals(address, that.address)
                 && Objects.equals(topic, that.topic)
@@ -83,6 +87,6 @@ public class KafkaSinkInfo extends SinkInfo {
 
     @Override
     public int hashCode() {
-        return Objects.hash(address, topic, serializationInfo);
+        return Objects.hash(super.hashCode(), address, topic, serializationInfo);
     }
 }

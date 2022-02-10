@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.dao.entity.SortClusterConfgiEntity;
+import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,16 +26,16 @@ import java.util.List;
 public interface SortClusterConfgiEntityMapper {
     int deleteByPrimaryKey(Integer id);
 
-    int insert(SortClusterConfgiEntity record);
+    int insert(SortClusterConfigEntity record);
 
-    int insertSelective(SortClusterConfgiEntity record);
+    int insertSelective(SortClusterConfigEntity record);
 
-    SortClusterConfgiEntity selectByPrimaryKey(Integer id);
+    SortClusterConfigEntity selectByPrimaryKey(Integer id);
 
-    int updateByPrimaryKeySelective(SortClusterConfgiEntity record);
+    int updateByPrimaryKeySelective(SortClusterConfigEntity record);
 
-    int updateByPrimaryKey(SortClusterConfgiEntity record);
+    int updateByPrimaryKey(SortClusterConfigEntity record);
 
-    List<SortClusterConfgiEntity> selectTasksByClusterName(String clusterName);
+    List<SortClusterConfigEntity> selectTasksByClusterName(String clusterName);
 
 }

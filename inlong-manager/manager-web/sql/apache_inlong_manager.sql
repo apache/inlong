@@ -305,6 +305,9 @@ CREATE TABLE `data_proxy_cluster`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='DataProxy cluster table';
+-- add default data proxy address
+insert into data_proxy_cluster (name, address, port, status, is_deleted, creator, create_time, modify_time)
+values ("default_dataproxy", "dataproxy", 46801, 0, 0, "admin", now(), now());
 
 -- ----------------------------
 -- Table structure for data_schema
@@ -1145,5 +1148,21 @@ CREATE TABLE `sort_cluster_config`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Sort cluster config table';
+
+-- ----------------------------
+-- Table structure for sort_task_id_param
+-- ----------------------------
+DROP TABLE IF EXISTS `sort_task_id_param`;
+CREATE TABLE `sort_task_id_param`
+(
+    `id`               int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `task_name`        varchar(128)  NOT NULL COMMENT 'Task name',
+    `group_id`         varchar(128)  NOT NULL COMMENT 'Inlong group id',
+    `stream_id`        varchar(128)  NULL COMMENT 'Inlong stream id',
+    `param_key`        varchar(128)  NOT NULL COMMENT 'Key of param',
+    `param_value`      varchar(128)  NOT NULL COMMENT 'Value of param',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Sort task id params table';
 
 SET FOREIGN_KEY_CHECKS = 1;

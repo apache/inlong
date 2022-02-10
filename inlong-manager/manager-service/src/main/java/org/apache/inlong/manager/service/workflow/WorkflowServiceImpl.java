@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.workflow.WorkflowTaskExecuteLog.ListenerExecutorLog;
@@ -64,6 +65,7 @@ import org.springframework.util.CollectionUtils;
 @Service
 public class WorkflowServiceImpl implements WorkflowService {
 
+    @Getter
     private WorkflowEngine workflowEngine;
 
     @Autowired

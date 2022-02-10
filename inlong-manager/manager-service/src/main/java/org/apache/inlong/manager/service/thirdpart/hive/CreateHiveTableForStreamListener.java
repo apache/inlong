@@ -20,8 +20,8 @@ package org.apache.inlong.manager.service.thirdpart.hive;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.event.ListenerResult;
+import org.apache.inlong.manager.common.event.task.StorageOperateListener;
 import org.apache.inlong.manager.common.event.task.TaskEvent;
-import org.apache.inlong.manager.common.event.task.TaskEventListener;
 import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveDTO;
 import org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper;
@@ -34,7 +34,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Slf4j
-public class CreateHiveTableForStreamListener implements TaskEventListener {
+public class CreateHiveTableForStreamListener implements StorageOperateListener {
 
     @Autowired
     private StorageHiveEntityMapper hiveEntityMapper;
