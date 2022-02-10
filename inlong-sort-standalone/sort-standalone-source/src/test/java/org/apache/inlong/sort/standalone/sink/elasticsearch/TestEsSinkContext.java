@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
+import org.apache.inlong.commons.config.metrics.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.BufferQueueChannel;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
@@ -33,7 +35,9 @@ import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
@@ -42,6 +46,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  */
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
+@PrepareForTest({MetricRegister.class})
 public class TestEsSinkContext {
 
     public static final String TEST_INLONG_GROUP_ID = "0fc00000046";
@@ -53,8 +58,11 @@ public class TestEsSinkContext {
      * 
      * @param  dispatchQueue
      * @return
+     * @throws Exception
      */
-    public static EsSinkContext mock(LinkedBlockingQueue<EsIndexRequest> dispatchQueue) {
+    public static EsSinkContext mock(LinkedBlockingQueue<EsIndexRequest> dispatchQueue) throws Exception {
+        PowerMockito.mockStatic(MetricRegister.class);
+        PowerMockito.doNothing().when(MetricRegister.class, "register", any());
         Context context = CommonPropertiesHolder.getContext();
         String sinkName = CommonPropertiesHolder.getClusterId() + "Sink";
         context.put(SortTaskConfig.KEY_TASK_NAME, "sid_es_es-rmrv7g7a_v3");
@@ -93,9 +101,11 @@ public class TestEsSinkContext {
 
     /**
      * test
+     * 
+     * @throws Exception
      */
     @Test
-    public void test() {
+    public void test() throws Exception {
         LinkedBlockingQueue<EsIndexRequest> dispatchQueue = new LinkedBlockingQueue<>();
         EsSinkContext context = mock(dispatchQueue);
         assertEquals(10, context.getBulkSizeMb());
