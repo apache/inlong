@@ -216,7 +216,7 @@ Apache License Version 2.0:
    - commons-collections:commons-collections:commons-collections-3.2.2.jar
    - org.apache.commons:commons-compress:commons-compress-1.4.1.jar
    - commons-dbcp:commons-dbcp:commons-dbcp-1.4.jar
-   - commons-io:commons-io:commons-io-2.1.jar
+   - commons-io:commons-io:commons-io-2.11.0.jar
    - commons-lang:commons-lang:commons-lang-2.5.jar
    - commons-logging:commons-logging:commons-logging-1.2.jar
    - commons-pool:commons-pool:commons-pool-1.5.4.jar

@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.event.EventSelector;
 import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.model.definition.ProcessForm;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 
@@ -29,7 +30,11 @@ public class TubeEventSelector implements EventSelector {
 
     @Override
     public boolean accept(WorkflowContext context) {
-        BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
+        ProcessForm processForm = context.getProcessForm();
+        if (processForm == null || !(processForm instanceof BusinessResourceWorkflowForm)) {
+            return false;
+        }
+        BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) processForm;
         BusinessInfo businessInfo = form.getBusinessInfo();
         if (BizConstant.MIDDLEWARE_TUBE.equalsIgnoreCase(businessInfo.getMiddlewareType())) {
             return true;

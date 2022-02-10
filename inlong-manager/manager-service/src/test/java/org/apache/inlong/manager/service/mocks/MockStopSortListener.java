@@ -15,24 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.manager.controller.cluster.request;
+package org.apache.inlong.manager.service.mocks;
 
-import lombok.Data;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.event.ListenerResult;
+import org.apache.inlong.manager.common.event.task.SortOperateListener;
+import org.apache.inlong.manager.common.event.task.TaskEvent;
+import org.apache.inlong.manager.common.model.WorkflowContext;
 
-import java.util.List;
+public class MockStopSortListener implements SortOperateListener {
 
-@Data
-public class AddClusterReq {
-    private List<String> masterIps;
-    private String clusterName;
-    private Integer masterPort;
-    private Integer masterWebPort;
-    private String createUser;
-    private String token;
+    @Override
+    public TaskEvent event() {
+        return TaskEvent.COMPLETE;
+    }
 
-    public boolean legal() {
-        return CollectionUtils.isNotEmpty(masterIps) && masterPort != null && StringUtils.isNotBlank(token);
+    @Override
+    public ListenerResult listen(WorkflowContext context) throws Exception {
+        return ListenerResult.success("Mock stop sort success");
+    }
+
+    @Override
+    public boolean async() {
+        return false;
     }
 }
