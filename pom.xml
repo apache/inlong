@@ -33,7 +33,7 @@
     <version>1.1.0-incubating-SNAPSHOT</version>
     <name>Apache InLong</name>
 
-    <description>InLong is a one-stop data integration framework donated by Tencent to the Apache
+    <description>InLong is a one-stop integration framework for massive data donated by Tencent to the Apache
         community.
         It provides automatic, safe, reliable, and high-performance data transmission capabilities
         to
