@@ -114,6 +114,9 @@ public class DataProxyMetricItem extends MetricItem {
      * @param dimensions
      */
     public static void fillInlongId(Event event, Map<String, String> dimensions) {
+        if (event == null) {
+            return;
+        }
         Map<String, String> headers = event.getHeaders();
         String inlongGroupId = getInlongGroupId(headers);
         String inlongStreamId = getInlongStreamId(headers);
@@ -128,7 +131,7 @@ public class DataProxyMetricItem extends MetricItem {
      * @param dimensions
      */
     public static void fillAuditFormatTime(Event event, Map<String, String> dimensions) {
-        long msgTime = AuditUtils.getLogTime(event);
+        long msgTime = (event != null) ? AuditUtils.getLogTime(event) : System.currentTimeMillis();
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
         dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
     }
