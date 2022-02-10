@@ -26,7 +26,7 @@
         <artifactId>inlong-sdk</artifactId>
         <version>1.1.0-incubating-SNAPSHOT</version>
     </parent>
-    <artifactId>inlong-dataproxy-sdk</artifactId>
+    <artifactId>dataproxy-sdk</artifactId>
     <name>Apache InLong - DataProxy SDK</name>
     <packaging>jar</packaging>
     <build>
