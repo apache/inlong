@@ -75,12 +75,12 @@ public class PulsarZoneWorker extends Thread {
      */
     @Override
     public void run() {
-        LOG.info(String.format("start PulsarSetWorker:%s", this.workerName));
+        LOG.info(String.format("start PulsarZoneWorker:%s", this.workerName));
         while (status != LifecycleState.STOP) {
             try {
                 DispatchProfile event = context.getDispatchQueue().poll();
                 if (event == null) {
-                    Thread.sleep(context.getProcessInterval());
+                    this.sleepOneInterval();
                     continue;
                 }
                 // metric
