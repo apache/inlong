@@ -39,7 +39,7 @@
 - [License](#license)
 
 # What is Apache InLong?
-[Apache InLong](https://inlong.apache.org)(incubating) is a one-stop data integration framework that provides automatic, secure and reliable data transmission capabilities. InLong supports both batch and stream data processing at the same time, which offers great power to build data analysis, modeling and other real-time  applications based on streaming data.
+[Apache InLong](https://inlong.apache.org)(incubating) is a one-stop integration framework for massive data that provides automatic, secure and reliable data transmission capabilities. InLong supports both batch and stream data processing at the same time, which offers great power to build data analysis, modeling and other real-time  applications based on streaming data.
 
 InLong (应龙) is a divine beast in Chinese mythology who guides river into the sea, it is regarded as a metaphor of the InLong system for reporting streams of data.
 
@@ -59,7 +59,7 @@ Apache InLong offers a variety of features:
 
 
 ## When should I use InLong?
-InLong is based on MQ and aims to provide a one-stop, practice-tested module pluggable data integration framework, based on this system, users can easily build stream-based data applications. It is suitable for environments that need to quickly build a data reporting platform, as well as an ultra-large-scale data reporting environment that InLong is very suitable for, and an environment that needs to automatically sort and land the reported data.
+InLong is based on MQ and aims to provide a one-stop, practice-tested module pluggable integration framework for massive data, based on this system, users can easily build stream-based data applications. It is suitable for environments that need to quickly build a data reporting platform, as well as an ultra-large-scale data reporting environment that InLong is very suitable for, and an environment that needs to automatically sort and land the reported data.
 
 InLong is only a one-stop data reporting pipeline platform. It cannot be used as a persistent data storage, nor does it support complex business logic processing on data streams.
 

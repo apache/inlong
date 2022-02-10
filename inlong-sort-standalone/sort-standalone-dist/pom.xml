@@ -30,7 +30,7 @@
 
     <artifactId>sort-standalone-dist</artifactId>
     <packaging>pom</packaging>
-    <name>Apache InLong - SortStandalone Dist</name>
+    <name>Apache InLong - Sort Standalone Dist</name>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
