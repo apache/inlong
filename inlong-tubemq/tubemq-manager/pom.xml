@@ -35,7 +35,7 @@
         <docker.image.prefix>springboot-docker</docker.image.prefix>
         <swagger.version>3.0.0</swagger.version>
         <swagger-annotations.version>1.6.2</swagger-annotations.version>
-        <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
+        <spring-boot.version>2.3.9.RELEASE</spring-boot.version>
     </properties>
 
     <dependencies>

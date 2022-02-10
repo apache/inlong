@@ -65,7 +65,7 @@
         <jackson.version>2.12.3</jackson.version>
         <junit.version>4.12</junit.version>
         <autoconfigure.version>2.4.3</autoconfigure.version>
-        <spring.plugin.version>2.3.3.RELEASE</spring.plugin.version>
+        <spring.plugin.version>2.3.9.RELEASE</spring.plugin.version>
     </properties>
     <dependencyManagement>
         <dependencies>
