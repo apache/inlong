@@ -45,40 +45,6 @@ import java.util.Properties;
 public class KafkaProducerCluster implements LifecycleAware {
     public static final Logger LOG = InlongLoggerFactory.getLogger(KafkaProducerCluster.class);
 
-    private static final String KEY_RETRIES = "retries";
-    private static final String KEY_ACKS = "acks";
-    private static final String KEY_BATCH_SIZE = "batch.size";
-    private static final String KEY_LINGER_MS = "linger.ms";
-    private static final String KEY_MAX_REQUEST_SIZE = "max.request.size";
-    private static final String KEY_BUFFER_MEMORY = "buffer.memory";
-    private static final String KEY_RECEIVE_BUFFER_BYTES = "receive.buffer.bytes";
-    private static final String KEY_SEND_BUFFER_BYTES = "send.buffer.bytes";
-    private static final String KEY_METADATA_FETCH_TIMEOUT_MS = "metadata.fetch.timeout.ms";
-    private static final String KEY_METADATA_MAX_AGE_MS = "metadata.max.age.ms";
-    private static final String KEY_COMPRESSION_TYPE = "compression.type";
-    private static final String KEY_MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION =
-            "max.in.flight.requests.per.connection";
-    private static final String KEY_TIMEOUT_MS = "rpc.timeout.ms";
-    private static final String KEY_DELIVERY_TIMEOUT_MS = "delivery.timeout.ms";
-    private static final String KEY_REQUEST_TIMEOUT_MS = "request.timeout.ms";
-    private static final String KEY_ENABLE_REPLACE_PARTITION_FOR_NOT_LEADER =
-            "enable.replace.partition.for.not.leader";
-    private static final String KEY_ENABLE_REPLACE_PARTITION_FOR_CAN_RETRY =
-            "enable.replace.partition.for.can.retry";
-    private static final String KEY_ENABLE_TOPIC_PARTITION_CIRCUIT_BREAKER =
-            "enable.topic.partition.circuit.breaker";
-    private static final String KEY_MUTE_PARTITION_ERROR_MAX_TIMES =
-            "mute.partition.error.max.times";
-    private static final String KEY_MUTE_PARTITION_MAX_PERCENTAGE = "mute.partition.max.percentage";
-    private static final String KEY_UNMUTE_PARTITION_INTERVAL_MS = "unmute.partition.interval.ms";
-    private static final String KEY_MAX_BLOCK_MS = "max.block.ms";
-    private static final String KEY_METRIC_REPORTERS = "metric.reporters";
-    private static final String KEY_TOPIC_EXPIRY_MS = "topic.expiry.ms";
-    private static final String KEY_METADATA_RETRY_BACKOFF_MS = "metadata.retry.backoff.ms";
-    private static final String KEY_BOOTSTRAP_SERVERS_CONFIG = "bootstrap.servers";
-    private static final String KEY_CLIENT_ID_CONFIG = "client.id";
-    private static final String KEY_AUDIT_SET_NAME = "auditSetName";
-
     private final String workerName;
     private final CacheClusterConfig config;
     private final KafkaFederationSinkContext sinkContext;
@@ -162,18 +128,14 @@ public class KafkaProducerCluster implements LifecycleAware {
         ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, event.getBody());
         long sendTime = System.currentTimeMillis();
         try {
-            producer.send(
-                    record,
+            producer.send(record,
                     (metadata, ex) -> {
                         if (ex == null) {
                             tx.commit();
                             addMetric(event, topic, true, sendTime);
                         } else {
-                            LOG.error(
-                                    String.format(
-                                            "send failed, topic is %s, partition is %s",
-                                            metadata.topic(), metadata.partition()),
-                                    ex);
+                            LOG.error(String.format("send failed, topic is %s, partition is %s",
+                                            metadata.topic(), metadata.partition()), ex);
                             tx.rollback();
                             addMetric(event, topic, false, 0);
                         }
@@ -215,18 +177,12 @@ public class KafkaProducerCluster implements LifecycleAware {
         dimensions.put(SortMetricItem.KEY_SINK_ID, this.cacheClusterName);
         dimensions.put(SortMetricItem.KEY_SINK_DATA_ID, topic);
         long msgTime =
-                NumberUtils.toLong(
-                        currentRecord.getHeaders().get(Constants.HEADER_KEY_MSG_TIME), sendTime);
+                NumberUtils.toLong(currentRecord.getHeaders().get(Constants.HEADER_KEY_MSG_TIME), sendTime);
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
         dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         String taskName = currentRecord.getHeaders().get(SortMetricItem.KEY_TASK_NAME);
         dimensions.put(SortMetricItem.KEY_TASK_NAME, taskName);
-        SortMetricItem.reportDurations(
-                currentRecord,
-                result,
-                sendTime,
-                dimensions,
-                msgTime,
+        SortMetricItem.reportDurations(currentRecord, result, sendTime, dimensions, msgTime,
                 this.sinkContext.getMetricItemSet());
         if (result) {
             AuditUtils.add(AuditUtils.AUDIT_ID_SEND_SUCCESS, currentRecord);

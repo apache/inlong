@@ -42,7 +42,7 @@
         <maven.compiler.target>8</maven.compiler.target>
         <flume.version>1.9.0</flume.version>
         <plugin.assembly.version>3.2.0</plugin.assembly.version>
-        <pulsar.version>2.7.2</pulsar.version>
+        <pulsar.version>2.8.1</pulsar.version>
         <kafka.version>2.4.1</kafka.version>
         <junit.version>4.13</junit.version>
         <powermock.version>2.0.2</powermock.version>

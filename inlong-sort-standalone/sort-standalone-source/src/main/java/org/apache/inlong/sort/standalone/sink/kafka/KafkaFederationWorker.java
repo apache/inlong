@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink.kafka;
 
 import com.google.common.base.Preconditions;
@@ -23,6 +20,7 @@ import org.apache.flume.Event;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.utils.Constants;
@@ -33,22 +31,23 @@ import org.slf4j.Logger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/** Worker of */
 public class KafkaFederationWorker extends Thread {
     public static final Logger LOG = InlongLoggerFactory.getLogger(KafkaFederationWorker.class);
 
     private final String workerName;
     private final KafkaFederationSinkContext context;
 
-    private KafkaProducerFederation producerFederation;
+    private final KafkaProducerFederation producerFederation;
+    private final Map<String, String> dimensions = new ConcurrentHashMap<>();
     private LifecycleState status;
-    private Map<String, String> dimensions = new ConcurrentHashMap<>();
 
     /**
-     * constructor of KafkaFederationWorker
+     * Constructor of KafkaFederationWorker
      *
-     * @param sinkName
-     * @param workerIndex
-     * @param context
+     * @param sinkName Name of sink.
+     * @param workerIndex Index of this worker thread.
+     * @param context Context of kafka sink.
      */
     public KafkaFederationWorker(
             String sinkName, int workerIndex, KafkaFederationSinkContext context) {
@@ -63,7 +62,7 @@ public class KafkaFederationWorker extends Thread {
         this.dimensions.put(SortMetricItem.KEY_SINK_ID, this.context.getSinkName());
     }
 
-    /** entrance of KafkaFederationWorker */
+    /** Entrance of KafkaFederationWorker */
     @Override
     public void start() {
         LOG.info("start a new kafka worker {}", this.workerName);
@@ -72,7 +71,7 @@ public class KafkaFederationWorker extends Thread {
         super.start();
     }
 
-    /** close */
+    /** Close */
     public void close() {
         // close all producers
         LOG.info("close a kafka worker {}", this.workerName);
@@ -94,24 +93,22 @@ public class KafkaFederationWorker extends Thread {
                 tx = channel.getTransaction();
                 tx.begin();
                 Event rowEvent = channel.take();
+
+                // if event is null, close tx and sleep for a while.
                 if (rowEvent == null) {
                     tx.commit();
                     tx.close();
                     sleepOneInterval();
                     continue;
                 }
+                if (!(rowEvent instanceof ProfileEvent)) {
+                    LOG.error("The type of row event is not compatible with ProfileEvent");
+                    continue;
+                }
                 ProfileEvent event = (ProfileEvent) rowEvent;
                 this.fillTopic(event);
                 SortMetricItem.fillInlongId(event, dimensions);
-                this.dimensions.put(
-                        SortMetricItem.KEY_SINK_DATA_ID, event.getHeaders().get(Constants.TOPIC));
-                long msgTime = event.getRawLogTime();
-                long auditFormatTime = msgTime - msgTime % 60000L;
-                dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
-                SortMetricItem metricItem =
-                        this.context.getMetricItemSet().findMetricItem(dimensions);
-                metricItem.sendCount.incrementAndGet();
-                metricItem.sendSize.addAndGet(event.getBody().length);
+                this.reportAudit(event);
                 this.producerFederation.send(event, tx);
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
@@ -129,7 +126,7 @@ public class KafkaFederationWorker extends Thread {
     }
 
     /**
-     * fillTopic
+     * FillTopic
      *
      * @param event
      */
@@ -151,5 +148,21 @@ public class KafkaFederationWorker extends Thread {
         } catch (InterruptedException e1) {
             LOG.error(e1.getMessage(), e1);
         }
+    }
+
+    /**
+     * Report event to audit.
+     *
+     * @param event Fetched event.
+     */
+    private void reportAudit(ProfileEvent event) {
+        this.dimensions.put(
+                SortMetricItem.KEY_SINK_DATA_ID, event.getHeaders().get(Constants.TOPIC));
+        long msgTime = event.getRawLogTime();
+        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
+        SortMetricItem metricItem = this.context.getMetricItemSet().findMetricItem(dimensions);
+        metricItem.sendCount.incrementAndGet();
+        metricItem.sendSize.addAndGet(event.getBody().length);
     }
 }
