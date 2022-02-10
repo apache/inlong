@@ -56,21 +56,17 @@ public class TestEsChannelWorker {
      */
     @Test
     public void test() {
-        try {
-            // prepare
-            ProfileEvent event = TestEsSinkContext.mockProfileEvent();
-            Transaction tx = this.context.getChannel().getTransaction();
-            tx.begin();
-            this.context.getChannel().put(event);
-            tx.commit();
-            tx.close();
-            // test
-            EsChannelWorker worker = new EsChannelWorker(context, 0);
-            worker.doRun();
-            worker.start();
-            worker.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // prepare
+        ProfileEvent event = TestEsSinkContext.mockProfileEvent();
+        Transaction tx = this.context.getChannel().getTransaction();
+        tx.begin();
+        this.context.getChannel().put(event);
+        tx.commit();
+        tx.close();
+        // test
+        EsChannelWorker worker = new EsChannelWorker(context, 0);
+        worker.doRun();
+        worker.start();
+        worker.close();
     }
 }

@@ -105,22 +105,20 @@ public class TestEsOutputChannel {
 
     /**
      * test
+     * 
+     * @throws Exception
      */
     @Test
-    public void test() {
-        try {
-            LinkedBlockingQueue<EsIndexRequest> dispatchQueue = new LinkedBlockingQueue<>();
-            EsSinkContext context = TestEsSinkContext.mock(dispatchQueue);
-            EsOutputChannel output = new EsOutputChannel(context);
-            ProfileEvent event = TestEsSinkContext.mockProfileEvent();
-            EsIndexRequest indexRequest = context.getIndexRequestHandler().parse(context, event);
-            dispatchQueue.add(indexRequest);
-            output.init();
-            output.send();
-            output.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void test() throws Exception {
+        LinkedBlockingQueue<EsIndexRequest> dispatchQueue = new LinkedBlockingQueue<>();
+        EsSinkContext context = TestEsSinkContext.mock(dispatchQueue);
+        EsOutputChannel output = new EsOutputChannel(context);
+        ProfileEvent event = TestEsSinkContext.mockProfileEvent();
+        EsIndexRequest indexRequest = context.getIndexRequestHandler().parse(context, event);
+        dispatchQueue.add(indexRequest);
+        output.init();
+        output.send();
+        output.close();
     }
 
 }
