@@ -269,16 +269,15 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                     logger.info(strBuffer.append("[SHUTDOWN_CONSUMER] ")
                             .append(this.consumerId)
                             .append(" was already shutdown, do nothing...").toString());
-
                 }
                 break;
 
-                case 1: {
+                case 1:
+                default: {
                     logger.info(strBuffer.append("[SHUTDOWN_CONSUMER] ")
                             .append(this.consumerId)
                             .append(" is starting, please wait a minute!").toString());
                 }
-                break;
             }
             return;
         }
@@ -518,7 +517,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                 break;
             }
             if ((consumerConfig.getPullConsumeReadyWaitPeriodMs() >= 0)
-                    && (System.currentTimeMillis() - startTime
+                    && ((System.currentTimeMillis() - startTime)
                     >= consumerConfig.getPullConsumeReadyWaitPeriodMs())) {
                 result.setFailResult(selectResult.getErrCode(), selectResult.getErrMsg());
                 return result.isSuccess();
