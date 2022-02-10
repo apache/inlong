@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.Sort
 import org.apache.inlong.manager.service.core.SortClusterConfigService;
 import org.apache.inlong.manager.service.core.SortTaskIdParamService;
 import org.apache.inlong.manager.service.core.SortService;
+import org.apache.inlong.manager.service.core.SortTaskSinkParamService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,8 @@ public class SortServiceImpl implements SortService {
     @Autowired private SortClusterConfigService sortClusterConfigService;
 
     @Autowired private SortTaskIdParamService sortTaskIdParamService;
+
+    @Autowired private SortTaskSinkParamService sortTaskSinkParamService;
 
     @Override
     public SortClusterConfigResponse getClusterConfig(String clusterName, String md5) {
@@ -80,12 +83,14 @@ public class SortServiceImpl implements SortService {
     private SortTaskConfig getTaskConfig(SortClusterConfigEntity clusterConfig) {
         List<Map<String, String>> idParams =
                 sortTaskIdParamService.selectByTaskName(clusterConfig.getTaskName());
-        // TODO add method that get sink params
+        Map<String, String> sinkParams =
+                sortTaskSinkParamService
+                        .selectByTaskNameAndType(clusterConfig.getTaskName(), clusterConfig.getSinkType());
         return SortTaskConfig.builder()
                 .taskName(clusterConfig.getTaskName())
                 .sinkType(SinkType.valueOf(clusterConfig.getSinkType().toUpperCase()))
                 .idParams(idParams)
-                .sinkParams(null)
+                .sinkParams(sinkParams)
                 .build();
     }
 }
