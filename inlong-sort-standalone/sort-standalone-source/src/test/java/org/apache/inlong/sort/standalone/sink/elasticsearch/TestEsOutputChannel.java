@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.inlong.commons.config.metrics.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsRequest;
@@ -47,7 +48,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
  */
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
-@PrepareForTest({EsSinkFactory.class, RestHighLevelClient.class, ClusterClient.class, IndicesClient.class})
+@PrepareForTest({EsSinkFactory.class, RestHighLevelClient.class, ClusterClient.class, IndicesClient.class,
+        MetricRegister.class})
 public class TestEsOutputChannel {
 
     private RestHighLevelClient esClient;
