@@ -57,7 +57,7 @@
         <unit.version>4.13</unit.version>
         <common.lang.version>2.4</common.lang.version>
         <oro.version>2.0.8</oro.version>
-        <aviator.version>2.2.1</aviator.version>
+        <aviator.version>5.3.0</aviator.version>
         <avro.version>1.7.2</avro.version>
         <pulsar.version>2.6.2</pulsar.version>
         <netty.version>3.8.0.Final</netty.version>
