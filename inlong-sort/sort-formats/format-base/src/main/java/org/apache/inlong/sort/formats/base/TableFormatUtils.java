@@ -99,6 +99,9 @@ import org.apache.inlong.sort.formats.common.TypeInfo;
  */
 public class TableFormatUtils {
 
+    // to support avro format, precision must be less than 3
+    private static final int DEFAULT_PRECISION_FOR_TIMESTAMP = 2;
+
     /**
      * Returns the {@link DeserializationSchema} described by the given
      * properties.
@@ -340,7 +343,7 @@ public class TableFormatUtils {
         } else if (formatInfo instanceof DateFormatInfo) {
             return new DateType();
         } else if (formatInfo instanceof TimestampFormatInfo) {
-            return new TimestampType(((TimestampFormatInfo) formatInfo).getPrecision());
+            return new TimestampType(DEFAULT_PRECISION_FOR_TIMESTAMP);
         } else if (formatInfo instanceof ArrayFormatInfo) {
             FormatInfo elementFormatInfo = ((ArrayFormatInfo) formatInfo).getElementFormatInfo();
             return new ArrayType(deriveLogicalType(elementFormatInfo));

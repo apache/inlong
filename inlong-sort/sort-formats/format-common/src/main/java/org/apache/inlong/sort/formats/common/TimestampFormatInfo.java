@@ -28,7 +28,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -40,10 +39,6 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
 
     private static final String FIELD_FORMAT = "format";
 
-    private static final int MIN_PRECISION = 0;
-    private static final int MAX_PRECISION = 9;
-    private static final int DEFAULT_PRECISION = 6;
-
     @JsonProperty(FIELD_FORMAT)
     @Nonnull
     private final String format;
@@ -52,18 +47,9 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
     @Nullable
     private final SimpleDateFormat simpleDateFormat;
 
-    @JsonProperty("precision")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private final Integer precision;
-
-    public TimestampFormatInfo(String format) {
-        this(format, DEFAULT_PRECISION);
-    }
-
     @JsonCreator
     public TimestampFormatInfo(
-            @JsonProperty(FIELD_FORMAT) @Nonnull String format,
-            @JsonProperty("precision") Integer precision
+            @JsonProperty(FIELD_FORMAT) @Nonnull String format
     ) {
         this.format = format;
 
@@ -74,16 +60,6 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
         } else {
             this.simpleDateFormat = null;
         }
-
-        if (precision == null) {
-            this.precision = DEFAULT_PRECISION;
-        } else if (precision < MIN_PRECISION || precision > MAX_PRECISION) {
-            throw new IllegalArgumentException(
-                    String.format("Timestamp precision must be between %d and %d (both inclusive).",
-                            MIN_PRECISION, MAX_PRECISION));
-        } else {
-            this.precision = precision;
-        }
     }
 
     public TimestampFormatInfo() {
@@ -93,10 +69,6 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
     @Nonnull
     public String getFormat() {
         return format;
-    }
-
-    public Integer getPrecision() {
-        return precision;
     }
 
     @Override
@@ -171,16 +143,16 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
         }
 
         TimestampFormatInfo that = (TimestampFormatInfo) o;
-        return format.equals(that.format) && Objects.equals(precision, that.precision);
+        return format.equals(that.format);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(format, precision);
+        return Objects.hash(format);
     }
 
     @Override
     public String toString() {
-        return "TimestampFormatInfo{format='" + format + '\'' + ", precision=" + precision + '}';
+        return "TimestampFormatInfo{" + "format='" + format + '\'' + '}';
     }
 }
