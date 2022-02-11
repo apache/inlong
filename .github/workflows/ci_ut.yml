@@ -46,8 +46,13 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Build with Maven
+        run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests
+        env:
+          CI: false
+
       - name: Unit test with Maven
-        run: mvn --batch-mode --update-snapshots -e -V clean verify
+        run: mvn --batch-mode --update-snapshots -e -V test
         env:
           CI: false
 
@@ -66,10 +71,3 @@ jobs:
           name: failsafe-reports
           path: ./**/target/failsafe-reports/
           if-no-files-found: ignore
-
-      - name: Upload coverage to Codecov
-        if: ${{ success() }}
-        uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
