@@ -47,6 +47,6 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build docker image
-        run: mvn --batch-mode --update-snapshots -e -V clean verify -DskipTests -Pdocker
+        run: mvn --batch-mode --update-snapshots -e -V clean package -DskipTests -Pdocker
         env:
           CI: false
