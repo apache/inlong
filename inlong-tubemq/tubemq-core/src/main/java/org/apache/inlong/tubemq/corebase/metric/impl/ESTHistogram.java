@@ -46,6 +46,12 @@ public class ESTHistogram extends BaseMetric implements Histogram {
     // Exponential Statistic cells for Time
     private final LongStatsCounter[] buckets = new LongStatsCounter[NUM_BUCKETS];
 
+    /**
+     * Initial Exponential Statistics for Time Histogram
+     *
+     * @param metricName   metric name
+     * @param prefix       the prefix of metric item
+     */
     public ESTHistogram(String metricName, String prefix) {
         super(metricName, prefix);
         this.count = new LongStatsCounter("count", getFullName());
@@ -54,15 +60,17 @@ public class ESTHistogram extends BaseMetric implements Histogram {
         StringBuilder strBuff =
                 new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
         // Initialize the name and store room of each cell
+        // each cell is a left-closed right-open interval, and
+        // the cell name consists of left boundary value + "t" + right boundary value
         for (int i = 0; i < NUM_BUCKETS; i++) {
             strBuff.append("cell_");
             if (i == 0) {
-                strBuff.append(0).append("t").append((int) Math.pow(2, i + 1) - 1);
+                strBuff.append(0).append("t").append((int) Math.pow(2, i + 1));
             } else if (i == MAX_BUCKET_INDEX) {
                 strBuff.append((int) Math.pow(2, i)).append("tMax");
             } else {
                 strBuff.append((int) Math.pow(2, i))
-                        .append("t").append((int) Math.pow(2, i + 1) - 1);
+                        .append("t").append((int) Math.pow(2, i + 1));
             }
             this.buckets[i] = new LongStatsCounter(strBuff.toString(), getFullName());
             strBuff.delete(0, strBuff.length());

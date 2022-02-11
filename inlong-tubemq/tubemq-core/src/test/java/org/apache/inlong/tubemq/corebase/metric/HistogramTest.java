@@ -92,8 +92,8 @@ public class HistogramTest {
         StringBuilder strBuff = new StringBuilder(512);
         estHistogram.getValue(strBuff, false);
         String result1 = "\"disk_dlt\":{\"count\":7,\"min\":-5,\"max\":131100,"
-                + "\"cells\":{\"cell_0t1\":1,\"cell_16t31\":1,\"cell_512t1023\":1"
-                + ",\"cell_65536t131071\":2,\"cell_131072tMax\":2}}";
+                + "\"cells\":{\"cell_0t2\":1,\"cell_16t32\":1,\"cell_512t1024\":1"
+                + ",\"cell_65536t131072\":2,\"cell_131072tMax\":2}}";
         Assert.assertEquals(result1, strBuff.toString());
         strBuff.delete(0, strBuff.length());
         // test for map
@@ -102,10 +102,10 @@ public class HistogramTest {
         Assert.assertEquals(tmpMap.get("disk_dlt_count").longValue(), 7L);
         Assert.assertEquals(tmpMap.get("disk_dlt_max").longValue(), 131100L);
         Assert.assertEquals(tmpMap.get("disk_dlt_min").longValue(), -5L);
-        Assert.assertEquals(tmpMap.get("disk_dlt_cell_0t1").longValue(), 1);
-        Assert.assertEquals(tmpMap.get("disk_dlt_cell_16t31").longValue(), 1);
-        Assert.assertEquals(tmpMap.get("disk_dlt_cell_512t1023").longValue(), 1);
-        Assert.assertEquals(tmpMap.get("disk_dlt_cell_65536t131071").longValue(), 2);
+        Assert.assertEquals(tmpMap.get("disk_dlt_cell_0t2").longValue(), 1);
+        Assert.assertEquals(tmpMap.get("disk_dlt_cell_16t32").longValue(), 1);
+        Assert.assertEquals(tmpMap.get("disk_dlt_cell_512t1024").longValue(), 1);
+        Assert.assertEquals(tmpMap.get("disk_dlt_cell_65536t131072").longValue(), 2);
         Assert.assertEquals(tmpMap.get("disk_dlt_cell_131072tMax").longValue(), 2);
         tmpMap.clear();
         // test snapShort
@@ -117,13 +117,13 @@ public class HistogramTest {
         Assert.assertEquals(tmpMap.get("disk_dlt_count").longValue(), 2L);
         Assert.assertEquals(tmpMap.get("disk_dlt_max").longValue(), 100L);
         Assert.assertEquals(tmpMap.get("disk_dlt_min").longValue(), 1L);
-        Assert.assertEquals(tmpMap.get("disk_dlt_cell_0t1").longValue(), 1);
-        Assert.assertEquals(tmpMap.get("disk_dlt_cell_64t127").longValue(), 1);
+        Assert.assertEquals(tmpMap.get("disk_dlt_cell_0t2").longValue(), 1);
+        Assert.assertEquals(tmpMap.get("disk_dlt_cell_64t128").longValue(), 1);
         tmpMap.clear();
         // test get value by strBuff
         estHistogram.getValue(strBuff, false);
         String result2 =
-                "\"disk_dlt\":{\"count\":2,\"min\":1,\"max\":100,\"cells\":{\"cell_0t1\":1,\"cell_64t127\":1}}";
+                "\"disk_dlt\":{\"count\":2,\"min\":1,\"max\":100,\"cells\":{\"cell_0t2\":1,\"cell_64t128\":1}}";
         Assert.assertEquals(result2, strBuff.toString());
         strBuff.delete(0, strBuff.length());
     }
