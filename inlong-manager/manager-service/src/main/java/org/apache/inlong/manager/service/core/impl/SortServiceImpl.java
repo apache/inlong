@@ -81,6 +81,7 @@ public class SortServiceImpl implements SortService {
     }
 
     private SortTaskConfig getTaskConfig(SortClusterConfigEntity clusterConfig) {
+        SinkType sinkType = SinkType.valueOf(clusterConfig.getSinkType().toUpperCase());
         List<Map<String, String>> idParams =
                 sortTaskIdParamService.selectByTaskName(clusterConfig.getTaskName());
         Map<String, String> sinkParams =
@@ -88,7 +89,7 @@ public class SortServiceImpl implements SortService {
                         .selectByTaskNameAndType(clusterConfig.getTaskName(), clusterConfig.getSinkType());
         return SortTaskConfig.builder()
                 .taskName(clusterConfig.getTaskName())
-                .sinkType(SinkType.valueOf(clusterConfig.getSinkType().toUpperCase()))
+                .sinkType(sinkType)
                 .idParams(idParams)
                 .sinkParams(sinkParams)
                 .build();

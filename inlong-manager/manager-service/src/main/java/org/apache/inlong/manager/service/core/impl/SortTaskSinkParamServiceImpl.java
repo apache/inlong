@@ -36,7 +36,8 @@ public class SortTaskSinkParamServiceImpl implements SortTaskSinkParamService {
 
     private static final String KEY_SINK_TYPE = "type";
 
-    @Autowired private SortTaskSinkParamEntityMapper sortTaskSinkParamEntityMapper;
+    @Autowired
+    private SortTaskSinkParamEntityMapper sortTaskSinkParamEntityMapper;
 
     @Override
     public Map<String, String> selectByTaskNameAndType(String taskName, String sinkType) {
