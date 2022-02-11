@@ -31,8 +31,8 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.corebase.utils.Tuple3;
 import org.apache.inlong.tubemq.server.broker.BrokerConfig;
-import org.apache.inlong.tubemq.server.broker.metrics.BrokerMetricsHolder;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
+import org.apache.inlong.tubemq.server.broker.stats.ServiceStatsHolder;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.offsetstorage.OffsetStorage;
@@ -665,7 +665,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
             }
             zkOffsetStorage.commitOffset(entry.getKey(), entry.getValue().values(), retryable);
         }
-        BrokerMetricsHolder.updSyncZKDurations(System.currentTimeMillis() - startTime);
+        ServiceStatsHolder.updZKSyncDataDlt(System.currentTimeMillis() - startTime);
     }
 
     /**
