@@ -255,13 +255,13 @@ Apache License Version 2.0:
    - org.mortbay.jetty:jetty:jetty-6.1.26.jar
    - org.mortbay.jetty:jetty-util:jetty-util-6.1.26.jar
    - org.mortbay.jetty:servlet-api:servlet-api-2.5-20110124.jar
-   - org.eclipse.jetty:jetty-http:jetty-http-9.4.6.v20170531.jar
-   - org.eclipse.jetty:jetty-io:jetty-io-9.4.6.v20170531.jar
-   - org.eclipse.jetty:jetty-jmx:jetty-jmx-9.4.6.v20170531.jar
-   - org.eclipse.jetty:jetty-security:jetty-security-9.4.6.v20170531.jar
-   - org.eclipse.jetty:jetty-server:jetty-server-9.4.6.v20170531.jar
-   - org.eclipse.jetty:jetty-servlet:jetty-servlet-9.4.6.v20170531.jar
-   - org.eclipse.jetty:jetty-util:jetty-util-9.4.6.v20170531.jar
+   - org.eclipse.jetty:jetty-http:jetty-http-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-io:jetty-io-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-jmx:jetty-jmx-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-security:jetty-security-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-server:jetty-server-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-servlet:jetty-servlet-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-util:jetty-util-9.4.44.v20210927.jar
  * Joda-Time
    - joda-time:joda-time:joda-time-2.9.9.jar
  * FindBugs-jsr305
@@ -280,7 +280,7 @@ Apache License Version 2.0:
  * Snappy for Java
    - org.xerial.snappy:snappy-java:snappy-java-1.1.0.jar
  * Apache Velocity
-   - org.apache.velocity:velocity:velocity-1.7.jar
+   - org.apache.velocity:velocity:velocity-engine-core-2.3.jar
  * Apache ZooKeeper
    - org.apache.zookeeper:zookeeper:zookeeper-3.4.6.jar
 

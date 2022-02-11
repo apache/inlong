@@ -19,12 +19,12 @@
 # of the project and make sure to discuss the changes with dev@ before committing.
 
 github:
-  description: "Apache InLong - a one-stop data integration framework"
+  description: "Apache InLong - a one-stop integration framework for massive data"
   homepage: https://inlong.apache.org/
   labels:
     - inlong
     - one-stop-service
-    - data-integration
+    - massive-data-integration
     - framework
     - data-streaming
     - event-streaming

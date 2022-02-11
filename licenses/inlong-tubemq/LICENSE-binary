@@ -231,30 +231,30 @@ Apache License Version 2.0:
    - commons-cli:commons-cli:commons-cli-1.4.jar
    - org.apache.commons:commons-lang3:3.10
  * Apache Velocity
-   - org.apache.velocity:velocity:velocity-1.7.jar
-   - org.apache.velocity:velocity-tools:velocity-tools-2.0.jar
+   - org.apache.velocity:velocity:velocity-engine-core-2.3.jar
+   - org.apache.velocity.tools:velocity-tools:velocity-tools-generic-3.1.jar
  * HttpClient
    - org.apache.httpcomponents:httpclient:httpclient-4.5.13.jar
    - org.apache.httpcomponents:httpcore:httpcore-4.4.13.jar
  * Jetty
-   - org.eclipse.jetty:jetty-server:jetty-server-9.4.31.v20200723.jar
-   - org.eclipse.jetty:jetty-http:jetty-http-9.4.31.v20200723.jar
-   - org.eclipse.jetty:jetty-util:jetty-util-9.4.31.v20200723.jar
-   - org.eclipse.jetty:jetty-io:jetty-io-9.4.31.v20200723.jar
-   - org.eclipse.jetty:jetty-servlet:jetty-servlet-9.4.31.v20200723.jar
-   - org.eclipse.jetty:jetty-security:jetty-security-9.4.31.v20200723.jar
+   - org.eclipse.jetty:jetty-server:jetty-server-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-http:jetty-http-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-util:jetty-util-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-io:jetty-io-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-servlet:jetty-servlet-9.4.44.v20210927.jar
+   - org.eclipse.jetty:jetty-security:jetty-security-9.4.44.v20210927.jar
  * ini4j
    - org.ini4j:ini4j:ini4j-0.5.1.jar
  * Spring Framework
-   - org.springframework:spring-core:spring-core-5.2.8.RELEASE.jar
-   - org.springframework:spring-jcl:spring-jcl-5.2.8.RELEASE.jar
-   - org.springframework:spring-context:spring-context-5.2.8.RELEASE.jar
-   - org.springframework:spring-aop:spring-aop-5.2.8.RELEASE.jar
-   - org.springframework:spring-beans:spring-beans-5.2.8.RELEASE.jar
-   - org.springframework:spring-expression:spring-expression-5.2.8.RELEASE.jar
-   - org.springframework:spring-jdbc:spring-jdbc-5.2.8.RELEASE.jar
-   - org.springframework:spring-tx:spring-tx-5.2.8.RELEASE.jar
-   - org.springframework:spring-orm:spring-orm-5.2.8.RELEASE.jar
+   - org.springframework:spring-core:spring-core-5.3.15.jar
+   - org.springframework:spring-jcl:spring-jcl-5.3.15.jar
+   - org.springframework:spring-context:spring-context-5.3.15.jar
+   - org.springframework:spring-aop:spring-aop-5.3.15.jar
+   - org.springframework:spring-beans:spring-beans-5.3.15.jar
+   - org.springframework:spring-expression:spring-expression-5.3.15.jar
+   - org.springframework:spring-jdbc:spring-jdbc-5.3.15.jar
+   - org.springframework:spring-tx:spring-tx-5.3.15.jar
+   - org.springframework:spring-orm:spring-orm-5.3.15.jar
  * oro
    - oro:oro:oro-2.0.8.jar
 Apache License version 1.1

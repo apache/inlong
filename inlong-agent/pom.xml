@@ -57,7 +57,6 @@
         <unit.version>4.13</unit.version>
         <common.lang.version>2.4</common.lang.version>
         <oro.version>2.0.8</oro.version>
-        <aviator.version>2.2.1</aviator.version>
         <avro.version>1.7.2</avro.version>
         <pulsar.version>2.6.2</pulsar.version>
         <netty.version>3.8.0.Final</netty.version>
@@ -67,7 +66,7 @@
         <fastjson.version>1.2.68</fastjson.version>
         <sleepycat.version>7.3.7</sleepycat.version>
         <hippoclient.version>2.0.5</hippoclient.version>
-        <jetty.version>9.4.34.v20201102</jetty.version>
+        <jetty.version>9.4.44.v20210927</jetty.version>
         <rocksdb.version>6.14.6</rocksdb.version>
         <codec.version>1.15</codec.version>
         <lombok.version>1.18.12</lombok.version>
@@ -180,12 +179,6 @@
                 <groupId>oro</groupId>
                 <artifactId>oro</artifactId>
                 <version>${oro.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.googlecode.aviator</groupId>
-                <artifactId>aviator</artifactId>
-                <version>${aviator.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sleepycat</groupId>
