@@ -246,15 +246,15 @@ Apache License Version 2.0:
  * ini4j
    - org.ini4j:ini4j:ini4j-0.5.1.jar
  * Spring Framework
-   - org.springframework:spring-core:spring-core-5.2.8.RELEASE.jar
-   - org.springframework:spring-jcl:spring-jcl-5.2.8.RELEASE.jar
-   - org.springframework:spring-context:spring-context-5.2.8.RELEASE.jar
-   - org.springframework:spring-aop:spring-aop-5.2.8.RELEASE.jar
-   - org.springframework:spring-beans:spring-beans-5.2.8.RELEASE.jar
-   - org.springframework:spring-expression:spring-expression-5.2.8.RELEASE.jar
-   - org.springframework:spring-jdbc:spring-jdbc-5.2.8.RELEASE.jar
-   - org.springframework:spring-tx:spring-tx-5.2.8.RELEASE.jar
-   - org.springframework:spring-orm:spring-orm-5.2.8.RELEASE.jar
+   - org.springframework:spring-core:spring-core-5.3.15.jar
+   - org.springframework:spring-jcl:spring-jcl-5.3.15.jar
+   - org.springframework:spring-context:spring-context-5.3.15.jar
+   - org.springframework:spring-aop:spring-aop-5.3.15.jar
+   - org.springframework:spring-beans:spring-beans-5.3.15.jar
+   - org.springframework:spring-expression:spring-expression-5.3.15.jar
+   - org.springframework:spring-jdbc:spring-jdbc-5.3.15.jar
+   - org.springframework:spring-tx:spring-tx-5.3.15.jar
+   - org.springframework:spring-orm:spring-orm-5.3.15.jar
  * oro
    - oro:oro:oro-2.0.8.jar
 Apache License version 1.1
