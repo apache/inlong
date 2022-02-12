@@ -280,7 +280,7 @@ Apache License Version 2.0:
  * Snappy for Java
    - org.xerial.snappy:snappy-java:snappy-java-1.1.0.jar
  * Apache Velocity
-   - org.apache.velocity:velocity:velocity-1.7.jar
+   - org.apache.velocity:velocity:velocity-engine-core-2.3.jar
  * Apache ZooKeeper
    - org.apache.zookeeper:zookeeper:zookeeper-3.4.6.jar
 

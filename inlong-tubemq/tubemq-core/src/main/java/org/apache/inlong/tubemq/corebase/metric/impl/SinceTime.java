@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.corebase.metric.impl;
 
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 
 /**
  * SinceTime, store the start time of the metric items set
@@ -34,6 +35,10 @@ public class SinceTime extends BaseMetric {
 
     public long getSinceTime() {
         return this.sinceTime.get();
+    }
+
+    public String getStrSinceTime() {
+        return DateTimeConvertUtils.ms2yyyyMMddHHmmss(this.sinceTime.get());
     }
 
     public long getAndResetSinceTime() {
