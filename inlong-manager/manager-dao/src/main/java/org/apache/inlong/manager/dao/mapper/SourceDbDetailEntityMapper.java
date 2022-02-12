@@ -40,7 +40,8 @@ public interface SourceDbDetailEntityMapper {
 
     List<SourceDbDetailEntity> selectByCondition(SourceDbDetailPageRequest request);
 
-    Integer selectDetailExist(String groupId, String streamId, String dbName, String connectionName);
+    Integer selectDetailExist(@Param("groupId") String groupId, @Param("streamId") String streamId,
+            @Param("dbName") String dbName, @Param("connectionName") String connectionName);
 
     /**
      * According to the business group id and data stream id, query data source details
