@@ -598,7 +598,8 @@ public class ParquetSchemaConverter {
                         .as(OriginalType.TIME_MILLIS)
                         .named(name);
             case TIMESTAMP_WITHOUT_TIME_ZONE:
-                return Types.primitive(PrimitiveType.PrimitiveTypeName.INT96, repetition)
+                return Types.primitive(PrimitiveType.PrimitiveTypeName.INT64, repetition)
+                        .as(OriginalType.TIMESTAMP_MILLIS)
                         .named(name);
             default:
                 throw new UnsupportedOperationException("Unsupported type: " + type);
