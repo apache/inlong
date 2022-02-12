@@ -75,6 +75,7 @@ public class ServiceStatsHolderTest {
         Assert.assertEquals(10, retMap.get("file_sync_dlt_min").longValue());
         Assert.assertEquals(1, retMap.get("file_sync_dlt_cell_8t16").longValue());
         Assert.assertEquals(1, retMap.get("file_sync_dlt_cell_64t128").longValue());
+        final long sinceTime1 = retMap.get("reset_time");
         // verify snapshot
         ServiceStatsHolder.snapShort(retMap);
         retMap.clear();
@@ -83,6 +84,7 @@ public class ServiceStatsHolderTest {
         // add disk sync data, add 1
         ServiceStatsHolder.updDiskSyncDataDlt(999);
         ServiceStatsHolder.snapShort(retMap);
+        Assert.assertNotEquals(sinceTime1, retMap.get("reset_time").longValue());
         Assert.assertEquals(2, retMap.get("consumer_online_cnt").longValue());
         Assert.assertEquals(0, retMap.get("consumer_timeout_cnt").longValue());
         Assert.assertEquals(0, retMap.get("broker_hb_exc_cnt").longValue());

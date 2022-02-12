@@ -17,23 +17,36 @@
 
 package org.apache.inlong.tubemq.server.broker.stats;
 
-import java.util.HashMap;
 import java.util.Map;
-import org.junit.Test;
 
 /**
- * GroupCountService test.
+ * TrafficService, incoming and outgoing traffic statistics service
+ *
+ * Supports adding new metric data one by one or in batches,
+ * and outputting metric data to a file at specified intervals.
  */
-public class GroupCountServiceTest {
+public interface TrafficService {
 
-    @Test
-    public void add() {
-        GroupCountService groupCountService = new GroupCountService("PutCounterGroup", "Producer", 60 * 1000);
-        groupCountService.add("key", 1L, 100);
-        Map<String, CountItem> items = new HashMap<>();
-        items.put("key1", new CountItem(1L, 1024));
-        items.put("key2", new CountItem(1L, 1024));
-        // add counts
-        groupCountService.add(items);
-    }
+    /**
+     * Close service.
+     *
+     * @param waitTimeMs  the wait time
+     */
+    void close(long waitTimeMs);
+
+    /**
+     * Add traffic information in batches
+     *
+     * @param trafficInfos  the traffic information
+     */
+    void add(Map<String, TrafficInfo> trafficInfos);
+
+    /**
+     * Add a traffic information record
+     *
+     * @param statsKey  the statistical key
+     * @param msgCnt    the total message count
+     * @param msgSize   the total message size
+     */
+    void add(String statsKey, long msgCnt, long msgSize);
 }
