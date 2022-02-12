@@ -47,7 +47,7 @@ import org.apache.inlong.tubemq.server.broker.msgstore.mem.GetCacheMsgResult;
 import org.apache.inlong.tubemq.server.broker.msgstore.mem.MsgMemStatisInfo;
 import org.apache.inlong.tubemq.server.broker.msgstore.mem.MsgMemStore;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
-import org.apache.inlong.tubemq.server.broker.stats.CountItem;
+import org.apache.inlong.tubemq.server.broker.stats.TrafficInfo;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.common.utils.AppendResult;
 import org.apache.inlong.tubemq.server.common.utils.IdWorker;
@@ -219,7 +219,7 @@ public class MessageStore implements Closeable {
             if (inMemCache) {
                 // return not found when data is under memory sink operation.
                 if (memMsgRlt.isSuccess) {
-                    HashMap<String, CountItem> countMap =
+                    HashMap<String, TrafficInfo> countMap =
                             new HashMap<>();
                     List<ClientBroker.TransferedMessage> transferedMessageList =
                             new ArrayList<>();
