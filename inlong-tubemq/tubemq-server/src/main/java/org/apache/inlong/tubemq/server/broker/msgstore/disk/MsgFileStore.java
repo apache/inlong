@@ -35,8 +35,8 @@ import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.inlong.tubemq.corebase.utils.ServiceStatusHolder;
 import org.apache.inlong.tubemq.server.broker.BrokerConfig;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
-import org.apache.inlong.tubemq.server.broker.stats.CountItem;
 import org.apache.inlong.tubemq.server.broker.stats.ServiceStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.TrafficInfo;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.broker.utils.DiskSamplePrint;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
@@ -263,7 +263,7 @@ public class MsgFileStore implements Closeable {
         final StringBuilder sBuilder = new StringBuilder(512);
         final long curDataMaxOffset = getDataMaxOffset();
         final long curDataMinOffset = getDataMinOffset();
-        HashMap<String, CountItem> countMap = new HashMap<>();
+        HashMap<String, TrafficInfo> countMap = new HashMap<>();
         ByteBuffer dataBuffer =
                 ByteBuffer.allocate(TServerConstants.CFG_STORE_DEFAULT_MSG_READ_UNIT);
         List<ClientBroker.TransferedMessage> transferedMessageList =
