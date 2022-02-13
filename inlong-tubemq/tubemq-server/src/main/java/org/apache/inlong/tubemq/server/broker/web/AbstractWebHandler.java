@@ -22,11 +22,11 @@ import static org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.get
 import static org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.registerWebMethod;
 import java.io.IOException;
 import java.util.Set;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.inlong.tubemq.server.broker.TubeBroker;
+import org.apache.inlong.tubemq.server.common.webbase.WebCallStatsHolder;
 import org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.WebApiRegInfo;
 
 public abstract class AbstractWebHandler extends HttpServlet {
@@ -50,10 +50,11 @@ public abstract class AbstractWebHandler extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req,
                           HttpServletResponse resp) throws IOException {
+        String method = null;
         StringBuilder sBuffer = new StringBuilder(1024);
-
+        long startTime = System.currentTimeMillis();
         try {
-            String method = req.getParameter("method");
+            method = req.getParameter("method");
             if (method == null) {
                 sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                         .append("Please take with method parameter! \"}");
@@ -71,6 +72,8 @@ public abstract class AbstractWebHandler extends HttpServlet {
                     .append("Bad request from server: ")
                     .append(e.getMessage())
                     .append("\"}");
+        } finally {
+            WebCallStatsHolder.addMethodCall(method, System.currentTimeMillis() - startTime);
         }
         resp.getWriter().write(sBuffer.toString());
         resp.setCharacterEncoding(req.getCharacterEncoding());

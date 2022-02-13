@@ -19,10 +19,12 @@ package org.apache.inlong.tubemq.server.broker.stats;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.metric.impl.ESTHistogram;
 import org.apache.inlong.tubemq.corebase.metric.impl.LongOnlineCounter;
 import org.apache.inlong.tubemq.corebase.metric.impl.LongStatsCounter;
 import org.apache.inlong.tubemq.corebase.metric.impl.SinceTime;
+import org.apache.inlong.tubemq.server.common.TServerConstants;
 
 /**
  * ServiceStatsHolder, statistic Broker metrics information for RPC services
@@ -39,6 +41,8 @@ public class ServiceStatsHolder {
     private static final ServiceStatsSet[] switchableSets = new ServiceStatsSet[2];
     // Current writable index
     private static final AtomicInteger writableIndex = new AtomicInteger(0);
+    // Last snapshot time
+    private static final AtomicLong lstSnapshotTime = new AtomicLong(0);
 
     // Initial service statistic set
     static {
@@ -56,15 +60,33 @@ public class ServiceStatsHolder {
     }
 
     public static void snapShort(Map<String, Long> statsMap) {
-        int befIndex = writableIndex.getAndIncrement();
-        switchableSets[getIndex()].resetSinceTime();
-        getStatsValue(switchableSets[getIndex(befIndex)], true, statsMap);
+        long curSnapshotTime = lstSnapshotTime.get();
+        // Avoid frequent snapshots
+        if ((System.currentTimeMillis() - curSnapshotTime)
+                >= TServerConstants.MIN_SNAPSHOT_PERIOD_MS) {
+            if (lstSnapshotTime.compareAndSet(curSnapshotTime, System.currentTimeMillis())) {
+                int befIndex = writableIndex.getAndIncrement();
+                switchableSets[getIndex()].resetSinceTime();
+                getStatsValue(switchableSets[getIndex(befIndex)], true, statsMap);
+                return;
+            }
+        }
+        getValue(statsMap);
     }
 
     public static void snapShort(StringBuilder strBuff) {
-        int befIndex = writableIndex.getAndIncrement();
-        switchableSets[getIndex()].resetSinceTime();
-        getStatsValue(switchableSets[getIndex(befIndex)], true, strBuff);
+        long curSnapshotTime = lstSnapshotTime.get();
+        // Avoid frequent snapshots
+        if ((System.currentTimeMillis() - curSnapshotTime)
+                >= TServerConstants.MIN_SNAPSHOT_PERIOD_MS) {
+            if (lstSnapshotTime.compareAndSet(curSnapshotTime, System.currentTimeMillis())) {
+                int befIndex = writableIndex.getAndIncrement();
+                switchableSets[getIndex()].resetSinceTime();
+                getStatsValue(switchableSets[getIndex(befIndex)], true, strBuff);
+                return;
+            }
+        }
+        getValue(strBuff);
     }
     // metric set operate APIs end
 

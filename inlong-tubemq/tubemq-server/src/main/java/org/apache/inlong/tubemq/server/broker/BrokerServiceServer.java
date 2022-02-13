@@ -66,9 +66,8 @@ import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordInfo;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
-import org.apache.inlong.tubemq.server.broker.stats.CountService;
-import org.apache.inlong.tubemq.server.broker.stats.GroupCountService;
 import org.apache.inlong.tubemq.server.broker.stats.ServiceStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.TrafficStatsService;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.TStatusConstants;
 import org.apache.inlong.tubemq.server.common.aaaserver.CertificateBrokerHandler;
@@ -107,9 +106,9 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     // row lock.
     private final RowLock brokerRowLock;
     // statistics of produce.
-    private final CountService putCounterGroup;
+    private final TrafficStatsService putCounterGroup;
     // statistics of consume.
-    private final CountService getCounterGroup;
+    private final TrafficStatsService getCounterGroup;
     // certificate handler.
     private final CertificateBrokerHandler serverAuthHandler;
     // consumer timeout listener.
@@ -128,8 +127,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         this.serverAuthHandler = tubeBroker.getServerAuthHandler();
         ServiceStatusHolder.setStatisParameters(tubeConfig.getAllowedReadIOExcptCnt(),
                 tubeConfig.getAllowedWriteIOExcptCnt(), tubeConfig.getIoExcptStatsDurationMs());
-        this.putCounterGroup = new GroupCountService("PutCounterGroup", "Producer", 60 * 1000);
-        this.getCounterGroup = new GroupCountService("GetCounterGroup", "Consumer", 60 * 1000);
+        this.putCounterGroup = new TrafficStatsService("PutCounterGroup", "Producer", 60 * 1000);
+        this.getCounterGroup = new TrafficStatsService("GetCounterGroup", "Consumer", 60 * 1000);
         this.heartbeatManager = new HeartbeatManager();
         this.brokerRowLock =
                 new RowLock("Broker-RowLock", this.tubeConfig.getRowLockWaitDurMs());
