@@ -43,12 +43,12 @@ public class DispatchManager {
     public static final long DEFAULT_DISPATCH_MAX_PACKSIZE = 327680;
     public static final long MINUTE_MS = 60L * 1000;
 
-    private LinkedBlockingQueue<DispatchProfile> dispatchQueue;
     private final long dispatchTimeout;
     private final long maxPackCount;
     private final long maxPackSize;
+    private LinkedBlockingQueue<DispatchProfile> dispatchQueue;
     private ConcurrentHashMap<String, DispatchProfile> profileCache = new ConcurrentHashMap<>();
-    //
+    // flag that manager need to output overtime data.
     private AtomicBoolean needOutputOvertimeData = new AtomicBoolean(false);
 
     /**
@@ -78,14 +78,14 @@ public class DispatchManager {
         String eventUid = event.getUid();
         long dispatchTime = event.getMsgTime() - event.getMsgTime() % MINUTE_MS;
         String dispatchKey = eventUid + "." + dispatchTime;
-        //
+        // find dispatch profile
         DispatchProfile dispatchProfile = this.profileCache.get(dispatchKey);
         if (dispatchProfile == null) {
             dispatchProfile = new DispatchProfile(eventUid, event.getInlongGroupId(), event.getInlongStreamId(),
                     dispatchTime);
             this.profileCache.put(dispatchKey, dispatchProfile);
         }
-        //
+        // add event
         boolean addResult = dispatchProfile.addEvent(event, maxPackCount, maxPackSize);
         if (!addResult) {
             DispatchProfile newDispatchProfile = new DispatchProfile(eventUid, event.getInlongGroupId(),
