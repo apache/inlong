@@ -207,9 +207,9 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
      */
     private static class TrafficStatsSet {
         protected LongStatsCounter msgCnt =
-                new LongStatsCounter("msgCount", null);
+                new LongStatsCounter("msg_count", null);
         protected LongStatsCounter msgSize =
-                new LongStatsCounter("msgSize", null);
+                new LongStatsCounter("msg_size", null);
 
         public TrafficStatsSet() {
             //
