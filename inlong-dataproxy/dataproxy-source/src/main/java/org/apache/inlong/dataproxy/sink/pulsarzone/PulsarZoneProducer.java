@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 public class PulsarZoneProducer {
 
     public static final Logger LOG = LoggerFactory.getLogger(PulsarZoneProducer.class);
+    public static final int MAX_INDEX = Integer.MAX_VALUE / 2;
 
     private final String workerName;
     private final PulsarZoneSinkContext context;
@@ -151,7 +152,7 @@ public class PulsarZoneProducer {
      */
     public boolean send(DispatchProfile event) {
         int currentIndex = clusterIndex.getAndIncrement();
-        if (currentIndex > Integer.MAX_VALUE / 2) {
+        if (currentIndex > MAX_INDEX) {
             clusterIndex.set(0);
         }
         List<PulsarClusterProducer> currentClusterList = this.clusterList;
