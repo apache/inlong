@@ -18,6 +18,23 @@
 package org.apache.inlong.dataproxy.sink.pulsar;
 
 import com.google.common.base.Preconditions;
+import org.apache.flume.Event;
+import org.apache.flume.FlumeException;
+import org.apache.inlong.commons.monitor.LogCounter;
+import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.config.pojo.PulsarConfig;
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.sink.EventStat;
+import org.apache.inlong.dataproxy.utils.NetworkUtils;
+import org.apache.pulsar.client.api.AuthenticationFactory;
+import org.apache.pulsar.client.api.Producer;
+import org.apache.pulsar.client.api.PulsarClient;
+import org.apache.pulsar.client.api.PulsarClientException;
+import org.apache.pulsar.client.impl.MessageIdImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,20 +42,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.flume.Context;
-import org.apache.flume.Event;
-import org.apache.flume.FlumeException;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.dataproxy.sink.EventStat;
-import org.apache.inlong.commons.monitor.LogCounter;
-import org.apache.inlong.dataproxy.utils.NetworkUtils;
-import org.apache.pulsar.client.api.Producer;
-import org.apache.pulsar.client.api.PulsarClient;
-import org.apache.pulsar.client.api.PulsarClientException;
-import org.apache.pulsar.client.impl.MessageIdImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PulsarClientService {
 
@@ -47,33 +50,10 @@ public class PulsarClientService {
     private static final LogCounter logPrinterA = new LogCounter(10, 100000, 60 * 1000);
 
     /*
-     * properties key for pulsar client
-     */
-    private static String PULSAR_SERVER_URL_LIST = "pulsar_server_url_list";
-
-    /*
-     * properties key pulsar producer
-     */
-    private static String SEND_TIMEOUT = "send_timeout_mill";
-    private static String CLIENT_TIMEOUT = "client_timeout_second";
-    private static String ENABLE_BATCH = "enable_batch";
-    private static String BLOCK_IF_QUEUE_FULL = "block_if_queue_full";
-    private static String MAX_PENDING_MESSAGES = "max_pending_messages";
-    private static String MAX_BATCHING_MESSAGES = "max_batching_messages";
-    private static String RETRY_INTERVAL_WHEN_SEND_ERROR_MILL = "retry_interval_when_send_error_ms";
-
-    private static int DEFAULT_SEND_TIMEOUT_MILL = 30 * 1000;
-    private static int DEFAULT_CLIENT_TIMEOUT_SECOND = 30;
-    private static long DEFAULT_RETRY_INTERVAL_WHEN_SEND_ERROR_MILL = 30 * 1000L;
-    private static boolean DEFAULT_ENABLE_BATCH = true;
-    private static boolean DEFAULT_BLOCK_IF_QUEUE_FULL = true;
-    private static int DEFAULT_MAX_PENDING_MESSAGES = 10000;
-    private static int DEFAULT_MAX_BATCHING_MESSAGES = 1000;
-
-    /*
      * for pulsar client
      */
-    private String[] pulsarServerUrls;
+//    private String[] pulsarServerUrls;
+    private Map<String, String> pulsarUrl2token;
 
     /*
      * for producer
@@ -93,29 +73,33 @@ public class PulsarClientService {
 
     /**
      * PulsarClientService
-     * @param context
+     *
+     * @param pulsarConfig
      */
-    public PulsarClientService(Context context) {
+    public PulsarClientService(PulsarConfig pulsarConfig) {
 
-        String pulsarServerUrlList = context.getString(PULSAR_SERVER_URL_LIST);
-        Preconditions.checkState(pulsarServerUrlList != null, "No pulsar server url specified");
-        pulsarServerUrls = pulsarServerUrlList.split("\\|");
-        Preconditions.checkState(pulsarServerUrls != null && pulsarServerUrls.length > 0, "No "
-                + "pulsar server url config");
-        sendTimeout = context.getInteger(SEND_TIMEOUT, DEFAULT_SEND_TIMEOUT_MILL);
-        retryIntervalWhenSendMsgError = context.getLong(RETRY_INTERVAL_WHEN_SEND_ERROR_MILL,
-                DEFAULT_RETRY_INTERVAL_WHEN_SEND_ERROR_MILL);
-        clientTimeout = context.getInteger(CLIENT_TIMEOUT, DEFAULT_CLIENT_TIMEOUT_SECOND);
-        logger.debug("PulsarClientService " + SEND_TIMEOUT + " " + sendTimeout);
+//        String pulsarServerUrlList = context.getString(PULSAR_SERVER_URL_LIST);
+        sendTimeout = pulsarConfig.getSendTimeoutMs();
+        retryIntervalWhenSendMsgError = pulsarConfig.getRetryIntervalWhenSendErrorMs();
+        clientTimeout = pulsarConfig.getClientTimeoutSecond();
+        logger.debug("PulsarClientService " + sendTimeout);
         Preconditions.checkArgument(sendTimeout > 0, "sendTimeout must be > 0");
 
-        enableBatch = context.getBoolean(ENABLE_BATCH, DEFAULT_ENABLE_BATCH);
-        blockIfQueueFull = context.getBoolean(BLOCK_IF_QUEUE_FULL, DEFAULT_BLOCK_IF_QUEUE_FULL);
-        maxPendingMessages = context.getInteger(MAX_PENDING_MESSAGES, DEFAULT_MAX_PENDING_MESSAGES);
-        maxBatchingMessages =  context.getInteger(MAX_BATCHING_MESSAGES, DEFAULT_MAX_BATCHING_MESSAGES);
+        enableBatch = pulsarConfig.getEnableBatch();
+        blockIfQueueFull = pulsarConfig.getBlockIfQueueFull();
+        maxPendingMessages = pulsarConfig.getMaxPendingMessages();
+        maxBatchingMessages = pulsarConfig.getMaxBatchingMessages();
         producerInfoMap = new ConcurrentHashMap<String, List<TopicProducerInfo>>();
         topicSendIndexMap = new ConcurrentHashMap<String, AtomicLong>();
         localIp = NetworkUtils.getLocalIp();
+
+        //        retryIntervalWhenSendMsgError = context.getLong(RETRY_INTERVAL_WHEN_SEND_ERROR_MILL,
+//                DEFAULT_RETRY_INTERVAL_WHEN_SEND_ERROR_MILL);
+//        clientTimeout = context.getInteger(CLIENT_TIMEOUT, DEFAULT_CLIENT_TIMEOUT_SECOND);
+//        enableBatch = context.getBoolean(ENABLE_BATCH, DEFAULT_ENABLE_BATCH);
+//        blockIfQueueFull = context.getBoolean(BLOCK_IF_QUEUE_FULL, DEFAULT_BLOCK_IF_QUEUE_FULL);
+//        maxPendingMessages = context.getInteger(MAX_PENDING_MESSAGES, DEFAULT_MAX_PENDING_MESSAGES);
+//        maxBatchingMessages = context.getInteger(MAX_BATCHING_MESSAGES, DEFAULT_MAX_BATCHING_MESSAGES);
 
     }
 
@@ -130,14 +114,14 @@ public class PulsarClientService {
 
     /**
      * send message
+     *
      * @param topic
      * @param event
      * @param sendMessageCallBack
      * @param es
      * @return
      */
-    public boolean sendMessage(String topic, Event event,
-            SendMessageCallBack sendMessageCallBack, EventStat es) {
+    public boolean sendMessage(String topic, Event event, SendMessageCallBack sendMessageCallBack, EventStat es) {
         TopicProducerInfo producer = null;
         try {
             producer = getProducer(topic);
@@ -179,7 +163,7 @@ public class PulsarClientService {
         forCallBackP.getProducer().newMessage().properties(proMap).value(event.getBody())
                 .sendAsync().thenAccept((msgId) -> {
             forCallBackP.setCanUseSend(true);
-            sendMessageCallBack.handleMessageSendSuccess(topic, (MessageIdImpl)msgId, es);
+            sendMessageCallBack.handleMessageSendSuccess(topic, (MessageIdImpl) msgId, es);
 
         }).exceptionally((e) -> {
             forCallBackP.setCanUseSend(false);
@@ -200,24 +184,27 @@ public class PulsarClientService {
             return;
         }
         pulsarClients = new ArrayList<PulsarClient>();
-        for (int i = 0; i < pulsarServerUrls.length; i++) {
+        pulsarUrl2token = ConfigManager.getInstance().getPulsarConfig().getUrl2token();
+        Preconditions.checkState(!pulsarUrl2token.isEmpty(), "No pulsar server url specified");
+        logger.debug("number of pulsarcluster is {}", pulsarUrl2token.size());
+        for (Map.Entry<String, String> info : pulsarUrl2token.entrySet()) {
             try {
-                logger.debug("index = {}, url = {}", i, pulsarServerUrls[i]);
-                PulsarClient client = initPulsarClient(pulsarServerUrls[i]);
+                logger.debug("url = {}, token = {}", info.getKey(), info.getValue());
+                PulsarClient client = initPulsarClient(info.getKey(), info.getValue());
                 pulsarClients.add(client);
-                callBack.handleCreateClientSuccess(pulsarServerUrls[i]);
+                callBack.handleCreateClientSuccess(info.getKey());
             } catch (PulsarClientException e) {
-                callBack.handleCreateClientException(pulsarServerUrls[i]);
+                callBack.handleCreateClientException(info.getKey());
                 logger.error("create connnection error in metasink, "
-                        + "maybe pulsar master set error, please re-check.url{}, ex1 {}",
-                        pulsarServerUrls[i],
+                                + "maybe pulsar master set error, please re-check.url{}, ex1 {}",
+                        info.getKey(),
                         e.getMessage());
             } catch (Throwable e) {
-                callBack.handleCreateClientException(pulsarServerUrls[i]);
+                callBack.handleCreateClientException(info.getKey());
                 logger.error("create connnection error in metasink, "
                                 + "maybe pulsar master set error/shutdown in progress, please "
                                 + "re-check. url{}, ex2 {}",
-                        pulsarServerUrls[i],
+                        info.getKey(),
                         e.getMessage());
             }
         }
@@ -227,9 +214,10 @@ public class PulsarClientService {
         }
     }
 
-    private PulsarClient initPulsarClient(String pulsarUrl) throws Exception {
+    private PulsarClient initPulsarClient(String pulsarUrl, String token) throws Exception {
         return PulsarClient.builder()
                 .serviceUrl(pulsarUrl)
+                .authentication(AuthenticationFactory.token(token))
                 .connectionTimeout(clientTimeout, TimeUnit.SECONDS)
                 .build();
     }
@@ -251,7 +239,7 @@ public class PulsarClientService {
 
     private TopicProducerInfo getProducer(String topic) {
         List<TopicProducerInfo> producerList = initTopicProducer(topic);
-        AtomicLong topicIndex = topicSendIndexMap.computeIfAbsent(topic,(k) -> {
+        AtomicLong topicIndex = topicSendIndexMap.computeIfAbsent(topic, (k) -> {
             return new AtomicLong(0);
         });
         int maxTryToGetProducer = producerList.size();
@@ -261,7 +249,7 @@ public class PulsarClientService {
         int retryTime = 0;
         TopicProducerInfo p = null;
         do {
-            int index = (int)(topicIndex.getAndIncrement() % maxTryToGetProducer);
+            int index = (int) (topicIndex.getAndIncrement() % maxTryToGetProducer);
             p = producerList.get(index);
             if (p.isCanUseToSendMessage() && p.getProducer().isConnected()) {
                 break;
@@ -311,7 +299,7 @@ public class PulsarClientService {
         private volatile Boolean isFinishInit = false;
 
         public TopicProducerInfo(PulsarClient pulsarClient,
-                String topic) {
+                                 String topic) {
             this.pulsarClient = pulsarClient;
             this.topic = topic;
         }

@@ -22,36 +22,27 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.RateLimiter;
-import org.apache.inlong.dataproxy.base.HighPriorityThreadFactory;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.EventDeliveryException;
 import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
-
 import org.apache.flume.instrumentation.SinkCounter;
 import org.apache.flume.sink.AbstractSink;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.commons.monitor.LogCounter;
+import org.apache.inlong.commons.monitor.MonitorIndex;
+import org.apache.inlong.commons.monitor.MonitorIndexExt;
+import org.apache.inlong.dataproxy.base.HighPriorityThreadFactory;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
+import org.apache.inlong.dataproxy.config.pojo.PulsarConfig;
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.sink.pulsar.CreatePulsarClientCallBack;
 import org.apache.inlong.dataproxy.sink.pulsar.PulsarClientService;
 import org.apache.inlong.dataproxy.sink.pulsar.SendMessageCallBack;
 import org.apache.inlong.dataproxy.utils.FailoverChannelProcessorHolder;
-import org.apache.inlong.commons.monitor.LogCounter;
-import org.apache.inlong.commons.monitor.MonitorIndex;
-import org.apache.inlong.commons.monitor.MonitorIndexExt;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.PulsarClientException.AlreadyClosedException;
@@ -62,21 +53,31 @@ import org.jboss.netty.handler.codec.frame.TooLongFrameException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * use pulsarSink need adding such config, if these ara not config in flume.conf, PulsarSink will
  * use default value.
  * prefix of pulsar sink config in flume.conf like this XXX.sinks.XXX.property
  * and properties are may these Configurations:
- *  type (*): value must be 'org.apache.inlong.dataproxy.sink.PulsarSink'
- *  pulsar_server_url_list (*): value is pulsar broker url , like this 'pulsar://127.0.0.1:6650'
- *  send_timeout_MILL: send message timeout, unit is millisecond, default value is 30000 (mean 30s)
- *  stat_interval_sec: stat info will be made period time , unit is second, default value is 60s
- *  thread-num: sink thread num. default value  is 8
- *  client-id-cache: whether use cache in client, default value is true
- *  max_pending_messages: default value is 10000
- *  max_batching_messages: default value is 1000
- *  enable_batch: default is true
- *  block_if_queue_full: default is true
+ * type (*): value must be 'org.apache.inlong.dataproxy.sink.PulsarSink'
+ * pulsar_server_url_list (*): value is pulsar broker url , like this 'pulsar://127.0.0.1:6650'
+ * send_timeout_MILL: send message timeout, unit is millisecond, default value is 30000 (mean 30s)
+ * stat_interval_sec: stat info will be made period time , unit is second, default value is 60s
+ * thread-num: sink thread num. default value  is 8
+ * client-id-cache: whether use cache in client, default value is true
+ * max_pending_messages: default value is 10000
+ * max_batching_messages: default value is 1000
+ * enable_batch: default is true
+ * block_if_queue_full: default is true
  */
 public class PulsarSink extends AbstractSink implements Configurable,
         SendMessageCallBack, CreatePulsarClientCallBack {
@@ -93,25 +94,10 @@ public class PulsarSink extends AbstractSink implements Configurable,
      */
     private static int BAD_EVENT_QUEUE_SIZE = 10000;
     private static int BATCH_SIZE = 10000;
-    private static final int DEFAULT_RETRY_CNT = -1;
-    private static final int DEFAULT_LOG_EVERY_N_EVENTS = 100000;
-    private static final int DEFAULT_STAT_INTERVAL_SEC = 60;
 
-    /*
-     * properties for stat
-     */
-    private static String LOG_EVERY_N_EVENTS = "log-every-n-events";
-
-    private static String CLIENT_ID_CACHE = "client_id_cache";
-
-    private static String RETRY_CNT = "retry_currentSuccSendedCnt";
-
-    private static String STAT_INTERVAL_SEC = "stat_interval_sec";
     /*
      * for log
      */
-    private Integer logEveryNEvents;
-    private long diskIORatePerSec;
     private RateLimiter diskRateLimiter;
 
     /*
@@ -126,19 +112,15 @@ public class PulsarSink extends AbstractSink implements Configurable,
     /*
      * for control
      */
-    private static int retryCnt = DEFAULT_RETRY_CNT;
     private boolean overflow = false;
 
     private LinkedBlockingQueue<EventStat> resendQueue;
 
     private int maxMonitorCnt = 300000;
 
-    private int statIntervalSec = DEFAULT_STAT_INTERVAL_SEC;
     private long logCounter = 0;
 
     private final AtomicLong currentInFlightCount = new AtomicLong(0);
-
-    private boolean clientIdCache = false;
 
     private static ConcurrentHashMap<String, Long> illegalTopicMap =
             new ConcurrentHashMap<String, Long>();
@@ -160,11 +142,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
     private static final LogCounter logPrinterB = new LogCounter(10, 100000, 60 * 1000);
     private static final LogCounter logPrinterC = new LogCounter(10, 100000, 60 * 1000);
 
-
-    private static final String SINK_THREAD_NUM = "thread-num";
     private static int EVENT_QUEUE_SIZE = 1000;
-    private int threadNum;
-
 
     /*
      * send thread pool
@@ -179,7 +157,8 @@ public class PulsarSink extends AbstractSink implements Configurable,
     private SinkCounter sinkCounter;
     private ConfigManager configManager;
     private Map<String, String> topicProperties;
-
+    private Map<String, String> pulsarCluster;
+    private PulsarConfig pulsarConfig;
     private PulsarClientService pulsarClientService;
 
     private static final Long PRINT_INTERVAL = 30L;
@@ -189,7 +168,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
     private static ScheduledExecutorService scheduledExecutorService = Executors
             .newScheduledThreadPool(1, new HighPriorityThreadFactory("pulsarPerformance-Printer-thread"));
 
-    private static final  LoadingCache<String, Long> agentIdCache = CacheBuilder.newBuilder()
+    private static final LoadingCache<String, Long> agentIdCache = CacheBuilder.newBuilder()
             .concurrencyLevel(4 * 8).initialCapacity(500).expireAfterAccess(30, TimeUnit.SECONDS)
             .build(new CacheLoader<String, Long>() {
                 @Override
@@ -214,15 +193,18 @@ public class PulsarSink extends AbstractSink implements Configurable,
 
     /**
      * configure
+     *
      * @param context
      */
     public void configure(Context context) {
         logger.info("PulsarSink started and context = {}", context.toString());
         isNewMetricOn = context.getBoolean("new-metric-on", true);
-        maxMonitorCnt = context.getInteger("max-monitor-cnt",300000);
+        maxMonitorCnt = context.getInteger("max-monitor-cnt", 300000);
 
         configManager = ConfigManager.getInstance();
         topicProperties = configManager.getTopicProperties();
+        pulsarCluster = configManager.getPulsarUrl2Token();
+        pulsarConfig = configManager.getPulsarConfig(); //pulsar common config
         configManager.getTopicConfig().addUpdateCallback(new ConfigUpdateCallback() {
             @Override
             public void update() {
@@ -230,33 +212,22 @@ public class PulsarSink extends AbstractSink implements Configurable,
                         new HashSet<String>(configManager.getTopicProperties().values()));
             }
         });
-
-        retryCnt = context.getInteger(RETRY_CNT, DEFAULT_RETRY_CNT);
-        logger.debug(this.getName() + " " + RETRY_CNT + " " + retryCnt);
-
-        statIntervalSec = context.getInteger(STAT_INTERVAL_SEC, DEFAULT_STAT_INTERVAL_SEC);
-        logger.debug(this.getName() + " " + STAT_INTERVAL_SEC + " " + statIntervalSec);
-
-        logEveryNEvents = context.getInteger(LOG_EVERY_N_EVENTS, DEFAULT_LOG_EVERY_N_EVENTS);
-        logger.debug(this.getName() + " " + LOG_EVERY_N_EVENTS + " " + logEveryNEvents);
-        Preconditions.checkArgument(logEveryNEvents > 0, "logEveryNEvents must be > 0");
-        Preconditions.checkArgument(statIntervalSec >= 0, "statIntervalSec must be >= 0");
-
-        clientIdCache = context.getBoolean(CLIENT_ID_CACHE, clientIdCache);
-
+        configManager.getPulsarCluster().addUpdateCallback(new ConfigUpdateCallback() {
+            @Override
+            public void update() {
+                diffRestartPulsarClient(pulsarCluster.keySet(), configManager.getPulsarUrl2Token().keySet());
+            }
+        });
         resendQueue = new LinkedBlockingQueue<EventStat>(BAD_EVENT_QUEUE_SIZE);
 
-        String sinkThreadNum = context.getString(SINK_THREAD_NUM, "4");
-        threadNum = Integer.parseInt(sinkThreadNum);
-        Preconditions.checkArgument(threadNum > 0, "threadNum must be > 0");
-        sinkThreadPool = new Thread[threadNum];
+        Preconditions.checkArgument(pulsarConfig.getThreadNum() > 0, "threadNum must be > 0");
+        sinkThreadPool = new Thread[pulsarConfig.getThreadNum()];
         eventQueue = new LinkedBlockingQueue<Event>(EVENT_QUEUE_SIZE);
 
-        diskIORatePerSec = context.getLong("disk-io-rate-per-sec",0L);
-        if (diskIORatePerSec != 0) {
-            diskRateLimiter = RateLimiter.create(diskIORatePerSec);
+        if (pulsarConfig.getDiskIoRatePerSec() != 0) {
+            diskRateLimiter = RateLimiter.create(pulsarConfig.getDiskIoRatePerSec());
         }
-        pulsarClientService = new PulsarClientService(context);
+        pulsarClientService = new PulsarClientService(pulsarConfig);
 
         if (sinkCounter == null) {
             sinkCounter = new SinkCounter(getName());
@@ -278,6 +249,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
 
     /**
      * When topic.properties is re-enabled, the producer update is triggered
+     *
      * @param originalSet
      * @param endSet
      */
@@ -300,11 +272,36 @@ public class PulsarSink extends AbstractSink implements Configurable,
         }
     }
 
+    /**
+     * When pulsarURLList change, close and restart
+     *
+     * @param originalCluster
+     * @param endCluster
+     */
+    public void diffRestartPulsarClient(Set<String> originalCluster, Set<String> endCluster) {
+        if (!originalCluster.equals(endCluster)) {
+            logger.info("pulsarConfig has changed, close current pulsarClientService and restart");
+            pulsarClientService.close();
+
+            pulsarCluster = configManager.getPulsarUrl2Token();
+            configManager.getPulsarConfig().setUrl2token(pulsarCluster);
+            pulsarClientService.initCreateConnection(this);
+            try {
+                initTopicSet(new HashSet<String>(topicProperties.values()));
+            } catch (Exception e) {
+                logger.info("pulsar sink restart, publish topic fail.", e);
+            }
+
+        }
+    }
+
     @Override
     public void start() {
         logger.info("pulsar sink starting...");
         sinkCounter.start();
         pulsarClientService.initCreateConnection(this);
+        int statIntervalSec = pulsarConfig.getStatIntervalSec();
+        Preconditions.checkArgument(statIntervalSec >= 0, "statIntervalSec must be >= 0");
         if (statIntervalSec > 0) {
             /*
              * switch for lots of metrics
@@ -323,7 +320,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
         try {
             initTopicSet(new HashSet<String>(topicProperties.values()));
         } catch (Exception e) {
-            logger.info("pulsar sink start publish topic fail.",e);
+            logger.info("pulsar sink start publish topic fail.", e);
         }
 
         for (int i = 0; i < sinkThreadPool.length; i++) {
@@ -350,7 +347,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
             }
         }
         this.canSend = false;
-        if (statIntervalSec > 0) {
+        if (pulsarConfig.getStatIntervalSec() > 0) {
             try {
                 monitorIndex.shutDown();
             } catch (Exception e) {
@@ -406,7 +403,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
             try {
                 tx.rollback();
             } catch (Throwable e) {
-                logger.error("pulsar sink transaction rollback exception",e);
+                logger.error("pulsar sink transaction rollback exception", e);
 
             }
         } finally {
@@ -441,7 +438,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
              * Compatible agent
              */
             if (event.getHeaders().containsKey("time")) {
-                event.getHeaders().put(AttributeConstants.DATA_TIME,event.getHeaders().get("time"));
+                event.getHeaders().put(AttributeConstants.DATA_TIME, event.getHeaders().get("time"));
                 event.getHeaders().remove("time");
             }
 
@@ -506,7 +503,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
     }
 
     @Override
-    public void handleMessageSendSuccess(String topic, Object result,  EventStat eventStat) {
+    public void handleMessageSendSuccess(String topic, Object result, EventStat eventStat) {
         /*
          * Statistics pulsar performance
          */
@@ -520,11 +517,14 @@ public class PulsarSink extends AbstractSink implements Configurable,
         currentSuccessSendCnt.incrementAndGet();
         long nowCnt = currentSuccessSendCnt.get();
         long oldCnt = lastSuccessSendCnt.get();
+        long logEveryNEvents = pulsarConfig.getLogEveryNEvents();
+        Preconditions.checkArgument(logEveryNEvents > 0, "logEveryNEvents must be > 0");
+
         if (nowCnt % logEveryNEvents == 0 && nowCnt != lastSuccessSendCnt.get()) {
             lastSuccessSendCnt.set(nowCnt);
             t2 = System.currentTimeMillis();
             logger.info("Pulsar sink {}, succ put {} events to pulsar,"
-                    + " in the past {} millsec", new Object[] {
+                    + " in the past {} millsec", new Object[]{
                     getName(), (nowCnt - oldCnt), (t2 - t1)
             });
             t1 = t2;
@@ -534,7 +534,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
     }
 
     @Override
-    public void handleMessageSendException(String topic, EventStat eventStat,  Object e) {
+    public void handleMessageSendException(String topic, EventStat eventStat, Object e) {
         monitorIndexExt.incrementAndGet("PULSAR_SINK_EXP");
         if (e instanceof TooLongFrameException) {
             PulsarSink.this.overflow = true;
@@ -556,6 +556,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
 
     /**
      * Resend the data and store the data in the memory cache.
+     *
      * @param es
      * @param isDecrement
      */
@@ -571,7 +572,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
              * If the failure requires retransmission to pulsar,
              * the sid needs to be removed before retransmission.
              */
-            if (clientIdCache) {
+            if (pulsarConfig.getClientIdCache()) {
                 String clientId = es.getEvent().getHeaders().get(ConfigConstants.SEQUENCE_ID);
                 if (clientId != null && agentIdCache.asMap().containsKey(clientId)) {
                     agentIdCache.invalidate(clientId);
@@ -660,7 +661,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
                                 logger.info(getName()
                                                 + " currentInFlightCount={} resendQueue"
                                                 + ".size={}",
-                                        currentInFlightCount.get(),resendQueue.size());
+                                        currentInFlightCount.get(), resendQueue.size());
                             }
                             if (logCounter > Long.MAX_VALUE - 10) {
                                 logCounter = 0;
@@ -673,7 +674,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
                             topic = event.getHeaders().get(TOPIC);
                         }
                     }
-                    logger.debug("Event is {}, topic = {} ",event, topic);
+                    logger.debug("Event is {}, topic = {} ", event, topic);
 
                     if (event == null) {
                         continue;
@@ -705,11 +706,11 @@ public class PulsarSink extends AbstractSink implements Configurable,
                     final EventStat es = eventStat;
 
                     boolean hasKey = false;
-                    if (clientIdCache && clientId != null) {
+                    if (pulsarConfig.getClientIdCache() && clientId != null) {
                         hasKey = agentIdCache.asMap().containsKey(clientId);
                     }
 
-                    if (clientIdCache && clientId != null && hasKey) {
+                    if (pulsarConfig.getClientIdCache() && clientId != null && hasKey) {
                         agentIdCache.put(clientId, System.currentTimeMillis());
                         if (logPrinterA.shouldPrint()) {
                             logger.info("{} agent package {} existed,just discard.",

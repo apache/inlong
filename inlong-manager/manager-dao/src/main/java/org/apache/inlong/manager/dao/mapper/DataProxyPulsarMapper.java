@@ -15,34 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.config;
+package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.manager.dao.entity.ProxyPulsarMapEntity;
+import org.apache.inlong.manager.dao.entity.PulsarClusterEntity;
+import org.apache.inlong.manager.dao.entity.PulsarConfigEntity;
+import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class RemoteConfigJson {
+@Repository
+public interface DataProxyPulsarMapper {
 
-    private boolean result;
-    private int errCode;
-    private List<Map<String, String>> pulsarSet = new ArrayList<>();
-    private List<DataProxyConfig> topicList = new ArrayList<>();
+    ProxyPulsarMapEntity selectMapping(String proxyClusterName);
 
-    public boolean isResult() {
-        return result;
-    }
+    List<PulsarClusterEntity> selectPulsarCluster(String pulsarSetName);
 
-    public int getErrCode() {
-        return errCode;
-    }
-
-    public List<Map<String, String>> getPulsarSet() {
-        return pulsarSet;
-    }
-
-    public List<DataProxyConfig> getTopicList() {
-        return topicList;
-    }
+    List<PulsarConfigEntity> selectPulsarConfig(String pulsarClusterName);
 }

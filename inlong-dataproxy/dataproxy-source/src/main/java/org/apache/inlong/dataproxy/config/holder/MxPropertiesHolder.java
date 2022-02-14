@@ -17,11 +17,14 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.google.common.base.Splitter;
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * value is map
@@ -31,6 +34,7 @@ public class MxPropertiesHolder extends PropertiesConfigHolder {
     private static final Logger LOG = LoggerFactory.getLogger(MxPropertiesHolder.class);
     private final Map<String, Map<String, String>> mxPropertiesMaps =
             new HashMap<String, Map<String, String>>();
+    private final Map<String, String> valueMaps = new HashMap<>();
 
     public MxPropertiesHolder(String fileName) {
         super(fileName);
@@ -45,6 +49,10 @@ public class MxPropertiesHolder extends PropertiesConfigHolder {
         try {
             for (Map.Entry<String, String> entry : getHolder().entrySet()) {
                 mxPropertiesMaps.put(entry.getKey(), MAP_SPLITTER.split(entry.getValue()));
+
+                List<String> kv = Splitter.on(AttributeConstants.KEY_VALUE_SEPARATOR)
+                        .trimResults().splitToList(entry.getValue());
+                valueMaps.put(kv.get(0), kv.get(1));
             }
         } catch (Exception e) {
             LOG.error("loadConfig error :", e);
@@ -53,5 +61,9 @@ public class MxPropertiesHolder extends PropertiesConfigHolder {
 
     public Map<String, Map<String, String>> getMxPropertiesMaps() {
         return mxPropertiesMaps;
+    }
+
+    public Map<String, String> getValueMaps() {
+        return valueMaps;
     }
 }
