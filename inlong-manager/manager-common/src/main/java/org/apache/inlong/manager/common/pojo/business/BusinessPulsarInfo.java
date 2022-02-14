@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.BizConstant;
 
 /**
  * Business access information for Pulsar
@@ -32,9 +31,6 @@ import org.apache.inlong.manager.common.enums.BizConstant;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Business access information for Pulsar")
 public class BusinessPulsarInfo extends BusinessMqExtBase {
-
-    @ApiModelProperty(value = "Type of middleware")
-    private String middlewareType = BizConstant.MIDDLEWARE_PULSAR;
 
     @ApiModelProperty(value = "Ledger's number of writable nodes")
     private Integer ensemble = 3;
