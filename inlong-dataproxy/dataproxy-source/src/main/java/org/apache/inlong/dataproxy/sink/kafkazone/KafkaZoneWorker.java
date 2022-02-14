@@ -84,7 +84,7 @@ public class KafkaZoneWorker extends Thread {
                     continue;
                 }
                 // metric
-                context.addSendMetric(event, workerName);
+                context.addSendingMetric(event, workerName);
                 // send
                 this.zoneProducer.send(event);
             } catch (Throwable e) {

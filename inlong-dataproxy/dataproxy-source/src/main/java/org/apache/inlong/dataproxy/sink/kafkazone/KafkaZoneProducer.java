@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 public class KafkaZoneProducer {
 
     public static final Logger LOG = LoggerFactory.getLogger(KafkaZoneProducer.class);
+    public static final int MAX_INDEX = Integer.MAX_VALUE / 2;
 
     private final String workerName;
     private final KafkaZoneSinkContext context;
@@ -150,7 +151,7 @@ public class KafkaZoneProducer {
      */
     public boolean send(DispatchProfile event) {
         int currentIndex = clusterIndex.getAndIncrement();
-        if (currentIndex > Integer.MAX_VALUE / 2) {
+        if (currentIndex > MAX_INDEX) {
             clusterIndex.set(0);
         }
         List<KafkaClusterProducer> currentClusterList = this.clusterList;
