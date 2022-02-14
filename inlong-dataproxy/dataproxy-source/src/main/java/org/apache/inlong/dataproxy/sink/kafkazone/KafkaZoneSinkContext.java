@@ -164,12 +164,12 @@ public class KafkaZoneSinkContext extends SinkContext {
     }
 
     /**
-     * addSendMetric
+     * addSendingMetric
      * 
      * @param currentRecord
      * @param bid
      */
-    public void addSendMetric(DispatchProfile currentRecord, String bid) {
+    public void addSendingMetric(DispatchProfile currentRecord, String bid) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getClusterId());
         // metric
