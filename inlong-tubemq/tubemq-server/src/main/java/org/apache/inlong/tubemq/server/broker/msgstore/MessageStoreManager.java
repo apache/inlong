@@ -818,6 +818,7 @@ public class MessageStoreManager implements StoreService {
 
         @Override
         public void run() {
+            long checkTime = System.currentTimeMillis();
             StringBuilder sBuilder = new StringBuilder(256);
             for (Map<Integer, MessageStore> storeMap : dataStores.values()) {
                 if (storeMap == null || storeMap.isEmpty()) {
@@ -828,7 +829,7 @@ public class MessageStoreManager implements StoreService {
                         continue;
                     }
                     try {
-                        msgStore.flushMemCacheData();
+                        msgStore.flushMemCacheData(checkTime);
                     } catch (final Throwable e) {
                         logger.error(sBuilder.append("[Store Manager] Try to flush ")
                                 .append(msgStore.getStoreKey())

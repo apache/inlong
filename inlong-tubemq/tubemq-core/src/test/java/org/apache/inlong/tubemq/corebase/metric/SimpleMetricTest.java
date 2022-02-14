@@ -64,6 +64,7 @@ public class SimpleMetricTest {
     public void testLongMetric() {
         // test LongMaxGauge
         LongMaxGauge maxGauge = new LongMaxGauge("max", "long");
+        Assert.assertEquals(Long.MIN_VALUE, maxGauge.getValue());
         maxGauge.update(3);
         maxGauge.update(100);
         maxGauge.update(50);
@@ -76,6 +77,7 @@ public class SimpleMetricTest {
         Assert.assertEquals(300, maxGauge.getValue());
         // test LongMinGauge
         LongMinGauge minGauge = new LongMinGauge("min", "long");
+        Assert.assertEquals(Long.MAX_VALUE, minGauge.getValue());
         minGauge.update(3);
         minGauge.update(100);
         minGauge.update(50);
