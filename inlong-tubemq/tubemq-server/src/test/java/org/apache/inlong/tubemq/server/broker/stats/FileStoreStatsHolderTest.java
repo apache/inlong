@@ -59,7 +59,7 @@ public class FileStoreStatsHolderTest {
         // get content by StringBuilder
         StringBuilder strBuff = new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
         fileStatsHolder.getValue(strBuff);
-        System.out.println(strBuff.toString());
+        // System.out.println(strBuff.toString());
         strBuff.delete(0, strBuff.length());
         // test timeout
         fileStatsHolder.addTimeoutFlush(1, 1, true);
@@ -121,7 +121,7 @@ public class FileStoreStatsHolderTest {
         Assert.assertNotNull(retMap.get("end_time"));
         retMap.clear();
         fileStatsHolder.getAllFileStatsInfo(true, strBuff);
-        System.out.println(strBuff.toString());
+        // System.out.println(strBuff.toString());
         strBuff.delete(0, strBuff.length());
 
     }
