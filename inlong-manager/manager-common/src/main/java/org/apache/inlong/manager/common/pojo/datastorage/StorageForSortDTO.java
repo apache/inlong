@@ -15,7 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.common.pojo.datastorage;
 
-public interface StorageEsService {
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+
+/**
+ * Storage info for Sort
+ */
+@Data
+@ApiModel("Storage info for Sort")
+public class StorageForSortDTO {
+
+    private Integer id;
+    private String inlongGroupId;
+    private String inlongStreamId;
+    private String storageType;
+    private Integer storagePeriod;
+    private Integer enableCreateResource;
+    private String extParams;
+    private Integer status;
+    private String creator;
+
+    // Data stream info
+    private String mqResourceObj;
+    private String dataSourceType;
+    private String dataType;
+    private String description;
+    private String sourceSeparator; // Source separator configured in the stream info
+    private String dataEscapeChar;
+
 }

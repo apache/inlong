@@ -23,6 +23,8 @@ public enum BizErrorCodeEnum {
     PERMISSION_REQUIRED(2003, "The current user does not have operation authority"),
     AUTHENTICATION_REQUIRED(2004, "Authentication failed"),
 
+    USER_IS_NOT_MANAGER(110, "%s is not the manager, please contact %s"),
+
     BUSINESS_NOT_FOUND(1001, "Business does not exist/no operation authority"),
     BUSINESS_DUPLICATE(1002, "Business already exists"),
     BUSINESS_SAVE_FAILED(1003, "Failed to save/update business information"),
@@ -64,18 +66,17 @@ public enum BizErrorCodeEnum {
 
     HIVE_OPERATION_FAILED(1311, "Hive operation failed"),
 
-    STORAGE_TYPE_NOT_SUPPORTED(1401, "Storage type is not supported"),
+    STORAGE_TYPE_IS_NULL(1400, "Storage type is null"),
+    STORAGE_TYPE_NOT_SUPPORT(1401, "Storage type '%s' not support"),
     STORAGE_INFO_NOT_FOUND(1402, "Storage information does not exist/no operation authority"),
-    STORAGE_SAVE_FAILED(1403, "Failed to save/update business information"),
-    STORAGE_HIVE_FIELD_SAVE_FAILED(1404, "Failed to save/update HIVE data storage field"),
-    STORAGE_OPT_NOT_ALLOWED(1405,
-            "The current business status does not allow adding/modifying/deleting data storage information"),
-    STORAGE_DB_NAME_UPDATE_NOT_ALLOWED(1408,
-            "The current business status does not allow modification of the storage target database name"),
-    STORAGE_TB_NAME_UPDATE_NOT_ALLOWED(1409,
-            "The current business status does not allow modification of the storage target table name"),
-    STORAGE_HIVE_FIELD_UPDATE_NOT_ALLOWED(1410,
-            "It is not allowed to modify/delete field information in the current business state"),
+    STORAGE_INFO_INCORRECT(1402, "Storage information was incorrect"),
+    STORAGE_ALREADY_EXISTS(1403, "Storage already exist with the groupId and streamId"),
+    STORAGE_SAVE_FAILED(1404, "Failed to save or update storage info"),
+    STORAGE_FIELD_SAVE_FAILED(1405, "Failed to save or update storage field"),
+    STORAGE_OPT_NOT_ALLOWED(1406, "Current status does not allow add/modification/delete storage info"),
+    STORAGE_DB_NAME_UPDATE_NOT_ALLOWED(1407, "Current status does not allow modification the database name"),
+    STORAGE_TB_NAME_UPDATE_NOT_ALLOWED(1408, "Current status does not allow modification the table name"),
+    STORAGE_FIELD_UPDATE_NOT_ALLOWED(1409, "Current status not allowed to modification/delete field"),
 
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
 
@@ -94,18 +95,18 @@ public enum BizErrorCodeEnum {
     ;
 
     private final int code;
-    private final String defaultMessage;
+    private final String message;
 
-    BizErrorCodeEnum(int code, String defaultMessage) {
+    BizErrorCodeEnum(int code, String message) {
         this.code = code;
-        this.defaultMessage = defaultMessage;
+        this.message = message;
     }
 
     public int getCode() {
         return code;
     }
 
-    public String getDefaultMessage() {
-        return defaultMessage;
+    public String getMessage() {
+        return message;
     }
 }

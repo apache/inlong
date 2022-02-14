@@ -23,21 +23,25 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.beans.PageRequest;
 
+import javax.validation.constraints.NotNull;
+
 /**
- * Paging query conditions for data storage information
+ * Paging query conditions for storage
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel("Paging query conditions for data storage information")
+@ApiModel("Paging query conditions for storage")
 public class StoragePageRequest extends PageRequest {
 
-    @ApiModelProperty(value = "Business group id", required = true)
+    @ApiModelProperty(value = "Data group id", required = true)
+    @NotNull
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Data stream id")
     private String inlongStreamId;
 
     @ApiModelProperty(value = "Storage type, such as HIVE", required = true)
+    @NotNull
     private String storageType;
 
     @ApiModelProperty(value = "Key word")

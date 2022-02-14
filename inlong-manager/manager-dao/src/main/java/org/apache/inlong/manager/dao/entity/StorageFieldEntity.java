@@ -17,15 +17,20 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import java.io.Serializable;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class StorageHiveFieldEntity implements Serializable {
+public class StorageFieldEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;
+    private String inlongGroupId;
+    private String inlongStreamId;
     private Integer storageId;
+    private String storageType;
+
     private String fieldName;
     private String fieldType;
     private String fieldComment;

@@ -15,16 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.service.storage;
 
 import com.github.pagehelper.PageInfo;
-import java.util.List;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageListResponse;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageRequest;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageResponse;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageApproveInfo;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageApproveDTO;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageBriefResponse;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageListResponse;
 import org.apache.inlong.manager.common.pojo.datastorage.StoragePageRequest;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageSummaryInfo;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageRequest;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageResponse;
+
+import java.util.List;
 
 /**
  * Service layer interface for data storage
@@ -32,22 +33,22 @@ import org.apache.inlong.manager.common.pojo.datastorage.StorageSummaryInfo;
 public interface StorageService {
 
     /**
-     * Save storage information
+     * Save the storage information
      *
-     * @param storageInfo Store information
-     * @param operator Edit person's name
-     * @return Primary key after saving
+     * @param request Storage request.
+     * @param operator Operator's name.
+     * @return Storage id after saving.
      */
-    Integer save(BaseStorageRequest storageInfo, String operator);
+    Integer save(StorageRequest request, String operator);
 
     /**
-     * Query storage information based on id
+     * Query storage information based on id and type.
      *
-     * @param id Data primary key
-     * @param storageType Storage type
-     * @return Store information
+     * @param id Storage id.
+     * @param storageType Storage type.
+     * @return Store info
      */
-    BaseStorageResponse getById(String storageType, Integer id);
+    StorageResponse get(Integer id, String storageType);
 
     /**
      * Query storage information based on business group id and data stream id
@@ -57,7 +58,7 @@ public interface StorageService {
      * @return Store information list
      * @apiNote Storage types only support temporarily: HIVE
      */
-    List<BaseStorageResponse> listByIdentifier(String groupId, String streamId);
+    List<StorageResponse> listStorage(String groupId, String streamId);
 
     /**
      * Query stored summary information based on business group id and data stream id, including storage cluster
@@ -67,7 +68,7 @@ public interface StorageService {
      * @return Store information list
      * @apiNote Storage types only support temporarily: HIVE
      */
-    List<StorageSummaryInfo> listSummaryByIdentifier(String groupId, String streamId);
+    List<StorageBriefResponse> listBrief(String groupId, String streamId);
 
     /**
      * Query the number of undeleted stored information based on business and data stream id
@@ -76,7 +77,7 @@ public interface StorageService {
      * @param streamId Data stream id
      * @return Number of stored information
      */
-    Integer getCountByIdentifier(String groupId, String streamId);
+    Integer getCount(String groupId, String streamId);
 
     /**
      * Paging query storage information based on conditions
@@ -84,7 +85,7 @@ public interface StorageService {
      * @param request Paging request
      * @return Store information list
      */
-    PageInfo<? extends BaseStorageListResponse> listByCondition(StoragePageRequest request);
+    PageInfo<? extends StorageListResponse> listByCondition(StoragePageRequest request);
 
     /**
      * Modify data storage information
@@ -93,17 +94,17 @@ public interface StorageService {
      * @param operator Edit person's name
      * @return whether succeed
      */
-    boolean update(BaseStorageRequest storageRequest, String operator);
+    boolean update(StorageRequest storageRequest, String operator);
 
     /**
-     * Delete data storage information based on id
+     * Delete the data storage by the given id and storage type.
      *
-     * @param storageType Storage type
-     * @param id The primary key of the data store
-     * @param operator Edit person's name
-     * @return whether succeed
+     * @param id The primary key of the data storage.
+     * @param storageType Storage type.
+     * @param operator The operator's name.
+     * @return Whether succeed
      */
-    boolean delete(String storageType, Integer id, String operator);
+    boolean delete(Integer id, String storageType, String operator);
 
     /**
      * Modify storage data status
@@ -112,26 +113,27 @@ public interface StorageService {
      * @param status Goal state
      * @param log Modify the description
      */
-    void updateHiveStatusById(int id, int status, String log);
+    void updateStatus(int id, int status, String log);
 
     /**
-     * Physically delete data storage information under specified conditions
+     * Logically delete data storage with the given conditions.
      *
-     * @param groupId Business group id
-     * @param streamId Data stream id
-     * @return whether succeed
+     * @param groupId InLong group id to which the data source belongs.
+     * @param streamId InLong stream id to which the data source belongs.
+     * @param operator The operator's name.
+     * @return Whether succeed.
      */
-    boolean deleteAllByIdentifier(String groupId, String streamId);
+    boolean logicDeleteAll(String groupId, String streamId, String operator);
 
     /**
-     * Tombstone data storage information
+     * Physically delete data storage with the given conditions.
      *
-     * @param groupId The business group id to which the data source belongs
-     * @param streamId The data stream id to which the data source belongs
-     * @param operator Operator name
-     * @return whether succeed
+     * @param groupId InLong group id.
+     * @param streamId InLong stream id.
+     * @param operator The operator's name.
+     * @return Whether succeed.
      */
-    boolean logicDeleteAllByIdentifier(String groupId, String streamId, String operator);
+    boolean deleteAll(String groupId, String streamId, String operator);
 
     /**
      * According to the existing data stream ID list, filter out the data stream ID list containing the specified
@@ -142,7 +144,7 @@ public interface StorageService {
      * @param streamIdList Data stream ID list
      * @return List of filtered data stream IDs
      */
-    List<String> filterStreamIdByStorageType(String groupId, String storageType, List<String> streamIdList);
+    List<String> getExistsStreamIdList(String groupId, String storageType, List<String> streamIdList);
 
     /**
      * According to the data stream id, query the list of storage types owned by it
@@ -160,6 +162,6 @@ public interface StorageService {
      * @param operator Edit person's name
      * @return whether succeed
      */
-    boolean updateAfterApprove(List<StorageApproveInfo> storageApproveList, String operator);
+    boolean updateAfterApprove(List<StorageApproveDTO> storageApproveList, String operator);
 
 }

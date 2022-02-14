@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.thirdpart.mq;
 
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.event.ListenerResult;
@@ -32,12 +31,14 @@ import org.apache.inlong.manager.dao.entity.DataStreamEntity;
 import org.apache.inlong.manager.dao.mapper.DataStreamEntityMapper;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
-import org.apache.inlong.manager.service.core.StorageService;
+import org.apache.inlong.manager.service.storage.StorageService;
 import org.apache.inlong.manager.service.thirdpart.mq.util.PulsarUtils;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * Create a subscription group for a single data stream
