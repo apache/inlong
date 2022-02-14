@@ -17,17 +17,14 @@
 
 package org.apache.inlong.manager.service.workflow;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import java.util.stream.Collectors;
+import lombok.Data;
 import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.model.view.ProcessView;
 import org.apache.inlong.manager.common.model.view.TaskView;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import lombok.Data;
 
 /**
  * Workflow results

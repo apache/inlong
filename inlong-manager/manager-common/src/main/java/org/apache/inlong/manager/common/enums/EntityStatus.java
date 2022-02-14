@@ -43,6 +43,8 @@ public enum EntityStatus {
     BIZ_CONFIG_ING(110, "in configure"),
     BIZ_CONFIG_FAILED(120, "configuration failed"),
     BIZ_CONFIG_SUCCESSFUL(130, "configuration successful"),
+    BIZ_SUSPEND(140, "suspend"),
+    BIZ_RESTART(150, "restart"),
 
     // Data stream related status
     DATA_STREAM_NEW(100, "new"),
@@ -78,21 +80,27 @@ public enum EntityStatus {
 
     /**
      * The status of the business that can be modified:
-     * <p/>[DRAFT] [BIZ_WAIT_SUBMIT] [BIZ_APPROVE_REJECTED] [BIZ_CONFIG_FAILED] [BIZ_CONFIG_SUCCESSFUL]
+     * <p/>[DRAFT] [BIZ_WAIT_SUBMIT] [BIZ_APPROVE_REJECTED] [BIZ_CONFIG_FAILED]
+     * [BIZ_CONFIG_SUCCESSFUL] [BIZ_RESTART] [BIZ_SUSPEND] [BIZ_APPROVE_PASSED]
+     *
      * <p/>[BIZ_CONFIG_ING] status cannot be modified
      */
     public static final Set<Integer> ALLOW_UPDATE_BIZ_STATUS = ImmutableSet.of(
             DRAFT.getCode(), BIZ_WAIT_SUBMIT.getCode(), BIZ_APPROVE_REJECTED.getCode(),
-            BIZ_CONFIG_FAILED.getCode(), BIZ_CONFIG_SUCCESSFUL.getCode());
+            BIZ_CONFIG_FAILED.getCode(), BIZ_CONFIG_SUCCESSFUL.getCode(),
+            BIZ_RESTART.getCode(), BIZ_SUSPEND.getCode(), BIZ_APPROVE_PASSED.getCode());
 
     /**
      * The status of the service that can be deleted - all status
-     * <p/>[DRAFT] [BIZ_WAIT_SUBMIT] [BIZ_APPROVE_REJECTED] [BIZ_CONFIG_ING] [BIZ_CONFIG_FAILED] [BIZ_CONFIG_SUCCESSFUL]
+     * <p/>[DRAFT] [BIZ_WAIT_SUBMIT] [BIZ_APPROVE_REJECTED] [BIZ_CONFIG_ING] [BIZ_CONFIG_FAILED]
+     * [BIZ_CONFIG_SUCCESSFUL] [BIZ_RESTART] [BIZ_SUSPEND] [BIZ_APPROVE_PASSED]
+     *
      * <p/>[BIZ_WAIT_APPROVAL] [BIZ_APPROVE_PASSED] status cannot be deleted
      */
     public static final Set<Integer> ALLOW_DELETE_BIZ_STATUS = ImmutableSet.of(
             DRAFT.getCode(), BIZ_WAIT_SUBMIT.getCode(), BIZ_APPROVE_REJECTED.getCode(),
-            BIZ_CONFIG_ING.getCode(), BIZ_CONFIG_FAILED.getCode(), BIZ_CONFIG_SUCCESSFUL.getCode());
+            BIZ_CONFIG_ING.getCode(), BIZ_CONFIG_FAILED.getCode(), BIZ_CONFIG_SUCCESSFUL.getCode(),
+            BIZ_RESTART.getCode(), BIZ_SUSPEND.getCode(), BIZ_APPROVE_PASSED.getCode());
 
     /**
      * The business can cascade to delete the status of the associated data:

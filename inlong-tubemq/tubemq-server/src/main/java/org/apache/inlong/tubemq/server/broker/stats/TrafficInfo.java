@@ -17,39 +17,37 @@
 
 package org.apache.inlong.tubemq.server.broker.stats;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 /**
  * Statistic of message, contains message's count and message's size.
  */
-public class CountItem {
-    AtomicLong msgCount = new AtomicLong(0);
-    AtomicLong msgSize = new AtomicLong(0);
+public class TrafficInfo {
+    private long msgCnt = 0L;
+    private long msgSize = 0L;
 
-    public CountItem(long msgCount, long msgSize) {
-        this.msgCount.set(msgCount);
-        this.msgSize.set(msgSize);
+    public TrafficInfo() {
+        clear();
     }
 
-    public long getMsgSize() {
-        return msgSize.get();
-    }
-
-    public void setMsgSize(long msgSize) {
-        this.msgSize.set(msgSize);
+    public TrafficInfo(long msgCount, long msgSize) {
+        this.msgCnt = msgCount;
+        this.msgSize = msgSize;
     }
 
     public long getMsgCount() {
-        return msgCount.get();
+        return msgCnt;
     }
 
-    public void setMsgCount(long msgCount) {
-        this.msgCount.set(msgCount);
+    public long getMsgSize() {
+        return msgSize;
     }
 
-    public void appendMsg(final long msgCount, final long msgSize) {
-        this.msgCount.addAndGet(msgCount);
-        this.msgSize.addAndGet(msgSize);
+    public void addMsgCntAndSize(long msgCount, long msgSize) {
+        this.msgCnt += msgCount;
+        this.msgSize += msgSize;
     }
 
+    public void clear() {
+        this.msgCnt = 0L;
+        this.msgSize = 0L;
+    }
 }

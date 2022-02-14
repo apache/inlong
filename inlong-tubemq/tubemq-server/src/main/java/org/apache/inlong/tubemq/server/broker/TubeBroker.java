@@ -48,12 +48,12 @@ import org.apache.inlong.tubemq.server.broker.exception.StartupException;
 import org.apache.inlong.tubemq.server.broker.metadata.BrokerMetadataManager;
 import org.apache.inlong.tubemq.server.broker.metadata.ClusterConfigHolder;
 import org.apache.inlong.tubemq.server.broker.metadata.MetadataManager;
-import org.apache.inlong.tubemq.server.broker.metrics.BrokerMetricsHolder;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.inlong.tubemq.server.broker.offset.DefaultOffsetManager;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordService;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
+import org.apache.inlong.tubemq.server.broker.stats.ServiceStatsHolder;
 import org.apache.inlong.tubemq.server.broker.utils.BrokerSamplePrint;
 import org.apache.inlong.tubemq.server.broker.web.WebServer;
 import org.apache.inlong.tubemq.server.common.TubeServerVersion;
@@ -115,8 +115,6 @@ public class TubeBroker implements Stoppable {
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "1");
         this.tubeConfig = tubeConfig;
         this.brokerId = generateBrokerClientId();
-        // register metric bean
-        BrokerMetricsHolder.registerMXBean();
         this.metadataManager = new BrokerMetadataManager();
         this.offsetManager = new DefaultOffsetManager(tubeConfig);
         this.storeManager = new MessageStoreManager(this, tubeConfig);
@@ -230,7 +228,7 @@ public class TubeBroker implements Stoppable {
                             if (!response.getSuccess()) {
                                 isKeepAlive.set(false);
                                 if (response.getErrCode() == TErrCodeConstants.HB_NO_NODE) {
-                                    BrokerMetricsHolder.incMasterNoNodeCnt();
+                                    ServiceStatsHolder.incBrokerTimeoutCnt();
                                     register2Master();
                                     heartbeatErrors.set(0);
                                     logger.info("Re-register to master successfully!");
@@ -244,8 +242,8 @@ public class TubeBroker implements Stoppable {
                         } catch (Throwable t) {
                             isKeepAlive.set(false);
                             heartbeatErrors.incrementAndGet();
+                            ServiceStatsHolder.incBrokerHBExcCnt();
                             samplePrintCtrl.printExceptionCaught(t);
-                            BrokerMetricsHolder.incHBExceptionCnt();
                         }
                     }
                 }

@@ -31,6 +31,7 @@ import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.network.ListenerName;
@@ -42,11 +43,14 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.Option;
 import scala.collection.mutable.ArraySeq;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -59,8 +63,12 @@ import java.util.concurrent.TimeoutException;
 
 import static org.apache.flink.util.NetUtils.hostAndPortToUrlString;
 import static org.apache.inlong.sort.singletenant.flink.kafka.KafkaSinkBuilder.buildKafkaSink;
+import static org.apache.inlong.sort.singletenant.flink.utils.NetUtils.getUnusedLocalPort;
+import static org.junit.Assert.assertNull;
 
 public abstract class KafkaSinkTestBase {
+
+    private static final Logger logger = LoggerFactory.getLogger(KafkaSinkTestBase.class);
 
     @ClassRule
     public static TemporaryFolder tempFolder = new TemporaryFolder();
@@ -84,13 +92,20 @@ public abstract class KafkaSinkTestBase {
     @Before
     public void setup() throws Exception {
         prepareData();
+        logger.info("Prepare data passed.");
 
         startZK();
+        logger.info("ZK started.");
         startKafkaServer();
+        logger.info("Kafka server started.");
         prepareKafkaClientProps();
+        logger.info("Kafka client properties prepared.");
         kafkaAdmin = AdminClient.create(kafkaClientProperties);
+        logger.info("Kafka admin started.");
         addTopic();
+        logger.info("Topic added to kafka server.");
         kafkaConsumer = new KafkaConsumer<>(kafkaClientProperties);
+        logger.info("Kafka consumer started.");
     }
 
     private void startZK() throws Exception {
@@ -102,6 +117,7 @@ public abstract class KafkaSinkTestBase {
         Properties kafkaProperties = new Properties();
         final String KAFKA_HOST = "localhost";
         kafkaProperties.put("advertised.host.name", KAFKA_HOST);
+        kafkaProperties.put("port", Integer.toString(getUnusedLocalPort(1024)));
         kafkaProperties.put("broker.id", "1");
         kafkaProperties.put("log.dir", tempFolder.newFolder().getAbsolutePath());
         kafkaProperties.put("zookeeper.connect", zkServer.getConnectString());
@@ -120,6 +136,7 @@ public abstract class KafkaSinkTestBase {
                         ListenerName.forSecurityProtocol(SecurityProtocol.PLAINTEXT)
                 )
         );
+        logger.info("Kafka broker conn str = " + brokerConnStr);
     }
 
     private void prepareKafkaClientProps() {
@@ -149,17 +166,29 @@ public abstract class KafkaSinkTestBase {
 
     @After
     public void clean() throws IOException {
-        kafkaConsumer.close();
-        kafkaConsumer = null;
+        if (kafkaConsumer != null) {
+            kafkaConsumer.close();
+            kafkaConsumer = null;
+            logger.info("Kafka consumer closed.");
+        }
 
-        kafkaAdmin.close();
-        kafkaAdmin = null;
+        if (kafkaAdmin != null) {
+            kafkaAdmin.close();
+            kafkaAdmin = null;
+            logger.info("Kafka admin closed.");
+        }
 
-        kafkaServer.shutdown();
-        kafkaServer = null;
+        if (kafkaServer != null) {
+            kafkaServer.shutdown();
+            kafkaServer = null;
+            logger.info("Kafka server closed.");
+        }
 
-        zkServer.close();
-        zkServer = null;
+        if (zkServer != null) {
+            zkServer.close();
+            zkServer = null;
+            logger.info("ZK closed.");
+        }
     }
 
     @Test(timeout = 3 * 60 * 1000)
@@ -192,21 +221,30 @@ public abstract class KafkaSinkTestBase {
 
     private void verify() throws InterruptedException {
         kafkaConsumer.subscribe(Collections.singleton(topic));
+        List<String> results = new ArrayList<>();
         while (true) {
             ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofSeconds(1));
-            if (records.isEmpty() || records.count() != testRows.size()) {
+            if (!records.isEmpty()) {
+                for (ConsumerRecord<String, String> record : records) {
+                    assertNull(record.key());
+                    results.add(record.value());
+                }
+            }
+
+            if (results.size() != testRows.size()) {
                 //noinspection BusyWait
                 Thread.sleep(1000);
+                logger.info("for topic " + topic + ", record size = " + results.size());
                 continue;
             }
 
-            verifyData(records);
+            verifyData(results);
 
             break;
         }
     }
 
-    protected abstract void verifyData(ConsumerRecords<String, String> records);
+    protected abstract void verifyData(List<String> results);
 
     private TestingSource createTestingSource() {
         TestingSource testingSource = new TestingSource();

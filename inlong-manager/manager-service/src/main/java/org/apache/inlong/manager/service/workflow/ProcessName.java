@@ -28,6 +28,21 @@ public enum ProcessName {
     NEW_BUSINESS_WORKFLOW("New-Business-Access"),
 
     /**
+     * Suspend business application process
+     */
+    SUSPEND_BUSINESS_WORKFLOW("Suspend-Business"),
+
+    /**
+     * Restart business application process
+     */
+    RESTART_BUSINESS_WORKFLOW("Restart-Business"),
+
+    /**
+     * Delete business application process
+     */
+    DELETE_BUSINESS_WORKFLOW("Delete-Business"),
+
+    /**
      * New data consumption application process
      */
     NEW_CONSUMPTION_WORKFLOW("New-Data-Consumption"),

@@ -37,10 +37,22 @@ public class AuditDataTest {
 
     @Test
     public void getDataByte() {
-        AuditApi.AuditMessageHeader header = AuditApi.AuditMessageHeader.newBuilder().setIp("127.0.0.1").build();
-        AuditApi.AuditMessageBody body = AuditApi.AuditMessageBody.newBuilder().setAuditId("1").build();
-        AuditApi.AuditRequest request = AuditApi.AuditRequest.newBuilder().setMsgHeader(header)
-                .addMsgBody(body).build();
+        AuditApi.AuditMessageHeader.Builder headerBuilder = AuditApi.AuditMessageHeader.newBuilder();
+        headerBuilder.setPacketId(1)
+                .setSdkTs(0)
+                .setThreadId("")
+                .setIp("")
+                .setDockerId("");
+        AuditApi.AuditMessageBody.Builder bodyBuilder = AuditApi.AuditMessageBody.newBuilder();
+        bodyBuilder.setAuditId("")
+                .setInlongGroupId("")
+                .setInlongStreamId("")
+                .setLogTs(0)
+                .setCount(0)
+                .setSize(0)
+                .setDelay(0);
+        AuditApi.AuditRequest request = AuditApi.AuditRequest.newBuilder().setMsgHeader(headerBuilder.build())
+                .addMsgBody(bodyBuilder.build()).build();
         AuditApi.BaseCommand baseCommand = AuditApi.BaseCommand.newBuilder().setAuditRequest(request).build();
         AuditData test = new AuditData(System.currentTimeMillis(), baseCommand);
         byte[] data = test.getDataByte();
