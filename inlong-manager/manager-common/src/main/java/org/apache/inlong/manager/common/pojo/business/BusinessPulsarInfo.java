@@ -33,9 +33,6 @@ import org.apache.inlong.manager.common.enums.BizConstant;
 @ApiModel("Business access information for Pulsar")
 public class BusinessPulsarInfo extends BusinessMqExtBase {
 
-    @ApiModelProperty(value = "Type of middleware")
-    private String middlewareType = BizConstant.MIDDLEWARE_PULSAR;
-
     @ApiModelProperty(value = "Ledger's number of writable nodes")
     private Integer ensemble = 3;
 
