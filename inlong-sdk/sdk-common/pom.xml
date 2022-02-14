@@ -31,7 +31,6 @@
 	<artifactId>sdk-common</artifactId>
 	<name>Apache InLong - SDK Common</name>
 
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>8</maven.compiler.source>
