@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.server.common;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
 import org.apache.inlong.tubemq.server.common.webbase.WebCallStatsHolder;
 import org.junit.Assert;
 import org.junit.Test;
@@ -41,7 +40,6 @@ public class WebCallStatsHolderTest {
         // check result
         Map<String, Long> retMap = new LinkedHashMap<>();
         WebCallStatsHolder.getValue(retMap);
-        final long sinceTime1 = retMap.get("reset_time");
         Assert.assertEquals(4, retMap.get("web_calls_count").longValue());
         Assert.assertEquals(500, retMap.get("web_calls_max").longValue());
         Assert.assertEquals(10, retMap.get("web_calls_min").longValue());
@@ -60,7 +58,6 @@ public class WebCallStatsHolderTest {
         WebCallStatsHolder.getValue(strBuff);
         // System.out.println(strBuff.toString());
         strBuff.delete(0, strBuff.length());
-        ThreadUtils.sleep(100);
         // test snapshot
         WebCallStatsHolder.snapShort(retMap);
         retMap.clear();
@@ -71,8 +68,6 @@ public class WebCallStatsHolderTest {
         // call method test, 1, 1000, 1000
         WebCallStatsHolder.addMethodCall("test", 1000);
         WebCallStatsHolder.getValue(retMap);
-        final long sinceTime2 = retMap.get("reset_time");
-        Assert.assertNotEquals(sinceTime1, sinceTime2);
         Assert.assertEquals(3, retMap.get("web_calls_count").longValue());
         Assert.assertEquals(1000, retMap.get("web_calls_max").longValue());
         Assert.assertEquals(40, retMap.get("web_calls_min").longValue());
