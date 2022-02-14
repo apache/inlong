@@ -18,7 +18,7 @@
 package org.apache.inlong.tubemq.server.broker.msgstore.mem;
 
 import java.nio.ByteBuffer;
-
+import org.apache.inlong.tubemq.server.broker.stats.MemStoreStatsHolder;
 import org.apache.inlong.tubemq.server.common.utils.AppendResult;
 import org.junit.Test;
 
@@ -31,13 +31,14 @@ public class MsgMemStoreTest {
     public void appendMsg() {
         int maxCacheSize = 2 * 1024 * 1024;
         int maxMsgCount = 10000;
+
         MsgMemStore msgMemStore = new MsgMemStore(maxCacheSize, maxMsgCount, null);
-        MsgMemStatisInfo msgMemStatisInfo = new MsgMemStatisInfo();
+        MemStoreStatsHolder memStatsHolder = new MemStoreStatsHolder();
         ByteBuffer bf = ByteBuffer.allocate(1024);
         bf.put("abc".getBytes());
         AppendResult appendResult = new AppendResult();
         // append data
-        msgMemStore.appendMsg(msgMemStatisInfo, 0, 0,
+        msgMemStore.appendMsg(memStatsHolder, 0, 0,
                 System.currentTimeMillis(), 3, bf, appendResult);
     }
 
@@ -46,11 +47,11 @@ public class MsgMemStoreTest {
         int maxCacheSize = 2 * 1024 * 1024;
         int maxMsgCount = 10000;
         MsgMemStore msgMemStore = new MsgMemStore(maxCacheSize, maxMsgCount, null);
-        MsgMemStatisInfo msgMemStatisInfo = new MsgMemStatisInfo();
+        MemStoreStatsHolder memStatsHolder = new MemStoreStatsHolder();
         ByteBuffer bf = ByteBuffer.allocate(1024);
         bf.put("abc".getBytes());
         AppendResult appendResult = new AppendResult();
-        msgMemStore.appendMsg(msgMemStatisInfo, 0, 0,
+        msgMemStore.appendMsg(memStatsHolder, 0, 0,
                 System.currentTimeMillis(), 3, bf, appendResult);
         // get messages
         GetCacheMsgResult getCacheMsgResult = msgMemStore.getMessages(0, 2, 1024, 1000, 0, false, false, null, 0);

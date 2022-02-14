@@ -349,8 +349,9 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                         sBuffer.append(",");
                     }
                     sBuffer.append("{\"storeId\":").append(subEntry.getKey())
-                            .append(",\"memStatis\":").append(msgStore.getCurMemMsgSizeStatisInfo(requireRefresh))
-                            .append(",\"fileStatis\":")
+                            .append(",\"memStatis\":");
+                    msgStore.getMemStoreStatsInfo(requireRefresh, sBuffer);
+                    sBuffer.append(",\"fileStatis\":")
                             .append(msgStore.getCurFileMsgSizeStatisInfo(requireRefresh)).append("}");
                 }
             }

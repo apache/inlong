@@ -62,4 +62,9 @@ public interface Histogram extends Metric {
      * @param includeZero   whether to include the details item with value 0
      */
     void snapShort(StringBuilder strBuff, boolean includeZero);
+
+    /**
+     * Clear the current value.
+     */
+    void clear();
 }
