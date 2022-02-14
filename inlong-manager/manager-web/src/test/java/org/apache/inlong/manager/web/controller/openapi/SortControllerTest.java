@@ -17,14 +17,12 @@
 
 package org.apache.inlong.manager.web.controller.openapi;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
 import org.apache.inlong.manager.dao.entity.SortTaskIdParamEntity;
+import org.apache.inlong.manager.dao.entity.SortTaskSinkParamEntity;
 import org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortTaskIdParamEntityMapper;
+import org.apache.inlong.manager.dao.mapper.SortTaskSinkParamEntityMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +35,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class SortControllerTest {
@@ -48,6 +50,8 @@ public class SortControllerTest {
     // todo Service do not support insert method now, use mappers to insert data.
     @Autowired private SortTaskIdParamEntityMapper taskIdParamEntityMapper;
 
+    @Autowired private SortTaskSinkParamEntityMapper taskSinkParamEntityMapper;
+
     @Autowired private SortClusterConfgiEntityMapper sortClusterConfgiEntityMapper;
 
     @Before
@@ -56,8 +60,12 @@ public class SortControllerTest {
         taskIdParamEntityMapper.insert(this.prepareIdParamsEntity("testTask1", 1));
         taskIdParamEntityMapper.insert(this.prepareIdParamsEntity("testTask1", 2));
         taskIdParamEntityMapper.insert(this.prepareIdParamsEntity("testTask2", 1));
+        taskSinkParamEntityMapper
+                .insert(this.prepareSinkParamsEntity("testTask1", "kafka", 1));
+        taskSinkParamEntityMapper
+                .insert(this.prepareSinkParamsEntity("testTask2", "pulsar", 1));
         sortClusterConfgiEntityMapper.insert(this.prepareClusterConfigEntity("testTask1", "kafka"));
-        sortClusterConfgiEntityMapper.insert(this.prepareClusterConfigEntity("testTask2", "kafka"));
+        sortClusterConfgiEntityMapper.insert(this.prepareClusterConfigEntity("testTask2", "pulsar"));
     }
 
     /**
@@ -102,8 +110,8 @@ public class SortControllerTest {
                 .groupId(String.valueOf(idx))
                 .streamId(String.valueOf(idx))
                 .taskName(task)
-                .paramKey("paramKey" + idx)
-                .paramValue("paramValue" + idx)
+                .paramKey("idParamKey " + idx)
+                .paramValue("idParamValue " + idx)
                 .build();
     }
 
@@ -112,6 +120,15 @@ public class SortControllerTest {
                 .clusterName("testCluster")
                 .taskName(taskName)
                 .sinkType(sinkType)
+                .build();
+    }
+
+    private SortTaskSinkParamEntity prepareSinkParamsEntity(String task, String sinkType, int idx) {
+        return SortTaskSinkParamEntity.builder()
+                .sinkType(sinkType)
+                .paramKey("sinkParamKey " + idx)
+                .paramValue("sinkParamValue " + idx)
+                .taskName(task)
                 .build();
     }
 }
