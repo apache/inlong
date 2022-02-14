@@ -44,6 +44,11 @@ import com.google.common.base.Preconditions;
 public class InlongTcpChannelPipelineFactory implements ChannelPipelineFactory, Configurable {
 
     public static final Logger LOG = LoggerFactory.getLogger(InlongTcpChannelPipelineFactory.class);
+    public static final int DEFAULT_LENGTH_FIELD_OFFSET = 0;
+    public static final int DEFAULT_LENGTH_FIELD_LENGTH = 4;
+    public static final int DEFAULT_LENGTH_ADJUSTMENT = -4;
+    public static final int DEFAULT_INITIAL_BYTES_TO_STRIP = 0;
+    public static final boolean DEFAULT_FAIL_FAST = true;
     private static final int DEFAULT_READ_IDLE_TIME = 70 * 60 * 1000;
     private SourceContext sourceContext;
     private String messageHandlerName;
@@ -73,7 +78,8 @@ public class InlongTcpChannelPipelineFactory implements ChannelPipelineFactory, 
     @SuppressWarnings("unchecked")
     public ChannelPipeline addMessageHandlersTo(ChannelPipeline cp) {
         cp.addLast("messageDecoder", new LengthFieldBasedFrameDecoder(
-                sourceContext.getMaxMsgLength(), 0, 4, -4, 0, true));
+                sourceContext.getMaxMsgLength(), DEFAULT_LENGTH_FIELD_OFFSET, DEFAULT_LENGTH_FIELD_LENGTH,
+                DEFAULT_LENGTH_ADJUSTMENT, DEFAULT_INITIAL_BYTES_TO_STRIP, DEFAULT_FAIL_FAST));
         cp.addLast("readTimeoutHandler", new ReadTimeoutHandler(timer,
                 DEFAULT_READ_IDLE_TIME, TimeUnit.MILLISECONDS));
 

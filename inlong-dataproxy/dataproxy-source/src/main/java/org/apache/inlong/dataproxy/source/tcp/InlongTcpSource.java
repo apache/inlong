@@ -50,6 +50,10 @@ import com.google.common.base.Preconditions;
 public class InlongTcpSource extends AbstractSource implements Configurable, EventDrivenSource {
 
     public static final Logger LOG = LoggerFactory.getLogger(InlongTcpSource.class);
+    public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 64 * 1024;
+    public static final int MAX_RECEIVE_BUFFER_SIZE = 16 * 1024 * 1024;
+    public static final int DEFAULT_SEND_BUFFER_SIZE = 64 * 1024;
+    public static final int MAX_SEND_BUFFER_SIZE = 16 * 1024 * 1024;
 
     protected ChannelGroup allChannels;
     protected SourceContext sourceContext;
@@ -121,7 +125,6 @@ public class InlongTcpSource extends AbstractSource implements Configurable, Eve
                     this.pipelineFactoryConfigurable.configure(sourceContext.getParentContext());
                 }
             } catch (Exception e) {
-                e.printStackTrace();
                 LOG.error(
                         "Inlong Tcp Source start error, fail to construct ChannelPipelineFactory with name {}, ex {}",
                         msgFactoryName, e);
@@ -148,7 +151,7 @@ public class InlongTcpSource extends AbstractSource implements Configurable, Eve
             LOG.info("Inlong TCP Source started at host {}, port {}", host, port);
             super.start();
         } catch (Throwable t) {
-            t.printStackTrace();
+            LOG.error(t.getMessage(), t);
         }
     }
 
@@ -179,8 +182,8 @@ public class InlongTcpSource extends AbstractSource implements Configurable, Eve
             }
         }
 
-//        super.stop();
         LOG.info("[STOP SOURCE]{} stopped", super.getName());
+        super.stop();
     }
 
     /**
@@ -198,16 +201,16 @@ public class InlongTcpSource extends AbstractSource implements Configurable, Eve
 
             tcpNoDelay = context.getBoolean(ConfigConstants.TCP_NO_DELAY, true);
             keepAlive = context.getBoolean(ConfigConstants.KEEP_ALIVE, true);
-            highWaterMark = context.getInteger(ConfigConstants.HIGH_WATER_MARK, 64 * 1024);
-            receiveBufferSize = context.getInteger(ConfigConstants.RECEIVE_BUFFER_SIZE, 1024 * 64);
-            if (receiveBufferSize > 16 * 1024 * 1024) {
-                receiveBufferSize = 16 * 1024 * 1024;
+            highWaterMark = context.getInteger(ConfigConstants.HIGH_WATER_MARK, DEFAULT_RECEIVE_BUFFER_SIZE);
+            receiveBufferSize = context.getInteger(ConfigConstants.RECEIVE_BUFFER_SIZE, DEFAULT_RECEIVE_BUFFER_SIZE);
+            if (receiveBufferSize > MAX_RECEIVE_BUFFER_SIZE) {
+                receiveBufferSize = MAX_RECEIVE_BUFFER_SIZE;
             }
             Preconditions.checkArgument(receiveBufferSize > 0, "receiveBufferSize must be > 0");
 
-            sendBufferSize = context.getInteger(ConfigConstants.SEND_BUFFER_SIZE, 1024 * 64);
-            if (sendBufferSize > 16 * 1024 * 1024) {
-                sendBufferSize = 16 * 1024 * 1024;
+            sendBufferSize = context.getInteger(ConfigConstants.SEND_BUFFER_SIZE, DEFAULT_SEND_BUFFER_SIZE);
+            if (sendBufferSize > MAX_SEND_BUFFER_SIZE) {
+                sendBufferSize = MAX_SEND_BUFFER_SIZE;
             }
             Preconditions.checkArgument(sendBufferSize > 0, "sendBufferSize must be > 0");
 
@@ -231,7 +234,7 @@ public class InlongTcpSource extends AbstractSource implements Configurable, Eve
                 this.pipelineFactoryConfigurable.configure(context);
             }
         } catch (Throwable t) {
-            t.printStackTrace();
+            LOG.error(t.getMessage(), t);
         }
     }
 }
