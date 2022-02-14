@@ -55,7 +55,7 @@ public class MemStoreStatsHolderTest {
         Assert.assertEquals(0, retMap.get("cache_flush_dlt_count").longValue());
         Assert.assertEquals(Long.MIN_VALUE, retMap.get("cache_flush_dlt_max").longValue());
         Assert.assertEquals(Long.MAX_VALUE, retMap.get("cache_flush_dlt_min").longValue());
-        Assert.assertNotNull(retMap.get("read_time"));
+        Assert.assertNotNull(retMap.get("end_time"));
         retMap.clear();
         // get content by StringBuilder
         StringBuilder strBuff = new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
@@ -102,7 +102,7 @@ public class MemStoreStatsHolderTest {
         Assert.assertEquals(1, retMap.get("cache_flush_dlt_cell_8t16").longValue());
         Assert.assertEquals(1, retMap.get("cache_flush_dlt_cell_32t64").longValue());
         Assert.assertEquals(1, retMap.get("cache_flush_dlt_cell_64t128").longValue());
-        Assert.assertNotNull(retMap.get("read_time"));
+        Assert.assertNotNull(retMap.get("end_time"));
         memStatsHolder.getAllMemStatsInfo(false, strBuff);
         // System.out.println("\n the second is : " + strBuff.toString());
         strBuff.delete(0, strBuff.length());
