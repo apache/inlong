@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.BizConstant;
 
 /**
  * Business access information for Pulsar
