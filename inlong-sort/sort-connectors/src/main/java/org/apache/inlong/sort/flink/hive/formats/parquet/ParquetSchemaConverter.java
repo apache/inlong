@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.flink.hive.formats;
+package org.apache.inlong.sort.flink.hive.formats.parquet;
 
 import org.apache.flink.api.common.typeinfo.BasicArrayTypeInfo;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
@@ -598,7 +598,8 @@ public class ParquetSchemaConverter {
                         .as(OriginalType.TIME_MILLIS)
                         .named(name);
             case TIMESTAMP_WITHOUT_TIME_ZONE:
-                return Types.primitive(PrimitiveType.PrimitiveTypeName.INT96, repetition)
+                return Types.primitive(PrimitiveType.PrimitiveTypeName.INT64, repetition)
+                        .as(OriginalType.TIMESTAMP_MILLIS)
                         .named(name);
             default:
                 throw new UnsupportedOperationException("Unsupported type: " + type);

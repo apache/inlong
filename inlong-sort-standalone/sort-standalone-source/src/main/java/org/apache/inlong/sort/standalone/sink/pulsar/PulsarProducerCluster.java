@@ -17,13 +17,6 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;
@@ -46,6 +39,13 @@ import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -258,7 +258,6 @@ public class PulsarProducerCluster implements LifecycleAware {
      * @param currentRecord
      * @param topic
      * @param result
-     * @param size
      */
     private void addMetric(Event currentRecord, String topic, boolean result, long sendTime) {
         Map<String, String> dimensions = new HashMap<>();
@@ -270,23 +269,10 @@ public class PulsarProducerCluster implements LifecycleAware {
         long msgTime = NumberUtils.toLong(currentRecord.getHeaders().get(Constants.HEADER_KEY_MSG_TIME), sendTime);
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
         dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
-        SortMetricItem metricItem = this.sinkContext.getMetricItemSet().findMetricItem(dimensions);
+        SortMetricItem.reportDurations(currentRecord, result, sendTime,
+                dimensions, msgTime, this.sinkContext.getMetricItemSet());
         if (result) {
-            metricItem.sendSuccessCount.incrementAndGet();
-            metricItem.sendSuccessSize.addAndGet(currentRecord.getBody().length);
             AuditUtils.add(AuditUtils.AUDIT_ID_SEND_SUCCESS, currentRecord);
-            if (sendTime > 0) {
-                long currentTime = System.currentTimeMillis();
-                long sinkDuration = currentTime - sendTime;
-                long nodeDuration = currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
-                long wholeDuration = currentTime - msgTime;
-                metricItem.sinkDuration.addAndGet(sinkDuration);
-                metricItem.nodeDuration.addAndGet(nodeDuration);
-                metricItem.wholeDuration.addAndGet(wholeDuration);
-            }
-        } else {
-            metricItem.sendFailCount.incrementAndGet();
-            metricItem.sendFailSize.addAndGet(currentRecord.getBody().length);
         }
     }
 

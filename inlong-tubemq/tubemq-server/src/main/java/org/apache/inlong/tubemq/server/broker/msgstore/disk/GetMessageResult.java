@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker.TransferedMessage;
-import org.apache.inlong.tubemq.server.broker.stats.CountItem;
+import org.apache.inlong.tubemq.server.broker.stats.TrafficInfo;
 
 /**
  * Broker's reply to Consumer's GetMessage request.
@@ -38,14 +38,14 @@ public class GetMessageResult {
     public long waitTime = -1;
     public boolean isSlowFreq = false;
     public boolean isFromSsdFile = false;
-    public HashMap<String, CountItem> tmpCounters = new HashMap<>();
+    public HashMap<String, TrafficInfo> tmpCounters = new HashMap<>();
     public List<TransferedMessage> transferedMessageList = new ArrayList<>();
     public long maxOffset = TBaseConstants.META_VALUE_UNDEFINED;
 
     public GetMessageResult(boolean isSuccess, int retCode, final String errInfo,
                             final long reqOffset, final int lastReadOffset,
                             final long lastRdDataOffset, final int totalSize,
-                            HashMap<String, CountItem> tmpCounters,
+                            HashMap<String, TrafficInfo> tmpCounters,
                             List<TransferedMessage> transferedMessageList) {
         this(isSuccess, retCode, errInfo, reqOffset, lastReadOffset,
                 lastRdDataOffset, totalSize, tmpCounters, transferedMessageList, false);
@@ -54,7 +54,7 @@ public class GetMessageResult {
     public GetMessageResult(boolean isSuccess, int retCode, final String errInfo,
                             final long reqOffset, final int lastReadOffset,
                             final long lastRdDataOffset, final int totalSize,
-                            HashMap<String, CountItem> tmpCounters,
+                            HashMap<String, TrafficInfo> tmpCounters,
                             List<TransferedMessage> transferedMessageList,
                             boolean isFromSsdFile) {
         this.isSuccess = isSuccess;
@@ -108,11 +108,11 @@ public class GetMessageResult {
         this.waitTime = waitTime;
     }
 
-    public HashMap<String, CountItem> getTmpCounters() {
+    public HashMap<String, TrafficInfo> getTmpCounters() {
         return tmpCounters;
     }
 
-    public void setTmpCounters(HashMap<String, CountItem> tmpCounters) {
+    public void setTmpCounters(HashMap<String, TrafficInfo> tmpCounters) {
         this.tmpCounters = tmpCounters;
     }
 

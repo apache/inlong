@@ -16,8 +16,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.flink.hive.formats;
+package org.apache.inlong.sort.flink.hive.formats.parquet;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.Row;
@@ -72,28 +74,32 @@ public class ParquetRowWriter {
             switch (t.getTypeRoot()) {
                 case CHAR:
                 case VARCHAR:
-                case DECIMAL:
                     return new StringWriter();
                 case BOOLEAN:
                     return new BooleanWriter();
                 case BINARY:
                 case VARBINARY:
                     return new BinaryWriter();
+                case DECIMAL:
+                    return (row, ordinal) -> recordConsumer.addBinary(Binary.fromReusedByteArray(
+                            row.getField(ordinal).toString().getBytes()));
                 case TINYINT:
                     return new ByteWriter();
                 case SMALLINT:
                     return new ShortWriter();
-                case DATE:
-                case TIME_WITHOUT_TIME_ZONE:
                 case INTEGER:
                     return new IntWriter();
-                case TIMESTAMP_WITHOUT_TIME_ZONE:
                 case BIGINT:
                     return new LongWriter();
                 case FLOAT:
                     return new FloatWriter();
                 case DOUBLE:
                     return new DoubleWriter();
+                case DATE:
+                case TIME_WITHOUT_TIME_ZONE:
+                    return (row, ordinal) -> recordConsumer.addInteger((int) ((Date) row.getField(ordinal)).getTime());
+                case TIMESTAMP_WITHOUT_TIME_ZONE:
+                    return (row, ordinal) -> recordConsumer.addLong(((Timestamp) row.getField(ordinal)).getTime());
                 default:
                     throw new UnsupportedOperationException("Unsupported type: " + type);
             }
@@ -119,7 +125,7 @@ public class ParquetRowWriter {
 
         @Override
         public void write(Row row, int ordinal) {
-            recordConsumer.addInteger((Integer) row.getField(ordinal));
+            recordConsumer.addInteger((Byte) row.getField(ordinal));
         }
     }
 
@@ -127,7 +133,7 @@ public class ParquetRowWriter {
 
         @Override
         public void write(Row row, int ordinal) {
-            recordConsumer.addInteger((Integer) row.getField(ordinal));
+            recordConsumer.addInteger((Short) row.getField(ordinal));
         }
     }
 

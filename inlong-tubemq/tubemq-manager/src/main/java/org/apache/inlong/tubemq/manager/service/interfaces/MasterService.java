@@ -17,6 +17,7 @@
 
 package org.apache.inlong.tubemq.manager.service.interfaces;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
@@ -66,6 +67,13 @@ public interface MasterService {
      * @return
      */
     MasterEntry getMasterNode(Long clusterId);
+
+    /**
+     * get master node in one cluster
+     * @param clusterId
+     * @return
+     */
+    List<MasterEntry> getMasterNodes(Long clusterId);
 
     /**
      * use queryBody to generate queryUrl for master query
