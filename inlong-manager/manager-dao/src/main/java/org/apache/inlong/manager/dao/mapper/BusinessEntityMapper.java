@@ -17,13 +17,14 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import java.util.List;
-import java.util.Map;
 import org.apache.ibatis.annotations.Param;
+import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.common.pojo.business.BusinessPageRequest;
 import org.apache.inlong.manager.dao.entity.BusinessEntity;
-import org.apache.inlong.manager.dao.entity.DataProxyConfig;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface BusinessEntityMapper {
@@ -58,6 +59,6 @@ public interface BusinessEntityMapper {
     int updateByPrimaryKey(BusinessEntity record);
 
     int updateStatusByIdentifier(@Param("groupId") String groupId, @Param("status") Integer status,
-            @Param("modifier") String modifier);
+                                 @Param("modifier") String modifier);
 
 }

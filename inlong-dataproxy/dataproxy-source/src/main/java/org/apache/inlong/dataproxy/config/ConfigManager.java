@@ -18,13 +18,6 @@
 package org.apache.inlong.dataproxy.config;
 
 import com.google.gson.Gson;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
@@ -33,13 +26,21 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.dataproxy.config.RemoteConfigJson.DataItem;
-import org.apache.inlong.dataproxy.config.holder.GroupIdPropertiesHolder;
+import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.dataproxy.config.holder.FileConfigHolder;
+import org.apache.inlong.dataproxy.config.holder.GroupIdPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.MxPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.PropertiesConfigHolder;
+import org.apache.inlong.dataproxy.config.pojo.PulsarConfig;
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class ConfigManager {
 
@@ -53,6 +54,8 @@ public class ConfigManager {
             new PropertiesConfigHolder("common.properties");
     private final PropertiesConfigHolder topicConfig =
             new PropertiesConfigHolder("topics.properties");
+    private final MxPropertiesHolder pulsarUrl2token =
+            new MxPropertiesHolder("pulsar_config.properties");
     private final MxPropertiesHolder mxConfig = new MxPropertiesHolder("mx.properties");
     private final GroupIdPropertiesHolder groupIdConfig =
             new GroupIdPropertiesHolder("groupid_mapping.properties");
@@ -67,8 +70,11 @@ public class ConfigManager {
     private final FileConfigHolder blackListConfig =
             new FileConfigHolder("blacklist.properties");
 
+    private final PulsarConfig pulsarConfig = new PulsarConfig();
+
     /**
      * get instance for manager
+     *
      * @return
      */
     public static ConfigManager getInstance() {
@@ -137,6 +143,14 @@ public class ConfigManager {
         return updatePropertiesHolder(result, topicConfig, false);
     }
 
+    public boolean addPulsarProperties(Map<String, String> result) {
+        return updatePropertiesHolder(result, pulsarUrl2token, true);
+    }
+
+    public boolean deletePulsarProperties(Map<String, String> result) {
+        return updatePropertiesHolder(result, pulsarUrl2token, false);
+    }
+
     public Map<String, String> getMxProperties() {
         return mxConfig.getHolder();
     }
@@ -183,6 +197,18 @@ public class ConfigManager {
 
     public PropertiesConfigHolder getTopicConfig() {
         return topicConfig;
+    }
+
+    public MxPropertiesHolder getPulsarCluster() {
+        return pulsarUrl2token;
+    }
+
+    public PulsarConfig getPulsarConfig() {
+        return pulsarConfig;
+    }
+
+    public Map<String, String> getPulsarUrl2Token() {
+        return pulsarUrl2token.getValueMaps();
     }
 
     /**
@@ -244,10 +270,13 @@ public class ConfigManager {
             }
         }
 
-        private boolean checkWithManager(String host) {
+        private boolean checkWithManager(String host, String proxyClusterName) {
             HttpGet httpGet = null;
             try {
-                String url = "http://" + host + "/api/inlong/manager/openapi/dataproxy/getConfig";
+                if (proxyClusterName == null) {
+                    LOG.error("proxyClusterName is null");
+                }
+                String url = "http://" + host + "/api/inlong/manager/openapi/dataproxy/getConfig_v2?clusterName=" + proxyClusterName;
                 LOG.info("start to request {} to get config info", url);
                 httpGet = new HttpGet(url);
                 httpGet.addHeader(HttpHeaders.CONNECTION, "close");
@@ -260,14 +289,32 @@ public class ConfigManager {
                 RemoteConfigJson configJson = gson.fromJson(returnStr, RemoteConfigJson.class);
                 Map<String, String> groupIdToTopic = new HashMap<String, String>();
                 Map<String, String> groupIdToMValue = new HashMap<String, String>();
+                Map<String, String> pulsarUrlToToken = new HashMap<>();
 
                 if (configJson.getErrCode() == 0) {
-                    for (DataItem item : configJson.getData()) {
-                        groupIdToMValue.put(item.getGroupId(), item.getM());
-                        groupIdToTopic.put(item.getGroupId(), item.getTopic());
+                    // get pulsar <->token maps; store format: pulsar.index1=pulsa1rurl=pulsar1token
+                    int index = 1;
+                    List<Map<String, String>> pulsarSet = configJson.getPulsarSet();
+                    for (Map<String, String> params : pulsarSet) {
+                        String key = "pulsar.index" + index;
+                        String value = params.get(PulsarConfig.PULSAR_SERVER_URL_LIST)
+                                + AttributeConstants.KEY_VALUE_SEPARATOR
+                                + params.get(PulsarConfig.TOKEN);
+                        pulsarUrlToToken.put(key, value);
+                        ++index;
+                    }
+
+                    for (DataProxyConfig topic : configJson.getTopicList()) {
+                        groupIdToMValue.put(topic.getInlongGroupId(), topic.getM());
+                        groupIdToTopic.put(topic.getInlongGroupId(), topic.getTopic());
                     }
                     configManager.addMxProperties(groupIdToMValue);
                     configManager.addTopicProperties(groupIdToTopic);
+                    configManager.addPulsarProperties(pulsarUrlToToken);
+
+                    // store pulsarcluster common configs and url2token
+                    configManager.getPulsarConfig().putAll(pulsarSet.get(0));
+                    configManager.getPulsarConfig().setUrl2token(configManager.getPulsarCluster().getValueMaps());
                 }
             } catch (Exception ex) {
                 LOG.error("exception caught", ex);
@@ -284,10 +331,11 @@ public class ConfigManager {
 
             try {
                 String managerHosts = configManager.getCommonProperties().get("manager_hosts");
+                String proxyClusterName = configManager.getCommonProperties().get("proxy_cluster_name");
                 String[] hostList = StringUtils.split(managerHosts, ",");
                 for (String host : hostList) {
 
-                    if (checkWithManager(host)) {
+                    if (checkWithManager(host, proxyClusterName)) {
                         break;
                     }
                 }

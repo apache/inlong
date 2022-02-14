@@ -15,34 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.config;
+package org.apache.inlong.dataproxy.config.loader;
 
-import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-public class RemoteConfigJson {
+import static org.testng.AssertJUnit.assertEquals;
 
-    private boolean result;
-    private int errCode;
-    private List<Map<String, String>> pulsarSet = new ArrayList<>();
-    private List<DataProxyConfig> topicList = new ArrayList<>();
+public class TestPulsarConfigLoader {
 
-    public boolean isResult() {
-        return result;
-    }
+    @Test
+    public void testResult() {
+        Map<String, String> url2token = ConfigManager.getInstance().getPulsarUrl2Token();
+        assertEquals("pulsartoken1", url2token.get("pulsar1://127.0.0.1:6650"));
+        assertEquals("pulsartoken2", url2token.get("pulsar2://127.0.0.1:6680"));
 
-    public int getErrCode() {
-        return errCode;
-    }
-
-    public List<Map<String, String>> getPulsarSet() {
-        return pulsarSet;
-    }
-
-    public List<DataProxyConfig> getTopicList() {
-        return topicList;
     }
 }

@@ -15,17 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.commons.pojo.dataproxy;
 
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-/**
- * DataProxy config
- */
-@Data
-public class DataProxyConfig {
+public class ProxyPulsarObject {
 
-    private String topic;
-    private String m;
-    private String inlongGroupId;
+    private List<Map<String, String>> pulsarSet = new ArrayList<>();
+    private List<DataProxyConfig> topicList = new ArrayList<>();
+
+    public List<Map<String, String>> getPulsarSet() {
+        return pulsarSet;
+    }
+
+    public void setPulsarSet(List<Map<String, String>> pulsarSet) {
+        this.pulsarSet = pulsarSet;
+    }
+
+    public List<DataProxyConfig> getTopicList() {
+        return topicList;
+    }
+
+    public void setTopicList(List<DataProxyConfig> topicList) {
+        this.topicList = topicList;
+    }
 }

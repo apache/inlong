@@ -15,34 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.config;
+package org.apache.inlong.manager.dao.entity;
 
-import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
+import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.io.Serializable;
 
-public class RemoteConfigJson {
-
-    private boolean result;
-    private int errCode;
-    private List<Map<String, String>> pulsarSet = new ArrayList<>();
-    private List<DataProxyConfig> topicList = new ArrayList<>();
-
-    public boolean isResult() {
-        return result;
-    }
-
-    public int getErrCode() {
-        return errCode;
-    }
-
-    public List<Map<String, String>> getPulsarSet() {
-        return pulsarSet;
-    }
-
-    public List<DataProxyConfig> getTopicList() {
-        return topicList;
-    }
+@Data
+public class PulsarConfigEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String pulsarClusterName;
+    private String keyName;
+    private String keyValue;
 }

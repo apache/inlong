@@ -15,34 +15,39 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.config;
+package org.apache.inlong.commons.pojo.dataproxy;
 
-import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
+/**
+ * DataProxy config
+ */
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+public class DataProxyConfig {
 
-public class RemoteConfigJson {
+    private String topic;
+    private String m;
+    private String inlongGroupId;
 
-    private boolean result;
-    private int errCode;
-    private List<Map<String, String>> pulsarSet = new ArrayList<>();
-    private List<DataProxyConfig> topicList = new ArrayList<>();
-
-    public boolean isResult() {
-        return result;
+    public String getTopic() {
+        return topic;
     }
 
-    public int getErrCode() {
-        return errCode;
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
-    public List<Map<String, String>> getPulsarSet() {
-        return pulsarSet;
+    public String getM() {
+        return m;
     }
 
-    public List<DataProxyConfig> getTopicList() {
-        return topicList;
+    public void setM(String m) {
+        this.m = m;
+    }
+
+    public String getInlongGroupId() {
+        return inlongGroupId;
+    }
+
+    public void setInlongGroupId(String inlongGroupId) {
+        this.inlongGroupId = inlongGroupId;
     }
 }
