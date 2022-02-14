@@ -43,10 +43,10 @@ public class DispatchManager {
     public static final long DEFAULT_DISPATCH_MAX_PACKSIZE = 327680;
     public static final long MINUTE_MS = 60L * 1000;
 
-    private LinkedBlockingQueue<DispatchProfile> dispatchQueue;
     private final long dispatchTimeout;
     private final long maxPackCount;
     private final long maxPackSize;
+    private LinkedBlockingQueue<DispatchProfile> dispatchQueue;
     private ConcurrentHashMap<String, DispatchProfile> profileCache = new ConcurrentHashMap<>();
     //
     private AtomicBoolean needOutputOvertimeData = new AtomicBoolean(false);
