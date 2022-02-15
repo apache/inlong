@@ -20,6 +20,8 @@ package org.apache.inlong.sort.protocol.sink;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.Serializable;
+import java.util.Arrays;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes.Type;
@@ -55,5 +57,22 @@ public abstract class SinkInfo implements Serializable {
     @JsonProperty("fields")
     public FieldInfo[] getFields() {
         return fields;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SinkInfo sinkInfo = (SinkInfo) o;
+        return Arrays.equals(fields, sinkInfo.fields);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(fields);
     }
 }

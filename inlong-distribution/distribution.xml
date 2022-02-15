@@ -55,6 +55,12 @@
             <outputDirectory>inlong-tubemq-manager</outputDirectory>
         </fileSet>
 
+        <!-- package InLong-Audit-->
+        <fileSet>
+            <directory>../inlong-audit/audit-release/target/apache-inlong-audit-${project.version}-bin</directory>
+            <outputDirectory>inlong-audit</outputDirectory>
+        </fileSet>
+
         <!-- package InLong-Sort-->
         <fileSet>
             <directory>../inlong-sort/sort-core/target</directory>
@@ -68,6 +74,17 @@
         <fileSet>
             <directory>../inlong-dashboard/build</directory>
             <outputDirectory>inlong-dashboard</outputDirectory>
+        </fileSet>
+        <!-- package InLong Standalone bin-->
+        <fileSet>
+            <directory>../bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <fileMode>0755</fileMode>
+        </fileSet>
+        <!-- package InLong Standalone conf-->
+        <fileSet>
+            <directory>../conf</directory>
+            <outputDirectory>conf</outputDirectory>
         </fileSet>
     </fileSets>
 

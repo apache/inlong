@@ -20,5 +20,8 @@
 #
 source /etc/profile
 cd "$(dirname "$0")"/../
-chmod 777 bin/sort-standalone
+prepare_file=conf/common.properties
+if [ ! -f "$prepare_file" ]; then
+  touch "$prepare_file"
+fi
 nohup bin/sort-standalone agent --conf conf/ > sort.log 2>&1 &

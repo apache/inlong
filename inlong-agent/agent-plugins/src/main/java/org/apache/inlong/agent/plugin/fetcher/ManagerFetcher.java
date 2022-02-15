@@ -471,9 +471,11 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
                             DEFAULT_AGENT_FETCHER_INTERVAL);
                     TimeUnit.SECONDS.sleep(AgentUtils.getRandomBySeed(configSleepTime));
                     // fetch commands from manager
-                    //fetchCommand();
+                    fetchCommand();
+
                     // fetch manager list from vip
-                    //fetchTdmList(false, 0);
+                    fetchTdmList(false, 0);
+
                     // fetch db collector task from manager
                     fetchDbCollectTask();
                 } catch (Exception ex) {

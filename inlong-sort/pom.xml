@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>0.13.0-incubating-SNAPSHOT</version>
+        <version>1.1.0-incubating-SNAPSHOT</version>
     </parent>
     <artifactId>inlong-sort</artifactId>
 
@@ -34,14 +34,21 @@
     <packaging>pom</packaging>
 
     <properties>
+        <sort.project.encoding>UTF-8</sort.project.encoding>
+        <project.build.sourceEncoding>${sort.project.encoding}</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>${sort.project.encoding}</project.reporting.outputEncoding>
+        <maven.compiler.encoding>${sort.project.encoding}</maven.compiler.encoding>
+        <java.version>1.8</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+
         <flink.version>1.13.5</flink.version>
-        <flink.connector.version>1.9.3</flink.connector.version>
         <flink.scala.binary.version>2.11</flink.scala.binary.version>
         <guava.version>18.0</guava.version>
         <junit.version>4.12</junit.version>
         <hamcrest.version>1.3</hamcrest.version>
         <slf4j.version>1.7.15</slf4j.version>
-        <log4j.version>2.13.3</log4j.version>
+        <log4j.version>2.17.1</log4j.version>
         <mockito.version>3.6.28</mockito.version>
         <curator.version>2.12.0</curator.version>
         <log4j.configuration>log4j-test.properties</log4j.configuration>
@@ -54,6 +61,8 @@
         <hadoop.version>2.8.5</hadoop.version>
         <hive.version>2.3.8</hive.version>
         <pulsar.version>2.8.1</pulsar.version>
+        <kafka.version>2.4.1</kafka.version>
+        <lzo.core.version>1.0.6</lzo.core.version>
     </properties>
 
     <modules>
@@ -63,6 +72,7 @@
         <module>sort-dist</module>
         <module>sort-formats</module>
         <module>sort-single-tenant</module>
+        <module>sort-connectors</module>
     </modules>
 
     <dependencies>
@@ -164,7 +174,13 @@
 
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-connector-kafka_2.11</artifactId>
+                <artifactId>flink-connector-kafka_${flink.scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-json</artifactId>
                 <version>${flink.version}</version>
             </dependency>
 
@@ -285,6 +301,10 @@
                         <groupId>xml-apis</groupId>
                         <artifactId>xml-apis</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.avro</groupId>
+                        <artifactId>avro</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -345,6 +365,42 @@
                 <groupId>org.apache.pulsar</groupId>
                 <artifactId>pulsar-client-all</artifactId>
                 <version>${pulsar.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka_${flink.scala.binary.version}</artifactId>
+                <version>${kafka.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-test-utils_${flink.scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-slf4j-impl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>ru.yandex.clickhouse</groupId>
+                <artifactId>clickhouse-jdbc</artifactId>
+                <version>${clickhouse-jdbc.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.anarres.lzo</groupId>
+                <artifactId>lzo-core</artifactId>
+                <version>${lzo.core.version}</version>
             </dependency>
 
         </dependencies>

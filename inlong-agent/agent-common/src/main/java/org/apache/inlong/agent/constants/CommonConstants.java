@@ -25,9 +25,11 @@ public class CommonConstants {
     public static final String DEFAULT_PROXY_NET_TAG = "";
 
     public static final String PROXY_INLONG_GROUP_ID = "proxy.inlongGroupId";
+    public static final String DEFAULT_PROXY_INLONG_GROUP_ID = "default_inlong_group_id";
     public static final String POSITION_SUFFIX = ".position";
 
     public static final String PROXY_INLONG_STREAM_ID = "proxy.inlongStreamId";
+    public static final String DEFAULT_PROXY_INLONG_STREAM_ID = "default_inlong_stream_id";
 
     public static final String PROXY_LOCAL_HOST = "proxy.localHost";
     public static final String DEFAULT_PROXY_LOCALHOST = AgentUtils.getLocalIp();

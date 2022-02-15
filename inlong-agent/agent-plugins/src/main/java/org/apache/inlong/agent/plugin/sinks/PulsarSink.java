@@ -17,37 +17,16 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
-import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_ASYNC;
-import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_BATCH_MAXCOUNT;
-import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_BATCH_MAXSIZE;
-import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_BLOCK_QUEUE;
-import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_COMPRESS_TYPE;
-import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_ENABLE_BATCH;
-import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_MAX_PENDING_COUNT;
-import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_THREAD_NUM;
-import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_SINK_CACHE_CAPACITY;
-import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_SINK_POLL_TIMEOUT;
-import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_ASYNC;
-import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_BATCH_MAXCOUNT;
-import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_BATCH_MAXSIZE;
-import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_BLOCK_QUEUE;
-import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_COMPRESS_TYPE;
-import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_ENABLE_BATCH;
-import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_MAX_PENDING_COUNT;
-import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_THREAD_NUM;
-import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_SERVERS;
-import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_SINK_CACHE_CAPACITY;
-import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_SINK_POLL_TIMEOUT;
-import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_TOPIC;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
@@ -68,11 +47,39 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_THREAD_NUM;
+import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_THREAD_NUM;
+import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_ASYNC;
+import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_ASYNC;
+import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_SINK_POLL_TIMEOUT;
+import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_SINK_POLL_TIMEOUT;
+import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_SINK_CACHE_CAPACITY;
+import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_SINK_CACHE_CAPACITY;
+import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_SERVERS;
+import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_TOPIC;
+import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_MAX_PENDING_COUNT;
+import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_MAX_PENDING_COUNT;
+import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_BATCH_MAXSIZE;
+import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_BATCH_MAXSIZE;
+import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_BATCH_MAXCOUNT;
+import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_BATCH_MAXCOUNT;
+import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_ENABLE_BATCH;
+import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_ENABLE_BATCH;
+import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_BLOCK_QUEUE;
+import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_BLOCK_QUEUE;
+import static org.apache.inlong.agent.constants.CommonConstants.PULSAR_PRODUCER_COMPRESS_TYPE;
+import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PULSAR_PRODUCER_COMPRESS_TYPE;
+
 public class PulsarSink extends AbstractDaemon implements Sink {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarSink.class);
 
     private static final String PULSAR_SINK_TAG_NAME = "AgentPulsarMetric";
 
+    private String inlongGroupId;
+    private String inlongStreamId;
     private boolean async;
     private long pollTimeout;
     private int threadNum;
@@ -90,14 +97,14 @@ public class PulsarSink extends AbstractDaemon implements Sink {
     public PulsarSink() {
         if (ConfigUtil.isPrometheusEnabled()) {
             this.pluginMetricNew = new PluginPrometheusMetric(AgentUtils.getUniqId(
-                PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
+                    PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
             this.sinkMetrics = new SinkPrometheusMetrics(AgentUtils.getUniqId(
-                PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
+                    PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
         } else {
             this.pluginMetricNew = new PluginJmxMetric(AgentUtils.getUniqId(
-                PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
+                    PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
             this.sinkMetrics = new SinkJmxMetric(AgentUtils.getUniqId(
-                PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
+                    PULSAR_SINK_TAG_NAME, metricsIndex.incrementAndGet()));
         }
     }
 
@@ -106,6 +113,8 @@ public class PulsarSink extends AbstractDaemon implements Sink {
         if (message != null && writing) {
             // if message is not null
             try {
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS,
+                        inlongGroupId, inlongStreamId, System.currentTimeMillis());
                 // put message to cache, wait until cache is not full.
                 pluginMetricNew.incSendNum();
                 cache.put(message.getBody());
@@ -131,7 +140,8 @@ public class PulsarSink extends AbstractDaemon implements Sink {
 
     @Override
     public void init(JobProfile jobConf) {
-
+        inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID);
+        inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, "");
         threadNum = jobConf.getInt(PULSAR_PRODUCER_THREAD_NUM, DEFAULT_PULSAR_PRODUCER_THREAD_NUM);
         async = jobConf.getBoolean(PULSAR_PRODUCER_ASYNC, DEFAULT_PULSAR_PRODUCER_ASYNC);
         pollTimeout = jobConf.getLong(PULSAR_SINK_POLL_TIMEOUT, DEFAULT_PULSAR_SINK_POLL_TIMEOUT);
@@ -146,7 +156,7 @@ public class PulsarSink extends AbstractDaemon implements Sink {
         try {
             stop();
             LOGGER.info("send success num is {}, failed num is {}",
-                pluginMetricNew.getSendSuccessNum(), pluginMetricNew.getSendFailedNum());
+                    pluginMetricNew.getSendSuccessNum(), pluginMetricNew.getSendFailedNum());
         } catch (Exception ex) {
             LOGGER.error("exception caught", ex);
         }
@@ -154,6 +164,7 @@ public class PulsarSink extends AbstractDaemon implements Sink {
 
     /**
      * sending data with producer.
+     *
      * @param item
      * @param producer
      * @throws PulsarClientException
@@ -181,6 +192,7 @@ public class PulsarSink extends AbstractDaemon implements Sink {
 
     /**
      * thread for sending data.
+     *
      * @return runnable thread.
      */
     private Runnable sendThread(Producer<byte[]> producer) {
@@ -189,7 +201,7 @@ public class PulsarSink extends AbstractDaemon implements Sink {
                 try {
                     byte[] item = cache.poll(pollTimeout, TimeUnit.MILLISECONDS);
                     if (item != null) {
-                      // sending to pulsar
+                        // sending to pulsar
                         sendingData(item, producer);
                     }
                 } catch (Exception ex) {
@@ -201,6 +213,7 @@ public class PulsarSink extends AbstractDaemon implements Sink {
 
     /**
      * construct producer for every thread.
+     *
      * @return
      */
     private Producer<byte[]> constructProducer() {
@@ -211,29 +224,30 @@ public class PulsarSink extends AbstractDaemon implements Sink {
             String pulsarServers = profile.get(PULSAR_SERVERS);
             String pulsarTopic = profile.get(PULSAR_TOPIC);
             int pendingNum = profile.getInt(PULSAR_PRODUCER_MAX_PENDING_COUNT,
-                DEFAULT_PULSAR_PRODUCER_MAX_PENDING_COUNT);
+                    DEFAULT_PULSAR_PRODUCER_MAX_PENDING_COUNT);
             int batchSize = profile.getInt(PULSAR_PRODUCER_BATCH_MAXSIZE,
-                DEFAULT_PULSAR_PRODUCER_BATCH_MAXSIZE);
+                    DEFAULT_PULSAR_PRODUCER_BATCH_MAXSIZE);
             int batchCount = profile.getInt(PULSAR_PRODUCER_BATCH_MAXCOUNT,
-                DEFAULT_PULSAR_PRODUCER_BATCH_MAXCOUNT);
+                    DEFAULT_PULSAR_PRODUCER_BATCH_MAXCOUNT);
             boolean enableBatch = profile.getBoolean(PULSAR_PRODUCER_ENABLE_BATCH,
-                DEFAULT_PULSAR_PRODUCER_ENABLE_BATCH);
+                    DEFAULT_PULSAR_PRODUCER_ENABLE_BATCH);
             boolean blockQueue = profile.getBoolean(PULSAR_PRODUCER_BLOCK_QUEUE, DEFAULT_PULSAR_PRODUCER_BLOCK_QUEUE);
             CompressionType compressionType = PluginUtils.convertType(
-                profile.get(PULSAR_PRODUCER_COMPRESS_TYPE,
-                DEFAULT_PULSAR_PRODUCER_COMPRESS_TYPE));
-            LOGGER.info("init producer, pulsarServers: {}, topic: {}, pendingNum: {}, batchSize: {}, "
-                + "batchCount: {}, enableBatch: {}, compressType: {}, blockQueue: {}", pulsarServers, pulsarTopic,
-                pendingNum, batchSize, batchCount, enableBatch, compressionType, blockQueue);
+                    profile.get(PULSAR_PRODUCER_COMPRESS_TYPE,
+                            DEFAULT_PULSAR_PRODUCER_COMPRESS_TYPE));
+            LOGGER.info("init producer, pulsarServers: {}, topic: {}, pendingNum: {}, batchSize: {},"
+                            + " batchCount: {}, enableBatch: {}, compressType: {}, blockQueue: {}",
+                    pulsarServers, pulsarTopic, pendingNum, batchSize, batchCount,
+                    enableBatch, compressionType, blockQueue);
             client = PulsarClient.builder()
-                .serviceUrl(pulsarServers).build();
+                    .serviceUrl(pulsarServers).build();
             return client.newProducer().topic(pulsarTopic)
-                .compressionType(compressionType)
-                .batchingMaxBytes(batchSize)
-                .batchingMaxMessages(batchCount)
-                .blockIfQueueFull(blockQueue)
-                .maxPendingMessages(pendingNum)
-                .enableBatching(enableBatch).create();
+                    .compressionType(compressionType)
+                    .batchingMaxBytes(batchSize)
+                    .batchingMaxMessages(batchCount)
+                    .blockIfQueueFull(blockQueue)
+                    .maxPendingMessages(pendingNum)
+                    .enableBatching(enableBatch).create();
         } catch (Exception exception) {
             LOGGER.error("error while init producer", exception);
             throw new RuntimeException(exception);

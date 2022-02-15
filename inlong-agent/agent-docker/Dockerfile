@@ -16,10 +16,12 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-FROM openjdk:8-jdk-alpine
-# add tarball from target output
-RUN apk add --no-cache java-snappy
+FROM openjdk:8-jdk
+RUN apt-get update \
+    && apt-get install -y libsnappy-java net-tools \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /opt/inlong-agent
+# add tarball from target output
 ARG AGENT_TARBALL
 ADD ${AGENT_TARBALL} /opt/inlong-agent
 RUN cp /usr/share/java/snappy-java.jar lib/snappy-java-*.jar

@@ -28,7 +28,9 @@ public class AgentConstants {
     public static final String DEFAULT_AGENT_LOCAL_CACHE = ".local";
 
     public static final String AGENT_LOCAL_CACHE_TIMEOUT = "agent.local.cache.timeout";
-    /** cache timeout in minutes. **/
+    /**
+     * cache timeout in minutes.
+     **/
     public static final int DEFAULT_AGENT_LOCAL_CACHE_TIMEOUT = 30;
 
     public static final String AGENT_LOCAL_STORE_PATH = "agent.localStore.path";
@@ -165,5 +167,11 @@ public class AgentConstants {
 
     public static final String PROMETHEUS_EXPORTER_PORT = "agent.prometheus.exporter.port";
     public static final int DEFAULT_PROMETHEUS_EXPORTER_PORT = 8080;
+
+    public static final String AUDIT_ENABLE = "agent.audit.enable";
+    public static final boolean DEFAULT_AUDIT_ENABLE = true;
+
+    public static final String AUDIT_KEY_PROXYS = "audit.proxys";
+    public static final String DEFAULT_AUDIT_PROXYS = "";
 
 }

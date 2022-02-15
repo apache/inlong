@@ -68,8 +68,6 @@
                 <include>NOTICE</include>
                 <include>CHANGELOG</include>
                 <include>RELEASE-NOTES</include>
-                <include>bin/**</include>
-                <include>conf/**</include>
             </includes>
         </fileSet>
 
@@ -82,15 +80,14 @@
         </fileSet>
 
         <fileSet>
-            <directory>conf</directory>
+            <directory>../conf</directory>
             <outputDirectory>conf</outputDirectory>
         </fileSet>
 
         <fileSet>
-            <directory>bin</directory>
-            <fileMode>755</fileMode>
-            <directoryMode>755</directoryMode>
+            <directory>../bin</directory>
             <outputDirectory>bin</outputDirectory>
+            <fileMode>0755</fileMode>
         </fileSet>
 
     </fileSets>

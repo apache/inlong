@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sort.standalone.metrics;
 
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.Event;
 import org.apache.inlong.commons.config.metrics.CountMetric;
@@ -30,8 +27,11 @@ import org.apache.inlong.commons.msg.AttributeConstants;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.utils.Constants;
 
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
- * 
+ *
  * SortMetricItem
  */
 @MetricDomain(name = "Sort")
@@ -126,7 +126,7 @@ public class SortMetricItem extends MetricItem {
 
     /**
      * fillAuditFormatTime
-     * 
+     *
      * @param event
      * @param dimensions
      */
@@ -138,7 +138,7 @@ public class SortMetricItem extends MetricItem {
 
     /**
      * getAuditFormatTime
-     * 
+     *
      * @param  msgTime
      * @return
      */
@@ -149,7 +149,7 @@ public class SortMetricItem extends MetricItem {
 
     /**
      * getInlongGroupId
-     * 
+     *
      * @param  headers
      * @return
      */
@@ -163,7 +163,7 @@ public class SortMetricItem extends MetricItem {
 
     /**
      * getInlongStreamId
-     * 
+     *
      * @param  headers
      * @return
      */
@@ -177,7 +177,7 @@ public class SortMetricItem extends MetricItem {
 
     /**
      * getLogTime
-     * 
+     *
      * @param  headers
      * @return
      */
@@ -198,7 +198,7 @@ public class SortMetricItem extends MetricItem {
 
     /**
      * getLogTime
-     * 
+     *
      * @param  event
      * @return
      */
@@ -208,5 +208,27 @@ public class SortMetricItem extends MetricItem {
             return getLogTime(headers);
         }
         return System.currentTimeMillis();
+    }
+
+    public static void reportDurations(
+            Event currentRecord, boolean result, long sendTime,
+            Map<String, String> dimensions, long msgTime, SortMetricItemSet metricItemSet) {
+        SortMetricItem metricItem = metricItemSet.findMetricItem(dimensions);
+        if (result) {
+            metricItem.sendSuccessCount.incrementAndGet();
+            metricItem.sendSuccessSize.addAndGet(currentRecord.getBody().length);
+            if (sendTime > 0) {
+                long currentTime = System.currentTimeMillis();
+                long sinkDuration = currentTime - sendTime;
+                long nodeDuration = currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
+                long wholeDuration = currentTime - msgTime;
+                metricItem.sinkDuration.addAndGet(sinkDuration);
+                metricItem.nodeDuration.addAndGet(nodeDuration);
+                metricItem.wholeDuration.addAndGet(wholeDuration);
+            }
+        } else {
+            metricItem.sendFailCount.incrementAndGet();
+            metricItem.sendFailSize.addAndGet(currentRecord.getBody().length);
+        }
     }
 }

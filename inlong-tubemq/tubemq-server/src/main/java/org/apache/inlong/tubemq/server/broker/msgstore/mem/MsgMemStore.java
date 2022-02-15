@@ -31,8 +31,9 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.server.broker.BrokerConfig;
 import org.apache.inlong.tubemq.server.broker.metadata.ClusterConfigHolder;
-import org.apache.inlong.tubemq.server.broker.metrics.BrokerMetricsHolder;
 import org.apache.inlong.tubemq.server.broker.msgstore.disk.MsgFileStore;
+import org.apache.inlong.tubemq.server.broker.stats.MemStoreStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.ServiceStatsHolder;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.common.utils.AppendResult;
 import org.slf4j.Logger;
@@ -87,7 +88,7 @@ public class MsgMemStore implements Closeable {
     /**
      * Append message to memory cache
      *
-     * @param msgMemStatisInfo  statistical information object
+     * @param memStatsHolder    statistical information object
      * @param partitionId       the partitionId for append messages
      * @param keyCode           the filter item hash code
      * @param timeRecv          the received timestamp
@@ -97,23 +98,24 @@ public class MsgMemStore implements Closeable {
      *
      * @return    the process result
      */
-    public boolean appendMsg(MsgMemStatisInfo msgMemStatisInfo,
+    public boolean appendMsg(MemStoreStatsHolder memStatsHolder,
                              int partitionId, int keyCode,
                              long timeRecv, int entryLength,
                              ByteBuffer entry, AppendResult appendResult) {
+        long dataOffset;
+        long indexOffset;
+        boolean isAppended = true;
         boolean fullDataSize = false;
         boolean fullIndexSize = false;
         boolean fullCount = false;
-        long indexOffset = TBaseConstants.META_VALUE_UNDEFINED;
-        long dataOffset = TBaseConstants.META_VALUE_UNDEFINED;
         this.writeLock.lock();
         try {
             // judge whether can write to memory or not.
             if ((fullDataSize = (this.cacheDataOffset.get() + entryLength > this.maxDataCacheSize))
-                || (fullIndexSize =
-                (this.cacheIndexOffset.get() + DataStoreUtils.STORE_INDEX_HEAD_LEN > this.maxIndexCacheSize))
-                || (fullCount = (this.curMessageCount.get() + 1 > maxAllowedMsgCount))) {
-                msgMemStatisInfo.addFullTypeCount(timeRecv, fullDataSize, fullIndexSize, fullCount);
+                    || (fullIndexSize =
+                    (this.cacheIndexOffset.get() + DataStoreUtils.STORE_INDEX_HEAD_LEN > this.maxIndexCacheSize))
+                    || (fullCount = (this.curMessageCount.get() + 1 > maxAllowedMsgCount))) {
+                isAppended = false;
                 return false;
             }
             // conduct message with filling process
@@ -129,17 +131,21 @@ public class MsgMemStore implements Closeable {
             this.cachedIndexSegment.putInt(keyCode);
             this.cachedIndexSegment.putLong(timeRecv);
             this.cacheDataOffset.getAndAdd(entryLength);
-            Integer indexSizePos = this.cacheIndexOffset.getAndAdd(DataStoreUtils.STORE_INDEX_HEAD_LEN);
+            Integer indexSizePos = cacheIndexOffset.getAndAdd(DataStoreUtils.STORE_INDEX_HEAD_LEN);
             this.queuesMap.put(partitionId, indexSizePos);
             this.keysMap.put(keyCode, indexSizePos);
             this.curMessageCount.getAndAdd(1);
-            msgMemStatisInfo.addMsgSizeStatis(timeRecv, entryLength);
             this.rightAppendTime.set(timeRecv);
             if (indexSizePos == 0) {
                 this.leftAppendTime.set(timeRecv);
             }
         } finally {
             this.writeLock.unlock();
+            if (isAppended) {
+                memStatsHolder.addAppendedMsgSize(entryLength);
+            } else {
+                memStatsHolder.addCacheFullType(fullDataSize, fullIndexSize, fullCount);
+            }
         }
         appendResult.putAppendResult(indexOffset, dataOffset);
         return true;
@@ -304,7 +310,7 @@ public class MsgMemStore implements Closeable {
         msgFileStore.batchAppendMsg(strBuffer, curMessageCount.get(),
             cacheIndexOffset.get(), tmpIndexBuffer, cacheDataOffset.get(),
                 tmpDataReadBuf, leftAppendTime.get(), rightAppendTime.get());
-        BrokerMetricsHolder.updSyncDataDurations(System.currentTimeMillis() - startTime);
+        ServiceStatsHolder.updDiskSyncDataDlt(System.currentTimeMillis() - startTime);
     }
 
     public int getCurMsgCount() {

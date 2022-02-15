@@ -28,6 +28,8 @@ agent.dataproxy.http.host=$DATAPROXY_IP
 agent.dataproxy.http.port=$DATAPROXY_PORT
 agent.http.port=8008
 agent.http.enable=true
+agent.prometheus.enable=true
+agent.prometheus.exporter.port=8080
 EOF
 # start
 sh ${file_path}/bin/agent.sh start

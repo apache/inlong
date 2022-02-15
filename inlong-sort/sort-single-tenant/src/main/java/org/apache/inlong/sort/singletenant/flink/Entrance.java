@@ -24,7 +24,6 @@ import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -33,12 +32,17 @@ import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.flink.sink.FlinkSink;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
+import org.apache.inlong.sort.flink.hive.HiveCommitter;
+import org.apache.inlong.sort.flink.hive.HiveWriter;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
-import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
+import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
+import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.apache.inlong.sort.protocol.sink.IcebergSinkInfo;
+import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
+import org.apache.inlong.sort.singletenant.flink.clickhouse.ClickhouseRowSinkFunction;
 import org.apache.inlong.sort.singletenant.flink.utils.CommonUtils;
 import org.apache.inlong.sort.util.ParameterTool;
 
@@ -68,7 +72,8 @@ public class Entrance {
                 sourceStream,
                 config,
                 dataFlowInfo.getSinkInfo(),
-                dataFlowInfo.getProperties());
+                dataFlowInfo.getProperties(),
+                dataFlowInfo.getId());
 
         env.execute(clusterId);
     }
@@ -102,15 +107,44 @@ public class Entrance {
             DataStream<Row> sourceStream,
             Configuration config,
             SinkInfo sinkInfo,
-            Map<String, Object> properties) {
+            Map<String, Object> properties,
+            long dataflowId) {
         final String sinkType = checkNotNull(config.getString(Constants.SINK_TYPE));
         final int sinkParallelism = config.getInteger(Constants.SINK_PARALLELISM);
 
         // TODO : implement sink functions below
         switch (sinkType) {
             case Constants.SINK_TYPE_CLICKHOUSE:
+                Preconditions.checkState(sinkInfo instanceof ClickHouseSinkInfo);
+                ClickHouseSinkInfo clickHouseSinkInfo = (ClickHouseSinkInfo) sinkInfo;
+
+                sourceStream.addSink(new ClickhouseRowSinkFunction(clickHouseSinkInfo))
+                        .uid(Constants.SINK_UID)
+                        .name("Clickhouse Sink")
+                        .setParallelism(sinkParallelism);
                 break;
             case Constants.SINK_TYPE_HIVE:
+                Preconditions.checkState(sinkInfo instanceof HiveSinkInfo);
+                HiveSinkInfo hiveSinkInfo = (HiveSinkInfo) sinkInfo;
+
+                if (hiveSinkInfo.getPartitions().length == 0) {
+                    // The committer operator is not necessary if partition is not existent.
+                    sourceStream
+                            .process(new HiveWriter(config, dataflowId, hiveSinkInfo))
+                            .uid(Constants.SINK_UID)
+                            .name("Hive Sink")
+                            .setParallelism(sinkParallelism);
+                } else {
+                    sourceStream
+                            .process(new HiveWriter(config, dataflowId, hiveSinkInfo))
+                            .uid(Constants.SINK_UID)
+                            .name("Hive Sink")
+                            .setParallelism(sinkParallelism)
+                            .addSink(new HiveCommitter(config, hiveSinkInfo))
+                            .name("Hive Committer")
+                            .setParallelism(1);
+                }
+
                 break;
             case Constants.SINK_TYPE_ICEBERG:
                 Preconditions.checkState(sinkInfo instanceof IcebergSinkInfo);
