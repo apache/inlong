@@ -35,7 +35,7 @@ import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.inlong.tubemq.corebase.utils.ServiceStatusHolder;
 import org.apache.inlong.tubemq.server.broker.BrokerConfig;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
-import org.apache.inlong.tubemq.server.broker.stats.FileStoreStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.MsgStoreStatsHolder;
 import org.apache.inlong.tubemq.server.broker.stats.ServiceStatsHolder;
 import org.apache.inlong.tubemq.server.broker.stats.TrafficInfo;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
@@ -69,7 +69,7 @@ public class MsgFileStore implements Closeable {
     private final AtomicLong lastMetaFlushTime = new AtomicLong(0);
     private final BrokerConfig tubeConfig;
     // file store stats holder
-    private final FileStoreStatsHolder fileStatsHolder;
+    private final MsgStoreStatsHolder msgStoreStatsHolder;
     // lock used for append message to storage
     private final ReentrantLock writeLock = new ReentrantLock();
     private final ByteBuffer byteBufferIndex =
@@ -98,7 +98,7 @@ public class MsgFileStore implements Closeable {
         final StringBuilder sBuilder = new StringBuilder(512);
         this.tubeConfig = tubeConfig;
         this.messageStore = messageStore;
-        this.fileStatsHolder = messageStore.getFileStoreStatsHolder();
+        this.msgStoreStatsHolder = messageStore.getMsgStoreStatsHolder();
         this.storeKey = messageStore.getStoreKey();
         this.dataDir = new File(sBuilder.append(baseStorePath)
                 .append(File.separator).append(this.storeKey).toString());
@@ -229,7 +229,7 @@ public class MsgFileStore implements Closeable {
         } finally {
             this.writeLock.unlock();
             // add statistics.
-            fileStatsHolder.addFileFlushStatsInfo(msgCnt, indexSize, dataSize,
+            msgStoreStatsHolder.addFileFlushStatsInfo(msgCnt, indexSize, dataSize,
                     flushedMsgCnt, flushedDataSize, isDataSegFlushed, isIndexSegFlushed,
                     isMsgDataFlushed, isMsgCntFlushed, isMsgTimeFlushed, isForceMetadata);
         }
@@ -523,11 +523,11 @@ public class MsgFileStore implements Closeable {
                 }
             } finally {
                 this.writeLock.unlock();
-                fileStatsHolder.addTimeoutFlush(flushedMsgCnt,
+                msgStoreStatsHolder.addFileTimeoutFlushStats(flushedMsgCnt,
                         flushedDataSize, forceMetadata);
             }
         }
-        fileStatsHolder.chkStatsExpired(checkTimestamp);
+        msgStoreStatsHolder.chkStatsExpired(checkTimestamp);
     }
 
     public long getDataSizeInBytes() {

@@ -18,7 +18,7 @@
 package org.apache.inlong.tubemq.server.broker.msgstore.mem;
 
 import java.nio.ByteBuffer;
-import org.apache.inlong.tubemq.server.broker.stats.MemStoreStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.MsgStoreStatsHolder;
 import org.apache.inlong.tubemq.server.common.utils.AppendResult;
 import org.junit.Test;
 
@@ -33,7 +33,7 @@ public class MsgMemStoreTest {
         int maxMsgCount = 10000;
 
         MsgMemStore msgMemStore = new MsgMemStore(maxCacheSize, maxMsgCount, null);
-        MemStoreStatsHolder memStatsHolder = new MemStoreStatsHolder();
+        MsgStoreStatsHolder memStatsHolder = new MsgStoreStatsHolder();
         ByteBuffer bf = ByteBuffer.allocate(1024);
         bf.put("abc".getBytes());
         AppendResult appendResult = new AppendResult();
@@ -47,7 +47,7 @@ public class MsgMemStoreTest {
         int maxCacheSize = 2 * 1024 * 1024;
         int maxMsgCount = 10000;
         MsgMemStore msgMemStore = new MsgMemStore(maxCacheSize, maxMsgCount, null);
-        MemStoreStatsHolder memStatsHolder = new MemStoreStatsHolder();
+        MsgStoreStatsHolder memStatsHolder = new MsgStoreStatsHolder();
         ByteBuffer bf = ByteBuffer.allocate(1024);
         bf.put("abc".getBytes());
         AppendResult appendResult = new AppendResult();

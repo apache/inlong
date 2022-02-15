@@ -90,10 +90,8 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
             return;
         }
         // Output remain information
-        int index = writableIndex.get();
-        for (int i = 0; i < switchableUnits.length; i++) {
-            output2file(++index);
-        }
+        output2file(writableIndex.get() - 1);
+        output2file(writableIndex.get());
     }
 
     @Override

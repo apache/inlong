@@ -43,6 +43,8 @@ public class ServiceStatsHolder {
     private static final AtomicInteger writableIndex = new AtomicInteger(0);
     // Last snapshot time
     private static final AtomicLong lstSnapshotTime = new AtomicLong(0);
+    // whether the DiskSync statistic is closed
+    private static volatile boolean diskSyncClosed = false;
 
     // Initial service statistic set
     static {
@@ -60,34 +62,39 @@ public class ServiceStatsHolder {
     }
 
     public static void snapShort(Map<String, Long> statsMap) {
-        long curSnapshotTime = lstSnapshotTime.get();
-        // Avoid frequent snapshots
-        if ((System.currentTimeMillis() - curSnapshotTime)
-                >= TServerConstants.MIN_SNAPSHOT_PERIOD_MS) {
-            if (lstSnapshotTime.compareAndSet(curSnapshotTime, System.currentTimeMillis())) {
-                int befIndex = writableIndex.getAndIncrement();
-                switchableSets[getIndex()].resetSinceTime();
-                getStatsValue(switchableSets[getIndex(befIndex)], true, statsMap);
-                return;
-            }
+        if (switchWritingStatsUnit()) {
+            getStatsValue(switchableSets[getIndex(writableIndex.get() - 1)], true, statsMap);
+        } else {
+            getValue(statsMap);
         }
-        getValue(statsMap);
     }
 
     public static void snapShort(StringBuilder strBuff) {
-        long curSnapshotTime = lstSnapshotTime.get();
-        // Avoid frequent snapshots
-        if ((System.currentTimeMillis() - curSnapshotTime)
-                >= TServerConstants.MIN_SNAPSHOT_PERIOD_MS) {
-            if (lstSnapshotTime.compareAndSet(curSnapshotTime, System.currentTimeMillis())) {
-                int befIndex = writableIndex.getAndIncrement();
-                switchableSets[getIndex()].resetSinceTime();
-                getStatsValue(switchableSets[getIndex(befIndex)], true, strBuff);
-                return;
-            }
+        if (switchWritingStatsUnit()) {
+            getStatsValue(switchableSets[getIndex(writableIndex.get() - 1)], true, strBuff);
+        } else {
+            getValue(strBuff);
         }
-        getValue(strBuff);
     }
+
+    /**
+     * Set manually the DiskSync statistic status.
+     *
+     * @param enableStats  enable or disable the statistic.
+     */
+    public static synchronized void setDiskSyncStatsStatus(boolean enableStats) {
+        ServiceStatsHolder.diskSyncClosed = !enableStats;
+    }
+
+    /**
+     * Query whether the statistic is closed.
+     *
+     * @return the statistic status
+     */
+    public static boolean isDiskSyncStatsClosed() {
+        return ServiceStatsHolder.diskSyncClosed;
+    }
+
     // metric set operate APIs end
 
     // metric item operate APIs begin
@@ -119,6 +126,9 @@ public class ServiceStatsHolder {
     }
 
     public static void updDiskSyncDataDlt(long dltTime) {
+        if (diskSyncClosed) {
+            return;
+        }
         switchableSets[getIndex()].fileSyncDltStats.update(dltTime);
     }
 
@@ -128,11 +138,25 @@ public class ServiceStatsHolder {
     // metric set operate APIs end
 
     // private functions
+    private static boolean switchWritingStatsUnit() {
+        long curSnapshotTime = lstSnapshotTime.get();
+        // Avoid frequent snapshots
+        if ((System.currentTimeMillis() - curSnapshotTime)
+                >= TServerConstants.MIN_SNAPSHOT_PERIOD_MS) {
+            if (lstSnapshotTime.compareAndSet(curSnapshotTime, System.currentTimeMillis())) {
+                switchableSets[getIndex(writableIndex.incrementAndGet())].resetSinceTime();
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static void getStatsValue(ServiceStatsSet statsSet,
                                       boolean resetValue,
                                       Map<String, Long> statsMap) {
         statsMap.put(statsSet.lstResetTime.getFullName(),
                 statsSet.lstResetTime.getSinceTime());
+        statsMap.put("isDiskSyncClosed", (diskSyncClosed ? 1L : 0L));
         if (resetValue) {
             statsSet.fileSyncDltStats.snapShort(statsMap, false);
             statsMap.put(statsSet.fileIOExcStats.getFullName(),
@@ -171,7 +195,8 @@ public class ServiceStatsHolder {
                                       StringBuilder strBuff) {
         strBuff.append("{\"").append(statsSet.lstResetTime.getFullName())
                 .append("\":\"").append(statsSet.lstResetTime.getStrSinceTime())
-                .append("\",");
+                .append("\",\"isDiskSyncClosed\":").append(diskSyncClosed)
+                .append(",");
         if (resetValue) {
             statsSet.fileSyncDltStats.snapShort(strBuff, false);
             strBuff.append(",\"").append(statsSet.fileIOExcStats.getFullName())

@@ -45,8 +45,7 @@ import org.apache.inlong.tubemq.server.broker.msgstore.disk.Segment;
 import org.apache.inlong.tubemq.server.broker.msgstore.mem.GetCacheMsgResult;
 import org.apache.inlong.tubemq.server.broker.msgstore.mem.MsgMemStore;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
-import org.apache.inlong.tubemq.server.broker.stats.FileStoreStatsHolder;
-import org.apache.inlong.tubemq.server.broker.stats.MemStoreStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.MsgStoreStatsHolder;
 import org.apache.inlong.tubemq.server.broker.stats.TrafficInfo;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.common.utils.AppendResult;
@@ -71,8 +70,7 @@ public class MessageStore implements Closeable {
     private final String primStorePath;
     private final AtomicLong lastMemFlushTime = new AtomicLong(0);
     private final MessageStoreManager msgStoreMgr;
-    private final MemStoreStatsHolder memStoreStatsHolder = new MemStoreStatsHolder();
-    private final FileStoreStatsHolder fileStoreStatsHolder = new FileStoreStatsHolder();
+    private final MsgStoreStatsHolder msgStoreStatsHolder = new MsgStoreStatsHolder();
     private final MsgFileStore msgFileStore;
     private final ReentrantReadWriteLock writeCacheMutex = new ReentrantReadWriteLock();
     private final Condition flushWriteCacheCondition = writeCacheMutex.writeLock().newCondition();
@@ -417,7 +415,7 @@ public class MessageStore implements Closeable {
         do {
             this.writeCacheMutex.readLock().lock();
             try {
-                if (this.msgMemStore.appendMsg(memStoreStatsHolder,
+                if (this.msgMemStore.appendMsg(msgStoreStatsHolder,
                         partitionId, msgTypeCode, receivedTime,
                         msgBufLen, buffer, appendResult)) {
                     return true;
@@ -432,20 +430,16 @@ public class MessageStore implements Closeable {
             }
             ThreadUtils.sleep(waitRetryMs);
         } while (count-- >= 0);
-        memStoreStatsHolder.addMsgWriteFail();
+        msgStoreStatsHolder.addMsgWriteCacheFail();
         return false;
     }
 
-    public void getMemStoreStatsInfo(boolean needRefresh, StringBuilder strBuff) {
-        memStoreStatsHolder.getAllMemStatsInfo(needRefresh, strBuff);
+    public void getMsgStoreStatsInfo(boolean needRefresh, StringBuilder strBuff) {
+        msgStoreStatsHolder.getMsgStoreStatsInfo(needRefresh, strBuff);
     }
 
-    public void getCurFileStoreStatsInfo(boolean needRefresh, StringBuilder strBuff) {
-        fileStoreStatsHolder.getAllFileStatsInfo(needRefresh, strBuff);
-    }
-
-    public FileStoreStatsHolder getFileStoreStatsHolder() {
-        return this.fileStoreStatsHolder;
+    public MsgStoreStatsHolder getMsgStoreStatsHolder() {
+        return this.msgStoreStatsHolder;
     }
 
     /**
@@ -517,10 +511,9 @@ public class MessageStore implements Closeable {
     /**
      * Flush memory store to file.
      *
-     * @param checkTime   the check time
      * @throws IOException the exception during processing
      */
-    public void flushMemCacheData(long checkTime) throws IOException {
+    public void flushMemCacheData() throws IOException {
         if (this.closed.get()) {
             throw new IllegalStateException(new StringBuilder(512)
                     .append("[Data Store] Closed MessageStore for storeKey ")
@@ -530,7 +523,6 @@ public class MessageStore implements Closeable {
                 && (System.currentTimeMillis() - this.lastMemFlushTime.get()) >= this.writeCacheFlushIntvl) {
             triggerFlushAndAddMsg(-1, 0, 0, 0, false, null, true, null);
         }
-        memStoreStatsHolder.chkStatsExpired(checkTime);
     }
 
     @Override
@@ -722,13 +714,13 @@ public class MessageStore implements Closeable {
                         } catch (Throwable e) {
                             logger.error("[Data Store] Error during flush", e);
                         } finally {
-                            memStoreStatsHolder.addFlushTime(
+                            msgStoreStatsHolder.addCacheFlushTime(
                                     (System.currentTimeMillis() - startTime), isTimeTrigger);
                         }
                     }
                 });
             } else {
-                memStoreStatsHolder.addCachePending();
+                msgStoreStatsHolder.addCachePending();
             }
             long startTime = System.currentTimeMillis();
             long timeoutNs = TimeUnit.MILLISECONDS.toNanos(100);
@@ -743,7 +735,7 @@ public class MessageStore implements Closeable {
                 }
             }
             if (needAdd) {
-                return msgMemStore.appendMsg(memStoreStatsHolder,
+                return msgMemStore.appendMsg(msgStoreStatsHolder,
                         partitionId, keyCode, receivedTime,
                         entryLength, entry, appendResult);
             }
@@ -818,7 +810,7 @@ public class MessageStore implements Closeable {
             isFlushOngoing.set(true);
             writeCacheMutex.writeLock().unlock();
             if (isRealloc) {
-                memStoreStatsHolder.addCacheReAlloc();
+                msgStoreStatsHolder.addCacheReAlloc();
                 logger.info(strBuffer.append("[Data Store] Found ").append(getStoreKey())
                         .append(" Cache capacity change, new MemSize=")
                         .append(writeCacheMaxSize).append(", new CacheCnt=")

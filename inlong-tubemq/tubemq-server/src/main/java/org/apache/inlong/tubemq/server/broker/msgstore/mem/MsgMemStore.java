@@ -32,7 +32,7 @@ import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.server.broker.BrokerConfig;
 import org.apache.inlong.tubemq.server.broker.metadata.ClusterConfigHolder;
 import org.apache.inlong.tubemq.server.broker.msgstore.disk.MsgFileStore;
-import org.apache.inlong.tubemq.server.broker.stats.MemStoreStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.MsgStoreStatsHolder;
 import org.apache.inlong.tubemq.server.broker.stats.ServiceStatsHolder;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.common.utils.AppendResult;
@@ -111,7 +111,7 @@ public class MsgMemStore implements Closeable {
      *
      * @return    the process result
      */
-    public boolean appendMsg(MemStoreStatsHolder memStatsHolder,
+    public boolean appendMsg(MsgStoreStatsHolder memStatsHolder,
                              int partitionId, int keyCode,
                              long timeRecv, int dataEntryLength,
                              ByteBuffer dataEntry, AppendResult appendResult) {
@@ -156,7 +156,7 @@ public class MsgMemStore implements Closeable {
         } finally {
             this.writeLock.unlock();
             if (isAppended) {
-                memStatsHolder.addAppendedMsgSize(dataEntryLength);
+                memStatsHolder.addCacheMsgSize(dataEntryLength);
             } else {
                 memStatsHolder.addCacheFullType(fullDataSize, fullIndexSize, fullCount);
             }
