@@ -35,6 +35,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
         @Type(value = AvroDeserializationInfo.class, name = "avro"),
         @Type(value = JsonDeserializationInfo.class, name = "json"),
         @Type(value = CanalDeserializationInfo.class, name = "canal"),
+        @Type(value = DebeziumDeserializationInfo.class, name = "debezium_json"),
         @Type(value = InLongMsgCsvDeserializationInfo.class, name = "inlongmsg_csv"),
         @Type(value = InLongMsgCsv2DeserializationInfo.class, name = "inlongmsg_csv2"),
         @Type(value = InLongMsgKvDeserializationInfo.class, name = "inlongmsg_kv"),

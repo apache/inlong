@@ -21,10 +21,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.formats.json.JsonOptions;
 import org.apache.flink.formats.json.canal.CanalJsonSerializationSchema;
+import org.apache.flink.formats.json.debezium.DebeziumJsonSerializationSchema;
+import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.CanalSerializationInfo;
+import org.apache.inlong.sort.protocol.serialization.DebeziumSerializationInfo;
+import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 
 import java.io.IOException;
 
@@ -35,11 +39,11 @@ import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.getTim
 
 public class CanalSerializationSchemaBuilder {
 
-    private static final String CANAL_MAP_NULL_KEY_MODE_FAIL = "FAIL";
-    private static final String CANAL_MAP_NULL_KEY_MODE_DROP = "DROP";
-    private static final String CANAL_MAP_NULL_KEY_MODE_LITERAL = "LITERAL";
+    private static final String MAP_NULL_KEY_MODE_FAIL = "FAIL";
+    private static final String MAP_NULL_KEY_MODE_DROP = "DROP";
+    private static final String MAP_NULL_KEY_MODE_LITERAL = "LITERAL";
 
-    private static final String CANAL_MAP_NULL_KEY_LITERAL_DEFAULT = "null";
+    private static final String MAP_NULL_KEY_LITERAL_DEFAULT = "null";
 
     public static SerializationSchema<Row> build(
             FieldInfo[] fieldInfos,
@@ -47,7 +51,7 @@ public class CanalSerializationSchemaBuilder {
     ) throws IOException, ClassNotFoundException {
         String mapNullKeyLiteral = canalSerializationInfo.getMapNullKeyLiteral();
         if (StringUtils.isEmpty(mapNullKeyLiteral)) {
-            mapNullKeyLiteral = CANAL_MAP_NULL_KEY_LITERAL_DEFAULT;
+            mapNullKeyLiteral = MAP_NULL_KEY_LITERAL_DEFAULT;
         }
 
         FieldInfo[] convertedFieldInfos = convertDateToStringFormatInfo(fieldInfos);
@@ -66,12 +70,31 @@ public class CanalSerializationSchemaBuilder {
         return new CustomDateFormatSerializationSchemaWrapper(rowToRowDataSchema, extractFormatInfos(fieldInfos));
     }
 
+    private static SerializationSchema<RowData> buildDebeziumRowDataSerializationSchema(
+            FieldInfo[] fieldInfos,
+            DebeziumSerializationInfo serializationInfo
+    ) {
+        String mapNullKeyLiteral = serializationInfo.getMapNullKeyLiteral();
+        if (StringUtils.isEmpty(mapNullKeyLiteral)) {
+            mapNullKeyLiteral = MAP_NULL_KEY_LITERAL_DEFAULT;
+        }
+
+        RowType rowType = convertFieldInfosToRowType(fieldInfos);
+        return new DebeziumJsonSerializationSchema(
+                rowType,
+                getTimestampFormatStandard(serializationInfo.getTimestampFormatStandard()),
+                getMapNullKeyMode(serializationInfo.getMapNullKeyMod()),
+                mapNullKeyLiteral,
+                serializationInfo.isEncodeDecimalAsPlainNumber()
+        );
+    }
+
     private static JsonOptions.MapNullKeyMode getMapNullKeyMode(String input) {
-        if (CANAL_MAP_NULL_KEY_MODE_FAIL.equals(input)) {
+        if (MAP_NULL_KEY_MODE_FAIL.equals(input)) {
             return JsonOptions.MapNullKeyMode.FAIL;
-        } else if (CANAL_MAP_NULL_KEY_MODE_DROP.equals(input)) {
+        } else if (MAP_NULL_KEY_MODE_DROP.equals(input)) {
             return JsonOptions.MapNullKeyMode.DROP;
-        } else if (CANAL_MAP_NULL_KEY_MODE_LITERAL.equals(input)) {
+        } else if (MAP_NULL_KEY_MODE_LITERAL.equals(input)) {
             return JsonOptions.MapNullKeyMode.LITERAL;
         }
 
