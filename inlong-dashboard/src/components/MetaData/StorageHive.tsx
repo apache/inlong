@@ -226,7 +226,7 @@ export const getHiveForm: GetStorageFormFieldsType = (
           canDelete={(record, idx, isNew) => !isEdit || isNew}
         />
       ),
-      name: 'hiveFieldList',
+      name: 'fieldList',
     },
   ];
 

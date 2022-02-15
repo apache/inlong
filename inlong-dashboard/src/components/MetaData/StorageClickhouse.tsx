@@ -222,7 +222,7 @@ export const getClickhouseForm: GetStorageFormFieldsType = (
       },
     },
     {
-      name: 'clickHouseFieldList',
+      name: 'fieldList',
       type: EditableTable,
       props: {
         size: 'small',
