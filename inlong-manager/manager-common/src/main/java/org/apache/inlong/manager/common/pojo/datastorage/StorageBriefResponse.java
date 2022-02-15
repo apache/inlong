@@ -15,42 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.datastream;
+package org.apache.inlong.manager.common.pojo.datastorage;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Date;
-import java.util.List;
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageSummaryInfo;
 
 /**
- * Storage summary of the data stream
+ * Brief response of the storage
  */
 @Data
-@ApiModel("Storage summary of the data stream")
-public class DataStreamSummaryInfo {
+@ApiModel("Brief response of the storage")
+public class StorageBriefResponse {
 
-    @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Business group id")
+    @ApiModelProperty("Data group id")
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "Data stream id")
+    @ApiModelProperty("Data stream id")
     private String inlongStreamId;
 
-    @ApiModelProperty(value = "Data stream name")
-    private String name;
+    @ApiModelProperty("Storage type, such as HIVE")
+    private String storageType;
 
-    @ApiModelProperty(value = "Data source type, support: FILE/DB/AUTO_PUSH")
-    private String dataSourceType;
+    @ApiModelProperty("Storage cluster ID")
+    private Integer clusterId;
 
-    @ApiModelProperty(value = "Storage information list")
-    private List<StorageSummaryInfo> storageList;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date modifyTime;
+    @ApiModelProperty("Storage cluster URL")
+    private String clusterUrl;
 
 }

@@ -22,16 +22,15 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import java.util.List;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamListVO;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
-import org.apache.inlong.manager.common.pojo.datastream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageUpdateInfo;
+import org.apache.inlong.manager.common.pojo.datastream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.datastream.FullStreamResponse;
+import org.apache.inlong.manager.common.pojo.datastream.StreamBriefResponse;
 import org.apache.inlong.manager.common.util.LoginUserUtil;
 import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
@@ -42,6 +41,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Data stream control layer
@@ -132,8 +133,8 @@ public class DataStreamController {
     @RequestMapping(value = "/getSummaryList/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Obtain the flow of data stream according to groupId")
     @ApiImplicitParam(name = "groupId", value = "Business group id", dataTypeClass = String.class, required = true)
-    public Response<List<DataStreamSummaryInfo>> getSummaryList(@PathVariable String groupId) {
-        return Response.success(dataStreamService.getSummaryList(groupId));
+    public Response<List<StreamBriefResponse>> getSummaryList(@PathVariable String groupId) {
+        return Response.success(dataStreamService.getBriefList(groupId));
     }
 
 }

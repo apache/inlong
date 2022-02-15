@@ -15,48 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.common.pojo.datastorage;
 
-import java.io.Serializable;
-import java.util.Date;
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
+/**
+ * Storage info for Sort
+ */
 @Data
-public class StorageHiveEntity implements Serializable {
+@ApiModel("Storage info for Sort")
+public class StorageForSortDTO {
 
-    private static final long serialVersionUID = 1L;
     private Integer id;
     private String inlongGroupId;
     private String inlongStreamId;
-
-    private Integer enableCreateTable;
-
-    private String jdbcUrl;
-    private String username;
-    private String password;
-    private String dbName;
-    private String tableName;
-    private String hdfsDefaultFs;
-    private String warehouseDir;
-
-    private Integer partitionInterval;
-    private String partitionUnit;
-    private String primaryPartition;
-    private String secondaryPartition;
-    private String partitionCreationStrategy;
-
-    private String fileFormat;
-    private String dataEncoding;
-    private String dataSeparator;
+    private String storageType;
     private Integer storagePeriod;
-    private String optLog;
-
+    private Integer enableCreateResource;
+    private String extParams;
     private Integer status;
-    private Integer previousStatus;
-    private Integer isDeleted;
     private String creator;
-    private String modifier;
-    private Date createTime;
-    private Date modifyTime;
+
+    // Data stream info
+    private String mqResourceObj;
+    private String dataSourceType;
+    private String dataType;
+    private String description;
+    private String sourceSeparator; // Source separator configured in the stream info
+    private String dataEscapeChar;
 
 }

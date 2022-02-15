@@ -15,27 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.datastorage;
+package org.apache.inlong.manager.dao.entity;
 
 import lombok.Data;
 
-/**
- * Hive info
- */
-@Data
-public class StorageHiveDTO {
+import java.io.Serializable;
+import java.util.Date;
 
+@Data
+public class StorageEntity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     private Integer id;
     private String inlongGroupId;
     private String inlongStreamId;
-    private Integer enableCreateTable;
+    private String storageType;
+    private Integer storagePeriod;
+    private Integer enableCreateResource;
 
-    // Hive server info
+    private String operateLog;
+    private Integer status;
+    private Integer previousStatus;
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime;
+
+    // Another fields saved as JSON string in extParams
+    private String extParams;
+
+    /*
     private String jdbcUrl;
     private String username;
     private String password;
-
-    // Hive db and table info
     private String dbName;
     private String tableName;
     private String hdfsDefaultFs;
@@ -49,16 +62,6 @@ public class StorageHiveDTO {
 
     private String fileFormat;
     private String dataEncoding;
-    private String targetSeparator; // Target separator configured in the storage info
-    private Integer status;
-    private String creator;
-
-    // Data stream info
-    private String mqResourceObj;
-    private String dataSourceType;
-    private String dataType;
-    private String description;
-    private String sourceSeparator; // Target separator configured in the stream info
-    private String dataEscapeChar;
+    private String dataSeparator;*/
 
 }

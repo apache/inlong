@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.core;
 
-import java.util.Arrays;
-import java.util.List;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.pojo.business.BusinessExtInfo;
@@ -31,6 +29,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Business service test
@@ -62,6 +63,7 @@ public class BusinessServiceTest extends ServiceBaseTest {
         businessInfo.setName(groupName);
         businessInfo.setMiddlewareType(BizConstant.MIDDLEWARE_PULSAR);
         businessInfo.setCreator(operator);
+        businessInfo.setInCharges(operator);
         businessInfo.setStatus(EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode());
 
         BusinessPulsarInfo pulsarInfo = new BusinessPulsarInfo();

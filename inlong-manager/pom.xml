@@ -61,6 +61,7 @@
         <guava.version>18.0</guava.version>
         <jackson.version>2.12.0</jackson.version>
         <jackson.jsr310.version>2.13.1</jackson.jsr310.version>
+        <reflections.version>0.10.2</reflections.version>
         <opencsv.version>5.4</opencsv.version>
         <httpcore.version>4.4.14</httpcore.version>
         <httpclient.version>4.5.13</httpclient.version>
@@ -188,6 +189,11 @@
                 <version>${log4j.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-aop</artifactId>
                 <version>${spring-boot.version}</version>
@@ -271,6 +277,12 @@
                 <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>${reflections.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-annotations</artifactId>
