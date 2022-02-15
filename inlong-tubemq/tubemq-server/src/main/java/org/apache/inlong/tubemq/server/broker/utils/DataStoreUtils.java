@@ -27,7 +27,7 @@ import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.inlong.tubemq.corebase.utils.MessageFlagUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
-import org.apache.inlong.tubemq.server.broker.stats.CountItem;
+import org.apache.inlong.tubemq.server.broker.stats.TrafficInfo;
 
 /**
  * Storage util. Used for data and index file storage format.
@@ -113,10 +113,10 @@ public class DataStoreUtils {
      * @param sBuilder        the string buffer
      * @return                the converted messages
      */
-    public static ClientBroker.TransferedMessage getTransferMsg(final ByteBuffer dataBuffer, int dataTotalSize,
-                                                                final HashMap<String, CountItem> countMap,
-                                                                final String statisKeyBase,
-                                                                final StringBuilder sBuilder) {
+    public static ClientBroker.TransferedMessage getTransferMsg(ByteBuffer dataBuffer, int dataTotalSize,
+                                                                HashMap<String, TrafficInfo> countMap,
+                                                                String statisKeyBase,
+                                                                StringBuilder sBuilder) {
         if (dataBuffer.array().length < dataTotalSize) {
             return null;
         }
@@ -187,11 +187,11 @@ public class DataStoreUtils {
         String baseKey = sBuilder.append(statisKeyBase)
                 .append("#").append(messageTime).toString();
         sBuilder.delete(0, sBuilder.length());
-        CountItem getCount = countMap.get(baseKey);
+        TrafficInfo getCount = countMap.get(baseKey);
         if (getCount == null) {
-            countMap.put(baseKey, new CountItem(1L, payLoadLen2));
+            countMap.put(baseKey, new TrafficInfo(1L, payLoadLen2));
         } else {
-            getCount.appendMsg(1L, payLoadLen2);
+            getCount.addMsgCntAndSize(1L, payLoadLen2);
         }
         ClientBroker.TransferedMessage transferedMessage = dataBuilder.build();
         dataBuilder.clear();

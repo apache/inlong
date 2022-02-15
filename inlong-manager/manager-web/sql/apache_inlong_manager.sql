@@ -1145,7 +1145,8 @@ CREATE TABLE `sort_cluster_config`
     `cluster_name`  varchar(128)  NOT NULL COMMENT 'Cluster name',
     `task_name`     varchar(128)  NOT NULL COMMENT 'Task name',
     `sink_type`     varchar(128)  NOT NULL COMMENT 'Type of sink',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `index_sort_cluster_config` (`cluster_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Sort cluster config table';
 
@@ -1160,9 +1161,26 @@ CREATE TABLE `sort_task_id_param`
     `group_id`         varchar(128)  NOT NULL COMMENT 'Inlong group id',
     `stream_id`        varchar(128)  NULL COMMENT 'Inlong stream id',
     `param_key`        varchar(128)  NOT NULL COMMENT 'Key of param',
-    `param_value`      varchar(128)  NOT NULL COMMENT 'Value of param',
-    PRIMARY KEY (`id`)
+    `param_value`      varchar(1024)  NOT NULL COMMENT 'Value of param',
+    PRIMARY KEY (`id`),
+    KEY `index_sort_task_id_param` (`task_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Sort task id params table';
+
+-- ----------------------------
+-- Table structure for sort_task_sink_param
+-- ----------------------------
+DROP TABLE IF EXISTS `sort_task_sink_param`;
+CREATE TABLE `sort_task_sink_param`
+(
+    `id`               int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `task_name`        varchar(128)  NOT NULL COMMENT 'Task name',
+    `sink_type`        varchar(128)  NOT NULL COMMENT 'Type of sink',
+    `param_key`        varchar(128)  NOT NULL COMMENT 'Key of param',
+    `param_value`      varchar(1024)  NOT NULL COMMENT 'Value of param',
+    PRIMARY KEY (`id`),
+    KEY `index_sort_task_sink_params` (`task_name`, `sink_type`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Sort task sink params table';
 
 SET FOREIGN_KEY_CHECKS = 1;
