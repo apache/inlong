@@ -22,16 +22,11 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * Hive storage field info
+ * Storage field info
  */
 @Data
-@ApiModel("Hive storage field info")
-public class StorageHiveFieldInfo {
-
-    private Integer id;
-
-    @ApiModelProperty("Storage ID")
-    private Integer storageId;
+@ApiModel("Storage field info")
+public class StorageFieldRequest {
 
     @ApiModelProperty("Field name")
     private String fieldName;
@@ -51,10 +46,7 @@ public class StorageHiveFieldInfo {
     @ApiModelProperty("Source field type")
     private String sourceFieldType;
 
-    @ApiModelProperty("Field order ")
+    @ApiModelProperty("Field order")
     private Short rankNum;
-
-    @ApiModelProperty("is deleted? 0: deleted, 1: not deleted")
-    private Integer isDeleted = 0;
 
 }

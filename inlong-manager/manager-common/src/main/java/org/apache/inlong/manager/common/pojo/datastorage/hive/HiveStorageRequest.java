@@ -15,15 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.datastorage;
+package org.apache.inlong.manager.common.pojo.datastorage.hive;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.BizConstant;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageRequest;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Request of the Hive storage info
@@ -32,9 +33,8 @@ import org.apache.inlong.manager.common.enums.BizConstant;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Request of the Hive storage info")
-public class StorageHiveRequest extends BaseStorageRequest {
-
-    private String storageType = BizConstant.STORAGE_HIVE;
+@JsonTypeDefine(value = BizConstant.STORAGE_HIVE)
+public class HiveStorageRequest extends StorageRequest {
 
     @ApiModelProperty("Whether to enable create table, 1: enable, 0: disable, default is 1")
     private Integer enableCreateTable = 1;
@@ -83,11 +83,5 @@ public class StorageHiveRequest extends BaseStorageRequest {
 
     @ApiModelProperty("Data field separator")
     private String dataSeparator;
-
-    @ApiModelProperty("Hive table field list")
-    private List<StorageHiveFieldInfo> hiveFieldList;
-
-    @ApiModelProperty("Other ext info list")
-    private List<StorageExtInfo> extList;
 
 }

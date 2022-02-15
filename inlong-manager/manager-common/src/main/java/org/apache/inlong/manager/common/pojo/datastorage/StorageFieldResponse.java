@@ -22,27 +22,36 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * Basic data storage information
+ * Storage field response
  */
 @Data
-@ApiModel("Basic data storage information")
-public class StorageSummaryInfo {
+@ApiModel("Storage field response")
+public class StorageFieldResponse {
 
     private Integer id;
 
-    @ApiModelProperty("Business group id")
-    private String inlongGroupId;
+    @ApiModelProperty("Storage ID")
+    private Integer storageId;
 
-    @ApiModelProperty("Data stream id")
-    private String inlongStreamId;
+    @ApiModelProperty("Field name")
+    private String fieldName;
 
-    @ApiModelProperty("Storage type, support:HIVE")
-    private String storageType;
+    @ApiModelProperty("Field type")
+    private String fieldType;
 
-    @ApiModelProperty("Storage cluster ID")
-    private Integer clusterId;
+    @ApiModelProperty("Field comment")
+    private String fieldComment;
 
-    @ApiModelProperty("Storage cluster URL")
-    private String clusterUrl;
+    @ApiModelProperty("Required or not, 0: no need, 1: required")
+    private Integer isRequired;
+
+    @ApiModelProperty("Source field name")
+    private String sourceFieldName;
+
+    @ApiModelProperty("Source field type")
+    private String sourceFieldType;
+
+    @ApiModelProperty("Field order")
+    private Short rankNum;
 
 }

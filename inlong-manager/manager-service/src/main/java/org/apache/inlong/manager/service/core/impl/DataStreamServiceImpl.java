@@ -20,12 +20,6 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.BizConstant;
@@ -36,20 +30,20 @@ import org.apache.inlong.manager.common.pojo.datasource.SourceDbBasicInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceFileBasicInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageRequest;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageResponse;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageSummaryInfo;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageBriefResponse;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageRequest;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageResponse;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamListVO;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamTopicVO;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageUpdateInfo;
 import org.apache.inlong.manager.common.pojo.datastream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.datastream.FullStreamResponse;
+import org.apache.inlong.manager.common.pojo.datastream.StreamBriefResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.BusinessEntity;
@@ -63,12 +57,19 @@ import org.apache.inlong.manager.dao.mapper.DataStreamFieldEntityMapper;
 import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.core.SourceDbService;
 import org.apache.inlong.manager.service.core.SourceFileService;
-import org.apache.inlong.manager.service.core.StorageService;
+import org.apache.inlong.manager.service.storage.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 /**
  * Data stream service layer implementation
@@ -190,7 +191,7 @@ public class DataStreamServiceImpl implements DataStreamService {
         if (StringUtils.isNotEmpty(storageType)) {
             List<String> streamIdList = dataStreamList.stream().map(DataStreamListVO::getInlongStreamId)
                     .distinct().collect(Collectors.toList());
-            List<String> resultList = storageService.filterStreamIdByStorageType(groupId, storageType, streamIdList);
+            List<String> resultList = storageService.getExistsStreamIdList(groupId, storageType, streamIdList);
             dataStreamList.removeIf(entity -> resultList.contains(entity.getInlongStreamId()));
         }
 
@@ -270,8 +271,8 @@ public class DataStreamServiceImpl implements DataStreamService {
         }
 
         // If there is undeleted data storage information, the deletion fails
-        boolean dataStorageExist = hasDataStorage(groupId, streamId);
-        if (dataStorageExist) {
+        int storageCount = storageService.getCount(groupId, streamId);
+        if (storageCount > 0) {
             LOGGER.error("data stream has undeleted data storages, delete failed");
             throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_DELETE_HAS_STORAGE);
         }
@@ -321,19 +322,11 @@ public class DataStreamServiceImpl implements DataStreamService {
             sourceFileService.logicDeleteAllByIdentifier(groupId, streamId, operator);
             sourceDbService.logicDeleteAllByIdentifier(groupId, streamId, operator);
             // Logical deletion of associated data storage information
-            storageService.logicDeleteAllByIdentifier(groupId, streamId, operator);
+            storageService.logicDeleteAll(groupId, streamId, operator);
         }
 
         LOGGER.info("success to delete all data stream, ext property and fields by groupId={}", groupId);
         return true;
-    }
-
-    /**
-     * According to groupId and streamId, query the number of associated undeleted data storage
-     */
-    private boolean hasDataStorage(String groupId, String streamId) {
-        Integer count = storageService.getCountByIdentifier(groupId, streamId);
-        return count > 0;
     }
 
     /**
@@ -354,23 +347,23 @@ public class DataStreamServiceImpl implements DataStreamService {
     }
 
     @Override
-    public List<DataStreamSummaryInfo> getSummaryList(String groupId) {
-        LOGGER.debug("begin to get data stream summary list by groupId={}", groupId);
+    public List<StreamBriefResponse> getBriefList(String groupId) {
+        LOGGER.debug("begin to get data stream brief list by groupId={}", groupId);
         Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
         List<DataStreamEntity> entityList = streamMapper.selectByGroupId(groupId);
-        List<DataStreamSummaryInfo> summaryInfoList = CommonBeanUtils
-                .copyListProperties(entityList, DataStreamSummaryInfo::new);
+        List<StreamBriefResponse> briefInfoList = CommonBeanUtils
+                .copyListProperties(entityList, StreamBriefResponse::new);
 
         // Query data storage based on groupId and streamId
-        for (DataStreamSummaryInfo summaryInfo : summaryInfoList) {
-            String streamId = summaryInfo.getInlongStreamId();
-            List<StorageSummaryInfo> storageList = storageService.listSummaryByIdentifier(groupId, streamId);
-            summaryInfo.setStorageList(storageList);
+        for (StreamBriefResponse briefInfo : briefInfoList) {
+            String streamId = briefInfo.getInlongStreamId();
+            List<StorageBriefResponse> storageList = storageService.listBrief(groupId, streamId);
+            briefInfo.setStorageList(storageList);
         }
 
-        LOGGER.info("success to get data stream summary list for groupId={}", groupId);
-        return summaryInfoList;
+        LOGGER.info("success to get data stream brief list for groupId={}", groupId);
+        return briefInfoList;
     }
 
     @Transactional(rollbackFor = Throwable.class)
@@ -411,7 +404,7 @@ public class DataStreamServiceImpl implements DataStreamService {
 
         // 3. Save data storage information
         if (CollectionUtils.isNotEmpty(fullStreamRequest.getStorageInfo())) {
-            for (BaseStorageRequest storageInfo : fullStreamRequest.getStorageInfo()) {
+            for (StorageRequest storageInfo : fullStreamRequest.getStorageInfo()) {
                 storageService.save(storageInfo, operator);
             }
         }
@@ -453,7 +446,7 @@ public class DataStreamServiceImpl implements DataStreamService {
             sourceDbService.deleteAllByIdentifier(groupId, streamId);
 
             // 3. Delete data storage information
-            storageService.deleteAllByIdentifier(groupId, streamId);
+            storageService.deleteAll(groupId, streamId, operator);
 
             // 4. Save the data stream of this batch
             this.saveAll(pageInfo, operator);
@@ -522,7 +515,7 @@ public class DataStreamServiceImpl implements DataStreamService {
             }
 
             // 4. Query various data storage and its extended information, field information
-            List<BaseStorageResponse> storageInfoList = storageService.listByIdentifier(groupId, streamId);
+            List<StorageResponse> storageInfoList = storageService.listStorage(groupId, streamId);
             pageInfo.setStorageInfo(storageInfoList);
 
             // 5. Add a single result to the paginated list
@@ -774,8 +767,8 @@ public class DataStreamServiceImpl implements DataStreamService {
             // Whether there is an undeleted data source
             boolean dataSourceExist = hasDataSource(groupId, streamId, streamInfo.getDataSourceType());
             // Whether there is undeleted data storage
-            boolean dataStorageExist = hasDataStorage(groupId, streamId);
-            if (dataSourceExist || dataStorageExist) {
+            int storageCount = storageService.getCount(groupId, streamId);
+            if (dataSourceExist || storageCount > 0) {
                 checkUpdatedFields(streamEntity, streamInfo);
             }
         }

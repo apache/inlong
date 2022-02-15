@@ -17,17 +17,18 @@
 
 package org.apache.inlong.manager.service.thirdpart.hive;
 
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.event.ListenerResult;
 import org.apache.inlong.manager.common.event.task.StorageOperateListener;
 import org.apache.inlong.manager.common.event.task.TaskEvent;
 import org.apache.inlong.manager.common.model.WorkflowContext;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveDTO;
-import org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageForSortDTO;
+import org.apache.inlong.manager.dao.mapper.StorageEntityMapper;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Event listener of create hive table for one data stream
@@ -37,7 +38,7 @@ import org.springframework.stereotype.Service;
 public class CreateHiveTableForStreamListener implements StorageOperateListener {
 
     @Autowired
-    private StorageHiveEntityMapper hiveEntityMapper;
+    private StorageEntityMapper storageMapper;
     @Autowired
     private HiveTableOperator hiveTableOperator;
 
@@ -53,7 +54,7 @@ public class CreateHiveTableForStreamListener implements StorageOperateListener 
         String streamId = form.getInlongStreamId();
         log.info("begin create hive table for groupId={}, streamId={}", groupId, streamId);
 
-        List<StorageHiveDTO> configList = hiveEntityMapper.selectAllHiveConfig(groupId, streamId);
+        List<StorageForSortDTO> configList = storageMapper.selectAllConfig(groupId, streamId);
         hiveTableOperator.createHiveResource(groupId, configList);
 
         String result = "success to create hive table for group [" + groupId + "], stream [" + streamId + "]";
