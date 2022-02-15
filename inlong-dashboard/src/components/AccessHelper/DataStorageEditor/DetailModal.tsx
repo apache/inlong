@@ -70,8 +70,8 @@ const Comp: React.FC<DetailModalProps> = ({
     return {
       HIVE: {
         // Field name of the field array form
-        columnsKey: 'hiveFieldList',
-        // Cloumns definition of field array
+        columnsKey: 'fieldList',
+        // Columns definition of field array
         getColumns: getHiveColumns,
         // In addition to the defaultRowTypeFields field that is populated by default, additional fields that need to be populated
         // The left is the defaultRowTypeFields field, and the right is the newly filled field
@@ -80,7 +80,7 @@ const Comp: React.FC<DetailModalProps> = ({
         },
       },
       CLICK_HOUSE: {
-        columnsKey: 'clickHouseFieldList',
+        columnsKey: 'fieldList',
         getColumns: getClickhouseColumns,
         restMapping: {
           fieldName: 'fieldName',
