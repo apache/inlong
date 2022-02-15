@@ -37,6 +37,7 @@
         <module>manager-web</module>
         <module>manager-docker</module>
         <module>manager-plugin-examples</module>
+        <module>manager-test</module>
     </modules>
 
     <properties>
