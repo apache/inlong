@@ -19,24 +19,18 @@ package org.apache.inlong.manager.common.pojo.datastorage;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
- * Data storage approve info
+ * Storage approve info
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel("Data storage approve info")
-public class StorageApproveInfo {
+@ApiModel("Storage approve info")
+public class StorageApproveDTO {
 
     private Integer id;
 
-    @ApiModelProperty("Storage type, support: HIVE")
+    @ApiModelProperty("Storage type, such as HIVE")
     private String storageType;
 
     @ApiModelProperty("Storage cluster URL")

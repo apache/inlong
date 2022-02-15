@@ -177,14 +177,14 @@
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
-        <table tableName="storage_hive" domainObjectName="StorageHiveEntity"
+        <table tableName="storage" domainObjectName="StorageEntity"
                 enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
-        <table tableName="storage_hive_field" domainObjectName="StorageHiveFieldEntity"
+        <table tableName="storage_field" domainObjectName="StorageFieldEntity"
                 enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"

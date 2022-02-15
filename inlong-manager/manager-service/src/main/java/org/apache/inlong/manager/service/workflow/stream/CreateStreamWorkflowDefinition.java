@@ -17,12 +17,14 @@
 
 package org.apache.inlong.manager.service.workflow.stream;
 
-import java.util.Collections;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.BizConstant;
-import org.apache.inlong.manager.service.core.StorageService;
+import org.apache.inlong.manager.common.model.definition.EndEvent;
+import org.apache.inlong.manager.common.model.definition.Process;
+import org.apache.inlong.manager.common.model.definition.ServiceTask;
+import org.apache.inlong.manager.common.model.definition.StartEvent;
+import org.apache.inlong.manager.service.storage.StorageService;
 import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableForStreamListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarGroupForStreamTaskListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarTopicForStreamTaskListener;
@@ -31,12 +33,11 @@ import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.service.workflow.business.listener.InitBusinessInfoListener;
-import org.apache.inlong.manager.common.model.definition.EndEvent;
-import org.apache.inlong.manager.common.model.definition.Process;
-import org.apache.inlong.manager.common.model.definition.ServiceTask;
-import org.apache.inlong.manager.common.model.definition.StartEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Data stream access resource creation
@@ -122,7 +123,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
             BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) c.getProcessForm();
             String groupId = form.getInlongGroupId();
             String streamId = form.getInlongStreamId();
-            List<String> dsForHive = storageService.filterStreamIdByStorageType(groupId, BizConstant.STORAGE_HIVE,
+            List<String> dsForHive = storageService.getExistsStreamIdList(groupId, BizConstant.STORAGE_HIVE,
                     Collections.singletonList(streamId));
             if (CollectionUtils.isEmpty(dsForHive)) {
                 log.warn("business [{}] adn data stream [{}] does not have storage, skip create hive table", groupId,
