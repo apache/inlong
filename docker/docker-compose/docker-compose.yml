@@ -40,7 +40,6 @@ services:
       - PULSAR_MEM="-Xms256m -Xmx512m -XX:MaxDirectMemorySize=1g"
     ports:
       - "6650:6650"
-      - "8181:8080"
     volumes:
       - ./pulsar/data:/pulsar/data
       - ./pulsar/conf:/pulsar/conf
