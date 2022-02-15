@@ -22,19 +22,27 @@ basePath=$(
   cd ..
   pwd
 )
-tubemqMaster_webPort=8080
-TUBE_MASTER_PORT=8715
-TUBE_MASTER_TOKEN=abc
 tubemqDBNAME="tubemanager"           # tubemq manager database
 inlongDBNAME="apache_inlong_manager" # inlong manager Metabase name
-# default sort zk root path
-cluster_zk_root=inlong_hive
-# default sort_appName
-sort_appName=inlong_app
+source $basePath/conf/inlong.conf
+# if less than two arguments supplied
+if [ $# -lt 2 ]; then
+  commandHelp
+  exit 1
+fi
 
-source $basePath/conf/standalone.conf
+COMMAND=$1
+SERVICE=$2
+initCompo() {
+  if [[ "$SERVICE" != standalone ]]; then
+    cd $basePath/bin
+    echo "config $SERVICE"
+    ./init-config.sh $SERVICE
+  fi
+}
 
 startTubeMqMaster() {
+  initCompo
   echo "start-up tubemq master ..."
   cd $basePath/inlong-tubemq-server/bin
   chmod 755 tubemq.sh
@@ -42,17 +50,17 @@ startTubeMqMaster() {
 }
 
 startTubeMqBroker() {
+  initCompo
   # Judge whether the TubeMqMaster is started in the current system
   tubemq_master_thread=$($JAVA_HOME/bin/jps | grep MasterStartup)
   if [[ ! -n "$tubemq_master_thread" ]]; then
     echo "The system does not start tubemqMaster or starts abnormally. Please start tubemqMaster normally first"
     exit 1
   fi
-
   # add broker
-  curl -d 'type=op_modify&method=admin_add_broker_configure&brokerId=1&brokerIp='"$tubemqBroker_hostName"'&createUser=docker&brokerPort=8123&deletePolicy=delete,168h&numPartitions=3&unflushThreshold=1000&acceptPublish=true&acceptSubscribe=true&unflushInterval=10000&confModAuthToken='"$TUBE_MASTER_TOKEN"'' http://$tubemqMaster_hostName:$tubemqMaster_webPort/webapi.htm
+  curl -d 'type=op_modify&method=admin_add_broker_configure&brokerId='"$brokerId"'&brokerIp='"$tubemqBroker_hostName"'&createUser=docker&brokerPort='"$tubemqBroker_port"'&deletePolicy=delete,168h&numPartitions=3&unflushThreshold=1000&acceptPublish=true&acceptSubscribe=true&unflushInterval=10000&confModAuthToken='"$confModAuthToken"'' http://$tubemqMaster_hostName:$tubemqMaster_webPort/webapi.htm
   # online
-  curl -d 'type=op_modify&method=admin_online_broker_configure&brokerId=1&modifyUser=docker&confModAuthToken='"$TUBE_MASTER_TOKEN"'' http://$tubemqMaster_hostName:$tubemqMaster_webPort/webapi.htm
+  curl -d 'type=op_modify&method=admin_online_broker_configure&brokerId='"$brokerId"'&modifyUser=docker&confModAuthToken='"$confModAuthToken"'' http://$tubemqMaster_hostName:$tubemqMaster_webPort/webapi.htm
   # broker start
   echo "start-up tubemq broker ..."
   cd $basePath/inlong-tubemq-server/bin
@@ -61,6 +69,7 @@ startTubeMqBroker() {
 }
 
 startTubeMqManager() {
+  initCompo
   TUBE_MASTER_IP=$tubemqMaster_hostName
   # Judge whether the  TubeMqServer is started in the current system
   tubemq_broker_thread=$($JAVA_HOME/bin/jps | grep BrokerStartup)
@@ -69,26 +78,23 @@ startTubeMqManager() {
     echo "The system does not start tubemqServer or starts abnormally. Please start tubemqServer(master and broker) normally first"
     exit 1
   fi
-
   echo "start-up tubemq manager ..."
   cd $basePath/inlong-tubemq-manager/bin
   # create tubemanager database
   create_db_sql="create database IF NOT EXISTS ${tubemqDBNAME}"
   mysql -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} -e "${create_db_sql}"
   ./start-manager.sh
-
   sleep 10
-
   # first init
   flag=$(cat init-tube-cluster.sh | grep "flag=1")
   if [ ! -n "$flag" ]; then
     echo "init shell config"
     sed -i 's/TUBE_MANAGER_IP=.*/'''TUBE_MANAGER_IP=${TUBE_MANAGER_IP}'''/g' init-tube-cluster.sh
     sed -i 's/TUBE_MANAGER_PORT=.*/'''TUBE_MANAGER_PORT=${TUBE_MANAGER_PORT}'''/g' init-tube-cluster.sh
-    sed -i 's/TUBE_MASTER_IP=.*/'''TUBE_MASTER_IP=${TUBE_MASTER_IP}'''/g' init-tube-cluster.sh
-    sed -i 's/TUBE_MASTER_PORT=.*/'''TUBE_MASTER_PORT=${TUBE_MASTER_PORT}'''/g' init-tube-cluster.sh
+    sed -i 's/TUBE_MASTER_IP=.*/'''TUBE_MASTER_IP=${tubemqMaster_hostName}'''/g' init-tube-cluster.sh
+    sed -i 's/TUBE_MASTER_PORT=.*/'''TUBE_MASTER_PORT=${tubemqMaster_port}'''/g' init-tube-cluster.sh
     sed -i 's/TUBE_MASTER_WEB_PORT=.*/'''TUBE_MASTER_WEB_PORT=${tubemqMaster_webPort}'''/g' init-tube-cluster.sh
-    sed -i 's/TUBE_MASTER_TOKEN=.*/'''TUBE_MASTER_TOKEN=${TUBE_MASTER_TOKEN}'''/g' init-tube-cluster.sh
+    sed -i 's/TUBE_MASTER_TOKEN=.*/'''TUBE_MASTER_TOKEN=${confModAuthToken}'''/g' init-tube-cluster.sh
     echo "init tubemq cluster"
     ./init-tube-cluster.sh
     echo -e "\nflag=1" >>init-tube-cluster.sh
@@ -98,6 +104,7 @@ startTubeMqManager() {
 }
 
 startInlongAudit() {
+  initCompo
   echo "init apache_inlong_audit"
   cd $basePath/inlong-audit
   select_db_sql="SELECT COUNT(*) FROM information_schema.TABLES WHERE table_schema = 'apache_inlong_audit'"
@@ -112,13 +119,13 @@ startInlongAudit() {
     cd $basePath/inlong-audit/bin
     echo "start-up audit"
     ./proxy-start.sh
-    sleep 5
     echo "start audit_store"
     ./store-start.sh
   fi
 }
 
 startInlongManager() {
+  initCompo
   echo "start-up inlong manager ..."
   cd $basePath/inlong-manager
   # Whether the database table exists. If it does not exist, initialize the database and skip if it exists.
@@ -145,17 +152,19 @@ startInlongDashboard() {
 }
 
 startInlongDataProxy() {
+  initCompo
   echo "start-up inlong dataproxy ..."
   cd $basePath/inlong-dataproxy/bin
   chmod 755 *.sh
   ./dataproxy-start.sh
   echo "update cluster information into data_proxy_cluster table"
-  update_db_sql="UPDATE apache_inlong_manager.data_proxy_cluster SET address='localhost' WHERE name='default_dataproxy'"
+  update_db_sql="UPDATE apache_inlong_manager.data_proxy_cluster SET address='"$dataproxy_ip"' WHERE name='default_dataproxy'"
   mysql -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} -e "${update_db_sql}"
   echo "cluster information updated"
 }
 
 startInlongAgent() {
+  initCompo
   echo "start-up inlong agent ..."
   cd $basePath/inlong-agent/bin
   ./agent.sh start
@@ -176,8 +185,8 @@ startInlongSort() {
   flink_bin=$(dirname $flagfile)
   cd $basePath
   $flink_bin/flink run -c org.apache.inlong.sort.flink.Entrance inlong-sort/sort-core*.jar \
-    --cluster-id $sort_appName --zookeeper.quorum $zkServerAddr --zookeeper.path.root $cluster_zk_root \
-    --source.type $source_type --sink.type $sink_type &
+  --cluster-id $sort_appName --zookeeper.quorum $zkServerAddr --zookeeper.path.root $cluster_zk_root \
+  --source.type $source_type --sink.type $sink_type &
 }
 
 # start inlong
@@ -195,77 +204,48 @@ startInlongAll() {
     fi
   else
     startTubeMqMaster
-    sleep 10
+    sleep 15
     startTubeMqBroker
     startTubeMqManager
   fi
-
   #start-up inlong audit
   startInlongAudit
-
   # start-up inlong manager
   startInlongManager
-
-  # start-up inlong website
+  # start-up inlong dashboard
   startInlongDashboard
-
   # start-up inlong dataproxy
   startInlongDataProxy
-
   # start-up inlong agent
   startInlongAgent
-
   # start-up inlong sort
   startInlongSort
-
 }
 
 stopTubeMqMaster() {
   echo "stop tubemq_master... "
-  tubemq_master_thread=$($JAVA_HOME/bin/jps | grep MasterStartup)
-  if [ ! -n "$tubemq_master_thread" ]; then
-    echo "The system did not running tubemq_master"
-  else
-    tubemq_master_pid=$(echo $tubemq_master_thread | tr -cd "[0-9]")
-    kill -9 $tubemq_master_pid
-    echo "tubemq_master stopped "
-  fi
+  cd $basePath/inlong-tubemq-server/bin
+  chmod 755 tubemq.sh
+  ./tubemq.sh master stop
 }
 
 stopTubeMqBroker() {
   echo "stop tubemq_broker ... "
-  tubemq_broker_thread=$($JAVA_HOME/bin/jps | grep BrokerStartup)
-  if [ ! -n "$tubemq_broker_thread" ]; then
-    echo "The system did not running  tubemq_broker"
-  else
-    tubemq_broker_pid=$(echo $tubemq_broker_thread | tr -cd "[0-9]")
-    kill -9 $tubemq_broker_pid
-    echo "tubemq_broker stopped "
-  fi
+  cd $basePath/inlong-tubemq-server/bin
+  chmod 755 tubemq.sh
+  ./tubemq.sh broker stop
 }
 
 stopTubeMqManager() {
   echo "stop tubemq_manager ... "
-  tubemq_manager_thread=$($JAVA_HOME/bin/jps | grep TubeMQManager)
-  if [ ! -n "$tubemq_manager_thread" ]; then
-    echo "The system did not running tubemq_manager"
-  else
-    tubemq_manager_pid=$(echo $tubemq_manager_thread | tr -cd "[0-9]")
-    kill -9 $tubemq_manager_pid
-    echo "tubemq_manager stopped "
-  fi
+  cd $basePath/inlong-tubemq-manager/bin
+  ./stop-manager.sh
 }
 
 stopInlongManager() {
   echo "stop inlong_manager ... "
-  inlong_manager_thread=$($JAVA_HOME/bin/jps | grep InLongWebApplication)
-  if [ ! -n "$inlong_manager_thread" ]; then
-    echo "The system did not running inlong manager"
-  else
-    inlong_manager_pid=$(echo $inlong_manager_thread | tr -cd "[0-9]")
-    kill -9 $inlong_manager_pid
-    echo "inlong_manager stopped "
-  fi
+  cd $basePath/inlong-manager/bin
+  ./shutdown.sh
 }
 
 stopInlongDashboard() {
@@ -275,42 +255,22 @@ stopInlongDashboard() {
 
 stopInlongDataProxy() {
   echo "stop dataproxy ... "
-  dataproxy_thread=$($JAVA_HOME/bin/jps -l | grep "dataproxy.node.Application")
-  if [ ! -n "$dataproxy_thread" ]; then
-    echo "The system did not running  dataproxy"
-  else
-    dataproxy_pid=$(echo $dataproxy_thread | tr -cd "[0-9]")
-    kill -9 $dataproxy_pid
-    echo "dataproxy stopped "
-  fi
+  cd $basePath/inlong-dataproxy/bin
+  chmod 755 *.sh
+  ./dataproxy-stop.sh
 }
 
 stopInlongAudit() {
   echo "stop audit ... "
-  audit_thread=$($JAVA_HOME/bin/jps -l | grep "audit.node.Application")
-  audit_store_thread=$($JAVA_HOME/bin/jps | grep "audit-store" | awk '{print $1}')
-  if [[ ! -n "$audit_thread" && ! -n "$audit_store_thread" ]]; then
-    echo "The system did not running audit"
-  else
-    audit_pid=$(echo $audit_thread | tr -cd "[0-9]")
-    kill -9 $audit_pid
-    audit_store_pid=$audit_store_thread
-    kill -9 $audit_store_pid
-    echo "audit stopped "
-  fi
+  cd $basePath/inlong-audit/bin
+  ./proxy-stop.sh
+  ./store-stop.sh
 }
 
 stopInlongAgent() {
   echo "stop agent ... "
-  agent_thread=$($JAVA_HOME/bin/jps | grep AgentMain)
-  if [ ! -n "$agent_thread" ]; then
-    echo "The system did not running agent"
-  else
-    agent_pid=$(echo $agent_thread | tr -cd "[0-9]")
-    kill -9 $agent_pid
-    echo "agent stopped "
-  fi
-
+  cd $basePath/inlong-agent/bin
+  ./agent.sh stop
 }
 
 stopInlongSort() {
@@ -328,7 +288,6 @@ stopInlongSort() {
   flagfile=$(find / -name find-flink-home.sh)
   flink_bin=$(dirname $flagfile)
   runjob=$($flink_bin/flink list -r | grep "$sort_appName")
-  echo $runjob
   OLD_IFS="$IFS"
   IFS=":"
   array=($runjob)
@@ -348,22 +307,18 @@ stopInlongAll() {
   fi
   # stop inlong manager
   stopInlongManager
-
   # stop inlong website
   stopInlongDashboard
-
+  if [ $source_type == "pulsar" ]; then
+    # stop inlong audit
+    stopInlongAudit
+  fi
   # stop inlong dataproxy
   stopInlongDataProxy
-
   # stop inlong agent
   stopInlongAgent
-
-  # stop inlong audit
-  stopInlongAudit
-
   # stop inlong sort
   stopInlongSort
-
 }
 
 commandHelp() {
@@ -378,85 +333,40 @@ commandHelp() {
     inlongDataProxy     Run a inlongDataProxy server
     inlongAgent         Run a inlongAgent server
     inlongSort          Run a inlongSort server
-    standalone          Run a standalone service(all service)"
+    standalone          Run a standalone server(all servers)"
 }
 
-# if less than two arguments supplied
-if [ $# -lt 2 ]; then
-  commandHelp
-  exit 1
-fi
-
-COMMAND=$1
-SERVICE=$2
-if [ "$COMMAND" == start ]; then
+if [[ "$COMMAND" == start || "$COMMAND" == stop ]]; then
   case $SERVICE in
   tubeMaster)
-    startTubeMqMaster
+    ${COMMAND}TubeMqMaster
     ;;
   tubeBroker)
-    startTubeMqBroker
+    ${COMMAND}TubeMqBroker
     ;;
   tubeManager)
-    startTubeMqManager
+    ${COMMAND}TubeMqManager
     ;;
   inlongManager)
-    startInlongManager
+    ${COMMAND}InlongManager
     ;;
   inlongDashboard)
-    startInlongDashboard
+    ${COMMAND}InlongDashboard
     ;;
   inlongDataProxy)
-    startInlongDataProxy
+    ${COMMAND}InlongDataProxy
     ;;
   inlongAgent)
-    startInlongAgent
+    ${COMMAND}InlongAgent
     ;;
   inlongSort)
-    startInlongSort
+    ${COMMAND}InlongSort
     ;;
   inlongAudit)
-    startInlongAudit
+    ${COMMAND}InlongAudit
     ;;
   standalone)
-    startInlongAll
-    ;;
-  *)
-    commandHelp
-    exit 1
-    ;;
-  esac
-elif [ "$COMMAND" == stop ]; then
-  case $SERVICE in
-  tubeMaster)
-    stopTubeMqMaster
-    ;;
-  tubeBroker)
-    stopTubeMqBroker
-    ;;
-  tubeManager)
-    stopTubeMqManager
-    ;;
-  inlongManager)
-    stopInlongManager
-    ;;
-  inlongDashboard)
-    stopInlongDashboard
-    ;;
-  inlongDataProxy)
-    stopInlongDataProxy
-    ;;
-  inlongAgent)
-    stopInlongAgent
-    ;;
-  inlongSort)
-    stopInlongSort
-    ;;
-  inlongAudit)
-    stopInlongAudit
-    ;;
-  standalone)
-    stopInlongAll
+    ${COMMAND}InlongAll
     ;;
   *)
     commandHelp
