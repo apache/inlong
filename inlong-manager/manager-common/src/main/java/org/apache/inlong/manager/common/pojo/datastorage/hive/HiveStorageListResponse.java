@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.datastorage;
+package org.apache.inlong.manager.common.pojo.datastorage.hive;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageListResponse;
 
 /**
  * Response of Hive storage list
@@ -28,7 +29,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Response of Hive storage paging list")
-public class StorageHiveListResponse extends BaseStorageListResponse {
+public class HiveStorageListResponse extends StorageListResponse {
 
     @ApiModelProperty("target database name")
     private String dbName;
@@ -47,8 +48,5 @@ public class StorageHiveListResponse extends BaseStorageListResponse {
 
     @ApiModelProperty("partition type, like: H-hour, D-day, W-week, M-month, O-once, R-regulation")
     private String partitionType;
-
-    @ApiModelProperty("storage period, unit: day")
-    private Integer storagePeriod;
 
 }

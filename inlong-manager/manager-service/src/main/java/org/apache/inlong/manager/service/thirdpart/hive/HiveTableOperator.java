@@ -17,28 +17,29 @@
 
 package org.apache.inlong.manager.service.thirdpart.hive;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveDTO;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageForSortDTO;
+import org.apache.inlong.manager.common.pojo.datastorage.hive.HiveStorageDTO;
 import org.apache.inlong.manager.common.pojo.query.ColumnInfoBean;
 import org.apache.inlong.manager.common.pojo.query.DatabaseQueryBean;
 import org.apache.inlong.manager.common.pojo.query.hive.HiveColumnQueryBean;
 import org.apache.inlong.manager.common.pojo.query.hive.HiveTableQueryBean;
-import org.apache.inlong.manager.dao.entity.StorageHiveFieldEntity;
-import org.apache.inlong.manager.dao.mapper.StorageHiveFieldEntityMapper;
+import org.apache.inlong.manager.dao.entity.StorageFieldEntity;
+import org.apache.inlong.manager.dao.mapper.StorageFieldEntityMapper;
 import org.apache.inlong.manager.service.core.DataSourceService;
-import org.apache.inlong.manager.service.core.StorageService;
-import org.apache.inlong.manager.service.core.impl.StorageHiveOperation;
+import org.apache.inlong.manager.service.storage.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Create hive table operation
@@ -46,28 +47,28 @@ import org.springframework.stereotype.Component;
 @Component
 public class HiveTableOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StorageHiveOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HiveTableOperator.class);
 
     @Autowired
     private StorageService storageService;
     @Autowired
-    private StorageHiveFieldEntityMapper hiveFieldMapper;
+    private StorageFieldEntityMapper hiveFieldMapper;
     @Autowired
     private DataSourceService<DatabaseQueryBean, HiveTableQueryBean> dataSourceService;
 
     /**
      * Create hive table according to the groupId and hive config
      */
-    public void createHiveResource(String groupId, List<StorageHiveDTO> configList) {
+    public void createHiveResource(String groupId, List<StorageForSortDTO> configList) {
         if (CollectionUtils.isEmpty(configList)) {
             LOGGER.warn("no hive config, skip to create");
             return;
         }
-        for (StorageHiveDTO config : configList) {
+        for (StorageForSortDTO config : configList) {
             if (EntityStatus.DATA_STORAGE_CONFIG_SUCCESSFUL.getCode().equals(config.getStatus())) {
                 LOGGER.warn("hive [" + config.getId() + "] already success, skip to create");
                 continue;
-            } else if (BizConstant.DISABLE_CREATE_TABLE.equals(config.getEnableCreateTable())) {
+            } else if (BizConstant.DISABLE_CREATE_RESOURCE.equals(config.getEnableCreateResource())) {
                 LOGGER.warn("create table was disable, skip to create table for hive [" + config.getId() + "]");
                 continue;
             }
@@ -75,12 +76,14 @@ public class HiveTableOperator {
         }
     }
 
-    private void createTable(String groupId, StorageHiveDTO config) {
+    private void createTable(String groupId, StorageForSortDTO config) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("begin create hive table for business={}, config={}", groupId, config);
         }
 
-        HiveTableQueryBean tableBean = getTableQueryBean(config);
+        // Get all info from config
+        HiveStorageDTO hiveInfo = HiveStorageDTO.getFromJson(config.getExtParams());
+        HiveTableQueryBean tableBean = getTableQueryBean(config, hiveInfo);
         try {
             // create database if not exists
             dataSourceService.createDb(tableBean);
@@ -99,11 +102,11 @@ public class HiveTableOperator {
                     dataSourceService.createColumn(tableBean);
                 }
             }
-            storageService.updateHiveStatusById(config.getId(),
+            storageService.updateStatus(config.getId(),
                     EntityStatus.DATA_STORAGE_CONFIG_SUCCESSFUL.getCode(), "create hive table success");
         } catch (Throwable e) {
             LOGGER.error("create hive table error, ", e);
-            storageService.updateHiveStatusById(config.getId(),
+            storageService.updateStatus(config.getId(),
                     EntityStatus.DATA_STORAGE_CONFIG_FAILED.getCode(), e.getMessage());
             throw new WorkflowException("create hive table failed, reason: " + e.getMessage());
         }
@@ -111,15 +114,15 @@ public class HiveTableOperator {
         LOGGER.info("success create hive table for data group [" + groupId + "]");
     }
 
-    protected HiveTableQueryBean getTableQueryBean(StorageHiveDTO config) {
+    protected HiveTableQueryBean getTableQueryBean(StorageForSortDTO config, HiveStorageDTO hiveInfo) {
         String groupId = config.getInlongGroupId();
         String streamId = config.getInlongStreamId();
         LOGGER.info("begin to get table query bean for groupId={}, streamId={}", groupId, streamId);
 
-        List<StorageHiveFieldEntity> fieldEntities = hiveFieldMapper.selectHiveFields(groupId, streamId);
+        List<StorageFieldEntity> fieldEntities = hiveFieldMapper.selectFields(groupId, streamId);
 
         List<HiveColumnQueryBean> columnQueryBeans = new ArrayList<>();
-        for (StorageHiveFieldEntity field : fieldEntities) {
+        for (StorageFieldEntity field : fieldEntities) {
             HiveColumnQueryBean columnBean = new HiveColumnQueryBean();
             columnBean.setColumnName(field.getFieldName());
             columnBean.setColumnType(field.getFieldType());
@@ -128,7 +131,7 @@ public class HiveTableOperator {
         }
 
         // set partition field and type
-        String partitionField = config.getPrimaryPartition();
+        String partitionField = hiveInfo.getPrimaryPartition();
         if (partitionField != null) {
             HiveColumnQueryBean partColumn = new HiveColumnQueryBean();
             partColumn.setPartition(true);
@@ -141,15 +144,15 @@ public class HiveTableOperator {
         HiveTableQueryBean queryBean = new HiveTableQueryBean();
         queryBean.setColumns(columnQueryBeans);
         // set terminated symbol
-        if (config.getTargetSeparator() != null) {
-            char ch = (char) Integer.parseInt(config.getTargetSeparator());
+        if (hiveInfo.getDataSeparator() != null) {
+            char ch = (char) Integer.parseInt(hiveInfo.getDataSeparator());
             queryBean.setFieldTerSymbol(String.valueOf(ch));
         }
-        queryBean.setUsername(config.getUsername());
-        queryBean.setPassword(config.getPassword());
-        queryBean.setTableName(config.getTableName());
-        queryBean.setDbName(config.getDbName());
-        queryBean.setJdbcUrl(config.getJdbcUrl());
+        queryBean.setUsername(hiveInfo.getUsername());
+        queryBean.setPassword(hiveInfo.getPassword());
+        queryBean.setTableName(hiveInfo.getTableName());
+        queryBean.setDbName(hiveInfo.getDbName());
+        queryBean.setJdbcUrl(hiveInfo.getJdbcUrl());
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("success to get table query bean={}", queryBean);

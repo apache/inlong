@@ -15,31 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.datastorage;
+package org.apache.inlong.manager.common.pojo.datastorage.hive;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Date;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.BizConstant;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageResponse;
 
 /**
- * Response of the Hive storage info
+ * Response of the Hive storage
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Response of the Hive storage info")
-public class StorageHiveResponse extends BaseStorageResponse {
+@ApiModel(value = "Response of the Hive storage")
+public class HiveStorageResponse extends StorageResponse {
 
     private String storageType = BizConstant.STORAGE_HIVE;
-
-    @ApiModelProperty("Whether to enable create table")
-    private Integer enableCreateTable;
 
     @ApiModelProperty("Hive JDBC URL")
     private String jdbcUrl;
@@ -85,32 +80,5 @@ public class StorageHiveResponse extends BaseStorageResponse {
 
     @ApiModelProperty("Data field separator")
     private String dataSeparator;
-
-    @ApiModelProperty("Backend operation log")
-    private String optLog;
-
-    @ApiModelProperty("Status")
-    private Integer status;
-
-    @ApiModelProperty("Previous State")
-    private Integer previousStatus;
-
-    @ApiModelProperty("Creator")
-    private String creator;
-
-    @ApiModelProperty("modifier")
-    private String modifier;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createTime;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date modifyTime;
-
-    @ApiModelProperty("hive table field list")
-    private List<StorageHiveFieldInfo> hiveFieldList;
-
-    @ApiModelProperty("other ext info list")
-    private List<StorageExtInfo> extList;
 
 }

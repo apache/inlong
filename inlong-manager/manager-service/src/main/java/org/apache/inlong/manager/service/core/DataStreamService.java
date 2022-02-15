@@ -18,16 +18,17 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import java.util.List;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamListVO;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamPageRequest;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamTopicVO;
-import org.apache.inlong.manager.common.pojo.datastream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.datastream.FullPageUpdateInfo;
+import org.apache.inlong.manager.common.pojo.datastream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.datastream.FullStreamResponse;
+import org.apache.inlong.manager.common.pojo.datastream.StreamBriefResponse;
+
+import java.util.List;
 
 /**
  * data stream service layer interface
@@ -105,7 +106,7 @@ public interface DataStreamService {
      * @param groupId Business group id
      * @return Summary list of data stream
      */
-    List<DataStreamSummaryInfo> getSummaryList(String groupId);
+    List<StreamBriefResponse> getBriefList(String groupId);
 
     /**
      * Save all information related to the data stream, its data source, and data storage

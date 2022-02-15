@@ -19,13 +19,14 @@ package org.apache.inlong.manager.common.pojo.datastream;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
 import lombok.Data;
 import org.apache.inlong.manager.common.pojo.datasource.SourceDbBasicInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceFileBasicInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageResponse;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageResponse;
+
+import java.util.List;
 
 /**
  * All response info on the data stream page, including data stream, data source, and data storage
@@ -50,6 +51,6 @@ public class FullStreamResponse {
     private List<SourceDbDetailInfo> dbDetailInfoList;
 
     @ApiModelProperty("Data storage information")
-    private List<BaseStorageResponse> storageInfo;
+    private List<StorageResponse> storageInfo;
 
 }

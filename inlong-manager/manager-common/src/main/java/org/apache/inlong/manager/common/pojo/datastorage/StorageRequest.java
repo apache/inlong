@@ -17,38 +17,44 @@
 
 package org.apache.inlong.manager.common.pojo.datastorage;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.enums.BizConstant;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
- * Basic response of data storage
+ * Request of storage
  */
 @Data
-@ApiModel("Basic response of data storage")
+@ApiModel("Request of storage")
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "storageType")
-@JsonSubTypes({
-        @Type(value = StorageHiveResponse.class, name = BizConstant.STORAGE_HIVE)
-})
-public class BaseStorageResponse {
+public class StorageRequest {
 
     private Integer id;
 
-    @ApiModelProperty("Business group id")
+    @ApiModelProperty("Data group id")
+    @NotNull
     private String inlongGroupId;
 
     @ApiModelProperty("Data stream id")
+    @NotNull
     private String inlongStreamId;
 
-    @ApiModelProperty("Storage type, including: HDFS, HIVE, ES, etc.")
+    @ApiModelProperty("Storage type, including: HIVE, ES, etc.")
+    @NotNull
     private String storageType;
 
     @ApiModelProperty("Data storage period, unit: day")
     private Integer storagePeriod;
+
+    @ApiModelProperty(value = "Whether to enable create storage resource? 0: disable, 1: enable. default is 1")
+    private Integer enableCreateResource = 1;
+
+    @ApiModelProperty("Storage field list")
+    private List<StorageFieldRequest> fieldList;
 
 }

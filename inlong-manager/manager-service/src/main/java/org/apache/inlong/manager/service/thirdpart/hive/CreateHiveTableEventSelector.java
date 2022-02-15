@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.thirdpart.hive;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,10 +26,13 @@ import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.model.definition.ProcessForm;
 import org.apache.inlong.manager.dao.entity.DataStreamEntity;
 import org.apache.inlong.manager.dao.mapper.DataStreamEntityMapper;
-import org.apache.inlong.manager.service.core.StorageService;
+import org.apache.inlong.manager.service.storage.StorageService;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -53,7 +54,7 @@ public class CreateHiveTableEventSelector implements EventSelector {
             return false;
         }
         String groupId = form.getInlongGroupId();
-        List<String> dsForHive = storageService.filterStreamIdByStorageType(groupId, BizConstant.STORAGE_HIVE,
+        List<String> dsForHive = storageService.getExistsStreamIdList(groupId, BizConstant.STORAGE_HIVE,
                 streamMapper.selectByGroupId(groupId)
                         .stream()
                         .map(DataStreamEntity::getInlongStreamId)

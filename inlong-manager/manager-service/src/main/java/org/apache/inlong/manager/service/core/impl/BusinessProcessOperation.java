@@ -18,14 +18,12 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.google.common.collect.Sets;
-import java.util.List;
-import java.util.Set;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
+import org.apache.inlong.manager.common.pojo.datastream.StreamBriefResponse;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.DataStreamService;
@@ -39,6 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * Operation related to business access process
@@ -144,7 +145,7 @@ public class BusinessProcessOperation {
         form.setBusinessInfo(businessInfo);
 
         // Query all data streams under the groupId and the storage information of each data stream
-        List<DataStreamSummaryInfo> infoList = streamService.getSummaryList(businessInfo.getInlongGroupId());
+        List<StreamBriefResponse> infoList = streamService.getBriefList(businessInfo.getInlongGroupId());
         form.setStreamInfoList(infoList);
 
         return form;
