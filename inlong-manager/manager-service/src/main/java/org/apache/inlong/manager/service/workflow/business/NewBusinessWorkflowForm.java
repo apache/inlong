@@ -19,15 +19,16 @@ package org.apache.inlong.manager.service.workflow.business;
 
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
-import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamSummaryInfo;
-import org.apache.inlong.manager.service.workflow.BaseWorkflowFormType;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
+import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
+import org.apache.inlong.manager.common.pojo.datastream.StreamBriefResponse;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.service.workflow.BaseWorkflowFormType;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * New business workflow form information
@@ -42,7 +43,7 @@ public class NewBusinessWorkflowForm extends BaseWorkflowFormType {
     private BusinessInfo businessInfo;
 
     @ApiModelProperty(value = "All data stream information under the business, including the storage information")
-    private List<DataStreamSummaryInfo> streamInfoList;
+    private List<StreamBriefResponse> streamInfoList;
 
     @Override
     public void validate() throws FormValidateException {

@@ -17,32 +17,43 @@
 
 package org.apache.inlong.manager.common.pojo.datastorage;
 
-import io.swagger.annotations.ApiModel;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
- * Basic data storage information
+ * Response of the storage list
  */
 @Data
-@ApiModel("Basic data storage information")
-public class StorageSummaryInfo {
+public class StorageListResponse {
 
+    @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty("Business group id")
+    @ApiModelProperty(value = "Status")
+    private Integer status;
+
+    @ApiModelProperty(value = "Business group id")
     private String inlongGroupId;
 
-    @ApiModelProperty("Data stream id")
+    @ApiModelProperty(value = "Data stream id")
     private String inlongStreamId;
 
-    @ApiModelProperty("Storage type, support:HIVE")
+    @ApiModelProperty("Storage type, including: HIVE, ES, etc.")
     private String storageType;
 
-    @ApiModelProperty("Storage cluster ID")
-    private Integer clusterId;
+    @ApiModelProperty("storage period, unit: day")
+    private Integer storagePeriod;
 
-    @ApiModelProperty("Storage cluster URL")
-    private String clusterUrl;
+    @ApiModelProperty(value = "Whether to enable create storage resource? 0: disable, 1: enable. default is 1")
+    private Integer enableCreateResource;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
 
 }

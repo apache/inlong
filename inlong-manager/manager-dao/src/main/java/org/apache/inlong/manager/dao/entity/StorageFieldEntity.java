@@ -15,31 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.datastorage;
+package org.apache.inlong.manager.dao.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModelProperty;
-import java.util.Date;
 import lombok.Data;
 
-/**
- * Response of data storage list
- */
+import java.io.Serializable;
+
 @Data
-public class BaseStorageListResponse {
+public class StorageFieldEntity implements Serializable {
 
-    @ApiModelProperty(value = "Primary key")
+    private static final long serialVersionUID = 1L;
     private Integer id;
-
-    @ApiModelProperty(value = "Status")
-    private Integer status;
-
-    @ApiModelProperty(value = "Business group id")
     private String inlongGroupId;
-
-    @ApiModelProperty(value = "Data stream id")
     private String inlongStreamId;
+    private Integer storageId;
+    private String storageType;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date modifyTime;
+    private String fieldName;
+    private String fieldType;
+    private String fieldComment;
+    private Integer isRequired;
+    private String sourceFieldName;
+    private String sourceFieldType;
+    private Short rankNum;
+    private Integer isDeleted;
+
 }

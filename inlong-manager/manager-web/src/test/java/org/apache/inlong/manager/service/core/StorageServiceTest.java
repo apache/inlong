@@ -18,10 +18,11 @@
 package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.manager.common.enums.BizConstant;
-import org.apache.inlong.manager.common.pojo.datastorage.BaseStorageResponse;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveRequest;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveResponse;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageResponse;
+import org.apache.inlong.manager.common.pojo.datastorage.hive.HiveStorageRequest;
+import org.apache.inlong.manager.common.pojo.datastorage.hive.HiveStorageResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.service.storage.StorageService;
 import org.apache.inlong.manager.web.ServiceBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Data storage service test
  */
-public class DataStorageServiceTest extends ServiceBaseTest {
+public class StorageServiceTest extends ServiceBaseTest {
 
     private final String globalGroupId = "b_group1";
     private final String globalStreamId = "stream1";
@@ -39,18 +40,16 @@ public class DataStorageServiceTest extends ServiceBaseTest {
     @Autowired
     private StorageService storageService;
     @Autowired
-    private BusinessServiceTest businessServiceTest;
-    @Autowired
     private DataStreamServiceTest streamServiceTest;
 
     public Integer saveStorage() {
         streamServiceTest.saveDataStream(globalGroupId, globalStreamId, globalOperator);
 
-        StorageHiveRequest storageInfo = new StorageHiveRequest();
+        HiveStorageRequest storageInfo = new HiveStorageRequest();
         storageInfo.setInlongGroupId(globalGroupId);
         storageInfo.setInlongStreamId(globalStreamId);
         storageInfo.setStorageType(BizConstant.STORAGE_HIVE);
-        storageInfo.setEnableCreateTable(BizConstant.DISABLE_CREATE_TABLE);
+        storageInfo.setEnableCreateResource(BizConstant.DISABLE_CREATE_RESOURCE);
 
         return storageService.save(storageInfo, globalOperator);
     }
@@ -60,7 +59,7 @@ public class DataStorageServiceTest extends ServiceBaseTest {
         Integer id = this.saveStorage();
         Assert.assertNotNull(id);
 
-        boolean result = storageService.delete(BizConstant.STORAGE_HIVE, id, globalOperator);
+        boolean result = storageService.delete(id, BizConstant.STORAGE_HIVE, globalOperator);
         Assert.assertTrue(result);
     }
 
@@ -68,22 +67,22 @@ public class DataStorageServiceTest extends ServiceBaseTest {
     public void testListByIdentifier() {
         Integer id = this.saveStorage();
 
-        BaseStorageResponse storage = storageService.getById(BizConstant.STORAGE_HIVE, id);
+        StorageResponse storage = storageService.get(id, BizConstant.STORAGE_HIVE);
         Assert.assertEquals(globalGroupId, storage.getInlongGroupId());
 
-        storageService.delete(BizConstant.STORAGE_HIVE, id, globalOperator);
+        storageService.delete(id, BizConstant.STORAGE_HIVE, globalOperator);
     }
 
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveStorage();
-        BaseStorageResponse storage = storageService.getById(BizConstant.STORAGE_HIVE, id);
-        Assert.assertEquals(globalGroupId, storage.getInlongGroupId());
+        StorageResponse response = storageService.get(id, BizConstant.STORAGE_HIVE);
+        Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
-        StorageHiveResponse hiveResponse = (StorageHiveResponse) storage;
-        hiveResponse.setEnableCreateTable(BizConstant.DISABLE_CREATE_TABLE);
+        HiveStorageResponse hiveResponse = (HiveStorageResponse) response;
+        hiveResponse.setEnableCreateResource(BizConstant.DISABLE_CREATE_RESOURCE);
 
-        StorageHiveRequest request = CommonBeanUtils.copyProperties(hiveResponse, StorageHiveRequest::new);
+        HiveStorageRequest request = CommonBeanUtils.copyProperties(hiveResponse, HiveStorageRequest::new);
         boolean result = storageService.update(request, globalOperator);
         Assert.assertTrue(result);
     }

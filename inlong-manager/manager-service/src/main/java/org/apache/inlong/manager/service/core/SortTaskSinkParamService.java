@@ -15,24 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.service.core;
 
-import java.io.Serializable;
-import lombok.Data;
+import java.util.Map;
 
-@Data
-public class StorageHiveFieldEntity implements Serializable {
+/**
+ * Sort sink params service.
+ */
+public interface SortTaskSinkParamService {
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
-    private Integer storageId;
-    private String fieldName;
-    private String fieldType;
-    private String fieldComment;
-    private Integer isRequired;
-    private String sourceFieldName;
-    private String sourceFieldType;
-    private Short rankNum;
-    private Integer isDeleted;
-
+    /**
+     * Select all sink params by task name and sink type.
+     * @param taskName Name of task;
+     * @param sinkType Type of sink;
+     * @return
+     */
+    Map<String, String> selectByTaskNameAndType(String taskName, String sinkType);
 }

@@ -46,6 +46,10 @@ public class Constants {
 
     public static final String INLONG_GROUP_ID = "inlong.group.id";
 
+    public static final String HIVE_SINK_PREFIX = "hive.sink.";
+
+    public static final String HIVE_SINK_ORC_PREFIX = HIVE_SINK_PREFIX + "orc.";
+
     // ------------------------------------------------------------------------
     //  Operator uid
     // ------------------------------------------------------------------------
@@ -328,4 +332,8 @@ public class Constants {
         GZIP,
         LZO
     }
+
+    public static final ConfigOption<Integer> ORC_SINK_BATCH_SIZE =
+            key(HIVE_SINK_PREFIX + "orc.row.batch.size")
+                    .defaultValue(64);
 }

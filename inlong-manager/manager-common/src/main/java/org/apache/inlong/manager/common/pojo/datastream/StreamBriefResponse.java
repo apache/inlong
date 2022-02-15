@@ -17,19 +17,21 @@
 
 package org.apache.inlong.manager.common.pojo.datastream;
 
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageApproveDTO;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageBriefResponse;
+
+import java.util.Date;
+import java.util.List;
 
 /**
- * Data stream approval information
+ * Summary response of the data stream
  */
 @Data
-@ApiModel("Data Stream Approval Information")
-public class DataStreamApproveInfo {
+@ApiModel("Summary response of the data stream")
+public class StreamBriefResponse {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
@@ -40,7 +42,16 @@ public class DataStreamApproveInfo {
     @ApiModelProperty(value = "Data stream id")
     private String inlongStreamId;
 
-    @ApiModelProperty(value = "Data storage approve list")
-    private List<StorageApproveDTO> storageList;
+    @ApiModelProperty(value = "Data stream name")
+    private String name;
+
+    @ApiModelProperty(value = "Data source type, support: FILE/DB/AUTO_PUSH")
+    private String dataSourceType;
+
+    @ApiModelProperty(value = "Storage summary list")
+    private List<StorageBriefResponse> storageList;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
 
 }

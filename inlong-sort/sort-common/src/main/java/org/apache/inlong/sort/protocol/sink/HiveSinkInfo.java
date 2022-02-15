@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.protocol.sink;
 
+import java.io.Serializable;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -188,7 +189,7 @@ public class HiveSinkInfo extends SinkInfo {
     public interface HiveFileFormat {
     }
 
-    public static class TextFileFormat implements HiveFileFormat {
+    public static class TextFileFormat implements HiveFileFormat, Serializable {
 
         @JsonProperty("splitter")
         private final Character splitter;
@@ -220,7 +221,7 @@ public class HiveSinkInfo extends SinkInfo {
         }
     }
 
-    public static class OrcFileFormat implements HiveFileFormat {
+    public static class OrcFileFormat implements HiveFileFormat, Serializable {
 
         @JsonProperty("batch_size")
         private final int batchSize;
@@ -236,7 +237,7 @@ public class HiveSinkInfo extends SinkInfo {
         }
     }
 
-    public static class SequenceFileFormat implements HiveFileFormat {
+    public static class SequenceFileFormat implements HiveFileFormat, Serializable {
 
         @JsonProperty("splitter")
         private final Character splitter;
@@ -262,7 +263,7 @@ public class HiveSinkInfo extends SinkInfo {
         }
     }
 
-    public static class ParquetFileFormat implements HiveFileFormat {
+    public static class ParquetFileFormat implements HiveFileFormat, Serializable {
 
         public ParquetFileFormat() {
         }

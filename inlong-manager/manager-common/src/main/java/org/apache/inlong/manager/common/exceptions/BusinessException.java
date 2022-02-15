@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
 public class BusinessException extends BaseException {
 
     public BusinessException(BizErrorCodeEnum errorCodeEnum) {
-        super(errorCodeEnum.getCode(), errorCodeEnum.getDefaultMessage());
+        super(errorCodeEnum.getCode(), errorCodeEnum.getMessage());
     }
 
     public BusinessException(String message) {
