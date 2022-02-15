@@ -301,67 +301,19 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         sBuilder.append("],\"totalCnt\":").append(recordId).append("}");
     }
 
-    /**
+    /***
      * Get memory store status info.
      *
      * @param req      request
-     * @param sBuffer  process result
+     * @param sBuilder  process result
      */
     public void adminGetMemStoreStatisInfo(HttpServletRequest req,
-                                           StringBuilder sBuffer) {
-        ProcessResult result = new ProcessResult();
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
-            return;
-        }
-        Set<String> topicNameSet = (Set<String>) result.getRetData();
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.NEEDREFRESH, false, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
-            return;
-        }
-        boolean requireRefresh = (boolean) result.getRetData();
-        sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"detail\":[");
-        Map<String, ConcurrentHashMap<Integer, MessageStore>> messageTopicStores =
-                broker.getStoreManager().getMessageStores();
-        int index = 0;
-        int recordId = 0;
-        for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry : messageTopicStores.entrySet()) {
-            if (TStringUtils.isBlank(entry.getKey())
-                    || (!topicNameSet.isEmpty() && !topicNameSet.contains(entry.getKey()))) {
-                continue;
-            }
-            String topicName = entry.getKey();
-            if (recordId++ > 0) {
-                sBuffer.append(",");
-            }
-            index = 0;
-            sBuffer.append("{\"topicName\":\"").append(topicName).append("\",\"storeStatsInfo\":[");
-            ConcurrentHashMap<Integer, MessageStore> partStoreMap = entry.getValue();
-            if (partStoreMap != null) {
-                for (Entry<Integer, MessageStore> subEntry : partStoreMap.entrySet()) {
-                    MessageStore msgStore = subEntry.getValue();
-                    if (msgStore == null) {
-                        continue;
-                    }
-                    if (index++ > 0) {
-                        sBuffer.append(",");
-                    }
-                    sBuffer.append("{\"storeId\":").append(subEntry.getKey())
-                            .append(",\"memStats\":");
-                    msgStore.getMemStoreStatsInfo(requireRefresh, sBuffer);
-                    sBuffer.append(",\"fileStats\":");
-                    msgStore.getCurFileStoreStatsInfo(requireRefresh, sBuffer);
-                    sBuffer.append("}");
-                }
-            }
-            sBuffer.append("]}");
-        }
-        sBuffer.append("],\"totalCount\":").append(recordId).append("}");
+                                           StringBuilder sBuilder) {
+        sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
+                .append("The method is deprecated, please use admin_get_msgstore_stats\"}");
     }
 
-    /**
+    /***
      * Manual set offset.
      *
      * @param req      request
