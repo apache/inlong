@@ -69,6 +69,13 @@ public class MsgMemStore implements Closeable {
     private final AtomicLong rightAppendTime =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
 
+    /**
+     * MsgMemStore, initial message memory cache store block
+     *
+     * @param maxCacheSize     the allowed max cache data size
+     * @param maxMsgCount      the allowed max cache data size
+     * @param tubeConfig              the broker configure
+     */
     public MsgMemStore(int maxCacheSize, int maxMsgCount, final BrokerConfig tubeConfig) {
         this.maxDataCacheSize = maxCacheSize;
         this.maxAllowedMsgCount = maxMsgCount;
@@ -79,6 +86,12 @@ public class MsgMemStore implements Closeable {
         this.rightAppendTime.set(System.currentTimeMillis());
     }
 
+    /**
+     * Reset the data start position and index start position of memory cache.
+     *
+     * @param writeDataStartPos     the data start position
+     * @param writeIndexStartPos    the data start position
+     */
     public void resetStartPos(long writeDataStartPos, long writeIndexStartPos) {
         this.clear();
         this.writeDataStartPos = writeDataStartPos;
@@ -92,18 +105,19 @@ public class MsgMemStore implements Closeable {
      * @param partitionId       the partitionId for append messages
      * @param keyCode           the filter item hash code
      * @param timeRecv          the received timestamp
-     * @param entryLength       the stored entry length
-     * @param entry             the stored entry
+     * @param dataEntryLength   the stored data entry length
+     * @param dataEntry         the stored data entry
      * @param appendResult      the append result
      *
      * @return    the process result
      */
     public boolean appendMsg(MemStoreStatsHolder memStatsHolder,
                              int partitionId, int keyCode,
-                             long timeRecv, int entryLength,
-                             ByteBuffer entry, AppendResult appendResult) {
+                             long timeRecv, int dataEntryLength,
+                             ByteBuffer dataEntry, AppendResult appendResult) {
         long dataOffset;
         long indexOffset;
+        int indexSizePos;
         boolean isAppended = true;
         boolean fullDataSize = false;
         boolean fullIndexSize = false;
@@ -111,7 +125,7 @@ public class MsgMemStore implements Closeable {
         this.writeLock.lock();
         try {
             // judge whether can write to memory or not.
-            if ((fullDataSize = (this.cacheDataOffset.get() + entryLength > this.maxDataCacheSize))
+            if ((fullDataSize = (this.cacheDataOffset.get() + dataEntryLength > this.maxDataCacheSize))
                     || (fullIndexSize =
                     (this.cacheIndexOffset.get() + DataStoreUtils.STORE_INDEX_HEAD_LEN > this.maxIndexCacheSize))
                     || (fullCount = (this.curMessageCount.get() + 1 > maxAllowedMsgCount))) {
@@ -121,17 +135,17 @@ public class MsgMemStore implements Closeable {
             // conduct message with filling process
             indexOffset = this.writeIndexStartPos + this.cacheIndexOffset.get();
             dataOffset = this.writeDataStartPos + this.cacheDataOffset.get();
-            entry.putLong(DataStoreUtils.STORE_HEADER_POS_QUEUE_LOGICOFF, indexOffset);
+            dataEntry.putLong(DataStoreUtils.STORE_HEADER_POS_QUEUE_LOGICOFF, indexOffset);
             this.cacheDataSegment.position(this.cacheDataOffset.get());
-            this.cacheDataSegment.put(entry.array());
+            this.cacheDataSegment.put(dataEntry.array());
             this.cachedIndexSegment.position(this.cacheIndexOffset.get());
             this.cachedIndexSegment.putInt(partitionId);
             this.cachedIndexSegment.putLong(dataOffset);
-            this.cachedIndexSegment.putInt(entryLength);
+            this.cachedIndexSegment.putInt(dataEntryLength);
             this.cachedIndexSegment.putInt(keyCode);
             this.cachedIndexSegment.putLong(timeRecv);
-            this.cacheDataOffset.getAndAdd(entryLength);
-            Integer indexSizePos = cacheIndexOffset.getAndAdd(DataStoreUtils.STORE_INDEX_HEAD_LEN);
+            this.cacheDataOffset.getAndAdd(dataEntryLength);
+            indexSizePos = cacheIndexOffset.getAndAdd(DataStoreUtils.STORE_INDEX_HEAD_LEN);
             this.queuesMap.put(partitionId, indexSizePos);
             this.keysMap.put(keyCode, indexSizePos);
             this.curMessageCount.getAndAdd(1);
@@ -142,7 +156,7 @@ public class MsgMemStore implements Closeable {
         } finally {
             this.writeLock.unlock();
             if (isAppended) {
-                memStatsHolder.addAppendedMsgSize(entryLength);
+                memStatsHolder.addAppendedMsgSize(dataEntryLength);
             } else {
                 memStatsHolder.addCacheFullType(fullDataSize, fullIndexSize, fullCount);
             }
