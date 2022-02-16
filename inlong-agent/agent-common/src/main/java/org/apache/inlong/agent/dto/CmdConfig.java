@@ -15,15 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.fetcher.dtos;
+package org.apache.inlong.agent.dto;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Data;
-import org.apache.inlong.agent.db.CommandEntity;
 
 @Data
-public class TaskRequestDto {
-    private String agentIp;
-    private List<CommandEntity> commandInfo = new ArrayList<>();
+public class CmdConfig {
+    private String dataTime;
+    private Integer id;
+    private Integer op;
+    private Integer taskId;
 }

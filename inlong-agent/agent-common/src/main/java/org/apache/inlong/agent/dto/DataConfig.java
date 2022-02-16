@@ -15,14 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.fetcher.dtos;
+package org.apache.inlong.agent.dto;
 
 import lombok.Data;
 
 @Data
-public class CmdConfig {
-    private String dataTime;
-    private Integer id;
-    private Integer op;
+public class DataConfig {
+    private String inlongGroupId;
+    private String inlongStreamId;
+    private String deliveryTime;
+    private String uuid;
+    private String ip;
+    private String op;
     private Integer taskId;
+    private Integer taskType;
+    private String taskConfig;
+
+    public boolean isValid() {
+        return true;
+    }
 }
