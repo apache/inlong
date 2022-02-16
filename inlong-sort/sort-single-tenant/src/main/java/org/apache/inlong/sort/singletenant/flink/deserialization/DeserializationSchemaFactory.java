@@ -27,6 +27,7 @@ import org.apache.flink.types.Row;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.AvroDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.CanalDeserializationInfo;
+import org.apache.inlong.sort.protocol.deserialization.DebeziumDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.JsonDeserializationInfo;
 
@@ -49,6 +50,9 @@ public class DeserializationSchemaFactory {
             return buildAvroDeserializationSchema(fieldInfos);
         } else if (deserializationInfo instanceof CanalDeserializationInfo) {
             return CanalDeserializationSchemaBuilder.build(fieldInfos, (CanalDeserializationInfo) deserializationInfo);
+        } else if (deserializationInfo instanceof DebeziumDeserializationInfo) {
+            return DebeziumDeserializationSchemaBuilder.build(fieldInfos,
+                    (DebeziumDeserializationInfo) deserializationInfo);
         } else {
             return buildStringDeserializationSchema(fieldInfos);
         }

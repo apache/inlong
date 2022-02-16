@@ -127,9 +127,9 @@ public class CommonUtils {
     }
 
     public static TimestampFormat getTimestampFormatStandard(String input) {
-        if (DATE_AND_TIME_STANDARD_SQL.equals(input)) {
+        if (DATE_AND_TIME_STANDARD_SQL.equalsIgnoreCase(input)) {
             return TimestampFormat.SQL;
-        } else if (DATE_AND_TIME_STANDARD_ISO_8601.equals(input)) {
+        } else if (DATE_AND_TIME_STANDARD_ISO_8601.equalsIgnoreCase(input)) {
             return TimestampFormat.ISO_8601;
         }
 

@@ -20,12 +20,14 @@ package org.apache.inlong.sort.singletenant.flink.serialization;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.formats.avro.AvroRowSerializationSchema;
+import org.apache.flink.formats.json.JsonOptions;
 import org.apache.flink.formats.json.JsonRowSerializationSchema;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.AvroSerializationInfo;
 import org.apache.inlong.sort.protocol.serialization.CanalSerializationInfo;
+import org.apache.inlong.sort.protocol.serialization.DebeziumSerializationInfo;
 import org.apache.inlong.sort.protocol.serialization.JsonSerializationInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 
@@ -39,6 +41,12 @@ import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.extrac
 
 public class SerializationSchemaFactory {
 
+    public static final String MAP_NULL_KEY_MODE_FAIL = "FAIL";
+    public static final String MAP_NULL_KEY_MODE_DROP = "DROP";
+    public static final String MAP_NULL_KEY_MODE_LITERAL = "LITERAL";
+
+    public static final String MAP_NULL_KEY_LITERAL_DEFAULT = "null";
+
     public static SerializationSchema<Row> build(
             FieldInfo[] fieldInfos,
             SerializationInfo serializationInfo
@@ -49,6 +57,8 @@ public class SerializationSchemaFactory {
             return buildAvroSerializationSchema(fieldInfos);
         } else if (serializationInfo instanceof CanalSerializationInfo) {
             return CanalSerializationSchemaBuilder.build(fieldInfos, (CanalSerializationInfo) serializationInfo);
+        } else if (serializationInfo instanceof DebeziumSerializationInfo) {
+            return DebeziumSerializationSchemaBuilder.build(fieldInfos, (DebeziumSerializationInfo) serializationInfo);
         } else {
             return buildStringSerializationSchema(extractFormatInfos(fieldInfos));
         }
@@ -81,6 +91,18 @@ public class SerializationSchemaFactory {
         };
 
         return new CustomDateFormatSerializationSchemaWrapper(stringSchema, formatInfos);
+    }
+
+    static JsonOptions.MapNullKeyMode getMapNullKeyMode(String input) {
+        if (MAP_NULL_KEY_MODE_FAIL.equalsIgnoreCase(input)) {
+            return JsonOptions.MapNullKeyMode.FAIL;
+        } else if (MAP_NULL_KEY_MODE_DROP.equalsIgnoreCase(input)) {
+            return JsonOptions.MapNullKeyMode.DROP;
+        } else if (MAP_NULL_KEY_MODE_LITERAL.equalsIgnoreCase(input)) {
+            return JsonOptions.MapNullKeyMode.LITERAL;
+        }
+
+        throw new IllegalArgumentException("Unsupported map null key mode: " + input);
     }
 
 }

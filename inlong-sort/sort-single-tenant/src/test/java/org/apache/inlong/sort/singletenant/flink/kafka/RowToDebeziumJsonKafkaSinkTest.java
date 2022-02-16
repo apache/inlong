@@ -1,29 +1,49 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.inlong.sort.singletenant.flink.kafka;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.flink.types.Row;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.DebeziumSerializationInfo;
-import org.apache.inlong.sort.singletenant.flink.serialization.RowDataSerializationSchemaFactory;
+import org.apache.inlong.sort.singletenant.flink.serialization.SerializationSchemaFactory;
 import org.apache.kafka.common.utils.Bytes;
 
-public class RowToDebeziumJsonKafkaSinkTest extends KafkaSinkTestBaseForRowData {
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
+public class RowToDebeziumJsonKafkaSinkTest extends KafkaSinkTestBase {
 
     @Override
-    protected void prepareData() {
+    protected void prepareData() throws IOException, ClassNotFoundException {
         topic = "test_kafka_row_to_debezium";
         fieldInfos = new FieldInfo[]{
                 new FieldInfo("f1", new StringFormatInfo()),
                 new FieldInfo("f2", new IntFormatInfo())
         };
 
-        serializationSchema = RowDataSerializationSchemaFactory.build(
+        serializationSchema = SerializationSchemaFactory.build(
                 fieldInfos, new DebeziumSerializationInfo("sql", "literal", "null", true)
         );
 
@@ -56,14 +76,13 @@ public class RowToDebeziumJsonKafkaSinkTest extends KafkaSinkTestBaseForRowData 
         actualData.sort(String::compareTo);
 
         List<String> expectedData = new ArrayList<>();
-        expectedData.add("{\"data\":[{\"f1\":\"Bob\",\"f2\":80}],\"type\":\"DELETE\"}");
-        expectedData.add("{\"data\":[{\"f1\":\"Tom\",\"f2\":70}],\"type\":\"INSERT\"}");
-        expectedData.add("{\"data\":[{\"f1\":\"Lisa\",\"f2\":90}],\"type\":\"DELETE\"}");
-        expectedData.add("{\"data\":[{\"f1\":\"Anna\",\"f2\":100}],\"type\":\"INSERT\"}");
+        expectedData.add("{\"before\":null,\"after\":{\"f1\":\"Anna\",\"f2\":100},\"op\":\"c\"}");
+        expectedData.add("{\"before\":null,\"after\":{\"f1\":\"Tom\",\"f2\":70},\"op\":\"c\"}");
+        expectedData.add("{\"before\":{\"f1\":\"Bob\",\"f2\":80},\"after\":null,\"op\":\"d\"}");
+        expectedData.add("{\"before\":{\"f1\":\"Lisa\",\"f2\":90},\"after\":null,\"op\":\"d\"}");
         expectedData.sort(String::compareTo);
 
         assertEquals(expectedData, actualData);
     }
-
 
 }

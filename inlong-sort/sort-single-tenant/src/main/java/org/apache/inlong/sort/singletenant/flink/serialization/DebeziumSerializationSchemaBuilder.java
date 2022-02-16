@@ -19,11 +19,11 @@ package org.apache.inlong.sort.singletenant.flink.serialization;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.formats.json.canal.CanalJsonSerializationSchema;
+import org.apache.flink.formats.json.debezium.DebeziumJsonSerializationSchema;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.serialization.CanalSerializationInfo;
+import org.apache.inlong.sort.protocol.serialization.DebeziumSerializationInfo;
 
 import java.io.IOException;
 
@@ -34,29 +34,29 @@ import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.conver
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.extractFormatInfos;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.getTimestampFormatStandard;
 
-public class CanalSerializationSchemaBuilder {
+public class DebeziumSerializationSchemaBuilder {
 
     public static SerializationSchema<Row> build(
             FieldInfo[] fieldInfos,
-            CanalSerializationInfo canalSerializationInfo
+            DebeziumSerializationInfo serializationInfo
     ) throws IOException, ClassNotFoundException {
-        String mapNullKeyLiteral = canalSerializationInfo.getMapNullKeyLiteral();
+        String mapNullKeyLiteral = serializationInfo.getMapNullKeyLiteral();
         if (StringUtils.isEmpty(mapNullKeyLiteral)) {
             mapNullKeyLiteral = MAP_NULL_KEY_LITERAL_DEFAULT;
         }
 
         FieldInfo[] convertedFieldInfos = convertDateToStringFormatInfo(fieldInfos);
         RowType convertedRowType = convertFieldInfosToRowType(convertedFieldInfos);
-        CanalJsonSerializationSchema canalSchema = new CanalJsonSerializationSchema(
+        DebeziumJsonSerializationSchema debeziumSchema = new DebeziumJsonSerializationSchema(
                 convertedRowType,
-                getTimestampFormatStandard(canalSerializationInfo.getTimestampFormatStandard()),
-                getMapNullKeyMode(canalSerializationInfo.getMapNullKeyMod()),
+                getTimestampFormatStandard(serializationInfo.getTimestampFormatStandard()),
+                getMapNullKeyMode(serializationInfo.getMapNullKeyMod()),
                 mapNullKeyLiteral,
-                canalSerializationInfo.isEncodeDecimalAsPlainNumber()
+                serializationInfo.isEncodeDecimalAsPlainNumber()
         );
 
         RowToRowDataSerializationSchemaWrapper rowToRowDataSchema
-                = new RowToRowDataSerializationSchemaWrapper(canalSchema, convertedFieldInfos);
+                = new RowToRowDataSerializationSchemaWrapper(debeziumSchema, convertedFieldInfos);
 
         return new CustomDateFormatSerializationSchemaWrapper(rowToRowDataSchema, extractFormatInfos(fieldInfos));
     }
