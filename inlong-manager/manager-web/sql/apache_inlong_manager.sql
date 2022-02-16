@@ -102,6 +102,7 @@ CREATE TABLE `business`
     `create_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `temp_view`           json              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
+    `zookeeper_enabled`   int(4)            DEFAULT '1'  COMMENT 'Need zookeeper support, 0 false 1 true',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_business` (`inlong_group_id`, `is_deleted`, `modify_time`)
 ) ENGINE = InnoDB
@@ -144,7 +145,8 @@ CREATE TABLE `business_ext`
     `is_deleted`      int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `modify_time`     timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
-    KEY `index_group_id` (`inlong_group_id`)
+    KEY `index_group_id` (`inlong_group_id`),
+    UNIQUE KEY `group_key_idx` (`inlong_group_id`,`key_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Business extension table';
 
@@ -400,7 +402,8 @@ CREATE TABLE `data_stream_ext`
     `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
-    KEY `index_stream_id` (`inlong_stream_id`)
+    KEY `index_stream_id` (`inlong_stream_id`),
+    UNIQUE KEY `group_stream_key_idx` (`inlong_group_id`,`inlong_stream_id`,`key_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Data stream extension table';
 

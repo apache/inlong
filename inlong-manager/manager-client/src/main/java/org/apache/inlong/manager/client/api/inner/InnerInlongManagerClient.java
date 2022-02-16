@@ -53,7 +53,7 @@ public class InnerInlongManagerClient {
     }
 
     public BusinessInfo getBusinessInfo() {
-        //todo
+
         return null;
     }
 }

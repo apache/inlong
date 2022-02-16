@@ -77,6 +77,9 @@ public class BusinessInfo {
     @ApiModelProperty(value = "Pulsar service URL")
     private String pulsarServiceUrl;
 
+    @ApiModelProperty(value = "Need zookeeper support, 0 false 1 true")
+    private Integer zookeeperEnabled = 1;
+
     @ApiModelProperty(value = "Data type name")
     private String schemaName;
 

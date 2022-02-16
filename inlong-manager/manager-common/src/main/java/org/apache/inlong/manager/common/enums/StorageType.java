@@ -15,25 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.inner;
+package org.apache.inlong.manager.common.enums;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.pojo.datasource.SourceDbBasicInfo;
-import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageRequest;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
+import java.util.Locale;
 
-@Data
-@NoArgsConstructor
-public class InnerStreamContext {
+public enum StorageType {
+    HIVE, ES, CLICKHOUSE;
 
-    private DataStreamInfo dataStreamInfo;
+    @Override
+    public String toString() {
+        return this.name().toLowerCase(Locale.ROOT);
+    }
 
-    private SourceDbBasicInfo sourceDbBasicInfo;
-
-    private SourceDbDetailInfo sourceDbDetailInfo;
-
-    private StorageRequest storageRequest;
-
+    public static StorageType getStorageType(String storageType) {
+        for (StorageType type : values()) {
+            if (type.name().equals(storageType)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException(String.format("Illegal storage type for %s", storageType));
+    }
 }
