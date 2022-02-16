@@ -22,7 +22,7 @@ import java.util.Objects;
 
 import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.common.plugin.ProcessPlugin;
-import org.apache.inlong.manager.service.BaseTest;
+import org.apache.inlong.manager.test.BaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
