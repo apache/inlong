@@ -27,13 +27,13 @@ import org.apache.inlong.tubemq.corebase.metric.impl.SinceTime;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 
 /**
- * ServiceStatsHolder, statistic Broker metrics information for RPC services
+ * BrokerSrvStatsHolder, statistic Broker metrics information for RPC services
  *
  * The metrics are placed independently or in switchableSets according to
  * whether switchable statistics are allowed, and the value of metrics is changed
  * via the corresponding metric API.
  */
-public class ServiceStatsHolder {
+public class BrokerSrvStatsHolder {
     // Consumer client online statistic
     private static final LongOnlineCounter csmOnlineCnt =
             new LongOnlineCounter("consumer_online_cnt", null);
@@ -83,7 +83,7 @@ public class ServiceStatsHolder {
      * @param enableStats  enable or disable the statistic.
      */
     public static synchronized void setDiskSyncStatsStatus(boolean enableStats) {
-        ServiceStatsHolder.diskSyncClosed = !enableStats;
+        BrokerSrvStatsHolder.diskSyncClosed = !enableStats;
     }
 
     /**
@@ -92,7 +92,7 @@ public class ServiceStatsHolder {
      * @return the statistic status
      */
     public static boolean isDiskSyncStatsClosed() {
-        return ServiceStatsHolder.diskSyncClosed;
+        return BrokerSrvStatsHolder.diskSyncClosed;
     }
 
     // metric set operate APIs end
