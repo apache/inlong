@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.store.service;
+package org.apache.inlong.audit.service;
 
-import org.apache.inlong.store.Application;
-import org.apache.inlong.store.db.entities.ESDataPo;
+import org.apache.inlong.audit.Application;
+import org.apache.inlong.audit.db.entities.ESDataPo;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;

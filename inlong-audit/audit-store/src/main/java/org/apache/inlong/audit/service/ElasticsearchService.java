@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.store.service;
+package org.apache.inlong.audit.service;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.apache.inlong.store.config.ElasticsearchConfig;
-import org.apache.inlong.store.db.entities.ESDataPo;
+import org.apache.inlong.audit.config.ElasticsearchConfig;
+import org.apache.inlong.audit.db.entities.ESDataPo;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;

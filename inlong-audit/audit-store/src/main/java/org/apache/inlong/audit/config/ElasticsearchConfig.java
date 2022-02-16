@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.store.config;
+package org.apache.inlong.audit.config;
 
 import lombok.Getter;
 import lombok.Setter;

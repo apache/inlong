@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.store;
+package org.apache.inlong.audit;
 
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
