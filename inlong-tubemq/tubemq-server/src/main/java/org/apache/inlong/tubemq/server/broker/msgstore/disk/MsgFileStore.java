@@ -35,6 +35,7 @@ import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.inlong.tubemq.corebase.utils.ServiceStatusHolder;
 import org.apache.inlong.tubemq.server.broker.BrokerConfig;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
+import org.apache.inlong.tubemq.server.broker.stats.MsgStoreStatsHolder;
 import org.apache.inlong.tubemq.server.broker.stats.ServiceStatsHolder;
 import org.apache.inlong.tubemq.server.broker.stats.TrafficInfo;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
@@ -67,6 +68,8 @@ public class MsgFileStore implements Closeable {
     // time of meta's last flush operation
     private final AtomicLong lastMetaFlushTime = new AtomicLong(0);
     private final BrokerConfig tubeConfig;
+    // file store stats holder
+    private final MsgStoreStatsHolder msgStoreStatsHolder;
     // lock used for append message to storage
     private final ReentrantLock writeLock = new ReentrantLock();
     private final ByteBuffer byteBufferIndex =
@@ -80,6 +83,14 @@ public class MsgFileStore implements Closeable {
     // close status
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
+    /**
+     * MsgFileStore, initial message file store block
+     *
+     * @param messageStore     the message control block to which the file store belongs
+     * @param tubeConfig       the broker configure
+     * @param baseStorePath    the file store path
+     * @param offsetIfCreate   the offset if create
+     */
     public MsgFileStore(final MessageStore messageStore,
                         final BrokerConfig tubeConfig,
                         final String baseStorePath,
@@ -87,6 +98,7 @@ public class MsgFileStore implements Closeable {
         final StringBuilder sBuilder = new StringBuilder(512);
         this.tubeConfig = tubeConfig;
         this.messageStore = messageStore;
+        this.msgStoreStatsHolder = messageStore.getMsgStoreStatsHolder();
         this.storeKey = messageStore.getStoreKey();
         this.dataDir = new File(sBuilder.append(baseStorePath)
                 .append(File.separator).append(this.storeKey).toString());
@@ -125,11 +137,13 @@ public class MsgFileStore implements Closeable {
                 .append(this.storeKey).toString());
         }
         boolean isDataSegFlushed = false;
-        boolean isIndexFlushed = false;
+        boolean isIndexSegFlushed = false;
         boolean isMsgCntFlushed = false;
-        boolean isMsgTimeFushed = false;
-        boolean isDataFlushed = false;
-        final MsgFileStatisInfo msgFileStatisInfo = messageStore.getFileMsgSizeStatisInfo();
+        boolean isMsgDataFlushed = false;
+        boolean isMsgTimeFlushed = false;
+        boolean isForceMetadata = false;
+        long flushedMsgCnt = 0;
+        long flushedDataSize = 0;
         this.writeLock.lock();
         try {
             final long inIndexOffset =
@@ -158,7 +172,7 @@ public class MsgFileStore implements Closeable {
             // judge whether need to create a new index segment.
             if (curIndexSeg.getCachedSize()
                 >= this.tubeConfig.getMaxIndexSegmentSize()) {
-                isIndexFlushed = true;
+                isIndexSegFlushed = true;
                 final long newIndexOffset = curIndexSeg.flush(true);
                 final File newIndexFile =
                     new File(this.indexDir,
@@ -172,28 +186,24 @@ public class MsgFileStore implements Closeable {
             }
             // check whether need to flush to disk.
             long currTime = System.currentTimeMillis();
-            isDataFlushed = (messageStore.getUnflushDataHold() > 0)
+            isMsgDataFlushed = (messageStore.getUnflushDataHold() > 0)
                     && (curUnflushSize.get() >= messageStore.getUnflushDataHold());
             if ((isMsgCntFlushed = this.curUnflushed.addAndGet(msgCnt) >= messageStore.getUnflushThreshold())
-                || (isMsgTimeFushed = currTime - this.lastFlushTime.get() >= messageStore.getUnflushInterval())
-                || isDataFlushed || isDataSegFlushed || isIndexFlushed) {
-                boolean forceMetadata = (isDataSegFlushed || isIndexFlushed
+                || (isMsgTimeFlushed = currTime - this.lastFlushTime.get() >= messageStore.getUnflushInterval())
+                || isMsgDataFlushed || isDataSegFlushed || isIndexSegFlushed) {
+                isForceMetadata = (isDataSegFlushed || isIndexSegFlushed
                     || (currTime - this.lastMetaFlushTime.get() > MAX_META_REFRESH_DUR));
                 if (!isDataSegFlushed) {
-                    curDataSeg.flush(forceMetadata);
+                    curDataSeg.flush(isForceMetadata);
                 }
-                if (!isIndexFlushed) {
-                    curIndexSeg.flush(forceMetadata);
+                if (!isIndexSegFlushed) {
+                    curIndexSeg.flush(isForceMetadata);
                 }
-                // add statistics.
-                msgFileStatisInfo.addFullTypeCount(currTime,
-                    isDataSegFlushed, isIndexFlushed, isMsgCntFlushed, isMsgTimeFushed,
-                        isDataFlushed, this.curUnflushSize.get(), this.curUnflushed.get());
-                this.curUnflushSize.set(0);
-                this.curUnflushed.set(0);
+                flushedMsgCnt = this.curUnflushed.getAndSet(0);
+                flushedDataSize = this.curUnflushSize.getAndSet(0);
                 this.lastFlushTime.set(System.currentTimeMillis());
-                if (forceMetadata) {
-                    this.lastMetaFlushTime.set(System.currentTimeMillis());
+                if (isForceMetadata) {
+                    this.lastMetaFlushTime.set(this.lastFlushTime.get());
                 }
             }
             // print abnormal information
@@ -218,6 +228,10 @@ public class MsgFileStore implements Closeable {
             samplePrintCtrl.printExceptionCaught(e);
         } finally {
             this.writeLock.unlock();
+            // add statistics.
+            msgStoreStatsHolder.addFileFlushStatsInfo(msgCnt, indexSize, dataSize,
+                    flushedMsgCnt, flushedDataSize, isDataSegFlushed, isIndexSegFlushed,
+                    isMsgDataFlushed, isMsgCntFlushed, isMsgTimeFlushed, isForceMetadata);
         }
     }
 
@@ -230,7 +244,7 @@ public class MsgFileStore implements Closeable {
      * @param indexBuffer           the index read buffer
      * @param isFilterConsume       whether to filter consumption
      * @param filterKeySet          filter item set
-     * @param statisKeyBase         the statistical key prefix
+     * @param statsKeyBase         the statistical key prefix
      * @param maxMsgTransferSize    the max read message size
      * @param reqRcvTime            the timestamp of the record to be checked
      *
@@ -240,7 +254,7 @@ public class MsgFileStore implements Closeable {
                                         long reqOffset, ByteBuffer indexBuffer,
                                         boolean isFilterConsume,
                                         Set<Integer> filterKeySet,
-                                        String statisKeyBase,
+                                        String statsKeyBase,
                                         int maxMsgTransferSize,
                                         long reqRcvTime) {
         // #lizard forgives
@@ -352,7 +366,7 @@ public class MsgFileStore implements Closeable {
             lastRdDataOffset = maxDataLimitOffset;
             ClientBroker.TransferedMessage transferedMessage =
                     DataStoreUtils.getTransferMsg(dataBuffer,
-                            curIndexDataSize, countMap, statisKeyBase, sBuilder);
+                            curIndexDataSize, countMap, statsKeyBase, sBuilder);
             if (transferedMessage == null) {
                 continue;
             }
@@ -488,29 +502,32 @@ public class MsgFileStore implements Closeable {
         long checkTimestamp = System.currentTimeMillis();
         if ((curUnflushed.get() > 0)
                 && (checkTimestamp - lastFlushTime.get() >= messageStore.getUnflushInterval())) {
-            final MsgFileStatisInfo msgFileStatisInfo = messageStore.getFileMsgSizeStatisInfo();
+            long flushedMsgCnt = 0L;
+            long flushedDataSize = 0L;
+            boolean forceMetadata = false;
             this.writeLock.lock();
             try {
                 checkTimestamp = System.currentTimeMillis();
-                if (curUnflushed.get() >= 0
-                        && checkTimestamp - lastFlushTime.get() >= messageStore.getUnflushInterval()) {
-                    boolean forceMetadata =
+                if ((curUnflushed.get() >= 0)
+                        && (checkTimestamp - lastFlushTime.get() >= messageStore.getUnflushInterval())) {
+                    forceMetadata =
                             checkTimestamp - lastMetaFlushTime.get() > MAX_META_REFRESH_DUR;
                     dataSegments.flushLast(forceMetadata);
                     indexSegments.flushLast(forceMetadata);
                     if (forceMetadata) {
                         this.lastMetaFlushTime.set(checkTimestamp);
                     }
-                    msgFileStatisInfo.addFullTypeCount(checkTimestamp, false, false,
-                            false, false, false, curUnflushSize.get(), curUnflushed.get());
-                    curUnflushSize.set(0);
-                    curUnflushed.set(0);
+                    flushedMsgCnt = curUnflushed.getAndSet(0);
+                    flushedDataSize = curUnflushSize.getAndSet(0);
                     lastFlushTime.set(checkTimestamp);
                 }
             } finally {
                 this.writeLock.unlock();
+                msgStoreStatsHolder.addFileTimeoutFlushStats(flushedMsgCnt,
+                        flushedDataSize, forceMetadata);
             }
         }
+        msgStoreStatsHolder.chkStatsExpired(checkTimestamp);
     }
 
     public long getDataSizeInBytes() {

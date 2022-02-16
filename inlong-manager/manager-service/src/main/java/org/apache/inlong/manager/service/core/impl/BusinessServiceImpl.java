@@ -424,7 +424,6 @@ public class BusinessServiceImpl implements BusinessService {
     @Override
     public void saveOrUpdateExt(String groupId, List<BusinessExtInfo> infoList) {
         LOGGER.debug("begin to save or update business ext info, groupId={}, ext={}", groupId, infoList);
-        businessExtMapper.deleteAllByGroupId(groupId);
 
         if (CollectionUtils.isEmpty(infoList)) {
             return;
@@ -436,7 +435,7 @@ public class BusinessServiceImpl implements BusinessService {
             entity.setInlongGroupId(groupId);
             entity.setModifyTime(date);
         }
-        businessExtMapper.insertAll(entityList);
+        businessExtMapper.insertOnDuplicateKeyUpdate(entityList);
         LOGGER.info("success to save or update business ext for groupId={}", groupId);
     }
 

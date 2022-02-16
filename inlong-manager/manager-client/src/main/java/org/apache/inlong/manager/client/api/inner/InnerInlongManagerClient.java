@@ -52,7 +52,7 @@ public class InnerInlongManagerClient {
                 .build();
     }
 
-    public BusinessInfo getBusinessInfo(){
+    public BusinessInfo getBusinessInfo() {
         //todo
         return null;
     }

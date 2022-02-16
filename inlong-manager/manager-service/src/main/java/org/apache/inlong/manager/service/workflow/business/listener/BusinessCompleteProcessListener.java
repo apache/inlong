@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.workflow.business.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.DataStreamService;
@@ -61,8 +62,10 @@ public class BusinessCompleteProcessListener implements ProcessEventListener {
 
         String groupId = form.getInlongGroupId();
         String username = context.getApplicant();
-        // update business status
-        businessService.updateStatus(groupId, EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode(), username);
+        BusinessInfo businessInfo = form.getBusinessInfo();
+        businessInfo.setStatus(EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode());
+        // update business status and props
+        businessService.update(businessInfo, username);
         // update data stream status
         dataStreamService.updateStatus(groupId, null, EntityStatus.DATA_STREAM_CONFIG_SUCCESSFUL.getCode(), username);
         // update file data source status

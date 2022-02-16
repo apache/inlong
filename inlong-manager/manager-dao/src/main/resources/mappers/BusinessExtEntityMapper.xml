@@ -112,7 +112,7 @@
             </if>
         </trim>
     </insert>
-    <!-- Bulk insert, update if it exists -->
+    <!-- Bulk insert-->
     <insert id="insertAll" parameterType="java.util.List">
         insert into business_ext
         (id, inlong_group_id, key_name, key_value, is_deleted)
@@ -120,6 +120,20 @@
         <foreach collection="extList" separator="," index="index" item="item">
             (#{item.id}, #{item.inlongGroupId}, #{item.keyName}, #{item.keyValue}, #{item.isDeleted})
         </foreach>
+    </insert>
+    <!-- Bulk insert,update if exists-->
+    <insert id="insertOnDuplicateKeyUpdate" parameterType="java.util.List">
+        insert into business_ext
+        (id, inlong_group_id, key_name, key_value, is_deleted)
+        values
+        <foreach collection="extList" separator="," index="index" item="item">
+            (#{item.id}, #{item.inlongGroupId}, #{item.keyName}, #{item.keyValue}, #{item.isDeleted})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        inlong_group_id = VALUES(inlong_group_id),
+        key_name = VALUES(key_name),
+        key_value = VALUES(key_value),
+        is_deleted = VALUES(is_deleted)
     </insert>
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.BusinessExtEntity">
         update business_ext

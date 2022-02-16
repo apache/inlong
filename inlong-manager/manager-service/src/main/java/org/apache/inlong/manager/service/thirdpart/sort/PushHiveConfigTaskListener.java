@@ -17,11 +17,6 @@
 
 package org.apache.inlong.manager.service.thirdpart.sort;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -35,15 +30,16 @@ import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.business.BusinessExtInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageHiveDTO;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageForSortDTO;
+import org.apache.inlong.manager.common.pojo.datastorage.hive.HiveStorageDTO;
 import org.apache.inlong.manager.common.settings.BusinessSettings;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.BusinessEntity;
-import org.apache.inlong.manager.dao.entity.StorageHiveFieldEntity;
+import org.apache.inlong.manager.dao.entity.StorageFieldEntity;
 import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StorageHiveEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StorageHiveFieldEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StorageEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StorageFieldEntityMapper;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.apache.inlong.sort.ZkTools;
 import org.apache.inlong.sort.formats.common.FormatInfo;
@@ -61,6 +57,12 @@ import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -87,9 +89,9 @@ public class PushHiveConfigTaskListener implements SortOperateListener {
     @Autowired
     private BusinessEntityMapper businessMapper;
     @Autowired
-    private StorageHiveEntityMapper storageHiveMapper;
+    private StorageEntityMapper storageMapper;
     @Autowired
-    private StorageHiveFieldEntityMapper hiveFieldMapper;
+    private StorageFieldEntityMapper storageFieldMapper;
 
     @Override
     public TaskEvent event() {
@@ -114,15 +116,15 @@ public class PushHiveConfigTaskListener implements SortOperateListener {
 
         // if streamId not null, just push the config belongs to the groupId and the streamId
         String streamId = form.getInlongStreamId();
-        List<StorageHiveDTO> hiveInfoList = storageHiveMapper.selectAllHiveConfig(groupId, streamId);
-        for (StorageHiveDTO hiveInfo : hiveInfoList) {
-            Integer storageId = hiveInfo.getId();
+        List<StorageForSortDTO> sortInfoList = storageMapper.selectAllConfig(groupId, streamId);
+        for (StorageForSortDTO sortInfo : sortInfoList) {
+            Integer storageId = sortInfo.getId();
 
             if (log.isDebugEnabled()) {
-                log.debug("hive storage info: {}", hiveInfo);
+                log.debug("hive storage info: {}", sortInfo);
             }
 
-            DataFlowInfo dataFlowInfo = getDataFlowInfo(businessInfo, hiveInfo);
+            DataFlowInfo dataFlowInfo = getDataFlowInfo(businessInfo, sortInfo);
             // add extra properties for flow info
             dataFlowInfo.getProperties().put(DATA_FLOW_GROUP_ID_KEY, groupId);
             if (log.isDebugEnabled()) {
@@ -145,29 +147,30 @@ public class PushHiveConfigTaskListener implements SortOperateListener {
         return ListenerResult.success();
     }
 
-    private DataFlowInfo getDataFlowInfo(BusinessInfo businessInfo, StorageHiveDTO hiveInfo) {
-        String groupId = hiveInfo.getInlongGroupId();
-        String streamId = hiveInfo.getInlongStreamId();
-        List<StorageHiveFieldEntity> fieldList = hiveFieldMapper.selectHiveFields(groupId, streamId);
+    private DataFlowInfo getDataFlowInfo(BusinessInfo businessInfo, StorageForSortDTO sortInfo) {
+        String groupId = sortInfo.getInlongGroupId();
+        String streamId = sortInfo.getInlongStreamId();
+        List<StorageFieldEntity> fieldList = storageFieldMapper.selectFields(groupId, streamId);
 
         if (fieldList == null || fieldList.size() == 0) {
             throw new WorkflowListenerException("no hive fields for groupId=" + groupId + ", streamId=" + streamId);
         }
 
-        SourceInfo sourceInfo = getSourceInfo(businessInfo, hiveInfo, fieldList);
+        HiveStorageDTO hiveInfo = HiveStorageDTO.getFromJson(sortInfo.getExtParams());
+        SourceInfo sourceInfo = getSourceInfo(businessInfo, sortInfo, hiveInfo, fieldList);
         SinkInfo sinkInfo = getSinkInfo(hiveInfo, fieldList);
 
         // push information
-        return new DataFlowInfo(hiveInfo.getId(), sourceInfo, sinkInfo);
+        return new DataFlowInfo(sortInfo.getId(), sourceInfo, sinkInfo);
     }
 
-    private HiveSinkInfo getSinkInfo(StorageHiveDTO hiveInfo, List<StorageHiveFieldEntity> fieldList) {
+    private HiveSinkInfo getSinkInfo(HiveStorageDTO hiveInfo, List<StorageFieldEntity> fieldList) {
         if (hiveInfo.getJdbcUrl() == null) {
             throw new WorkflowListenerException("hive server url cannot be empty");
         }
 
         // Use the field separator in Hive, the default is TextFile
-        Character separator = (char) Integer.parseInt(hiveInfo.getTargetSeparator());
+        Character separator = (char) Integer.parseInt(hiveInfo.getDataSeparator());
         HiveFileFormat fileFormat;
         String format = hiveInfo.getFileFormat();
 
@@ -225,31 +228,31 @@ public class PushHiveConfigTaskListener implements SortOperateListener {
     /**
      * Get source info
      */
-    private SourceInfo getSourceInfo(BusinessInfo businessInfo, StorageHiveDTO storageInfo,
-            List<StorageHiveFieldEntity> fieldList) {
+    private SourceInfo getSourceInfo(BusinessInfo businessInfo, StorageForSortDTO sortInfo,
+            HiveStorageDTO hiveInfo, List<StorageFieldEntity> fieldList) {
         DeserializationInfo deserializationInfo = null;
-        boolean isDbType = BizConstant.DATA_SOURCE_DB.equals(storageInfo.getDataSourceType());
+        boolean isDbType = BizConstant.DATA_SOURCE_DB.equals(sortInfo.getDataSourceType());
         if (!isDbType) {
             // FILE and auto push source, the data format is TEXT or KEY-VALUE, temporarily use InLongMsgCsv
-            String dataType = storageInfo.getDataType();
+            String dataType = sortInfo.getDataType();
             if (BizConstant.DATA_TYPE_TEXT.equalsIgnoreCase(dataType)
                     || BizConstant.DATA_TYPE_KEY_VALUE.equalsIgnoreCase(dataType)) {
                 // Use the field separator from the data stream
-                char separator = (char) Integer.parseInt(storageInfo.getSourceSeparator());
+                char separator = (char) Integer.parseInt(sortInfo.getSourceSeparator());
                 // TODO support escape
                 /*Character escape = null;
                 if (info.getDataEscapeChar() != null) {
                     escape = info.getDataEscapeChar().charAt(0);
                 }*/
                 // Whether to delete the first separator, the default is false for the time being
-                deserializationInfo = new InLongMsgCsvDeserializationInfo(storageInfo.getInlongStreamId(), separator);
+                deserializationInfo = new InLongMsgCsvDeserializationInfo(sortInfo.getInlongStreamId(), separator);
             }
         }
 
         // The number and order of the source fields must be the same as the target fields
         SourceInfo sourceInfo = null;
         // Get the source field, if there is no partition field in source, add the partition field to the end
-        List<FieldInfo> sourceFields = getSourceFields(fieldList, storageInfo.getPrimaryPartition());
+        List<FieldInfo> sourceFields = getSourceFields(fieldList, hiveInfo.getPrimaryPartition());
 
         String middleWare = businessInfo.getMiddlewareType();
         if (BizConstant.MIDDLEWARE_TUBE.equalsIgnoreCase(middleWare)) {
@@ -261,7 +264,7 @@ public class PushHiveConfigTaskListener implements SortOperateListener {
             sourceInfo = new TubeSourceInfo(topic, masterAddress, consumerGroup,
                     deserializationInfo, sourceFields.toArray(new FieldInfo[0]));
         } else if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middleWare)) {
-            sourceInfo = createPulsarSourceInfo(businessInfo, storageInfo, deserializationInfo, sourceFields);
+            sourceInfo = createPulsarSourceInfo(businessInfo, sortInfo, deserializationInfo, sourceFields);
         }
 
         return sourceInfo;
@@ -270,10 +273,10 @@ public class PushHiveConfigTaskListener implements SortOperateListener {
     /**
      * Get sink fields
      */
-    private List<FieldInfo> getSinkFields(List<StorageHiveFieldEntity> fieldList, String partitionField) {
+    private List<FieldInfo> getSinkFields(List<StorageFieldEntity> fieldList, String partitionField) {
         boolean duplicate = false;
         List<FieldInfo> fieldInfoList = new ArrayList<>();
-        for (StorageHiveFieldEntity field : fieldList) {
+        for (StorageFieldEntity field : fieldList) {
             String fieldName = field.getFieldName();
             if (fieldName.equals(partitionField)) {
                 duplicate = true;
@@ -296,9 +299,9 @@ public class PushHiveConfigTaskListener implements SortOperateListener {
      * Get source field list
      * TODO  support BuiltInField
      */
-    private List<FieldInfo> getSourceFields(List<StorageHiveFieldEntity> fieldList, String partitionField) {
+    private List<FieldInfo> getSourceFields(List<StorageFieldEntity> fieldList, String partitionField) {
         List<FieldInfo> fieldInfoList = new ArrayList<>();
-        for (StorageHiveFieldEntity field : fieldList) {
+        for (StorageFieldEntity field : fieldList) {
             FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(field.getSourceFieldType().toLowerCase());
             String fieldName = field.getSourceFieldName();
 
@@ -309,13 +312,11 @@ public class PushHiveConfigTaskListener implements SortOperateListener {
         return fieldInfoList;
     }
 
-    private PulsarSourceInfo createPulsarSourceInfo(BusinessInfo businessInfo,
-            StorageHiveDTO storageInfo,
-            DeserializationInfo deserializationInfo,
-            List<FieldInfo> sourceFields) {
+    private PulsarSourceInfo createPulsarSourceInfo(BusinessInfo businessInfo, StorageForSortDTO sortInfo,
+            DeserializationInfo deserializationInfo, List<FieldInfo> sourceFields) {
         final String tenant = clusterBean.getDefaultTenant();
         final String namespace = businessInfo.getMqResourceObj();
-        final String pulsarTopic = storageInfo.getMqResourceObj();
+        final String pulsarTopic = sortInfo.getMqResourceObj();
         // Full name of Topic in Pulsar
         final String fullTopicName = "persistent://" + tenant + "/" + namespace + "/" + pulsarTopic;
         final String consumerGroup = clusterBean.getAppName() + "_" + pulsarTopic + "_consumer_group";
