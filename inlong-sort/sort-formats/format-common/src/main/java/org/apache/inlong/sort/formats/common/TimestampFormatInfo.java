@@ -54,8 +54,8 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
         this.format = format;
 
         if (!format.equals("MICROS")
-                    && !format.equals("MILLIS")
-                    && !format.equals("SECONDS")) {
+                && !format.equals("MILLIS")
+                && !format.equals("SECONDS")) {
             this.simpleDateFormat = new SimpleDateFormat(format);
         } else {
             this.simpleDateFormat = null;

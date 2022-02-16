@@ -26,7 +26,10 @@ import org.apache.inlong.sort.formats.common.MapFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.JsonSerializationInfo;
+import org.apache.inlong.sort.singletenant.flink.serialization.RowSerializationSchemaFactory;
+import org.apache.kafka.common.utils.Bytes;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,22 +37,20 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class RowToJsonKafkaSinkTest extends KafkaSinkTestBase {
+public class RowToJsonKafkaSinkTest extends KafkaSinkTestBaseForRow {
     @Override
     protected void prepareData() {
         topic = "test_kafka_row_to_json";
-        prepareKafkaSinkInfo();
+        serializationSchema = RowSerializationSchemaFactory.build(
+                new FieldInfo[]{
+                        new FieldInfo("f1", new StringFormatInfo()),
+                        new FieldInfo("f2", new MapFormatInfo(new StringFormatInfo(), new DoubleFormatInfo())),
+                        new FieldInfo("f3", new ArrayFormatInfo(new IntFormatInfo()))
+                },
+                new JsonSerializationInfo()
+        );
+
         prepareTestRows();
-    }
-
-    private void prepareKafkaSinkInfo() {
-        fieldInfos = new FieldInfo[]{
-                new FieldInfo("f1", new StringFormatInfo()),
-                new FieldInfo("f2", new MapFormatInfo(new StringFormatInfo(), new DoubleFormatInfo())),
-                new FieldInfo("f3", new ArrayFormatInfo(new IntFormatInfo()))
-        };
-
-        serializationInfo = new JsonSerializationInfo();
     }
 
     private void prepareTestRows() {
@@ -69,14 +70,17 @@ public class RowToJsonKafkaSinkTest extends KafkaSinkTestBase {
     }
 
     @Override
-    protected void verifyData(List<String> results) {
+    protected void verifyData(List<Bytes> results) {
+        List<String> actualData = new ArrayList<>();
+        results.forEach(value -> actualData.add(new String(value.get(), StandardCharsets.UTF_8)));
+        actualData.sort(String::compareTo);
+
         List<String> expectedData = new ArrayList<>();
         expectedData.add("{\"f1\":\"zhangsan\",\"f2\":{\"high\":170.5},\"f3\":[123]}");
         expectedData.add("{\"f1\":\"lisi\",\"f2\":{\"high\":180.5},\"f3\":[1234]}");
         expectedData.add("{\"f1\":\"wangwu\",\"f2\":{\"high\":190.5},\"f3\":[12345]}");
-
-        results.sort(String::compareTo);
         expectedData.sort(String::compareTo);
-        assertEquals(expectedData, results);
+
+        assertEquals(expectedData, actualData);
     }
 }

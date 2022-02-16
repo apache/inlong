@@ -22,30 +22,28 @@ import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.singletenant.flink.serialization.RowSerializationSchemaFactory;
+import org.apache.kafka.common.utils.Bytes;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class RowToStringKafkaSinkTest extends KafkaSinkTestBase {
+public class RowToStringKafkaSinkTest extends KafkaSinkTestBaseForRow {
 
     @Override
     protected void prepareData() {
         topic = "test_kafka_row_to_string";
-        prepareKafkaSinkInfo();
-        prepareTestRows();
-    }
+        serializationSchema = RowSerializationSchemaFactory.build(
+                new FieldInfo[]{
+                        new FieldInfo("f1", new StringFormatInfo()),
+                        new FieldInfo("f2", new DoubleFormatInfo())
+                },
+                null
+        );
 
-    private void prepareKafkaSinkInfo() {
-        fieldInfos = new FieldInfo[]{
-                new FieldInfo("f1", new StringFormatInfo()),
-                new FieldInfo("f2", new DoubleFormatInfo())
-        };
-        serializationInfo = null;
-    }
-
-    private void prepareTestRows() {
         testRows = new ArrayList<>();
         testRows.add(Row.of("f1", 12.0));
         testRows.add(Row.of("f2", 12.1));
@@ -53,13 +51,15 @@ public class RowToStringKafkaSinkTest extends KafkaSinkTestBase {
     }
 
     @Override
-    protected void verifyData(List<String> results) {
+    protected void verifyData(List<Bytes> results) {
+        List<String> actualData = new ArrayList<>();
+        results.forEach(value -> actualData.add(new String(value.get(), StandardCharsets.UTF_8)));
+        actualData.sort(String::compareTo);
+
         List<String> expectedData = new ArrayList<>();
         testRows.forEach(row -> expectedData.add(row.toString()));
-
-        results.sort(String::compareTo);
         expectedData.sort(String::compareTo);
-        assertEquals(expectedData, results);
 
+        assertEquals(expectedData, actualData);
     }
 }
