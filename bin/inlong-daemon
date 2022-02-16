@@ -29,16 +29,16 @@ source $INLONG_HOME/conf/inlong.conf
 command_help() {
   echo "Usage: ./inlong-daemon (start|stop) <command>
     where command is one of:
-    audit               Run a audit server
-    tubemaster          Run a tubemaster server
-    tubebroker          Run a tubebroker server
-    tubemanager         Run a tubemanager server
-    manager             Run a manager server
-    dashboard           Run a dashboard server
-    dataproxy           Run a dataproxy server
-    agent               Run a agent server
-    sort                Run a sort server
-    standalone          Run a standalone server(all servers)"
+    audit               Run a Audit Service
+    tubemaster          Run a TubeMQ Master Service
+    tubebroker          Run a TubeMQ Broker Service
+    tubemanager         Run a TubeMQ Manager Service
+    manager             Run a Manager Service
+    dashboard           Run a Dashboard Service
+    dataproxy           Run a Dataproxy Service
+    agent               Run a Agent Service
+    sort                Run a Sort Service
+    standalone          Run a Standalone mode(All Service)"
 }
 
 # if less than two arguments supplied
