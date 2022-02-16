@@ -15,40 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.manager.client.api.inner;
 
-import java.io.Serializable;
-import java.util.concurrent.TimeUnit;
-import lombok.AllArgsConstructor;
+import java.util.List;
+import javafx.util.Pair;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.client.api.auth.Authentication;
+import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
+import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
+import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
 
-/**
- * A simple class to hold client configuration values.
- */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-public class ClientConfiguration implements Serializable {
+public class InnerGroupContext {
 
-    private Authentication authentication;
+    private BusinessInfo businessInfo;
 
-    private String bindHost;
+    private List<InnerStreamContext> streamList;
 
-    private int bindPort;
-
-    private String serviceUrl;
-
-    private int readTimeout = 5;
-
-    private int writeTimeout = 5;
-
-    private int connectTimeout = 10;
-
-    private TimeUnit timeUnit = TimeUnit.SECONDS;
-
-    private boolean isUseTls = false;
-
-    private boolean retryOnConnectionFailure = true;
+    private Pair<BusinessApproveInfo, List<DataStreamApproveInfo>> approveMsg;
 }

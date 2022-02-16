@@ -24,7 +24,7 @@ import lombok.Data;
 
 @Data
 @ApiModel("Base configuration for message queue")
-public class MqBaseConf implements Serializable {
+public abstract class MqBaseConf implements Serializable {
 
     public enum MqType {
         PULSAR,
@@ -33,4 +33,6 @@ public class MqBaseConf implements Serializable {
 
     @ApiModelProperty("The number of partitions of Topic, 1-20")
     private int topicPartitionNum = 3;
+
+    public abstract MqType getType();
 }

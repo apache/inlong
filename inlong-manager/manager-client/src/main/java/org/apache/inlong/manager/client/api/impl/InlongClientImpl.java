@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Map;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
@@ -31,6 +32,9 @@ import org.apache.inlong.manager.client.api.InlongClient;
 
 @Slf4j
 public class InlongClientImpl implements InlongClient {
+
+    @Getter
+    private ClientConfiguration configuration;
 
     private static final String URL_SPLITTER = ",";
 
@@ -52,11 +56,12 @@ public class InlongClientImpl implements InlongClient {
                 break;
             }
         }
+        this.configuration = configuration;
     }
 
     @Override
     public DataStreamGroup createStreamGroup(DataStreamGroupConf groupConf) throws Exception {
-        return null;
+        return new DataStreamGroupImpl(groupConf, this);
     }
 
     private boolean checkConnectivity(String host, int port, int connectTimeout) {

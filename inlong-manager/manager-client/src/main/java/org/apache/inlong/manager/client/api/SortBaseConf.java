@@ -22,10 +22,12 @@ import lombok.Data;
 
 @Data
 @ApiModel("Sort configuration for data stream group")
-public class SortBaseConf {
+public abstract class SortBaseConf {
 
     public enum SortType {
         FLINK,
         LOCAL;
     }
+
+    public abstract SortType getType();
 }

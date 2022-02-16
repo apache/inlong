@@ -29,4 +29,14 @@ public class BusinessSettings {
 
     public static String DEFAULT_PULSAR_AUTHENTICATION_TYPE = "token";
 
+    public static String SORT_URL = "sort.url";
+
+    public static String SORT_AUTHENTICATION = "sort.authentication";
+
+    public static String SORT_AUTHENTICATION_TYPE = "sort.authentication.type";
+
+    public static String DEFAULT_SORT_AUTHENTICATION_TYPE = "secret_and_token";
+
+    public static String SORT_PROPERTIES = "sort.properties";
+
 }

@@ -79,6 +79,7 @@
         <project.build.encoding>UTF-8</project.build.encoding>
         <plugin.compile.version>3.8.1</plugin.compile.version>
         <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
+        <okhttp.version>3.14.9</okhttp.version>
         <docker.organization>inlong</docker.organization>
     </properties>
 
@@ -355,7 +356,7 @@
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
-                <version>3.14.9</version>
+                <version>${okhttp.version}</version>
             </dependency>
 
             <dependency>
@@ -430,6 +431,11 @@
                 <groupId>org.elasticsearch.client</groupId>
                 <artifactId>elasticsearch-rest-client-sniffer</artifactId>
                 <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>3.14.9</version>
             </dependency>
 
             <dependency>

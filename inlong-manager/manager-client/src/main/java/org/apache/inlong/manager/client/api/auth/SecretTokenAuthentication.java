@@ -19,6 +19,8 @@ package org.apache.inlong.manager.client.api.auth;
 
 import java.util.Map;
 import lombok.Getter;
+import lombok.SneakyThrows;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 public class SecretTokenAuthentication extends SecretAuthentication {
 
@@ -36,6 +38,16 @@ public class SecretTokenAuthentication extends SecretAuthentication {
     public void configure(Map<String, String> properties) {
         super.configure(properties);
         this.sToken = properties.get(SECRET_TOKEN);
+    }
+
+    @SneakyThrows
+    @Override
+    public String toString() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(SECRET_ID, this.getSecretId());
+        jsonObject.put(SECRET_KEY, this.getSecretKey());
+        jsonObject.put(SECRET_TOKEN, this.getSToken());
+        return jsonObject.toString();
     }
 
 }

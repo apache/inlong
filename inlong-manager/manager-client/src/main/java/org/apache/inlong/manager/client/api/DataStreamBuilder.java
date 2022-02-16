@@ -27,7 +27,7 @@ public abstract class DataStreamBuilder {
      * @param
      * @return data stream builder
      */
-    abstract DataStreamBuilder source(DataSource source);
+    public abstract DataStreamBuilder source(DataSource source);
 
     /**
      * create storage in stream.
@@ -35,7 +35,7 @@ public abstract class DataStreamBuilder {
      * @param
      * @return data stream builder
      */
-    abstract DataStreamBuilder sink(DataStorage storage);
+    public abstract DataStreamBuilder sink(DataStorage storage);
 
     /**
      * create or update stream fields.
@@ -43,14 +43,14 @@ public abstract class DataStreamBuilder {
      * @param fieldList
      * @return data stream builder
      */
-    abstract DataStreamBuilder fields(List<StreamField> fieldList);
+    public abstract DataStreamBuilder fields(List<StreamField> fieldList);
 
     /**
      * create data stream created by builder
      *
      * @return data stream
      */
-    abstract DataStream init();
+    public abstract DataStream init();
 }
 
 

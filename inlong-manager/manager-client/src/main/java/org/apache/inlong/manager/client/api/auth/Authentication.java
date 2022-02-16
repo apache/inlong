@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.auth;
 
+import java.util.Locale;
 import java.util.Map;
 
 public interface Authentication {
@@ -25,10 +26,15 @@ public interface Authentication {
         UNAME_PASSWD,
         TOKEN,
         SECRET,
-        SECRET_AND_TOKEN
+        SECRET_AND_TOKEN;
+
+        @Override
+        public String toString() {
+            return this.name().toLowerCase(Locale.ROOT);
+        }
     }
 
     AuthType getAuthType();
 
-    void configure(Map<String,String> properties);
+    void configure(Map<String, String> properties);
 }
