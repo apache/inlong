@@ -18,8 +18,8 @@
  under the License.
 -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="AuditDataDao">
-  <resultMap id="BaseResultMap" type="AuditDataPo">
+<mapper namespace="org.apache.inlong.audit.db.dao.AuditDataDao">
+  <resultMap id="BaseResultMap" type="org.apache.inlong.audit.db.entities.AuditDataPo">
     <result column="ip" jdbcType="VARCHAR" property="ip" />
     <result column="docker_id" jdbcType="VARCHAR" property="dockerId" />
     <result column="thread_id" jdbcType="VARCHAR" property="threadId" />
@@ -34,7 +34,7 @@
     <result column="delay" jdbcType="BIGINT" property="delay" />
   </resultMap>
 
-  <insert id="insert" parameterType="AuditDataPo">
+  <insert id="insert" parameterType="org.apache.inlong.audit.db.entities.AuditDataPo">
     insert into audit_data (ip, docker_id, thread_id,
       sdk_ts, packet_id, log_ts,
       inlong_group_id, inlong_stream_id, audit_id,
