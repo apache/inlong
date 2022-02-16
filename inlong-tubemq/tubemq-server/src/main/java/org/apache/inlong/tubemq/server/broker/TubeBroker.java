@@ -53,6 +53,7 @@ import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.inlong.tubemq.server.broker.offset.DefaultOffsetManager;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordService;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerJMXHolder;
 import org.apache.inlong.tubemq.server.broker.stats.ServiceStatsHolder;
 import org.apache.inlong.tubemq.server.broker.utils.BrokerSamplePrint;
 import org.apache.inlong.tubemq.server.broker.web.WebServer;
@@ -115,6 +116,7 @@ public class TubeBroker implements Stoppable {
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "1");
         this.tubeConfig = tubeConfig;
         this.brokerId = generateBrokerClientId();
+        BrokerJMXHolder.registerMXBean();
         this.metadataManager = new BrokerMetadataManager();
         this.offsetManager = new DefaultOffsetManager(tubeConfig);
         this.storeManager = new MessageStoreManager(this, tubeConfig);
