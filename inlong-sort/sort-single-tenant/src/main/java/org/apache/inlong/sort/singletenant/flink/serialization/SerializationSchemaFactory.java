@@ -22,41 +22,55 @@ import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.formats.avro.AvroRowSerializationSchema;
 import org.apache.flink.formats.json.JsonRowSerializationSchema;
 import org.apache.flink.types.Row;
+import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.AvroSerializationInfo;
+import org.apache.inlong.sort.protocol.serialization.CanalSerializationInfo;
 import org.apache.inlong.sort.protocol.serialization.JsonSerializationInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.buildAvroRecordSchemaInJson;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertDateToStringFormatInfo;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertFieldInfosToRowTypeInfo;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.extractFormatInfos;
 
-public class RowSerializationSchemaFactory {
+public class SerializationSchemaFactory {
 
-    public static SerializationSchema<Row> build(FieldInfo[] fieldInfos, SerializationInfo serializationInfo) {
+    public static SerializationSchema<Row> build(
+            FieldInfo[] fieldInfos,
+            SerializationInfo serializationInfo
+    ) throws IOException, ClassNotFoundException {
         if (serializationInfo instanceof JsonSerializationInfo) {
-            return buildJsonRowSerializationSchema(fieldInfos);
+            return buildJsonSerializationSchema(fieldInfos);
         } else if (serializationInfo instanceof AvroSerializationInfo) {
-            return buildAvroRowSerializationSchema(fieldInfos);
+            return buildAvroSerializationSchema(fieldInfos);
+        } else if (serializationInfo instanceof CanalSerializationInfo) {
+            return CanalSerializationSchemaBuilder.build(fieldInfos, (CanalSerializationInfo) serializationInfo);
         } else {
-            return buildStringRowSerializationSchema();
+            return buildStringSerializationSchema(extractFormatInfos(fieldInfos));
         }
     }
 
-    private static SerializationSchema<Row> buildJsonRowSerializationSchema(FieldInfo[] fieldInfos) {
-        RowTypeInfo rowTypeInfo = convertFieldInfosToRowTypeInfo(fieldInfos);
+    private static SerializationSchema<Row> buildJsonSerializationSchema(
+            FieldInfo[] fieldInfos
+    ) throws IOException, ClassNotFoundException {
+        FieldInfo[] convertedFieldInfos = convertDateToStringFormatInfo(fieldInfos);
+        RowTypeInfo convertedRowTypeInfo = convertFieldInfosToRowTypeInfo(convertedFieldInfos);
         JsonRowSerializationSchema.Builder builder = JsonRowSerializationSchema.builder();
-        return builder.withTypeInfo(rowTypeInfo).build();
+        JsonRowSerializationSchema innerSchema = builder.withTypeInfo(convertedRowTypeInfo).build();
+        return new CustomDateFormatSerializationSchemaWrapper(innerSchema, extractFormatInfos(fieldInfos));
     }
 
-    private static SerializationSchema<Row> buildAvroRowSerializationSchema(FieldInfo[] fieldInfos) {
+    private static SerializationSchema<Row> buildAvroSerializationSchema(FieldInfo[] fieldInfos) {
         String avroSchemaInJson = buildAvroRecordSchemaInJson(fieldInfos);
         return new AvroRowSerializationSchema(avroSchemaInJson);
     }
 
-    private static SerializationSchema<Row> buildStringRowSerializationSchema() {
-        return new SerializationSchema<Row>() {
+    private static SerializationSchema<Row> buildStringSerializationSchema(FormatInfo[] formatInfos) {
+        SerializationSchema<Row> stringSchema = new SerializationSchema<Row>() {
 
             private static final long serialVersionUID = -6818985955456373916L;
 
@@ -65,5 +79,8 @@ public class RowSerializationSchemaFactory {
                 return element.toString().getBytes(StandardCharsets.UTF_8);
             }
         };
+
+        return new CustomDateFormatSerializationSchemaWrapper(stringSchema, formatInfos);
     }
+
 }

@@ -19,7 +19,7 @@ package org.apache.inlong.sort.singletenant.flink;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static org.apache.inlong.sort.singletenant.flink.kafka.KafkaSinkBuilder.buildKafkaSinkStream;
+import static org.apache.inlong.sort.singletenant.flink.kafka.KafkaSinkBuilder.buildKafkaSink;
 import static org.apache.inlong.sort.singletenant.flink.pulsar.PulsarSourceBuilder.buildPulsarSource;
 
 import java.io.File;
@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -48,6 +49,7 @@ import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.singletenant.flink.clickhouse.ClickhouseRowSinkFunction;
 import org.apache.inlong.sort.singletenant.flink.deserialization.DeserializationFunction;
 import org.apache.inlong.sort.singletenant.flink.deserialization.DeserializationSchemaFactory;
+import org.apache.inlong.sort.singletenant.flink.serialization.SerializationSchemaFactory;
 import org.apache.inlong.sort.singletenant.flink.utils.CommonUtils;
 import org.apache.inlong.sort.util.ParameterTool;
 
@@ -133,7 +135,7 @@ public class Entrance {
             Configuration config,
             SinkInfo sinkInfo,
             Map<String, Object> properties,
-            long dataflowId) {
+            long dataflowId) throws IOException, ClassNotFoundException {
         final String sinkType = checkNotNull(config.getString(Constants.SINK_TYPE));
         final int sinkParallelism = config.getInteger(Constants.SINK_PARALLELISM);
 
@@ -185,7 +187,13 @@ public class Entrance {
                 break;
             case Constants.SINK_TYPE_KAFKA:
                 checkState(sinkInfo instanceof KafkaSinkInfo);
-                buildKafkaSinkStream(sourceStream, (KafkaSinkInfo) sinkInfo, properties, config, sinkParallelism);
+                SerializationSchema<Row> schema = SerializationSchemaFactory.build(sinkInfo.getFields(),
+                        ((KafkaSinkInfo) sinkInfo).getSerializationInfo());
+                sourceStream
+                        .addSink(buildKafkaSink((KafkaSinkInfo) sinkInfo, properties, schema, config))
+                        .uid(Constants.SINK_UID)
+                        .name("Kafka Sink")
+                        .setParallelism(sinkParallelism);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported sink type " + sinkType);

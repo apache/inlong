@@ -21,16 +21,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.formats.json.JsonOptions;
 import org.apache.flink.formats.json.canal.CanalJsonSerializationSchema;
-import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.types.Row;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.CanalSerializationInfo;
-import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 
+import java.io.IOException;
+
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertDateToStringFormatInfo;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertFieldInfosToRowType;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.extractFormatInfos;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.getTimestampFormatStandard;
 
-public class RowDataSerializationSchemaFactory {
+public class CanalSerializationSchemaBuilder {
 
     private static final String CANAL_MAP_NULL_KEY_MODE_FAIL = "FAIL";
     private static final String CANAL_MAP_NULL_KEY_MODE_DROP = "DROP";
@@ -38,31 +41,29 @@ public class RowDataSerializationSchemaFactory {
 
     private static final String CANAL_MAP_NULL_KEY_LITERAL_DEFAULT = "null";
 
-    public static SerializationSchema<RowData> build(FieldInfo[] fieldInfos, SerializationInfo serializationInfo) {
-        if (serializationInfo instanceof CanalSerializationInfo) {
-            return buildCanalRowDataSerializationSchema(fieldInfos, (CanalSerializationInfo) serializationInfo);
-        }
-
-        throw new IllegalArgumentException("Unsupported RowData serialization info: " + serializationInfo);
-    }
-
-    private static SerializationSchema<RowData> buildCanalRowDataSerializationSchema(
+    public static SerializationSchema<Row> build(
             FieldInfo[] fieldInfos,
             CanalSerializationInfo canalSerializationInfo
-    ) {
+    ) throws IOException, ClassNotFoundException {
         String mapNullKeyLiteral = canalSerializationInfo.getMapNullKeyLiteral();
         if (StringUtils.isEmpty(mapNullKeyLiteral)) {
             mapNullKeyLiteral = CANAL_MAP_NULL_KEY_LITERAL_DEFAULT;
         }
 
-        RowType rowType = convertFieldInfosToRowType(fieldInfos);
-        return new CanalJsonSerializationSchema(
-                rowType,
+        FieldInfo[] convertedFieldInfos = convertDateToStringFormatInfo(fieldInfos);
+        RowType convertedRowType = convertFieldInfosToRowType(convertedFieldInfos);
+        CanalJsonSerializationSchema canalSchema = new CanalJsonSerializationSchema(
+                convertedRowType,
                 getTimestampFormatStandard(canalSerializationInfo.getTimestampFormatStandard()),
                 getMapNullKeyMode(canalSerializationInfo.getMapNullKeyMod()),
                 mapNullKeyLiteral,
                 canalSerializationInfo.isEncodeDecimalAsPlainNumber()
         );
+
+        RowToRowDataSerializationSchemaWrapper rowToRowDataSchema
+                = new RowToRowDataSerializationSchemaWrapper(canalSchema, convertedFieldInfos);
+
+        return new CustomDateFormatSerializationSchemaWrapper(rowToRowDataSchema, extractFormatInfos(fieldInfos));
     }
 
     private static JsonOptions.MapNullKeyMode getMapNullKeyMode(String input) {

@@ -18,35 +18,25 @@
 package org.apache.inlong.sort.singletenant.flink.kafka;
 
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkFixedPartitioner;
-import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.data.util.DataFormatConverters;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.configuration.Configuration;
-import org.apache.inlong.sort.configuration.Constants;
-import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.serialization.CanalSerializationInfo;
-import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
-import org.apache.inlong.sort.singletenant.flink.serialization.RowDataSerializationSchemaFactory;
-import org.apache.inlong.sort.singletenant.flink.serialization.RowSerializationSchemaFactory;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
 import java.util.Map;
 import java.util.Properties;
 
 import static org.apache.inlong.sort.configuration.Constants.SINK_KAFKA_PRODUCER_POOL_SIZE;
-import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.createRowConverter;
 
 public class KafkaSinkBuilder {
 
-    public static <T> SinkFunction<T> buildKafkaSink(
+    public static SinkFunction<Row> buildKafkaSink(
             KafkaSinkInfo kafkaSinkInfo,
             Map<String, Object> properties,
-            SerializationSchema<T> serializationSchema,
+            SerializationSchema<Row> schema,
             Configuration config
     ) {
         String topic = kafkaSinkInfo.getTopic();
@@ -54,7 +44,7 @@ public class KafkaSinkBuilder {
 
         return new FlinkKafkaProducer<>(
                 topic,
-                serializationSchema,
+                schema,
                 producerProperties,
                 new FlinkFixedPartitioner<>(),
                 FlinkKafkaProducer.Semantic.EXACTLY_ONCE,
@@ -67,41 +57,6 @@ public class KafkaSinkBuilder {
         producerProperties.putAll(properties);
         producerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, address);
         return producerProperties;
-    }
-
-    public static void buildKafkaSinkStream(
-            DataStream<Row> sourceStream,
-            KafkaSinkInfo kafkaSinkInfo,
-            Map<String, Object> properties,
-            Configuration config,
-            int sinkParallelism
-    ) {
-        SerializationInfo serializationInfo = kafkaSinkInfo.getSerializationInfo();
-        FieldInfo[] fieldInfos = kafkaSinkInfo.getFields();
-        if (serializationInfo instanceof CanalSerializationInfo) {
-            DataFormatConverters.RowConverter rowConverter = createRowConverter(fieldInfos);
-            DataStream<RowData> dataStream = sourceStream
-                    .map(rowConverter::toInternal)
-                    .uid(Constants.CONVERTER_UID)
-                    .name("Row to RowData Converter")
-                    .setParallelism(sinkParallelism);
-
-            SerializationSchema<RowData> schema =
-                    RowDataSerializationSchemaFactory.build(fieldInfos, serializationInfo);
-
-            dataStream
-                    .addSink(buildKafkaSink(kafkaSinkInfo, properties, schema, config))
-                    .uid(Constants.SINK_UID)
-                    .name("Kafka Sink")
-                    .setParallelism(sinkParallelism);
-        } else {
-            SerializationSchema<Row> schema = RowSerializationSchemaFactory.build(fieldInfos, serializationInfo);
-            sourceStream
-                    .addSink(buildKafkaSink(kafkaSinkInfo, properties, schema, config))
-                    .uid(Constants.SINK_UID)
-                    .name("Kafka Sink")
-                    .setParallelism(sinkParallelism);
-        }
     }
 
 }

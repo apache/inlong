@@ -26,7 +26,9 @@ import org.apache.flink.core.testutils.CommonTestUtils;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.types.Row;
+import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -52,6 +54,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -61,10 +64,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
 import static org.apache.flink.util.NetUtils.hostAndPortToUrlString;
+import static org.apache.inlong.sort.singletenant.flink.kafka.KafkaSinkBuilder.buildKafkaSink;
 import static org.apache.inlong.sort.singletenant.flink.utils.NetUtils.getUnusedLocalPort;
 import static org.junit.Assert.assertNull;
 
-public abstract class KafkaSinkTestBase<T> {
+public abstract class KafkaSinkTestBase {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaSinkTestBase.class);
 
@@ -79,13 +83,13 @@ public abstract class KafkaSinkTestBase<T> {
     private AdminClient kafkaAdmin;
     private KafkaConsumer<String, Bytes> kafkaConsumer;
     private Properties kafkaClientProperties;
-    protected String brokerConnStr;
+    private String brokerConnStr;
 
     // prepare data below in subclass
     protected String topic;
     protected List<Row> testRows;
     protected FieldInfo[] fieldInfos;
-    protected SerializationSchema<T> serializationSchema;
+    protected SerializationSchema<Row> serializationSchema;
 
     @Before
     public void setup() throws Exception {
@@ -160,7 +164,7 @@ public abstract class KafkaSinkTestBase<T> {
                 "The topic metadata failed to propagate to Kafka broker.");
     }
 
-    protected abstract void prepareData();
+    protected abstract void prepareData() throws IOException, ClassNotFoundException;
 
     @After
     public void clean() throws IOException {
@@ -198,7 +202,14 @@ public abstract class KafkaSinkTestBase<T> {
             StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
             try {
-                buildJob(env, testingSource);
+                env.addSource(testingSource).addSink(
+                        buildKafkaSink(
+                                new KafkaSinkInfo(new FieldInfo[]{}, brokerConnStr, topic, null),
+                                new HashMap<>(),
+                                serializationSchema,
+                                new Configuration()
+                        )
+                );
                 env.execute();
                 testFinishedCountDownLatch.await();
             } catch (Exception e) {
@@ -210,8 +221,6 @@ public abstract class KafkaSinkTestBase<T> {
 
         testFinishedCountDownLatch.countDown();
     }
-
-    protected abstract void buildJob(StreamExecutionEnvironment env, TestingSource testingSource);
 
     private void verify() throws Exception {
         kafkaConsumer.subscribe(Collections.singleton(topic));

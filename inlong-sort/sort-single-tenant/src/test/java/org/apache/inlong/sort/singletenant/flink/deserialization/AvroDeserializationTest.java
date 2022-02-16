@@ -32,7 +32,7 @@ import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.AvroDeserializationInfo;
 import org.apache.inlong.sort.protocol.serialization.AvroSerializationInfo;
-import org.apache.inlong.sort.singletenant.flink.serialization.RowSerializationSchemaFactory;
+import org.apache.inlong.sort.singletenant.flink.serialization.SerializationSchemaFactory;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -87,7 +87,7 @@ public class AvroDeserializationTest {
     @Test
     public void testAvroDeserializationSchema() throws IOException, ClassNotFoundException {
         SerializationSchema<Row> serializationSchema =
-                RowSerializationSchemaFactory.build(fieldInfos, new AvroSerializationInfo());
+                SerializationSchemaFactory.build(fieldInfos, new AvroSerializationInfo());
 
         Row expectedRow = generateTestRow();
         byte[] bytes = serializationSchema.serialize(expectedRow);
