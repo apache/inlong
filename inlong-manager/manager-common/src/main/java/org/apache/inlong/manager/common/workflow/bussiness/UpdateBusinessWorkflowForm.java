@@ -15,31 +15,44 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.consumption;
+package org.apache.inlong.manager.common.workflow.bussiness;
 
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Locale;
 import java.util.Map;
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
-import org.apache.inlong.manager.service.workflow.BaseWorkflowFormType;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
+import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.common.workflow.BaseWorkflowFormType;
 
-/**
- * New data consumption form
- */
 @Data
-public class NewConsumptionWorkflowForm extends BaseWorkflowFormType {
+public class UpdateBusinessWorkflowForm extends BaseWorkflowFormType {
 
-    public static final String FORM_NAME = "NewConsumptionWorkflowForm";
+    public static final String FORM_NAME = "UpdateBusinessWorkflowForm";
 
-    @ApiModelProperty(value = "Data consumption information")
-    private ConsumptionInfo consumptionInfo;
+    /**
+     * Used to control the operation to update businessWorkflow
+     */
+    public enum OperateType {
+        STARTUP, SUSPEND, RESTART, DELETE, START_TRANS
+    }
+
+    @ApiModelProperty(value = "Access business information", required = true)
+    private BusinessInfo businessInfo;
+
+    @Getter
+    @Setter
+    @ApiModelProperty(value = "OperateType to define the update operation", required = true)
+    private OperateType operateType;
 
     @Override
     public void validate() throws FormValidateException {
-        Preconditions.checkNotNull(consumptionInfo, "Data consumption information cannot be empty");
+        Preconditions.checkNotNull(businessInfo, "business info is empty");
+        Preconditions.checkNotNull(operateType, "operate type is empty");
     }
 
     @Override
@@ -49,15 +62,14 @@ public class NewConsumptionWorkflowForm extends BaseWorkflowFormType {
 
     @Override
     public String getInlongGroupId() {
-        return consumptionInfo.getConsumerGroupId();
+        return businessInfo.getInlongGroupId();
     }
 
     @Override
     public Map<String, Object> showInList() {
         Map<String, Object> show = Maps.newHashMap();
-        if (consumptionInfo != null) {
-            show.put("groupId", consumptionInfo.getInlongGroupId());
-        }
+        show.put("groupId", businessInfo.getInlongGroupId());
+        show.put("operateType", operateType.name().toLowerCase(Locale.ROOT));
         return show;
     }
 }

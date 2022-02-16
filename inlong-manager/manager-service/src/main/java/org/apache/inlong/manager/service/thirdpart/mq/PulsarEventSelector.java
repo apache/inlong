@@ -22,7 +22,7 @@ import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.event.EventSelector;
 import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.model.definition.ProcessForm;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
+import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
 
 @Slf4j
 public class PulsarEventSelector implements EventSelector {

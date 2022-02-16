@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.workflow.business.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.workflow.bussiness.NewBusinessWorkflowForm;
 import org.apache.inlong.manager.service.core.BusinessService;
-import org.apache.inlong.manager.service.workflow.business.NewBusinessWorkflowForm;
 import org.apache.inlong.manager.common.event.ListenerResult;
 import org.apache.inlong.manager.common.event.process.ProcessEvent;
 import org.apache.inlong.manager.common.event.process.ProcessEventListener;

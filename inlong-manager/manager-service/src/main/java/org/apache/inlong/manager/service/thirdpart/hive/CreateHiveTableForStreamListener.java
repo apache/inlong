@@ -24,7 +24,7 @@ import org.apache.inlong.manager.common.event.task.TaskEvent;
 import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageForSortDTO;
 import org.apache.inlong.manager.dao.mapper.StorageEntityMapper;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
+import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

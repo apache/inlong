@@ -40,7 +40,7 @@ import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.thirdpart.mq.PulsarOptService;
 import org.apache.inlong.manager.service.thirdpart.mq.TubeMqOptService;
 import org.apache.inlong.manager.service.thirdpart.mq.util.PulsarUtils;
-import org.apache.inlong.manager.service.workflow.consumption.NewConsumptionWorkflowForm;
+import org.apache.inlong.manager.common.workflow.consumption.NewConsumptionWorkflowForm;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

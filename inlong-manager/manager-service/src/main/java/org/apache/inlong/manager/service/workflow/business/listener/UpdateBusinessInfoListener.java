@@ -25,7 +25,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.service.core.BusinessService;
-import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm;
+import org.apache.inlong.manager.common.workflow.bussiness.UpdateBusinessWorkflowForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

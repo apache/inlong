@@ -25,8 +25,7 @@ import org.apache.inlong.manager.common.event.task.SortOperateListener;
 import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.model.definition.ProcessForm;
 import org.apache.inlong.manager.common.plugin.ProcessPlugin;
-import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm;
-import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm.OperateType;
+import org.apache.inlong.manager.common.workflow.bussiness.UpdateBusinessWorkflowForm;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class MockPlugin implements ProcessPlugin {
@@ -39,7 +38,7 @@ public class MockPlugin implements ProcessPlugin {
                 return false;
             }
             UpdateBusinessWorkflowForm form = (UpdateBusinessWorkflowForm) processForm;
-            return form.getOperateType() == OperateType.SUSPEND;
+            return form.getOperateType() == UpdateBusinessWorkflowForm.OperateType.SUSPEND;
         }
     };
 
@@ -51,7 +50,7 @@ public class MockPlugin implements ProcessPlugin {
                 return false;
             }
             UpdateBusinessWorkflowForm form = (UpdateBusinessWorkflowForm) processForm;
-            return form.getOperateType() == OperateType.RESTART;
+            return form.getOperateType() == UpdateBusinessWorkflowForm.OperateType.RESTART;
         }
     };
 
@@ -63,7 +62,7 @@ public class MockPlugin implements ProcessPlugin {
                 return false;
             }
             UpdateBusinessWorkflowForm form = (UpdateBusinessWorkflowForm) processForm;
-            return form.getOperateType() == OperateType.DELETE;
+            return form.getOperateType() == UpdateBusinessWorkflowForm.OperateType.DELETE;
         }
     };
 

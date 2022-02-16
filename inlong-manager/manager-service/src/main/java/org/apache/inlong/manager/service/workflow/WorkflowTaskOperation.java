@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 
 import lombok.Data;
+import org.apache.inlong.manager.common.workflow.BaseWorkflowTaskFormType;
 
 /**
  * Workflow task operations

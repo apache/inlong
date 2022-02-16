@@ -15,39 +15,37 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.business;
+package org.apache.inlong.manager.common.workflow.bussiness;
 
-import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.datastream.StreamBriefResponse;
+import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
+import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.service.workflow.BaseWorkflowFormType;
+import org.apache.inlong.manager.common.workflow.BaseWorkflowTaskFormType;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * New business workflow form information
+ * The system administrator approves and fills in the form
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class NewBusinessWorkflowForm extends BaseWorkflowFormType {
+public class BusinessAdminApproveForm extends BaseWorkflowTaskFormType {
 
-    public static final String FORM_NAME = "NewBusinessWorkflowForm";
+    public static final String FORM_NAME = "BusinessAdminApproveForm";
 
     @ApiModelProperty(value = "Access business information", required = true)
-    private BusinessInfo businessInfo;
+    private BusinessApproveInfo businessApproveInfo;
 
     @ApiModelProperty(value = "All data stream information under the business, including the storage information")
-    private List<StreamBriefResponse> streamInfoList;
+    private List<DataStreamApproveInfo> streamApproveInfoList;
 
     @Override
     public void validate() throws FormValidateException {
-        Preconditions.checkNotNull(businessInfo, "business info is empty");
+        Preconditions.checkNotNull(businessApproveInfo, "business approve info is empty");
     }
 
     @Override
@@ -55,15 +53,4 @@ public class NewBusinessWorkflowForm extends BaseWorkflowFormType {
         return FORM_NAME;
     }
 
-    @Override
-    public String getInlongGroupId() {
-        return businessInfo.getInlongGroupId();
-    }
-
-    @Override
-    public Map<String, Object> showInList() {
-        Map<String, Object> show = Maps.newHashMap();
-        show.put("groupId", businessInfo.getInlongGroupId());
-        return show;
-    }
 }

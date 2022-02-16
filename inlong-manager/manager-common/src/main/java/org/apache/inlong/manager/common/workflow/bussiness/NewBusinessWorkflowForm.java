@@ -15,44 +15,39 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.business;
+package org.apache.inlong.manager.common.workflow.bussiness;
 
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Locale;
-import java.util.Map;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
+import org.apache.inlong.manager.common.pojo.datastream.StreamBriefResponse;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.service.workflow.BaseWorkflowFormType;
 
+import java.util.List;
+import java.util.Map;
+import org.apache.inlong.manager.common.workflow.BaseWorkflowFormType;
+
+/**
+ * New business workflow form information
+ */
 @Data
-public class UpdateBusinessWorkflowForm extends BaseWorkflowFormType {
+@EqualsAndHashCode(callSuper = false)
+public class NewBusinessWorkflowForm extends BaseWorkflowFormType {
 
-    public static final String FORM_NAME = "UpdateBusinessWorkflowForm";
-
-    /**
-     * Used to control the operation to update businessWorkflow
-     */
-    public enum OperateType {
-        SUSPEND, RESTART, DELETE
-    }
+    public static final String FORM_NAME = "NewBusinessWorkflowForm";
 
     @ApiModelProperty(value = "Access business information", required = true)
     private BusinessInfo businessInfo;
 
-    @Getter
-    @Setter
-    @ApiModelProperty(value = "OperateType to define the update operation", required = true)
-    private OperateType operateType;
+    @ApiModelProperty(value = "All data stream information under the business, including the storage information")
+    private List<StreamBriefResponse> streamInfoList;
 
     @Override
     public void validate() throws FormValidateException {
         Preconditions.checkNotNull(businessInfo, "business info is empty");
-        Preconditions.checkNotNull(operateType, "operate type is empty");
     }
 
     @Override
@@ -69,7 +64,6 @@ public class UpdateBusinessWorkflowForm extends BaseWorkflowFormType {
     public Map<String, Object> showInList() {
         Map<String, Object> show = Maps.newHashMap();
         show.put("groupId", businessInfo.getInlongGroupId());
-        show.put("operateType", operateType.name().toLowerCase(Locale.ROOT));
         return show;
     }
 }
