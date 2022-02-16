@@ -44,6 +44,7 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
         <result column="temp_view" jdbcType="LONGVARCHAR" property="tempView"/>
+        <result column="proxy_cluster_id" jdbcType="INTEGER" property="proxyClusterID"/>
     </resultMap>
 
     <resultMap id="statusCountMap" type="java.util.Map">
@@ -54,7 +55,7 @@
     <sql id="Base_Column_List">
         id, inlong_group_id, name, cn_name, description, middleware_type, queue_module, topic_partition_num,
         mq_resource_obj, daily_records, daily_storage, peak_records, max_length, schema_name, in_charges, followers,
-        status, is_deleted, creator, modifier, create_time, modify_time, temp_view
+        status, is_deleted, creator, modifier, create_time, modify_time, temp_view, proxy_cluster_id
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
@@ -133,7 +134,7 @@
                               peak_records, max_length, schema_name,
                               in_charges, followers, status,
                               is_deleted, creator, modifier,
-                              create_time, modify_time, temp_view)
+                              create_time, modify_time, temp_view, proxy_cluster_id)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
                 #{cnName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{middlewareType,jdbcType=VARCHAR},
                 #{queueModule,jdbcType=VARCHAR}, #{topicPartitionNum,jdbcType=INTEGER},
@@ -141,7 +142,8 @@
                 #{peakRecords,jdbcType=INTEGER}, #{maxLength,jdbcType=INTEGER}, #{schemaName,jdbcType=VARCHAR},
                 #{inCharges,jdbcType=VARCHAR}, #{followers,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
                 #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
-                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, #{tempView,jdbcType=LONGVARCHAR})
+                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, #{tempView,jdbcType=LONGVARCHAR},
+                #{proxyClusterId,jdbcType=INTEGER})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.BusinessEntity">
@@ -449,7 +451,8 @@
             modifier            = #{modifier,jdbcType=VARCHAR},
             create_time         = #{createTime,jdbcType=TIMESTAMP},
             modify_time         = #{modifyTime,jdbcType=TIMESTAMP},
-            temp_view           = #{tempView,jdbcType=LONGVARCHAR}
+            temp_view           = #{tempView,jdbcType=LONGVARCHAR},
+            proxy_cluster_id    = #{proxyClusterId,jdbcType=INTEGER}
         where id = #{id,jdbcType=INTEGER}
     </update>
     <update id="updateStatusByIdentifier">
@@ -459,5 +462,11 @@
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
           and is_deleted = 0
     </update>
+
+    <select id="selectGroupIdByProxyId" parameterType="java.lang.Integer">
+        select inlong_group_id
+        from business
+        where proxy_cluster_id = #{proxyClusterId,jdbcType=INTEGER}
+    </select>
 
 </mapper>

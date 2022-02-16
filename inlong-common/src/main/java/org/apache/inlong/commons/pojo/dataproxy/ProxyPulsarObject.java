@@ -19,18 +19,17 @@ package org.apache.inlong.commons.pojo.dataproxy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class ProxyPulsarObject {
 
-    private List<Map<String, String>> pulsarSet = new ArrayList<>();
+    private List<PulsarClusterObject> pulsarSet = new ArrayList<>();
     private List<DataProxyConfig> topicList = new ArrayList<>();
 
-    public List<Map<String, String>> getPulsarSet() {
+    public List<PulsarClusterObject> getPulsarSet() {
         return pulsarSet;
     }
 
-    public void setPulsarSet(List<Map<String, String>> pulsarSet) {
+    public void setPulsarSet(List<PulsarClusterObject> pulsarSet) {
         this.pulsarSet = pulsarSet;
     }
 

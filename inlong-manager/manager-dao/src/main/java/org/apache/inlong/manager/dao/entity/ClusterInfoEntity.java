@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 @Data
 public class ClusterInfoEntity implements Serializable {
@@ -32,6 +33,7 @@ public class ClusterInfoEntity implements Serializable {
     private Integer port;
     private String inCharges;
     private String url;
+    private String token;
     private Integer isBackup;
     private Integer status;
     private Integer isDeleted = 0;
@@ -40,5 +42,6 @@ public class ClusterInfoEntity implements Serializable {
     private Date createTime;
     private Date modifyTime;
     private String extProps;
+    private String mqSetName;
 
 }

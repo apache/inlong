@@ -18,16 +18,16 @@
 package org.apache.inlong.dataproxy.config;
 
 import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.commons.pojo.dataproxy.PulsarClusterObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class RemoteConfigJson {
 
     private boolean result;
     private int errCode;
-    private List<Map<String, String>> pulsarSet = new ArrayList<>();
+    private List<PulsarClusterObject> pulsarSet = new ArrayList<>();
     private List<DataProxyConfig> topicList = new ArrayList<>();
 
     public boolean isResult() {
@@ -38,7 +38,7 @@ public class RemoteConfigJson {
         return errCode;
     }
 
-    public List<Map<String, String>> getPulsarSet() {
+    public List<PulsarClusterObject> getPulsarSet() {
         return pulsarSet;
     }
 

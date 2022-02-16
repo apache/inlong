@@ -27,10 +27,12 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.commons.pojo.dataproxy.PulsarClusterObject;
 import org.apache.inlong.dataproxy.config.holder.FileConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.GroupIdPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.MxPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.PropertiesConfigHolder;
+import org.apache.inlong.dataproxy.config.holder.PulsarConfigHolder;
 import org.apache.inlong.dataproxy.config.pojo.PulsarConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.slf4j.Logger;
@@ -54,8 +56,8 @@ public class ConfigManager {
             new PropertiesConfigHolder("common.properties");
     private final PropertiesConfigHolder topicConfig =
             new PropertiesConfigHolder("topics.properties");
-    private final MxPropertiesHolder pulsarUrl2token =
-            new MxPropertiesHolder("pulsar_config.properties");
+    private final PulsarConfigHolder pulsarUrl2token =
+            new PulsarConfigHolder("pulsar_config.properties");
     private final MxPropertiesHolder mxConfig = new MxPropertiesHolder("mx.properties");
     private final GroupIdPropertiesHolder groupIdConfig =
             new GroupIdPropertiesHolder("groupid_mapping.properties");
@@ -199,7 +201,7 @@ public class ConfigManager {
         return topicConfig;
     }
 
-    public MxPropertiesHolder getPulsarCluster() {
+    public PulsarConfigHolder getPulsarCluster() {
         return pulsarUrl2token;
     }
 
@@ -273,7 +275,7 @@ public class ConfigManager {
         private boolean checkWithManager(String host, String proxyClusterName) {
             HttpGet httpGet = null;
             try {
-                if (proxyClusterName == null) {
+                if (StringUtils.isEmpty(proxyClusterName)) {
                     LOG.error("proxyClusterName is null");
                 }
                 String url = "http://" + host + "/api/inlong/manager/openapi/dataproxy/getConfig_v2?clusterName=" + proxyClusterName;
@@ -292,14 +294,13 @@ public class ConfigManager {
                 Map<String, String> pulsarUrlToToken = new HashMap<>();
 
                 if (configJson.getErrCode() == 0) {
-                    // get pulsar <->token maps; store format: pulsar.index1=pulsa1rurl=pulsar1token
+                    // get pulsar <->token maps; store format: pulsar.index1=pulsar1url=pulsar1token
                     int index = 1;
-                    List<Map<String, String>> pulsarSet = configJson.getPulsarSet();
-                    for (Map<String, String> params : pulsarSet) {
+                    List<PulsarClusterObject> pulsarSet = configJson.getPulsarSet();
+                    for (PulsarClusterObject pulsarCluster : pulsarSet) {
                         String key = "pulsar.index" + index;
-                        String value = params.get(PulsarConfig.PULSAR_SERVER_URL_LIST)
-                                + AttributeConstants.KEY_VALUE_SEPARATOR
-                                + params.get(PulsarConfig.TOKEN);
+                        String value = pulsarCluster.getUrl() + AttributeConstants.KEY_VALUE_SEPARATOR
+                                + pulsarCluster.getToken();
                         pulsarUrlToToken.put(key, value);
                         ++index;
                     }
@@ -313,7 +314,7 @@ public class ConfigManager {
                     configManager.addPulsarProperties(pulsarUrlToToken);
 
                     // store pulsarcluster common configs and url2token
-                    configManager.getPulsarConfig().putAll(pulsarSet.get(0));
+                    configManager.getPulsarConfig().putAll(pulsarSet.get(0).getParams());
                     configManager.getPulsarConfig().setUrl2token(configManager.getPulsarCluster().getValueMaps());
                 }
             } catch (Exception ex) {

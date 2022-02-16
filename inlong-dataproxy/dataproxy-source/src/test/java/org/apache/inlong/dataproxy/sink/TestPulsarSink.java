@@ -30,8 +30,8 @@ import org.apache.flume.event.EventBuilder;
 import org.apache.flume.lifecycle.LifecycleController;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.holder.MxPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.PropertiesConfigHolder;
+import org.apache.inlong.dataproxy.config.holder.PulsarConfigHolder;
 import org.apache.inlong.dataproxy.config.pojo.PulsarConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -80,7 +80,7 @@ public class TestPulsarSink extends PowerMockTestCase {
         PowerMockito.when(ConfigManager.getInstance()).thenReturn(configManager);
         when(configManager.getPulsarConfig()).thenReturn(pulsarConfig);
         when(configManager.getTopicConfig()).thenReturn(new PropertiesConfigHolder("topics.properties"));
-        when(configManager.getPulsarCluster()).thenReturn(new MxPropertiesHolder("pulsar_config.properties"));
+        when(configManager.getPulsarCluster()).thenReturn(new PulsarConfigHolder("pulsar_config.properties"));
 
         Context context = new Context();
         context.put("type", "org.apache.inlong.dataproxy.sink.PulsarSink");

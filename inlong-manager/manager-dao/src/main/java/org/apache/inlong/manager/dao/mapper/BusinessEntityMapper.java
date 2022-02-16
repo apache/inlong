@@ -61,4 +61,6 @@ public interface BusinessEntityMapper {
     int updateStatusByIdentifier(@Param("groupId") String groupId, @Param("status") Integer status,
                                  @Param("modifier") String modifier);
 
+    List<String> selectGroupIdByProxyId(Integer proxyClusterId);
+
 }

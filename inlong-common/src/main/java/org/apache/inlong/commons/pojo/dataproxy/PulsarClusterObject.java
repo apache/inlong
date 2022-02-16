@@ -15,18 +15,37 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.commons.pojo.dataproxy;
 
-import lombok.Data;
+import java.util.HashMap;
+import java.util.Map;
 
-import java.io.Serializable;
+public class PulsarClusterObject {
+    private String url;
+    private String token;
+    private Map<String, String> params = new HashMap<>();
 
-@Data
-public class PulsarClusterEntity implements Serializable {
+    public String getUrl() {
+        return url;
+    }
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
-    private String pulsarClusterName;
-    private String setName;
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Map<String, String> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, String> params) {
+        this.params = params;
+    }
 }

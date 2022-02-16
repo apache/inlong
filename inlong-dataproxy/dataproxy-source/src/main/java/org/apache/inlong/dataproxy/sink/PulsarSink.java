@@ -180,7 +180,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
         /*
          * stat pulsar performance
          */
-        System.out.println("pulsarPerformanceTask!!!!!!");
+        logger.info("pulsarPerformanceTask!!!!!!");
         scheduledExecutorService.scheduleWithFixedDelay(pulsarPerformanceTask, 0L,
                 PRINT_INTERVAL, TimeUnit.SECONDS);
     }
@@ -317,7 +317,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
         try {
             initTopicSet(new HashSet<String>(topicProperties.values()));
         } catch (Exception e) {
-            logger.info("pulsar sink start publish topic fail.",e);
+            logger.info("pulsar sink start publish topic fail.", e);
         }
 
         for (int i = 0; i < sinkThreadPool.length; i++) {
@@ -400,7 +400,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
             try {
                 tx.rollback();
             } catch (Throwable e) {
-                logger.error("pulsar sink transaction rollback exception",e);
+                logger.error("pulsar sink transaction rollback exception", e);
 
             }
         } finally {
@@ -435,7 +435,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
              * Compatible agent
              */
             if (event.getHeaders().containsKey("time")) {
-                event.getHeaders().put(AttributeConstants.DATA_TIME,event.getHeaders().get("time"));
+                event.getHeaders().put(AttributeConstants.DATA_TIME, event.getHeaders().get("time"));
                 event.getHeaders().remove("time");
             }
 
@@ -657,7 +657,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
                                 logger.info(getName()
                                                 + " currentInFlightCount={} resendQueue"
                                                 + ".size={}",
-                                        currentInFlightCount.get(),resendQueue.size());
+                                        currentInFlightCount.get(), resendQueue.size());
                             }
                             if (logCounter > Long.MAX_VALUE - 10) {
                                 logCounter = 0;
@@ -671,7 +671,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
                         }
                     }
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Event is {}, topic = {} ",event, topic);
+                        logger.debug("Event is {}, topic = {} ", event, topic);
                     }
                     if (event == null) {
                         continue;
