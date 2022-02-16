@@ -27,6 +27,7 @@ import org.apache.flink.table.data.util.DataFormatConverters;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
+import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.CanalSerializationInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
@@ -76,16 +77,17 @@ public class KafkaSinkBuilder {
             int sinkParallelism
     ) {
         SerializationInfo serializationInfo = kafkaSinkInfo.getSerializationInfo();
+        FieldInfo[] fieldInfos = kafkaSinkInfo.getFields();
         if (serializationInfo instanceof CanalSerializationInfo) {
-            DataFormatConverters.RowConverter rowConverter = createRowConverter(kafkaSinkInfo);
+            DataFormatConverters.RowConverter rowConverter = createRowConverter(fieldInfos);
             DataStream<RowData> dataStream = sourceStream
                     .map(rowConverter::toInternal)
                     .uid(Constants.CONVERTER_UID)
                     .name("Row to RowData Converter")
                     .setParallelism(sinkParallelism);
 
-            SerializationSchema<RowData> schema = RowDataSerializationSchemaFactory.build(
-                    kafkaSinkInfo.getFields(), kafkaSinkInfo.getSerializationInfo());
+            SerializationSchema<RowData> schema =
+                    RowDataSerializationSchemaFactory.build(fieldInfos, serializationInfo);
 
             dataStream
                     .addSink(buildKafkaSink(kafkaSinkInfo, properties, schema, config))
@@ -93,8 +95,7 @@ public class KafkaSinkBuilder {
                     .name("Kafka Sink")
                     .setParallelism(sinkParallelism);
         } else {
-            SerializationSchema<Row> schema = RowSerializationSchemaFactory.build(
-                    kafkaSinkInfo.getFields(), kafkaSinkInfo.getSerializationInfo());
+            SerializationSchema<Row> schema = RowSerializationSchemaFactory.build(fieldInfos, serializationInfo);
             sourceStream
                     .addSink(buildKafkaSink(kafkaSinkInfo, properties, schema, config))
                     .uid(Constants.SINK_UID)
@@ -102,4 +103,5 @@ public class KafkaSinkBuilder {
                     .setParallelism(sinkParallelism);
         }
     }
+
 }

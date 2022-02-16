@@ -34,7 +34,7 @@ public abstract class KafkaSinkTestBaseForRowData extends KafkaSinkTestBase<RowD
     @Override
     protected void buildJob(StreamExecutionEnvironment env, TestingSource testingSource) {
         KafkaSinkInfo kafkaSinkInfo = new KafkaSinkInfo(fieldInfos, brokerConnStr, topic, null);
-        DataFormatConverters.RowConverter rowConverter = createRowConverter(kafkaSinkInfo);
+        DataFormatConverters.RowConverter rowConverter = createRowConverter(fieldInfos);
         env.addSource(testingSource).map(rowConverter::toInternal).returns(RowData.class).addSink(
                 buildKafkaSink(kafkaSinkInfo, new HashMap<>(), serializationSchema, new Configuration())
         );

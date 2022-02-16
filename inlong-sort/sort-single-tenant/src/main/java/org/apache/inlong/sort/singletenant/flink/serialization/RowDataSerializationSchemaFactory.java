@@ -19,7 +19,6 @@ package org.apache.inlong.sort.singletenant.flink.serialization;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.formats.common.TimestampFormat;
 import org.apache.flink.formats.json.JsonOptions;
 import org.apache.flink.formats.json.canal.CanalJsonSerializationSchema;
 import org.apache.flink.table.data.RowData;
@@ -29,11 +28,10 @@ import org.apache.inlong.sort.protocol.serialization.CanalSerializationInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertFieldInfosToRowType;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.getTimestampFormatStandard;
 
 public class RowDataSerializationSchemaFactory {
 
-    private static final String CANAL_TIMESTAMP_STANDARD_SQL = "SQL";
-    private static final String CANAL_TIMESTAMP_STANDARD_ISO = "ISO_8601";
     private static final String CANAL_MAP_NULL_KEY_MODE_FAIL = "FAIL";
     private static final String CANAL_MAP_NULL_KEY_MODE_DROP = "DROP";
     private static final String CANAL_MAP_NULL_KEY_MODE_LITERAL = "LITERAL";
@@ -65,16 +63,6 @@ public class RowDataSerializationSchemaFactory {
                 mapNullKeyLiteral,
                 canalSerializationInfo.isEncodeDecimalAsPlainNumber()
         );
-    }
-
-    private static TimestampFormat getTimestampFormatStandard(String input) {
-        if (CANAL_TIMESTAMP_STANDARD_SQL.equals(input)) {
-            return TimestampFormat.SQL;
-        } else if (CANAL_TIMESTAMP_STANDARD_ISO.equals(input)) {
-            return TimestampFormat.ISO_8601;
-        }
-
-        throw new IllegalArgumentException("Unsupported timestamp format standard: " + input);
     }
 
     private static JsonOptions.MapNullKeyMode getMapNullKeyMode(String input) {
