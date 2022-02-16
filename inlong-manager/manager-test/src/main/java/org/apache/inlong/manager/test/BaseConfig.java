@@ -17,19 +17,22 @@
 
 package org.apache.inlong.manager.test;
 
-import org.junit.runner.RunWith;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
-@EnableConfigurationProperties
-@ComponentScan(basePackages = "org.apache.inlong.manager")
-@RunWith(SpringRunner.class)
-@ActiveProfiles(value = {"test"})
-@SpringBootApplication
-@SpringBootTest
-public class BaseTest {
+@Configuration
+public class BaseConfig {
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
+
 }

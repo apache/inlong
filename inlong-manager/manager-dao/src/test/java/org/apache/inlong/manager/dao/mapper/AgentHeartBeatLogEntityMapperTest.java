@@ -23,8 +23,10 @@ import org.apache.inlong.manager.dao.entity.AgentHeartBeatLogEntity;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
+@ContextConfiguration(classes = AgentHeartBeatLogEntityMapperTest.class)
 public class AgentHeartBeatLogEntityMapperTest extends DaoBaseTest {
 
     @Autowired

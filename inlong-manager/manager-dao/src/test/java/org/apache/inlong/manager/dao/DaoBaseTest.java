@@ -17,17 +17,11 @@
 
 package org.apache.inlong.manager.dao;
 
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.apache.inlong.manager.test.BaseTest;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-@Rollback
 @Transactional
-@ActiveProfiles(value = "test")
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public abstract class DaoBaseTest {
+@Rollback
+public abstract class DaoBaseTest extends BaseTest {
 }
