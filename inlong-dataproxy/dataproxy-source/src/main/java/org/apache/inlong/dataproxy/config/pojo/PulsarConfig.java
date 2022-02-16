@@ -48,6 +48,12 @@ public class PulsarConfig extends Context {
     private static final String DISK_IO_RATE_PER_SEC = "disk_io_rate_per_sec";
     private static final String PULSAR_IO_THREADS = "pulsar_io_threads";
     private static final String PULSAR_CONNECTIONS_PRE_BROKER = "connections_pre_broker";
+    private static final String MAX_BATCHING_BYTES = "max_batching_bytes";
+    private static final String MAX_BATCHING_PUBLISH_DELAY_MILLIS =
+            "max_batching_publish_delay_millis";
+    private static final String EVENT_QUEUE_SIZE = "event_queue_size";
+
+    private static final String BAD_EVENT_QUEUE_SIZE = "bad_event_queue_size";
     /*
      * properties for stat
      */
@@ -64,15 +70,27 @@ public class PulsarConfig extends Context {
     private static final boolean DEFAULT_BLOCK_IF_QUEUE_FULL = true;
     private static final int DEFAULT_MAX_PENDING_MESSAGES = 10000;
     private static final int DEFAULT_MAX_BATCHING_MESSAGES = 1000;
+    private static final int DEFAULT_MAX_BATCHING_BYTES = 128 * 1024;
+    private static final long DEFAULT_MAX_BATCHING_PUBLISH_DELAY_MILLIS = 1L;
     private static final int DEFAULT_RETRY_CNT = -1;
     private static final int DEFAULT_LOG_EVERY_N_EVENTS = 100000;
     private static final int DEFAULT_STAT_INTERVAL_SEC = 60;
     private static final int DEFAULT_THREAD_NUM = 4;
     private static final boolean DEFAULT_CLIENT_ID_CACHE = true;
     private static final long DEFAULT_DISK_IO_RATE_PER_SEC = 0L;
-    private static int DEFAULT_PULSAR_IO_THREADS = Math.max(1, SystemPropertyUtil
+    private static final int DEFAULT_EVENT_QUEUE_SIZE = 10000;
+    private static final int DEFAULT_BAD_EVENT_QUEUE_SIZE = 10000;
+    private static final int DEFAULT_PULSAR_IO_THREADS = Math.max(1, SystemPropertyUtil
             .getInt("io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
     private static final int DEFAULT_CONNECTIONS_PRE_BROKER = 1;
+
+    public int getEventQueueSize() {
+        return getInteger(EVENT_QUEUE_SIZE, DEFAULT_EVENT_QUEUE_SIZE);
+    }
+
+    public int getBadEventQueueSize() {
+        return getInteger(BAD_EVENT_QUEUE_SIZE, DEFAULT_BAD_EVENT_QUEUE_SIZE);
+    }
 
     public Map<String, String> getUrl2token() {
         return url2token;
@@ -100,6 +118,14 @@ public class PulsarConfig extends Context {
 
     public int getClientTimeoutSecond() {
         return getInteger(CLIENT_TIMEOUT, DEFAULT_CLIENT_TIMEOUT_SECOND);
+    }
+
+    public int getMaxBatchingBytes() {
+        return getInteger(MAX_BATCHING_BYTES, DEFAULT_MAX_BATCHING_BYTES);
+    }
+
+    public long getMaxBatchingPublishDelayMillis() {
+        return getLong(MAX_BATCHING_PUBLISH_DELAY_MILLIS, DEFAULT_MAX_BATCHING_PUBLISH_DELAY_MILLIS);
     }
 
     public boolean getEnableBatch() {

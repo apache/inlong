@@ -53,41 +53,8 @@ public class PulsarClientService {
     private static final LogCounter logPrinterA = new LogCounter(10, 100000, 60 * 1000);
 
     /*
-     * properties key for pulsar client
-     */
-    private static String PULSAR_SERVER_URL_LIST = "pulsar_server_url_list";
-    private static String PULSAR_TOKEN = "pulsar_token";
-    private static String PULSAR_AUTH_TYPE = "pulsar_auth_type";
-    private static String PULSAR_DEFAULT_AUTH_TYPE = "token";
-
-    /*
-     * properties key pulsar producer
-     */
-    private static String SEND_TIMEOUT = "send_timeout_mill";
-    private static String CLIENT_TIMEOUT = "client_timeout_second";
-    private static String ENABLE_BATCH = "enable_batch";
-    private static String PULSAR_IO_THREADS = "pulsar_io_threads";
-    private static String PULSAR_CONNECTIONS_PRE_BROKER = "connections_pre_broker";
-    private static String BLOCK_IF_QUEUE_FULL = "block_if_queue_full";
-    private static String MAX_PENDING_MESSAGES = "max_pending_messages";
-    private static String MAX_BATCHING_MESSAGES = "max_batching_messages";
-    private static String RETRY_INTERVAL_WHEN_SEND_ERROR_MILL = "retry_interval_when_send_error_ms";
-
-    private static int DEFAULT_PULSAR_IO_THREADS = Math.max(1, SystemPropertyUtil
-            .getInt("io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
-    private static int DEFAULT_CONNECTIONS_PRE_BROKER = 1;
-    private static int DEFAULT_SEND_TIMEOUT_MILL = 30 * 1000;
-    private static int DEFAULT_CLIENT_TIMEOUT_SECOND = 30;
-    private static long DEFAULT_RETRY_INTERVAL_WHEN_SEND_ERROR_MILL = 30 * 1000L;
-    private static boolean DEFAULT_ENABLE_BATCH = true;
-    private static boolean DEFAULT_BLOCK_IF_QUEUE_FULL = true;
-    private static int DEFAULT_MAX_PENDING_MESSAGES = 10000;
-    private static int DEFAULT_MAX_BATCHING_MESSAGES = 1000;
-
-    /*
      * for pulsar client
      */
-    private String[] pulsarServerUrls;
     private Map<String, String> pulsarUrl2token;
 
     private String authType;
@@ -99,7 +66,9 @@ public class PulsarClientService {
     private boolean enableBatch = true;
     private boolean blockIfQueueFull = true;
     private int maxPendingMessages = 10000;
+    private int maxBatchingBytes = 128 * 1024;
     private int maxBatchingMessages = 1000;
+    private long maxBatchingPublishDelayMillis = 1;
     private long retryIntervalWhenSendMsgError = 30 * 1000L;
     public Map<String, List<TopicProducerInfo>> producerInfoMap;
     public Map<String, AtomicLong> topicSendIndexMap;
@@ -131,18 +100,11 @@ public class PulsarClientService {
         blockIfQueueFull = pulsarConfig.getBlockIfQueueFull();
         maxPendingMessages = pulsarConfig.getMaxPendingMessages();
         maxBatchingMessages = pulsarConfig.getMaxBatchingMessages();
+        maxBatchingBytes = pulsarConfig.getMaxBatchingBytes();
+        maxBatchingPublishDelayMillis = pulsarConfig.getMaxBatchingPublishDelayMillis();
         producerInfoMap = new ConcurrentHashMap<String, List<TopicProducerInfo>>();
         topicSendIndexMap = new ConcurrentHashMap<String, AtomicLong>();
         localIp = NetworkUtils.getLocalIp();
-
-        //        retryIntervalWhenSendMsgError = context.getLong(RETRY_INTERVAL_WHEN_SEND_ERROR_MILL,
-//                DEFAULT_RETRY_INTERVAL_WHEN_SEND_ERROR_MILL);
-//        clientTimeout = context.getInteger(CLIENT_TIMEOUT, DEFAULT_CLIENT_TIMEOUT_SECOND);
-//        enableBatch = context.getBoolean(ENABLE_BATCH, DEFAULT_ENABLE_BATCH);
-//        blockIfQueueFull = context.getBoolean(BLOCK_IF_QUEUE_FULL, DEFAULT_BLOCK_IF_QUEUE_FULL);
-//        maxPendingMessages = context.getInteger(MAX_PENDING_MESSAGES, DEFAULT_MAX_PENDING_MESSAGES);
-//        maxBatchingMessages = context.getInteger(MAX_BATCHING_MESSAGES, DEFAULT_MAX_BATCHING_MESSAGES);
-
     }
 
     public void initCreateConnection(CreatePulsarClientCallBack callBack) {
@@ -189,6 +151,8 @@ public class PulsarClientService {
              * After 30s, reopen the topic check, if it is still a null value,
              *  put it back into the illegal map
              */
+            sendMessageCallBack.handleMessageSendException(topic, es, new Exception("producer is "
+                    + "null"));
             return false;
         }
 
@@ -272,12 +236,18 @@ public class PulsarClientService {
 
     public List<TopicProducerInfo> initTopicProducer(String topic) {
         List<TopicProducerInfo> producerInfoList = producerInfoMap.computeIfAbsent(topic, (k) -> {
-            List<TopicProducerInfo> newList = new ArrayList<>();
+            List<TopicProducerInfo> newList = null;
             if (pulsarClients != null) {
+                newList = new ArrayList<>();
                 for (PulsarClient pulsarClient : pulsarClients) {
                     TopicProducerInfo info = new TopicProducerInfo(pulsarClient, topic);
                     info.initProducer();
-                    newList.add(info);
+                    if (info.isCanUseToSendMessage()) {
+                        newList.add(info);
+                    }
+                }
+                if (newList.size() == 0) {
+                    newList = null;
                 }
             }
             return newList;
@@ -290,7 +260,7 @@ public class PulsarClientService {
         AtomicLong topicIndex = topicSendIndexMap.computeIfAbsent(topic, (k) -> {
             return new AtomicLong(0);
         });
-        int maxTryToGetProducer = producerList.size();
+        int maxTryToGetProducer = producerList == null ? 0 : producerList.size();
         if (maxTryToGetProducer == 0) {
             return null;
         }
@@ -361,6 +331,8 @@ public class PulsarClientService {
                         .blockIfQueueFull(blockIfQueueFull)
                         .maxPendingMessages(maxPendingMessages)
                         .batchingMaxMessages(maxBatchingMessages)
+                        .batchingMaxBytes(maxBatchingBytes)
+                        .batchingMaxPublishDelay(maxBatchingPublishDelayMillis, TimeUnit.MILLISECONDS)
                         .create();
                 isFinishInit = true;
             } catch (PulsarClientException e) {
