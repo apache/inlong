@@ -18,6 +18,13 @@
 package org.apache.inlong.dataproxy.source;
 
 import com.google.common.base.Preconditions;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -28,24 +35,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.concurrent.Executors;
 import org.apache.commons.io.IOUtils;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;
 import org.apache.inlong.commons.config.metrics.MetricRegister;
-import org.apache.inlong.dataproxy.base.NamedThreadFactory;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
-import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.channel.group.DefaultChannelGroup;
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
-import org.jboss.netty.util.ThreadNameDeterminer;
-import org.jboss.netty.util.ThreadRenamingRunnable;
+import org.apache.inlong.dataproxy.utils.EventLoopUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,17 +63,7 @@ public class SimpleTcpSource extends BaseSource
 
     private static int TRAFFIC_CLASS_TYPE_96 = 96;
 
-    private static int BUFFER_SIZE_MUST_THAN = 0;
-
     private static int HIGH_WATER_MARK_DEFAULT_VALUE = 64 * 1024;
-
-    private static int RECEIVE_BUFFER_DEFAULT_SIZE = 64 * 1024;
-
-    private static int SEND_BUFFER_DEFAULT_SIZE = 64 * 1024;
-
-    private static int RECEIVE_BUFFER_MAX_SIZE = 16 * 1024 * 1024;
-
-    private static int SEND_BUFFER_MAX_SIZE = 16 * 1024 * 1024;
 
     private static int DEFAULT_SLEEP_TIME_MS = 5 * 1000;
 
@@ -84,27 +71,23 @@ public class SimpleTcpSource extends BaseSource
 
     private CheckBlackListThread checkBlackListThread;
 
-    private int maxThreads = 32;
-
     private boolean tcpNoDelay = true;
 
     private boolean keepAlive = true;
 
-    private int receiveBufferSize;
-
     private int highWaterMark;
-
-    private int sendBufferSize;
 
     private int trafficClass;
 
     protected String topic;
 
+    private ServerBootstrap bootstrap;
+
     private DataProxyMetricItemSet metricItemSet;
 
     public SimpleTcpSource() {
         super();
-        allChannels = new DefaultChannelGroup();
+
     }
 
     /**
@@ -118,7 +101,7 @@ public class SimpleTcpSource extends BaseSource
             while (it.hasNext()) {
                 Channel channel = it.next();
                 String strRemoteIP = null;
-                SocketAddress remoteSocketAddress = channel.getRemoteAddress();
+                SocketAddress remoteSocketAddress = channel.remoteAddress();
                 if (null != remoteSocketAddress) {
                     strRemoteIP = remoteSocketAddress.toString();
                     try {
@@ -203,43 +186,48 @@ public class SimpleTcpSource extends BaseSource
         MetricRegister.register(metricItemSet);
         checkBlackListThread = new CheckBlackListThread();
         checkBlackListThread.start();
-        ThreadRenamingRunnable.setThreadNameDeterminer(ThreadNameDeterminer.CURRENT);
-        ChannelFactory factory =
-                new NioServerSocketChannelFactory(
-                        Executors.newCachedThreadPool(
-                                new NamedThreadFactory("tcpSource-nettyBoss-threadGroup")), 1,
-                        Executors.newCachedThreadPool(
-                                new NamedThreadFactory("tcpSource-nettyWorker-threadGroup")), maxThreads);
+//        ThreadRenamingRunnable.setThreadNameDeterminer(ThreadNameDeterminer.CURRENT);
+
         logger.info("Set max workers : {} ;", maxThreads);
 
-        serverBootstrap = new ServerBootstrap(factory);
-        serverBootstrap.setOption("child.tcpNoDelay", tcpNoDelay);
-        serverBootstrap.setOption("child.keepAlive", keepAlive);
-        serverBootstrap.setOption("child.receiveBufferSize", receiveBufferSize);
-        serverBootstrap.setOption("child.sendBufferSize", sendBufferSize);
-        serverBootstrap.setOption("child.trafficClass", trafficClass);
-        serverBootstrap.setOption("child.writeBufferHighWaterMark", highWaterMark);
+        acceptorThreadFactory = new DefaultThreadFactory("tcpSource-nettyBoss-threadGroup");
+
+        this.acceptorGroup = EventLoopUtil.newEventLoopGroup(
+                acceptorThreads, false, acceptorThreadFactory);
+
+        this.workerGroup = EventLoopUtil
+                .newEventLoopGroup(maxThreads, enableBusyWait,
+                        new DefaultThreadFactory("tcpSource-nettyWorker-threadGroup"));
+
+        bootstrap = new ServerBootstrap();
+
+        bootstrap.childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT);
+        bootstrap.childOption(ChannelOption.TCP_NODELAY, tcpNoDelay);
+        bootstrap.childOption(ChannelOption.SO_KEEPALIVE, keepAlive);
+        bootstrap.childOption(ChannelOption.SO_RCVBUF, receiveBufferSize);
+        bootstrap.childOption(ChannelOption.SO_SNDBUF, sendBufferSize);
+//        serverBootstrap.childOption("child.trafficClass", trafficClass);
+        bootstrap.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, highWaterMark);
+        bootstrap.channel(EventLoopUtil.getServerSocketChannelClass(workerGroup));
+        EventLoopUtil.enableTriggeredMode(bootstrap);
+        bootstrap.group(acceptorGroup, workerGroup);
         logger.info("load msgFactory=" + msgFactoryName
                 + " and serviceDecoderName=" + serviceDecoderName);
 
-        ChannelPipelineFactory fac = this.getChannelPiplineFactory();
-        serverBootstrap.setPipelineFactory(fac);
-
+        ChannelInitializer fac = this.getChannelInitializerFactory();
+        bootstrap.childHandler(fac);
         try {
             if (host == null) {
-                nettyChannel = ((ServerBootstrap)serverBootstrap).bind(new InetSocketAddress(port));
+                channelFuture = bootstrap.bind(new InetSocketAddress(port)).sync();
             } else {
-                nettyChannel = ((ServerBootstrap)serverBootstrap).bind(new InetSocketAddress(host, port));
+                channelFuture = bootstrap.bind(new InetSocketAddress(host, port)).sync();
             }
         } catch (Exception e) {
-            logger.error("Simple TCP Source error bind host {} port {},program will exit!", host, port);
+            logger.error("Simple TCP Source error bind host {} port {},program will exit! e = {}",
+                    host, port, e);
             System.exit(-1);
         }
-
-        allChannels.add(nettyChannel);
-
         logger.info("Simple TCP Source started at host {}, port {}", host, port);
-
     }
 
     @Override

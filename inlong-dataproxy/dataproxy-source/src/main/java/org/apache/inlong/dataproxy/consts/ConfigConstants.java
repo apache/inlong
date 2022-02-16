@@ -54,6 +54,8 @@ public class ConfigConstants {
 
     public static final String MAX_THREADS = "max-threads";
 
+    public static final String ENABLE_BUSY_WAIT = "enableBusyWait";
+
     public static final String STAT_INTERVAL_SEC = "stat-interval-sec";
 
     public static final String HEART_INTERVAL_SEC = "heart-interval-sec";

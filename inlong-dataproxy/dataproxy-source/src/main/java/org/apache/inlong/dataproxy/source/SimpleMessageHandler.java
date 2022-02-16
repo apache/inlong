@@ -22,6 +22,12 @@ import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_DATA
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_GROUPID;
 import static org.apache.inlong.dataproxy.source.SimpleTcpSource.blacklist;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.group.ChannelGroup;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -50,15 +56,6 @@ import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
-import org.jboss.netty.channel.group.ChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +66,7 @@ import com.google.common.base.Splitter;
  * Server message handler
  *
  */
-public class SimpleMessageHandler extends SimpleChannelHandler {
+public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleMessageHandler.class);
 
@@ -105,7 +102,6 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
     private final ServiceDecoder serviceProcessor;
     private final String defaultTopic;
     private String defaultMXAttr = "m=3";
-    private final ChannelBuffer heartbeatBuffer;
     private final String protocolType;
     private final DataProxyMetricItemSet metricItemSet;
 
@@ -138,7 +134,6 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
 
         this.filterEmptyMsg = filterEmptyMsg;
         this.isCompressed = isCompressed;
-        this.heartbeatBuffer = ChannelBuffers.wrappedBuffer(new byte[]{0, 0, 0, 1, 1});
         this.maxConnections = maxCons;
         this.protocolType = protocolType;
         if (source instanceof SimpleTcpSource) {
@@ -150,7 +145,7 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
 
     private String getRemoteIp(Channel channel) {
         String strRemoteIp = DEFAULT_REMOTE_IP_VALUE;
-        SocketAddress remoteSocketAddress = channel.getRemoteAddress();
+        SocketAddress remoteSocketAddress = channel.remoteAddress();
         if (null != remoteSocketAddress) {
             strRemoteIp = remoteSocketAddress.toString();
             try {
@@ -223,18 +218,18 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
     }
 
     @Override
-    public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
         if (allChannels.size() - 1 >= maxConnections) {
             logger.warn("refuse to connect , and connections=" + (allChannels.size() - 1)
                     + ", maxConnections="
-                    + maxConnections + ",channel is " + e.getChannel());
-            e.getChannel().disconnect();
-            e.getChannel().close();
+                    + maxConnections + ",channel is " + ctx.channel());
+            ctx.channel().disconnect();
+            ctx.channel().close();
         }
-        if (!checkBlackIp(e.getChannel())) {
+        if (!checkBlackIp(ctx.channel())) {
             logger.info("connections={},maxConnections={}", allChannels.size() - 1, maxConnections);
-            allChannels.add(e.getChannel());
-            super.channelOpen(ctx, e);
+            allChannels.add(ctx.channel());
+            ctx.fireChannelActive();
         }
     }
 
@@ -507,7 +502,7 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
                         backBody = new byte[]{50};
                     }
                     int backTotalLen = 1 + 4 + backBody.length + 4 + backAttr.length;
-                    ChannelBuffer buffer = ChannelBuffers.buffer(4 + backTotalLen);
+                    ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer(4 + backTotalLen);
                     buffer.writeInt(backTotalLen);
                     buffer.writeByte(msgType.getValue());
                     buffer.writeInt(backBody.length);
@@ -515,13 +510,14 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
                     buffer.writeInt(backAttr.length);
                     buffer.writeBytes(backAttr);
                     if (remoteChannel.isWritable()) {
-                        remoteChannel.write(buffer, remoteSocketAddress);
+                        remoteChannel.write(buffer);
                     } else {
                         String backAttrStr = new String(backAttr, StandardCharsets.UTF_8);
                         logger.warn(
                                 "the send buffer1 is full, so disconnect it!please check remote client"
                                         + "; Connection info:"
                                         + remoteChannel + ";attr is " + backAttrStr);
+                        buffer.release();
                         throw new Exception(new Throwable(
                                 "the send buffer1 is full, so disconnect it!please check remote client"
                                         +
@@ -540,7 +536,7 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
                     binTotalLen += backattrs.length();
                 }
 
-                ChannelBuffer binBuffer = ChannelBuffers.buffer(4 + binTotalLen);
+                ByteBuf binBuffer = ByteBufAllocator.DEFAULT.buffer(4 + binTotalLen);
                 binBuffer.writeInt(binTotalLen);
                 binBuffer.writeByte(msgType.getValue());
 
@@ -561,12 +557,13 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
 
                 binBuffer.writeShort(0xee01);
                 if (remoteChannel.isWritable()) {
-                    remoteChannel.write(binBuffer, remoteSocketAddress);
+                    remoteChannel.write(binBuffer);
                 } else {
                     logger.warn(
                             "the send buffer2 is full, so disconnect it!please check remote client"
                                     + "; Connection info:" + remoteChannel + ";attr is "
                                     + backattrs);
+                    binBuffer.release();
                     throw new Exception(new Throwable(
                             "the send buffer2 is full,so disconnect it!please check remote client, Connection info:"
                                     + remoteChannel + ";attr is " + backattrs));
@@ -576,121 +573,122 @@ public class SimpleMessageHandler extends SimpleChannelHandler {
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent msgEvent) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         logger.info("message received");
-        if (msgEvent == null) {
+        if (msg == null) {
             logger.error("get null messageevent, just skip");
             this.addMetric(false, 0, null);
             return;
         }
-        ChannelBuffer cb = ((ChannelBuffer) msgEvent.getMessage());
-        String strRemoteIP = getRemoteIp(msgEvent.getChannel());
-        SocketAddress remoteSocketAddress = msgEvent.getRemoteAddress();
-        int len = cb.readableBytes();
-        if (len == 0 && this.filterEmptyMsg) {
-            logger.warn("skip empty msg.");
-            cb.clear();
-            this.addMetric(false, 0, null);
-            return;
-        }
-
-        Channel remoteChannel = msgEvent.getChannel();
-        Map<String, Object> resultMap = null;
+        Channel remoteChannel = ctx.channel();
+        ByteBuf cb = (ByteBuf) msg;
         try {
-            resultMap = serviceProcessor.extractData(cb, remoteChannel, msgEvent);
-        } catch (MessageIDException ex) {
-            this.addMetric(false, 0, null);
-            throw new IOException(ex.getCause());
-        }
+            int len = cb.readableBytes();
+            if (len == 0 && this.filterEmptyMsg) {
+                logger.warn("skip empty msg.");
+                cb.clear();
+                this.addMetric(false, 0, null);
+                return;
+            }
+            Map<String, Object> resultMap = null;
+            try {
+                resultMap = serviceProcessor.extractData(cb, remoteChannel);
+            } catch (MessageIDException ex) {
+                this.addMetric(false, 0, null);
+                throw new IOException(ex.getCause());
+            }
 
-        if (resultMap == null) {
-            logger.info("result is null");
-            this.addMetric(false, 0, null);
-            return;
-        }
+            if (resultMap == null) {
+                logger.info("result is null");
+                this.addMetric(false, 0, null);
+                return;
+            }
 
-        MsgType msgType = (MsgType) resultMap.get(ConfigConstants.MSG_TYPE);
-        if (MsgType.MSG_HEARTBEAT.equals(msgType)) {
-            remoteChannel.write(heartbeatBuffer, remoteSocketAddress);
-            this.addMetric(false, 0, null);
-            return;
-        }
+            MsgType msgType = (MsgType) resultMap.get(ConfigConstants.MSG_TYPE);
+            if (MsgType.MSG_HEARTBEAT.equals(msgType)) {
+                ByteBuf heartbeatBuffer = ByteBufAllocator.DEFAULT.buffer(5);
+                heartbeatBuffer.writeBytes(new byte[]{0, 0, 0, 1, 1});
+                remoteChannel.write(heartbeatBuffer);
+                this.addMetric(false, 0, null);
+                return;
+            }
 
-        if (MsgType.MSG_BIN_HEARTBEAT.equals(msgType)) {
-//            ChannelBuffer binBuffer = getBinHeart(resultMap,msgType);
-//            remoteChannel.write(binBuffer, remoteSocketAddress);
-            this.addMetric(false, 0, null);
-            return;
-        }
+            if (MsgType.MSG_BIN_HEARTBEAT.equals(msgType)) {
+                this.addMetric(false, 0, null);
+                return;
+            }
 
-        Map<String, String> commonAttrMap = (Map<String, String>) resultMap.get(ConfigConstants.COMMON_ATTR_MAP);
-        if (commonAttrMap == null) {
-            commonAttrMap = new HashMap<String, String>();
-        }
+            Map<String, String> commonAttrMap = (Map<String, String>) resultMap.get(ConfigConstants.COMMON_ATTR_MAP);
+            if (commonAttrMap == null) {
+                commonAttrMap = new HashMap<String, String>();
+            }
 
-        List<ProxyMessage> msgList = (List<ProxyMessage>) resultMap.get(ConfigConstants.MSG_LIST);
-        if (msgList != null
-                && !commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)
-                && !commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
-            Map<String, HashMap<String, List<ProxyMessage>>> messageMap = new HashMap<>(msgList.size());
+            List<ProxyMessage> msgList = (List<ProxyMessage>) resultMap.get(ConfigConstants.MSG_LIST);
+            if (msgList != null
+                    && !commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)
+                    && !commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
+                Map<String, HashMap<String, List<ProxyMessage>>> messageMap = new HashMap<>(msgList.size());
+                String strRemoteIP = getRemoteIp(remoteChannel);
+                updateMsgList(msgList, commonAttrMap, messageMap, strRemoteIP, msgType);
 
-            updateMsgList(msgList, commonAttrMap, messageMap, strRemoteIP, msgType);
+                formatMessagesAndSend(commonAttrMap, messageMap, strRemoteIP, msgType);
 
-            formatMessagesAndSend(commonAttrMap, messageMap, strRemoteIP, msgType);
-
-        } else if (msgList != null && commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)) {
-//            logger.info("i am in FILE_CHECK_DATA ");
-            Map<String, String> headers = new HashMap<String, String>();
-            headers.put("msgtype", "filestatus");
-            headers.put(ConfigConstants.FILE_CHECK_DATA,
-                    "true");
-            for (ProxyMessage message : msgList) {
-                byte[] body = message.getData();
-//                logger.info("data:"+new String(body));
-                Event event = EventBuilder.withBody(body, headers);
-                try {
-                    processor.processEvent(event);
-                    this.addMetric(true, body.length, event);
-                } catch (Throwable ex) {
-                    logger.error("Error writing to controller,data will discard.", ex);
-                    this.addMetric(false, body.length, event);
-                    throw new ChannelException(
-                            "Process Controller Event error can't write event to channel.");
+            } else if (msgList != null && commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)) {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("msgtype", "filestatus");
+                headers.put(ConfigConstants.FILE_CHECK_DATA,
+                        "true");
+                for (ProxyMessage message : msgList) {
+                    byte[] body = message.getData();
+                    Event event = EventBuilder.withBody(body, headers);
+                    try {
+                        processor.processEvent(event);
+                        this.addMetric(true, body.length, event);
+                    } catch (Throwable ex) {
+                        logger.error("Error writing to controller,data will discard.", ex);
+                        this.addMetric(false, body.length, event);
+                        throw new ChannelException(
+                                "Process Controller Event error can't write event to channel.");
+                    }
+                }
+            } else if (msgList != null && commonAttrMap
+                    .containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
+                logger.info("i am in MINUTE_CHECK_DATA");
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("msgtype", "measure");
+                headers.put(ConfigConstants.FILE_CHECK_DATA,
+                        "true");
+                for (ProxyMessage message : msgList) {
+                    byte[] body = message.getData();
+                    Event event = EventBuilder.withBody(body, headers);
+                    try {
+                        processor.processEvent(event);
+                        this.addMetric(true, body.length, event);
+                    } catch (Throwable ex) {
+                        logger.error("Error writing to controller,data will discard.", ex);
+                        this.addMetric(false, body.length, event);
+                        throw new ChannelException(
+                                "Process Controller Event error can't write event to channel.");
+                    }
                 }
             }
-        } else if (msgList != null && commonAttrMap
-                .containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
-            logger.info("i am in MINUTE_CHECK_DATA");
-            Map<String, String> headers = new HashMap<String, String>();
-            headers.put("msgtype", "measure");
-            headers.put(ConfigConstants.FILE_CHECK_DATA,
-                    "true");
-            for (ProxyMessage message : msgList) {
-                byte[] body = message.getData();
-//                logger.info("data:"+new String(body));
-                Event event = EventBuilder.withBody(body, headers);
-                try {
-                    processor.processEvent(event);
-                    this.addMetric(true, body.length, event);
-                } catch (Throwable ex) {
-                    logger.error("Error writing to controller,data will discard.", ex);
-                    this.addMetric(false, body.length, event);
-                    throw new ChannelException(
-                            "Process Controller Event error can't write event to channel.");
-                }
-            }
+            SocketAddress remoteSocketAddress = remoteChannel.remoteAddress();
+            responsePackage(commonAttrMap, resultMap, remoteChannel, remoteSocketAddress, msgType);
+        } finally {
+            cb.release();
         }
-        responsePackage(commonAttrMap, resultMap, remoteChannel, remoteSocketAddress, msgType);
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-        logger.error("exception caught", e.getCause());
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        logger.error("exception caught cause = {}", cause);
+        ctx.fireExceptionCaught(cause);
     }
 
     @Override
-    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        logger.error("channel closed {}", ctx.getChannel());
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        logger.error("channel inactive {}", ctx.channel());
+        ctx.fireChannelInactive();
     }
 
     /**

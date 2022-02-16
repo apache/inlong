@@ -17,6 +17,12 @@
 
 package org.apache.inlong.dataproxy.source;
 
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import java.lang.reflect.Constructor;
 import java.util.concurrent.TimeUnit;
 import org.apache.flume.channel.ChannelProcessor;
@@ -24,21 +30,11 @@ import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.commons.monitor.MonitorIndex;
 import org.apache.inlong.commons.monitor.MonitorIndexExt;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.channel.SimpleChannelHandler;
-import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
-import org.jboss.netty.handler.execution.ExecutionHandler;
-import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
-import org.jboss.netty.handler.timeout.ReadTimeoutHandler;
-import org.jboss.netty.util.HashedWheelTimer;
-import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ServerMessageFactory implements ChannelPipelineFactory {
+public class ServerMessageFactory
+        extends ChannelInitializer<SocketChannel> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServerMessageFactory.class);
 
@@ -55,8 +51,6 @@ public class ServerMessageFactory implements ChannelPipelineFactory {
     private ChannelProcessor processor;
 
     private ChannelGroup allChannels;
-
-    private ExecutionHandler executionHandler;
 
     private String protocolType;
 
@@ -81,8 +75,6 @@ public class ServerMessageFactory implements ChannelPipelineFactory {
     private MonitorIndex monitorIndex;
 
     private MonitorIndexExt monitorIndexExt;
-
-    private Timer timer = new HashedWheelTimer();
 
     /**
      * get server factory
@@ -122,37 +114,24 @@ public class ServerMessageFactory implements ChannelPipelineFactory {
         this.isCompressed = isCompressed;
         this.monitorIndex = monitorIndex;
         this.monitorIndexExt = monitorIndexExt;
-        if (protocolType.equalsIgnoreCase(ConfigConstants.UDP_PROTOCOL)) {
-            this.executionHandler = new ExecutionHandler(
-                    new OrderedMemoryAwareThreadPoolExecutor(cores * 2,
-                            MAX_CHANNEL_MEMORY_SIZE, MAX_TOTAL_MEMORY_SIZE));
-        }
     }
 
     @Override
-    public ChannelPipeline getPipeline() throws Exception {
-        ChannelPipeline cp = Channels.pipeline();
-        return addMessageHandlersTo(cp);
-    }
-
-    /**
-     * get message handlers
-     * @param cp
-     * @return
-     */
-    public ChannelPipeline addMessageHandlersTo(ChannelPipeline cp) {
+    protected void initChannel(SocketChannel ch) throws Exception {
 
         if (this.protocolType
                 .equalsIgnoreCase(ConfigConstants.TCP_PROTOCOL)) {
-            cp.addLast("messageDecoder", new LengthFieldBasedFrameDecoder(
-                    this.maxMsgLength, 0, MSG_LENGTH_LEN, 0, 0, true));
-            cp.addLast("readTimeoutHandler", new ReadTimeoutHandler(timer,
-                    DEFAULT_READ_IDLE_TIME, TimeUnit.MILLISECONDS));
+            ch.pipeline().addLast("messageDecoder", new LengthFieldBasedFrameDecoder(
+                    this.maxMsgLength, 0,
+                    MSG_LENGTH_LEN, 0, 0, true));
+            ch.pipeline().addLast("readTimeoutHandler",
+                    new ReadTimeoutHandler(DEFAULT_READ_IDLE_TIME, TimeUnit.MILLISECONDS));
         }
 
         if (processor != null) {
             try {
-                Class<? extends SimpleChannelHandler> clazz = (Class<? extends SimpleChannelHandler>) Class
+                Class<? extends ChannelInboundHandlerAdapter> clazz
+                        = (Class<? extends ChannelInboundHandlerAdapter>) Class
                         .forName(messageHandlerName);
 
                 Constructor<?> ctor = clazz.getConstructor(
@@ -161,22 +140,16 @@ public class ServerMessageFactory implements ChannelPipelineFactory {
                         Integer.class, Boolean.class, MonitorIndex.class,
                         MonitorIndexExt.class, String.class);
 
-                SimpleChannelHandler messageHandler = (SimpleChannelHandler) ctor
+                ChannelInboundHandlerAdapter messageHandler = (ChannelInboundHandlerAdapter) ctor
                         .newInstance(source, serviceDecoder, allChannels, topic, attr,
                                 filterEmptyMsg, maxConnections,
                                 isCompressed,  monitorIndex, monitorIndexExt, protocolType
                         );
 
-                cp.addLast("messageHandler", messageHandler);
+                ch.pipeline().addLast("messageHandler", messageHandler);
             } catch (Exception e) {
                 LOG.info("SimpleChannelHandler.newInstance  has error:" + name, e);
             }
         }
-
-        if (this.protocolType.equalsIgnoreCase(ConfigConstants.UDP_PROTOCOL)) {
-            cp.addLast("execution", executionHandler);
-        }
-
-        return cp;
     }
 }

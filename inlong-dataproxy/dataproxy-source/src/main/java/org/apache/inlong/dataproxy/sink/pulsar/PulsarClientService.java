@@ -71,6 +71,8 @@ public class PulsarClientService {
     private static String BLOCK_IF_QUEUE_FULL = "block_if_queue_full";
     private static String MAX_PENDING_MESSAGES = "max_pending_messages";
     private static String MAX_BATCHING_MESSAGES = "max_batching_messages";
+    private static String MAX_BATCHING_BYTES = "max_batching_bytes";
+    private static String MAX_BATCHING_PUBLISH_DELAY_MILLIS = "max_batching_publish_delay_millis";
     private static String RETRY_INTERVAL_WHEN_SEND_ERROR_MILL = "retry_interval_when_send_error_ms";
 
     private static int DEFAULT_PULSAR_IO_THREADS = Math.max(1, SystemPropertyUtil
@@ -83,6 +85,8 @@ public class PulsarClientService {
     private static boolean DEFAULT_BLOCK_IF_QUEUE_FULL = true;
     private static int DEFAULT_MAX_PENDING_MESSAGES = 10000;
     private static int DEFAULT_MAX_BATCHING_MESSAGES = 1000;
+    private static int DEFAULT_MAX_BATCHING_BYTES = 128 * 1024;
+    private static long DEFAULT_MAX_BATCHING_PUBLISH_DELAY_MILLIS = 1;
 
     /*
      * for pulsar client
@@ -98,7 +102,9 @@ public class PulsarClientService {
     private boolean enableBatch = true;
     private boolean blockIfQueueFull = true;
     private int maxPendingMessages = 10000;
+    private int maxBatchingBytes = 128 * 1024;
     private int maxBatchingMessages = 1000;
+    private long maxBatchingPublishDelayMillis = 1;
     private long retryIntervalWhenSendMsgError = 30 * 1000L;
     public Map<String, List<TopicProducerInfo>> producerInfoMap;
     public Map<String, AtomicLong> topicSendIndexMap;
@@ -135,11 +141,13 @@ public class PulsarClientService {
         enableBatch = context.getBoolean(ENABLE_BATCH, DEFAULT_ENABLE_BATCH);
         blockIfQueueFull = context.getBoolean(BLOCK_IF_QUEUE_FULL, DEFAULT_BLOCK_IF_QUEUE_FULL);
         maxPendingMessages = context.getInteger(MAX_PENDING_MESSAGES, DEFAULT_MAX_PENDING_MESSAGES);
-        maxBatchingMessages =  context.getInteger(MAX_BATCHING_MESSAGES, DEFAULT_MAX_BATCHING_MESSAGES);
+        maxBatchingMessages = context.getInteger(MAX_BATCHING_MESSAGES, DEFAULT_MAX_BATCHING_MESSAGES);
+        maxBatchingBytes = context.getInteger(MAX_BATCHING_BYTES, DEFAULT_MAX_BATCHING_BYTES);
+        maxBatchingPublishDelayMillis = context.getLong(MAX_BATCHING_PUBLISH_DELAY_MILLIS,
+                DEFAULT_MAX_BATCHING_PUBLISH_DELAY_MILLIS);
         producerInfoMap = new ConcurrentHashMap<String, List<TopicProducerInfo>>();
         topicSendIndexMap = new ConcurrentHashMap<String, AtomicLong>();
         localIp = NetworkUtils.getLocalIp();
-
     }
 
     public void initCreateConnection(CreatePulsarClientCallBack callBack) {
@@ -185,6 +193,8 @@ public class PulsarClientService {
              * After 30s, reopen the topic check, if it is still a null value,
              *  put it back into the illegal map
              */
+            sendMessageCallBack.handleMessageSendException(topic, es, new Exception("producer is "
+                    + "null"));
             return false;
         }
 
@@ -265,12 +275,18 @@ public class PulsarClientService {
 
     public List<TopicProducerInfo> initTopicProducer(String topic) {
         List<TopicProducerInfo> producerInfoList = producerInfoMap.computeIfAbsent(topic, (k) -> {
-            List<TopicProducerInfo> newList = new ArrayList<>();
+            List<TopicProducerInfo> newList = null;
             if (pulsarClients != null) {
+                newList = new ArrayList<>();
                 for (PulsarClient pulsarClient : pulsarClients) {
                     TopicProducerInfo info = new TopicProducerInfo(pulsarClient, topic);
                     info.initProducer();
-                    newList.add(info);
+                    if (info.isCanUseToSendMessage()) {
+                        newList.add(info);
+                    }
+                }
+                if (newList.size() == 0) {
+                    newList = null;
                 }
             }
             return newList;
@@ -283,7 +299,7 @@ public class PulsarClientService {
         AtomicLong topicIndex = topicSendIndexMap.computeIfAbsent(topic,(k) -> {
             return new AtomicLong(0);
         });
-        int maxTryToGetProducer = producerList.size();
+        int maxTryToGetProducer = producerList == null ? 0 : producerList.size();
         if (maxTryToGetProducer == 0) {
             return null;
         }
@@ -354,6 +370,8 @@ public class PulsarClientService {
                         .blockIfQueueFull(blockIfQueueFull)
                         .maxPendingMessages(maxPendingMessages)
                         .batchingMaxMessages(maxBatchingMessages)
+                        .batchingMaxBytes(maxBatchingBytes)
+                        .batchingMaxPublishDelay(maxBatchingPublishDelayMillis, TimeUnit.MILLISECONDS)
                         .create();
                 isFinishInit = true;
             } catch (PulsarClientException e) {
