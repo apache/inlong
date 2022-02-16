@@ -18,13 +18,23 @@
 
 package org.apache.inlong.sort.singletenant.flink.utils;
 
+import org.apache.avro.Schema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.TableSchema.Builder;
+import org.apache.flink.table.data.util.DataFormatConverters;
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.table.types.logical.LogicalType;
+import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
+import org.apache.inlong.sort.formats.common.FormatInfo;
+import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.common.TypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
+
+import static org.apache.flink.formats.avro.typeutils.AvroSchemaConverter.convertToSchema;
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.deriveLogicalType;
 
 public class CommonUtils {
 
@@ -57,4 +67,41 @@ public class CommonUtils {
 
         return new org.apache.flink.api.java.typeutils.RowTypeInfo(typeInformationArray, fieldNames);
     }
+
+    public static String buildAvroRecordSchemaInJson(FieldInfo[] fieldInfos) {
+        int fieldLength = fieldInfos.length;
+        String[] fieldNames = new String[fieldLength];
+        FormatInfo[] fieldFormatInfos = new FormatInfo[fieldLength];
+        for (int i = 0; i < fieldLength; i++) {
+            fieldNames[i] = fieldInfos[i].getName();
+            fieldFormatInfos[i] = fieldInfos[i].getFormatInfo();
+        }
+
+        RowFormatInfo rowFormatInfo = new RowFormatInfo(fieldNames, fieldFormatInfos);
+        LogicalType logicalType = deriveLogicalType(rowFormatInfo);
+        Schema schema = convertToSchema(logicalType);
+
+        if (schema.isUnion()) {
+            return schema.getTypes().get(1).toString();
+        }
+        return schema.toString();
+    }
+
+    public static DataFormatConverters.RowConverter createRowConverter(SinkInfo sinkInfo) {
+        DataType[] fieldDataTypes = getTableSchema(sinkInfo).getFieldDataTypes();
+        return new DataFormatConverters.RowConverter(fieldDataTypes);
+    }
+
+    public static RowType convertFieldInfosToRowType(FieldInfo[] fieldInfos) {
+        int fieldLength = fieldInfos.length;
+        String[] fieldNames = new String[fieldLength];
+        LogicalType[] fieldLogicalTypes = new LogicalType[fieldLength];
+        for (int i = 0; i < fieldLength; i++) {
+            fieldNames[i] = fieldInfos[i].getName();
+            fieldLogicalTypes[i] = TableFormatUtils.deriveLogicalType(fieldInfos[i].getFormatInfo());
+        }
+
+        return RowType.of(fieldLogicalTypes, fieldNames);
+    }
+
 }
