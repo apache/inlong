@@ -91,9 +91,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
     /*
      * default value
      */
-    private static int BAD_EVENT_QUEUE_SIZE = 10000;
     private static int BATCH_SIZE = 10000;
-
     /*
      * for log
      */
@@ -141,12 +139,16 @@ public class PulsarSink extends AbstractSink implements Configurable,
     private static final LogCounter logPrinterB = new LogCounter(10, 100000, 60 * 1000);
     private static final LogCounter logPrinterC = new LogCounter(10, 100000, 60 * 1000);
 
-    private static int EVENT_QUEUE_SIZE = 1000;
+    private static final String SINK_THREAD_NUM = "thread-num";
+    private int eventQueueSize = 10000;
+    private int badEventQueueSize = 10000;
+    private int threadNum;
 
     /*
      * send thread pool
      */
     private Thread[] sinkThreadPool;
+    private PulsarClientService pulsarClientService;
     private LinkedBlockingQueue<Event> eventQueue;
 
     private static final String SEPARATOR = "#";
@@ -156,9 +158,9 @@ public class PulsarSink extends AbstractSink implements Configurable,
     private SinkCounter sinkCounter;
     private ConfigManager configManager;
     private Map<String, String> topicProperties;
+
     private Map<String, String> pulsarCluster;
     private PulsarConfig pulsarConfig;
-    private PulsarClientService pulsarClientService;
 
     private static final Long PRINT_INTERVAL = 30L;
 
@@ -194,6 +196,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
      * configure
      * @param context
      */
+    @Override
     public void configure(Context context) {
         logger.info("PulsarSink started and context = {}", context.toString());
         isNewMetricOn = context.getBoolean("new-metric-on", true);
@@ -203,11 +206,15 @@ public class PulsarSink extends AbstractSink implements Configurable,
         topicProperties = configManager.getTopicProperties();
         pulsarCluster = configManager.getPulsarUrl2Token();
         pulsarConfig = configManager.getPulsarConfig(); //pulsar common config
+        pulsarClientService = new PulsarClientService(pulsarConfig);
         configManager.getTopicConfig().addUpdateCallback(new ConfigUpdateCallback() {
             @Override
             public void update() {
-                diffSetPublish(new HashSet<String>(topicProperties.values()),
-                        new HashSet<String>(configManager.getTopicProperties().values()));
+                if (pulsarClientService != null) {
+                    diffSetPublish(pulsarClientService,
+                            new HashSet<String>(topicProperties.values()),
+                            new HashSet<String>(configManager.getTopicProperties().values()));
+                }
             }
         });
         configManager.getPulsarCluster().addUpdateCallback(new ConfigUpdateCallback() {
@@ -216,23 +223,24 @@ public class PulsarSink extends AbstractSink implements Configurable,
                 diffRestartPulsarClient(pulsarCluster.keySet(), configManager.getPulsarUrl2Token().keySet());
             }
         });
-        resendQueue = new LinkedBlockingQueue<EventStat>(BAD_EVENT_QUEUE_SIZE);
+        badEventQueueSize = pulsarConfig.getBadEventQueueSize();
+        resendQueue = new LinkedBlockingQueue<EventStat>(badEventQueueSize);
 
         Preconditions.checkArgument(pulsarConfig.getThreadNum() > 0, "threadNum must be > 0");
         sinkThreadPool = new Thread[pulsarConfig.getThreadNum()];
-        eventQueue = new LinkedBlockingQueue<Event>(EVENT_QUEUE_SIZE);
+        eventQueueSize = pulsarConfig.getEventQueueSize();
+        eventQueue = new LinkedBlockingQueue<Event>(eventQueueSize);
 
         if (pulsarConfig.getDiskIoRatePerSec() != 0) {
             diskRateLimiter = RateLimiter.create(pulsarConfig.getDiskIoRatePerSec());
         }
-        pulsarClientService = new PulsarClientService(pulsarConfig);
 
         if (sinkCounter == null) {
             sinkCounter = new SinkCounter(getName());
         }
     }
 
-    private void initTopicSet(Set<String> topicSet) throws Exception {
+    private void initTopicSet(PulsarClientService pulsarClientService, Set<String> topicSet) {
         long startTime = System.currentTimeMillis();
         if (topicSet != null) {
             for (String topic : topicSet) {
@@ -250,8 +258,8 @@ public class PulsarSink extends AbstractSink implements Configurable,
      * @param originalSet
      * @param endSet
      */
-    public void diffSetPublish(Set<String> originalSet, Set<String> endSet) {
-
+    public void diffSetPublish(PulsarClientService pulsarClientService, Set<String> originalSet,
+            Set<String> endSet) {
         boolean changed = false;
         for (String s : endSet) {
             if (!originalSet.contains(s)) {
@@ -284,7 +292,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
             configManager.getPulsarConfig().setUrl2token(pulsarCluster);
             pulsarClientService.initCreateConnection(this);
             try {
-                initTopicSet(new HashSet<String>(topicProperties.values()));
+                initTopicSet(pulsarClientService, new HashSet<String>(topicProperties.values()));
             } catch (Exception e) {
                 logger.info("pulsar sink restart, publish topic fail.", e);
             }
@@ -314,14 +322,14 @@ public class PulsarSink extends AbstractSink implements Configurable,
         this.canSend = true;
         this.canTake = true;
 
-        try {
-            initTopicSet(new HashSet<String>(topicProperties.values()));
-        } catch (Exception e) {
-            logger.info("pulsar sink start publish topic fail.", e);
-        }
-
         for (int i = 0; i < sinkThreadPool.length; i++) {
-            sinkThreadPool[i] = new Thread(new SinkTask(), getName()
+            try {
+                initTopicSet(pulsarClientService,
+                        new HashSet<String>(topicProperties.values()));
+            } catch (Exception e) {
+                logger.info("pulsar sink start publish topic fail.", e);
+            }
+            sinkThreadPool[i] = new Thread(new SinkTask(pulsarClientService), getName()
                     + "_pulsar_sink_sender-"
                     + i);
             sinkThreadPool[i].start();
@@ -332,7 +340,6 @@ public class PulsarSink extends AbstractSink implements Configurable,
     @Override
     public void stop() {
         logger.info("pulsar sink stopping");
-        pulsarClientService.close();
         this.canTake = false;
         int waitCount = 0;
         while (eventQueue.size() != 0 && waitCount++ < 10) {
@@ -351,6 +358,9 @@ public class PulsarSink extends AbstractSink implements Configurable,
                 logger.warn("stat runner interrupted");
             }
         }
+        if (pulsarClientService != null) {
+            pulsarClientService.close();
+        }
         if (sinkThreadPool != null) {
             for (Thread thread : sinkThreadPool) {
                 if (thread != null) {
@@ -359,6 +369,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
             }
             sinkThreadPool = null;
         }
+
         super.stop();
         if (!scheduledExecutorService.isShutdown()) {
             scheduledExecutorService.shutdown();
@@ -620,6 +631,13 @@ public class PulsarSink extends AbstractSink implements Configurable,
     }
 
     class SinkTask implements Runnable {
+
+        private PulsarClientService pulsarClientService;
+
+        public SinkTask(PulsarClientService pulsarClientService) {
+            this.pulsarClientService = pulsarClientService;
+        }
+
         @Override
         public void run() {
             logger.info("Sink task {} started.", Thread.currentThread().getName());
@@ -673,6 +691,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
                     if (logger.isDebugEnabled()) {
                         logger.debug("Event is {}, topic = {} ", event, topic);
                     }
+
                     if (event == null) {
                         continue;
                     }
@@ -714,7 +733,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
                                     getName(), clientId);
                         }
                     } else {
-                        if (clientId != null) {
+                        if (pulsarConfig.getClientIdCache() && clientId != null) {
                             agentIdCache.put(clientId, System.currentTimeMillis());
                         }
                         boolean sendResult = pulsarClientService.sendMessage(topic, event,

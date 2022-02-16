@@ -28,4 +28,4 @@ do
 done
 
 cd .. || exit
-nohup bin/flume-ng agent --conf conf/ -f conf/flume.conf -n agent1 --no-reload-conf  > dataproxy.log 2>&1 &
+nohup bin/flume-ng agent --conf conf/ -f conf/flume.conf -n agent1 --no-reload-conf  > /dev/null 2>&1 &
