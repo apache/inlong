@@ -15,22 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.server.broker.metrics;
+package org.apache.inlong.tubemq.corebase.metric;
 
-import org.apache.inlong.tubemq.corebase.metric.MetricValues;
+import java.util.Map;
 
 /**
- * BrokerMetricMXBean
+ * MetricMXBean
  * Broker's metric data access interface, including:
- * the getMetric() that  directly obtains data
- * the getAndReSetMetrics() that can clear the values of
+ * the getValue() that directly obtains data
+ * the snapshot() that can clear the values of
  *     the counter, maximum and minimum extremum Gauge data
  */
-public interface BrokerMetricMXBean {
+public interface MetricMXBean {
 
     // get current metric data by viewing mode
-    MetricValues getMetrics();
+    Map<String, Long> getValue();
 
-    // get current metric data and reset the Counter, maximum/minimum Gauge metric
-    MetricValues getAndReSetMetrics();
+    // get current metric data and reset the metric
+    Map<String, Long> snapshot();
 }
