@@ -25,11 +25,12 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+@ActiveProfiles(value = {"test"})
 @EnableConfigurationProperties
 @ComponentScan(basePackages = "org.apache.inlong.manager")
 @RunWith(SpringRunner.class)
-@ActiveProfiles(value = {"test"})
 @SpringBootApplication
-@SpringBootTest
+@SpringBootTest(classes = BaseTest.class)
 public class BaseTest {
+
 }
