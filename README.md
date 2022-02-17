@@ -64,7 +64,7 @@ InLong is based on MQ and aims to provide a one-stop, practice-tested module plu
 InLong is only a one-stop data reporting pipeline platform. It cannot be used as a persistent data storage, nor does it support complex business logic processing on data streams.
 
 ## Build InLong
-More detailed instructions can be found at [Quick Start](https://inlong.apache.org/docs/next/introduction) section in the documentation.
+More detailed instructions can be found at [Quick Start](https://inlong.apache.org/docs/next/quick_start/how_to_build) section in the documentation.
 
 Requirements:
 - Java [JDK 8](https://adoptopenjdk.net/?variant=openjdk8)
