@@ -38,7 +38,7 @@ public class UpdateBusinessWorkflowForm extends BaseWorkflowFormType {
      * Used to control the operation to update businessWorkflow
      */
     public enum OperateType {
-        STARTUP, SUSPEND, RESTART, DELETE, START_TRANS
+        SUSPEND, RESTART, DELETE
     }
 
     @ApiModelProperty(value = "Access business information", required = true)
