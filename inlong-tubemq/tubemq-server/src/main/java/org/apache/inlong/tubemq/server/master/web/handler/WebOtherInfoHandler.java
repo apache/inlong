@@ -30,8 +30,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerStatsType;
+import org.apache.inlong.tubemq.server.common.TubeServerVersion;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.inlong.tubemq.server.common.webbase.WebCallStatsHolder;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumeGroupInfo;
@@ -39,6 +43,8 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumeTyp
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfo;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.NodeRebInfo;
+import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
+import org.apache.inlong.tubemq.server.master.stats.MasterStatsType;
 
 public class WebOtherInfoHandler extends AbstractWebHandler {
 
@@ -58,6 +64,21 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                 "getSubscribeInfo");
         registerQueryWebMethod("admin_query_consume_group_detail",
                 "getConsumeGroupDetailInfo");
+        // query master's version
+        registerQueryWebMethod("admin_query_server_version",
+                "adminQueryMasterVersion");
+        // register query method
+        registerQueryWebMethod("admin_get_metrics_info",
+                "adminGetMetricsInfo");
+        // Enable metrics statistics
+        registerModifyWebMethod("admin_enable_stats",
+                "adminEnableMetricsStats");
+        // Disable metrics statistics
+        registerModifyWebMethod("admin_disable_stats",
+                "adminDisableMetricsStats");
+        // Disable unnecessary statistics
+        registerModifyWebMethod("admin_disable_all_stats",
+                "adminDisableAllStats");
     }
 
     /**
@@ -257,6 +278,161 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
             sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                     .append(e.getMessage()).append("\",\"count\":0,\"data\":[]}");
         }
+        return sBuffer;
+    }
+
+    /**
+     * Query Master's version
+     *
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return          metric information
+     */
+    public StringBuilder adminQueryBrokerVersion(HttpServletRequest req,
+                                                 StringBuilder sBuffer,
+                                                 ProcessResult result) {
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        sBuffer.append("{\"version\":\"")
+                .append(TubeServerVersion.SERVER_VERSION).append("\"}");
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, 1);
+        return sBuffer;
+    }
+
+    /**
+     * Get master's metric information
+     *
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return          metric information
+     */
+    public StringBuilder adminGetMetricsInfo(HttpServletRequest req,
+                                             StringBuilder sBuffer,
+                                             ProcessResult result) {
+        // check and get whether to reset the metric items
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.NEEDREFRESH, false, false, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        final boolean needRefresh = (Boolean) result.getRetData();
+        // query current metric values;
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        sBuffer.append("{\"probeTime\":\"")
+                .append(DateTimeConvertUtils.ms2yyyyMMddHHmmss(System.currentTimeMillis()))
+                .append("\",\"nodeName\":\"").append(master.getMasterConfig().getHostName())
+                .append("\",\"nodeRole\":\"Master\",\"metrics\":{\"serviceStatus\":");
+        if (needRefresh) {
+            MasterSrvStatsHolder.snapShort(sBuffer);
+            sBuffer.append(",\"webAPI\":");
+            WebCallStatsHolder.snapShort(sBuffer);
+        } else {
+            MasterSrvStatsHolder.getValue(sBuffer);
+            sBuffer.append(",\"webAPI\":");
+            WebCallStatsHolder.getValue(sBuffer);
+        }
+        sBuffer.append("},\"count\":2}");
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, 1);
+        return sBuffer;
+    }
+
+    /**
+     * Enable Master's statistics functions.
+     *
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return          metric information
+     */
+    public StringBuilder adminEnableMetricsStats(HttpServletRequest req,
+                                                 StringBuilder sBuffer,
+                                                 ProcessResult result) {
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.STATSTYPE, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        String statsType = (String) result.getRetData();
+        return innEnableOrDisableMetricsStats(true, statsType, req, sBuffer, result);
+    }
+
+    /**
+     * Disable Master's statistics functions.
+     *
+     * @param req      request
+     * @param sBuffer  process result
+     */
+    public StringBuilder adminDisableMetricsStats(HttpServletRequest req,
+                                                  StringBuilder sBuffer,
+                                                  ProcessResult result) {
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.STATSTYPE, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        String statsType = (String) result.getRetData();
+        innEnableOrDisableMetricsStats(true, statsType, req, sBuffer, result);
+        return sBuffer;
+    }
+
+    /**
+     * Disable Master's all statistics functions.
+     *
+     * @param req      request
+     * @param sBuffer  process result
+     */
+    public StringBuilder adminDisableAllStats(HttpServletRequest req,
+                                              StringBuilder sBuffer,
+                                              ProcessResult result) {
+        innEnableOrDisableMetricsStats(false,
+                BrokerStatsType.ALL.getName(), req, sBuffer, result);
+        return sBuffer;
+    }
+
+    /**
+     * Disable or Enable Master's statistics functions
+     *
+     * @param enable     whether enable or disable
+     * @param statsType  the statistics type to be operated on
+     * @param req        HttpServletRequest
+     * @param sBuffer    query result
+     * @param result     process result
+     * @return           return information
+     */
+    private StringBuilder innEnableOrDisableMetricsStats(boolean enable,
+                                                         String statsType,
+                                                         HttpServletRequest req,
+                                                         StringBuilder sBuffer,
+                                                         ProcessResult result) {
+        // get input metric type
+        MasterStatsType inMetricType = null;
+        for (MasterStatsType metricType : MasterStatsType.values()) {
+            if (metricType.getName().equalsIgnoreCase(statsType)) {
+                inMetricType = metricType;
+                break;
+            }
+        }
+        if (inMetricType == null) {
+            sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":")
+                    .append("\"Unmatched stat type, allowed stat type are : [");
+            int count = 0;
+            for (MasterStatsType metricType : MasterStatsType.values()) {
+                if (count++ > 0) {
+                    sBuffer.append(",");
+                }
+                sBuffer.append(metricType.getDesc());
+            }
+            sBuffer.append("]\"}");
+            return sBuffer;
+        }
+        // Operate separately according to the specified statistic type
+        if (inMetricType == MasterStatsType.WEBAPI
+                || inMetricType == MasterStatsType.ALL) {
+            WebCallStatsHolder.setStatsStatus(enable);
+        }
+        // builder return result
+        WebParameterUtils.buildSuccessResult(sBuffer);
         return sBuffer;
     }
 

@@ -100,6 +100,6 @@ public final class TServerConstants {
             DataStoreUtils.STORE_INDEX_HEAD_LEN * 1000000L;
 
     // Minimum snapshot period
-    public static final long MIN_SNAPSHOT_PERIOD_MS = 5000L;
+    public static final long MIN_SNAPSHOT_PERIOD_MS = 2000L;
     public static final int META_MAX_STATSTYPE_LENGTH = 256;
 }
