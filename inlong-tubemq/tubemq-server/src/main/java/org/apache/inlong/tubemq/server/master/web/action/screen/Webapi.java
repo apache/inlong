@@ -24,6 +24,7 @@ import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corerpc.exception.StandbyException;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.inlong.tubemq.server.common.webbase.WebCallStatsHolder;
 import org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
@@ -67,8 +68,10 @@ public class Webapi implements Action {
 
     @Override
     public void execute(RequestContext requestContext) {
+        String method = null;
         ProcessResult result = new ProcessResult();
         StringBuilder sBuffer = new StringBuilder();
+        long startTime = System.currentTimeMillis();
         try {
             HttpServletRequest req = requestContext.getReq();
             if (this.master.isStopped()) {
@@ -78,7 +81,7 @@ public class Webapi implements Action {
             if (!metaDataManager.isSelfMaster()) {
                 throw new StandbyException("Please send your request to the master Node.");
             }
-            String method = req.getParameter("method");
+            method = req.getParameter("method");
             String strCallbackFun = req.getParameter("callback");
             if ((TStringUtils.isNotEmpty(strCallbackFun))
                     && (strCallbackFun.length() <= TBaseConstants.META_MAX_CALLBACK_STRING_LENGTH)
@@ -117,6 +120,8 @@ public class Webapi implements Action {
             sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"Bad request from client, ")
                     .append(e.getMessage()).append("\"}");
             requestContext.put("sb", sBuffer.toString());
+        } finally {
+            WebCallStatsHolder.addMethodCall(method, System.currentTimeMillis() - startTime);
         }
     }
 

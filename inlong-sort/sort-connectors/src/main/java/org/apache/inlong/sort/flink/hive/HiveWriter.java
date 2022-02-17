@@ -71,7 +71,8 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
     public HiveWriter(Configuration configuration, long dataFlowId, HiveSinkInfo hiveSinkInfo) {
         this.configuration = checkNotNull(configuration);
         this.dataFlowId = dataFlowId;
-        final BulkWriter.Factory<Row> bulkWriterFactory = HiveSinkHelper.createBulkWriterFactory(hiveSinkInfo);
+        final BulkWriter.Factory<Row> bulkWriterFactory = HiveSinkHelper.createBulkWriterFactory(
+                hiveSinkInfo, configuration);
         final RowPartitionComputer rowPartitionComputer = new RowPartitionComputer("", hiveSinkInfo);
         final BulkFormatBuilder<Row, HivePartition> bulkFormatBuilder = new BulkFormatBuilder<>(
                 new Path(hiveSinkInfo.getDataPath()),

@@ -50,7 +50,7 @@ public class PluginService {
     private List<PluginBinder> pluginBinders;
 
     @Getter
-    private List<Plugin> plugins = new ArrayList<>();
+    private final List<Plugin> plugins = new ArrayList<>();
 
     public PluginService() {
         if (StringUtils.isBlank(pluginLoc)) {
@@ -77,7 +77,7 @@ public class PluginService {
         for (PluginDefinition pluginDefinition : pluginDefinitions.values()) {
             String pluginClassName = pluginDefinition.getPluginClass();
             try {
-                Class pluginClass = pluginLoader.loadClass(pluginClassName);
+                Class<?> pluginClass = pluginLoader.loadClass(pluginClassName);
                 Object plugin = pluginClass.getDeclaredConstructor().newInstance();
                 plugins.add((Plugin) plugin);
             } catch (Throwable e) {

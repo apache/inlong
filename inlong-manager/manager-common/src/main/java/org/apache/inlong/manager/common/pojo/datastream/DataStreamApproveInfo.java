@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.common.pojo.datastream;
 
+import java.util.List;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageApproveInfo;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageApproveDTO;
 
 /**
  * Data stream approval information
@@ -39,7 +40,7 @@ public class DataStreamApproveInfo {
     @ApiModelProperty(value = "Data stream id")
     private String inlongStreamId;
 
-    @ApiModelProperty(value = "Data storage information list")
-    private List<StorageApproveInfo> storageList;
+    @ApiModelProperty(value = "Data storage approve list")
+    private List<StorageApproveDTO> storageList;
 
 }

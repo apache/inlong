@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.StorageEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.StorageEntity">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
+        <result column="storage_type" jdbcType="VARCHAR" property="storageType"/>
+        <result column="storage_period" jdbcType="INTEGER" property="storagePeriod"/>
+        <result column="enable_create_resource" jdbcType="TINYINT" property="enableCreateResource"/>
+        <result column="ext_params" jdbcType="VARCHAR" property="extParams"/>
+        <result column="operate_log" jdbcType="VARCHAR" property="operateLog"/>
+
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="previous_status" jdbcType="INTEGER" property="previousStatus"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, inlong_group_id, inlong_stream_id, storage_type, storage_period, enable_create_resource, ext_params,
+        operate_log, status, previous_status, is_deleted, creator, modifier, create_time, modify_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from data_storage
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectCount" resultType="java.lang.Integer">
+        select count(1)
+        from data_storage
+        <where>
+            is_deleted = 0
+            <if test="groupId != null and groupId != ''">
+                and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            </if>
+            <if test="streamId != null and streamId != ''">
+                and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectByCondition"
+            parameterType="org.apache.inlong.manager.common.pojo.datastorage.StoragePageRequest"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from data_storage
+        <where>
+            is_deleted = 0
+            and storage_type = #{request.storageType, jdbcType=VARCHAR}
+            and inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
+            <if test="request.inlongStreamId != null and request.inlongStreamId != ''">
+                and inlong_stream_id = #{request.inlongStreamId, jdbcType=VARCHAR}
+            </if>
+            <if test="request.keyWord != null and request.keyWord != ''">
+                and (
+                inlong_group_id like CONCAT('%', #{request.keyWord}, '%')
+                or inlong_stream_id like CONCAT('%', #{request.keyWord}, '%')
+                )
+            </if>
+            <if test="request.status != null and request.status != ''">
+                and status = #{request.status, jdbcType=INTEGER}
+            </if>
+            order by modify_time desc
+        </where>
+    </select>
+    <select id="selectSummary"
+            resultType="org.apache.inlong.manager.common.pojo.datastorage.StorageBriefResponse">
+        select s.id,
+               s.inlong_group_id,
+               s.inlong_stream_id,
+               s.storage_type
+        from data_storage s
+        where s.is_deleted = 0
+          and s.inlong_group_id = #{groupId, jdbcType=VARCHAR}
+          and s.inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+    </select>
+    <select id="selectByIdentifier" resultType="org.apache.inlong.manager.dao.entity.StorageEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from data_storage
+        <where>
+            is_deleted = 0
+            and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            <if test="streamId != null and streamId != ''">
+                and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectByIdAndType" resultType="org.apache.inlong.manager.dao.entity.StorageEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from data_storage
+        <where>
+            is_deleted = 0
+            and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            <if test="streamId != null and streamId != ''">
+                and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+            </if>
+            <if test="storageType != null and storageType != ''">
+                and storage_type = #{storageType, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectExistsStreamId" resultType="java.lang.String">
+        select inlong_stream_id
+        from data_storage
+        <where>
+            inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            and storage_type = #{storageType, jdbcType=VARCHAR}
+            and is_deleted = 0
+            and inlong_stream_id in
+            <foreach collection="streamIdList" open="(" close=")" separator="," index="index" item="item">
+                #{item}
+            </foreach>
+        </where>
+    </select>
+    <select id="selectStorageType" resultType="java.lang.String">
+        select distinct (storage_type)
+        from data_storage
+        <where>
+            is_deleted = 0
+            <if test="groupId != null and groupId != ''">
+                and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            </if>
+            <if test="streamId != null and streamId != ''">
+                and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectAllConfig" resultType="org.apache.inlong.manager.common.pojo.datastorage.StorageForSortDTO">
+        select storage.id,
+        storage.inlong_group_id,
+        storage.inlong_stream_id,
+        storage.storage_type,
+        storage.storage_period,
+        storage.enable_create_resource,
+        storage.ext_params,
+        storage.status,
+        storage.creator,
+
+        stream.mq_resource_obj,
+        stream.data_source_type,
+        stream.data_type,
+        stream.description,
+        stream.data_separator as sourceSeparator,
+        stream.data_escape_char
+        from data_stream stream, data_storage storage
+        <where>
+            stream.is_deleted = 0
+            and storage.is_deleted = 0
+            and stream.inlong_group_id = storage.inlong_group_id
+            and stream.inlong_stream_id = storage.inlong_stream_id
+            and stream.inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            <if test="streamId != null and streamId != ''">
+                and stream.inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from data_storage
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.StorageEntity">
+        insert into data_storage (id, inlong_group_id, inlong_stream_id,
+                                  storage_type, storage_period,
+                                  enable_create_resource, ext_params,
+                                  operate_log, status,
+                                  previous_status, is_deleted, creator,
+                                  modifier, create_time, modify_time)
+        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
+                #{storageType,jdbcType=VARCHAR}, #{storagePeriod,jdbcType=INTEGER},
+                #{enableCreateResource,jdbcType=TINYINT}, #{extParams,jdbcType=VARCHAR},
+                #{operateLog,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+                #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
+                #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.StorageEntity">
+        insert into data_storage
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="inlongGroupId != null">
+                inlong_group_id,
+            </if>
+            <if test="inlongStreamId != null">
+                inlong_stream_id,
+            </if>
+            <if test="storageType != null">
+                storage_type,
+            </if>
+            <if test="storagePeriod != null">
+                storage_period,
+            </if>
+            <if test="enableCreateResource != null">
+                enable_create_resource,
+            </if>
+            <if test="extParams != null">
+                ext_params,
+            </if>
+            <if test="operateLog != null">
+                operate_log,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="previousStatus != null">
+                previous_status,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="modifyTime != null">
+                modify_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="inlongGroupId != null">
+                #{inlongGroupId,jdbcType=VARCHAR},
+            </if>
+            <if test="inlongStreamId != null">
+                #{inlongStreamId,jdbcType=VARCHAR},
+            </if>
+            <if test="storageType != null">
+                #{storageType,jdbcType=VARCHAR},
+            </if>
+            <if test="storagePeriod != null">
+                #{storagePeriod,jdbcType=INTEGER},
+            </if>
+            <if test="enableCreateResource != null">
+                #{enableCreateResource,jdbcType=TINYINT},
+            </if>
+            <if test="extParams != null">
+                #{extParams,jdbcType=VARCHAR},
+            </if>
+            <if test="operateLog != null">
+                #{operateLog,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="previousStatus != null">
+                #{previousStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.StorageEntity">
+        update data_storage
+        <set>
+            <if test="inlongGroupId != null">
+                inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
+            </if>
+            <if test="inlongStreamId != null">
+                inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
+            </if>
+            <if test="storagePeriod != null">
+                storage_period = #{storagePeriod,jdbcType=INTEGER},
+            </if>
+            <if test="storageType != null">
+                storage_type = #{storageType,jdbcType=VARCHAR},
+            </if>
+            <if test="enableCreateResource != null">
+                enable_create_resource = #{enableCreateResource,jdbcType=TINYINT},
+            </if>
+            <if test="extParams != null">
+                ext_params = #{extParams,jdbcType=VARCHAR},
+            </if>
+            <if test="operateLog != null">
+                operate_log = #{operateLog,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="previousStatus != null">
+                previous_status = #{previousStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.StorageEntity">
+        update data_storage
+        set inlong_group_id        = #{inlongGroupId,jdbcType=VARCHAR},
+            inlong_stream_id       = #{inlongStreamId,jdbcType=VARCHAR},
+            storage_type           = #{storageType,jdbcType=VARCHAR},
+            storage_period         = #{storagePeriod,jdbcType=INTEGER},
+            enable_create_resource = #{enableCreateResource,jdbcType=TINYINT},
+            ext_params             = #{extParams,jdbcType=VARCHAR},
+            operate_log            = #{operateLog,jdbcType=VARCHAR},
+            status                 = #{status,jdbcType=INTEGER},
+            previous_status        = #{previousStatus,jdbcType=INTEGER},
+            is_deleted             = #{isDeleted,jdbcType=INTEGER},
+            creator                = #{creator,jdbcType=VARCHAR},
+            modifier               = #{modifier,jdbcType=VARCHAR},
+            create_time            = #{createTime,jdbcType=TIMESTAMP},
+            modify_time            = #{modifyTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateStorageStatus" parameterType="org.apache.inlong.manager.dao.entity.StorageEntity">
+        update data_storage
+        set status          = #{status,jdbcType=INTEGER},
+            previous_status = status,
+            operate_log     = #{operateLog,jdbcType=VARCHAR},
+            modify_time     = now()
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+</mapper>

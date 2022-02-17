@@ -20,6 +20,8 @@ package org.apache.inlong.manager.service.thirdpart.sort;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.event.EventSelector;
 import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.model.definition.ProcessForm;
+import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -28,6 +30,10 @@ public class ZkSortEventSelector implements EventSelector {
 
     @Override
     public boolean accept(WorkflowContext context) {
+        ProcessForm processForm = context.getProcessForm();
+        if (processForm == null || !(processForm instanceof BusinessResourceWorkflowForm)) {
+            return false;
+        }
         //todo check if push sort config to zookeeper
         return true;
     }

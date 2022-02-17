@@ -32,8 +32,8 @@ public class ProducerInfoHolder {
     }
 
     public void setProducerInfo(String producerId,
-                                        Set<String> topicSet,
-                                        String host, boolean overTLS) {
+                                Set<String> topicSet,
+                                String host, boolean overTLS) {
         if (producerInfoMap.put(producerId,
                 new ProducerInfo(producerId, topicSet, host, overTLS)) == null) {
             MasterMetricsHolder.incProducerCnt();

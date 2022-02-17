@@ -17,12 +17,15 @@
 
 package org.apache.inlong.sort.protocol.sink;
 
+import java.io.Serializable;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.inlong.sort.configuration.Constants.CompressionType;
 import org.apache.inlong.sort.protocol.FieldInfo;
 
 import javax.annotation.Nullable;
@@ -186,23 +189,39 @@ public class HiveSinkInfo extends SinkInfo {
     public interface HiveFileFormat {
     }
 
-    public static class TextFileFormat implements HiveFileFormat {
+    public static class TextFileFormat implements HiveFileFormat, Serializable {
 
         @JsonProperty("splitter")
         private final Character splitter;
 
+        @JsonInclude(Include.NON_NULL)
+        @JsonProperty("compression_type")
+        private final CompressionType compressionType;
+
+        @JsonCreator
         public TextFileFormat(
-                @JsonProperty("splitter") Character splitter) {
+                @JsonProperty("splitter") Character splitter,
+                @JsonProperty("compression_type") CompressionType compressionType) {
             this.splitter = splitter;
+            this.compressionType = compressionType;
+        }
+
+        public TextFileFormat(@JsonProperty("splitter") Character splitter) {
+            this(splitter, CompressionType.NONE);
         }
 
         @JsonProperty("splitter")
         public Character getSplitter() {
             return splitter;
         }
+
+        @JsonProperty("compression_type")
+        public CompressionType getCompressionType() {
+            return compressionType;
+        }
     }
 
-    public static class OrcFileFormat implements HiveFileFormat {
+    public static class OrcFileFormat implements HiveFileFormat, Serializable {
 
         @JsonProperty("batch_size")
         private final int batchSize;
@@ -218,7 +237,7 @@ public class HiveSinkInfo extends SinkInfo {
         }
     }
 
-    public static class SequenceFileFormat implements HiveFileFormat {
+    public static class SequenceFileFormat implements HiveFileFormat, Serializable {
 
         @JsonProperty("splitter")
         private final Character splitter;
@@ -244,7 +263,7 @@ public class HiveSinkInfo extends SinkInfo {
         }
     }
 
-    public static class ParquetFileFormat implements HiveFileFormat {
+    public static class ParquetFileFormat implements HiveFileFormat, Serializable {
 
         public ParquetFileFormat() {
         }
