@@ -25,8 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfigResponse;
-import org.apache.inlong.commons.pojo.dataproxy.ProxyPulsarObject;
-import org.apache.inlong.commons.pojo.dataproxy.PulsarClusterObject;
+import org.apache.inlong.commons.pojo.dataproxy.ProxyPulsarDTO;
+import org.apache.inlong.commons.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
@@ -256,9 +256,9 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
      * @return
      */
     @Override
-    public ProxyPulsarObject getConfigV2(String dataproxyClusterName) {
-        ProxyPulsarObject object = new ProxyPulsarObject();
-        List<PulsarClusterObject> pulsarSet = new ArrayList<>();
+    public ProxyPulsarDTO getConfigV2(String dataproxyClusterName) {
+        ProxyPulsarDTO object = new ProxyPulsarDTO();
+        List<PulsarClusterInfo> pulsarSet = new ArrayList<>();
         List<DataProxyConfig> topicList = new ArrayList<>();
 
         DataProxyClusterEntity dataProxyClusterEntity = dataProxyClusterMapper.selectByName(dataproxyClusterName);
@@ -286,7 +286,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
          */
         Gson gson = new Gson();
         for (ClusterInfoEntity cluster : clusterInfoEntities) {
-            PulsarClusterObject pulsarCluster = new PulsarClusterObject();
+            PulsarClusterInfo pulsarCluster = new PulsarClusterInfo();
             pulsarCluster.setUrl(cluster.getUrl());
             pulsarCluster.setToken(cluster.getToken());
             Map<String, String> configParams = gson.fromJson(cluster.getExtProps(), Map.class);

@@ -19,7 +19,7 @@ package org.apache.inlong.manager.web.controller.openapi;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.commons.pojo.dataproxy.ProxyPulsarObject;
+import org.apache.inlong.commons.pojo.dataproxy.ProxyPulsarDTO;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
@@ -63,7 +63,7 @@ public class DataProxyController {
 
     @GetMapping("/getConfig_v2")
     @ApiOperation(value = "get dataproxy config list, including pulsar cluster config and topic")
-    public Response<ProxyPulsarObject> getConfigV2(@RequestParam("clusterName") String clusterName) {
+    public Response<ProxyPulsarDTO> getConfigV2(@RequestParam("clusterName") String clusterName) {
         return Response.success(dataProxyClusterService.getConfigV2(clusterName));
     }
 

@@ -27,7 +27,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
-import org.apache.inlong.commons.pojo.dataproxy.PulsarClusterObject;
+import org.apache.inlong.commons.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.dataproxy.config.holder.FileConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.GroupIdPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.MxPropertiesHolder;
@@ -296,8 +296,8 @@ public class ConfigManager {
                 if (configJson.getErrCode() == 0) {
                     // get pulsar <->token maps; store format: pulsar.index1=pulsar1url=pulsar1token
                     int index = 1;
-                    List<PulsarClusterObject> pulsarSet = configJson.getPulsarSet();
-                    for (PulsarClusterObject pulsarCluster : pulsarSet) {
+                    List<PulsarClusterInfo> pulsarSet = configJson.getPulsarSet();
+                    for (PulsarClusterInfo pulsarCluster : pulsarSet) {
                         String key = "pulsar.index" + index;
                         String value = pulsarCluster.getUrl() + AttributeConstants.KEY_VALUE_SEPARATOR
                                 + pulsarCluster.getToken();
