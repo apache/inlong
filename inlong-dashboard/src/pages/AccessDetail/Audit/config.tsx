@@ -68,10 +68,12 @@ export const toChartData = (source, sourceDataMap) => {
 };
 
 export const toTableData = (source, sourceDataMap) => {
-  return Object.keys(sourceDataMap).map(logTs => ({
-    ...sourceDataMap[logTs],
-    logTs,
-  }));
+  return Object.keys(sourceDataMap)
+    .reverse()
+    .map(logTs => ({
+      ...sourceDataMap[logTs],
+      logTs,
+    }));
 };
 
 export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStreamSuccess) => [
