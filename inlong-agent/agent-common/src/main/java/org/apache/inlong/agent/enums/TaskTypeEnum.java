@@ -15,31 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.fetcher.dtos;
+package org.apache.inlong.agent.enums;
 
-import lombok.Data;
-import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.dto.CmdConfig;
-import org.apache.inlong.agent.dto.DataConfig;
+import static java.util.Objects.requireNonNull;
 
-import java.util.ArrayList;
-import java.util.List;
+public enum TaskTypeEnum {
+    SQL(1), BINLOG(2), FILE(3), KAFKA(4);
 
-@Data
-public class TaskResult {
+    private int type;
 
-    private List<CmdConfig> cmdConfigs;
-    private List<DataConfig> dataConfigs;
+    TaskTypeEnum(int type) {
+        this.type = type;
+    }
 
-    public List<TriggerProfile> getTriggerProfiles() {
-        List<TriggerProfile> triggerProfiles = new ArrayList<>();
-        if (dataConfigs == null || dataConfigs.isEmpty()) {
-            return triggerProfiles;
+    public static TaskTypeEnum getTaskType(int taskType) {
+        requireNonNull(taskType);
+        switch (taskType) {
+            case 1:
+                return SQL;
+            case 2:
+                return BINLOG;
+            case 3:
+                return FILE;
+            case 4:
+                return KAFKA;
+            default:
+                throw new RuntimeException("such task type doesn't exist");
         }
-        dataConfigs.forEach(
-                dataConfig -> triggerProfiles.add(JobProfileDto
-                        .convertToTriggerProfile(dataConfig))
-        );
-        return triggerProfiles;
+    }
+
+    public int getType() {
+        return type;
     }
 }

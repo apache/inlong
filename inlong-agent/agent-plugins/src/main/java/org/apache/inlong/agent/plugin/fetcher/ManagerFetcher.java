@@ -18,15 +18,7 @@
 package org.apache.inlong.agent.plugin.fetcher;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_HOME;
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_LOCAL_CACHE;
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_LOCAL_CACHE_TIMEOUT;
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_LOCAL_IP;
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_UNIQ_ID;
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AGENT_HOME;
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AGENT_LOCAL_CACHE;
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AGENT_LOCAL_CACHE_TIMEOUT;
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AGENT_UNIQ_ID;
+import static org.apache.inlong.agent.constants.AgentConstants.*;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_OP;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_RETRY_TIME;
 import static org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter.getResultData;
@@ -74,14 +66,12 @@ import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.db.CommandDb;
 import org.apache.inlong.agent.db.CommandEntity;
+import org.apache.inlong.agent.dto.CmdConfig;
+import org.apache.inlong.agent.dto.TaskRequestDto;
+import org.apache.inlong.agent.enums.ManagerOpEnum;
 import org.apache.inlong.agent.plugin.Trigger;
-import org.apache.inlong.agent.plugin.fetcher.dtos.CmdConfig;
-import org.apache.inlong.agent.plugin.fetcher.dtos.ConfirmAgentIpRequest;
-import org.apache.inlong.agent.plugin.fetcher.dtos.DbCollectorTaskRequestDto;
-import org.apache.inlong.agent.plugin.fetcher.dtos.DbCollectorTaskResult;
-import org.apache.inlong.agent.plugin.fetcher.dtos.TaskRequestDto;
-import org.apache.inlong.agent.plugin.fetcher.dtos.TaskResult;
-import org.apache.inlong.agent.plugin.fetcher.enums.ManagerOpEnum;
+import org.apache.inlong.agent.plugin.fetcher.dtos.*;
+import org.apache.inlong.agent.plugin.utils.ExcuteLinux;
 import org.apache.inlong.agent.plugin.utils.HttpManager;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -110,6 +100,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private final AgentManager agentManager;
     private final HttpManager httpManager;
     private String localIp;
+    private String uuid;
 
     private CommandDb commandDb;
 
@@ -289,6 +280,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             List<CommandEntity> unackedCommands) {
         TaskRequestDto requset = new TaskRequestDto();
         requset.setAgentIp(localIp);
+        requset.setUuid(uuid);
         requset.setCommandInfo(unackedCommands);
         return requset;
     }
@@ -418,6 +410,14 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
+     * check agent uuid from manager
+     */
+    private void fetchLocalUuid() {
+        String result = ExcuteLinux.exeCmd("dmidecode | grep UUID");
+        localIp = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_UUID, result);
+    }
+
+    /**
      * confirm local ips from manager
      *
      * @param localIps
@@ -499,6 +499,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     public void start() throws Exception {
         // when agent start, check local ip and fetch manager ip list;
         fetchLocalIp();
+        fetchLocalUuid();
         fetchTdmList(true, 0);
         submitWorker(profileFetchThread());
     }

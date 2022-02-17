@@ -24,12 +24,16 @@ import com.google.gson.Gson;
 import lombok.Data;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.agent.dto.DataConfig;
+import org.apache.inlong.agent.enums.TaskTypeEnum;
 
 @Data
 public class JobProfileDto {
 
     private static final Gson GSON = new Gson();
-    private Job job;
+
+    private BinlogJob binlogJob;
+    private FileJob fileJob;
     private Proxy proxy;
 
     public static final String DEFAULT_TRIGGER = "org.apache.inlong.agent.plugin.trigger.DirectoryTrigger";
@@ -58,22 +62,71 @@ public class JobProfileDto {
     }
 
     @Data
-    public static class Job {
+    public static class FileJob {
 
-        private Dir dir;
-        private String trigger;
-        private int id;
-        private Thread thread;
+        private String op;
         private String name;
         private String source;
         private String sink;
         private String channel;
+        private String trigger;
+        private String deliveryTime;
+
+
+        private Dir dir;
+        private int id;
+        private Thread thread;
         private String pattern;
-        private String op;
         private String cycleUnit;
         private String timeOffset;
-        private String deliveryTime;
         private String addictiveString;
+    }
+
+    @Data
+    public static class FileJobTaskConfig {
+
+        private String dataName;
+        private String path;
+        private int taskId;
+        private Thread thread;
+        private String pattern;
+        private String cycleUnit;
+        private String timeOffset;
+        private String additionalAttr;
+    }
+
+    @Data
+    public static class BinlogJob {
+
+        private String op;
+        private String trigger;
+        private String name;
+        private String source;
+        private String sink;
+        private String channel;
+        private String deliveryTime;
+
+        private  String job_database_user;
+        private  String job_database_password;
+        private  String job_database_hostname ;
+        private  String job_database_whitelist ;
+        private  String job_database_server_time_zone;
+        private  String job_database_store_offset_interval_ms;
+        private  String job_database_store_history_filename;
+        private  String job_database_snapshot_mode;
+    }
+
+    @Data
+    public static class BinlogJobTaskConfig {
+
+        private  String job_database_user;
+        private  String job_database_password;
+        private  String job_database_hostname ;
+        private  String job_database_whitelist ;
+        private  String job_database_server_time_zone;
+        private  String job_database_store_offset_interval_ms;
+        private  String job_database_store_history_filename;
+        private  String job_database_snapshot_mode;
     }
 
     @Data
@@ -91,27 +144,63 @@ public class JobProfileDto {
         private Manager manager;
     }
 
-    private static Job getJob(DataConfig dataConfigs) {
-        Job job = new Job();
+    private static BinlogJob getBinlogJob(DataConfig dataConfigs) {
+
+        BinlogJob binlogJob = new BinlogJob();
+        BinlogJobTaskConfig binlogJobTaskConfig =new BinlogJobTaskConfig();
+        Gson gson = new Gson();
+        binlogJobTaskConfig=gson.fromJson(dataConfigs.getTaskConfig(),BinlogJobTaskConfig.class);
+
+
+        binlogJob.setTrigger(DEFAULT_TRIGGER);
+        binlogJob.setChannel(DEFAULT_CHANNEL);
+        binlogJob.setName(MANAGER_JOB);
+        binlogJob.setSource(DEFAULT_SOURCE);
+        binlogJob.setSink(DEFAULT_DATAPROXY_SINK);
+        binlogJob.setOp(dataConfigs.getOp());
+        binlogJob.setDeliveryTime(dataConfigs.getDeliveryTime());
+
+        binlogJob.setJob_database_hostname(binlogJobTaskConfig.getJob_database_hostname());
+        binlogJob.setJob_database_password(binlogJobTaskConfig.getJob_database_password());
+        binlogJob.setJob_database_server_time_zone(binlogJobTaskConfig.getJob_database_server_time_zone());
+        binlogJob.setJob_database_snapshot_mode(binlogJobTaskConfig.getJob_database_snapshot_mode());
+        binlogJob.setJob_database_user(binlogJobTaskConfig.getJob_database_user());
+        binlogJob.setJob_database_store_history_filename(binlogJobTaskConfig.getJob_database_store_history_filename());
+        binlogJob.setJob_database_store_offset_interval_ms(binlogJobTaskConfig.getJob_database_store_offset_interval_ms());
+        binlogJob.setJob_database_snapshot_mode(binlogJobTaskConfig.getJob_database_snapshot_mode());
+
+        return binlogJob;
+    }
+
+    private static FileJob getFileJob(DataConfig dataConfigs) {
+
+        FileJob fileJob = new FileJob();
         Dir dir = new Dir();
-        dir.setPattern(dataConfigs.getDataName());
-        job.setDir(dir);
-        job.setTrigger(DEFAULT_TRIGGER);
-        job.setChannel(DEFAULT_CHANNEL);
-        job.setName(MANAGER_JOB);
-        job.setSource(DEFAULT_SOURCE);
-        job.setSink(DEFAULT_DATAPROXY_SINK);
-        job.setId(dataConfigs.getTaskId());
-        job.setTimeOffset(dataConfigs.getTimeOffset());
-        job.setOp(dataConfigs.getOp());
-        job.setDeliveryTime(dataConfigs.getDeliveryTime());
-        if (!dataConfigs.getAdditionalAttr().isEmpty()) {
-            job.setAddictiveString(dataConfigs.getAdditionalAttr());
+        FileJobTaskConfig fileJobTaskConfig =new FileJobTaskConfig();
+        Gson gson = new Gson();
+        fileJobTaskConfig=gson.fromJson(dataConfigs.getTaskConfig(),FileJobTaskConfig.class);
+
+        fileJob.setTrigger(DEFAULT_TRIGGER);
+        fileJob.setChannel(DEFAULT_CHANNEL);
+        fileJob.setName(MANAGER_JOB);
+        fileJob.setSource(DEFAULT_SOURCE);
+        fileJob.setSink(DEFAULT_DATAPROXY_SINK);
+        fileJob.setOp(dataConfigs.getOp());
+        fileJob.setDeliveryTime(dataConfigs.getDeliveryTime());
+
+        dir.setPattern(fileJobTaskConfig.getDataName());
+        fileJob.setDir(dir);
+
+        fileJob.setId(fileJobTaskConfig.getTaskId());
+        fileJob.setTimeOffset(fileJobTaskConfig.getTimeOffset());
+
+        if (!fileJobTaskConfig.getAdditionalAttr().isEmpty()) {
+            fileJob.setAddictiveString(fileJobTaskConfig.getAdditionalAttr());
         }
-        if (dataConfigs.getCycleUnit() != null) {
-            job.setCycleUnit(dataConfigs.getCycleUnit());
+        if (fileJobTaskConfig.getCycleUnit() != null) {
+            fileJob.setCycleUnit(fileJobTaskConfig.getCycleUnit());
         }
-        return job;
+        return fileJob;
     }
 
     private static Proxy getProxy(DataConfig dataConfigs) {
@@ -130,11 +219,21 @@ public class JobProfileDto {
         if (!dataConfigs.isValid()) {
             throw new IllegalArgumentException("input dataConfig" + dataConfigs + "is invalid please check");
         }
+        TaskTypeEnum taskType=TaskTypeEnum.getTaskType(dataConfigs.getTaskType());
         JobProfileDto profileDto = new JobProfileDto();
         Proxy proxy = getProxy(dataConfigs);
-        Job job = getJob(dataConfigs);
+        switch (taskType) {
+            case SQL:
+            case BINLOG:
+                BinlogJob binlogJob = getBinlogJob(dataConfigs);
+                profileDto.setBinlogJob(binlogJob);
+            case FILE:
+                FileJob job = getFileJob(dataConfigs);
+                profileDto.setFileJob(job);
+            case KAFKA:
+            default:
+        }
         profileDto.setProxy(proxy);
-        profileDto.setJob(job);
         return TriggerProfile.parseJsonStr(GSON.toJson(profileDto));
     }
 }
