@@ -27,7 +27,7 @@ message BaseCommand {
         AUDITREPLY    = 3;
     }
     optional Type type                   = 1;
-    required AuditRequest audit_request  = 2;
+    optional AuditRequest audit_request  = 2;
     optional AuditReply audit_reply      = 3;
     optional Ping ping                   = 4;
     optional Pong pong                   = 5;

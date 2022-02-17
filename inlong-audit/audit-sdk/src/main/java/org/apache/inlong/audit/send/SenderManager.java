@@ -164,7 +164,7 @@ public class SenderManager {
      * Clean up the backlog of unsent message packets
      */
     public void clearBuffer() {
-        logger.info("failed cache size:" + this.dataMap.size());
+        logger.info("audit failed cache size:" + this.dataMap.size());
         for (AuditData data : this.dataMap.values()) {
             this.sendData(data.getDataByte());
             sleep(SEND_INTERVAL_MS);
@@ -283,6 +283,7 @@ public class SenderManager {
                 logger.error("can not find the requestid onMessageReceived:" + requestId);
                 return;
             }
+            logger.info("audit-proxy response code:" + baseCommand.getAuditReply().getRspCode().toString());
             if (AuditApi.AuditReply.RSP_CODE.SUCCESS.equals(baseCommand.getAuditReply().getRspCode())) {
                 this.dataMap.remove(requestId);
                 return;
