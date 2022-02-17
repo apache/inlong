@@ -23,7 +23,7 @@ import org.apache.inlong.manager.common.pojo.datastorage.hive.HiveStorageRequest
 import org.apache.inlong.manager.common.pojo.datastorage.hive.HiveStorageResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.storage.StorageService;
-import org.apache.inlong.manager.web.ServiceBaseTest;
+import org.apache.inlong.manager.web.WebBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Data storage service test
  */
-public class StorageServiceTest extends ServiceBaseTest {
+public class StorageServiceTest extends WebBaseTest {
 
     private final String globalGroupId = "b_group1";
     private final String globalStreamId = "stream1";

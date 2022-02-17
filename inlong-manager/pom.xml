@@ -30,6 +30,7 @@
     <name>Apache InLong - Manager</name>
 
     <modules>
+        <module>manager-test</module>
         <module>manager-common</module>
         <module>manager-workflow-engine</module>
         <module>manager-dao</module>
@@ -79,6 +80,7 @@
         <project.build.encoding>UTF-8</project.build.encoding>
         <plugin.compile.version>3.8.1</plugin.compile.version>
         <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
+        <powermock.version>2.0.2</powermock.version>
         <docker.organization>inlong</docker.organization>
     </properties>
 
@@ -447,13 +449,22 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-test</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${springframework.version}</version>
             </dependency>
 
         </dependencies>

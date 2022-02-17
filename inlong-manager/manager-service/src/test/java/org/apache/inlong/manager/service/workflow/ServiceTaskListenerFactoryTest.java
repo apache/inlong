@@ -22,7 +22,7 @@ import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.event.task.QueueOperateListener;
 import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.service.BaseTest;
+import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarGroupTaskListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarResourceTaskListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeGroupTaskListener;
@@ -32,7 +32,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class ServiceTaskListenerFactoryTest extends BaseTest {
+public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
 
     @Autowired
     ServiceTaskListenerFactory serviceTaskListenerFactory;

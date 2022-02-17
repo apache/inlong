@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.web;
 
-import org.junit.runner.RunWith;
+import org.apache.inlong.manager.test.BaseTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@ActiveProfiles(value = {"test"})
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = InLongWebApplication.class)
-public abstract class ServiceBaseTest {
+public abstract class WebBaseTest extends BaseTest {
+
 }
