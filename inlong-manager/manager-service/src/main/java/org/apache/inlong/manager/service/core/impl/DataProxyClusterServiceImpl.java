@@ -32,6 +32,7 @@ import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyClusterSet;
@@ -262,8 +263,9 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
 
         DataProxyClusterEntity dataProxyClusterEntity = dataProxyClusterMapper.selectByName(dataproxyClusterName);
         List<String> groudIdList = businessMapper.selectGroupIdByProxyId(dataProxyClusterEntity.getId());
+        ClusterRequest request = ClusterRequest.builder().mqSetName(dataProxyClusterEntity.getMqSetName()).build();
         List<ClusterInfoEntity> clusterInfoEntities = clusterInfoMapper
-                .selectByMqSetName(dataProxyClusterEntity.getMqSetName());
+                .selectByCondition(request);
         String tenant = clusterBean.getDefaultTenant();
         /*
          * based on group id, get topiclist

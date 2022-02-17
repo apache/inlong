@@ -307,7 +307,7 @@ CREATE TABLE `data_proxy_cluster`
     `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `mq_set_name` varchar(128) NOT NULL COMMENT 'mq set name',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `name` (name)
+    UNIQUE KEY `cluster_name` (`name`, `is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='DataProxy cluster table';
 -- add default data proxy address

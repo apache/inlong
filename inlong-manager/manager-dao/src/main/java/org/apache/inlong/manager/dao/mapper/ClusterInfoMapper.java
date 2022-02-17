@@ -43,6 +43,4 @@ public interface ClusterInfoMapper {
 
     List<ClusterInfoEntity> selectByCondition(ClusterRequest request);
 
-    List<ClusterInfoEntity> selectByMqSetName(String mqSetName);
-
 }

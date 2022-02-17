@@ -253,6 +253,9 @@
             <if test="status != null and status != ''">
                 and status = #{status, jdbcType=INTEGER}
             </if>
+            <if test="mqSetName != null and mqSetName != ''">
+                and mq_set_name = #{mqSetName, jdbcType=VARCHAR}
+            </if>
         </where>
     </select>
     <select id="selectByIdList" resultType="org.apache.inlong.manager.dao.entity.ClusterInfoEntity">
@@ -267,12 +270,5 @@
                 </foreach>
             </if>
         </where>
-    </select>
-
-    <select id="selectByMqSetName" resultType="org.apache.inlong.manager.dao.entity.ClusterInfoEntity">
-        select
-        <include refid="Base_Column_List"/>
-        from cluster_info
-        where mq_set_name=#{mqSetName,jdbcType=VARCHAR}
     </select>
 </mapper>

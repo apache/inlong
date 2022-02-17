@@ -276,6 +276,7 @@
         <include refid="Base_Column_List"/>
         from data_proxy_cluster
         where name= #{name,jdbcType=VARCHAR}
+        and is_deleted=0
     </select>
 
 </mapper>
