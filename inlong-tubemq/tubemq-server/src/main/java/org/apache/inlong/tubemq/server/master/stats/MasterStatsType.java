@@ -15,15 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.server.broker.stats;
+package org.apache.inlong.tubemq.server.master.stats;
 
-public enum BrokerStatsType {
+public enum MasterStatsType {
     ALL(0, "all", "all statistics types"),
     SERVICESTATUS(1, "serviceStatus", "service rpc statistics"),
-    WEBAPI(2, "webAPI", "web api call statistics"),
-    MSGSTORE(3, "msgStore", "message store statistics");
+    WEBAPI(2, "webAPI", "web api call statistics");
 
-    BrokerStatsType(int id, String name, String desc) {
+    MasterStatsType(int id, String name, String desc) {
         this.id = id;
         this.name = name;
         this.desc = desc;
@@ -41,8 +40,8 @@ public enum BrokerStatsType {
         return desc;
     }
 
-    public static BrokerStatsType valueOf(int value) {
-        for (BrokerStatsType metricType : BrokerStatsType.values()) {
+    public static MasterStatsType valueOf(int value) {
+        for (MasterStatsType metricType : MasterStatsType.values()) {
             if (metricType.getId() == value) {
                 return metricType;
             }

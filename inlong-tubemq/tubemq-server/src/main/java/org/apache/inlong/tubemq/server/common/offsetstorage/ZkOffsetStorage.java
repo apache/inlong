@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.server.broker.exception.OffsetStoreException;
-import org.apache.inlong.tubemq.server.broker.stats.ServiceStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fileconfig.ZKConfig;
 import org.apache.inlong.tubemq.server.common.offsetstorage.zookeeper.ZKUtil;
@@ -78,7 +78,7 @@ public class ZkOffsetStorage implements OffsetStorage {
         try {
             this.zkw = new ZooKeeperWatcher(zkConfig);
         } catch (Throwable e) {
-            ServiceStatsHolder.incZKExcCnt();
+            BrokerSrvStatsHolder.incZKExcCnt();
             logger.error(new StringBuilder(256)
                     .append("[ZkOffsetStorage] Failed to connect ZooKeeper server (")
                     .append(this.zkConfig.getZkServerAddr()).append(") !").toString(), e);
@@ -142,7 +142,7 @@ public class ZkOffsetStorage implements OffsetStorage {
         try {
             offsetZkInfo = ZKUtil.readDataMaybeNull(this.zkw, znode);
         } catch (KeeperException e) {
-            ServiceStatsHolder.incZKExcCnt();
+            BrokerSrvStatsHolder.incZKExcCnt();
             logger.error("KeeperException during load offsets from ZooKeeper", e);
             return null;
         }
@@ -182,7 +182,7 @@ public class ZkOffsetStorage implements OffsetStorage {
             try {
                 ZKUtil.updatePersistentPath(this.zkw, offsetPath, offsetData);
             } catch (final Throwable t) {
-                ServiceStatsHolder.incZKExcCnt();
+                BrokerSrvStatsHolder.incZKExcCnt();
                 logger.error("Exception during commit offsets to ZooKeeper", t);
                 throw new OffsetStoreException(t);
             }
@@ -223,7 +223,7 @@ public class ZkOffsetStorage implements OffsetStorage {
                     offsetMap.put(partitionId, Long.parseLong(offsetInfoStrs[1]));
                 }
             } catch (Throwable e) {
-                ServiceStatsHolder.incZKExcCnt();
+                BrokerSrvStatsHolder.incZKExcCnt();
                 offsetMap.put(partitionId, null);
             }
         }

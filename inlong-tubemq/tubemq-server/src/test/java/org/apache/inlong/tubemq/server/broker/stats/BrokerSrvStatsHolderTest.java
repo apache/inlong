@@ -24,40 +24,40 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * ServiceStatsHolder test.
+ * BrokerSrvStatsHolder test.
  */
-public class ServiceStatsHolderTest {
+public class BrokerSrvStatsHolderTest {
 
     @Test
-    public void testServiceStatsHolder() {
+    public void testBrokerSrvStatsHolder() {
         // add consumer online count add 3, dec 2
-        ServiceStatsHolder.incConsumerOnlineCnt();
-        ServiceStatsHolder.incConsumerOnlineCnt();
-        ServiceStatsHolder.incConsumerOnlineCnt();
-        ServiceStatsHolder.decConsumerOnlineCnt(true);
-        ServiceStatsHolder.decConsumerOnlineCnt(false);
+        BrokerSrvStatsHolder.incConsumerOnlineCnt();
+        BrokerSrvStatsHolder.incConsumerOnlineCnt();
+        BrokerSrvStatsHolder.incConsumerOnlineCnt();
+        BrokerSrvStatsHolder.decConsumerOnlineCnt(true);
+        BrokerSrvStatsHolder.decConsumerOnlineCnt(false);
         // add hb exception, add 3
-        ServiceStatsHolder.incBrokerHBExcCnt();
-        ServiceStatsHolder.incBrokerHBExcCnt();
-        ServiceStatsHolder.incBrokerHBExcCnt();
+        BrokerSrvStatsHolder.incBrokerHBExcCnt();
+        BrokerSrvStatsHolder.incBrokerHBExcCnt();
+        BrokerSrvStatsHolder.incBrokerHBExcCnt();
         // add master no node exception, add 2
-        ServiceStatsHolder.incBrokerTimeoutCnt();
-        ServiceStatsHolder.incBrokerTimeoutCnt();
+        BrokerSrvStatsHolder.incBrokerTimeoutCnt();
+        BrokerSrvStatsHolder.incBrokerTimeoutCnt();
         // add zk dlt time, add 3
-        ServiceStatsHolder.updZKSyncDataDlt(30);
-        ServiceStatsHolder.updZKSyncDataDlt(10);
-        ServiceStatsHolder.updZKSyncDataDlt(50);
+        BrokerSrvStatsHolder.updZKSyncDataDlt(30);
+        BrokerSrvStatsHolder.updZKSyncDataDlt(10);
+        BrokerSrvStatsHolder.updZKSyncDataDlt(50);
         // add zk exception, add 1
-        ServiceStatsHolder.incZKExcCnt();
+        BrokerSrvStatsHolder.incZKExcCnt();
         // add disk dlt time, add 2
-        ServiceStatsHolder.updDiskSyncDataDlt(100);
-        ServiceStatsHolder.updDiskSyncDataDlt(10);
+        BrokerSrvStatsHolder.updDiskSyncDataDlt(100);
+        BrokerSrvStatsHolder.updDiskSyncDataDlt(10);
         // add IO exception, add 2
-        ServiceStatsHolder.incDiskIOExcCnt();
-        ServiceStatsHolder.incDiskIOExcCnt();
+        BrokerSrvStatsHolder.incDiskIOExcCnt();
+        BrokerSrvStatsHolder.incDiskIOExcCnt();
         // check result
         Map<String, Long> retMap = new LinkedHashMap<>();
-        ServiceStatsHolder.getValue(retMap);
+        BrokerSrvStatsHolder.getValue(retMap);
         Assert.assertEquals(1, retMap.get("consumer_online_cnt").longValue());
         Assert.assertEquals(1, retMap.get("consumer_timeout_cnt").longValue());
         Assert.assertEquals(3, retMap.get("broker_hb_exc_cnt").longValue());
@@ -77,13 +77,13 @@ public class ServiceStatsHolderTest {
         Assert.assertEquals(1, retMap.get("file_sync_dlt_cell_64t128").longValue());
         final long sinceTime1 = retMap.get("reset_time");
         // verify snapshot
-        ServiceStatsHolder.snapShort(retMap);
+        BrokerSrvStatsHolder.snapShort(retMap);
         retMap.clear();
         // add consumer online count, add 1
-        ServiceStatsHolder.incConsumerOnlineCnt();
+        BrokerSrvStatsHolder.incConsumerOnlineCnt();
         // add disk sync data, add 1
-        ServiceStatsHolder.updDiskSyncDataDlt(999);
-        ServiceStatsHolder.snapShort(retMap);
+        BrokerSrvStatsHolder.updDiskSyncDataDlt(999);
+        BrokerSrvStatsHolder.snapShort(retMap);
         Assert.assertEquals(2, retMap.get("consumer_online_cnt").longValue());
         Assert.assertEquals(0, retMap.get("consumer_timeout_cnt").longValue());
         Assert.assertEquals(0, retMap.get("broker_hb_exc_cnt").longValue());
@@ -99,7 +99,7 @@ public class ServiceStatsHolderTest {
         Assert.assertEquals(1, retMap.get("file_sync_dlt_cell_512t1024").longValue());
         // get content by StringBuilder
         StringBuilder strBuff = new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
-        ServiceStatsHolder.getValue(strBuff);
+        BrokerSrvStatsHolder.getValue(strBuff);
         // System.out.println(strBuff.toString());
     }
 }

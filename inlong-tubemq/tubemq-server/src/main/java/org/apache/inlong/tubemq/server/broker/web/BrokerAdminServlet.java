@@ -46,7 +46,7 @@ import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerStatsType;
-import org.apache.inlong.tubemq.server.broker.stats.ServiceStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.broker.utils.GroupOffsetInfo;
 import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
@@ -1125,11 +1125,11 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                 .append("\",\"nodeName\":\"").append(broker.getTubeConfig().getHostName())
                 .append("\",\"role\":\"Broker\",\"metrics\":{\"serviceStatus\":");
         if (needRefresh) {
-            ServiceStatsHolder.snapShort(sBuffer);
+            BrokerSrvStatsHolder.snapShort(sBuffer);
             sBuffer.append(",\"webAPI\":");
             WebCallStatsHolder.snapShort(sBuffer);
         } else {
-            ServiceStatsHolder.getValue(sBuffer);
+            BrokerSrvStatsHolder.getValue(sBuffer);
             sBuffer.append(",\"webAPI\":");
             WebCallStatsHolder.getValue(sBuffer);
         }
@@ -1321,7 +1321,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         }
         if (inMetricType == BrokerStatsType.SERVICESTATUS
                 || inMetricType == BrokerStatsType.ALL) {
-            ServiceStatsHolder.setDiskSyncStatsStatus(enable);
+            BrokerSrvStatsHolder.setDiskSyncStatsStatus(enable);
         }
         if (inMetricType == BrokerStatsType.MSGSTORE
                 || inMetricType == BrokerStatsType.ALL) {

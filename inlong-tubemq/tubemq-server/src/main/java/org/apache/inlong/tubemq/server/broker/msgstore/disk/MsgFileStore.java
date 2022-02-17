@@ -36,7 +36,7 @@ import org.apache.inlong.tubemq.corebase.utils.ServiceStatusHolder;
 import org.apache.inlong.tubemq.server.broker.BrokerConfig;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.inlong.tubemq.server.broker.stats.MsgStoreStatsHolder;
-import org.apache.inlong.tubemq.server.broker.stats.ServiceStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.broker.stats.TrafficInfo;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.broker.utils.DiskSamplePrint;
@@ -209,7 +209,7 @@ public class MsgFileStore implements Closeable {
             // print abnormal information
             if (inIndexOffset != indexOffset || inDataOffset != dataOffset) {
                 ServiceStatusHolder.addWriteIOErrCnt();
-                ServiceStatsHolder.incDiskIOExcCnt();
+                BrokerSrvStatsHolder.incDiskIOExcCnt();
                 logger.error(sb.append("[File Store]: appendMsg data Error, storekey=")
                     .append(this.storeKey).append(",msgCnt=").append(msgCnt)
                     .append(",indexSize=").append(indexSize)
@@ -223,7 +223,7 @@ public class MsgFileStore implements Closeable {
         } catch (Throwable e) {
             if (!closed.get()) {
                 ServiceStatusHolder.addWriteIOErrCnt();
-                ServiceStatsHolder.incDiskIOExcCnt();
+                BrokerSrvStatsHolder.incDiskIOExcCnt();
             }
             samplePrintCtrl.printExceptionCaught(e);
         } finally {
@@ -349,7 +349,7 @@ public class MsgFileStore implements Closeable {
             } catch (Throwable e2) {
                 if (e2 instanceof IOException) {
                     ServiceStatusHolder.addReadIOErrCnt();
-                    ServiceStatsHolder.incDiskIOExcCnt();
+                    BrokerSrvStatsHolder.incDiskIOExcCnt();
                 }
                 samplePrintCtrl.printExceptionCaught(e2,
                     messageStore.getStoreKey(), String.valueOf(partitionId));
