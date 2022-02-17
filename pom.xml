@@ -111,7 +111,7 @@
         <plugin.compile.version>3.8.1</plugin.compile.version>
         <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
         <docker.organization>inlong</docker.organization>
-        <lombok.verison>1.18.22</lombok.verison>
+        <lombok.version>1.18.22</lombok.version>
     </properties>
 
     <dependencyManagement>
@@ -119,7 +119,7 @@
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>${lombok.verison}</version>
+                <version>${lombok.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
