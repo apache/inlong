@@ -17,42 +17,42 @@
 
 package org.apache.inlong.manager.web.controller.openapi;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
 import org.apache.inlong.manager.dao.entity.SortTaskIdParamEntity;
 import org.apache.inlong.manager.dao.entity.SortTaskSinkParamEntity;
 import org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortTaskIdParamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortTaskSinkParamEntityMapper;
+import org.apache.inlong.manager.web.WebBaseTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class SortControllerTest {
+public class SortControllerTest extends WebBaseTest {
 
     private MockMvc mockMvc;
 
-    @Autowired private WebApplicationContext webApplicationContext;
+    @Autowired
+    private WebApplicationContext webApplicationContext;
 
     // todo Service do not support insert method now, use mappers to insert data.
-    @Autowired private SortTaskIdParamEntityMapper taskIdParamEntityMapper;
+    @Autowired
+    private SortTaskIdParamEntityMapper taskIdParamEntityMapper;
 
-    @Autowired private SortTaskSinkParamEntityMapper taskSinkParamEntityMapper;
+    @Autowired
+    private SortTaskSinkParamEntityMapper taskSinkParamEntityMapper;
 
-    @Autowired private SortClusterConfgiEntityMapper sortClusterConfgiEntityMapper;
+    @Autowired
+    private SortClusterConfgiEntityMapper sortClusterConfgiEntityMapper;
 
     @Before
     public void setUp() {

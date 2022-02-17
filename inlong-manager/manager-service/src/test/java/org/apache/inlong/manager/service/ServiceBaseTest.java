@@ -17,22 +17,12 @@
 
 package org.apache.inlong.manager.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
+import org.apache.inlong.manager.test.BaseTest;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.test.context.SpringBootTest;
 
-@Configuration
-public class BaseConfig {
-
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
+@SpringBootApplication
+@SpringBootTest(classes = ServiceBaseTest.class)
+public class ServiceBaseTest extends BaseTest {
 
 }
