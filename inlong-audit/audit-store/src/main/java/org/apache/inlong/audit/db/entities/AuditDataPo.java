@@ -15,27 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.store.config;
+package org.apache.inlong.audit.db.entities;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-@Component
+import java.util.Date;
+
 @Getter
 @Setter
-public class StoreConfig {
-
-    @Value("${audit.config.store.mode:mysql}")
-    private String store;
-
-    public boolean isMysqlStore() {
-        return store.contains("mysql");
-    }
-
-    public boolean isElasticsearchStore() {
-        return store.contains("elasticsearch");
-    }
-
+public class AuditDataPo {
+    private String ip;
+    private String dockerId;
+    private String threadId;
+    private Date sdkTs;
+    private long packetId;
+    private Date logTs;
+    private String inlongGroupId;
+    private String inlongStreamId;
+    private String auditId;
+    private long count;
+    private long size;
+    private long delay;
 }

@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.store.service;
+package org.apache.inlong.audit.service;
 
 import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.audit.protocol.AuditData;
-import org.apache.inlong.store.config.PulsarConfig;
-import org.apache.inlong.store.config.StoreConfig;
-import org.apache.inlong.store.db.dao.AuditDataDao;
-import org.apache.inlong.store.db.entities.AuditDataPo;
-import org.apache.inlong.store.db.entities.ESDataPo;
+import org.apache.inlong.audit.config.PulsarConfig;
+import org.apache.inlong.audit.config.StoreConfig;
+import org.apache.inlong.audit.db.dao.AuditDataDao;
+import org.apache.inlong.audit.db.entities.AuditDataPo;
+import org.apache.inlong.audit.db.entities.ESDataPo;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageListener;

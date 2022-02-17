@@ -15,33 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.store.db;
+package org.apache.inlong.audit.config;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-@ConfigurationProperties(prefix = "spring.datasource.druid")
+@Component
 @Getter
 @Setter
-public class DruidDataSourceProperties {
+public class StoreConfig {
 
-    private String driverClassName;
-    private String url;
-    private String username;
-    private String password;
-    private int initialSize;
-    private int minIdle;
-    private int maxActive = 100;
-    private long maxWait;
-    private long timeBetweenEvictionRunsMillis;
-    private long minEvictableIdleTimeMillis;
-    private String validationQuery;
-    private boolean testWhileIdle;
-    private boolean testOnBorrow;
-    private boolean testOnReturn;
-    private boolean poolPreparedStatements;
-    private int maxPoolPreparedStatementPerConnectionSize;
-    private String filters;
+    @Value("${audit.config.store.mode:mysql}")
+    private String store;
+
+    public boolean isMysqlStore() {
+        return store.contains("mysql");
+    }
+
+    public boolean isElasticsearchStore() {
+        return store.contains("elasticsearch");
+    }
 
 }

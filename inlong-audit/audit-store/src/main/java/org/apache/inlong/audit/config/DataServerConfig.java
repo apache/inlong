@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.store.config;
+package org.apache.inlong.audit.config;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
@@ -30,11 +30,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Configuration
-@ComponentScan(basePackages = "org.apache.inlong.store", useDefaultFilters = false,
+@ComponentScan(basePackages = "org.apache.inlong.audit", useDefaultFilters = false,
         includeFilters = {
         @Filter(type = FilterType.ANNOTATION, value = Component.class),
         @Filter(type = FilterType.ANNOTATION, value = Service.class)})
-@MapperScan(basePackages = "org.apache.inlong.store.db.dao")
+@MapperScan(basePackages = "org.apache.inlong.audit.db.dao")
 @PropertySources({
         @PropertySource("classpath:application.properties"),
 })

@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.store.db.dao;
+package org.apache.inlong.audit.db.dao;
 
-import org.apache.inlong.store.db.entities.AuditDataPo;
+import org.apache.inlong.audit.db.entities.AuditDataPo;
 
 public interface AuditDataDao {
     int insert(AuditDataPo auditDataPo);
