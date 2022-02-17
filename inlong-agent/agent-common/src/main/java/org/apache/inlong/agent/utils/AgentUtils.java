@@ -82,6 +82,14 @@ public class AgentUtils {
     }
 
     /**
+     * return system current time
+     * @return
+     */
+    public static long getCurrentTime() {
+        return System.currentTimeMillis();
+    }
+
+    /**
      * finally close resources
      *
      * @param resource -  resource which is closable.
