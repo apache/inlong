@@ -18,12 +18,12 @@
 package org.apache.inlong.manager.service.workflow.business;
 
 import org.apache.inlong.manager.common.model.definition.Process;
-import org.apache.inlong.manager.service.BaseTest;
+import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class CreateBusinessWorkflowDefinitionTest extends BaseTest {
+public class CreateBusinessWorkflowDefinitionTest extends ServiceBaseTest {
 
     @Autowired
     CreateBusinessWorkflowDefinition createBusinessWorkflowDefinition;
@@ -31,12 +31,12 @@ public class CreateBusinessWorkflowDefinitionTest extends BaseTest {
     @Test
     public void testDefineProcess() {
         Process process = createBusinessWorkflowDefinition.defineProcess();
-        Assert.assertTrue("Business Resource Creation".equals(process.getType()));
-        Assert.assertTrue(process.getTaskByName("initDataSource") != null);
-        Assert.assertTrue(process.getTaskByName("initMQ") != null);
-        Assert.assertTrue(process.getTaskByName("initSort") != null);
-        Assert.assertTrue(process.getTaskByName("initStorage") != null);
-        Assert.assertTrue(process.getNameToTaskMap().size() == 4);
+        Assert.assertEquals("Business Resource Creation", process.getType());
+        Assert.assertNotNull(process.getTaskByName("initDataSource"));
+        Assert.assertNotNull(process.getTaskByName("initMQ"));
+        Assert.assertNotNull(process.getTaskByName("initSort"));
+        Assert.assertNotNull(process.getTaskByName("initStorage"));
+        Assert.assertEquals(4, process.getNameToTaskMap().size());
     }
 
 }

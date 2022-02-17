@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
-import org.apache.inlong.manager.web.ServiceBaseTest;
+import org.apache.inlong.manager.web.WebBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ import org.springframework.boot.test.context.TestComponent;
  * Data stream service test
  */
 @TestComponent
-public class DataStreamServiceTest extends ServiceBaseTest {
+public class DataStreamServiceTest extends WebBaseTest {
 
     private final String globalGroupId = "b_group1";
     private final String globalGroupName = "group1";

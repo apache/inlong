@@ -36,9 +36,9 @@ public class PluginClassLoaderTest {
                 Thread.currentThread()
                         .getContextClassLoader());
         Map<String, PluginDefinition> pluginDefinitionMap = pluginClassLoader.getPluginDefinitions();
-        Assert.assertTrue(pluginDefinitionMap.size() == 1);
+        Assert.assertEquals(1, pluginDefinitionMap.size());
         PluginDefinition pluginDefinition = Lists.newArrayList(pluginDefinitionMap.values()).get(0);
-        Assert.assertTrue(pluginDefinition != null);
+        Assert.assertNotNull(pluginDefinition);
         String pluginClass = pluginDefinition.getPluginClass();
         Assert.assertTrue(StringUtils.isNotEmpty(pluginClass));
         try {
