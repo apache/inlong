@@ -15,11 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.store.db;
+package org.apache.inlong.audit.db;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import java.sql.SQLException;
-import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +25,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.sql.DataSource;
+import java.sql.SQLException;
 
 @Configuration
 @EnableConfigurationProperties({DruidDataSourceProperties.class})

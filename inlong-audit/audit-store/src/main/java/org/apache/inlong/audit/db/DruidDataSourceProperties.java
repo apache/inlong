@@ -15,26 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.store.db.entities;
+package org.apache.inlong.audit.db;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.Date;
-
+@ConfigurationProperties(prefix = "spring.datasource.druid")
 @Getter
 @Setter
-public class AuditDataPo {
-    private String ip;
-    private String dockerId;
-    private String threadId;
-    private Date sdkTs;
-    private long packetId;
-    private Date logTs;
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private String auditId;
-    private long count;
-    private long size;
-    private long delay;
+public class DruidDataSourceProperties {
+
+    private String driverClassName;
+    private String url;
+    private String username;
+    private String password;
+    private int initialSize;
+    private int minIdle;
+    private int maxActive = 100;
+    private long maxWait;
+    private long timeBetweenEvictionRunsMillis;
+    private long minEvictableIdleTimeMillis;
+    private String validationQuery;
+    private boolean testWhileIdle;
+    private boolean testOnBorrow;
+    private boolean testOnReturn;
+    private boolean poolPreparedStatements;
+    private int maxPoolPreparedStatementPerConnectionSize;
+    private String filters;
+
 }

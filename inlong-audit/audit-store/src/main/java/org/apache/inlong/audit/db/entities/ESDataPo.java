@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.store.db.entities;
+package org.apache.inlong.audit.db.entities;
 
 import lombok.Getter;
 import lombok.Setter;
