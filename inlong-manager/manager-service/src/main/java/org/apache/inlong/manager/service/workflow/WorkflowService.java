@@ -30,6 +30,7 @@ import org.apache.inlong.manager.common.model.view.TaskListView;
 import org.apache.inlong.manager.common.model.view.TaskQuery;
 import org.apache.inlong.manager.common.model.view.TaskSummaryQuery;
 import org.apache.inlong.manager.common.model.view.TaskSummaryView;
+import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 
 /**
  * Workflow service

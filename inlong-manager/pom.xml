@@ -81,6 +81,7 @@
         <plugin.compile.version>3.8.1</plugin.compile.version>
         <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
         <okhttp.version>3.14.9</okhttp.version>
+        <fastjson.version>1.2.76</fastjson.version>
         <docker.organization>inlong</docker.organization>
     </properties>
 
@@ -366,12 +367,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.squareup.okhttp3</groupId>
-                <artifactId>okhttp</artifactId>
-                <version>${okhttp.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>3.11</version>
@@ -447,9 +442,13 @@
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
-                <version>3.14.9</version>
+                <version>${okhttp.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>

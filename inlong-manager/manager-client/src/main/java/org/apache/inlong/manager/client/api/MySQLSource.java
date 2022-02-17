@@ -27,10 +27,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel("Base configuration for MySQL collection")
-public class MySQLSource extends DataSource {
+public class MySQLSource extends StreamSource {
 
     @ApiModelProperty(value = "DataSource type", required = true)
-    private SourceType type = SourceType.DB;
+    private SourceType sourceType = SourceType.DB;
 
     @ApiModelProperty("SyncType for MySQL")
     private SyncType syncType;

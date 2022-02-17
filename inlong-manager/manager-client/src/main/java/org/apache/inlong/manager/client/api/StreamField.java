@@ -60,4 +60,7 @@ public class StreamField {
 
     @ApiModelProperty(value = "Field comment")
     private String fieldComment;
+
+    @ApiModelProperty(value = "Field value for constants")
+    private String fieldValue;
 }

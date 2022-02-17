@@ -25,24 +25,22 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Hive storage configuration")
-public class HiveStorage extends DataStorage {
+public class HiveSink extends StreamSink {
 
     @ApiModelProperty(value = "Data storage type", required = true)
-    private StorageType type = StorageType.HIVE;
+    private SinkType sinkType = SinkType.HIVE;
 
-    @ApiModelProperty("Hive JDBC URL")
+    @ApiModelProperty("Hive meta db URL, etc jdbc:hive2://${ip}:${port}")
     private String jdbcUrl;
 
-    @ApiModelProperty("Username for JDBC URL")
-    private String username;
-
-    @ApiModelProperty("User password")
-    private String password;
+    @ApiModelProperty("Authentication for hive")
+    private DefaultAuthentication authentication;
 
     @ApiModelProperty("Target database name")
     private String dbName;
@@ -50,10 +48,10 @@ public class HiveStorage extends DataStorage {
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @ApiModelProperty("HDFS defaultFS")
+    @ApiModelProperty("HDFS defaultFS, etc hdfs://${ip}:${port}")
     private String hdfsDefaultFs;
 
-    @ApiModelProperty("Warehouse directory")
+    @ApiModelProperty("Warehouse directory, etc /usr/hive/warehouse")
     private String warehouseDir;
 
     @ApiModelProperty("Data encoding format: UTF-8, GBK")
@@ -68,6 +66,15 @@ public class HiveStorage extends DataStorage {
 
     @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
     private FileFormat fileFormat;
+
+    @ApiModelProperty("Create table or not")
+    private boolean needCreated;
+
+    @ApiModelProperty("Primary partition field, default null")
+    private String primaryPartition;
+
+    @ApiModelProperty("Secondary partition field, default null")
+    private String secondaryPartition;
 
     @ApiModelProperty("Other properties if need")
     private Map<String, String> properties;

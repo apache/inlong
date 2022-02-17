@@ -15,29 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.inner;
+package org.apache.inlong.manager.client.api.impl;
 
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageRequest;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamFieldInfo;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
+import org.apache.inlong.manager.client.api.StreamSource;
+import org.apache.inlong.manager.client.api.StreamSink;
+import org.apache.inlong.manager.client.api.DataStream;
+import org.apache.inlong.manager.client.api.StreamField;
 
 @Data
 @NoArgsConstructor
-public class InnerStreamContext {
+@AllArgsConstructor
+public class DataStreamImpl extends DataStream {
 
-    private DataStreamInfo dataStreamInfo;
+    private StreamSource streamSource;
 
-    private StorageRequest storageRequest;
+    private StreamSink streamSink;
 
-    public InnerStreamContext(DataStreamInfo dataStreamInfo) {
-        this.dataStreamInfo = dataStreamInfo;
+    private List<StreamField> streamFields;
+
+    @Override
+    public List<StreamField> listFields() {
+        return this.streamFields;
     }
 
-    public void updateStreamFields(List<DataStreamFieldInfo> fieldInfoList) {
-        dataStreamInfo.setFieldList(fieldInfoList);
+    @Override
+    public StreamSource getSource() {
+        return this.streamSource;
     }
 
+    @Override
+    public StreamSink getStorage() {
+        return this.streamSink;
+    }
 }

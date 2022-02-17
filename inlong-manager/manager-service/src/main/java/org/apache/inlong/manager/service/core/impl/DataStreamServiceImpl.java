@@ -105,7 +105,7 @@ public class DataStreamServiceImpl implements DataStreamService {
         Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be added
-        BusinessEntity businessEntity = this.checkBizIsTempStatus(groupId);
+        checkBizIsTempStatus(groupId);
 
         // The streamId under the same groupId cannot be repeated
         Integer count = streamMapper.selectExistByIdentifier(groupId, streamId);
@@ -113,8 +113,9 @@ public class DataStreamServiceImpl implements DataStreamService {
             LOGGER.error("data stream id [{}] has already exists", streamId);
             throw new BusinessException(BizErrorCodeEnum.DATA_STREAM_ID_DUPLICATE);
         }
-
-        streamInfo.setMqResourceObj(streamId);
+        if (StringUtils.isEmpty(streamInfo.getMqResourceObj())) {
+            streamInfo.setMqResourceObj(streamId);
+        }
         // Processing dataStream
         DataStreamEntity streamEntity = CommonBeanUtils.copyProperties(streamInfo, DataStreamEntity::new);
         Date date = new Date();

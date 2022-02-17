@@ -36,6 +36,7 @@ import org.apache.inlong.manager.common.model.definition.Task;
 import org.apache.inlong.manager.common.model.view.ProcessView;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
+import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.BaseTest;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.mocks.MockDeleteSortListener;

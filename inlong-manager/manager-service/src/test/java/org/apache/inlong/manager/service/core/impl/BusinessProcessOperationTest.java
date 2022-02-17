@@ -27,7 +27,7 @@ import org.apache.inlong.manager.service.BaseTest;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
 import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
-import org.apache.inlong.manager.service.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

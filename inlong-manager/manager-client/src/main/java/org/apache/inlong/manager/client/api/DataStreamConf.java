@@ -45,10 +45,10 @@ public class DataStreamConf {
     private List<StreamField> streamFields;
 
     @ApiModelProperty("Data source from which data is collected")
-    private DataSource source;
+    private StreamSource source;
 
     @ApiModelProperty("Data storage to which data is sinked")
-    private DataStorage storage;
+    private StreamSink storage;
 
     @ApiModelProperty("Data encoding format: UTF-8, GBK")
     private Charset charset = StandardCharsets.UTF_8;

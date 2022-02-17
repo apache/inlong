@@ -21,9 +21,9 @@ import java.util.List;
 
 public abstract class DataStream {
 
-    abstract List<StreamField> listFields();
+    public abstract List<StreamField> listFields();
 
-    abstract DataSource getSource();
+    public abstract StreamSource getSource();
 
-    abstract DataStorage getStorage();
+    public abstract StreamSink getStorage();
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.impl;
+package org.apache.inlong.manager.client.api.util;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
@@ -55,8 +55,10 @@ public class DataStreamGroupTransfer {
         MqType mqType = mqConf.getType();
         businessInfo.setMiddlewareType(mqType.name());
         businessInfo.setExtList(Lists.newArrayList());
+        businessInfo.setCreator(groupConf.getOperator());
         if (mqType == MqType.PULSAR) {
             PulsarBaseConf pulsarBaseConf = (PulsarBaseConf) mqConf;
+            businessInfo.setMqResourceObj(pulsarBaseConf.getNamespace());
             BusinessPulsarInfo pulsarInfo = createPulsarInfo(pulsarBaseConf);
             businessInfo.setMqExtInfo(pulsarInfo);
             List<BusinessExtInfo> extInfos = createPulsarExtInfo(pulsarBaseConf);

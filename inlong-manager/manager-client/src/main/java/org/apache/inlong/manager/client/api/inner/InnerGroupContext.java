@@ -17,13 +17,17 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
+import com.google.common.collect.Maps;
 import java.util.List;
+import java.util.Map;
 import javafx.util.Pair;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
+import org.apache.shiro.util.Assert;
 
 @Data
 @NoArgsConstructor
@@ -31,7 +35,16 @@ public class InnerGroupContext {
 
     private BusinessInfo businessInfo;
 
-    private List<InnerStreamContext> streamList;
+    private Map<String, InnerStreamContext> streamContextMap;
 
-    private Pair<BusinessApproveInfo, List<DataStreamApproveInfo>> approveMsg;
+    private Pair<BusinessApproveInfo, List<DataStreamApproveInfo>> initMsg;
+
+    public void setStreamContext(InnerStreamContext streamContext) {
+        Assert.isTrue(streamContext != null && streamContext.getDataStreamInfo() != null,
+                "StreamContext should not be null");
+        if (MapUtils.isEmpty(streamContextMap)) {
+            streamContextMap = Maps.newHashMap();
+        }
+        streamContextMap.put(streamContext.getDataStreamInfo().getName(), streamContext);
+    }
 }

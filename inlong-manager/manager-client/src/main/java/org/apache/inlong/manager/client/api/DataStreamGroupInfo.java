@@ -19,4 +19,6 @@ package org.apache.inlong.manager.client.api;
 
 public class DataStreamGroupInfo {
 
+
+
 }

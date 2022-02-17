@@ -21,11 +21,18 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 @Data
-@ApiModel("Data storage configuration")
-public abstract class DataStorage {
+@ApiModel("Data source configuration")
+public abstract class StreamSource {
 
-    public enum StorageType {
-        HIVE, ES
+    public enum SourceType {
+        FILE, KAFKA, DB, BINLOG
     }
 
+    public enum SyncType {
+        FULL,INCREMENT
+    }
+
+    public abstract SourceType getSourceType();
+
+    public abstract SyncType getSyncType();
 }

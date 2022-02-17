@@ -21,14 +21,13 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 @Data
-@ApiModel("Data source configuration")
-public abstract class DataSource {
+@ApiModel("Data storage configuration")
+public abstract class StreamSink {
 
-    public enum SourceType {
-        FILE, KAFKA, DB, BINLOG
+    public enum SinkType {
+        HIVE, ES
     }
 
-    public enum SyncType {
-        FULL,INCREMENT
-    }
+    public abstract SinkType getSinkType();
+
 }

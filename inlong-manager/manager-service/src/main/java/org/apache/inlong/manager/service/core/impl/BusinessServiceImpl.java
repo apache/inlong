@@ -26,6 +26,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
@@ -92,16 +93,21 @@ public class BusinessServiceImpl implements BusinessService {
         // Processing business and extended information
         BusinessEntity entity = CommonBeanUtils.copyProperties(businessInfo, BusinessEntity::new);
         entity.setInlongGroupId(groupId);
-        entity.setMqResourceObj(groupId);
-
+        if (StringUtils.isEmpty(entity.getMqResourceObj())) {
+            entity.setMqResourceObj(groupId);
+        }
         // Only M0 is currently supported
         entity.setSchemaName(BizConstant.SCHEMA_M0_DAY);
 
         // After saving, the status is set to [BIZ_WAIT_SUBMIT]
         entity.setStatus(EntityStatus.BIZ_WAIT_SUBMIT.getCode());
         entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
-        entity.setCreator(operator);
-        entity.setModifier(operator);
+        if (StringUtils.isEmpty(entity.getCreator())){
+            entity.setCreator(operator);
+        }
+        if (StringUtils.isEmpty(entity.getModifier())){
+            entity.setModifier(operator);
+        }
         entity.setCreateTime(new Date());
         businessMapper.insertSelective(entity);
         this.saveOrUpdateExt(groupId, businessInfo.getExtList());

@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.util.LoginUserUtil;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.apache.inlong.manager.service.workflow.WorkflowOperation;
-import org.apache.inlong.manager.service.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.apache.inlong.manager.service.workflow.WorkflowTaskExecuteLog;
 import org.apache.inlong.manager.service.workflow.WorkflowTaskExecuteLogQuery;

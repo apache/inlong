@@ -28,6 +28,14 @@ public enum DataSeparator {
 
     private int asciiCode;
 
+    public String getSeperator() {
+        return this.seperator;
+    }
+
+    public int getAsciiCode() {
+        return this.asciiCode;
+    }
+
     private DataSeparator(String seperator, int asciiCode) {
         this.asciiCode = asciiCode;
         this.seperator = seperator;
