@@ -397,35 +397,44 @@ public class MessageStore implements Closeable {
                     .append(this.storeKey).toString());
         }
         long messageId = this.idWorker.nextId();
+        // build data buffer
         int msgBufLen = DataStoreUtils.STORE_DATA_HEADER_LEN + dataLength;
-        final ByteBuffer buffer = ByteBuffer.allocate(msgBufLen);
-        buffer.putInt(DataStoreUtils.STORE_DATA_PREFX_LEN + dataLength);
-        buffer.putInt(DataStoreUtils.STORE_DATA_TOKER_BEGIN_VALUE);
-        buffer.putInt(dataCheckSum);
-        buffer.putInt(partitionId);
-        buffer.putLong(-1L);
-        buffer.putLong(receivedTime);
-        buffer.putInt(sentAddr);
-        buffer.putInt(msgTypeCode);
-        buffer.putLong(messageId);
-        buffer.putInt(msgFlag);
-        buffer.put(data);
-        buffer.flip();
+        final ByteBuffer dataBuffer = ByteBuffer.allocate(msgBufLen);
+        dataBuffer.putInt(DataStoreUtils.STORE_DATA_PREFX_LEN + dataLength);
+        dataBuffer.putInt(DataStoreUtils.STORE_DATA_TOKER_BEGIN_VALUE);
+        dataBuffer.putInt(dataCheckSum);
+        dataBuffer.putInt(partitionId);
+        dataBuffer.putLong(-1L);
+        dataBuffer.putLong(receivedTime);
+        dataBuffer.putInt(sentAddr);
+        dataBuffer.putInt(msgTypeCode);
+        dataBuffer.putLong(messageId);
+        dataBuffer.putInt(msgFlag);
+        dataBuffer.put(data);
+        dataBuffer.flip();
+        // build index buffer
+        final ByteBuffer indexBuffer =
+                ByteBuffer.allocate(DataStoreUtils.STORE_INDEX_HEAD_LEN);
+        indexBuffer.putInt(partitionId);
+        indexBuffer.putLong(-1L);
+        indexBuffer.putInt(msgBufLen);
+        indexBuffer.putInt(msgTypeCode);
+        indexBuffer.putLong(receivedTime);
+        indexBuffer.flip();
         appendResult.putReceivedInfo(messageId, receivedTime);
         do {
             this.writeCacheMutex.readLock().lock();
             try {
                 if (this.msgMemStore.appendMsg(msgStoreStatsHolder,
-                        partitionId, msgTypeCode, receivedTime,
-                        msgBufLen, buffer, appendResult)) {
+                        partitionId, msgTypeCode, receivedTime, indexBuffer,
+                        msgBufLen, dataBuffer, appendResult)) {
                     return true;
                 }
             } finally {
                 this.writeCacheMutex.readLock().unlock();
             }
-            if (triggerFlushAndAddMsg(partitionId, msgTypeCode,
-                    receivedTime, msgBufLen, true,
-                    buffer, false, appendResult)) {
+            if (triggerFlushAndAddMsg(true, false, partitionId, msgTypeCode,
+                    receivedTime, indexBuffer, msgBufLen, dataBuffer, appendResult)) {
                 return true;
             }
             ThreadUtils.sleep(waitRetryMs);
@@ -521,7 +530,7 @@ public class MessageStore implements Closeable {
         }
         if (msgMemStore.getCurMsgCount() > 0
                 && (System.currentTimeMillis() - this.lastMemFlushTime.get()) >= this.writeCacheFlushIntvl) {
-            triggerFlushAndAddMsg(-1, 0, 0, 0, false, null, true, null);
+            triggerFlushAndAddMsg(false, true, -1, 0, 0, null, 0, null, null);
         }
     }
 
@@ -684,22 +693,23 @@ public class MessageStore implements Closeable {
     /**
      * Append message and trigger flush operation.
      *
+     * @param needAdd           whether to add a message
+     * @param isTimeTrigger     whether is timer trigger
      * @param partitionId       the partitionId for reading messages
      * @param keyCode           the filter item hash code
      * @param receivedTime      the received time of message
-     * @param entryLength       the stored entry length
-     * @param needAdd           whether to add a message
-     * @param entry             the stored entry
-     * @param isTimeTrigger     whether is timer trigger
+     * @param indexEntry        the stored index entry
+     * @param dataLength        the stored data entry length
+     * @param dataEntry         the stored data entry
      * @param appendResult      the append result
      *
      * @return                  the append result
      * @throws IOException      the exception during processing
      */
-    private boolean triggerFlushAndAddMsg(int partitionId, int keyCode,
-                                          long receivedTime, int entryLength,
-                                          boolean needAdd, ByteBuffer entry,
-                                          boolean isTimeTrigger,
+    private boolean triggerFlushAndAddMsg(boolean needAdd, boolean isTimeTrigger,
+                                          int partitionId, int keyCode,
+                                          long receivedTime, ByteBuffer indexEntry,
+                                          int dataLength, ByteBuffer dataEntry,
                                           AppendResult appendResult) throws IOException {
         writeCacheMutex.writeLock().lock();
         try {
@@ -735,9 +745,8 @@ public class MessageStore implements Closeable {
                 }
             }
             if (needAdd) {
-                return msgMemStore.appendMsg(msgStoreStatsHolder,
-                        partitionId, keyCode, receivedTime,
-                        entryLength, entry, appendResult);
+                return msgMemStore.appendMsg(msgStoreStatsHolder, partitionId, keyCode,
+                        receivedTime, indexEntry, dataLength, dataEntry, appendResult);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

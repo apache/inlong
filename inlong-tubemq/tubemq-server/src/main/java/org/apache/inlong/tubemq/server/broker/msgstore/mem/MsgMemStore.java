@@ -21,9 +21,10 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
@@ -51,11 +52,11 @@ public class MsgMemStore implements Closeable {
     private final AtomicInteger curMessageCount = new AtomicInteger(0);
     private final ReentrantLock writeLock = new ReentrantLock();
     // partitionId to index position, accelerate query
-    private final ConcurrentHashMap<Integer, Integer> queuesMap =
-            new ConcurrentHashMap<>(20);
+    private final Map<Integer, Integer> queuesMap =
+            new HashMap<>(20);
     // key to index position, used for filter consume
-    private final ConcurrentHashMap<Integer, Integer> keysMap =
-            new ConcurrentHashMap<>(100);
+    private final Map<Integer, Integer> keysMap =
+            new HashMap<>(100);
     // where messages in memory will sink to disk
     private final int maxDataCacheSize;
     private long writeDataStartPos = -1;
@@ -105,6 +106,7 @@ public class MsgMemStore implements Closeable {
      * @param partitionId       the partitionId for append messages
      * @param keyCode           the filter item hash code
      * @param timeRecv          the received timestamp
+     * @param indexEntry        the stored index entry
      * @param dataEntryLength   the stored data entry length
      * @param dataEntry         the stored data entry
      * @param appendResult      the append result
@@ -112,8 +114,8 @@ public class MsgMemStore implements Closeable {
      * @return    the process result
      */
     public boolean appendMsg(MsgStoreStatsHolder memStatsHolder,
-                             int partitionId, int keyCode,
-                             long timeRecv, int dataEntryLength,
+                             int partitionId, int keyCode, long timeRecv,
+                             ByteBuffer indexEntry, int dataEntryLength,
                              ByteBuffer dataEntry, AppendResult appendResult) {
         long dataOffset;
         long indexOffset;
@@ -126,24 +128,21 @@ public class MsgMemStore implements Closeable {
         try {
             // judge whether can write to memory or not.
             if ((fullDataSize = (this.cacheDataOffset.get() + dataEntryLength > this.maxDataCacheSize))
+                    || (fullCount = (this.curMessageCount.get() + 1 > maxAllowedMsgCount))
                     || (fullIndexSize =
-                    (this.cacheIndexOffset.get() + DataStoreUtils.STORE_INDEX_HEAD_LEN > this.maxIndexCacheSize))
-                    || (fullCount = (this.curMessageCount.get() + 1 > maxAllowedMsgCount))) {
+                    (this.cacheIndexOffset.get() + DataStoreUtils.STORE_INDEX_HEAD_LEN > this.maxIndexCacheSize))) {
                 isAppended = false;
                 return false;
             }
             // conduct message with filling process
             indexOffset = this.writeIndexStartPos + this.cacheIndexOffset.get();
             dataOffset = this.writeDataStartPos + this.cacheDataOffset.get();
+            indexEntry.putLong(DataStoreUtils.INDEX_POS_DATAOFFSET, dataOffset);
             dataEntry.putLong(DataStoreUtils.STORE_HEADER_POS_QUEUE_LOGICOFF, indexOffset);
-            this.cacheDataSegment.position(this.cacheDataOffset.get());
+            // this.cacheDataSegment.position(this.cacheDataOffset.get());
             this.cacheDataSegment.put(dataEntry.array());
-            this.cachedIndexSegment.position(this.cacheIndexOffset.get());
-            this.cachedIndexSegment.putInt(partitionId);
-            this.cachedIndexSegment.putLong(dataOffset);
-            this.cachedIndexSegment.putInt(dataEntryLength);
-            this.cachedIndexSegment.putInt(keyCode);
-            this.cachedIndexSegment.putLong(timeRecv);
+            // this.cachedIndexSegment.position(this.cacheIndexOffset.get());
+            this.cachedIndexSegment.put(indexEntry.array());
             this.cacheDataOffset.getAndAdd(dataEntryLength);
             indexSizePos = cacheIndexOffset.getAndAdd(DataStoreUtils.STORE_INDEX_HEAD_LEN);
             this.queuesMap.put(partitionId, indexSizePos);
