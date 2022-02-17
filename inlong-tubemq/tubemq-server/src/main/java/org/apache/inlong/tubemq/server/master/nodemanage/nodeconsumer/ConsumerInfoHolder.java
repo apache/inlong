@@ -30,7 +30,7 @@ import org.apache.inlong.tubemq.server.common.paramcheck.ParamCheckResult;
 import org.apache.inlong.tubemq.server.common.utils.RowLock;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.TMaster;
-import org.apache.inlong.tubemq.server.master.metrics.MasterMetricsHolder;
+import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -358,13 +358,13 @@ public class ConsumerInfoHolder {
                     } else {
                         serverBalanceGroupSet.add(group);
                     }
-                    MasterMetricsHolder.incConsumerCnt(true,
+                    MasterSrvStatsHolder.incConsumerCnt(true,
                             consumeGroupInfo.isClientBalance());
                 }
             }
             if (consumeGroupInfo.addConsumer(consumer, sBuffer, result)) {
                 if ((Boolean) result.checkData) {
-                    MasterMetricsHolder.incConsumerCnt(false,
+                    MasterSrvStatsHolder.incConsumerCnt(false,
                             consumeGroupInfo.isClientBalance());
                 }
                 if (!isNotAllocated) {
@@ -416,14 +416,14 @@ public class ConsumerInfoHolder {
                     }
                     if (rmvGroup) {
                         if (consumer == null) {
-                            MasterMetricsHolder.decConsumeGroupCnt(isTimeout, isCltBal);
+                            MasterSrvStatsHolder.decConsumeGroupCnt(isTimeout, isCltBal);
                         } else {
-                            MasterMetricsHolder.decConsumerCnt(isTimeout, true, isCltBal);
+                            MasterSrvStatsHolder.decConsumerCnt(isTimeout, true, isCltBal);
                         }
                     }
                 } else {
                     if (consumer != null) {
-                        MasterMetricsHolder.decConsumerCnt(isTimeout, false, false);
+                        MasterSrvStatsHolder.decConsumerCnt(isTimeout, false, false);
                     }
                 }
             }

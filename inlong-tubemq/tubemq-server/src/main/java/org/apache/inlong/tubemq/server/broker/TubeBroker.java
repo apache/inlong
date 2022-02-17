@@ -54,7 +54,7 @@ import org.apache.inlong.tubemq.server.broker.offset.DefaultOffsetManager;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordService;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerJMXHolder;
-import org.apache.inlong.tubemq.server.broker.stats.ServiceStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.broker.utils.BrokerSamplePrint;
 import org.apache.inlong.tubemq.server.broker.web.WebServer;
 import org.apache.inlong.tubemq.server.common.TubeServerVersion;
@@ -230,7 +230,7 @@ public class TubeBroker implements Stoppable {
                             if (!response.getSuccess()) {
                                 isKeepAlive.set(false);
                                 if (response.getErrCode() == TErrCodeConstants.HB_NO_NODE) {
-                                    ServiceStatsHolder.incBrokerTimeoutCnt();
+                                    BrokerSrvStatsHolder.incBrokerTimeoutCnt();
                                     register2Master();
                                     heartbeatErrors.set(0);
                                     logger.info("Re-register to master successfully!");
@@ -244,7 +244,7 @@ public class TubeBroker implements Stoppable {
                         } catch (Throwable t) {
                             isKeepAlive.set(false);
                             heartbeatErrors.incrementAndGet();
-                            ServiceStatsHolder.incBrokerHBExcCnt();
+                            BrokerSrvStatsHolder.incBrokerHBExcCnt();
                             samplePrintCtrl.printExceptionCaught(t);
                         }
                     }
