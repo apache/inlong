@@ -143,7 +143,6 @@ public class PushHiveConfigTaskListener implements SortOperateListener {
                 throw new WorkflowListenerException("push hive config to sort failed, reason: " + e.getMessage());
             }
         }
-
         return ListenerResult.success();
     }
 
