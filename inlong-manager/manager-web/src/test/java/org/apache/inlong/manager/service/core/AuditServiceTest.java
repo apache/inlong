@@ -24,14 +24,14 @@ import java.util.List;
 import org.apache.inlong.manager.common.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.common.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.common.pojo.audit.AuditVO;
-import org.apache.inlong.manager.web.ServiceBaseTest;
+import org.apache.inlong.manager.web.WebBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 
 @TestComponent
-public class AuditServiceTest extends ServiceBaseTest {
+public class AuditServiceTest extends WebBaseTest {
 
     @Autowired
     private AuditService auditService;

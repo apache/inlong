@@ -18,12 +18,9 @@
 package org.apache.inlong.manager.web;
 
 import org.apache.inlong.manager.test.BaseTest;
-import org.junit.runner.RunWith;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest(classes = InLongWebApplication.class)
-public abstract class ServiceBaseTest extends BaseTest {
+public abstract class WebBaseTest extends BaseTest {
+
 }

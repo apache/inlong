@@ -26,17 +26,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>manager-test</artifactId>
+    <name>Apache InLong - Manager Test</name>
 
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-    </properties>
     <dependencies>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>manager-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito2</artifactId>

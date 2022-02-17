@@ -30,6 +30,7 @@
     <name>Apache InLong - Manager</name>
 
     <modules>
+        <module>manager-test</module>
         <module>manager-common</module>
         <module>manager-workflow-engine</module>
         <module>manager-dao</module>
@@ -37,7 +38,6 @@
         <module>manager-web</module>
         <module>manager-docker</module>
         <module>manager-plugin-examples</module>
-        <module>manager-test</module>
     </modules>
 
     <properties>

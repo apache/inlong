@@ -23,16 +23,20 @@ import org.apache.inlong.manager.common.model.ProcessState;
 import org.apache.inlong.manager.common.model.view.ProcessView;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
+import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
 import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowResult;
-import org.apache.inlong.manager.test.BaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
-public class BusinessProcessOperationTest extends BaseTest {
+@Transactional
+@Rollback
+public class BusinessProcessOperationTest extends ServiceBaseTest {
 
     private static final String OPERATOR = "operator";
 
@@ -89,9 +93,9 @@ public class BusinessProcessOperationTest extends BaseTest {
         before(EntityStatus.BIZ_SUSPEND.getCode());
         WorkflowResult result = businessProcessOperation.restartProcess(GROUP_ID, OPERATOR);
         ProcessView processView = result.getProcessInfo();
-        Assert.assertTrue(processView.getState() == ProcessState.COMPLETED);
+        Assert.assertSame(processView.getState(), ProcessState.COMPLETED);
         BusinessInfo businessInfo = businessService.get(GROUP_ID);
-        Assert.assertTrue(businessInfo.getStatus().equals(EntityStatus.BIZ_RESTART.getCode()));
+        Assert.assertEquals(businessInfo.getStatus(), EntityStatus.BIZ_RESTART.getCode());
     }
 
     @Test

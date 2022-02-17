@@ -18,12 +18,12 @@
 package org.apache.inlong.manager.service.workflow.business;
 
 import org.apache.inlong.manager.common.model.definition.Process;
-import org.apache.inlong.manager.test.BaseTest;
+import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class CreateBusinessWorkflowDefinitionTest extends BaseTest {
+public class CreateBusinessWorkflowDefinitionTest extends ServiceBaseTest {
 
     @Autowired
     CreateBusinessWorkflowDefinition createBusinessWorkflowDefinition;

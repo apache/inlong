@@ -18,10 +18,14 @@
 package org.apache.inlong.manager.dao;
 
 import org.apache.inlong.manager.test.BaseTest;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @Rollback
+@SpringBootApplication
+@SpringBootTest(classes = DaoBaseTest.class)
 public abstract class DaoBaseTest extends BaseTest {
 }

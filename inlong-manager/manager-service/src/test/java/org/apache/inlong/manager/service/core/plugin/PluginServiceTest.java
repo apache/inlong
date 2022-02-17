@@ -19,15 +19,14 @@ package org.apache.inlong.manager.service.core.plugin;
 
 import java.util.List;
 import java.util.Objects;
-
 import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.common.plugin.ProcessPlugin;
-import org.apache.inlong.manager.test.BaseTest;
+import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class PluginServiceTest extends BaseTest {
+public class PluginServiceTest extends ServiceBaseTest {
 
     @Autowired
     PluginService pluginService;

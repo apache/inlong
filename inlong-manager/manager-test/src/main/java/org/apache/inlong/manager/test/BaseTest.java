@@ -18,9 +18,7 @@
 package org.apache.inlong.manager.test;
 
 import org.junit.runner.RunWith;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -29,8 +27,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @EnableConfigurationProperties
 @ComponentScan(basePackages = "org.apache.inlong.manager")
 @RunWith(SpringRunner.class)
-@SpringBootApplication
-@SpringBootTest(classes = BaseTest.class)
 public class BaseTest {
 
 }

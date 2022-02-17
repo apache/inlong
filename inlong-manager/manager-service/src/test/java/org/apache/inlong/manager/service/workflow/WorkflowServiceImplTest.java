@@ -36,6 +36,7 @@ import org.apache.inlong.manager.common.model.definition.Task;
 import org.apache.inlong.manager.common.model.view.ProcessView;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
+import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.mocks.MockDeleteSortListener;
 import org.apache.inlong.manager.service.mocks.MockDeleteSourceListener;
@@ -53,12 +54,11 @@ import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigTaskListen
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm;
 import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm.OperateType;
-import org.apache.inlong.manager.test.BaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class WorkflowServiceImplTest extends BaseTest {
+public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     private static final String OPERATOR = "admin";
 

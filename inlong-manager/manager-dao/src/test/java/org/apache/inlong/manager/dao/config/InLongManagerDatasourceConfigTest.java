@@ -24,9 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
 
-@ContextConfiguration(classes = InLongManagerDatasourceConfigTest.class)
 public class InLongManagerDatasourceConfigTest extends DaoBaseTest {
 
     @Autowired

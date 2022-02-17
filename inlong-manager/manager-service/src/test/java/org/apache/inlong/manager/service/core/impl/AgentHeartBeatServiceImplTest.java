@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import org.apache.inlong.manager.common.pojo.agent.AgentHeartbeatRequest;
 import org.apache.inlong.manager.common.pojo.agent.HeartbeatMessage;
 import org.apache.inlong.manager.dao.mapper.AgentHeartBeatLogEntityMapper;
-import org.apache.inlong.manager.test.BaseTest;
+import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -31,7 +31,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-class AgentHeartBeatServiceImplTest extends BaseTest {
+class AgentHeartBeatServiceImplTest extends ServiceBaseTest {
 
     @InjectMocks
     AgentHeartBeatServiceImpl agentHeartBeatService;

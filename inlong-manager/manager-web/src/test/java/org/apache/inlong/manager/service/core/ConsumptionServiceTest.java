@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.core;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionPulsarInfo;
-import org.apache.inlong.manager.web.ServiceBaseTest;
+import org.apache.inlong.manager.web.WebBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Consumption service test
  */
-public class ConsumptionServiceTest extends ServiceBaseTest {
+public class ConsumptionServiceTest extends WebBaseTest {
 
     @Autowired
     private ConsumptionService consumptionService;
