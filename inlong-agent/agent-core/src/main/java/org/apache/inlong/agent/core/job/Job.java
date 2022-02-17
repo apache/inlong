@@ -92,7 +92,7 @@ public class Job {
                 taskList.add(new Task(taskId, reader, writer, channel, getJobConf()));
             }
         } catch (Exception ex) {
-            LOGGER.error("create taks fail", ex);
+            LOGGER.error("create task failed", ex);
             throw new RuntimeException(ex);
         }
         return taskList;

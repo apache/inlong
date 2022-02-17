@@ -26,7 +26,7 @@ public class DbCollectorTask {
     private Integer type;
     private Integer dbType;
     private String ip;
-    private Integer port;
+    private Integer dbport;
     private String dbName;
     private String user;
     private String password;
