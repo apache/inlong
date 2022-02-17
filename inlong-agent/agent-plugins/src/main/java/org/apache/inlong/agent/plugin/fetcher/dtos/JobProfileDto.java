@@ -42,6 +42,8 @@ public class JobProfileDto {
     public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
     public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.TextFileSource";
 
+
+
     @Data
     public static class Dir {
 
@@ -114,6 +116,8 @@ public class JobProfileDto {
         private  String job_database_store_offset_interval_ms;
         private  String job_database_store_history_filename;
         private  String job_database_snapshot_mode;
+        private  String job_database_offset;
+
     }
 
     @Data
@@ -127,6 +131,7 @@ public class JobProfileDto {
         private  String job_database_store_offset_interval_ms;
         private  String job_database_store_history_filename;
         private  String job_database_snapshot_mode;
+        private  String job_database_offset;
     }
 
     @Data
@@ -168,6 +173,7 @@ public class JobProfileDto {
         binlogJob.setJob_database_store_history_filename(binlogJobTaskConfig.getJob_database_store_history_filename());
         binlogJob.setJob_database_store_offset_interval_ms(binlogJobTaskConfig.getJob_database_store_offset_interval_ms());
         binlogJob.setJob_database_snapshot_mode(binlogJobTaskConfig.getJob_database_snapshot_mode());
+        binlogJob.setJob_database_offset(binlogJobTaskConfig.getJob_database_offset());
 
         return binlogJob;
     }
