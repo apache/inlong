@@ -17,7 +17,10 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.DataStream;
 import org.apache.inlong.manager.client.api.DataStreamBuilder;
@@ -128,8 +131,7 @@ public class DataStreamGroupImpl implements DataStreamGroup {
     @Override
     public List<DataStream> listStreams() throws Exception {
         String inlongGroupId = this.groupContext.getGroupId();
-        List<FullStreamResponse> streamResponses = managerClient.listStreamInfo(inlongGroupId);
-        return null;
+        return fetchDataStreams(inlongGroupId);
     }
 
     private DataStreamGroupInfo generateSnapshot(BusinessInfo currentBizInfo) {
@@ -137,7 +139,20 @@ public class DataStreamGroupImpl implements DataStreamGroup {
             currentBizInfo = managerClient.getBusinessInfo(
                     groupContext.getBusinessInfo().getInlongGroupId());
         }
-        groupContext.setBusinessInfo(currentBizInfo);
+        String inlongGroupId = currentBizInfo.getInlongGroupId();
+        List<DataStream> dataStreams = fetchDataStreams(inlongGroupId);
+        dataStreams.stream().forEach(dataStream -> groupContext.setStream(dataStream));
         return new DataStreamGroupInfo(groupContext, groupConf);
+    }
+
+    private List<DataStream> fetchDataStreams(String groupId) {
+        List<FullStreamResponse> streamResponses = managerClient.listStreamInfo(groupId);
+        List<DataStream> streamList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(streamResponses)) {
+            streamList = streamResponses.stream().map(fullStreamResponse -> {
+                return new DataStreamImpl(fullStreamResponse);
+            }).collect(Collectors.toList());
+        }
+        return streamList;
     }
 }
