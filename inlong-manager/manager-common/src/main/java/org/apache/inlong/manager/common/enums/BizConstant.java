@@ -76,4 +76,6 @@ public class BizConstant {
 
     public static final Integer DISABLE_CREATE_RESOURCE = 0; // Disable create resource
 
+    public static final String STORAGE_ICEBERG = "ICEBERG";
+
 }
