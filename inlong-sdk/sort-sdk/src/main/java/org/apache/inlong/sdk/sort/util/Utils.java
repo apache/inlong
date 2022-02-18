@@ -20,7 +20,6 @@
 package org.apache.inlong.sdk.sort.util;
 
 import java.io.ByteArrayInputStream;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;

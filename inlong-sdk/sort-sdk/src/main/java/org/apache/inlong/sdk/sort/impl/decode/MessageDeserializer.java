@@ -38,11 +38,9 @@ public class MessageDeserializer implements Deserializer {
 
     private static final int MESSAGE_VERSION_NONE = 0;
     private static final int MESSAGE_VERSION_PB = 1;
-
     private static final int COMPRESS_TYPE_NONE = 0;
     private static final int COMPRESS_TYPE_GZIP = 1;
     private static final int COMPRESS_TYPE_SNAPPY = 2;
-
     private static final String VERSION_KEY = "version";
     private static final String COMPRESS_TYPE_KEY = "compressType";
     private static final String MSG_TIME_KEY = "msgTime";
@@ -50,7 +48,9 @@ public class MessageDeserializer implements Deserializer {
     private static final String INLONG_GROUPID_KEY = "inlongGroupId";
     private static final String INLONG_STREAMID_KEY = "inlongStreamId";
 
-    public MessageDeserializer() {}
+    public MessageDeserializer() {
+    }
+
     @Override
     public List<InLongMessage> deserialize(ClientContext context, InLongTopic inLongTopic, Map<String, String> headers,
             byte[] data) throws Exception {

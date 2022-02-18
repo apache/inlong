@@ -20,7 +20,6 @@ package org.apache.inlong.sdk.sort.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -351,7 +350,8 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
                             .authentication(AuthenticationFactory.token(inLongTopic.getInLongCluster().getToken()))
                             .build();
                     pulsarClients.put(inLongTopic.getInLongCluster().getClusterId(), pulsarClient);
-                    logger.info("create pulsar client succ {} {} {}", new String[]{inLongTopic.getInLongCluster().getClusterId(),
+                    logger.info("create pulsar client succ {} {} {}",
+                            new String[]{inLongTopic.getInLongCluster().getClusterId(),
                             inLongTopic.getInLongCluster().getBootstraps(),
                             inLongTopic.getInLongCluster().getToken()});
                 } catch (Exception e) {
@@ -378,7 +378,8 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
                     TubeConsumerCreater tubeConsumerCreater = new TubeConsumerCreater(messageSessionFactory,
                             tubeConfig);
                     tubeFactories.put(inLongTopic.getInLongCluster().getClusterId(), tubeConsumerCreater);
-                    logger.info("create tube client succ {} {} {}", new String[]{inLongTopic.getInLongCluster().getClusterId(),
+                    logger.info("create tube client succ {} {} {}",
+                            new String[]{inLongTopic.getInLongCluster().getClusterId(),
                             inLongTopic.getInLongCluster().getBootstraps(),
                             inLongTopic.getInLongCluster().getToken()});
                 } catch (Exception e) {
