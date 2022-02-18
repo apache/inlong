@@ -23,6 +23,8 @@ public abstract class InLongTopicFetcher {
 
     protected InLongTopic inLongTopic;
     protected ClientContext context;
+    protected Deserializer deserializer;
+    protected volatile Thread fetchThread;
     protected volatile boolean closed = false;
     protected volatile boolean isStopConsume = false;
     // use for empty topic to sleep

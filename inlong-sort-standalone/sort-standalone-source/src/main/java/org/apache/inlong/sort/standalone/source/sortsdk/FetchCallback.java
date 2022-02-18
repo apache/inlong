@@ -106,8 +106,8 @@ public class FetchCallback implements ReadCallback {
                 //TODO fix here
                 final SubscribeFetchResult result = SubscribeFetchResult.Factory
                         .create(sortId, messageRecord.getMsgKey(), messageRecord.getOffset(),
-                                inLongMessage.getMsgHeader(), messageRecord.getRecTime(),
-                                inLongMessage.getData());
+                                inLongMessage.getParams(), messageRecord.getRecTime(),
+                                inLongMessage.getBody());
                 final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders());
                 channelProcessor.processEvent(profileEvent);
                 context.reportToMetric(profileEvent, sortId, "-", SortSdkSourceContext.FetchResult.SUCCESS);
