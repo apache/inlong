@@ -60,6 +60,12 @@
             <artifactId>guava</artifactId>
             <version>11.0.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.12</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>

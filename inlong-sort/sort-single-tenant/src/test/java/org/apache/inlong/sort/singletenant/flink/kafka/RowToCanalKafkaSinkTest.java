@@ -24,25 +24,26 @@ import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.CanalSerializationInfo;
-import org.apache.inlong.sort.singletenant.flink.serialization.RowDataSerializationSchemaFactory;
+import org.apache.inlong.sort.singletenant.flink.serialization.SerializationSchemaFactory;
 import org.apache.kafka.common.utils.Bytes;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class RowToCanalKafkaSinkTest extends KafkaSinkTestBaseForRowData {
+public class RowToCanalKafkaSinkTest extends KafkaSinkTestBase {
 
     @Override
-    protected void prepareData() {
+    protected void prepareData() throws IOException, ClassNotFoundException {
         topic = "test_kafka_row_to_canal";
         fieldInfos = new FieldInfo[]{
                 new FieldInfo("f1", new StringFormatInfo()),
                 new FieldInfo("f2", new IntFormatInfo())
         };
 
-        serializationSchema = RowDataSerializationSchemaFactory.build(
+        serializationSchema = SerializationSchemaFactory.build(
                 fieldInfos, new CanalSerializationInfo("sql", "literal", "null", true)
         );
 

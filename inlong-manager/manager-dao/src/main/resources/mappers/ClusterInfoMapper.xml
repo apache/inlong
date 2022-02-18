@@ -28,6 +28,7 @@
         <result column="port" jdbcType="INTEGER" property="port"/>
         <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
         <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="token" jdbcType="VARCHAR" property="token"/>
         <result column="is_backup" jdbcType="INTEGER" property="isBackup"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
@@ -36,10 +37,11 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
         <result column="ext_props" jdbcType="LONGVARCHAR" property="extProps"/>
+        <result column="mq_set_name" jdbcType="VARCHAR" property="mqSetName"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, type, ip, port, in_charges, url, is_backup,
-        status, is_deleted, creator, modifier, create_time, modify_time, ext_props
+        id, name, type, ip, port, in_charges, url, token, is_backup,
+        status, is_deleted, creator, modifier, create_time, modify_time, ext_props, mq_set_name
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
@@ -55,15 +57,16 @@
     <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.ClusterInfoEntity">
         insert into cluster_info (id, name, type,
                                   ip, port, in_charges,
-                                  url, is_backup, status, is_deleted,
+                                  url, token, is_backup, status, is_deleted,
                                   creator, modifier, create_time,
-                                  modify_time, ext_props)
+                                  modify_time, ext_props, mq_set_name)
         values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
                 #{ip,jdbcType=VARCHAR}, #{port,jdbcType=INTEGER}, #{inCharges,jdbcType=VARCHAR},
-                #{url,jdbcType=VARCHAR}, #{isBackup,jdbcType=INTEGER}, #{status,jdbcType=INTEGER},
+                #{url,jdbcType=VARCHAR}, #{token,jdbcType=VARCHAR}, #{isBackup,jdbcType=INTEGER},
+                #{status,jdbcType=INTEGER},
                 #{isDeleted,jdbcType=INTEGER},
                 #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
-                #{modifyTime,jdbcType=TIMESTAMP}, #{extProps,jdbcType=LONGVARCHAR})
+                #{modifyTime,jdbcType=TIMESTAMP}, #{extProps,jdbcType=LONGVARCHAR}, #{mqSetName,jdbcType=VARCHAR})
     </insert>
     <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.ClusterInfoEntity">
         insert into cluster_info
@@ -218,6 +221,7 @@
             port        = #{port,jdbcType=INTEGER},
             in_charges  = #{inCharges,jdbcType=VARCHAR},
             url         = #{url,jdbcType=VARCHAR},
+            token       = #{token,jdbcType=VARCHAR},
             is_backup   = #{isBackup,jdbcType=INTEGER},
             status      = #{status,jdbcType=INTEGER},
             is_deleted  = #{isDeleted,jdbcType=INTEGER},
@@ -225,7 +229,8 @@
             modifier    = #{modifier,jdbcType=VARCHAR},
             create_time = #{createTime,jdbcType=TIMESTAMP},
             modify_time = #{modifyTime,jdbcType=TIMESTAMP},
-            ext_props   = #{extProps,jdbcType=LONGVARCHAR}
+            ext_props   = #{extProps,jdbcType=LONGVARCHAR},
+            mq_set_name = #{mqSetName,jdbcType=VARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
 
@@ -247,6 +252,9 @@
             </if>
             <if test="status != null and status != ''">
                 and status = #{status, jdbcType=INTEGER}
+            </if>
+            <if test="mqSetName != null and mqSetName != ''">
+                and mq_set_name = #{mqSetName, jdbcType=VARCHAR}
             </if>
         </where>
     </select>

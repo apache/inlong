@@ -44,7 +44,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
         @JsonSubTypes.Type(name = "map", value = MapFormatInfo.class),
         @JsonSubTypes.Type(name = "row", value = RowFormatInfo.class),
         @JsonSubTypes.Type(name = "binary", value = BinaryFormatInfo.class),
-        @JsonSubTypes.Type(name = "null", value = NullFormatInfo.class)
+        @JsonSubTypes.Type(name = "null", value = NullFormatInfo.class),
+        @JsonSubTypes.Type(name = "local_zoned_timestamp", value = LocalZonedTimestampFormatInfo.class)
 })
 public interface FormatInfo extends Serializable {
 

@@ -30,6 +30,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
+import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_ISO_8601;
+import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_SQL;
+
 /**
  * The format information for {@link Timestamp}s.
  */
@@ -55,7 +58,9 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
 
         if (!format.equals("MICROS")
                 && !format.equals("MILLIS")
-                && !format.equals("SECONDS")) {
+                && !format.equals("SECONDS")
+                && !DATE_AND_TIME_STANDARD_SQL.equals(format)
+                && !DATE_AND_TIME_STANDARD_ISO_8601.equals(format)) {
             this.simpleDateFormat = new SimpleDateFormat(format);
         } else {
             this.simpleDateFormat = null;
@@ -63,7 +68,7 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
     }
 
     public TimestampFormatInfo() {
-        this("yyyy-MM-dd hh:mm:ss");
+        this("yyyy-MM-dd HH:mm:ss");
     }
 
     @Nonnull

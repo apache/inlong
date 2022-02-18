@@ -48,4 +48,7 @@ public class ClusterRequest {
     @ApiModelProperty(value = "state")
     private Integer status;
 
+    @ApiModelProperty(value = "Mq set name")
+    private String mqSetName;
+
 }

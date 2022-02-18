@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.commons.pojo.dataproxy;
 
 import lombok.Data;
 
@@ -28,4 +28,5 @@ public class DataProxyConfig {
     private String topic;
     private String m;
     private String inlongGroupId;
+
 }

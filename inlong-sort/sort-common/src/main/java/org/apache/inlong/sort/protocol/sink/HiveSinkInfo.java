@@ -134,7 +134,10 @@ public class HiveSinkInfo extends SinkInfo {
     @JsonSubTypes({
             @Type(value = HiveTimePartitionInfo.class, name = "time"),
             @Type(value = HiveFieldPartitionInfo.class, name = "field")})
-    public abstract static class HivePartitionInfo {
+    public abstract static class HivePartitionInfo implements Serializable {
+
+        private static final long serialVersionUID = -4276796328049383208L;
+
         @JsonProperty("field_name")
         private final String fieldName;
 
@@ -150,6 +153,8 @@ public class HiveSinkInfo extends SinkInfo {
     }
 
     public static class HiveTimePartitionInfo extends HivePartitionInfo {
+
+        private static final long serialVersionUID = -2475470848828020684L;
 
         @JsonProperty("date_format")
         private final String format;
@@ -169,6 +174,8 @@ public class HiveSinkInfo extends SinkInfo {
 
     public static class HiveFieldPartitionInfo extends HivePartitionInfo {
 
+        private static final long serialVersionUID = 9208133177416395986L;
+
         public HiveFieldPartitionInfo(
                 @JsonProperty("field_name") String fieldName) {
             super(fieldName);
@@ -186,10 +193,12 @@ public class HiveSinkInfo extends SinkInfo {
             @Type(value = OrcFileFormat.class, name = "orc"),
             @Type(value = SequenceFileFormat.class, name = "sequence"),
             @Type(value = ParquetFileFormat.class, name = "parquet"),})
-    public interface HiveFileFormat {
+    public interface HiveFileFormat extends Serializable {
     }
 
-    public static class TextFileFormat implements HiveFileFormat, Serializable {
+    public static class TextFileFormat implements HiveFileFormat {
+
+        private static final long serialVersionUID = 522000219325150443L;
 
         @JsonProperty("splitter")
         private final Character splitter;
@@ -221,7 +230,9 @@ public class HiveSinkInfo extends SinkInfo {
         }
     }
 
-    public static class OrcFileFormat implements HiveFileFormat, Serializable {
+    public static class OrcFileFormat implements HiveFileFormat {
+
+        private static final long serialVersionUID = -6483139337919483030L;
 
         @JsonProperty("batch_size")
         private final int batchSize;
@@ -237,7 +248,9 @@ public class HiveSinkInfo extends SinkInfo {
         }
     }
 
-    public static class SequenceFileFormat implements HiveFileFormat, Serializable {
+    public static class SequenceFileFormat implements HiveFileFormat {
+
+        private static final long serialVersionUID = 263836241053911625L;
 
         @JsonProperty("splitter")
         private final Character splitter;
@@ -263,9 +276,12 @@ public class HiveSinkInfo extends SinkInfo {
         }
     }
 
-    public static class ParquetFileFormat implements HiveFileFormat, Serializable {
+    public static class ParquetFileFormat implements HiveFileFormat {
+
+        private static final long serialVersionUID = 3400568099604670179L;
 
         public ParquetFileFormat() {
         }
+
     }
 }

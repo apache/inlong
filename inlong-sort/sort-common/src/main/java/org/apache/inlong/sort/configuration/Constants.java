@@ -57,8 +57,6 @@ public class Constants {
 
     public static final String DESERIALIZATION_SCHEMA_UID = "deserialization_schema_uid";
 
-    public static final String CONVERTER_UID = "converter_uid";
-
     public static final String SINK_UID = "sink_uid";
 
     /**

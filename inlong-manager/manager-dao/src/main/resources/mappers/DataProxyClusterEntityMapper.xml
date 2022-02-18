@@ -31,16 +31,17 @@
         <result column="net_type" jdbcType="VARCHAR" property="netType"/>
         <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
-        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="is_deleted" jdbcType="TINYINT" property="isDeleted"/>
         <result column="creator" jdbcType="VARCHAR" property="creator"/>
         <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
         <result column="ext_props" jdbcType="LONGVARCHAR" property="extProps"/>
+        <result column="mq_set_name" jdbcType="VARCHAR" property="mqSetName"/>
     </resultMap>
     <sql id="Base_Column_List">
         id, name, description, address, port, is_backup, is_inner_ip, net_type,
-        in_charges, status, is_deleted, creator, modifier, create_time, modify_time, ext_props
+        in_charges, status, is_deleted, creator, modifier, create_time, modify_time, ext_props, mq_set_name
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -85,13 +86,13 @@
                                         is_inner_ip, net_type,
                                         in_charges, status, is_deleted,
                                         creator, modifier, create_time,
-                                        modify_time, ext_props)
+                                        modify_time, ext_props, mq_set_name)
         values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
                 #{address,jdbcType=VARCHAR}, #{port,jdbcType=VARCHAR}, #{isBackup,jdbcType=INTEGER},
                 #{isInnerIp,jdbcType=INTEGER}, #{netType,jdbcType=VARCHAR},
-                #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
+                #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{isDeleted,jdbcType=TINYINT},
                 #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
-                #{modifyTime,jdbcType=TIMESTAMP}, #{extProps,jdbcType=LONGVARCHAR})
+                #{modifyTime,jdbcType=TIMESTAMP}, #{extProps,jdbcType=LONGVARCHAR}, #{mqSetName,jdbcType=VARCHAR})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.DataProxyClusterEntity">
@@ -145,6 +146,9 @@
             <if test="extProps != null">
                 ext_props,
             </if>
+            <if test="mqSetName != null">
+                mq_set_name,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -178,7 +182,7 @@
                 #{status,jdbcType=INTEGER},
             </if>
             <if test="isDeleted != null">
-                #{isDeleted,jdbcType=INTEGER},
+                #{isDeleted,jdbcType=TINYINT},
             </if>
             <if test="creator != null">
                 #{creator,jdbcType=VARCHAR},
@@ -194,6 +198,9 @@
             </if>
             <if test="extProps != null">
                 #{extProps,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="mqSetName != null">
+                #{mqSetName,jdbcType=VARCHAR},
             </if>
         </trim>
     </insert>
@@ -229,7 +236,7 @@
                 status = #{status,jdbcType=INTEGER},
             </if>
             <if test="isDeleted != null">
-                is_deleted = #{isDeleted,jdbcType=INTEGER},
+                is_deleted = #{isDeleted,jdbcType=TINYINT},
             </if>
             <if test="creator != null">
                 creator = #{creator,jdbcType=VARCHAR},
@@ -242,6 +249,9 @@
             </if>
             <if test="modifyTime != null">
                 modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="extProps != null">
+                ext_props = #{extProps,jdbcType=LONGVARCHAR},
             </if>
             <if test="extProps != null">
                 ext_props = #{extProps,jdbcType=LONGVARCHAR},
@@ -260,13 +270,22 @@
             net_type    = #{netType,jdbcType=VARCHAR},
             in_charges  = #{inCharges,jdbcType=VARCHAR},
             status      = #{status,jdbcType=INTEGER},
-            is_deleted  = #{isDeleted,jdbcType=INTEGER},
+            is_deleted  = #{isDeleted,jdbcType=TINYINT},
             creator     = #{creator,jdbcType=VARCHAR},
             modifier    = #{modifier,jdbcType=VARCHAR},
             create_time = #{createTime,jdbcType=TIMESTAMP},
             modify_time = #{modifyTime,jdbcType=TIMESTAMP},
-            ext_props   = #{extProps,jdbcType=LONGVARCHAR}
+            ext_props   = #{extProps,jdbcType=LONGVARCHAR},
+            mq_set_name = #{mqSetName,jdbcType=VARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
+
+    <select id="selectByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from data_proxy_cluster
+        where name= #{name,jdbcType=VARCHAR}
+        and is_deleted=0
+    </select>
 
 </mapper>
