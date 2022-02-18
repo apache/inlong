@@ -39,51 +39,23 @@ public class KafkaStorageDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("Kafka sasl mechanism")
-    private String saslMechanism;
-
-    @ApiModelProperty("Kafka security protocol")
-    private String securityProtocol;
-
     @ApiModelProperty("Kafka bootstrap servers")
-    private String bootstrapServers;
-
-    @ApiModelProperty("Group Id for ConsumerGroup")
-    private String groupId;
+    private String address;
 
     @ApiModelProperty("Kafka topicName")
     private String topicName;
 
-    @ApiModelProperty("topic offset reset")
-    private String topicOffsetReset;
-
-    @ApiModelProperty("poll timeout ms")
-    private Long pollTimeoutMs;
-
-    @ApiModelProperty("enable auto commit")
-    private Boolean enableAutoCommit;
-
-    @ApiModelProperty("auto commit interval ms")
-    private Integer autoCommitIntervalMs;
-
-    @ApiModelProperty("session timeout ms")
-    private Integer sessionTimeoutMs;
+    @ApiModelProperty("Data Serialization, support: Json, Canal, Avro")
+    private String serializationType;
 
     /**
      * Get the dto instance from the request
      */
     public static KafkaStorageDTO getFromRequest(KafkaStorageRequest request) {
         return KafkaStorageDTO.builder()
-                .saslMechanism(request.getSaslMechanism())
-                .securityProtocol(request.getSecurityProtocol())
-                .bootstrapServers(request.getBootstrapServers())
-                .groupId(request.getGroupId())
+                .address(request.getAddress())
                 .topicName(request.getTopicName())
-                .topicOffsetReset(request.getTopicOffsetReset())
-                .pollTimeoutMs(request.getPollTimeoutMs())
-                .enableAutoCommit(request.getEnableAutoCommit())
-                .autoCommitIntervalMs(request.getAutoCommitIntervalMs())
-                .sessionTimeoutMs(request.getSessionTimeoutMs())
+                .serializationType(request.getSerializationType())
                 .build();
     }
 

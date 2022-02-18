@@ -31,13 +31,13 @@ import org.apache.inlong.manager.common.pojo.datastorage.StorageListResponse;
 @ApiModel("Response of Kafka storage paging list")
 public class KafkaStorageListResponse extends StorageListResponse {
 
-    @ApiModelProperty("Kafka Bootstrap Servers")
-    private String bootstrapServers;
-
-    @ApiModelProperty("Group Id for ConsumerGroup")
-    private String groupId;
+    @ApiModelProperty("Kafka bootstrap servers")
+    private String address;
 
     @ApiModelProperty("Kafka topicName")
     private String topicName;
+
+    @ApiModelProperty("Data Serialization, support: Json, Canal, Avro")
+    private String serializationType;
 
 }

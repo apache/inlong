@@ -20,14 +20,18 @@ package org.apache.inlong.manager.service.storage.kafka;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Supplier;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageFieldRequest;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageListResponse;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageRequest;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageResponse;
@@ -38,7 +42,9 @@ import org.apache.inlong.manager.common.pojo.datastorage.kafka.KafkaStorageRespo
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StorageEntity;
+import org.apache.inlong.manager.dao.entity.StorageFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StorageEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StorageFieldEntityMapper;
 import org.apache.inlong.manager.service.storage.StorageOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +63,8 @@ public class KafkaStorageOperation implements StorageOperation {
     private ObjectMapper objectMapper;
     @Autowired
     private StorageEntityMapper storageMapper;
+    @Autowired
+    private StorageFieldEntityMapper storageFieldMapper;
 
     @Override
     public Boolean accept(String storageType) {
@@ -95,7 +103,33 @@ public class KafkaStorageOperation implements StorageOperation {
 
     @Override
     public void saveFieldOpt(StorageRequest request) {
-        // kafka request without field list,so ignore this method.
+        List<StorageFieldRequest> fieldList = request.getFieldList();
+        LOGGER.info("begin to save field={}", fieldList);
+        if (CollectionUtils.isEmpty(fieldList)) {
+            return;
+        }
+
+        int size = fieldList.size();
+        List<StorageFieldEntity> entityList = new ArrayList<>(size);
+        String groupId = request.getInlongGroupId();
+        String streamId = request.getInlongStreamId();
+        String storageType = request.getStorageType();
+        Integer storageId = request.getId();
+        for (StorageFieldRequest fieldInfo : fieldList) {
+            StorageFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo, StorageFieldEntity::new);
+            if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
+                fieldEntity.setFieldComment(fieldEntity.getFieldName());
+            }
+            fieldEntity.setInlongGroupId(groupId);
+            fieldEntity.setInlongStreamId(streamId);
+            fieldEntity.setStorageType(storageType);
+            fieldEntity.setStorageId(storageId);
+            fieldEntity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
+            entityList.add(fieldEntity);
+        }
+
+        storageFieldMapper.insertAll(entityList);
+        LOGGER.info("success to save field");
     }
 
     @Override
@@ -164,7 +198,27 @@ public class KafkaStorageOperation implements StorageOperation {
 
     @Override
     public void updateFieldOpt(Boolean onlyAdd, StorageRequest request) {
-        // kafka request without field list,so ignore this method.
+        Integer storageId = request.getId();
+        List<StorageFieldRequest> fieldRequestList = request.getFieldList();
+        if (CollectionUtils.isEmpty(fieldRequestList)) {
+            return;
+        }
+        if (onlyAdd) {
+            List<StorageFieldEntity> existsFieldList = storageFieldMapper.selectByStorageId(storageId);
+            if (existsFieldList.size() > fieldRequestList.size()) {
+                throw new BusinessException(BizErrorCodeEnum.STORAGE_FIELD_UPDATE_NOT_ALLOWED);
+            }
+            for (int i = 0; i < existsFieldList.size(); i++) {
+                if (!existsFieldList.get(i).getFieldName().equals(fieldRequestList.get(i).getFieldName())) {
+                    throw new BusinessException(BizErrorCodeEnum.STORAGE_FIELD_UPDATE_NOT_ALLOWED);
+                }
+            }
+        }
+        // First physically delete the existing fields
+        storageFieldMapper.deleteAll(storageId);
+        // Then batch save the storage fields
+        this.saveFieldOpt(request);
+        LOGGER.info("success to update field");
     }
 
 }

@@ -44,11 +44,9 @@ public class KafkaStorageServiceTest extends ServiceBaseTest {
     private static final String globalStreamId = "stream1";
     private static final String globalOperator = "test_user";
     private static final String bootstrapServers = "127.0.0.1:9092";
-    private static final String consumerGroupId = "kafka_consumer_group_id";
+    private static final String serializationType = "Json";
     private static final String topicName = "kafka_topic_name";
-    private static final String saslMechanism = "PLAIN";
-    private static final String securityProtocol = "SASL_PLAINTEXT";
-    private static final Long pollTimeoutMs = 1000L;
+
 
     private static Integer kafkaStorageId;
 
@@ -59,12 +57,9 @@ public class KafkaStorageServiceTest extends ServiceBaseTest {
         storageInfo.setInlongGroupId(globalGroupId);
         storageInfo.setInlongStreamId(globalStreamId);
         storageInfo.setStorageType(BizConstant.STORAGE_KAFKA);
-        storageInfo.setGroupId(consumerGroupId);
-        storageInfo.setBootstrapServers(bootstrapServers);
+        storageInfo.setSerializationType(serializationType);
+        storageInfo.setAddress(bootstrapServers);
         storageInfo.setTopicName(topicName);
-        storageInfo.setSaslMechanism(saslMechanism);
-        storageInfo.setSecurityProtocol(securityProtocol);
-        storageInfo.setPollTimeoutMs(pollTimeoutMs);
         storageInfo.setEnableCreateResource(BizConstant.DISABLE_CREATE_RESOURCE);
         kafkaStorageId = storageService.save(storageInfo, globalOperator);
     }

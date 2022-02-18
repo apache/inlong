@@ -34,36 +34,15 @@ import org.apache.inlong.manager.common.pojo.datastorage.StorageResponse;
 @ApiModel(value = "Response of the Kafka storage")
 public class KafkaStorageResponse extends StorageResponse {
 
-    private String storageType = BizConstant.STORAGE_HIVE;
-
-    @ApiModelProperty("Kafka sasl mechanism")
-    private String saslMechanism;
-
-    @ApiModelProperty("Kafka security protocol")
-    private String securityProtocol;
+    private String storageType = BizConstant.STORAGE_KAFKA;
 
     @ApiModelProperty("Kafka bootstrap servers")
-    private String bootstrapServers;
-
-    @ApiModelProperty("Group Id for ConsumerGroup")
-    private String groupId;
+    private String address;
 
     @ApiModelProperty("Kafka topicName")
     private String topicName;
 
-    @ApiModelProperty("topic offset reset")
-    private String topicOffsetReset;
-
-    @ApiModelProperty("poll timeout ms")
-    private Long pollTimeoutMs;
-
-    @ApiModelProperty("enable auto commit")
-    private Boolean enableAutoCommit;
-
-    @ApiModelProperty("auto commit interval ms")
-    private Integer autoCommitIntervalMs;
-
-    @ApiModelProperty("session timeout ms")
-    private Integer sessionTimeoutMs;
+    @ApiModelProperty("Data Serialization, support: Json, Canal, Avro")
+    private String serializationType;
 
 }

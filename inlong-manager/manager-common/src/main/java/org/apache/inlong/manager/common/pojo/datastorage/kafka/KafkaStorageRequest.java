@@ -36,33 +36,14 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = BizConstant.STORAGE_KAFKA)
 public class KafkaStorageRequest extends StorageRequest {
 
-    @ApiModelProperty("Kafka sasl mechanism")
-    private String saslMechanism;
-
-    @ApiModelProperty("Kafka security protocol")
-    private String securityProtocol;
-
     @ApiModelProperty("Kafka bootstrap servers")
-    private String bootstrapServers;
-
-    @ApiModelProperty("Group Id for ConsumerGroup")
-    private String groupId;
+    private String address;
 
     @ApiModelProperty("Kafka topicName")
     private String topicName;
 
-    @ApiModelProperty("topic offset reset")
-    private String topicOffsetReset;
+    @ApiModelProperty("Data Serialization, support: Json, Canal, Avro")
+    private String serializationType;
 
-    @ApiModelProperty("poll timeout ms")
-    private Long pollTimeoutMs;
 
-    @ApiModelProperty("enable auto commit")
-    private Boolean enableAutoCommit;
-
-    @ApiModelProperty("auto commit interval ms")
-    private Integer autoCommitIntervalMs;
-
-    @ApiModelProperty("session timeout ms")
-    private Integer sessionTimeoutMs;
 }
