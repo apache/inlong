@@ -19,7 +19,6 @@ package org.apache.inlong.sdk.sort.impl.pulsar;
 
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;

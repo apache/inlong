@@ -61,7 +61,6 @@ public class Utils {
         return bytes / 1024d / 1024d / 1024d;
     }
 
-
     public static String ipInt2String(int ipInt) {
         byte[] bytes = new byte[4];
         bytes[0] = (byte) ((ipInt >>> 24) & 0xFF);
@@ -81,16 +80,6 @@ public class Utils {
             return str;
         } catch (UnsupportedEncodingException e) {
             return defaultValue;
-        }
-    }
-
-    public static void close(Closeable c) {
-        if (c != null) {
-            try {
-                c.close();
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
         }
     }
 
@@ -135,7 +124,6 @@ public class Utils {
         String str = format.format(value);
         return str;
     }
-
 
     public static String getUUID() {
         UUID uuid = UUID.randomUUID();
@@ -240,7 +228,6 @@ public class Utils {
     public static String nowToStr() {
         return StringUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss.SSS");
     }
-
 
     public static String[] floatArrayToStr(float[] srcArray) {
         if (srcArray == null || srcArray.length == 0) {

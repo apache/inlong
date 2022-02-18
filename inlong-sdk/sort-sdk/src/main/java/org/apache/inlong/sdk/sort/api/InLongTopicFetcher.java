@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.sort.api;
 
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.impl.decode.MessageDeserializer;
 
 public abstract class InLongTopicFetcher {
 
@@ -34,6 +35,7 @@ public abstract class InLongTopicFetcher {
     public InLongTopicFetcher(InLongTopic inLongTopic, ClientContext context) {
         this.inLongTopic = inLongTopic;
         this.context = context;
+        this.deserializer = new MessageDeserializer();
     }
 
     public abstract boolean init(Object client);

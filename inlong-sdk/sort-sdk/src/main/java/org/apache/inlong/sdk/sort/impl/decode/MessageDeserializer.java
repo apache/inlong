@@ -50,6 +50,7 @@ public class MessageDeserializer implements Deserializer {
     private static final String INLONG_GROUPID_KEY = "inlongGroupId";
     private static final String INLONG_STREAMID_KEY = "inlongStreamId";
 
+    public MessageDeserializer() {}
     @Override
     public List<InLongMessage> deserialize(ClientContext context, InLongTopic inLongTopic, Map<String, String> headers,
             byte[] data) throws Exception {
