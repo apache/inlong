@@ -19,6 +19,18 @@ package org.apache.inlong.manager.client.api;
 
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 
+/**
+ * An interface to manipulate Inlong Cluster
+ * <p/>
+ * Example:
+ * <p/>
+ *
+ * <pre>
+ * <code>
+ *
+ * </code>
+ * </pre>
+ */
 public interface InlongClient {
 
     static InlongClient create(String serviceUrl, ClientConfiguration configuration) {
