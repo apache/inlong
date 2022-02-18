@@ -228,35 +228,6 @@ public class Utils {
         return StringUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss.SSS");
     }
 
-    public static String[] floatArrayToStr(float[] srcArray) {
-        if (srcArray == null || srcArray.length == 0) {
-            return new String[]{};
-        }
-
-        int size = srcArray.length;
-        String[] result = new String[size];
-        for (int i = 0; i < size; i++) {
-            result[i] = Utils.doubleToStr(srcArray[i], 5);
-        }
-        return result;
-    }
-
-    public static List<String> doubleListToStr(List<Double> list, int fractionDigits) {
-        if (list == null || list.isEmpty()) {
-            return new ArrayList<String>();
-        }
-
-        List<String> result = new ArrayList<String>();
-        for (Double d : list) {
-            if (d != null) {
-                result.add(Utils.doubleToStr(d, fractionDigits));
-            } else {
-                result.add("null");
-            }
-        }
-        return result;
-    }
-
     public static <K, V> V getMapValue(Map<K, V> map, K k, V defaultV) {
         if (map == null) {
             return defaultV;
@@ -265,10 +236,4 @@ public class Utils {
         return (v != null ? v : defaultV);
     }
 
-    public static long numberToLong(Number n, long dv) {
-        if (n == null) {
-            return dv;
-        }
-        return n.longValue();
-    }
 }
