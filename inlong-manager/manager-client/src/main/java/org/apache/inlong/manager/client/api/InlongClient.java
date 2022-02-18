@@ -27,7 +27,17 @@ import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
  *
  * <pre>
  * <code>
- *
+ * ClientConfiguration configuration = ..
+ * InlongClient client = InlongClient.create(${serviceUrl}, configuration);
+ * DataStreamGroupConf groupConf = ..
+ * DataStreamGroup group = client.createStreamGroup(groupConf);
+ * DataStreamConf streamConf = ..
+ * DataStreamBuilder builder = group.createDataStream(streamConf);
+ * StreamSource source = ..
+ * StreamSink sink = ..
+ * List<StreamField> fields = ..
+ * DataStream stream = builder.source(source).sink(sink).fields(fields).init();
+ * group.init();
  * </code>
  * </pre>
  */
