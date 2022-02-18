@@ -28,6 +28,8 @@ import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
 @NoArgsConstructor
 public class InnerStreamContext {
 
+    //todo add SourceRequest
+
     private DataStreamInfo dataStreamInfo;
 
     private StorageRequest storageRequest;

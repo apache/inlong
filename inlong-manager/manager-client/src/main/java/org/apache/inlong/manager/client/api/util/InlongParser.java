@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.util;
 
+import com.github.pagehelper.PageInfo;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -27,6 +28,7 @@ import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
+import org.apache.inlong.manager.common.pojo.datastream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 
 public class InlongParser {
@@ -36,14 +38,24 @@ public class InlongParser {
         return response;
     }
 
-    public static WorkflowResult parseWorkflowResult(Object data) {
-        WorkflowResult workflowResult = GsonUtil.fromJson(data.toString(), WorkflowResult.class);
+    public static WorkflowResult parseWorkflowResult(Response response) {
+        Object data = response.getData();
+        WorkflowResult workflowResult = GsonUtil.fromJson(GsonUtil.toJson(data), WorkflowResult.class);
         return workflowResult;
     }
 
-    public static BusinessInfo parseBusinessInfo(Object data) {
-        BusinessInfo businessInfo = GsonUtil.fromJson(data.toString(), BusinessInfo.class);
+    public static BusinessInfo parseBusinessInfo(Response response) {
+        Object data = response.getData();
+        BusinessInfo businessInfo = GsonUtil.fromJson(GsonUtil.toJson(data), BusinessInfo.class);
         return businessInfo;
+    }
+
+    public static PageInfo<FullStreamResponse> parseStreamList(Response response) {
+        Object data = response.getData();
+        PageInfo<FullStreamResponse> pageInfo = GsonUtil.fromJson(GsonUtil.toJson(data),
+                new TypeToken<PageInfo<FullStreamResponse>>() {
+                }.getType());
+        return pageInfo;
     }
 
     public static Pair<BusinessApproveInfo, List<DataStreamApproveInfo>> parseBusinessForm(String formJson) {

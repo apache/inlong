@@ -17,20 +17,27 @@
 
 package org.apache.inlong.manager.client.api.util;
 
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.inlong.manager.client.api.StreamSink;
-import org.apache.inlong.manager.client.api.StreamSink.SinkType;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.client.api.DataSeparator;
 import org.apache.inlong.manager.client.api.DataStreamConf;
 import org.apache.inlong.manager.client.api.HiveSink;
+import org.apache.inlong.manager.client.api.HiveSink.FileFormat;
 import org.apache.inlong.manager.client.api.StreamField;
+import org.apache.inlong.manager.client.api.StreamField.FieldType;
+import org.apache.inlong.manager.client.api.StreamSink;
+import org.apache.inlong.manager.client.api.StreamSink.SinkType;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageFieldRequest;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageRequest;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageResponse;
 import org.apache.inlong.manager.common.pojo.datastorage.hive.HiveStorageRequest;
+import org.apache.inlong.manager.common.pojo.datastorage.hive.HiveStorageResponse;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
-import org.apache.shiro.util.Assert;
 
 public class DataStreamTransfer {
 
@@ -65,18 +72,27 @@ public class DataStreamTransfer {
         return fieldInfos;
     }
 
-    public static StorageRequest createStorageRequest(StreamSink storage, DataStreamInfo streamInfo) {
-        SinkType sinkType = storage.getSinkType();
+    public static StorageRequest createStorageRequest(StreamSink streamSink, DataStreamInfo streamInfo) {
+        SinkType sinkType = streamSink.getSinkType();
         if (sinkType == SinkType.HIVE) {
-            return createHiveRequest(storage, streamInfo);
+            return createHiveRequest(streamSink, streamInfo);
         } else {
-            throw new IllegalArgumentException(String.format("Unsupport storage type : %s for Inlong", sinkType));
+            throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
         }
     }
 
-    private static HiveStorageRequest createHiveRequest(StreamSink storage, DataStreamInfo streamInfo) {
+    public static StreamSink parseStreamSink(StorageResponse storageResponse) {
+        String storageType = storageResponse.getStorageType();
+        if ("HIVE".equals(storageType)) {
+            return parseHiveSink((HiveStorageResponse) storageResponse);
+        } else {
+            throw new IllegalArgumentException(String.format("Unsupport storage type : %s for Inlong", storageType));
+        }
+    }
+
+    private static HiveStorageRequest createHiveRequest(StreamSink streamSink, DataStreamInfo streamInfo) {
         HiveStorageRequest hiveStorageRequest = new HiveStorageRequest();
-        HiveSink hiveSink = (HiveSink) storage;
+        HiveSink hiveSink = (HiveSink) streamSink;
         hiveStorageRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         hiveStorageRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         hiveStorageRequest.setDataEncoding(hiveSink.getCharset().name());
@@ -89,13 +105,56 @@ public class DataStreamTransfer {
         hiveStorageRequest.setWarehouseDir(hiveSink.getWarehouseDir());
         hiveStorageRequest.setFileFormat(hiveSink.getFileFormat().name());
         DefaultAuthentication defaultAuthentication = hiveSink.getAuthentication();
-        Assert.notNull(defaultAuthentication,
+        AssertUtil.notNull(defaultAuthentication,
                 String.format("Hive storage:%s must be authenticated", hiveSink.getDbName()));
         hiveStorageRequest.setUsername(defaultAuthentication.getUserName());
         hiveStorageRequest.setPassword(defaultAuthentication.getPassword());
         hiveStorageRequest.setPrimaryPartition(hiveSink.getPrimaryPartition());
         hiveStorageRequest.setSecondaryPartition(hiveSink.getSecondaryPartition());
+        if (CollectionUtils.isNotEmpty(hiveSink.getStreamFields())) {
+            List<StorageFieldRequest> fieldRequests = hiveSink.getStreamFields()
+                    .stream()
+                    .map(streamField -> {
+                        StorageFieldRequest storageFieldRequest = new StorageFieldRequest();
+                        storageFieldRequest.setFieldName(streamField.getFieldName());
+                        storageFieldRequest.setFieldType(streamField.getFieldType().toString());
+                        storageFieldRequest.setFieldComment(streamField.getFieldComment());
+                        return storageFieldRequest;
+                    })
+                    .collect(Collectors.toList());
+        }
         return hiveStorageRequest;
+    }
+
+    private static HiveSink parseHiveSink(HiveStorageResponse hiveStorage) {
+        HiveSink hiveSink = new HiveSink();
+        hiveSink.setSinkType(SinkType.HIVE);
+        int asciiCode = Integer.parseInt(hiveStorage.getDataSeparator());
+        hiveSink.setDataSeparator(DataSeparator.getByAscii(asciiCode));
+        hiveSink.setCharset(Charset.forName(hiveStorage.getDataEncoding()));
+        hiveSink.setDbName(hiveStorage.getDbName());
+        hiveSink.setTableName(hiveStorage.getTableName());
+        hiveSink.setFileFormat(FileFormat.forName(hiveStorage.getFileFormat()));
+        hiveSink.setJdbcUrl(hiveStorage.getJdbcUrl());
+        hiveSink.setHdfsDefaultFs(hiveStorage.getHdfsDefaultFs());
+        hiveSink.setWarehouseDir(hiveStorage.getWarehouseDir());
+        hiveSink.setAuthentication(new DefaultAuthentication(hiveStorage.getUsername(), hiveStorage.getPassword()));
+        hiveSink.setNeedCreated(hiveStorage.getEnableCreateResource() == 1);
+        hiveSink.setPrimaryPartition(hiveStorage.getPrimaryPartition());
+        hiveSink.setSecondaryPartition(hiveStorage.getSecondaryPartition());
+        if (CollectionUtils.isNotEmpty(hiveStorage.getFieldList())) {
+            List<StreamField> fieldList = hiveStorage.getFieldList()
+                    .stream()
+                    .map(storageFieldRequest -> {
+                        return new StreamField(storageFieldRequest.getId(),
+                                FieldType.forName(storageFieldRequest.getFieldType()),
+                                storageFieldRequest.getFieldName(),
+                                storageFieldRequest.getFieldComment(),
+                                null);
+                    }).collect(Collectors.toList());
+            hiveSink.setStreamFields(fieldList);
+        }
+        return hiveSink;
     }
 
 }

@@ -25,39 +25,43 @@ import org.apache.inlong.manager.client.api.DataStreamConf;
 import org.apache.inlong.manager.client.api.DataStreamGroup;
 import org.apache.inlong.manager.client.api.DataStreamGroupConf;
 import org.apache.inlong.manager.client.api.DataStreamGroupInfo;
+import org.apache.inlong.manager.client.api.DataStreamGroupInfo.GroupState;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
+import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.DataStreamGroupTransfer;
 import org.apache.inlong.manager.client.api.util.InlongParser;
+import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.model.ProcessState;
 import org.apache.inlong.manager.common.model.view.ProcessView;
 import org.apache.inlong.manager.common.model.view.TaskView;
 import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
+import org.apache.inlong.manager.common.pojo.datastream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.shiro.util.Assert;
 
 public class DataStreamGroupImpl implements DataStreamGroup {
 
-    private DataStreamGroupConf conf;
-
-    private InlongClientImpl inlongClient;
+    private DataStreamGroupConf groupConf;
 
     private InnerInlongManagerClient managerClient;
 
     private InnerGroupContext groupContext;
 
-    public DataStreamGroupImpl(DataStreamGroupConf conf, InlongClientImpl inlongClient) {
-        this.conf = conf;
-        this.inlongClient = inlongClient;
+    public DataStreamGroupImpl(DataStreamGroupConf groupConf, InlongClientImpl inlongClient) {
+        this.groupConf = groupConf;
         this.groupContext = new InnerGroupContext();
-        BusinessInfo businessInfo = DataStreamGroupTransfer.createBusinessInfo(conf);
+        BusinessInfo businessInfo = DataStreamGroupTransfer.createBusinessInfo(groupConf);
         this.groupContext.setBusinessInfo(businessInfo);
         if (this.managerClient == null) {
             this.managerClient = new InnerInlongManagerClient(inlongClient);
         }
-        if (!managerClient.isBusinessExists(businessInfo)) {
+        Pair<Boolean, BusinessInfo> existMsg = managerClient.isBusinessExists(businessInfo);
+        if (existMsg.getKey()) {
+            //Update current snapshot
+            this.groupContext.setBusinessInfo(existMsg.getValue());
+        } else {
             String groupId = managerClient.createBusinessInfo(businessInfo);
             businessInfo.setInlongGroupId(groupId);
         }
@@ -70,48 +74,70 @@ public class DataStreamGroupImpl implements DataStreamGroup {
 
     @Override
     public DataStreamGroupInfo init() throws Exception {
-        WorkflowResult initWorkflowResult = managerClient.initBusinessInfo(this.groupContext.getBusinessInfo());
+        WorkflowResult initWorkflowResult = managerClient.initBusinessGroup(this.groupContext.getBusinessInfo());
         List<TaskView> taskViews = initWorkflowResult.getNewTasks();
-        Assert.notEmpty(taskViews, "Init business info failed");
+        AssertUtil.notEmpty(taskViews, "Init business info failed");
         TaskView taskView = taskViews.get(0);
         final int taskId = taskView.getId();
         ProcessView processView = initWorkflowResult.getProcessInfo();
-        Assert.isTrue(ProcessState.PROCESSING == processView.getState(),
+        AssertUtil.isTrue(ProcessState.PROCESSING == processView.getState(),
                 String.format("Business info state : %s is not corrected , should be PROCESSING",
                         processView.getState()));
         String formData = processView.getFormData().toString();
         Pair<BusinessApproveInfo, List<DataStreamApproveInfo>> initMsg = InlongParser.parseBusinessForm(formData);
         groupContext.setInitMsg(initMsg);
-        WorkflowResult startWorkflowResult = managerClient.startBusinessInfo(taskId,initMsg);
+        WorkflowResult startWorkflowResult = managerClient.startBusinessGroup(taskId, initMsg);
         processView = startWorkflowResult.getProcessInfo();
-        Assert.isTrue(ProcessState.COMPLETED == processView.getState(),
+        AssertUtil.isTrue(ProcessState.COMPLETED == processView.getState(),
                 String.format("Business info state : %s is not corrected , should be COMPLETED",
                         processView.getState()));
-
-        //todo get business status
-        return null;
+        return generateSnapshot(null);
     }
 
     @Override
     public DataStreamGroupInfo suspend() throws Exception {
-        //todo update businessInfo first
-        return null;
+        Pair<String, String> idAndErr = managerClient.updateBusinessInfo(groupContext.getBusinessInfo());
+        final String errMsg = idAndErr.getValue();
+        final String groupId = idAndErr.getKey();
+        AssertUtil.isNull(errMsg, errMsg);
+        managerClient.operateBusinessGroup(groupId, GroupState.SUSPEND);
+        return generateSnapshot(null);
     }
 
     @Override
     public DataStreamGroupInfo restart() throws Exception {
-        //todo update businessInfo first
-        return null;
+        Pair<String, String> idAndErr = managerClient.updateBusinessInfo(groupContext.getBusinessInfo());
+        final String errMsg = idAndErr.getValue();
+        final String groupId = idAndErr.getKey();
+        AssertUtil.isNull(errMsg, errMsg);
+        managerClient.operateBusinessGroup(groupId, GroupState.RESTART);
+        return generateSnapshot(null);
     }
 
     @Override
     public DataStreamGroupInfo delete() throws Exception {
-        //todo update businessInfo first
-        return null;
+        BusinessInfo currentBusinessInfo = managerClient.getBusinessInfo(
+                groupContext.getBusinessInfo().getInlongGroupId());
+        boolean isDeleted = managerClient.deleteBusinessGroup(currentBusinessInfo.getInlongGroupId());
+        if (isDeleted) {
+            currentBusinessInfo.setStatus(EntityStatus.DELETED.getCode());
+        }
+        return generateSnapshot(currentBusinessInfo);
     }
 
     @Override
-    public List<DataStream> listStreams(String streamGroupId) throws Exception {
+    public List<DataStream> listStreams() throws Exception {
+        String inlongGroupId = this.groupContext.getGroupId();
+        List<FullStreamResponse> streamResponses = managerClient.listStreamInfo(inlongGroupId);
         return null;
+    }
+
+    private DataStreamGroupInfo generateSnapshot(BusinessInfo currentBizInfo) {
+        if (currentBizInfo == null) {
+            currentBizInfo = managerClient.getBusinessInfo(
+                    groupContext.getBusinessInfo().getInlongGroupId());
+        }
+        groupContext.setBusinessInfo(currentBizInfo);
+        return new DataStreamGroupInfo(groupContext, groupConf);
     }
 }

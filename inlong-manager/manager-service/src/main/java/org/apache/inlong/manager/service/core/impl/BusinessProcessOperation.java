@@ -89,7 +89,7 @@ public class BusinessProcessOperation {
         LOGGER.info("begin to suspend process, groupId = {}, operator = {}", groupId, operator);
         final EntityStatus nextEntityStatus = EntityStatus.BIZ_SUSPEND;
         BusinessInfo businessInfo = validateBusiness(groupId,
-                Sets.newHashSet(EntityStatus.BIZ_APPROVE_PASSED.getCode()),
+                Sets.newHashSet(EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode()),
                 nextEntityStatus);
 
         businessInfo.setStatus(nextEntityStatus.getCode());

@@ -176,7 +176,7 @@ public class WorkflowServiceImplTest extends BaseTest {
     @Test
     public void testSuspendProcess() {
         BusinessInfo businessInfo = initBusinessForm(BizConstant.MIDDLEWARE_PULSAR);
-        businessInfo.setStatus(EntityStatus.BIZ_APPROVE_PASSED.getCode());
+        businessInfo.setStatus(EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode());
         businessService.update(businessInfo, OPERATOR);
         UpdateBusinessWorkflowForm form = new UpdateBusinessWorkflowForm();
         form.setBusinessInfo(businessInfo);

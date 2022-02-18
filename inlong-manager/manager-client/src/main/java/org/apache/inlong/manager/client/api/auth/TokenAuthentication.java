@@ -19,7 +19,7 @@ package org.apache.inlong.manager.client.api.auth;
 
 import java.util.Map;
 import lombok.Getter;
-import org.apache.shiro.util.Assert;
+import org.apache.inlong.manager.client.api.util.AssertUtil;
 
 public class TokenAuthentication implements Authentication {
 
@@ -35,7 +35,7 @@ public class TokenAuthentication implements Authentication {
 
     @Override
     public void configure(Map<String, String> properties) {
-        Assert.notEmpty(properties, "Properties should not be empty when init TokenAuthentification");
+        AssertUtil.notEmpty(properties, "Properties should not be empty when init TokenAuthentification");
         this.token = properties.get(TOKEN);
     }
 }

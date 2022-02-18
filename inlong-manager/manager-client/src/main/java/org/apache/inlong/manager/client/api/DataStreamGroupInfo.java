@@ -17,8 +17,68 @@
 
 package org.apache.inlong.manager.client.api;
 
-public class DataStreamGroupInfo {
+import com.google.common.collect.Lists;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import lombok.Data;
+import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
+import org.apache.inlong.manager.client.api.util.AssertUtil;
+import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 
+@Data
+public class DataStreamGroupInfo implements Serializable {
 
+    private String groupId;
+
+    private String groupName;
+
+    private DataStreamGroupConf groupConf;
+
+    private Map<String, DataStream> dataStreamMap;
+
+    private List<String> errMsg;
+
+    private GroupState state;
+
+    public enum GroupState {
+        INIT, FAIL, START, SUSPEND, RESTART, DELETE;
+
+        //Reference to  org.apache.inlong.manager.common.enums.EntityStatus code
+        public static GroupState parseByBizStatus(int bizCode) {
+
+            switch (bizCode) {
+                case 100:
+                case 101:
+                case 103:
+                case 110:
+                    return INIT;
+                case 102:
+                case 120:
+                    return FAIL;
+                case 130:
+                    return START;
+                case 150:
+                    return RESTART;
+                case 140:
+                    return SUSPEND;
+                case 40:
+                    return DELETE;
+                default:
+                    throw new IllegalArgumentException(String.format("Unsupport status:%s for business", bizCode));
+            }
+        }
+    }
+
+    public DataStreamGroupInfo(InnerGroupContext groupContext, DataStreamGroupConf groupConf) {
+        BusinessInfo businessInfo = groupContext.getBusinessInfo();
+        AssertUtil.notNull(businessInfo);
+        this.groupId = businessInfo.getInlongGroupId();
+        this.groupName = businessInfo.getName();
+        this.groupConf = groupConf;
+        this.dataStreamMap = groupContext.getStreamMap();
+        this.errMsg = Lists.newArrayList();
+        this.state = GroupState.parseByBizStatus(businessInfo.getStatus());
+    }
 
 }

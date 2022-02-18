@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.api;
 
 import io.swagger.annotations.ApiModel;
+import java.util.List;
 import lombok.Data;
 
 @Data
@@ -29,5 +30,7 @@ public abstract class StreamSink {
     }
 
     public abstract SinkType getSinkType();
+
+    public abstract List<StreamField> getStreamFields();
 
 }

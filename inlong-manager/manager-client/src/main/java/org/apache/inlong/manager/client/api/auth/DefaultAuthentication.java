@@ -19,7 +19,7 @@ package org.apache.inlong.manager.client.api.auth;
 
 import java.util.Map;
 import lombok.Getter;
-import org.apache.shiro.util.Assert;
+import org.apache.inlong.manager.client.api.util.AssertUtil;
 
 public class DefaultAuthentication implements Authentication {
 
@@ -33,6 +33,11 @@ public class DefaultAuthentication implements Authentication {
     @Getter
     private String password;
 
+    public DefaultAuthentication(String userName, String password) {
+        this.userName = userName;
+        this.password = password;
+    }
+
     @Override
     public AuthType getAuthType() {
         return AuthType.UNAME_PASSWD;
@@ -40,7 +45,7 @@ public class DefaultAuthentication implements Authentication {
 
     @Override
     public void configure(Map<String, String> properties) {
-        Assert.notEmpty(properties, "Properties should not be empty when init DefaultAuthentification");
+        AssertUtil.notEmpty(properties, "Properties should not be empty when init DefaultAuthentification");
         this.userName = properties.get(USER_NAME);
         this.password = properties.get(PASSWORD);
     }

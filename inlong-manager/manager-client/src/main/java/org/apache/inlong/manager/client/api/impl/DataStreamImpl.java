@@ -18,24 +18,55 @@
 package org.apache.inlong.manager.client.api.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.client.api.StreamSource;
-import org.apache.inlong.manager.client.api.StreamSink;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.client.api.DataStream;
 import org.apache.inlong.manager.client.api.StreamField;
+import org.apache.inlong.manager.client.api.StreamField.FieldType;
+import org.apache.inlong.manager.client.api.StreamSink;
+import org.apache.inlong.manager.client.api.StreamSource;
+import org.apache.inlong.manager.client.api.util.DataStreamTransfer;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageResponse;
+import org.apache.inlong.manager.common.pojo.datastream.DataStreamFieldInfo;
+import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
+import org.apache.inlong.manager.common.pojo.datastream.FullStreamResponse;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class DataStreamImpl extends DataStream {
+
+    private String name;
 
     private StreamSource streamSource;
 
     private StreamSink streamSink;
 
     private List<StreamField> streamFields;
+
+    public DataStreamImpl(FullStreamResponse fullStreamResponse) {
+        DataStreamInfo streamInfo = fullStreamResponse.getStreamInfo();
+        this.name = streamInfo.getName();
+        List<DataStreamFieldInfo> streamFieldInfos = streamInfo.getFieldList();
+        this.streamFields = streamFieldInfos.stream().map(streamFieldInfo -> {
+            return new StreamField(streamFieldInfo.getId(),
+                    FieldType.forName(streamFieldInfo.getFieldType()),
+                    streamFieldInfo.getFieldName(),
+                    streamFieldInfo.getFieldComment(),
+                    streamFieldInfo.getFieldValue()
+            );
+        }).collect(Collectors.toList());
+        List<StorageResponse> storages = fullStreamResponse.getStorageInfo();
+        if (CollectionUtils.isNotEmpty(storages)) {
+            this.streamSink = DataStreamTransfer.parseStreamSink(storages.get(0));
+        }
+        //todo generate source
+    }
+
+    public DataStreamImpl(String name) {
+        this.name = name;
+    }
 
     @Override
     public List<StreamField> listFields() {

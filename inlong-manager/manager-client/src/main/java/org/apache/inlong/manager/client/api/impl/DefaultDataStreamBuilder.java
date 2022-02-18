@@ -60,7 +60,8 @@ public class DefaultDataStreamBuilder extends DataStreamBuilder {
         InnerStreamContext streamContext = new InnerStreamContext(streamInfo);
         groupContext.setStreamContext(streamContext);
         this.streamContext = streamContext;
-        this.dataStream = new DataStreamImpl();
+        this.dataStream = new DataStreamImpl(streamInfo.getName());
+        groupContext.setStream(this.dataStream);
     }
 
     @Override

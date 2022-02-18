@@ -40,4 +40,13 @@ public enum DataSeparator {
         this.asciiCode = asciiCode;
         this.seperator = seperator;
     }
+
+    public static DataSeparator getByAscii(int asciiCode) {
+        for (DataSeparator value : values()) {
+            if (value.getAsciiCode() == asciiCode) {
+                return value;
+            }
+        }
+        throw new IllegalArgumentException(String.format("Unsupported ascii for %s", asciiCode));
+    }
 }

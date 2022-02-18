@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.api.inner;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import java.util.List;
 import javafx.util.Pair;
@@ -30,9 +31,11 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
+import org.apache.inlong.manager.client.api.DataStreamGroupInfo.GroupState;
 import org.apache.inlong.manager.client.api.auth.Authentication;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
+import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.client.api.util.InlongParser;
 import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
@@ -40,9 +43,9 @@ import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageRequest;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
+import org.apache.inlong.manager.common.pojo.datastream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.shiro.util.Assert;
 
 /**
  * InnerInlongManagerClient is used to invoke http api of inlong manager.
@@ -67,8 +70,8 @@ public class InnerInlongManagerClient {
         this.host = configuration.getBindHost();
         this.port = configuration.getBindPort();
         Authentication authentication = configuration.getAuthentication();
-        Assert.notNull(authentication, "Inlong should be authenticated");
-        Assert.isTrue(authentication instanceof DefaultAuthentication,
+        AssertUtil.notNull(authentication, "Inlong should be authenticated");
+        AssertUtil.isTrue(authentication instanceof DefaultAuthentication,
                 "Inlong only support default authentication");
         DefaultAuthentication defaultAuthentication = (DefaultAuthentication) authentication;
         this.uname = defaultAuthentication.getUserName();
@@ -81,13 +84,17 @@ public class InnerInlongManagerClient {
                 .build();
     }
 
-    public boolean isBusinessExists(BusinessInfo businessInfo) {
+    public Pair<Boolean, BusinessInfo> isBusinessExists(BusinessInfo businessInfo) {
         String inlongGroupId = businessInfo.getInlongGroupId();
         if (StringUtils.isEmpty(inlongGroupId)) {
             inlongGroupId = "b_" + businessInfo.getName();
         }
-        BusinessInfo businessSnapshot = getBusinessInfo(inlongGroupId);
-        return businessSnapshot != null;
+        BusinessInfo currentBizInfo = getBusinessInfo(inlongGroupId);
+        if (currentBizInfo != null) {
+            return new Pair<>(true, currentBizInfo);
+        } else {
+            return new Pair<>(false, null);
+        }
     }
 
     public BusinessInfo getBusinessInfo(String inlongGroupId) {
@@ -106,12 +113,12 @@ public class InnerInlongManagerClient {
         try {
             Response response = call.execute();
             String body = response.body().string();
-            Assert.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
             org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
             if (responseBody.getErrMsg() != null && responseBody.getErrMsg().contains("Business does not exist")) {
                 return null;
             } else {
-                return InlongParser.parseBusinessInfo(responseBody.getData());
+                return InlongParser.parseBusinessInfo(responseBody);
             }
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong business get failed with ex:%s", e.getMessage()), e);
@@ -132,11 +139,39 @@ public class InnerInlongManagerClient {
         try {
             Response response = call.execute();
             String body = response.body().string();
-            Assert.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
             org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
-            Assert.isTrue(responseBody.getErrMsg() == null,
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed:%s", responseBody.getErrMsg()));
             return responseBody.getData().toString();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Inlong stream group save failed with ex:%s", e.getMessage()), e);
+        }
+    }
+
+    /**
+     * Update business Info
+     *
+     * @param businessInfo
+     * @return groupId && errMsg
+     */
+    public Pair<String, String> updateBusinessInfo(BusinessInfo businessInfo) {
+        String path = HTTP_PATH + "/business/update";
+        final String biz = JsonUtils.toJson(businessInfo);
+        final RequestBody bizBody = RequestBody.create(MediaType.parse("application/json"), biz);
+        final String url = formatUrl(path);
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", bizBody)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            Response response = call.execute();
+            String body = response.body().string();
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            return new Pair<>(responseBody.getData().toString(), responseBody.getErrMsg());
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong stream group save failed with ex:%s", e.getMessage()), e);
         }
@@ -156,13 +191,36 @@ public class InnerInlongManagerClient {
         try {
             Response response = call.execute();
             String body = response.body().string();
-            Assert.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
             org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
-            Assert.isTrue(responseBody.getErrMsg() == null,
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed:%s", responseBody.getErrMsg()));
             return responseBody.getData().toString();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong stream save failed with ex:%s", e.getMessage()), e);
+        }
+    }
+
+    public List<FullStreamResponse> listStreamInfo(String inlongGroupId) {
+        final String path = HTTP_PATH + "/datastream/listAll";
+        String url = formatUrl(path);
+        url = url + "&inlongGroupId=" + inlongGroupId;
+        Request request = new Request.Builder().get()
+                .url(url)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            Response response = call.execute();
+            String body = response.body().string();
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed:%s", responseBody.getErrMsg()));
+            PageInfo<FullStreamResponse> pageInfo = InlongParser.parseStreamList(responseBody);
+            return pageInfo.getList();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("List inlong streams failed with ex:%s", e.getMessage()), e);
         }
     }
 
@@ -180,9 +238,9 @@ public class InnerInlongManagerClient {
         try {
             Response response = call.execute();
             String body = response.body().string();
-            Assert.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
             org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
-            Assert.isTrue(responseBody.getErrMsg() == null,
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed:%s", responseBody.getErrMsg()));
             return responseBody.getData().toString();
         } catch (Exception e) {
@@ -190,7 +248,7 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public WorkflowResult initBusinessInfo(BusinessInfo businessInfo) {
+    public WorkflowResult initBusinessGroup(BusinessInfo businessInfo) {
         final String groupId = businessInfo.getInlongGroupId();
         String path = HTTP_PATH + "/business/startProcess/" + groupId;
         final String url = formatUrl(path);
@@ -205,18 +263,19 @@ public class InnerInlongManagerClient {
         try {
             Response response = call.execute();
             String body = response.body().string();
-            Assert.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
             org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
-            Assert.isTrue(responseBody.getErrMsg() == null,
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed:%s", responseBody.getErrMsg()));
-            WorkflowResult workflowResult = InlongParser.parseWorkflowResult(responseBody.getData());
+            WorkflowResult workflowResult = InlongParser.parseWorkflowResult(responseBody);
             return workflowResult;
         } catch (Exception e) {
-            throw new RuntimeException(String.format("Inlong business init failed with ex:%s", e.getMessage()), e);
+            throw new RuntimeException(String.format("Inlong business group init failed with ex:%s", e.getMessage()),
+                    e);
         }
     }
 
-    public WorkflowResult startBusinessInfo(int taskId,
+    public WorkflowResult startBusinessGroup(int taskId,
             Pair<BusinessApproveInfo, List<DataStreamApproveInfo>> initMsg) {
 
         JSONObject workflowTaskOperation = new JSONObject();
@@ -240,15 +299,74 @@ public class InnerInlongManagerClient {
         try {
             Response response = call.execute();
             String body = response.body().string();
-            Assert.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
             org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
-            Assert.isTrue(responseBody.getErrMsg() == null,
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed:%s", responseBody.getErrMsg()));
-            WorkflowResult workflowResult = InlongParser.parseWorkflowResult(responseBody.getData());
+            WorkflowResult workflowResult = InlongParser.parseWorkflowResult(responseBody);
             return workflowResult;
         } catch (Exception e) {
-            throw new RuntimeException(String.format("Finish inlong business init failed with ex:%s", e.getMessage()),
+            throw new RuntimeException(String.format("Inlong business start failed with ex:%s", e.getMessage()),
                     e);
+        }
+    }
+
+    public boolean operateBusinessGroup(String groupId, GroupState state) {
+        String path = HTTP_PATH;
+        if (state == GroupState.SUSPEND) {
+            path += "/business/suspendProcess/";
+        } else if (state == GroupState.RESTART) {
+            path += "/business/restartProcess/";
+        } else {
+            throw new IllegalArgumentException(String.format("Unsupport state: %s", state));
+        }
+        path += groupId;
+        final String url = formatUrl(path);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", requestBody)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            Response response = call.execute();
+            String body = response.body().string();
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            String errMsg = responseBody.getErrMsg();
+            if (errMsg != null && errMsg.contains("current status was not allowed")) {
+                return false;
+            } else {
+                return true;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    String.format("Inlong business group operate :%s failed with ex:%s", state, e.getMessage()), e);
+        }
+    }
+
+    public boolean deleteBusinessGroup(String groupId) {
+        final String path = HTTP_PATH + "/business/delete/" + groupId;
+        final String url = formatUrl(path);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
+        Request request = new Request.Builder()
+                .url(url)
+                .method("DELETE", requestBody)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            Response response = call.execute();
+            String body = response.body().string();
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed:%s", responseBody.getErrMsg()));
+            return Boolean.valueOf(responseBody.getData().toString());
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    String.format("Inlong business group delete failed with ex:%s", e.getMessage()), e);
         }
     }
 

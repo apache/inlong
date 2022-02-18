@@ -38,13 +38,12 @@ import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
 import org.apache.inlong.manager.common.settings.BusinessSettings;
 import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.shiro.util.Assert;
 
 public class DataStreamGroupTransfer {
 
     public static BusinessInfo createBusinessInfo(DataStreamGroupConf groupConf) {
         BusinessInfo businessInfo = new BusinessInfo();
-        Assert.hasLength(groupConf.getGroupName(), "StreamGroupName should not be empty");
+        AssertUtil.hasLength(groupConf.getGroupName(), "StreamGroupName should not be empty");
         businessInfo.setName(groupConf.getGroupName());
         businessInfo.setCnName(groupConf.getCnName());
         businessInfo.setDescription(groupConf.getDescription());
@@ -99,7 +98,7 @@ public class DataStreamGroupTransfer {
         if (pulsarBaseConf.getAuthentication() != null) {
             Authentication authentication = pulsarBaseConf.getAuthentication();
             AuthType authType = authentication.getAuthType();
-            Assert.isTrue(authType == AuthType.TOKEN,
+            AssertUtil.isTrue(authType == AuthType.TOKEN,
                     String.format("Unsupported authentication:%s for pulsar", authType.name()));
             TokenAuthentication tokenAuthentication = (TokenAuthentication) authentication;
             BusinessExtInfo authTypeExt = new BusinessExtInfo();
@@ -131,7 +130,7 @@ public class DataStreamGroupTransfer {
         if (flinkSortBaseConf.getAuthentication() != null) {
             Authentication authentication = flinkSortBaseConf.getAuthentication();
             AuthType authType = authentication.getAuthType();
-            Assert.isTrue(authType == AuthType.SECRET_AND_TOKEN,
+            AssertUtil.isTrue(authType == AuthType.SECRET_AND_TOKEN,
                     String.format("Unsupported authentication:%s for flink", authType.name()));
             final SecretTokenAuthentication secretTokenAuthentication = (SecretTokenAuthentication) authentication;
             BusinessExtInfo authTypeExt = new BusinessExtInfo();

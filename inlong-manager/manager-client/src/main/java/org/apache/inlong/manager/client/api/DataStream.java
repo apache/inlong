@@ -21,6 +21,8 @@ import java.util.List;
 
 public abstract class DataStream {
 
+    public abstract String getName();
+
     public abstract List<StreamField> listFields();
 
     public abstract StreamSource getSource();

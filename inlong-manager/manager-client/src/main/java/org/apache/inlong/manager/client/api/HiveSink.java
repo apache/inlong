@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -62,6 +63,15 @@ public class HiveSink extends StreamSink {
 
     public enum FileFormat {
         TextFile, RCFile, SequenceFile, Avro;
+
+        public static FileFormat forName(String name) {
+            for (FileFormat value : values()) {
+                if (value.name().equals(name)) {
+                    return value;
+                }
+            }
+            throw new IllegalArgumentException(String.format("Unsupport FileFormat:%s", name));
+        }
     }
 
     @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
@@ -75,6 +85,9 @@ public class HiveSink extends StreamSink {
 
     @ApiModelProperty("Secondary partition field, default null")
     private String secondaryPartition;
+
+    @ApiModelProperty("Field definitions for hive")
+    private List<StreamField> streamFields;
 
     @ApiModelProperty("Other properties if need")
     private Map<String, String> properties;

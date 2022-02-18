@@ -69,5 +69,5 @@ public interface DataStreamGroup {
      * @return data stream contained in this group
      * @throws Exception
      */
-    List<DataStream> listStreams(String streamGroupId) throws Exception;
+    List<DataStream> listStreams() throws Exception;
 }

@@ -19,7 +19,7 @@ package org.apache.inlong.manager.client.api.auth;
 
 import java.util.Map;
 import lombok.Getter;
-import org.apache.shiro.util.Assert;
+import org.apache.inlong.manager.client.api.util.AssertUtil;
 
 public class SecretAuthentication implements Authentication {
 
@@ -40,7 +40,7 @@ public class SecretAuthentication implements Authentication {
 
     @Override
     public void configure(Map<String, String> properties) {
-        Assert.notEmpty(properties, "Properties should not be empty when init SecretAuthentication");
+        AssertUtil.notEmpty(properties, "Properties should not be empty when init SecretAuthentication");
         this.secretId = properties.get(SECRET_ID);
         this.secretKey = properties.get(SECRET_KEY);
     }

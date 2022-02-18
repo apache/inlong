@@ -50,6 +50,15 @@ public class StreamField {
         public String toString() {
             return name().toLowerCase(Locale.ROOT);
         }
+
+        public static FieldType forName(String name) {
+            for (FieldType value : values()) {
+                if (value.toString().equals(name)) {
+                    return value;
+                }
+            }
+            throw new IllegalArgumentException(String.format("Unsupported FieldType : %s", name));
+        }
     }
 
     @ApiModelProperty(value = "Field type", required = true)

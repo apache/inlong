@@ -24,10 +24,11 @@ import javafx.util.Pair;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.MapUtils;
+import org.apache.inlong.manager.client.api.DataStream;
+import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
-import org.apache.shiro.util.Assert;
 
 @Data
 @NoArgsConstructor
@@ -37,14 +38,30 @@ public class InnerGroupContext {
 
     private Map<String, InnerStreamContext> streamContextMap;
 
+    private Map<String, DataStream> streamMap;
+
     private Pair<BusinessApproveInfo, List<DataStreamApproveInfo>> initMsg;
 
+    public String getGroupId() {
+        AssertUtil.notNull(businessInfo, "BusinessInfo is not init");
+        return businessInfo.getInlongGroupId();
+    }
+
     public void setStreamContext(InnerStreamContext streamContext) {
-        Assert.isTrue(streamContext != null && streamContext.getDataStreamInfo() != null,
+        AssertUtil.isTrue(streamContext != null && streamContext.getDataStreamInfo() != null,
                 "StreamContext should not be null");
         if (MapUtils.isEmpty(streamContextMap)) {
             streamContextMap = Maps.newHashMap();
         }
         streamContextMap.put(streamContext.getDataStreamInfo().getName(), streamContext);
+    }
+
+    public void setStream(DataStream stream) {
+        AssertUtil.isTrue(stream != null,
+                "Stream should not be null");
+        if (MapUtils.isEmpty(streamMap)) {
+            streamMap = Maps.newHashMap();
+        }
+        streamMap.put(stream.getName(), stream);
     }
 }
