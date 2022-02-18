@@ -35,7 +35,7 @@ public class SqlJobProfileDto {
     public static final String SQL_JOB = "SQL_JOB";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
-    public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.DataBaseSource";
+    public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.DatabaseSqlSource";
 
     @Data
     public static class Running {

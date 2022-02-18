@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Make database as Source
  */
-public class DataBaseSource implements Source {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataBaseSource.class);
+public class DatabaseSqlSource  implements Source {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseSqlSource.class);
 
     private static final String JOB_DATABASE_SQL = "job.sql.command";
 
@@ -46,7 +46,7 @@ public class DataBaseSource implements Source {
     private final SourceMetrics sourceMetrics;
     private static AtomicLong metricsIndex = new AtomicLong(0);
 
-    public DataBaseSource() {
+    public DatabaseSqlSource() {
         if (ConfigUtil.isPrometheusEnabled()) {
             this.sourceMetrics = new SourcePrometheusMetrics(AgentUtils.getUniqId(
                 DATABASE_SOURCE_TAG_NAME, metricsIndex.incrementAndGet()));
