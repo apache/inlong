@@ -46,6 +46,10 @@ public class Constants {
 
     public static final String INLONG_GROUP_ID = "inlong.group.id";
 
+    public static final String HIVE_SINK_PREFIX = "hive.sink.";
+
+    public static final String HIVE_SINK_ORC_PREFIX = HIVE_SINK_PREFIX + "orc.";
+
     // ------------------------------------------------------------------------
     //  Operator uid
     // ------------------------------------------------------------------------
@@ -252,6 +256,12 @@ public class Constants {
                             + "This controls the frequency to check whether a part file should rollover based on"
                             + " 'sink.rolling-policy.rollover-interval'.");
 
+    public static final ConfigOption<Integer> SINK_HIVE_TEXT_BUFFER_SIZE =
+            key("sink.hive.text.buffer.size")
+                    .defaultValue(262144)
+                    .withDescription("Buffer size of Hive/THive sink text format (with compression or not), "
+                                             + "default size is 256KB");
+
     // ------------------------------------------------------------------------
     //  Checkpoint related configs
     // ------------------------------------------------------------------------
@@ -300,10 +310,11 @@ public class Constants {
             .defaultValue(5)
             .withDescription("minutes");
 
-    public static final ConfigOption<String> METRICS_AUDIT_SDK_HOSTS =
-            key("metrics.audit.sdk.hosts")
+    public static final ConfigOption<String> METRICS_AUDIT_PROXY_HOSTS =
+            key("metrics.audit.proxy.hosts")
                     .noDefaultValue()
-                    .withDescription("Host address for reporting audit metrics. e.g. 0.0.0.0:54041,0.0.0.1:54041");
+                    .withDescription("Audit proxy host address for reporting audit metrics. "
+                            + "e.g. 127.0.0.1:10081,0.0.0.1:10081");
 
     // ------------------------------------------------------------------------
     //  Single tenant related
@@ -312,4 +323,17 @@ public class Constants {
             key("dataflow.info.file")
                     .noDefaultValue()
                     .withDescription("The file which contains dataflow info for a single tenant job");
+
+    // ------------------------------------------------------------------------
+    //  File format and compression related
+    // ------------------------------------------------------------------------
+    public enum CompressionType {
+        NONE,
+        GZIP,
+        LZO
+    }
+
+    public static final ConfigOption<Integer> ORC_SINK_BATCH_SIZE =
+            key(HIVE_SINK_PREFIX + "orc.row.batch.size")
+                    .defaultValue(64);
 }

@@ -337,7 +337,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                 sBuffer.append(",");
             }
             index = 0;
-            sBuffer.append("{\"topicName\":\"").append(topicName).append("\",\"storeStatisInfo\":[");
+            sBuffer.append("{\"topicName\":\"").append(topicName).append("\",\"storeStatsInfo\":[");
             ConcurrentHashMap<Integer, MessageStore> partStoreMap = entry.getValue();
             if (partStoreMap != null) {
                 for (Entry<Integer, MessageStore> subEntry : partStoreMap.entrySet()) {
@@ -349,9 +349,11 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                         sBuffer.append(",");
                     }
                     sBuffer.append("{\"storeId\":").append(subEntry.getKey())
-                            .append(",\"memStatis\":").append(msgStore.getCurMemMsgSizeStatisInfo(requireRefresh))
-                            .append(",\"fileStatis\":")
-                            .append(msgStore.getCurFileMsgSizeStatisInfo(requireRefresh)).append("}");
+                            .append(",\"memStats\":");
+                    msgStore.getMemStoreStatsInfo(requireRefresh, sBuffer);
+                    sBuffer.append(",\"fileStats\":");
+                    msgStore.getCurFileStoreStatsInfo(requireRefresh, sBuffer);
+                    sBuffer.append("}");
                 }
             }
             sBuffer.append("]}");

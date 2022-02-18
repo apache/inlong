@@ -24,10 +24,10 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-sdk</artifactId>
-        <version>0.13.0-incubating-SNAPSHOT</version>
+        <version>1.1.0-incubating-SNAPSHOT</version>
     </parent>
-    <artifactId>inlong-sort-sdk</artifactId>
-    <version>0.13.0-incubating-SNAPSHOT</version>
+    <artifactId>sort-sdk</artifactId>
+    <version>1.1.0-incubating-SNAPSHOT</version>
 
     <name>Apache InLong - Sort SDK</name>
     <build>
@@ -88,7 +88,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.10</version>
+            <version>4.5.13</version>
         </dependency>
 
         <dependency>

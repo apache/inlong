@@ -32,8 +32,11 @@ import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.flink.sink.FlinkSink;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
+import org.apache.inlong.sort.flink.hive.HiveCommitter;
+import org.apache.inlong.sort.flink.hive.HiveWriter;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
+import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.apache.inlong.sort.protocol.sink.IcebergSinkInfo;
 import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
@@ -69,7 +72,8 @@ public class Entrance {
                 sourceStream,
                 config,
                 dataFlowInfo.getSinkInfo(),
-                dataFlowInfo.getProperties());
+                dataFlowInfo.getProperties(),
+                dataFlowInfo.getId());
 
         env.execute(clusterId);
     }
@@ -103,7 +107,8 @@ public class Entrance {
             DataStream<Row> sourceStream,
             Configuration config,
             SinkInfo sinkInfo,
-            Map<String, Object> properties) {
+            Map<String, Object> properties,
+            long dataflowId) {
         final String sinkType = checkNotNull(config.getString(Constants.SINK_TYPE));
         final int sinkParallelism = config.getInteger(Constants.SINK_PARALLELISM);
 
@@ -119,6 +124,27 @@ public class Entrance {
                         .setParallelism(sinkParallelism);
                 break;
             case Constants.SINK_TYPE_HIVE:
+                Preconditions.checkState(sinkInfo instanceof HiveSinkInfo);
+                HiveSinkInfo hiveSinkInfo = (HiveSinkInfo) sinkInfo;
+
+                if (hiveSinkInfo.getPartitions().length == 0) {
+                    // The committer operator is not necessary if partition is not existent.
+                    sourceStream
+                            .process(new HiveWriter(config, dataflowId, hiveSinkInfo))
+                            .uid(Constants.SINK_UID)
+                            .name("Hive Sink")
+                            .setParallelism(sinkParallelism);
+                } else {
+                    sourceStream
+                            .process(new HiveWriter(config, dataflowId, hiveSinkInfo))
+                            .uid(Constants.SINK_UID)
+                            .name("Hive Sink")
+                            .setParallelism(sinkParallelism)
+                            .addSink(new HiveCommitter(config, hiveSinkInfo))
+                            .name("Hive Committer")
+                            .setParallelism(1);
+                }
+
                 break;
             case Constants.SINK_TYPE_ICEBERG:
                 Preconditions.checkState(sinkInfo instanceof IcebergSinkInfo);

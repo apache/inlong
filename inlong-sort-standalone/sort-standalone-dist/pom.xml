@@ -24,13 +24,13 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-sort-standalone</artifactId>
-        <version>0.13.0-incubating-SNAPSHOT</version>
+        <version>1.1.0-incubating-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>sort-standalone-dist</artifactId>
     <packaging>pom</packaging>
-    <name>Apache InLong - SortStandalone Dist</name>
+    <name>Apache InLong - Sort Standalone Dist</name>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

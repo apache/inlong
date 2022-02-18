@@ -20,6 +20,7 @@ package org.apache.inlong.sort.standalone.sink.elasticsearch;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.flume.Transaction;
+import org.apache.inlong.commons.config.metrics.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,16 +35,18 @@ import org.powermock.modules.junit4.PowerMockRunner;
  */
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
-@PrepareForTest({EsSinkFactory.class})
+@PrepareForTest({EsSinkFactory.class, MetricRegister.class})
 public class TestEsChannelWorker {
 
     private EsSinkContext context;
 
     /**
      * before
+     * 
+     * @throws Exception
      */
     @Before
-    public void before() {
+    public void before() throws Exception {
         LinkedBlockingQueue<EsIndexRequest> dispatchQueue = new LinkedBlockingQueue<>();
         this.context = TestEsSinkContext.mock(dispatchQueue);
     }
@@ -53,21 +56,17 @@ public class TestEsChannelWorker {
      */
     @Test
     public void test() {
-        try {
-            // prepare
-            ProfileEvent event = TestEsSinkContext.mockProfileEvent();
-            Transaction tx = this.context.getChannel().getTransaction();
-            tx.begin();
-            this.context.getChannel().put(event);
-            tx.commit();
-            tx.close();
-            // test
-            EsChannelWorker worker = new EsChannelWorker(context, 0);
-            worker.doRun();
-            worker.start();
-            worker.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // prepare
+        ProfileEvent event = TestEsSinkContext.mockProfileEvent();
+        Transaction tx = this.context.getChannel().getTransaction();
+        tx.begin();
+        this.context.getChannel().put(event);
+        tx.commit();
+        tx.close();
+        // test
+        EsChannelWorker worker = new EsChannelWorker(context, 0);
+        worker.doRun();
+        worker.start();
+        worker.close();
     }
 }

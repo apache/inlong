@@ -32,8 +32,11 @@ public class CreateBusinessWorkflowDefinitionTest extends BaseTest {
     public void testDefineProcess() {
         Process process = createBusinessWorkflowDefinition.defineProcess();
         Assert.assertTrue("Business Resource Creation".equals(process.getType()));
-        Assert.assertTrue(process.getTaskByName("createHiveTableTask") != null);
-        Assert.assertTrue(process.getNameToTaskMap().size() == 6);
+        Assert.assertTrue(process.getTaskByName("initDataSource") != null);
+        Assert.assertTrue(process.getTaskByName("initMQ") != null);
+        Assert.assertTrue(process.getTaskByName("initSort") != null);
+        Assert.assertTrue(process.getTaskByName("initStorage") != null);
+        Assert.assertTrue(process.getNameToTaskMap().size() == 4);
     }
 
 }

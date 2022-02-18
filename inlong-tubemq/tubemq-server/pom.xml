@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-tubemq</artifactId>
-        <version>0.13.0-incubating-SNAPSHOT</version>
+        <version>1.1.0-incubating-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -154,7 +154,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.velocity</groupId>
-            <artifactId>velocity</artifactId>
+            <artifactId>velocity-engine-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -181,8 +181,9 @@
             <artifactId>spring-orm</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.velocity</groupId>
-            <artifactId>velocity-tools</artifactId>
+            <groupId>org.apache.velocity.tools</groupId>
+            <artifactId>velocity-tools-generic</artifactId>
+            <version>3.1</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -199,6 +200,10 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.dom4j</groupId>
+            <artifactId>dom4j</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

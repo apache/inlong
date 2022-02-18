@@ -24,9 +24,9 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-sdk</artifactId>
-        <version>0.13.0-incubating-SNAPSHOT</version>
+        <version>1.1.0-incubating-SNAPSHOT</version>
     </parent>
-    <artifactId>inlong-dataproxy-sdk</artifactId>
+    <artifactId>dataproxy-sdk</artifactId>
     <name>Apache InLong - DataProxy SDK</name>
     <packaging>jar</packaging>
     <build>
@@ -96,7 +96,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.1</version>
+            <version>2.11.0</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>

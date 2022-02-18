@@ -18,13 +18,16 @@
 package org.apache.inlong.manager.common.model.definition;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.common.event.task.TaskEventListener;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.model.Action;
 import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.springframework.util.CollectionUtils;
 
 /**
  * System task
@@ -33,6 +36,10 @@ public class ServiceTask extends Task {
 
     private static final Set<Action> SUPPORTED_ACTIONS = ImmutableSet
             .of(Action.COMPLETE, Action.CANCEL, Action.TERMINATE);
+
+    private ServiceTaskListenerProvider listenerProvider;
+
+    private ServiceTaskType serviceTaskType;
 
     @Override
     public Action defaultNextAction() {
@@ -58,5 +65,36 @@ public class ServiceTask extends Task {
             default:
                 throw new WorkflowException("unknown action " + action);
         }
+    }
+
+    public Task addListeners(List<TaskEventListener> listeners) {
+        if (CollectionUtils.isEmpty(listeners)) {
+            return this;
+        }
+        for (TaskEventListener listener : listeners) {
+            if (listener == null) {
+                continue;
+            }
+            addListener(listener);
+        }
+        return this;
+    }
+
+    public Task addListenerProvider(ServiceTaskListenerProvider provider) {
+        this.listenerProvider = provider;
+        return this;
+    }
+
+    public Task addServiceTaskType(ServiceTaskType type) {
+        this.serviceTaskType = type;
+        return this;
+    }
+
+    public void initListeners(WorkflowContext workflowContext) {
+        if (listenerProvider == null || serviceTaskType == null) {
+            return;
+        }
+        Iterable<TaskEventListener> listeners = listenerProvider.get(workflowContext, serviceTaskType);
+        addListeners(Lists.newArrayList(listeners));
     }
 }

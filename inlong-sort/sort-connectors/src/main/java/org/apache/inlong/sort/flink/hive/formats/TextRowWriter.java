@@ -21,42 +21,72 @@ package org.apache.inlong.sort.flink.hive.formats;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.zip.GZIPOutputStream;
+import org.anarres.lzo.LzoAlgorithm;
+import org.anarres.lzo.LzoCompressor;
+import org.anarres.lzo.LzoLibrary;
+import org.anarres.lzo.LzopOutputStream;
 import org.apache.flink.api.common.serialization.BulkWriter;
 import org.apache.flink.core.fs.FSDataOutputStream;
 import org.apache.flink.types.Row;
+import org.apache.inlong.sort.configuration.Configuration;
+import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.TextFileFormat;
 
 public class TextRowWriter implements BulkWriter<Row> {
 
-    private final FSDataOutputStream fsDataOutputStream;
+    private final OutputStream outputStream;
 
     private final TextFileFormat textFileFormat;
 
-    public TextRowWriter(FSDataOutputStream fsDataOutputStream, TextFileFormat textFileFormat) {
-        this.fsDataOutputStream = checkNotNull(fsDataOutputStream);
+    private final int bufferSize;
+
+    public TextRowWriter(
+            FSDataOutputStream fsDataOutputStream,
+            TextFileFormat textFileFormat,
+            Configuration config) throws IOException {
+        this.bufferSize = checkNotNull(config).getInteger(Constants.SINK_HIVE_TEXT_BUFFER_SIZE);
+        this.outputStream = getCompressionOutputStream(checkNotNull(fsDataOutputStream), textFileFormat);
         this.textFileFormat = checkNotNull(textFileFormat);
     }
 
     @Override
     public void addElement(Row row) throws IOException {
         for (int i = 0; i < row.getArity(); i++) {
-            fsDataOutputStream.write(String.valueOf(row.getField(i)).getBytes(StandardCharsets.UTF_8));
+            outputStream.write(String.valueOf(row.getField(i)).getBytes(StandardCharsets.UTF_8));
             if (i != row.getArity() - 1) {
-                fsDataOutputStream.write(textFileFormat.getSplitter());
+                outputStream.write(textFileFormat.getSplitter());
             }
         }
-        fsDataOutputStream.write(10); // start a new line
+        outputStream.write(10); // start a new line
     }
 
     @Override
     public void flush() throws IOException {
-        fsDataOutputStream.flush();
+        outputStream.flush();
     }
 
     @Override
     public void finish() throws IOException {
-        fsDataOutputStream.close();
+        outputStream.close();
+    }
+
+    private OutputStream getCompressionOutputStream(
+            FSDataOutputStream outputStream,
+            TextFileFormat textFileFormat) throws IOException {
+        switch (textFileFormat.getCompressionType()) {
+            case GZIP:
+                return new GZIPOutputStream(outputStream, bufferSize, false);
+            case LZO:
+                LzoAlgorithm algorithm = LzoAlgorithm.LZO1X;
+                LzoCompressor compressor = LzoLibrary.getInstance().newCompressor(algorithm, null);
+                return new LzopOutputStream(outputStream, compressor, bufferSize);
+            default:
+                // TODO, should be wrapped with a buffered stream? we need a performance testing
+                return outputStream;
+        }
     }
 
     public static class Factory implements BulkWriter.Factory<Row> {
@@ -65,13 +95,21 @@ public class TextRowWriter implements BulkWriter<Row> {
 
         private final TextFileFormat textFileFormat;
 
-        public Factory(TextFileFormat textFileFormat) {
+        private final Configuration config;
+
+        public Factory(
+                TextFileFormat textFileFormat,
+                Configuration config) {
             this.textFileFormat = checkNotNull(textFileFormat);
+            this.config = checkNotNull(config);
         }
 
         @Override
         public BulkWriter<Row> create(FSDataOutputStream fsDataOutputStream) throws IOException {
-            return new TextRowWriter(fsDataOutputStream, textFileFormat);
+            return new TextRowWriter(
+                    fsDataOutputStream,
+                    textFileFormat,
+                    config);
         }
     }
 }

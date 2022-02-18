@@ -42,7 +42,6 @@ public class VelocityTemplateEngine implements TemplateEngine {
             engine.setProperty(VelocityEngine.FILE_RESOURCE_LOADER_PATH, config.getTemplatePath());
             engine.setProperty(VelocityEngine.FILE_RESOURCE_LOADER_CACHE, false);
             engine.setProperty(VelocityEngine.INPUT_ENCODING, TBaseConstants.META_DEFAULT_CHARSET_NAME);
-            engine.setProperty(VelocityEngine.OUTPUT_ENCODING, TBaseConstants.META_DEFAULT_CHARSET_NAME);
             engine.init();
         } else {
             engine.init(config.getVelocityConfigFilePath());

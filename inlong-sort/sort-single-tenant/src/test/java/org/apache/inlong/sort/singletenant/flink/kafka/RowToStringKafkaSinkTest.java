@@ -22,14 +22,11 @@ import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class RowToStringKafkaSinkTest extends KafkaSinkTestBase {
 
@@ -56,13 +53,7 @@ public class RowToStringKafkaSinkTest extends KafkaSinkTestBase {
     }
 
     @Override
-    protected void verifyData(ConsumerRecords<String, String> records) {
-        List<String> results = new ArrayList<>();
-        for (ConsumerRecord<String, String> record : records) {
-            assertNull(record.key());
-            results.add(record.value());
-        }
-
+    protected void verifyData(List<String> results) {
         List<String> expectedData = new ArrayList<>();
         testRows.forEach(row -> expectedData.add(row.toString()));
 
