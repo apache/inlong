@@ -122,11 +122,9 @@ public class MixedUtils {
         // added a serial number and data generation time to each message
         message.setAttrKeyVal("serialId", String.valueOf(serialId));
         message.setAttrKeyVal("dataTime", String.valueOf(currTimeMillis));
-        if (filterItem != null) {
-            // add filter attribute information, time require yyyyMMddHHmm format
-            message.putSystemHeader(filterItem,
-                    DateTimeConvertUtils.ms2yyyyMMddHHmm(currTimeMillis));
-        }
+        // add filter attribute information, time require yyyyMMddHHmm format
+        message.putSystemHeader(filterItem,
+                DateTimeConvertUtils.ms2yyyyMMddHHmm(currTimeMillis));
         return message;
     }
 
