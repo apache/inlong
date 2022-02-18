@@ -102,10 +102,10 @@ public class BusinessServiceImpl implements BusinessService {
         // After saving, the status is set to [BIZ_WAIT_SUBMIT]
         entity.setStatus(EntityStatus.BIZ_WAIT_SUBMIT.getCode());
         entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
-        if (StringUtils.isEmpty(entity.getCreator())){
+        if (StringUtils.isEmpty(entity.getCreator())) {
             entity.setCreator(operator);
         }
-        if (StringUtils.isEmpty(entity.getModifier())){
+        if (StringUtils.isEmpty(entity.getModifier())) {
             entity.setModifier(operator);
         }
         entity.setCreateTime(new Date());
