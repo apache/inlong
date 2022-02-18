@@ -21,7 +21,6 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import java.util.List;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
@@ -38,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Various cluster control layers
@@ -56,6 +57,37 @@ public class ClusterController {
     @ApiOperation(value = "Query the list of general clusters based on conditions")
     public Response<List<ClusterInfo>> list(ClusterRequest request) {
         return Response.success(clusterInfoService.list(request));
+    }
+
+    @RequestMapping(value = "/common/save", method = RequestMethod.GET)
+    @ApiOperation(value = "Add a cluster info")
+    @OperationLog(operation = OperationType.CREATE)
+    public Response<Integer> saveCluster(@RequestBody ClusterInfo clusterInfo) {
+        String currentUser = LoginUserUtil.getLoginUserDetail().getUserName();
+        return Response.success(clusterInfoService.save(clusterInfo, currentUser));
+    }
+
+    @RequestMapping(value = "/common/get/{id}")
+    @ApiOperation(value = "Query cluster information of the common")
+    @ApiImplicitParam(name = "id", value = "common cluster ID", dataTypeClass = Integer.class, required = true)
+    public Response<ClusterInfo> getCluster(@PathVariable Integer id) {
+        return Response.success(clusterInfoService.get(id));
+    }
+
+    @RequestMapping(value = "/common/update", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.UPDATE)
+    @ApiOperation(value = "Modify cluster information of the common")
+    public Response<Boolean> updateCluster(@RequestBody ClusterInfo clusterInfo) {
+        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        return Response.success(clusterInfoService.update(clusterInfo, username));
+    }
+
+    @RequestMapping(value = "/common/delete/{id}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Delete cluster information")
+    @OperationLog(operation = OperationType.DELETE)
+    @ApiImplicitParam(name = "id", value = "DataProxy cluster id", dataTypeClass = Integer.class, required = true)
+    public Response<Boolean> delete(@PathVariable Integer id) {
+        return Response.success(clusterInfoService.delete(id, LoginUserUtil.getLoginUserDetail().getUserName()));
     }
 
     @RequestMapping(value = "/dataproxy/save", method = RequestMethod.POST)
@@ -80,7 +112,7 @@ public class ClusterController {
         return Response.success(dataProxyClusterService.listByCondition(request));
     }
 
-    @RequestMapping(value = "/DataProxy/update", method = RequestMethod.POST)
+    @RequestMapping(value = "/dataproxy/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Modify cluster information of the DataProxy")
     public Response<Boolean> updateDataProxy(@RequestBody DataProxyClusterInfo clusterInfo) {

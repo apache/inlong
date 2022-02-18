@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.service.core;
 
-import java.util.List;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
+
+import java.util.List;
 
 /**
  * Cluster information service layer interface
@@ -44,4 +45,38 @@ public interface ClusterInfoService {
      */
     List<ClusterInfo> getClusterInfoByIdList(List<Integer> clusterIdList);
 
+    /**
+     * Save cluster information
+     *
+     * @param clusterInfo Cluster information
+     * @param operator Current operator
+     * @return ID after saving
+     */
+    Integer save(ClusterInfo clusterInfo, String operator);
+
+    /**
+     * Change cluster information
+     *
+     * @param clusterInfo The information to be modified
+     * @param operator Current operator
+     * @return Whether succeed
+     */
+    Boolean update(ClusterInfo clusterInfo, String operator);
+
+    /**
+     * Delete cluster information
+     *
+     * @param id       Cluster ID to be deleted
+     * @param operator Current operator
+     * @return Whether succeed
+     */
+    Boolean delete(Integer id, String operator);
+
+    /**
+     * Save cluster information
+     *
+     * @param id Cluster ID
+     * @return Cluster information succeed
+     */
+    ClusterInfo get(Integer id);
 }
