@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.dao;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 import lombok.Data;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -31,9 +29,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -43,42 +39,38 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
 @Data
 @Configuration
 @ConditionalOnMissingBean(RestTemplate.class)
-@ConfigurationProperties(prefix = "common.http-client")
 public class RestTemplateConfig {
 
     /**
      * Max total
      */
-    @Value("${common.http-client.maxTotal}")
-    private int maxTotal;
+    private final int maxTotal = 5000;
     /**
      * Concurrency
      */
-    @Value("${common.http-client.defaultMaxPerRoute}")
-    private int defaultMaxPerRoute;
+    private final int defaultMaxPerRoute = 2000;
 
-    @Value("${common.http-client.validateAfterInactivity}")
-    private int validateAfterInactivity;
+    private final int validateAfterInactivity = 5000;
 
     /**
      * Time to connect to the server (successful handshake), timeout throws connect timeout
      */
-    @Value("${common.http-client.connectionTimeout}")
-    private int connectionTimeout;
+    private final int connectionTimeout = 3000;
     /**
      * The time for the server to return data (response), timeout throws read timeout
      */
-    @Value("${common.http-client.readTimeout}")
-    private int readTimeout;
+    private final int readTimeout = 10000;
     /**
      * Get the timeout time of the connection from the connection pool,
      * and throw ConnectionPoolTimeoutException when timeout
      */
-    @Value("${common.http-client.connectionRequestTimeout}")
-    private int connectionRequestTimeout;
+    private final int connectionRequestTimeout = 3000;
 
     @Bean
     public PoolingHttpClientConnectionManager httpClientConnectionManager() {
