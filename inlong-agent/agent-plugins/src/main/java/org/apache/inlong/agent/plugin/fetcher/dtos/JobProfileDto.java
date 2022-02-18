@@ -36,7 +36,7 @@ public class JobProfileDto {
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
-    public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.DataBaseSource";
+    public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.TextFileSource";
 
     @Data
     public static class Dir {
