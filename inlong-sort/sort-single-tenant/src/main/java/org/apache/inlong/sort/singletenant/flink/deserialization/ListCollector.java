@@ -15,30 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol.deserialization;
+package org.apache.inlong.sort.singletenant.flink.deserialization;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.util.Collector;
 
-/**
- * .
- */
-public class CsvDeserializationInfo implements DeserializationInfo {
+import java.util.ArrayList;
+import java.util.List;
 
-    private static final long serialVersionUID = -5035426390567887081L;
+public class ListCollector<T> implements Collector<T> {
 
-    private final char splitter;
+    private List<T> innerList = new ArrayList<>();
 
-    // TODO: support mapping index to field
-
-    @JsonCreator
-    public CsvDeserializationInfo(
-            @JsonProperty("splitter") char splitter) {
-        this.splitter = splitter;
+    @Override
+    public void collect(T record) {
+        innerList.add(record);
     }
 
-    @JsonProperty("splitter")
-    public char getSplitter() {
-        return splitter;
+    @Override
+    public void close() {
+        innerList = null;
     }
+
+    public List<T> getInnerList() {
+        return innerList;
+    }
+
 }

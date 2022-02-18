@@ -43,7 +43,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
         @JsonSubTypes.Type(name = "map", value = MapTypeInfo.class),
         @JsonSubTypes.Type(name = "row", value = RowTypeInfo.class),
         @JsonSubTypes.Type(name = "binary", value = BinaryTypeInfo.class),
-        @JsonSubTypes.Type(name = "null", value = NullTypeInfo.class)
+        @JsonSubTypes.Type(name = "null", value = NullTypeInfo.class),
+        @JsonSubTypes.Type(name = "local_zoned_timestamp", value = LocalZonedTimestampTypeInfo.class)
 })
 public interface TypeInfo extends Serializable {
 

@@ -38,8 +38,10 @@ import java.io.IOException;
 
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.buildAvroRecordSchemaInJson;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertFieldInfosToRowTypeInfo;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.deepCopy;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CommonUtilsTest {
 
@@ -296,4 +298,19 @@ public class CommonUtilsTest {
 
         assertEquals(expectedJsonNode, actualJsonNode);
     }
+
+    @Test
+    public void testDeepCopy() throws IOException, ClassNotFoundException {
+        FieldInfo[] fieldInfos = new FieldInfo[]{
+                new FieldInfo("f1", StringFormatInfo.INSTANCE),
+                new FieldInfo("f2", IntFormatInfo.INSTANCE)
+        };
+
+        FieldInfo[] copiedInfos = (FieldInfo[]) deepCopy(fieldInfos);
+        assertArrayEquals(fieldInfos, copiedInfos);
+
+        fieldInfos[0].setFormatInfo(IntFormatInfo.INSTANCE);
+        assertTrue(copiedInfos[0].getFormatInfo() instanceof StringFormatInfo);
+    }
+
 }

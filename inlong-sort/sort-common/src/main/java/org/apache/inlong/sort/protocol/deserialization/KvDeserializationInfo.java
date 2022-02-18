@@ -27,6 +27,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
  */
 public class KvDeserializationInfo implements DeserializationInfo {
 
+    private static final long serialVersionUID = 1976031542480774581L;
+
     private final char entrySplitter;
 
     private final char kvSplitter;

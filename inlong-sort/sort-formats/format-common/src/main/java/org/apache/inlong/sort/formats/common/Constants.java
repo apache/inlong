@@ -15,30 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol.deserialization;
+package org.apache.inlong.sort.formats.common;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+public class Constants {
 
-/**
- * .
- */
-public class CsvDeserializationInfo implements DeserializationInfo {
+    public static final String DATE_AND_TIME_STANDARD_SQL = "SQL";
 
-    private static final long serialVersionUID = -5035426390567887081L;
+    public static final String DATE_AND_TIME_STANDARD_ISO_8601 = "ISO_8601";
 
-    private final char splitter;
-
-    // TODO: support mapping index to field
-
-    @JsonCreator
-    public CsvDeserializationInfo(
-            @JsonProperty("splitter") char splitter) {
-        this.splitter = splitter;
-    }
-
-    @JsonProperty("splitter")
-    public char getSplitter() {
-        return splitter;
-    }
 }

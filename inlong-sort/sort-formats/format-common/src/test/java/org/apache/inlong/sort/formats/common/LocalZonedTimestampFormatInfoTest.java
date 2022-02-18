@@ -15,30 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol.deserialization;
+package org.apache.inlong.sort.formats.common;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Collection;
+import java.util.Collections;
 
-/**
- * .
- */
-public class CsvDeserializationInfo implements DeserializationInfo {
+public class LocalZonedTimestampFormatInfoTest extends FormatInfoTestBase {
 
-    private static final long serialVersionUID = -5035426390567887081L;
-
-    private final char splitter;
-
-    // TODO: support mapping index to field
-
-    @JsonCreator
-    public CsvDeserializationInfo(
-            @JsonProperty("splitter") char splitter) {
-        this.splitter = splitter;
+    @Override
+    Collection<FormatInfo> createFormatInfos() {
+        return Collections.singleton(new LocalZonedTimestampFormatInfo());
     }
 
-    @JsonProperty("splitter")
-    public char getSplitter() {
-        return splitter;
-    }
 }
