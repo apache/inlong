@@ -46,7 +46,7 @@ import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerStatsType;
-import org.apache.inlong.tubemq.server.broker.stats.ServiceStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.broker.utils.GroupOffsetInfo;
 import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
@@ -1101,7 +1101,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         broker.getOffsetManager().deleteGroupOffset(
                 onlyMemory, groupTopicPartMap, modifier);
         // builder return result
-        sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
+        WebParameterUtils.buildSuccessResult(sBuffer);
     }
 
     /**
@@ -1120,20 +1120,23 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             return;
         }
         final boolean needRefresh = (Boolean) result.getRetData();
-        sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"probeTime\":\"")
+        // build return result
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        sBuffer.append("{\"probeTime\":\"")
                 .append(DateTimeConvertUtils.ms2yyyyMMddHHmmss(System.currentTimeMillis()))
                 .append("\",\"nodeName\":\"").append(broker.getTubeConfig().getHostName())
-                .append("\",\"role\":\"Broker\",\"metrics\":{\"serviceStatus\":");
+                .append("\",\"nodeRole\":\"Broker\",\"metrics\":{\"serviceStatus\":");
         if (needRefresh) {
-            ServiceStatsHolder.snapShort(sBuffer);
+            BrokerSrvStatsHolder.snapShort(sBuffer);
             sBuffer.append(",\"webAPI\":");
             WebCallStatsHolder.snapShort(sBuffer);
         } else {
-            ServiceStatsHolder.getValue(sBuffer);
+            BrokerSrvStatsHolder.getValue(sBuffer);
             sBuffer.append(",\"webAPI\":");
             WebCallStatsHolder.getValue(sBuffer);
         }
         sBuffer.append("},\"count\":2}");
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, 1);
     }
 
     /**
@@ -1160,7 +1163,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // query data
         int index = 0;
         int recordId = 0;
-        sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Ok\",\"dataSet\":[");
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         Map<String, ConcurrentHashMap<Integer, MessageStore>> messageTopicStores =
                 broker.getStoreManager().getMessageStores();
         if (topicNameSet.isEmpty()) {
@@ -1222,7 +1225,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                 sBuffer.append("]}");
             }
         }
-        sBuffer.append("],\"totalCount\":").append(recordId).append("}");
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, recordId);
     }
 
     /**
@@ -1269,13 +1272,6 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      */
     public void adminDisableAllStats(HttpServletRequest req,
                                      StringBuilder sBuffer) {
-        ProcessResult result = new ProcessResult();
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.STATSTYPE, true, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
-            return;
-        }
-        String statsType = (String) result.getRetData();
         innEnableOrDisableMetricsStats(false,
                 BrokerStatsType.ALL.getName(), req, sBuffer);
     }
@@ -1321,7 +1317,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         }
         if (inMetricType == BrokerStatsType.SERVICESTATUS
                 || inMetricType == BrokerStatsType.ALL) {
-            ServiceStatsHolder.setDiskSyncStatsStatus(enable);
+            BrokerSrvStatsHolder.setDiskSyncStatsStatus(enable);
         }
         if (inMetricType == BrokerStatsType.MSGSTORE
                 || inMetricType == BrokerStatsType.ALL) {
@@ -1365,7 +1361,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             }
         }
         // builder return result
-        sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
+        WebParameterUtils.buildSuccessResult(sBuffer);
     }
 
     // build reset offset info

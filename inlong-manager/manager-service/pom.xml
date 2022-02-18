@@ -37,6 +37,7 @@
             <version>${project.version}</version>
         </dependency>
 
+
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-common</artifactId>
@@ -47,7 +48,12 @@
             <artifactId>sort-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>manager-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -66,6 +72,7 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
         </dependency>
+
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>

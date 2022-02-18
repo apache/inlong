@@ -20,8 +20,8 @@ package org.apache.inlong.tubemq.server.broker.stats;
 public enum BrokerStatsType {
     ALL(0, "all", "all statistics types"),
     SERVICESTATUS(1, "serviceStatus", "service rpc statistics"),
-    MSGSTORE(2, "msgStore", "message store statistics"),
-    WEBAPI(3, "webAPI", "web api call statistics");
+    WEBAPI(2, "webAPI", "web api call statistics"),
+    MSGSTORE(3, "msgStore", "message store statistics");
 
     BrokerStatsType(int id, String name, String desc) {
         this.id = id;

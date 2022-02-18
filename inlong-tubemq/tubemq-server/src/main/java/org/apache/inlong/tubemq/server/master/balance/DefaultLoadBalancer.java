@@ -34,13 +34,13 @@ import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.server.common.offsetstorage.OffsetStorage;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
-import org.apache.inlong.tubemq.server.master.metrics.MasterMetricsHolder;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumeGroupInfo;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfo;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.NodeRebInfo;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.RebProcessInfo;
+import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -662,7 +662,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 }
             }
             if (consumeGroupInfo.addAllocatedTimes() > 0) {
-                MasterMetricsHolder.updSvrBalResetDurations(
+                MasterSrvStatsHolder.updSvrBalResetDurations(
                         System.currentTimeMillis() - consumeGroupInfo.getCreateTime());
             }
         }

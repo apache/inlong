@@ -24,7 +24,7 @@ import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
 import org.apache.inlong.manager.dao.entity.BusinessExtEntity;
 import org.apache.inlong.manager.dao.mapper.BusinessExtEntityMapper;
-import org.apache.inlong.manager.web.ServiceBaseTest;
+import org.apache.inlong.manager.web.WebBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ import java.util.List;
  * Business service test
  */
 @TestComponent
-public class BusinessServiceTest extends ServiceBaseTest {
+public class BusinessServiceTest extends WebBaseTest {
 
     private final String globalGroupId = "b_group1";
     private final String globalGroupName = "group1";

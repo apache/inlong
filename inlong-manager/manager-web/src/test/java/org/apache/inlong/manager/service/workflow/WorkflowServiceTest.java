@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.workflow;
 
 import com.github.pagehelper.PageInfo;
 import java.util.Collections;
-import org.apache.inlong.manager.web.ServiceBaseTest;
+import org.apache.inlong.manager.web.WebBaseTest;
 import org.apache.inlong.manager.common.workflow.WorkflowDataAccessor;
 import org.apache.inlong.manager.common.model.ProcessState;
 import org.apache.inlong.manager.common.model.instance.ProcessInstance;
@@ -28,7 +28,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class WorkflowServiceTest extends ServiceBaseTest {
+public class WorkflowServiceTest extends WebBaseTest {
 
     @Autowired
     private WorkflowService workflowService;
