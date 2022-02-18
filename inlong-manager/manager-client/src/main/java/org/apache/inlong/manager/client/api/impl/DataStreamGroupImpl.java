@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.client.api.impl;
 
 import java.util.List;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.DataStream;
 import org.apache.inlong.manager.client.api.DataStreamBuilder;
 import org.apache.inlong.manager.client.api.DataStreamConf;

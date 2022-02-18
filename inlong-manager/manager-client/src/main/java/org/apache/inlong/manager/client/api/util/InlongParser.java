@@ -22,7 +22,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.List;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
@@ -81,6 +81,6 @@ public class InlongParser {
         List<DataStreamApproveInfo> dataStreamApproveInfoList = GsonUtil.fromJson(streamJson.toString(),
                 new TypeToken<List<DataStreamApproveInfo>>() {
                 }.getType());
-        return new Pair(businessApproveInfo, dataStreamApproveInfoList);
+        return Pair.of(businessApproveInfo, dataStreamApproveInfoList);
     }
 }

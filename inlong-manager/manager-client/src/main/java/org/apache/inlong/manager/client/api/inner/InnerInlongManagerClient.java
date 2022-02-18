@@ -21,7 +21,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import java.util.List;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Call;
 import okhttp3.MediaType;
@@ -91,9 +91,9 @@ public class InnerInlongManagerClient {
         }
         BusinessInfo currentBizInfo = getBusinessInfo(inlongGroupId);
         if (currentBizInfo != null) {
-            return new Pair<>(true, currentBizInfo);
+            return Pair.of(true, currentBizInfo);
         } else {
-            return new Pair<>(false, null);
+            return Pair.of(false, null);
         }
     }
 
@@ -171,7 +171,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
             org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
-            return new Pair<>(responseBody.getData().toString(), responseBody.getErrMsg());
+            return Pair.of(responseBody.getData().toString(), responseBody.getErrMsg());
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong stream group save failed with ex:%s", e.getMessage()), e);
         }
