@@ -27,7 +27,10 @@ import java.util.Date;
 import java.util.Map;
 
 import org.apache.flink.shaded.guava18.com.google.common.annotations.VisibleForTesting;
+import org.apache.flink.table.types.logical.ArrayType;
+import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.LogicalType;
+import org.apache.flink.table.types.logical.MapType;
 import org.apache.flink.types.Row;
 import org.apache.orc.TypeDescription;
 import org.apache.orc.storage.common.type.HiveDecimal;
@@ -40,8 +43,6 @@ import org.apache.orc.storage.ql.exec.vector.LongColumnVector;
 import org.apache.orc.storage.ql.exec.vector.MapColumnVector;
 import org.apache.orc.storage.ql.exec.vector.TimestampColumnVector;
 import org.apache.orc.storage.ql.exec.vector.VectorizedRowBatch;
-
-import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkState;
 
 /**
  * Copy from org.apache.flink:flink-orc_2.11:1.13.1
@@ -83,8 +84,7 @@ public class RowVectorizer implements Serializable {
     static void setColumn(int rowId, ColumnVector column, LogicalType type, Row row, int columnId) {
         final Object field = row.getField(columnId);
         if (field == null) {
-            column.noNulls = false;
-            column.isNull[rowId] = true;
+            setNull(column, rowId);
             return;
         }
         switch (type.getTypeRoot()) {
@@ -159,10 +159,15 @@ public class RowVectorizer implements Serializable {
                 break;
             }
             case ARRAY: {
-                Object[] inputArray = (Object[]) field;
-                ColumnVector innerVector = constructColumnVectorFromArray(inputArray);
+                ColumnVector innerVector =
+                        constructColumnVectorFromArray(field, ((ArrayType) type).getElementType());
+                if (innerVector == null) {
+                    setNull(column, rowId);
+                    break;
+                }
+
                 ListColumnVector tempListVector = new ListColumnVector(1, innerVector);
-                tempListVector.lengths[0] = inputArray.length;
+                tempListVector.lengths[0] = innerVector.isNull.length;
                 ListColumnVector vector = (ListColumnVector) column;
                 vector.setElement(rowId, 0, tempListVector);
                 break;
@@ -170,6 +175,11 @@ public class RowVectorizer implements Serializable {
             case MAP: {
                 Map<?, ?> mapField = (Map<?, ?>) field;
                 int mapEleSize = mapField.size();
+                if (mapEleSize == 0) {
+                    setNull(column, rowId);
+                    break;
+                }
+
                 Object[] keys = new Object[mapEleSize];
                 Object[] values = new Object[mapEleSize];
                 int i = 0;
@@ -179,8 +189,9 @@ public class RowVectorizer implements Serializable {
                     ++i;
                 }
 
-                ColumnVector keysVector = constructColumnVectorFromArray(keys);
-                ColumnVector valuesVector = constructColumnVectorFromArray(values);
+                MapType mapType = (MapType) type;
+                ColumnVector keysVector = constructColumnVectorFromArray(keys, mapType.getKeyType());
+                ColumnVector valuesVector = constructColumnVectorFromArray(values, mapType.getValueType());
                 MapColumnVector tempMapVector = new MapColumnVector(1, keysVector, valuesVector);
                 tempMapVector.lengths[0] = mapEleSize;
 
@@ -194,105 +205,318 @@ public class RowVectorizer implements Serializable {
     }
 
     @VisibleForTesting
-    static ColumnVector constructColumnVectorFromArray(Object[] inputArray) {
-        int length = inputArray.length;
-        checkState(length > 0);
-        Object ele0 = inputArray[0];
-        if (ele0 instanceof String) {
-            BytesColumnVector vector = new BytesColumnVector(length);
-            for (int i = 0; i < length; i++) {
-                vector.setVal(i, ((String) inputArray[i]).getBytes(StandardCharsets.UTF_8));
+    static ColumnVector constructColumnVectorFromArray(Object input, LogicalType elementType) {
+        switch (elementType.getTypeRoot()) {
+            case CHAR:
+            case VARCHAR: {
+                return createVectorFromStringArray(input);
             }
-            return vector;
+            case BOOLEAN: {
+                return createVectorFromBooleanArray(input);
+            }
+            case DECIMAL: {
+                DecimalType decimalType = (DecimalType) elementType;
+                return createVectorFromDecimalArray(input, decimalType.getPrecision(), decimalType.getScale());
+            }
+            case TINYINT: {
+                return createVectorFromTinyIntArray(input);
+            }
+            case SMALLINT: {
+                return createVectorFromShortArray(input);
+            }
+            case DATE: {
+                return createVectorFromDateArray(input);
+            }
+            case INTEGER: {
+                return createVectorFromIntArray(input);
+            }
+            case TIME_WITHOUT_TIME_ZONE: {
+                return createVectorFromTimeArray(input);
+            }
+            case BIGINT: {
+                return createVectorFromLongArray(input);
+            }
+            case FLOAT: {
+                return createVectorFromFloatArray(input);
+            }
+            case DOUBLE: {
+                return createVectorFromDoubleArray(input);
+            }
+            case TIMESTAMP_WITHOUT_TIME_ZONE: {
+                return createVectorFromTimestampArray(input);
+            }
+            default:
+                throw new UnsupportedOperationException("Unsupported type: " + elementType);
+        }
+    }
 
-        } else if (ele0 instanceof Boolean) {
+    private static BytesColumnVector createVectorFromStringArray(Object input) {
+        Object[] inputArray = (Object[]) input;
+        int length = inputArray.length;
+        if (inputArray.length == 0) {
+            return null;
+        }
+
+        BytesColumnVector vector = new BytesColumnVector(length);
+        vector.initBuffer();
+        for (int i = 0; i < length; i++) {
+            vector.setVal(i, ((String) inputArray[i]).getBytes(StandardCharsets.UTF_8));
+        }
+
+        return vector;
+    }
+
+    private static LongColumnVector createVectorFromBooleanArray(Object input) {
+        if (input instanceof boolean[]) {
+            boolean[] inputArray = (boolean[]) input;
+            int length = inputArray.length;
+            if (length == 0) {
+                return null;
+            }
+
             LongColumnVector vector = new LongColumnVector(length);
             for (int i = 0; i < length; i++) {
-                vector.vector[i] = (Boolean) inputArray[i] ? 1 : 0;
+                vector.vector[i] = inputArray[i] ? 1 : 0;
             }
             return vector;
+        } else {
+            Object[] inputArray = (Object[]) input;
+            int length = inputArray.length;
+            if (length == 0) {
+                return null;
+            }
 
-        } else if (ele0 instanceof byte[]) {
-            BytesColumnVector vector = new BytesColumnVector(length);
+            LongColumnVector vector = new LongColumnVector(length);
             for (int i = 0; i < length; i++) {
-                vector.setVal(i, (byte[]) inputArray[i]);
+                vector.vector[i] = ((Boolean) inputArray[i]) ? 1 : 0;
             }
             return vector;
+        }
+    }
 
-        } else if (ele0 instanceof BigDecimal) {
-            BigDecimal decimal = (BigDecimal) ele0;
-            DecimalColumnVector vector = new DecimalColumnVector(length, decimal.precision(), decimal.scale());
+    private static DecimalColumnVector createVectorFromDecimalArray(Object input, int precision, int scale) {
+        Object[] inputArray = (Object[]) input;
+        int length = inputArray.length;
+        if (length == 0) {
+            return null;
+        }
+
+        DecimalColumnVector vector = new DecimalColumnVector(length, precision, scale);
+        for (int i = 0; i < length; i++) {
+            vector.set(i, HiveDecimal.create((BigDecimal) inputArray[i]));
+        }
+        return vector;
+    }
+
+    private static LongColumnVector createVectorFromTinyIntArray(Object input) {
+        if (input instanceof byte[]) {
+            byte[] inputArray = (byte[]) input;
+            int length = inputArray.length;
+            if (length == 0) {
+                return null;
+            }
+
+            LongColumnVector vector = new LongColumnVector(length);
             for (int i = 0; i < length; i++) {
-                vector.set(i, HiveDecimal.create((BigDecimal) inputArray[i]));
+                vector.vector[i] = inputArray[i];
             }
             return vector;
+        } else {
+            Object[] inputArray = (Object[]) input;
+            int length = inputArray.length;
+            if (length == 0) {
+                return null;
+            }
 
-        } else if (ele0 instanceof Byte) {
             LongColumnVector vector = new LongColumnVector(length);
             for (int i = 0; i < length; i++) {
                 vector.vector[i] = (Byte) inputArray[i];
             }
             return vector;
+        }
+    }
 
-        } else if (ele0 instanceof Short) {
+    private static LongColumnVector createVectorFromShortArray(Object input) {
+        if (input instanceof short[]) {
+            short[] inputArray = (short[]) input;
+            int length = inputArray.length;
+            if (length == 0) {
+                return null;
+            }
+
+            LongColumnVector vector = new LongColumnVector(length);
+            for (int i = 0; i < length; i++) {
+                vector.vector[i] = inputArray[i];
+            }
+            return vector;
+        } else {
+            Object[] inputArray = (Object[]) input;
+            int length = inputArray.length;
+            if (length == 0) {
+                return null;
+            }
+
             LongColumnVector vector = new LongColumnVector(length);
             for (int i = 0; i < length; i++) {
                 vector.vector[i] = (Short) inputArray[i];
             }
             return vector;
+        }
+    }
 
-        } else if (ele0 instanceof Integer) {
+    private static LongColumnVector createVectorFromIntArray(Object input) {
+        if (input instanceof int[]) {
+            int[] inputArray = (int[]) input;
+            int length = inputArray.length;
+            if (length == 0) {
+                return null;
+            }
+
+            LongColumnVector vector = new LongColumnVector(length);
+            for (int i = 0; i < length; i++) {
+                vector.vector[i] = inputArray[i];
+            }
+            return vector;
+        } else {
+            Object[] inputArray = (Object[]) input;
+            int length = inputArray.length;
+            if (length == 0) {
+                return null;
+            }
+
             LongColumnVector vector = new LongColumnVector(length);
             for (int i = 0; i < length; i++) {
                 vector.vector[i] = (Integer) inputArray[i];
             }
             return vector;
+        }
+    }
 
-        } else if (ele0 instanceof Long) {
+    private static LongColumnVector createVectorFromLongArray(Object input) {
+        if (input instanceof long[]) {
+            long[] inputArray = (long[]) input;
+            int length = inputArray.length;
+            if (length == 0) {
+                return null;
+            }
+
+            LongColumnVector vector = new LongColumnVector(length);
+            System.arraycopy(inputArray, 0, vector.vector, 0, length);
+            return vector;
+        } else {
+            Object[] inputArray = (Object[]) input;
+            int length = inputArray.length;
+            if (length == 0) {
+                return null;
+            }
+
             LongColumnVector vector = new LongColumnVector(length);
             for (int i = 0; i < length; i++) {
                 vector.vector[i] = (Long) inputArray[i];
             }
             return vector;
+        }
+    }
 
-        } else if (ele0 instanceof Float) {
+    private static DoubleColumnVector createVectorFromFloatArray(Object input) {
+        if (input instanceof float[]) {
+            float[] inputArray = (float[]) input;
+            int length = inputArray.length;
+            if (length == 0) {
+                return null;
+            }
+
+            DoubleColumnVector vector = new DoubleColumnVector(length);
+            for (int i = 0; i < length; i++) {
+                vector.vector[i] = inputArray[i];
+            }
+            return vector;
+        } else {
+            Object[] inputArray = (Object[]) input;
+            int length = inputArray.length;
+            if (length == 0) {
+                return null;
+            }
+
             DoubleColumnVector vector = new DoubleColumnVector(length);
             for (int i = 0; i < length; i++) {
                 vector.vector[i] = (Float) inputArray[i];
             }
             return vector;
+        }
+    }
 
-        } else if (ele0 instanceof Double) {
+    private static DoubleColumnVector createVectorFromDoubleArray(Object input) {
+        if (input instanceof double[]) {
+            double[] inputArray = (double[]) input;
+            int length = inputArray.length;
+            if (length == 0) {
+                return null;
+            }
+
+            DoubleColumnVector vector = new DoubleColumnVector(length);
+            System.arraycopy(inputArray, 0, vector.vector, 0, length);
+            return vector;
+        } else {
+            Object[] inputArray = (Object[]) input;
+            int length = inputArray.length;
+            if (length == 0) {
+                return null;
+            }
+
             DoubleColumnVector vector = new DoubleColumnVector(length);
             for (int i = 0; i < length; i++) {
                 vector.vector[i] = (Double) inputArray[i];
             }
             return vector;
-
-        } else if (ele0 instanceof Time) {
-            LongColumnVector vector = new LongColumnVector(length);
-            for (int i = 0; i < length; i++) {
-                vector.vector[i] = ((Time) inputArray[i]).getTime();
-            }
-            return vector;
-
-        } else if (ele0 instanceof Timestamp) {
-            TimestampColumnVector vector = new TimestampColumnVector(length);
-            for (int i = 0; i < length; i++) {
-                vector.set(i, (Timestamp) inputArray[i]);
-            }
-            return vector;
-
-        } else if (ele0 instanceof Date) {
-            LongColumnVector vector = new LongColumnVector(length);
-            for (int i = 0; i < length; i++) {
-                vector.vector[i] = ((Date) inputArray[i]).getTime();
-            }
-            return vector;
-
-        } else {
-            throw new UnsupportedOperationException("Unsupported class: " + ele0.getClass());
         }
+    }
+
+    private static LongColumnVector createVectorFromDateArray(Object input) {
+        Object[] inputArray = (Object[]) input;
+        int length = inputArray.length;
+        if (length == 0) {
+            return null;
+        }
+
+        LongColumnVector vector = new LongColumnVector(length);
+        for (int i = 0; i < length; i++) {
+            vector.vector[i] = ((Date) inputArray[i]).getTime();
+        }
+        return vector;
+    }
+
+    private static LongColumnVector createVectorFromTimeArray(Object input) {
+        Object[] inputArray = (Object[]) input;
+        int length = inputArray.length;
+        if (length == 0) {
+            return null;
+        }
+
+        LongColumnVector vector = new LongColumnVector(length);
+        for (int i = 0; i < length; i++) {
+            vector.vector[i] = ((Time) inputArray[i]).getTime();
+        }
+        return vector;
+    }
+
+    private static TimestampColumnVector createVectorFromTimestampArray(Object input) {
+        Object[] inputArray = (Object[]) input;
+        int length = inputArray.length;
+        if (length == 0) {
+            return null;
+        }
+
+        TimestampColumnVector vector = new TimestampColumnVector(length);
+        for (int i = 0; i < length; i++) {
+            vector.set(i, (Timestamp) inputArray[i]);
+        }
+        return vector;
+    }
+
+    private static void setNull(ColumnVector column, int rowId) {
+        column.noNulls = false;
+        column.isNull[rowId] = true;
     }
 
 }
