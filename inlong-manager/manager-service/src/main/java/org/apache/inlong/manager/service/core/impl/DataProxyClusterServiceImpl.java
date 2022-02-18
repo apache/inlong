@@ -21,17 +21,18 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfigResponse;
+import org.apache.inlong.commons.pojo.dataproxy.ProxyPulsarDTO;
+import org.apache.inlong.commons.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyClusterSet;
@@ -40,10 +41,11 @@ import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.BusinessEntity;
+import org.apache.inlong.manager.dao.entity.ClusterInfoEntity;
 import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
-import org.apache.inlong.manager.dao.entity.DataProxyConfig;
 import org.apache.inlong.manager.dao.entity.DataStreamEntity;
 import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
+import org.apache.inlong.manager.dao.mapper.ClusterInfoMapper;
 import org.apache.inlong.manager.dao.mapper.DataProxyClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.DataStreamEntityMapper;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
@@ -53,6 +55,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * DataProxy cluster service layer implementation class
@@ -73,6 +80,8 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     private DataProxyConfigRepository proxyRepository;
     @Autowired
     private ClusterBean clusterBean;
+    @Autowired
+    private ClusterInfoMapper clusterInfoMapper;
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -238,6 +247,58 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         }
 
         return configList;
+    }
+
+    /**
+     * query data proxy config by cluster id, result includes pulsar cluster configs and topic etc
+     *
+     * @param dataproxyClusterName
+     * @return
+     */
+    @Override
+    public ProxyPulsarDTO getConfigV2(String dataproxyClusterName) {
+        ProxyPulsarDTO object = new ProxyPulsarDTO();
+        List<PulsarClusterInfo> pulsarSet = new ArrayList<>();
+        List<DataProxyConfig> topicList = new ArrayList<>();
+
+        DataProxyClusterEntity dataProxyClusterEntity = dataProxyClusterMapper.selectByName(dataproxyClusterName);
+        List<String> groudIdList = businessMapper.selectGroupIdByProxyId(dataProxyClusterEntity.getId());
+        ClusterRequest request = ClusterRequest.builder().mqSetName(dataProxyClusterEntity.getMqSetName()).build();
+        List<ClusterInfoEntity> clusterInfoEntities = clusterInfoMapper
+                .selectByCondition(request);
+        String tenant = clusterBean.getDefaultTenant();
+        /*
+         * based on group id, get topiclist
+         */
+        for (String groupId : groudIdList) {
+            List<DataStreamEntity> streamList = dataStreamMapper.selectByGroupId(groupId);
+            for (DataStreamEntity stream : streamList) {
+                DataProxyConfig topicConfig = new DataProxyConfig();
+                String streamId = stream.getInlongStreamId();
+                topicConfig.setInlongGroupId(groupId + "/" + streamId);
+                topicConfig.setTopic("persistent://" + tenant + "/" + groupId + "/" + streamId);
+                topicList.add(topicConfig);
+
+            }
+        }
+        /*
+         * construct pulsarSet info
+         */
+        Gson gson = new Gson();
+        for (ClusterInfoEntity cluster : clusterInfoEntities) {
+            PulsarClusterInfo pulsarCluster = new PulsarClusterInfo();
+            pulsarCluster.setUrl(cluster.getUrl());
+            pulsarCluster.setToken(cluster.getToken());
+            Map<String, String> configParams = gson.fromJson(cluster.getExtProps(), Map.class);
+            pulsarCluster.setParams(configParams);
+
+            pulsarSet.add(pulsarCluster);
+        }
+
+        object.setPulsarSet(pulsarSet);
+        object.setTopicList(topicList);
+
+        return object;
     }
 
     /**

@@ -15,33 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.dataproxy.config.loader;
 
-import lombok.Data;
+import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.junit.Test;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.util.Map;
 
-@Data
-public class ClusterInfoEntity implements Serializable {
+import static org.testng.AssertJUnit.assertEquals;
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
-    private String name;
-    private String type;
-    private String ip;
-    private Integer port;
-    private String inCharges;
-    private String url;
-    private String token;
-    private Integer isBackup;
-    private Integer status;
-    private Integer isDeleted = 0;
-    private String creator;
-    private String modifier;
-    private Date createTime;
-    private Date modifyTime;
-    private String extProps;
-    private String mqSetName;
+public class TestPulsarConfigLoader {
 
+    @Test
+    public void testResult() {
+        Map<String, String> url2token = ConfigManager.getInstance().getPulsarUrl2Token();
+        assertEquals("pulsartoken1", url2token.get("pulsar1://127.0.0.1:6650"));
+        assertEquals("pulsartoken2", url2token.get("pulsar2://127.0.0.1:6680"));
+
+    }
 }

@@ -102,6 +102,7 @@ CREATE TABLE `business`
     `create_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `temp_view`           json              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
+    `proxy_cluster_id`    int(11)      NOT NULL COMMENT 'The id of dataproxy cluster',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_business` (`inlong_group_id`, `is_deleted`, `modify_time`)
 ) ENGINE = InnoDB
@@ -160,6 +161,7 @@ CREATE TABLE `cluster_info`
     `ip`          varchar(64)  NOT NULL COMMENT 'Cluster IP address',
     `port`        int(11)      NOT NULL COMMENT 'Cluster port',
     `in_charges`  varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
+    `token`       varchar(128) COMMENT 'Cluster token',
     `url`         varchar(256)      DEFAULT NULL COMMENT 'Cluster URL address',
     `is_backup`   tinyint(1)        DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
     `ext_props`   json              DEFAULT NULL COMMENT 'extended properties',
@@ -169,9 +171,10 @@ CREATE TABLE `cluster_info`
     `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `mq_set_name` varchar(128) NOT NULL COMMENT 'MQ set name of this cluster',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Cluster Information Table';
+  DEFAULT CHARSET = utf8mb4 COMMENT ='MQ Cluster Information Table';
 
 -- ----------------------------
 -- Table structure for common_db_server
@@ -302,7 +305,9 @@ CREATE TABLE `data_proxy_cluster`
     `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
+    `mq_set_name` varchar(128) NOT NULL COMMENT 'mq set name',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `cluster_name` (`name`, `is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='DataProxy cluster table';
 -- add default data proxy address

@@ -15,33 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.commons.pojo.dataproxy;
 
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.io.Serializable;
-import java.util.Date;
+public class ProxyPulsarDTO {
 
-@Data
-public class ClusterInfoEntity implements Serializable {
+    private List<PulsarClusterInfo> pulsarSet = new ArrayList<>();
+    private List<DataProxyConfig> topicList = new ArrayList<>();
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
-    private String name;
-    private String type;
-    private String ip;
-    private Integer port;
-    private String inCharges;
-    private String url;
-    private String token;
-    private Integer isBackup;
-    private Integer status;
-    private Integer isDeleted = 0;
-    private String creator;
-    private String modifier;
-    private Date createTime;
-    private Date modifyTime;
-    private String extProps;
-    private String mqSetName;
+    public List<PulsarClusterInfo> getPulsarSet() {
+        return pulsarSet;
+    }
 
+    public void setPulsarSet(List<PulsarClusterInfo> pulsarSet) {
+        this.pulsarSet = pulsarSet;
+    }
+
+    public List<DataProxyConfig> getTopicList() {
+        return topicList;
+    }
+
+    public void setTopicList(List<DataProxyConfig> topicList) {
+        this.topicList = topicList;
+    }
 }

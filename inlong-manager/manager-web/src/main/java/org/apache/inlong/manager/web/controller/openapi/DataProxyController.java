@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.web.controller.openapi;
 
-import java.util.List;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.apache.inlong.commons.pojo.dataproxy.ProxyPulsarDTO;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
-import org.apache.inlong.manager.dao.entity.DataProxyConfig;
+import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,8 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import java.util.List;
 
 @RestController
 @RequestMapping("/openapi/dataproxy")
@@ -61,10 +61,16 @@ public class DataProxyController {
         return Response.success(dataProxyClusterService.getConfig());
     }
 
+    @GetMapping("/getConfig_v2")
+    @ApiOperation(value = "get dataproxy config list, including pulsar cluster config and topic")
+    public Response<ProxyPulsarDTO> getConfigV2(@RequestParam("clusterName") String clusterName) {
+        return Response.success(dataProxyClusterService.getConfigV2(clusterName));
+    }
+
     @GetMapping("/getAllConfig")
     @ApiOperation(value = "get data proxy config")
     public String getAllConfig(@RequestParam("clusterName") String clusterName, @RequestParam("setName") String setName,
-            @RequestParam("md5") String md5) {
+                               @RequestParam("md5") String md5) {
         return dataProxyClusterService.getAllConfig(clusterName, setName, md5);
     }
 }
