@@ -176,7 +176,7 @@
                     </descriptors>
                     <archive>
                         <manifest>
-                            <mainClass>com.cyy.MvnPackageApplication</mainClass>
+                            <mainClass>org.apache.inlong.tubemq.manager.TubeMQManager</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
