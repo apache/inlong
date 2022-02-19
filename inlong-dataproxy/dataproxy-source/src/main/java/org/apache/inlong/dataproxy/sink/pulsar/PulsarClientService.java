@@ -85,7 +85,6 @@ public class PulsarClientService {
      */
     public PulsarClientService(PulsarConfig pulsarConfig) {
 
-//        String pulsarServerUrlList = context.getString(PULSAR_SERVER_URL_LIST);
         authType = pulsarConfig.getAuthType();
         sendTimeout = pulsarConfig.getSendTimeoutMs();
         retryIntervalWhenSendMsgError = pulsarConfig.getRetryIntervalWhenSendErrorMs();
@@ -102,6 +101,7 @@ public class PulsarClientService {
         maxBatchingMessages = pulsarConfig.getMaxBatchingMessages();
         maxBatchingBytes = pulsarConfig.getMaxBatchingBytes();
         maxBatchingPublishDelayMillis = pulsarConfig.getMaxBatchingPublishDelayMillis();
+
         producerInfoMap = new ConcurrentHashMap<String, List<TopicProducerInfo>>();
         topicSendIndexMap = new ConcurrentHashMap<String, AtomicLong>();
         localIp = NetworkUtils.getLocalIp();

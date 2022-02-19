@@ -92,6 +92,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
      * default value
      */
     private static int BATCH_SIZE = 10000;
+
     /*
      * for log
      */
@@ -166,6 +167,8 @@ public class PulsarSink extends AbstractSink implements Configurable,
 
     private static final PulsarPerformanceTask pulsarPerformanceTask = new PulsarPerformanceTask();
 
+    private Context context;
+
     private static ScheduledExecutorService scheduledExecutorService = Executors
             .newScheduledThreadPool(1, new HighPriorityThreadFactory("pulsarPerformance-Printer-thread"));
 
@@ -229,6 +232,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
         Preconditions.checkArgument(pulsarConfig.getThreadNum() > 0, "threadNum must be > 0");
         sinkThreadPool = new Thread[pulsarConfig.getThreadNum()];
         eventQueueSize = pulsarConfig.getEventQueueSize();
+
         eventQueue = new LinkedBlockingQueue<Event>(eventQueueSize);
 
         if (pulsarConfig.getDiskIoRatePerSec() != 0) {
@@ -307,6 +311,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
         pulsarClientService.initCreateConnection(this);
         int statIntervalSec = pulsarConfig.getStatIntervalSec();
         Preconditions.checkArgument(statIntervalSec >= 0, "statIntervalSec must be >= 0");
+
         if (statIntervalSec > 0) {
             /*
              * switch for lots of metrics
