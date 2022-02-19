@@ -40,13 +40,13 @@ public class TClientConstants {
     public static final long CFG_DEFAULT_META_QUERY_WAIT_PERIOD_MS = 10000L;
     public static final long CFG_MIN_META_QUERY_WAIT_PERIOD_MS = 5000L;
 
-    // client metric information print period
-    public static final long METRIC_PRINT_DEFAULT_PERIOD_MS = 3 * 1000 * 60;
-    public static final long METRIC_PRINT_MIN_PERIOD_MS = 3 * 1000 * 60;
-    public static final long METRIC_PRINT_MAX_PERIOD_MS = 60 * 1000 * 60;
+    // client statistics information print period
+    public static final long STATS_SELF_PRINT_DEFAULT_PERIOD_MS = 3 * 1000 * 60;
+    public static final long STATS_SELF_PRINT_MIN_PERIOD_MS = 1000 * 60;
+    public static final long STATS_SELF_PRINT_MAX_PERIOD_MS = 60 * 1000 * 60;
 
-    // client metric information print period
-    public static final long METRIC_RESET_DEFAULT_PERIOD_MS = 30 * 60 * 1000;
-    public static final long METRIC_RESET_MIN_PERIOD_MS = 30 * 60 * 1000;
-    public static final long METRIC_RESET_MAX_PERIOD_MS = 24 * 3600 * 1000;
+    // client statistics information print period
+    public static final long STATS_AUTO_RESET_DEFAULT_PERIOD_MS = 30 * 60 * 1000;
+    public static final long STATS_AUTO_RESET_MIN_PERIOD_MS = 60 * 1000;
+    public static final long STATS_AUTO_RESET_MAX_PERIOD_MS = 24 * 3600 * 1000;
 }

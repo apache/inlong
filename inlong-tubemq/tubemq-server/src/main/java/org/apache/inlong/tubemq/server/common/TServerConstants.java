@@ -99,7 +99,6 @@ public final class TServerConstants {
     public static final long CFG_OFFSET_RESET_MID_ALARM_CHECK =
             DataStoreUtils.STORE_INDEX_HEAD_LEN * 1000000L;
 
-    // Minimum snapshot period
-    public static final long MIN_SNAPSHOT_PERIOD_MS = 2000L;
+    // max statistics token type length
     public static final int META_MAX_STATSTYPE_LENGTH = 256;
 }

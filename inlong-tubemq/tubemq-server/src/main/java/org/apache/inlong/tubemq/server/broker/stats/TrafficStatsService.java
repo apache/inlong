@@ -22,8 +22,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.inlong.tubemq.corebase.daemon.AbstractDaemonService;
+import org.apache.inlong.tubemq.corebase.metric.TrafficStatsUnit;
 import org.apache.inlong.tubemq.corebase.metric.impl.LongOnlineCounter;
-import org.apache.inlong.tubemq.corebase.metric.impl.LongStatsCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,18 +96,18 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
 
     @Override
     public void add(Map<String, TrafficInfo> trafficInfos) {
-        TrafficStatsSet tmpStatsSet;
-        TrafficStatsSet trafficStatsSet;
+        TrafficStatsUnit tmpStatsSet;
+        TrafficStatsUnit trafficStatsSet;
         // Increment write reference count
         switchableUnits[getIndex()].refCnt.incValue();
         try {
             // Accumulate statistics information
-            ConcurrentHashMap<String, TrafficStatsSet> tmpStatsSetMap =
+            ConcurrentHashMap<String, TrafficStatsUnit> tmpStatsSetMap =
                     switchableUnits[getIndex()].statsUnitMap;
             for (Entry<String, TrafficInfo> entry : trafficInfos.entrySet()) {
                 trafficStatsSet = tmpStatsSetMap.get(entry.getKey());
                 if (trafficStatsSet == null) {
-                    tmpStatsSet = new TrafficStatsSet();
+                    tmpStatsSet = new TrafficStatsUnit("msg_cnt", "msg_size", null);
                     trafficStatsSet = tmpStatsSetMap.putIfAbsent(entry.getKey(), tmpStatsSet);
                     if (trafficStatsSet == null) {
                         trafficStatsSet = tmpStatsSet;
@@ -128,11 +128,11 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
         switchableUnits[getIndex()].refCnt.incValue();
         try {
             // Accumulate statistics information
-            ConcurrentHashMap<String, TrafficStatsSet> tmpStatsSetMap =
+            ConcurrentHashMap<String, TrafficStatsUnit> tmpStatsSetMap =
                     switchableUnits[getIndex()].statsUnitMap;
-            TrafficStatsSet trafficStatsSet = tmpStatsSetMap.get(statsKey);
+            TrafficStatsUnit trafficStatsSet = tmpStatsSetMap.get(statsKey);
             if (trafficStatsSet == null) {
-                TrafficStatsSet tmpStatsSet = new TrafficStatsSet();
+                TrafficStatsUnit tmpStatsSet = new TrafficStatsUnit("msg_cnt", "msg_size", null);
                 trafficStatsSet = tmpStatsSetMap.putIfAbsent(statsKey, tmpStatsSet);
                 if (trafficStatsSet == null) {
                     trafficStatsSet = tmpStatsSet;
@@ -169,8 +169,8 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
             }
         } while (selectedUnit.refCnt.getValue() > 0);
         // Output data to file
-        Map<String, TrafficStatsSet> statsMap = selectedUnit.statsUnitMap;
-        for (Entry<String, TrafficStatsSet> entry : statsMap.entrySet()) {
+        Map<String, TrafficStatsUnit> statsMap = selectedUnit.statsUnitMap;
+        for (Entry<String, TrafficStatsUnit> entry : statsMap.entrySet()) {
             logger.info("{}#{}#{}#{}", statsCat, entry.getKey(),
                     entry.getValue().msgCnt.getAndResetValue(),
                     entry.getValue().msgSize.getAndResetValue());
@@ -198,34 +198,6 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
     }
 
     /**
-     * StatsItemSet, Metric Statistics item set
-     *
-     * Currently includes the total number of messages and bytes
-     * according to the statistics dimension, which can be expanded later as needed
-     */
-    private static class TrafficStatsSet {
-        protected LongStatsCounter msgCnt =
-                new LongStatsCounter("msg_count", null);
-        protected LongStatsCounter msgSize =
-                new LongStatsCounter("msg_size", null);
-
-        public TrafficStatsSet() {
-            //
-        }
-
-        /**
-         * Accumulate the count of messages and message bytes.
-         *
-         * @param msgCount  the specified message count
-         * @param msgSize   the specified message size
-         */
-        public void addMsgCntAndSize(long msgCount, long msgSize) {
-            this.msgCnt.addValue(msgCount);
-            this.msgSize.addValue(msgSize);
-        }
-    }
-
-    /**
      * WritableUnit,
      *
      * This class is mainly defined to facilitate reading and writing of
@@ -237,7 +209,7 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
         public LongOnlineCounter refCnt =
                 new LongOnlineCounter("ref_count", null);
         // statistic unit map
-        protected ConcurrentHashMap<String, TrafficStatsSet> statsUnitMap =
+        protected ConcurrentHashMap<String, TrafficStatsUnit> statsUnitMap =
                 new ConcurrentHashMap<>(512);
     }
 }

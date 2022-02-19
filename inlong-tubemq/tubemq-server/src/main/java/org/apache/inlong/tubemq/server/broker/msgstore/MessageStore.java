@@ -806,7 +806,6 @@ public class MessageStore implements Closeable {
             if (tmpStore.getMaxAllowedMsgCount() == writeCacheMaxCnt
                     && tmpStore.getMaxDataCacheSize() == writeCacheMaxSize) {
                 msgMemStore = tmpStore;
-                msgMemStore.clear();
             } else {
                 isRealloc = true;
                 tmpStore.close();

@@ -134,6 +134,15 @@ public class TStringUtils {
         return new String(tgtStr, 0, curWritePos);
     }
 
+    /**
+     * Get the authorization signature based on the provided values
+     * base64.encode(hmacSha1(password, username, timestamp, random number))
+     *
+     * @param usrName       the user name
+     * @param usrPassWord   the password of username
+     * @param timestamp     the time stamp
+     * @param randomValue   the random value
+     */
     public static String getAuthSignature(final String usrName,
                                           final String usrPassWord,
                                           long timestamp, int randomValue) {
@@ -155,6 +164,14 @@ public class TStringUtils {
         return signature;
     }
 
+    /**
+     * Build attribute information
+     *
+     * @param srcAttrs   the current attribute
+     * @param attrKey    the attribute key
+     * @param attrVal    the attribute value
+     * @return           the new attribute information
+     */
     public static String setAttrValToAttributes(String srcAttrs,
                                                 String attrKey, String attrVal) {
         StringBuilder sbuf = new StringBuilder(512);
@@ -184,6 +201,13 @@ public class TStringUtils {
         return sbuf.toString();
     }
 
+    /**
+     * Get attribute value by key from attribute information
+     *
+     * @param srcAttrs   the current attribute
+     * @param attrKey    the attribute key
+     * @return           the attribute value
+     */
     public static String getAttrValFrmAttributes(String srcAttrs, String attrKey) {
         if (!isBlank(srcAttrs)) {
             String[] strAttrs = srcAttrs.split(TokenConstants.SEGMENT_SEP);
