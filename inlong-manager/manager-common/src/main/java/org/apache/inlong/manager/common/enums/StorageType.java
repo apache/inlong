@@ -20,7 +20,7 @@ package org.apache.inlong.manager.common.enums;
 import java.util.Locale;
 
 public enum StorageType {
-    HIVE, ES, CLICKHOUSE;
+    HIVE, ES, CLICKHOUSE,ICEBERG,KAFKA;
 
     @Override
     public String toString() {
