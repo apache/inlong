@@ -36,6 +36,7 @@ import org.apache.inlong.manager.common.model.definition.Task;
 import org.apache.inlong.manager.common.model.view.ProcessView;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
+import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.mocks.MockDeleteSortListener;
@@ -175,7 +176,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     @Test
     public void testSuspendProcess() {
         BusinessInfo businessInfo = initBusinessForm(BizConstant.MIDDLEWARE_PULSAR);
-        businessInfo.setStatus(EntityStatus.BIZ_APPROVE_PASSED.getCode());
+        businessInfo.setStatus(EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode());
         businessService.update(businessInfo, OPERATOR);
         UpdateBusinessWorkflowForm form = new UpdateBusinessWorkflowForm();
         form.setBusinessInfo(businessInfo);

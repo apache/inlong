@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import lombok.Data;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.service.workflow.business.NewBusinessWorkflowForm;
+import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm;
 import org.apache.inlong.manager.service.workflow.consumption.NewConsumptionWorkflowForm;
 import org.apache.inlong.manager.common.model.definition.ProcessForm;
 
@@ -37,6 +38,8 @@ import org.apache.inlong.manager.common.model.definition.ProcessForm;
         @JsonSubTypes.Type(value = NewConsumptionWorkflowForm.class, name = NewConsumptionWorkflowForm.FORM_NAME),
         @JsonSubTypes.Type(value = BusinessResourceWorkflowForm.class,
                 name = BusinessResourceWorkflowForm.FORM_NAME),
+        @JsonSubTypes.Type(value = UpdateBusinessWorkflowForm.class,
+                name = UpdateBusinessWorkflowForm.FORM_NAME),
 })
 public abstract class BaseWorkflowFormType implements ProcessForm {
 

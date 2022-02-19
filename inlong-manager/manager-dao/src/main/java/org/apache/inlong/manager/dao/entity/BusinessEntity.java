@@ -38,6 +38,7 @@ public class BusinessEntity implements Serializable {
     private Integer dailyRecords;
     private Integer dailyStorage;
     private Integer peakRecords;
+    private Integer zookeeperEnabled;
     private Integer maxLength;
     private String schemaName;
     private String inCharges;

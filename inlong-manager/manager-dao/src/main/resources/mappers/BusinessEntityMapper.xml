@@ -44,6 +44,7 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
         <result column="temp_view" jdbcType="LONGVARCHAR" property="tempView"/>
+        <result column="zookeeper_enabled" jdbcType="INTEGER" property="zookeeperEnabled"/>
         <result column="proxy_cluster_id" jdbcType="INTEGER" property="proxyClusterID"/>
     </resultMap>
 
@@ -55,7 +56,7 @@
     <sql id="Base_Column_List">
         id, inlong_group_id, name, cn_name, description, middleware_type, queue_module, topic_partition_num,
         mq_resource_obj, daily_records, daily_storage, peak_records, max_length, schema_name, in_charges, followers,
-        status, is_deleted, creator, modifier, create_time, modify_time, temp_view, proxy_cluster_id
+        status, is_deleted, creator, modifier, create_time, modify_time, temp_view, zookeeper_enabled, proxy_cluster_id
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
@@ -134,7 +135,7 @@
                               peak_records, max_length, schema_name,
                               in_charges, followers, status,
                               is_deleted, creator, modifier,
-                              create_time, modify_time, temp_view, proxy_cluster_id)
+                              create_time, modify_time, temp_view, zookeeper_enabled, proxy_cluster_id)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
                 #{cnName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{middlewareType,jdbcType=VARCHAR},
                 #{queueModule,jdbcType=VARCHAR}, #{topicPartitionNum,jdbcType=INTEGER},
@@ -143,7 +144,7 @@
                 #{inCharges,jdbcType=VARCHAR}, #{followers,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
                 #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
                 #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, #{tempView,jdbcType=LONGVARCHAR},
-                #{proxyClusterId,jdbcType=INTEGER})
+                #{zookeeperEnabled,jdbcType=INTEGER}), #{proxyClusterId,jdbcType=INTEGER})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.BusinessEntity">
@@ -218,6 +219,9 @@
             <if test="tempView != null">
                 temp_view,
             </if>
+            <if test="zookeeperEnabled != null">
+                zookeeper_enabled,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -288,6 +292,9 @@
             </if>
             <if test="tempView != null">
                 #{tempView,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="zookeeperEnabled != null">
+                #{zookeeperEnabled,jdbcType=INTEGER},
             </if>
         </trim>
     </insert>
@@ -360,6 +367,9 @@
             <if test="tempView != null">
                 temp_view = #{tempView,jdbcType=LONGVARCHAR},
             </if>
+            <if test="zookeeperEnabled != null">
+                zookeeper_enabled = #{zookeeperEnabled,jdbcType=INTEGER},
+            </if>
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
@@ -423,6 +433,9 @@
             <if test="tempView != null">
                 temp_view = #{tempView,jdbcType=LONGVARCHAR},
             </if>
+            <if test="zookeeperEnabled != null">
+                zookeeper_enabled = #{zookeeperEnabled,jdbcType=INTEGER},
+            </if>
         </set>
         where inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
         and is_deleted = 0
@@ -452,6 +465,7 @@
             create_time         = #{createTime,jdbcType=TIMESTAMP},
             modify_time         = #{modifyTime,jdbcType=TIMESTAMP},
             temp_view           = #{tempView,jdbcType=LONGVARCHAR},
+            zookeeper_enabled   = #{zookeeperEnabled,jdbcType=INTEGER},
             proxy_cluster_id    = #{proxyClusterId,jdbcType=INTEGER}
         where id = #{id,jdbcType=INTEGER}
     </update>

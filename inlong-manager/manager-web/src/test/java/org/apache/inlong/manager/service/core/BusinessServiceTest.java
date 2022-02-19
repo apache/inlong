@@ -115,6 +115,12 @@ public class BusinessServiceTest extends WebBaseTest {
         extEntityList = businessExtMapper.selectByGroupId(globalGroupId);
         Assert.assertEquals(2, extEntityList.size());
         Assert.assertEquals("http://127.0.0.1:8081", extEntityList.get(0).getKeyValue());
+
+        businessExtInfo2.setKeyValue("qweasdzxc");
+        businessService.saveOrUpdateExt(globalGroupId, businessExtInfoList);
+        extEntityList = businessExtMapper.selectByGroupId(globalGroupId);
+        Assert.assertEquals(2, extEntityList.size());
+        Assert.assertEquals("qweasdzxc", extEntityList.get(1).getKeyValue());
     }
 
 }

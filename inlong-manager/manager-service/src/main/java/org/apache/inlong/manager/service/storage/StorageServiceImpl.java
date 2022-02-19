@@ -21,11 +21,22 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.StorageType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageApproveDTO;
@@ -41,28 +52,15 @@ import org.apache.inlong.manager.dao.entity.StorageEntity;
 import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageFieldEntityMapper;
-import org.apache.inlong.manager.service.core.impl.BusinessProcessOperation;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
-import org.apache.inlong.manager.service.workflow.business.NewBusinessWorkflowForm;
 import org.apache.inlong.manager.service.workflow.stream.CreateStreamWorkflowDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation of storage service interface
@@ -90,8 +88,6 @@ public class StorageServiceImpl implements StorageService {
     private StorageFieldEntityMapper storageFieldMapper;
     @Autowired
     private WorkflowService workflowService;
-    @Autowired
-    private BusinessProcessOperation businessProcessOperation;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -112,7 +108,7 @@ public class StorageServiceImpl implements StorageService {
         Preconditions.checkEmpty(storageExist, BizErrorCodeEnum.STORAGE_ALREADY_EXISTS.getMessage());
 
         // According to the storage type, save storage information
-        StorageOperation operation = operationFactory.getInstance(storageType);
+        StorageOperation operation = operationFactory.getInstance(StorageType.getStorageType(storageType));
         int id = operation.saveOpt(request, operator);
 
         // If the business status is [Configuration Successful], then asynchronously initiate
@@ -128,7 +124,7 @@ public class StorageServiceImpl implements StorageService {
     @Override
     public StorageResponse get(Integer id, String storageType) {
         LOGGER.debug("begin to get storage by id={}, storageType={}", id, storageType);
-        StorageOperation operation = operationFactory.getInstance(storageType);
+        StorageOperation operation = operationFactory.getInstance(StorageType.getStorageType(storageType));
         StorageResponse storageResponse = operation.getById(storageType, id);
         LOGGER.info("success to get storage info");
         return storageResponse;
@@ -183,7 +179,7 @@ public class StorageServiceImpl implements StorageService {
         Page<StorageEntity> entityPage = (Page<StorageEntity>) storageMapper.selectByCondition(request);
 
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
-        StorageOperation operation = operationFactory.getInstance(storageType);
+        StorageOperation operation = operationFactory.getInstance(StorageType.getStorageType(storageType));
         PageInfo<? extends StorageListResponse> pageInfo = operation.getPageInfo(entityPage);
         pageInfo.setTotal(entityPage.getTotal());
 
@@ -205,7 +201,7 @@ public class StorageServiceImpl implements StorageService {
         String streamId = request.getInlongStreamId();
         String storageType = request.getStorageType();
 
-        StorageOperation operation = operationFactory.getInstance(storageType);
+        StorageOperation operation = operationFactory.getInstance(StorageType.getStorageType(storageType));
         operation.updateOpt(request, operator);
 
         // The business status is [Configuration successful], then asynchronously initiate
@@ -354,18 +350,6 @@ public class StorageServiceImpl implements StorageService {
 
         LOGGER.info("success to update storage after approve");
         return true;
-    }
-
-    /**
-     * Initiate business approval process
-     *
-     * @param operator Operator
-     * @param businessEntity Business entity
-     */
-    public void startBusinessProcess(String operator, BusinessEntity businessEntity) {
-        BusinessInfo businessInfo = CommonBeanUtils.copyProperties(businessEntity, BusinessInfo::new);
-        NewBusinessWorkflowForm form = businessProcessOperation.genNewBusinessWorkflowForm(businessInfo);
-        workflowService.start(ProcessName.NEW_BUSINESS_WORKFLOW, operator, form);
     }
 
     /**

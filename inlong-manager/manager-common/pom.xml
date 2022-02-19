@@ -163,7 +163,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>inlong-common</artifactId>

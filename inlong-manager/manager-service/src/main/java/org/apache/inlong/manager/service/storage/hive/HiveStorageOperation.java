@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.StorageType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageFieldRequest;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageFieldResponse;
@@ -69,8 +70,8 @@ public class HiveStorageOperation implements StorageOperation {
     private StorageFieldEntityMapper storageFieldMapper;
 
     @Override
-    public Boolean accept(String storageType) {
-        return BizConstant.STORAGE_HIVE.equals(storageType);
+    public Boolean accept(StorageType storageType) {
+        return StorageType.HIVE == storageType;
     }
 
     @Override

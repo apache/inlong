@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.thirdpart.hive;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,9 +32,6 @@ import org.apache.inlong.manager.service.storage.StorageService;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -59,7 +58,7 @@ public class CreateHiveTableEventSelector implements EventSelector {
                         .stream()
                         .map(DataStreamEntity::getInlongStreamId)
                         .collect(Collectors.toList()));
-        //todo check if create hive automatically
+
         if (CollectionUtils.isEmpty(dsForHive)) {
             log.warn("groupId={} streamId={} does not have storage, skip to create hive table ",
                     groupId, form.getInlongStreamId());

@@ -32,7 +32,7 @@ import org.apache.inlong.manager.common.util.LoginUserUtil;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.impl.BusinessProcessOperation;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
-import org.apache.inlong.manager.service.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;

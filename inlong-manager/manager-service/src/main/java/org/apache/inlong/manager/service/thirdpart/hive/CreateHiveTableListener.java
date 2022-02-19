@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.thirdpart.hive;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.event.ListenerResult;
 import org.apache.inlong.manager.common.event.task.StorageOperateListener;
@@ -27,8 +29,6 @@ import org.apache.inlong.manager.dao.mapper.StorageEntityMapper;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * Event listener of create hive table for all data stream
@@ -54,7 +54,10 @@ public class CreateHiveTableListener implements StorageOperateListener {
         log.info("begin to create hive table for groupId={}", groupId);
 
         List<StorageForSortDTO> configList = storageMapper.selectAllConfig(groupId, null);
-        hiveTableOperator.createHiveResource(groupId, configList);
+        List<StorageForSortDTO> needCreateList = configList.stream()
+                .filter(storageForSortDTO -> storageForSortDTO.getEnableCreateResource() == 1)
+                .collect(Collectors.toList());
+        hiveTableOperator.createHiveResource(groupId, needCreateList);
 
         String result = "success to create hive table for group [" + groupId + "]";
         log.info(result);

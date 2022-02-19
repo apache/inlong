@@ -94,6 +94,7 @@ CREATE TABLE `business`
     `create_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `temp_view`           text                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
+    `zookeeper_enabled`   int(4)                DEFAULT '1'  COMMENT 'Need zookeeper support, 0 false 1 true',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_business` (`inlong_group_id`, `is_deleted`, `modify_time`)
 );
@@ -133,7 +134,8 @@ CREATE TABLE `business_ext`
     `key_value`       varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
     `is_deleted`      tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `modify_time`     timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `group_key_idx` (`inlong_group_id`,`key_name`)
 );
 
 -- ----------------------------
@@ -374,7 +376,8 @@ CREATE TABLE `data_stream_ext`
     `key_value`        varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
     `is_deleted`       tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `group_stream_key_idx` (`inlong_group_id`,`inlong_stream_id`,`key_name`)
 );
 
 -- ----------------------------
