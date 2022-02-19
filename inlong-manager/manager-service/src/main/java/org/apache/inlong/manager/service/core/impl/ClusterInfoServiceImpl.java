@@ -17,28 +17,30 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ClusterInfoEntity;
 import org.apache.inlong.manager.dao.mapper.ClusterInfoMapper;
 import org.apache.inlong.manager.service.core.ClusterInfoService;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
 /**
  * Implementation of cluster information service layer interface
- *
  */
 @Service
 @Slf4j
@@ -78,6 +80,67 @@ public class ClusterInfoServiceImpl implements ClusterInfoService {
         }
         List<ClusterInfoEntity> entityList = clusterInfoMapper.selectByIdList(clusterIdList);
         return CommonBeanUtils.copyListProperties(entityList, ClusterInfo::new);
+    }
+
+    @Override
+    public Integer save(ClusterInfo clusterInfo, String operator) {
+        LOGGER.info("begin to insert a cluster info cluster={}", clusterInfo);
+        Preconditions.checkNotNull(clusterInfo, "cluster is empty");
+        ClusterInfoEntity entity = CommonBeanUtils.copyProperties(clusterInfo, ClusterInfoEntity::new);
+        entity.setCreator(operator);
+        entity.setCreateTime(new Date());
+        clusterInfoMapper.insert(entity);
+        LOGGER.info("success to add a cluster");
+        return entity.getId();
+    }
+
+    @Override
+    public Boolean update(ClusterInfo clusterInfo, String operator) {
+        LOGGER.info("begin to update common cluster={}", clusterInfo);
+        Preconditions.checkNotNull(clusterInfo, "cluster is empty");
+        Integer id = clusterInfo.getId();
+        Preconditions.checkNotNull(id, "cluster id is empty");
+        ClusterInfoEntity entity = clusterInfoMapper.selectByPrimaryKey(id);
+        if (entity == null) {
+            LOGGER.error("cluster not found by id={}", id);
+            throw new BusinessException(BizErrorCodeEnum.CLUSTER_NOT_FOUND);
+        }
+        CommonBeanUtils.copyProperties(clusterInfo, entity, true);
+        entity.setModifier(operator);
+        clusterInfoMapper.updateByPrimaryKeySelective(entity);
+        LOGGER.info("success to update cluster");
+        return true;
+    }
+
+    @Override
+    public Boolean delete(Integer id, String operator) {
+        LOGGER.info("begin to delete cluster by id={}", id);
+        Preconditions.checkNotNull(id, "cluster id is empty");
+        ClusterInfoEntity entity = clusterInfoMapper.selectByPrimaryKey(id);
+        if (entity == null) {
+            LOGGER.error("cluster not found by id={}", id);
+            throw new BusinessException(BizErrorCodeEnum.CLUSTER_NOT_FOUND);
+        }
+        entity.setIsDeleted(EntityStatus.IS_DELETED.getCode());
+        entity.setStatus(EntityStatus.DELETED.getCode());
+        entity.setModifier(operator);
+        clusterInfoMapper.updateByPrimaryKey(entity);
+        LOGGER.info("success to delete cluster");
+        return true;
+    }
+
+    @Override
+    public ClusterInfo get(Integer id) {
+        LOGGER.info("begin to get cluster by id={}", id);
+        Preconditions.checkNotNull(id, "cluster id is empty");
+        ClusterInfoEntity entity = clusterInfoMapper.selectByPrimaryKey(id);
+        if (entity == null) {
+            LOGGER.error("cluster not found by id={}", id);
+            throw new BusinessException(BizErrorCodeEnum.CLUSTER_NOT_FOUND);
+        }
+        ClusterInfo clusterInfo = CommonBeanUtils.copyProperties(entity, ClusterInfo::new);
+        LOGGER.info("success to get cluster info");
+        return clusterInfo;
     }
 
 }
