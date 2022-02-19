@@ -63,7 +63,7 @@ public class ClusterController {
     @ApiOperation(value = "Add a cluster info")
     @OperationLog(operation = OperationType.CREATE)
     public Response<Integer> saveCluster(@RequestBody ClusterInfo clusterInfo) {
-        String currentUser = LoginUserUtil.getLoginUserDetail().getUserName();
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
         return Response.success(clusterInfoService.save(clusterInfo, currentUser));
     }
 
@@ -78,7 +78,7 @@ public class ClusterController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Modify cluster information of the common")
     public Response<Boolean> updateCluster(@RequestBody ClusterInfo clusterInfo) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
         return Response.success(clusterInfoService.update(clusterInfo, username));
     }
 
@@ -87,7 +87,7 @@ public class ClusterController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "DataProxy cluster id", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        return Response.success(clusterInfoService.delete(id, LoginUserUtil.getLoginUserDetail().getUserName()));
+        return Response.success(clusterInfoService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName()));
     }
 
     @RequestMapping(value = "/dataproxy/save", method = RequestMethod.POST)
