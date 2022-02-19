@@ -19,6 +19,8 @@ package org.apache.inlong.dataproxy.source;
 
 import com.google.common.base.Splitter;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -34,9 +36,6 @@ import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.exception.ErrorCode;
 import org.apache.inlong.dataproxy.exception.MessageIDException;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.MessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
@@ -77,14 +76,12 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * @param resultMap
      * @param cb
      * @param channel
-     * @param msgEvent
      * @param totalDataLen
      * @return
      * @throws
      */
     private Map<String, Object> extractNewBinHB(Map<String, Object> resultMap,
-            ChannelBuffer cb, Channel channel,
-            MessageEvent msgEvent, int totalDataLen) throws Exception {
+            ByteBuf cb, Channel channel, int totalDataLen) throws Exception {
         int msgHeadPos = cb.readerIndex() - 5;
 
         // check validation
@@ -119,7 +116,6 @@ public class DefaultServiceDecoder implements ServiceDecoder {
     }
 
     private void handleDateTime(Map<String, String> commonAttrMap, Channel channel,
-            MessageEvent msgEvent,
             long uniq, long dataTime, int msgCount) {
         commonAttrMap.put(AttributeConstants.UNIQ_ID, String.valueOf(uniq));
         String time = "";
@@ -134,10 +130,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
          * udp need use msgEvent get remote address
          */
         String remoteAddress = "";
-        if (channel != null && channel.getRemoteAddress() != null) {
-            remoteAddress = channel.getRemoteAddress().toString();
-        } else if (msgEvent != null && msgEvent.getRemoteAddress() != null) {
-            remoteAddress = msgEvent.getRemoteAddress().toString();
+        if (channel != null && channel.remoteAddress() != null) {
+            remoteAddress = channel.remoteAddress().toString();
         }
         sidBuilder.append(remoteAddress).append("#").append(time)
             .append("#").append(uniq);
@@ -151,7 +145,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
             String.valueOf(msgCount != 0 ? msgCount : 1));
     }
 
-    private boolean handleExtMap(Map<String, String> commonAttrMap, ChannelBuffer cb,
+    private boolean handleExtMap(Map<String, String> commonAttrMap, ByteBuf cb,
         Map<String, Object> resultMap, int extendField, int msgHeadPos) {
         boolean index = false;
         if ((extendField & 0x8) == 0x8) {
@@ -177,7 +171,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
         return index;
     }
 
-    private ByteBuffer handleTrace(Channel channel, ChannelBuffer cb, int extendField,
+    private ByteBuffer handleTrace(Channel channel, ByteBuf cb, int extendField,
         int msgHeadPos, int totalDataLen, int attrLen, String strAttr, int bodyLen) {
         // whether enable trace
         boolean enableTrace = (((extendField & 0x2) >> 1) == 0x1);
@@ -190,7 +184,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
             String traceInfo;
             String strNode2Ip = null;
 
-            SocketAddress loacalSockAddr = channel.getLocalAddress();
+            SocketAddress loacalSockAddr = channel.localAddress();
             if (null != loacalSockAddr) {
                 strNode2Ip = loacalSockAddr.toString();
                 try {
@@ -237,14 +231,13 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * @param resultMap
      * @param cb
      * @param channel
-     * @param msgEvent
      * @param totalDataLen
      * @param msgType
      * @return
      * @throws Exception
      */
     private Map<String, Object> extractNewBinData(Map<String, Object> resultMap,
-            ChannelBuffer cb, Channel channel, MessageEvent msgEvent,
+            ByteBuf cb, Channel channel,
             int totalDataLen, MsgType msgType) throws Exception {
         int msgHeadPos = cb.readerIndex() - 5;
 
@@ -306,7 +299,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
         }
 
         try {
-            handleDateTime(commonAttrMap, channel, msgEvent, uniq, dataTime, msgCount);
+            handleDateTime(commonAttrMap, channel, uniq, dataTime, msgCount);
             final boolean index = handleExtMap(commonAttrMap, cb, resultMap, extendField, msgHeadPos);
             ByteBuffer dataBuf = handleTrace(channel, cb, extendField, msgHeadPos,
                 totalDataLen, attrLen, strAttr, bodyLen);
@@ -358,14 +351,12 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * @param cb
      * @param channel
      * @param totalDataLen
-     * @param msgEvent
      * @param msgType
      * @return
      * @throws Exception
      */
     private Map<String, Object> extractDefaultData(Map<String, Object> resultMap,
-            ChannelBuffer cb, Channel channel,
-            MessageEvent msgEvent,
+            ByteBuf cb, Channel channel,
             int totalDataLen, MsgType msgType) throws Exception {
         int bodyLen = cb.readInt();
         if (bodyLen == 0) {
@@ -481,8 +472,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * +--------+--------+--------+----------------+--------+----------------+------------------------+
      */
     @Override
-    public Map<String, Object> extractData(ChannelBuffer cb, Channel channel,
-            MessageEvent msgEvent) throws Exception {
+    public Map<String, Object> extractData(ByteBuf cb, Channel channel) throws Exception {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         if (null == cb) {
             LOG.error("cb == null");
@@ -509,14 +499,14 @@ public class DefaultServiceDecoder implements ServiceDecoder {
             }
             // if it's bin heart beat.
             if (MsgType.MSG_BIN_HEARTBEAT.equals(msgType)) {
-                return extractNewBinHB(resultMap, cb, channel, msgEvent, totalDataLen);
+                return extractNewBinHB(resultMap, cb, channel, totalDataLen);
             }
 
             if (msgType.getValue() >= MsgType.MSG_BIN_MULTI_BODY.getValue()) {
                 resultMap.put(ConfigConstants.COMPRESS_TYPE, (compressType != 0) ? "snappy" : "");
-                return extractNewBinData(resultMap, cb, channel, msgEvent, totalDataLen, msgType);
+                return extractNewBinData(resultMap, cb, channel, totalDataLen, msgType);
             } else {
-                return extractDefaultData(resultMap, cb, channel, msgEvent, totalDataLen, msgType);
+                return extractDefaultData(resultMap, cb, channel, totalDataLen, msgType);
             }
 
         } else {
