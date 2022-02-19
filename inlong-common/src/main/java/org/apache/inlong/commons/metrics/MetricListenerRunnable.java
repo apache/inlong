@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.standalone.metrics;
+package org.apache.inlong.commons.metrics;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -37,25 +37,24 @@ import org.apache.inlong.commons.metrics.metric.MetricItem;
 import org.apache.inlong.commons.metrics.metric.MetricItemMBean;
 import org.apache.inlong.commons.metrics.metric.MetricItemSetMBean;
 import org.apache.inlong.commons.metrics.metric.MetricRegister;
-import org.apache.inlong.commons.metrics.metric.MetricUtils;
 import org.apache.inlong.commons.metrics.metric.MetricValue;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  * MetricListenerRunnable
  */
 public class MetricListenerRunnable implements Runnable {
 
-    public static final Logger LOG = InlongLoggerFactory.getLogger(MetricListenerRunnable.class);
+    public static final Logger LOG = LoggerFactory.getLogger(MetricListenerRunnable.class);
 
     private String domain;
     private List<MetricListener> listenerList;
 
     /**
      * Constructor
-     * 
+     *
      * @param domain
      * @param listenerList
      */
@@ -84,7 +83,7 @@ public class MetricListenerRunnable implements Runnable {
 
     /**
      * getItemValues
-     * 
+     *
      * @return                              MetricItemValue List
      * @throws InstanceNotFoundException
      * @throws AttributeNotFoundException
@@ -98,7 +97,7 @@ public class MetricListenerRunnable implements Runnable {
             ReflectionException, MBeanException, MalformedObjectNameException, ClassNotFoundException {
         StringBuilder beanName = new StringBuilder();
         beanName.append(MetricRegister.JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR)
-                .append("type=").append(MetricUtils.getDomain(SortMetricItemSet.class))
+                .append("type=").append(domain)
                 .append(MetricItemMBean.PROPERTY_SEPARATOR)
                 .append("*");
         ObjectName objName = new ObjectName(beanName.toString());
@@ -122,15 +121,22 @@ public class MetricListenerRunnable implements Runnable {
                 itemValues.add(itemValue);
             } else if (ClassUtils.isAssignable(clazz, MetricItemSetMBean.class)) {
                 ObjectName metricObjectName = mbean.getObjectName();
-                List<MetricItem> items = (List<MetricItem>) mbs.invoke(metricObjectName,
+                List<MetricItem> items =
+                        (List<MetricItem>) mbs.invoke(metricObjectName,
                         MetricItemMBean.METHOD_SNAPSHOT, null, null);
-                for (MetricItem item : items) {
-                    String dimensionsKey = item.getDimensionsKey();
-                    Map<String, String> dimensions = item.getDimensions();
-                    Map<String, MetricValue> metrics = item.snapshot();
-                    MetricItemValue itemValue = new MetricItemValue(dimensionsKey, dimensions, metrics);
-                    LOG.info("MetricItemSetMBean get itemValue:{}", itemValue);
-                    itemValues.add(itemValue);
+                /*
+                  * ut will throw classCaseException if use MetricItem without Object
+                 */
+                for (Object itemT : items) {
+                    if (itemT instanceof MetricItem) {
+                        MetricItem item = (MetricItem) itemT;
+                        String dimensionsKey = item.getDimensionsKey();
+                        Map<String, String> dimensions = item.getDimensions();
+                        Map<String, MetricValue> metrics = item.snapshot();
+                        MetricItemValue itemValue = new MetricItemValue(dimensionsKey, dimensions, metrics);
+                        LOG.info("MetricItemSetMBean get itemValue:{}", itemValue);
+                        itemValues.add(itemValue);
+                    }
                 }
             }
         }

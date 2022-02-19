@@ -18,7 +18,7 @@
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
 import org.apache.flume.Context;
-import org.apache.inlong.commons.config.metrics.MetricRegister;
+import org.apache.inlong.commons.metrics.metric.MetricRegister;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.SortClusterConfig;
 import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;

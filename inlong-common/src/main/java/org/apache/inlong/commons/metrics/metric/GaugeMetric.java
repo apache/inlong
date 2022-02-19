@@ -15,33 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.config.loader;
+package org.apache.inlong.commons.metrics.metric;
 
-import static org.junit.Assert.assertEquals;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import java.util.Map;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import org.apache.inlong.dataproxy.config.RemoteConfigManager;
-import org.apache.inlong.commons.metrics.MetricListener;
-import org.junit.Test;
+@Retention(RUNTIME)
+@Target(FIELD)
 
 /**
  * 
- * TestClassResourceCommonPropertiesLoader
+ * GaugeMetric
  */
-public class TestClassResourceCommonPropertiesLoader {
+public @interface GaugeMetric {
 
     /**
-     * testResult
-     * 
-     * @throws Exception
+     * metric name of gauge type, default value is field name.
+     *
+     * @return metric name
      */
-    @Test
-    public void testResult() throws Exception {
-        // increase source
-        ClassResourceCommonPropertiesLoader loader = new ClassResourceCommonPropertiesLoader();
-        Map<String, String> props = loader.load();
-        assertEquals("proxy_inlong5th_sz", props.get(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME));
-        assertEquals("DataProxy", props.get(MetricListener.KEY_METRIC_DOMAINS));
-    }
+    String name() default "";
 }
