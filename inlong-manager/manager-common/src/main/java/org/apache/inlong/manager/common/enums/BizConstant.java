@@ -26,6 +26,10 @@ public class BizConstant {
 
     public static final String STORAGE_KAFKA = "KAFKA";
 
+    public static final String STORAGE_CLICKHOUSE = "CLICKHOUSE";
+
+    public static final String STORAGE_ICEBERG = "ICEBERG";
+
     public static final String DATA_SOURCE_DB = "DB";
 
     public static final String DATA_SOURCE_FILE = "FILE";
@@ -77,7 +81,5 @@ public class BizConstant {
     public static final Integer ENABLE_CREATE_RESOURCE = 1; // Enable create resource
 
     public static final Integer DISABLE_CREATE_RESOURCE = 0; // Disable create resource
-
-    public static final String STORAGE_ICEBERG = "ICEBERG";
 
 }

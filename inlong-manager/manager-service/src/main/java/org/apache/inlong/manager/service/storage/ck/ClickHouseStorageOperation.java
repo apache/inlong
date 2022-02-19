@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.storage.kafka;
+package org.apache.inlong.manager.service.storage.ck;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -33,13 +33,14 @@ import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.StorageType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageFieldRequest;
+import org.apache.inlong.manager.common.pojo.datastorage.StorageFieldResponse;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageListResponse;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageRequest;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageResponse;
-import org.apache.inlong.manager.common.pojo.datastorage.kafka.KafkaStorageDTO;
-import org.apache.inlong.manager.common.pojo.datastorage.kafka.KafkaStorageListResponse;
-import org.apache.inlong.manager.common.pojo.datastorage.kafka.KafkaStorageRequest;
-import org.apache.inlong.manager.common.pojo.datastorage.kafka.KafkaStorageResponse;
+import org.apache.inlong.manager.common.pojo.datastorage.ck.ClickHouseStorageDTO;
+import org.apache.inlong.manager.common.pojo.datastorage.ck.ClickHouseStorageListResponse;
+import org.apache.inlong.manager.common.pojo.datastorage.ck.ClickHouseStorageRequest;
+import org.apache.inlong.manager.common.pojo.datastorage.ck.ClickHouseStorageResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StorageEntity;
@@ -53,12 +54,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Kafka storage operation
+ * ClickHouse storage operation
  */
 @Service
-public class KafkaStorageOperation implements StorageOperation {
+public class ClickHouseStorageOperation implements StorageOperation {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaStorageOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClickHouseStorageOperation.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -69,17 +70,17 @@ public class KafkaStorageOperation implements StorageOperation {
 
     @Override
     public Boolean accept(StorageType storageType) {
-        return StorageType.KAFKA.equals(storageType);
+        return StorageType.CLICKHOUSE.equals(storageType);
     }
 
     @Override
     public Integer saveOpt(StorageRequest request, String operator) {
         String storageType = request.getStorageType();
-        Preconditions.checkTrue(BizConstant.STORAGE_KAFKA.equals(storageType),
+        Preconditions.checkTrue(BizConstant.STORAGE_CLICKHOUSE.equals(storageType),
                 BizErrorCodeEnum.STORAGE_TYPE_NOT_SUPPORT.getMessage() + ": " + storageType);
 
-        KafkaStorageRequest kafkaStorageRequest = (KafkaStorageRequest) request;
-        StorageEntity entity = CommonBeanUtils.copyProperties(kafkaStorageRequest, StorageEntity::new);
+        ClickHouseStorageRequest clickHouseStorageRequest = (ClickHouseStorageRequest) request;
+        StorageEntity entity = CommonBeanUtils.copyProperties(clickHouseStorageRequest, StorageEntity::new);
         entity.setStatus(EntityStatus.DATA_STORAGE_NEW.getCode());
         entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
         entity.setCreator(operator);
@@ -89,16 +90,18 @@ public class KafkaStorageOperation implements StorageOperation {
         entity.setModifyTime(now);
 
         // get the ext params
-        KafkaStorageDTO dto = KafkaStorageDTO.getFromRequest(kafkaStorageRequest);
+        ClickHouseStorageDTO dto = ClickHouseStorageDTO.getFromRequest(clickHouseStorageRequest);
         try {
             entity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(BizErrorCodeEnum.STORAGE_SAVE_FAILED);
         }
         storageMapper.insert(entity);
+
         Integer storageId = entity.getId();
         request.setId(storageId);
         this.saveFieldOpt(request);
+
         return storageId;
     }
 
@@ -130,7 +133,7 @@ public class KafkaStorageOperation implements StorageOperation {
         }
 
         storageFieldMapper.insertAll(entityList);
-        LOGGER.info("success to save field");
+        LOGGER.info("success to save clickHouse field");
     }
 
     @Override
@@ -138,9 +141,16 @@ public class KafkaStorageOperation implements StorageOperation {
         StorageEntity entity = storageMapper.selectByPrimaryKey(id);
         Preconditions.checkNotNull(entity, BizErrorCodeEnum.STORAGE_INFO_NOT_FOUND.getMessage());
         String existType = entity.getStorageType();
-        Preconditions.checkTrue(BizConstant.STORAGE_KAFKA.equals(existType),
-                String.format(BizConstant.STORAGE_TYPE_NOT_SAME, BizConstant.STORAGE_KAFKA, existType));
-        return this.getFromEntity(entity, KafkaStorageResponse::new);
+        Preconditions.checkTrue(BizConstant.STORAGE_CLICKHOUSE.equals(existType),
+                String.format(BizConstant.STORAGE_TYPE_NOT_SAME, BizConstant.STORAGE_CLICKHOUSE, existType));
+
+        StorageResponse response = this.getFromEntity(entity, ClickHouseStorageResponse::new);
+        List<StorageFieldEntity> entities = storageFieldMapper.selectByStorageId(id);
+        List<StorageFieldResponse> infos = CommonBeanUtils.copyListProperties(entities,
+                StorageFieldResponse::new);
+        response.setFieldList(infos);
+
+        return response;
     }
 
     @Override
@@ -149,11 +159,12 @@ public class KafkaStorageOperation implements StorageOperation {
         if (entity == null) {
             return result;
         }
-        String existType = entity.getStorageType();
-        Preconditions.checkTrue(BizConstant.STORAGE_KAFKA.equals(existType),
-                String.format(BizConstant.STORAGE_TYPE_NOT_SAME, BizConstant.STORAGE_KAFKA, existType));
 
-        KafkaStorageDTO dto = KafkaStorageDTO.getFromJson(entity.getExtParams());
+        String existType = entity.getStorageType();
+        Preconditions.checkTrue(BizConstant.STORAGE_CLICKHOUSE.equals(existType),
+                String.format(BizConstant.STORAGE_TYPE_NOT_SAME, BizConstant.STORAGE_CLICKHOUSE, existType));
+
+        ClickHouseStorageDTO dto = ClickHouseStorageDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
 
@@ -165,21 +176,21 @@ public class KafkaStorageOperation implements StorageOperation {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, KafkaStorageListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, ClickHouseStorageListResponse::new));
     }
 
     @Override
     public void updateOpt(StorageRequest request, String operator) {
         String storageType = request.getStorageType();
-        Preconditions.checkTrue(BizConstant.STORAGE_KAFKA.equals(storageType),
-                String.format(BizConstant.STORAGE_TYPE_NOT_SAME, BizConstant.STORAGE_KAFKA, storageType));
+        Preconditions.checkTrue(BizConstant.STORAGE_CLICKHOUSE.equals(storageType),
+                String.format(BizConstant.STORAGE_TYPE_NOT_SAME, BizConstant.STORAGE_CLICKHOUSE, storageType));
 
         StorageEntity entity = storageMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, BizErrorCodeEnum.STORAGE_INFO_NOT_FOUND.getMessage());
-        KafkaStorageRequest kafkaStorageRequest = (KafkaStorageRequest) request;
-        CommonBeanUtils.copyProperties(kafkaStorageRequest, entity, true);
+        ClickHouseStorageRequest clickHouseStorageRequest = (ClickHouseStorageRequest) request;
+        CommonBeanUtils.copyProperties(clickHouseStorageRequest, entity, true);
         try {
-            KafkaStorageDTO dto = KafkaStorageDTO.getFromRequest(kafkaStorageRequest);
+            ClickHouseStorageDTO dto = ClickHouseStorageDTO.getFromRequest(clickHouseStorageRequest);
             entity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(BizErrorCodeEnum.STORAGE_INFO_INCORRECT.getMessage());
@@ -192,7 +203,7 @@ public class KafkaStorageOperation implements StorageOperation {
         storageMapper.updateByPrimaryKeySelective(entity);
 
         boolean onlyAdd = EntityStatus.DATA_STORAGE_CONFIG_SUCCESSFUL.getCode().equals(entity.getPreviousStatus());
-        this.updateFieldOpt(onlyAdd, kafkaStorageRequest);
+        this.updateFieldOpt(onlyAdd, clickHouseStorageRequest);
 
         LOGGER.info("success to update storage of type={}", storageType);
     }
@@ -204,6 +215,7 @@ public class KafkaStorageOperation implements StorageOperation {
         if (CollectionUtils.isEmpty(fieldRequestList)) {
             return;
         }
+
         if (onlyAdd) {
             List<StorageFieldEntity> existsFieldList = storageFieldMapper.selectByStorageId(storageId);
             if (existsFieldList.size() > fieldRequestList.size()) {
@@ -215,10 +227,12 @@ public class KafkaStorageOperation implements StorageOperation {
                 }
             }
         }
+
         // First physically delete the existing fields
         storageFieldMapper.deleteAll(storageId);
         // Then batch save the storage fields
         this.saveFieldOpt(request);
+
         LOGGER.info("success to update field");
     }
 
