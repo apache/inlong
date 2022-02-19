@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.service.workflow.BaseWorkflowTaskFormType;
+import org.apache.inlong.manager.service.workflow.BaseTaskForm;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 
 /**
@@ -31,7 +31,7 @@ import org.apache.inlong.manager.common.exceptions.FormValidateException;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("New data consumption-system administrator form")
-public class ConsumptionAdminApproveForm extends BaseWorkflowTaskFormType {
+public class ConsumptionAdminApproveForm extends BaseTaskForm {
 
     public static final String FORM_NAME = "ConsumptionAdminApproveForm";
 

@@ -18,27 +18,10 @@
 package org.apache.inlong.manager.service.workflow;
 
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.PostConstruct;
 import lombok.Setter;
 import org.apache.commons.collections.MapUtils;
-import org.apache.inlong.manager.common.event.EventSelector;
-import org.apache.inlong.manager.common.event.task.DataSourceOperateListener;
-import org.apache.inlong.manager.common.event.task.QueueOperateListener;
-import org.apache.inlong.manager.common.event.task.SortOperateListener;
-import org.apache.inlong.manager.common.event.task.StorageOperateListener;
-import org.apache.inlong.manager.common.event.task.TaskEventListener;
-import org.apache.inlong.manager.common.model.WorkflowContext;
-import org.apache.inlong.manager.common.model.definition.ServiceTaskListenerProvider;
-import org.apache.inlong.manager.common.model.definition.ServiceTaskType;
-import org.apache.inlong.manager.common.plugin.Plugin;
-import org.apache.inlong.manager.common.plugin.PluginBinder;
-import org.apache.inlong.manager.common.plugin.ProcessPlugin;
-import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableListener;
 import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableEventSelector;
+import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarGroupTaskListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarResourceTaskListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeGroupTaskListener;
@@ -47,8 +30,26 @@ import org.apache.inlong.manager.service.thirdpart.mq.PulsarEventSelector;
 import org.apache.inlong.manager.service.thirdpart.mq.TubeEventSelector;
 import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigTaskListener;
 import org.apache.inlong.manager.service.thirdpart.sort.ZkSortEventSelector;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.definition.ServiceTaskListenerProvider;
+import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
+import org.apache.inlong.manager.workflow.event.EventSelector;
+import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
+import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
+import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
+import org.apache.inlong.manager.workflow.event.task.StorageOperateListener;
+import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
+import org.apache.inlong.manager.workflow.plugin.Plugin;
+import org.apache.inlong.manager.workflow.plugin.PluginBinder;
+import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskListenerProvider {
@@ -204,4 +205,5 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
             sortOperateListeners.putAll(pluginSortOperateListeners);
         }
     }
+
 }

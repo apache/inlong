@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.thirdpart.mq.util;
 
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +28,8 @@ import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.PulsarClientException;
 
+import java.util.List;
+
 /**
  * Pulsar connection utils
  */
@@ -38,6 +39,9 @@ public class PulsarUtils {
     private PulsarUtils() {
     }
 
+    /**
+     * Get pulsar admin info
+     */
     public static PulsarAdmin getPulsarAdmin(BusinessInfo businessInfo, String defaultServiceUrl)
             throws PulsarClientException {
         if (CollectionUtils.isEmpty(businessInfo.getExtList())) {

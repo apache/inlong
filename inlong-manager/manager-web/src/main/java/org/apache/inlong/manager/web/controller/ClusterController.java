@@ -27,7 +27,7 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterPageRequest;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.ClusterInfoService;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
@@ -94,7 +94,7 @@ public class ClusterController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save cluster information of the DataProxy")
     public Response<Integer> saveDataProxy(@RequestBody DataProxyClusterInfo clusterInfo) {
-        String currentUser = LoginUserUtil.getLoginUserDetail().getUserName();
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
         return Response.success(dataProxyClusterService.save(clusterInfo, currentUser));
     }
 
@@ -108,7 +108,7 @@ public class ClusterController {
     @RequestMapping(value = "/dataproxy/list", method = RequestMethod.GET)
     @ApiOperation(value = "Query the list of DataProxy clusters based on conditions")
     public Response<PageInfo<DataProxyClusterInfo>> listDataProxyByCondition(DataProxyClusterPageRequest request) {
-        request.setCurrentUser(LoginUserUtil.getLoginUserDetail().getUserName());
+        request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(dataProxyClusterService.listByCondition(request));
     }
 
@@ -116,7 +116,7 @@ public class ClusterController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Modify cluster information of the DataProxy")
     public Response<Boolean> updateDataProxy(@RequestBody DataProxyClusterInfo clusterInfo) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
         return Response.success(dataProxyClusterService.update(clusterInfo, username));
     }
 
@@ -125,7 +125,7 @@ public class ClusterController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "DataProxy cluster id", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> deleteDataProxy(@PathVariable Integer id) {
-        return Response.success(dataProxyClusterService.delete(id, LoginUserUtil.getLoginUserDetail().getUserName()));
+        return Response.success(dataProxyClusterService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName()));
     }
 
 }

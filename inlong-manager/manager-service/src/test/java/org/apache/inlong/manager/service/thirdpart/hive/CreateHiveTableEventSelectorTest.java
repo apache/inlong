@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.service.thirdpart.hive;
 
-import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
+import org.apache.inlong.manager.service.workflow.business.BusinessResourceProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class CreateHiveTableEventSelectorTest extends ServiceBaseTest {
     @Test
     public void testAccept() {
         WorkflowContext workflowContext = new WorkflowContext();
-        BusinessResourceWorkflowForm processForm = new BusinessResourceWorkflowForm();
+        BusinessResourceProcessForm processForm = new BusinessResourceProcessForm();
         workflowContext.setProcessForm(processForm);
         Assert.assertFalse(createHiveTableEventSelector.accept(workflowContext));
         processForm.setBusinessInfo(new BusinessInfo());

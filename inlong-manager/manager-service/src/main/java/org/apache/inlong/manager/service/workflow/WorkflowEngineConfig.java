@@ -17,18 +17,16 @@
 
 package org.apache.inlong.manager.service.workflow;
 
-import org.apache.inlong.manager.common.workflow.EventListenerService;
-import org.apache.inlong.manager.common.workflow.ProcessDefinitionService;
-import org.apache.inlong.manager.common.workflow.QueryService;
-import org.apache.inlong.manager.common.workflow.WorkflowDataAccessor;
-import org.apache.inlong.manager.common.workflow.WorkflowEngine;
-import org.apache.inlong.manager.workflow.core.impl.MemoryProcessDefinitionStorage;
-import org.apache.inlong.manager.workflow.core.impl.WorkflowDataAccessorImpl;
-import org.apache.inlong.manager.workflow.core.impl.WorkflowEngineImpl;
-import org.apache.inlong.manager.common.dao.EventLogStorage;
-import org.apache.inlong.manager.common.dao.ProcessInstanceStorage;
-import org.apache.inlong.manager.common.dao.TaskInstanceStorage;
-import org.apache.inlong.manager.common.model.WorkflowConfig;
+import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
+import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
+import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
+import org.apache.inlong.manager.workflow.WorkflowConfig;
+import org.apache.inlong.manager.workflow.base.EventListenerService;
+import org.apache.inlong.manager.workflow.base.ProcessDefinitionService;
+import org.apache.inlong.manager.workflow.base.WorkflowEngine;
+import org.apache.inlong.manager.workflow.base.WorkflowQueryService;
+import org.apache.inlong.manager.workflow.base.impl.MemoryProcessDefinitionRepository;
+import org.apache.inlong.manager.workflow.base.impl.WorkflowEngineImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,39 +41,29 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class WorkflowEngineConfig {
 
     @Autowired
-    private ProcessInstanceStorage processInstanceStorage;
-
+    private WorkflowQueryService queryService;
     @Autowired
-    private TaskInstanceStorage taskInstanceStorage;
-
+    private MemoryProcessDefinitionRepository memoryProcessRepository;
     @Autowired
-    private EventLogStorage eventLogStorage;
-
+    private WorkflowProcessEntityMapper processEntityMapper;
+    @Autowired
+    private WorkflowTaskEntityMapper taskEntityMapper;
+    @Autowired
+    private WorkflowEventLogEntityMapper eventLogMapper;
     @Autowired
     private PlatformTransactionManager platformTransactionManager;
 
     @Bean
-    public WorkflowDataAccessor workflowDataAccessor() {
-        return new WorkflowDataAccessorImpl(
-                new MemoryProcessDefinitionStorage(),
-                processInstanceStorage,
-                taskInstanceStorage,
-                eventLogStorage
-        );
-    }
-
-    @Bean
     public WorkflowEngine workflowEngineer() {
-        WorkflowConfig workFlowConfig = new WorkflowConfig()
-                .setWorkflowDataAccessor(this.workflowDataAccessor())
-                .setPlatformTransactionManager(platformTransactionManager);
+        WorkflowConfig workflowConfig = new WorkflowConfig()
+                .setQueryService(queryService)
+                .setProcessEntityMapper(processEntityMapper)
+                .setTaskEntityMapper(taskEntityMapper)
+                .setEventLogMapper(eventLogMapper)
+                .setDefinitionRepository(memoryProcessRepository)
+                .setTransactionManager(platformTransactionManager);
 
-        return new WorkflowEngineImpl(workFlowConfig);
-    }
-
-    @Bean
-    public QueryService queryService(WorkflowEngine workflowEngine) {
-        return workflowEngine.queryService();
+        return new WorkflowEngineImpl(workflowConfig);
     }
 
     @Bean

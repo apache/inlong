@@ -260,7 +260,7 @@ public class BusinessServiceImpl implements BusinessService {
         if (entity == null || businessInfo == null) {
             return;
         }
-        // Check whether the current state supports modification
+        // Check whether the current status supports modification
         Integer oldStatus = entity.getStatus();
         if (!EntityStatus.ALLOW_UPDATE_BIZ_STATUS.contains(oldStatus)) {
             LOGGER.error("current status was not allowed to update");
@@ -311,7 +311,7 @@ public class BusinessServiceImpl implements BusinessService {
             throw new BusinessException(BizErrorCodeEnum.BUSINESS_NOT_FOUND);
         }
 
-        // Determine whether the current state can be deleted
+        // Determine whether the current status can be deleted
         if (!EntityStatus.ALLOW_DELETE_BIZ_STATUS.contains(entity.getStatus())) {
             LOGGER.error("current status was not allowed to delete");
             throw new BusinessException(BizErrorCodeEnum.BUSINESS_DELETE_NOT_ALLOWED);
@@ -322,7 +322,7 @@ public class BusinessServiceImpl implements BusinessService {
             // Logically delete data streams, data sources and data storage information
             streamService.logicDeleteAll(entity.getInlongGroupId(), operator);
         } else {
-            // In other states, you need to delete the associated "data stream" first.
+            // In other status, you need to delete the associated "data stream" first.
             // When deleting a data stream, you also need to check whether there are
             // some associated "data source" and "data storage"
             int count = streamService.selectCountByGroupId(groupId);

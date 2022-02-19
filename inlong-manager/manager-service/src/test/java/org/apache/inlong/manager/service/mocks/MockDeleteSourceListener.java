@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.service.mocks;
 
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.task.DataSourceOperateListener;
-import org.apache.inlong.manager.common.event.task.TaskEvent;
-import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
+import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
 public class MockDeleteSourceListener implements DataSourceOperateListener {
 
@@ -30,7 +30,7 @@ public class MockDeleteSourceListener implements DataSourceOperateListener {
     }
 
     @Override
-    public ListenerResult listen(WorkflowContext context) throws Exception {
+    public ListenerResult listen(WorkflowContext context) {
         return ListenerResult.success("Mock delete source success");
     }
 

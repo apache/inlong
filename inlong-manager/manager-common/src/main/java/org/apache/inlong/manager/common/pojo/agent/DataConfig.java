@@ -28,7 +28,7 @@ public class DataConfig {
     @ApiModelProperty(value = "Operation type")
     private int opType;
 
-    @ApiModelProperty(value = "Task id")
+    @ApiModelProperty(value = "WorkflowTask id")
     private int id;
 
     @ApiModelProperty(value = "Agent IP")
@@ -64,6 +64,6 @@ public class DataConfig {
     @ApiModelProperty(value = "Field splitter")
     private String fieldSplitter;
 
-    @ApiModelProperty(value = "Task type")
+    @ApiModelProperty(value = "WorkflowTask type")
     private int taskType;
 }

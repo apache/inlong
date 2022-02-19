@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.service.workflow.business;
 
-import org.apache.inlong.manager.common.model.definition.Process;
 import org.apache.inlong.manager.service.ServiceBaseTest;
+import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class CreateBusinessWorkflowDefinitionTest extends ServiceBaseTest {
 
     @Test
     public void testDefineProcess() {
-        Process process = createBusinessWorkflowDefinition.defineProcess();
+        WorkflowProcess process = createBusinessWorkflowDefinition.defineProcess();
         Assert.assertEquals("Business Resource Creation", process.getType());
         Assert.assertNotNull(process.getTaskByName("initDataSource"));
         Assert.assertNotNull(process.getTaskByName("initMQ"));

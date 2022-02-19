@@ -45,23 +45,4 @@ public class StorageEntity implements Serializable {
     // Another fields saved as JSON string in extParams
     private String extParams;
 
-    /*
-    private String jdbcUrl;
-    private String username;
-    private String password;
-    private String dbName;
-    private String tableName;
-    private String hdfsDefaultFs;
-    private String warehouseDir;
-
-    private Integer partitionInterval;
-    private String partitionUnit;
-    private String primaryPartition;
-    private String secondaryPartition;
-    private String partitionCreationStrategy;
-
-    private String fileFormat;
-    private String dataEncoding;
-    private String dataSeparator;*/
-
 }

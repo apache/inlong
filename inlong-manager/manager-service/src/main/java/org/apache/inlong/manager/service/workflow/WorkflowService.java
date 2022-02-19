@@ -18,19 +18,20 @@
 package org.apache.inlong.manager.service.workflow;
 
 import com.github.pagehelper.PageInfo;
-import java.util.List;
-import org.apache.inlong.manager.common.model.definition.ProcessForm;
-import org.apache.inlong.manager.common.model.definition.TaskForm;
-import org.apache.inlong.manager.common.model.view.ProcessDetail;
-import org.apache.inlong.manager.common.model.view.ProcessListView;
-import org.apache.inlong.manager.common.model.view.ProcessQuery;
-import org.apache.inlong.manager.common.model.view.ProcessSummaryQuery;
-import org.apache.inlong.manager.common.model.view.ProcessSummaryView;
-import org.apache.inlong.manager.common.model.view.TaskListView;
-import org.apache.inlong.manager.common.model.view.TaskQuery;
-import org.apache.inlong.manager.common.model.view.TaskSummaryQuery;
-import org.apache.inlong.manager.common.model.view.TaskSummaryView;
+import org.apache.inlong.manager.common.pojo.workflow.ProcessDetailResponse;
+import org.apache.inlong.manager.common.pojo.workflow.ProcessQuery;
+import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
+import org.apache.inlong.manager.common.pojo.workflow.ProcessCountQuery;
+import org.apache.inlong.manager.common.pojo.workflow.ProcessCountResponse;
+import org.apache.inlong.manager.common.pojo.workflow.TaskCountQuery;
+import org.apache.inlong.manager.common.pojo.workflow.TaskQuery;
+import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
+import org.apache.inlong.manager.common.pojo.workflow.TaskCountResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.workflow.definition.ProcessForm;
+import org.apache.inlong.manager.workflow.definition.TaskForm;
+
+import java.util.List;
 
 /**
  * Workflow service
@@ -50,20 +51,20 @@ public interface WorkflowService {
     /**
      * Cancellation process application
      *
-     * @param processInstId Process instance ID
-     * @param operator Operator
-     * @param remark Remarks information
-     * @return result
+     * @param processId Process id.
+     * @param operator Operator.
+     * @param remark Remarks information.
+     * @return Workflow result.
      */
-    WorkflowResult cancel(Integer processInstId, String operator, String remark);
+    WorkflowResult cancel(Integer processId, String operator, String remark);
 
     /**
-     * Approval and consent
+     * Approval the process.
      *
-     * @param taskId Task ID
-     * @param form Form information
-     * @param operator Operator
-     * @return result
+     * @param taskId Task id.
+     * @param form Form information.
+     * @param operator Operator.
+     * @return Workflow result.
      */
     WorkflowResult approve(Integer taskId, String remark, TaskForm form, String operator);
 
@@ -91,29 +92,29 @@ public interface WorkflowService {
     /**
      * Complete task-true to automatic task
      *
-     * @param taskId System Task ID
-     * @param remark Remarks
-     * @param operator Operator
-     * @return result
+     * @param taskId Task id.
+     * @param remark Remarks.
+     * @param operator Operator.
+     * @return Workflow result.
      */
     WorkflowResult complete(Integer taskId, String remark, String operator);
 
     /**
      * Query process details according to the tracking number
      *
-     * @param processInstId Process form number
-     * @param taskInstId Task ID of the operation-nullable
-     * @return Detail
+     * @param processId Process id.
+     * @param taskId Task id.
+     * @return Detail info.
      */
-    ProcessDetail detail(Integer processInstId, Integer taskInstId);
+    ProcessDetailResponse detail(Integer processId, Integer taskId, String operator);
 
     /**
-     * Get a list of bills
+     * Get a list of process.
      *
-     * @param query Query conditions
-     * @return List
+     * @param query Query conditions.
+     * @return Process list.
      */
-    PageInfo<ProcessListView> listProcess(ProcessQuery query);
+    PageInfo<ProcessResponse> listProcess(ProcessQuery query);
 
     /**
      * Get task list
@@ -121,7 +122,7 @@ public interface WorkflowService {
      * @param query Query conditions
      * @return List
      */
-    PageInfo<TaskListView> listTask(TaskQuery query);
+    PageInfo<TaskResponse> listTask(TaskQuery query);
 
     /**
      * Get process statistics
@@ -129,7 +130,7 @@ public interface WorkflowService {
      * @param query Query conditions
      * @return Statistical data
      */
-    ProcessSummaryView processSummary(ProcessSummaryQuery query);
+    ProcessCountResponse countProcess(ProcessCountQuery query);
 
     /**
      * Get task statistics
@@ -137,7 +138,7 @@ public interface WorkflowService {
      * @param query Query conditions
      * @return Statistical data
      */
-    TaskSummaryView taskSummary(TaskSummaryQuery query);
+    TaskCountResponse countTask(TaskCountQuery query);
 
     /**
      * Get task execution log
@@ -145,6 +146,6 @@ public interface WorkflowService {
      * @param query Query conditions
      * @return Execution log
      */
-    PageInfo<WorkflowTaskExecuteLog> listTaskExecuteLogs(WorkflowTaskExecuteLogQuery query);
+    PageInfo<WorkflowExecuteLog> listTaskExecuteLogs(TaskExecuteLogQuery query);
 
 }

@@ -127,7 +127,7 @@ public class DataStreamServiceImpl implements DataStreamService {
 
         // Processing extended information
         this.saveExt(groupId, streamId, streamInfo.getExtList(), date);
-        // Process data source fields
+        // WorkflowProcess data source fields
         this.saveField(groupId, streamId, streamInfo.getFieldList());
 
         LOGGER.info("success to save data stream info for groupId={}", groupId);
@@ -740,7 +740,7 @@ public class DataStreamServiceImpl implements DataStreamService {
     }
 
     /**
-     * Verify the fields that cannot be modified in the current business state
+     * Verify the fields that cannot be modified in the current business status
      *
      * @param bizStatus Business status
      * @param streamEntity Original data stream entity

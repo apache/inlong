@@ -18,11 +18,11 @@
 package org.apache.inlong.manager.service.thirdpart.sort;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.event.EventSelector;
-import org.apache.inlong.manager.common.model.WorkflowContext;
-import org.apache.inlong.manager.common.model.definition.ProcessForm;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
+import org.apache.inlong.manager.service.workflow.business.BusinessResourceProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.definition.ProcessForm;
+import org.apache.inlong.manager.workflow.event.EventSelector;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -32,11 +32,12 @@ public class ZkSortEventSelector implements EventSelector {
     @Override
     public boolean accept(WorkflowContext context) {
         ProcessForm processForm = context.getProcessForm();
-        if (processForm == null || !(processForm instanceof BusinessResourceWorkflowForm)) {
+        if (!(processForm instanceof BusinessResourceProcessForm)) {
             return false;
         }
-        BusinessResourceWorkflowForm workflowForm = (BusinessResourceWorkflowForm) processForm;
+        BusinessResourceProcessForm workflowForm = (BusinessResourceProcessForm) processForm;
         BusinessInfo businessInfo = workflowForm.getBusinessInfo();
         return businessInfo.getZookeeperEnabled() == 1;
     }
+
 }

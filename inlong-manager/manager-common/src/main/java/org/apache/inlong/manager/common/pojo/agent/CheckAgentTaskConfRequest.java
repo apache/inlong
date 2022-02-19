@@ -29,6 +29,6 @@ public class CheckAgentTaskConfRequest {
     @ApiModelProperty(value = "Local ip")
     private String agentIp;
 
-    @ApiModelProperty(value = "Task ID list")
+    @ApiModelProperty(value = "WorkflowTask ID list")
     private List<Integer> taskInfo;
 }

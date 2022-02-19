@@ -32,9 +32,9 @@
     <modules>
         <module>manager-test</module>
         <module>manager-common</module>
-        <module>manager-workflow-engine</module>
         <module>manager-dao</module>
         <module>manager-service</module>
+        <module>manager-workflow</module>
         <module>manager-web</module>
         <module>manager-docker</module>
         <module>manager-plugin-examples</module>

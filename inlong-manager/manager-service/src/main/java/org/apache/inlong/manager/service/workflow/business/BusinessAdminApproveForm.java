@@ -24,7 +24,7 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.service.workflow.BaseWorkflowTaskFormType;
+import org.apache.inlong.manager.service.workflow.BaseTaskForm;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 
 /**
@@ -32,7 +32,7 @@ import org.apache.inlong.manager.common.exceptions.FormValidateException;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class BusinessAdminApproveForm extends BaseWorkflowTaskFormType {
+public class BusinessAdminApproveForm extends BaseTaskForm {
 
     public static final String FORM_NAME = "BusinessAdminApproveForm";
 

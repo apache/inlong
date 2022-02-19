@@ -110,7 +110,7 @@ public interface StorageService {
      * Modify storage data status
      *
      * @param id Stored id
-     * @param status Goal state
+     * @param status Goal status
      * @param log Modify the description
      */
     void updateStatus(int id, int status, String log);

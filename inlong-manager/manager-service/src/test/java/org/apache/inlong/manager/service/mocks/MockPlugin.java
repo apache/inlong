@@ -17,17 +17,17 @@
 
 package org.apache.inlong.manager.service.mocks;
 
+import org.apache.inlong.manager.service.workflow.business.UpdateBusinessProcessForm;
+import org.apache.inlong.manager.service.workflow.business.UpdateBusinessProcessForm.OperateType;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.definition.ProcessForm;
+import org.apache.inlong.manager.workflow.event.EventSelector;
+import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
+import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
+import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.inlong.manager.common.event.EventSelector;
-import org.apache.inlong.manager.common.event.task.DataSourceOperateListener;
-import org.apache.inlong.manager.common.event.task.SortOperateListener;
-import org.apache.inlong.manager.common.model.WorkflowContext;
-import org.apache.inlong.manager.common.model.definition.ProcessForm;
-import org.apache.inlong.manager.common.plugin.ProcessPlugin;
-import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm;
-import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm.OperateType;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class MockPlugin implements ProcessPlugin {
 
@@ -35,10 +35,10 @@ public class MockPlugin implements ProcessPlugin {
         @Override
         public boolean accept(WorkflowContext context) {
             ProcessForm processForm = context.getProcessForm();
-            if (processForm == null || !(processForm instanceof UpdateBusinessWorkflowForm)) {
+            if (!(processForm instanceof UpdateBusinessProcessForm)) {
                 return false;
             }
-            UpdateBusinessWorkflowForm form = (UpdateBusinessWorkflowForm) processForm;
+            UpdateBusinessProcessForm form = (UpdateBusinessProcessForm) processForm;
             return form.getOperateType() == OperateType.SUSPEND;
         }
     };
@@ -47,10 +47,10 @@ public class MockPlugin implements ProcessPlugin {
         @Override
         public boolean accept(WorkflowContext context) {
             ProcessForm processForm = context.getProcessForm();
-            if (processForm == null || !(processForm instanceof UpdateBusinessWorkflowForm)) {
+            if (!(processForm instanceof UpdateBusinessProcessForm)) {
                 return false;
             }
-            UpdateBusinessWorkflowForm form = (UpdateBusinessWorkflowForm) processForm;
+            UpdateBusinessProcessForm form = (UpdateBusinessProcessForm) processForm;
             return form.getOperateType() == OperateType.RESTART;
         }
     };
@@ -59,15 +59,14 @@ public class MockPlugin implements ProcessPlugin {
         @Override
         public boolean accept(WorkflowContext context) {
             ProcessForm processForm = context.getProcessForm();
-            if (processForm == null || !(processForm instanceof UpdateBusinessWorkflowForm)) {
+            if (!(processForm instanceof UpdateBusinessProcessForm)) {
                 return false;
             }
-            UpdateBusinessWorkflowForm form = (UpdateBusinessWorkflowForm) processForm;
+            UpdateBusinessProcessForm form = (UpdateBusinessProcessForm) processForm;
             return form.getOperateType() == OperateType.DELETE;
         }
     };
 
-    @Autowired
     public Map<DataSourceOperateListener, EventSelector> createSourceOperateListeners() {
         Map<DataSourceOperateListener, EventSelector> listeners = new HashMap<>();
         listeners.put(new MockDeleteSourceListener(), deleteProcessSelector);
@@ -76,7 +75,6 @@ public class MockPlugin implements ProcessPlugin {
         return listeners;
     }
 
-    @Autowired
     public Map<SortOperateListener, EventSelector> createSortOperateListeners() {
         Map<SortOperateListener, EventSelector> listeners = new HashMap<>();
         listeners.put(new MockDeleteSortListener(), deleteProcessSelector);

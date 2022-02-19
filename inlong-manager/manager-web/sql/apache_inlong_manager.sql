@@ -101,8 +101,8 @@ CREATE TABLE `business`
     `modifier`            varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`           json              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
-    `zookeeper_enabled`   int(4)            DEFAULT '1'  COMMENT 'Need zookeeper support, 0 false 1 true',
+    `temp_view`           text              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
+    `zookeeper_enabled`   int(4)            DEFAULT '1' COMMENT 'Need zookeeper support, 0: false, 1: true',
     `proxy_cluster_id`    int(11)      NOT NULL COMMENT 'The id of dataproxy cluster',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_business` (`inlong_group_id`, `is_deleted`, `modify_time`)
@@ -147,7 +147,7 @@ CREATE TABLE `business_ext`
     `modify_time`     timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     KEY `index_group_id` (`inlong_group_id`),
-    UNIQUE KEY `group_key_idx` (`inlong_group_id`,`key_name`)
+    UNIQUE KEY `group_key_idx` (`inlong_group_id`, `key_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Business extension table';
 
@@ -166,7 +166,7 @@ CREATE TABLE `cluster_info`
     `token`       varchar(128) COMMENT 'Cluster token',
     `url`         varchar(256)      DEFAULT NULL COMMENT 'Cluster URL address',
     `is_backup`   tinyint(1)        DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
-    `ext_props`   json              DEFAULT NULL COMMENT 'extended properties',
+    `ext_props`   text              DEFAULT NULL COMMENT 'extended properties',
     `status`      int(4)            DEFAULT '1' COMMENT 'cluster status',
     `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
@@ -300,7 +300,7 @@ CREATE TABLE `data_proxy_cluster`
     `is_inner_ip` tinyint(1)        DEFAULT '0' COMMENT 'Whether it is intranet, 0: no, 1: yes',
     `net_type`    varchar(20)       DEFAULT NULL COMMENT 'Cluster network type, internal, or public',
     `in_charges`  varchar(512)      DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
-    `ext_props`   json              DEFAULT NULL COMMENT 'Extended properties',
+    `ext_props`   text              DEFAULT NULL COMMENT 'Extended properties',
     `status`      int(4)            DEFAULT '1' COMMENT 'Cluster status',
     `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
@@ -387,7 +387,7 @@ CREATE TABLE `data_stream`
     `modifier`               varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`              json              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
+    `temp_view`              text              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_data_stream` (`inlong_stream_id`, `inlong_group_id`, `is_deleted`, `modify_time`)
 ) ENGINE = InnoDB
@@ -408,7 +408,7 @@ CREATE TABLE `data_stream_ext`
     `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     KEY `index_stream_id` (`inlong_stream_id`),
-    UNIQUE KEY `group_stream_key_idx` (`inlong_group_id`,`inlong_stream_id`,`key_name`)
+    UNIQUE KEY `group_stream_key_idx` (`inlong_group_id`, `inlong_stream_id`, `key_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Data stream extension table';
 
@@ -430,7 +430,7 @@ CREATE TABLE `data_stream_field`
     `rank_num`            smallint(6)  DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`          int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`),
-    KEY `index_stream_id` (`inlong_stream_id`)
+    KEY `index_field_stream_id` (`inlong_stream_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='File/DB data source field table';
 
@@ -474,8 +474,8 @@ CREATE TABLE `role`
     `update_by`   varchar(256) NOT NULL,
     `disabled`    tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Is it disabled?',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `role_role_code_uindex` (`role_code`),
-    UNIQUE KEY `role_role_name_uindex` (`role_name`)
+    UNIQUE KEY `unique_role_code_idx` (`role_code`),
+    UNIQUE KEY `unique_role_name_idx` (`role_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Role Table';
 
@@ -494,7 +494,7 @@ CREATE TABLE `source_db_basic`
     `modifier`         varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`        json              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
+    `temp_view`        text              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Basic configuration of DB data source';
@@ -523,7 +523,7 @@ CREATE TABLE `source_db_detail`
     `modifier`         varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`        json              DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
+    `temp_view`        text              DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='DB data source details table';
@@ -549,7 +549,7 @@ CREATE TABLE `source_file_basic`
     `modifier`          varchar(64)       DEFAULT NULL COMMENT 'Modifier',
     `create_time`       timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`       timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`         json              DEFAULT NULL COMMENT 'temp view',
+    `temp_view`         text              DEFAULT NULL COMMENT 'temp view',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='basic configuration of file data source';
@@ -579,7 +579,7 @@ CREATE TABLE `source_file_detail`
     `modifier`         varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`        json              DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
+    `temp_view`        text              DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Detailed table of file data source';
@@ -665,7 +665,7 @@ CREATE TABLE `user`
     `create_by`    varchar(256) NOT NULL COMMENT 'create by sb.',
     `update_by`    varchar(256)          DEFAULT NULL COMMENT 'update by sb.',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `user_name_uindex` (`name`)
+    UNIQUE KEY `unique_user_name_idx` (`name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='User table';
 
@@ -693,10 +693,10 @@ CREATE TABLE `user_role`
   DEFAULT CHARSET = utf8mb4 COMMENT ='User Role Table';
 
 -- ----------------------------
--- Table structure for wf_approver
+-- Table structure for workflow_approver
 -- ----------------------------
-DROP TABLE IF EXISTS `wf_approver`;
-CREATE TABLE `wf_approver`
+DROP TABLE IF EXISTS `workflow_approver`;
+CREATE TABLE `workflow_approver`
 (
     `id`                int(11)       NOT NULL AUTO_INCREMENT,
     `process_name`      varchar(256)  NOT NULL COMMENT 'process definition name',
@@ -716,31 +716,31 @@ CREATE TABLE `wf_approver`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow approver table';
 
 -- create default approver for new consumption and new business
-INSERT INTO `wf_approver`(`process_name`, `task_name`, `filter_key`, `filter_value`, `approvers`,
-                          `creator`, `modifier`, `create_time`, `modify_time`, `is_deleted`)
+INSERT INTO `workflow_approver`(`process_name`, `task_name`, `filter_key`, `filter_value`, `approvers`,
+                                `creator`, `modifier`, `create_time`, `modify_time`, `is_deleted`)
 VALUES ('NEW_CONSUMPTION_WORKFLOW', 'ut_admin', 'DEFAULT', NULL, 'admin',
         'inlong_init', 'inlong_init', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
        ('NEW_BUSINESS_WORKFLOW', 'ut_admin', 'DEFAULT', NULL, 'admin',
         'inlong_init', 'inlong_init', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
 
 -- ----------------------------
--- Table structure for wf_event_log
+-- Table structure for workflow_event_log
 -- ----------------------------
-DROP TABLE IF EXISTS `wf_event_log`;
-CREATE TABLE `wf_event_log`
+DROP TABLE IF EXISTS `workflow_event_log`;
+CREATE TABLE `workflow_event_log`
 (
     `id`                   int(11)      NOT NULL AUTO_INCREMENT,
-    `process_inst_id`      int(11)      NOT NULL,
-    `process_name`         varchar(256)  DEFAULT NULL COMMENT 'Process name',
-    `process_display_name` varchar(256) NOT NULL COMMENT 'Process name',
+    `process_id`           int(11)      NOT NULL,
+    `process_name`         varchar(256)  DEFAULT NULL COMMENT 'WorkflowProcess name',
+    `process_display_name` varchar(256) NOT NULL COMMENT 'WorkflowProcess name',
     `inlong_group_id`      varchar(256)  DEFAULT NULL COMMENT 'Business group id',
-    `task_inst_id`         int(11)       DEFAULT NULL COMMENT 'Task ID',
+    `task_id`              int(11)       DEFAULT NULL COMMENT 'WorkflowTask ID',
     `element_name`         varchar(256) NOT NULL COMMENT 'The name of the component that triggered the event',
-    `element_display_name` varchar(256) NOT NULL COMMENT 'Chinese name of the component that triggered the event',
+    `element_display_name` varchar(256) NOT NULL COMMENT 'Name of the component that triggered the event',
     `event_type`           varchar(64)  NOT NULL COMMENT 'Event type: process event/task event',
     `event`                varchar(64)  NOT NULL COMMENT 'Event name',
     `listener`             varchar(1024) DEFAULT NULL COMMENT 'Event listener name',
-    `state`                int(11)      NOT NULL COMMENT 'state',
+    `status`               int(11)      NOT NULL COMMENT 'status',
     `async`                tinyint(1)   NOT NULL COMMENT 'Asynchronous or not',
     `ip`                   varchar(64)   DEFAULT NULL COMMENT 'IP address executed by listener',
     `start_time`           datetime     NOT NULL COMMENT 'Monitor start execution time',
@@ -752,53 +752,53 @@ CREATE TABLE `wf_event_log`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow event log table';
 
 -- ----------------------------
--- Table structure for wf_process_instance
+-- Table structure for workflow_process
 -- ----------------------------
-DROP TABLE IF EXISTS `wf_process_instance`;
-CREATE TABLE `wf_process_instance`
+DROP TABLE IF EXISTS `workflow_process`;
+CREATE TABLE `workflow_process`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT,
     `name`            varchar(256) NOT NULL COMMENT 'process name',
-    `display_name`    varchar(256) NOT NULL COMMENT 'Process display name',
-    `type`            varchar(256)          DEFAULT NULL COMMENT 'Process classification',
-    `title`           varchar(256)          DEFAULT NULL COMMENT 'Process title',
+    `display_name`    varchar(256) NOT NULL COMMENT 'WorkflowProcess display name',
+    `type`            varchar(256)          DEFAULT NULL COMMENT 'WorkflowProcess classification',
+    `title`           varchar(256)          DEFAULT NULL COMMENT 'WorkflowProcess title',
     `inlong_group_id` varchar(256)          DEFAULT NULL COMMENT 'Business group id: to facilitate related business',
     `applicant`       varchar(256) NOT NULL COMMENT 'applicant',
-    `state`           varchar(64)  NOT NULL COMMENT 'state',
+    `status`          varchar(64)  NOT NULL COMMENT 'status',
     `form_data`       mediumtext COMMENT 'form information',
     `start_time`      datetime     NOT NULL COMMENT 'start time',
     `end_time`        datetime              DEFAULT NULL COMMENT 'End event',
-    `ext`             text COMMENT 'Extended information-json',
-    `hidden`          tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Is it hidden',
+    `ext_params`      text COMMENT 'Extended information-json',
+    `hidden`          tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Whether to hidden, 0: not hidden, 1: hidden',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Process instance';
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow process table';
 
 -- ----------------------------
--- Table structure for wf_task_instance
+-- Table structure for workflow_task
 -- ----------------------------
-DROP TABLE IF EXISTS `wf_task_instance`;
-CREATE TABLE `wf_task_instance`
+DROP TABLE IF EXISTS `workflow_task`;
+CREATE TABLE `workflow_task`
 (
     `id`                   int(11)       NOT NULL AUTO_INCREMENT,
-    `type`                 varchar(64)   NOT NULL COMMENT 'Task type: UserTask user task/ServiceTask system task',
-    `process_inst_id`      int(11)       NOT NULL COMMENT 'process ID',
-    `process_name`         varchar(256)  NOT NULL COMMENT 'process name',
-    `process_display_name` varchar(256)  NOT NULL COMMENT 'process name',
-    `name`                 varchar(256)  NOT NULL COMMENT 'task name',
+    `type`                 varchar(64)   NOT NULL COMMENT 'Task type: UserTask / ServiceTask',
+    `process_id`           int(11)       NOT NULL COMMENT 'Process ID',
+    `process_name`         varchar(256)  NOT NULL COMMENT 'Process name',
+    `process_display_name` varchar(256)  NOT NULL COMMENT 'Process name',
+    `name`                 varchar(256)  NOT NULL COMMENT 'Task name',
     `display_name`         varchar(256)  NOT NULL COMMENT 'Task display name',
     `applicant`            varchar(64)   DEFAULT NULL COMMENT 'applicant',
     `approvers`            varchar(1024) NOT NULL COMMENT 'approvers',
-    `state`                varchar(64)   NOT NULL COMMENT 'state',
+    `status`               varchar(64)   NOT NULL COMMENT 'status',
     `operator`             varchar(256)  DEFAULT NULL COMMENT 'actual operator',
     `remark`               varchar(1024) DEFAULT NULL COMMENT 'Remark information',
     `form_data`            mediumtext COMMENT 'form information submitted by the current task',
     `start_time`           datetime      NOT NULL COMMENT 'start time',
     `end_time`             datetime      DEFAULT NULL COMMENT 'End time',
-    `ext`                  text COMMENT 'Extended information-json',
+    `ext_params`           text COMMENT 'Extended information-json',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Task instance';
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow task table';
 
 -- ----------------------------
 -- Table structure for cluster_set

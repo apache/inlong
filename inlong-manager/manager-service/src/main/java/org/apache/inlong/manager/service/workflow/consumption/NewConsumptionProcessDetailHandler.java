@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.service.workflow.consumption;
 
-import org.apache.inlong.manager.common.workflow.ProcessDefinitionService;
-import org.apache.inlong.manager.common.model.definition.Process;
-import org.apache.inlong.manager.common.model.definition.ProcessDetailHandler;
-import org.apache.inlong.manager.common.model.view.ProcessDetail;
+import org.apache.inlong.manager.common.pojo.workflow.ProcessDetailResponse;
+import org.apache.inlong.manager.workflow.base.ProcessDefinitionService;
+import org.apache.inlong.manager.workflow.definition.ProcessDetailHandler;
+import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.util.WorkflowFormParserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,17 +35,17 @@ public class NewConsumptionProcessDetailHandler implements ProcessDetailHandler 
     private ProcessDefinitionService processDefinitionService;
 
     @Override
-    public ProcessDetail handle(ProcessDetail processDetail) {
-        Process process = processDefinitionService.getByName(processDetail.getWorkflow().getName());
+    public ProcessDetailResponse handle(ProcessDetailResponse workflowResponse) {
+        WorkflowProcess process = processDefinitionService.getByName(workflowResponse.getWorkflow().getName());
 
-        NewConsumptionWorkflowForm workflowForm = WorkflowFormParserUtils
-                .parseProcessForm(processDetail.getProcessInfo().getFormData().toString(), process);
-
+        NewConsumptionProcessForm workflowForm = WorkflowFormParserUtils
+                .parseProcessForm(workflowResponse.getProcessInfo().getFormData().toString(), process);
         if (workflowForm == null) {
-            return processDetail;
+            return workflowResponse;
         }
 
-        processDetail.getProcessInfo().setFormData(workflowForm);
-        return processDetail;
+        workflowResponse.getProcessInfo().setFormData(workflowForm);
+        return workflowResponse;
     }
+
 }

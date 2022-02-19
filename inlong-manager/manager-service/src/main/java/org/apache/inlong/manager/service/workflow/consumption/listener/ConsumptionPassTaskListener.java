@@ -21,15 +21,15 @@ import com.alibaba.druid.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.workflow.consumption.ConsumptionAdminApproveForm;
-import org.apache.inlong.manager.service.workflow.consumption.NewConsumptionWorkflowForm;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.task.TaskEvent;
-import org.apache.inlong.manager.common.event.task.TaskEventListener;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.service.workflow.consumption.NewConsumptionProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.task.TaskEvent;
+import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -50,9 +50,8 @@ public class ConsumptionPassTaskListener implements TaskEventListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        NewConsumptionWorkflowForm form = (NewConsumptionWorkflowForm) context.getProcessForm();
-        ConsumptionAdminApproveForm approveForm = (ConsumptionAdminApproveForm) context.getActionContext()
-                .getForm();
+        NewConsumptionProcessForm form = (NewConsumptionProcessForm) context.getProcessForm();
+        ConsumptionAdminApproveForm approveForm = (ConsumptionAdminApproveForm) context.getActionContext().getForm();
         ConsumptionInfo info = form.getConsumptionInfo();
         if (StringUtils.equals(approveForm.getConsumerGroupId(), info.getConsumerGroupId())) {
             return ListenerResult.success("The consumer group name has not been modified");

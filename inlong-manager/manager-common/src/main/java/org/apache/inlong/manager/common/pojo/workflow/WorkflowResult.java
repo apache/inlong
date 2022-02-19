@@ -19,36 +19,21 @@ package org.apache.inlong.manager.common.pojo.workflow;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.Data;
-import org.apache.inlong.manager.common.model.WorkflowContext;
-import org.apache.inlong.manager.common.model.view.ProcessView;
-import org.apache.inlong.manager.common.model.view.TaskView;
+
+import java.util.List;
 
 /**
  * Workflow results
- *
  */
 @Data
-@ApiModel("Workflow interface response interface")
+@ApiModel("Workflow interface response")
 public class WorkflowResult {
 
     @ApiModelProperty(value = "Application form information")
-    private ProcessView processInfo;
+    private ProcessResponse processInfo;
 
     @ApiModelProperty(value = "Newly generated tasks")
-    private List<TaskView> newTasks;
+    private List<TaskResponse> newTasks;
 
-    public static WorkflowResult of(WorkflowContext context) {
-        if (context == null) {
-            return null;
-        }
-        WorkflowResult workflowResult = new WorkflowResult();
-        workflowResult.setProcessInfo(ProcessView.fromProcessInstance(context.getProcessInstance()));
-        workflowResult.setNewTasks(
-                context.getNewTaskInstances().stream().map(TaskView::fromTaskInstance).collect(Collectors.toList())
-        );
-        return workflowResult;
-    }
 }

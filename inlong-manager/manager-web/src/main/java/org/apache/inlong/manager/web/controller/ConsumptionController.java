@@ -27,7 +27,7 @@ import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionListVo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionSummary;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
@@ -55,14 +55,14 @@ public class ConsumptionController {
     @GetMapping("/summary")
     @ApiOperation(value = "Get data consumption summary")
     public Response<ConsumptionSummary> getSummary(ConsumptionQuery query) {
-        query.setUserName(LoginUserUtil.getLoginUserDetail().getUserName());
+        query.setUserName(LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(consumptionService.getSummary(query));
     }
 
     @GetMapping("/list")
     @ApiOperation(value = "List data consumptions")
     public Response<PageInfo<ConsumptionListVo>> list(ConsumptionQuery query) {
-        query.setUserName(LoginUserUtil.getLoginUserDetail().getUserName());
+        query.setUserName(LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(consumptionService.list(query));
     }
 
@@ -78,7 +78,7 @@ public class ConsumptionController {
     @ApiOperation(value = "Delete data consumption")
     @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)
     public Response<Object> delete(@PathVariable(name = "id") Integer id) {
-        this.consumptionService.delete(id, LoginUserUtil.getLoginUserDetail().getUserName());
+        this.consumptionService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success();
     }
 
@@ -86,7 +86,7 @@ public class ConsumptionController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Save data consumption", notes = "Full coverage")
     public Response<Integer> save(@Validated @RequestBody ConsumptionInfo consumptionInfo) {
-        String currentUser = LoginUserUtil.getLoginUserDetail().getUserName();
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
         return Response.success(consumptionService.save(consumptionInfo, currentUser));
     }
 
@@ -96,7 +96,7 @@ public class ConsumptionController {
     public Response<String> update(@PathVariable(name = "id") Integer id,
             @Validated @RequestBody ConsumptionInfo consumptionInfo) {
         consumptionInfo.setId(id);
-        consumptionService.update(consumptionInfo, LoginUserUtil.getLoginUserDetail().getUserName());
+        consumptionService.update(consumptionInfo, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success();
     }
 
@@ -105,7 +105,7 @@ public class ConsumptionController {
     @ApiOperation(value = "Start approval process")
     @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> startProcess(@PathVariable(name = "id") Integer id) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
         return Response.success(this.consumptionService.startProcess(id, username));
     }
 

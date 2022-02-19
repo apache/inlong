@@ -20,10 +20,6 @@ package org.apache.inlong.manager.service.workflow.stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.BizConstant;
-import org.apache.inlong.manager.common.model.definition.EndEvent;
-import org.apache.inlong.manager.common.model.definition.Process;
-import org.apache.inlong.manager.common.model.definition.ServiceTask;
-import org.apache.inlong.manager.common.model.definition.StartEvent;
 import org.apache.inlong.manager.service.storage.StorageService;
 import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableForStreamListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarGroupForStreamTaskListener;
@@ -31,8 +27,12 @@ import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarTopicForStream
 import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigTaskListener;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
+import org.apache.inlong.manager.service.workflow.business.BusinessResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.business.listener.InitBusinessInfoListener;
+import org.apache.inlong.manager.workflow.definition.EndEvent;
+import org.apache.inlong.manager.workflow.definition.ServiceTask;
+import org.apache.inlong.manager.workflow.definition.StartEvent;
+import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -64,9 +64,9 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
     private CreatePulsarGroupForStreamTaskListener createPulsarGroupTaskListener;
 
     @Override
-    public Process defineProcess() {
+    public WorkflowProcess defineProcess() {
         // Configuration process
-        Process process = new Process();
+        WorkflowProcess process = new WorkflowProcess();
         process.addListener(initBusinessInfoListener);
         process.addListener(streamFailedProcessListener);
         process.addListener(streamCompleteProcessListener);
@@ -74,9 +74,9 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         process.setType("Data stream access resource creation");
         process.setName(getProcessName().name());
         process.setDisplayName(getProcessName().getDisplayName());
-        process.setFormClass(BusinessResourceWorkflowForm.class);
+        process.setFormClass(BusinessResourceProcessForm.class);
         process.setVersion(1);
-        process.setHidden(true);
+        process.setHidden(1);
 
         // Start node
         StartEvent startEvent = new StartEvent();
@@ -88,7 +88,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
 
         ServiceTask createPulsarTopicTask = new ServiceTask();
         createPulsarTopicTask.setSkipResolver(c -> {
-            BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) c.getProcessForm();
+            BusinessResourceProcessForm form = (BusinessResourceProcessForm) c.getProcessForm();
             String middlewareType = form.getBusinessInfo().getMiddlewareType();
             if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
                 return false;
@@ -104,7 +104,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
 
         ServiceTask createPulsarSubscriptionGroupTask = new ServiceTask();
         createPulsarSubscriptionGroupTask.setSkipResolver(c -> {
-            BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) c.getProcessForm();
+            BusinessResourceProcessForm form = (BusinessResourceProcessForm) c.getProcessForm();
             String middlewareType = form.getBusinessInfo().getMiddlewareType();
             if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
                 return false;
@@ -120,7 +120,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
 
         ServiceTask createHiveTableTask = new ServiceTask();
         createHiveTableTask.setSkipResolver(c -> {
-            BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) c.getProcessForm();
+            BusinessResourceProcessForm form = (BusinessResourceProcessForm) c.getProcessForm();
             String groupId = form.getInlongGroupId();
             String streamId = form.getInlongStreamId();
             List<String> dsForHive = storageService.getExistsStreamIdList(groupId, BizConstant.STORAGE_HIVE,
@@ -157,4 +157,5 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
     public ProcessName getProcessName() {
         return ProcessName.CREATE_DATASTREAM_RESOURCE;
     }
+
 }

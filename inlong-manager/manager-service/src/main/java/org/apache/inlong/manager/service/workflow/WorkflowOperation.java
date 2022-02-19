@@ -29,9 +29,9 @@ import lombok.Data;
 public class WorkflowOperation {
 
     /**
-     * Process name-KEY
+     * WorkflowProcess name-KEY
      */
-    @ApiModelProperty(value = "Process name", notes = "Specify the process name when initiating the process")
+    @ApiModelProperty(value = "WorkflowProcess name", notes = "Specify the process name when initiating the process")
     public ProcessName name;
     /**
      * Applicant
@@ -49,5 +49,6 @@ public class WorkflowOperation {
      */
     @ApiModelProperty(value = "Form information", notes = "When initiating a process or approving task, "
             + "submit the form information that needs to be submitted")
-    public BaseWorkflowFormType form;
+    public BaseProcessForm form;
+
 }

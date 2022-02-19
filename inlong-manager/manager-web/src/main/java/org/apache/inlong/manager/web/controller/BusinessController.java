@@ -28,11 +28,11 @@ import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessListVO;
 import org.apache.inlong.manager.common.pojo.business.BusinessPageRequest;
 import org.apache.inlong.manager.common.pojo.business.BusinessTopicVO;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.impl.BusinessProcessOperation;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -57,7 +57,8 @@ public class BusinessController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save business information")
     public Response<String> save(@RequestBody BusinessInfo businessInfo) {
-        return Response.success(businessService.save(businessInfo, LoginUserUtil.getLoginUserDetail().getUserName()));
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(businessService.save(businessInfo, operator));
     }
 
     @RequestMapping(value = "/get/{groupId}", method = RequestMethod.GET)
@@ -70,7 +71,7 @@ public class BusinessController {
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ApiOperation(value = "Query business list according to conditions")
     public Response<PageInfo<BusinessListVO>> listByCondition(BusinessPageRequest request) {
-        request.setCurrentUser(LoginUserUtil.getLoginUserDetail().getUserName());
+        request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(businessService.listByCondition(request));
     }
 
@@ -78,7 +79,8 @@ public class BusinessController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Modify business information")
     public Response<String> update(@RequestBody BusinessInfo businessInfo) {
-        return Response.success(businessService.update(businessInfo, LoginUserUtil.getLoginUserDetail().getUserName()));
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(businessService.update(businessInfo, operator));
     }
 
     @RequestMapping(value = "/delete/{groupId}", method = RequestMethod.DELETE)
@@ -86,8 +88,8 @@ public class BusinessController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "groupId", value = "Business group id", dataTypeClass = String.class, required = true)
     public Response<Boolean> delete(@PathVariable String groupId) {
-        return Response.success(bizProcessOperation.deleteProcess(groupId, 
-                LoginUserUtil.getLoginUserDetail().getUserName()));
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(bizProcessOperation.deleteProcess(groupId, operator));
     }
 
     @RequestMapping(value = "/exist/{groupId}", method = RequestMethod.GET)
@@ -100,31 +102,32 @@ public class BusinessController {
     @RequestMapping(value = "/countByStatus", method = RequestMethod.GET)
     @ApiOperation(value = "Statistics of current user's business status")
     public Response<BusinessCountVO> countCurrentUserBusiness() {
-        return Response.success(businessService.countBusinessByUser(LoginUserUtil.getLoginUserDetail().getUserName()));
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(businessService.countBusinessByUser(operator));
     }
 
     @RequestMapping(value = "startProcess/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Start approval process")
     @ApiImplicitParam(name = "groupId", value = "Business group id", dataTypeClass = String.class)
     public Response<WorkflowResult> startProcess(@PathVariable String groupId) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
-        return Response.success(bizProcessOperation.startProcess(groupId, username));
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(bizProcessOperation.startProcess(groupId, operator));
     }
 
     @RequestMapping(value = "suspendProcess/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Suspend process")
     @ApiImplicitParam(name = "groupId", value = "Business group id", dataTypeClass = String.class)
     public Response<WorkflowResult> suspendProcess(@PathVariable String groupId) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
-        return Response.success(bizProcessOperation.suspendProcess(groupId, username));
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(bizProcessOperation.suspendProcess(groupId, operator));
     }
 
     @RequestMapping(value = "restartProcess/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Restart process")
     @ApiImplicitParam(name = "groupId", value = "Business group id", dataTypeClass = String.class)
     public Response<WorkflowResult> restartProcess(@PathVariable String groupId) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
-        return Response.success(bizProcessOperation.restartProcess(groupId, username));
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(bizProcessOperation.restartProcess(groupId, operator));
     }
 
     @RequestMapping(value = "getTopic/{groupId}", method = RequestMethod.GET)

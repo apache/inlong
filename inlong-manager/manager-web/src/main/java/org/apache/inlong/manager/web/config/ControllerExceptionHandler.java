@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.user.UserDetail;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.shiro.authc.AuthenticationException;
 import org.springframework.http.converter.HttpMessageConversionException;
@@ -48,7 +48,7 @@ public class ControllerExceptionHandler {
         for (ConstraintViolation<?> violation : violations) {
             stringBuilder.append(violation.getMessage()).append(".");
         }
-        UserDetail userDetail = LoginUserUtil.getLoginUserDetail();
+        UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
         log.error("Failed to handle request on path:" + request.getRequestURI()
                 + (userDetail != null ? ", user:" + userDetail.getUserName() : ""), e);
         return Response.fail(stringBuilder.toString());
@@ -58,7 +58,7 @@ public class ControllerExceptionHandler {
     @ResponseBody
     public Response<String> handleMethodArgumentNotValidException(HttpServletRequest request,
             MethodArgumentNotValidException e) {
-        UserDetail userDetail = LoginUserUtil.getLoginUserDetail();
+        UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
         log.error("Failed to handle request on path:" + request.getRequestURI()
                 + (userDetail != null ? ", user:" + userDetail.getUserName() : ""), e);
         return Response.fail(e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
@@ -67,7 +67,7 @@ public class ControllerExceptionHandler {
     @ResponseBody
     @ExceptionHandler(value = IllegalArgumentException.class)
     public Response<String> handleIllegalArgumentException(HttpServletRequest request, IllegalArgumentException e) {
-        UserDetail userDetail = LoginUserUtil.getLoginUserDetail();
+        UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
         log.error("Failed to handle request on path:" + request.getRequestURI()
                 + (userDetail != null ? ", user:" + userDetail.getUserName() : ""), e);
         return Response.fail(e.getMessage());
@@ -76,7 +76,7 @@ public class ControllerExceptionHandler {
     @ResponseBody
     @ExceptionHandler(value = BindException.class)
     public Response<String> handleBindExceptionHandler(HttpServletRequest request, BindException e) {
-        UserDetail userDetail = LoginUserUtil.getLoginUserDetail();
+        UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
         log.error("Failed to handle request on path:" + request.getRequestURI()
                 + (userDetail != null ? ", user:" + userDetail.getUserName() : ""), e);
         return Response.fail(e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
@@ -86,7 +86,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(value = HttpMessageConversionException.class)
     public Response<String> handleHttpMessageConversionExceptionHandler(HttpServletRequest request,
             HttpMessageConversionException e) {
-        UserDetail userDetail = LoginUserUtil.getLoginUserDetail();
+        UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
         log.error("Failed to handle request on path:" + request.getRequestURI()
                 + (userDetail != null ? ", user:" + userDetail.getUserName() : ""), e);
         return Response.fail("http message convert exception! pls check params");
@@ -95,7 +95,7 @@ public class ControllerExceptionHandler {
     @ResponseBody
     @ExceptionHandler(value = WorkflowException.class)
     public Response<String> handleWorkflowException(HttpServletRequest request, WorkflowException e) {
-        UserDetail userDetail = LoginUserUtil.getLoginUserDetail();
+        UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
         log.error("Failed to handle request on path:" + request.getRequestURI()
                 + (userDetail != null ? ", user:" + userDetail.getUserName() : ""), e);
         return Response.fail(e.getMessage());
@@ -104,7 +104,7 @@ public class ControllerExceptionHandler {
     @ResponseBody
     @ExceptionHandler(value = BusinessException.class)
     public Response<String> handleBusinessExceptionHandler(HttpServletRequest request, BusinessException e) {
-        UserDetail userDetail = LoginUserUtil.getLoginUserDetail();
+        UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
         log.error("Failed to handle request on path:" + request.getRequestURI()
                 + (userDetail != null ? ", user:" + userDetail.getUserName() : ""), e);
         return Response.fail(e.getMessage());
@@ -120,7 +120,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public Response<String> handle(HttpServletRequest request, Exception e) {
-        UserDetail userDetail = LoginUserUtil.getLoginUserDetail();
+        UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
         log.error("Failed to handle request on path:" + request.getRequestURI()
                 + (userDetail != null ? ", user:" + userDetail.getUserName() : ""), e);
         return Response.fail("There was an error in the service..."

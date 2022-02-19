@@ -19,15 +19,15 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
-import org.apache.inlong.manager.common.model.ProcessState;
-import org.apache.inlong.manager.common.model.view.ProcessView;
+import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
+import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
+import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
 import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,28 +72,28 @@ public class BusinessProcessOperationTest extends ServiceBaseTest {
     public void testStartProcess() {
         before(EntityStatus.BIZ_WAIT_SUBMIT.getCode());
         WorkflowResult result = businessProcessOperation.startProcess(GROUP_ID, OPERATOR);
-        ProcessView processView = result.getProcessInfo();
-        Assert.assertTrue(processView.getState() == ProcessState.PROCESSING);
+        ProcessResponse response = result.getProcessInfo();
+        Assert.assertSame(response.getStatus(), ProcessStatus.PROCESSING);
         BusinessInfo businessInfo = businessService.get(GROUP_ID);
-        Assert.assertTrue(businessInfo.getStatus().equals(EntityStatus.BIZ_WAIT_SUBMIT.getCode()));
+        Assert.assertEquals(businessInfo.getStatus(), EntityStatus.BIZ_WAIT_SUBMIT.getCode());
     }
 
     @Test
     public void testSuspendProcess() {
         before(EntityStatus.BIZ_APPROVE_PASSED.getCode());
         WorkflowResult result = businessProcessOperation.suspendProcess(GROUP_ID, OPERATOR);
-        ProcessView processView = result.getProcessInfo();
-        Assert.assertTrue(processView.getState() == ProcessState.COMPLETED);
+        ProcessResponse response = result.getProcessInfo();
+        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
         BusinessInfo businessInfo = businessService.get(GROUP_ID);
-        Assert.assertTrue(businessInfo.getStatus().equals(EntityStatus.BIZ_SUSPEND.getCode()));
+        Assert.assertEquals(businessInfo.getStatus(), EntityStatus.BIZ_SUSPEND.getCode());
     }
 
     @Test
     public void testRestartProcess() {
         before(EntityStatus.BIZ_SUSPEND.getCode());
         WorkflowResult result = businessProcessOperation.restartProcess(GROUP_ID, OPERATOR);
-        ProcessView processView = result.getProcessInfo();
-        Assert.assertSame(processView.getState(), ProcessState.COMPLETED);
+        ProcessResponse response = result.getProcessInfo();
+        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
         BusinessInfo businessInfo = businessService.get(GROUP_ID);
         Assert.assertEquals(businessInfo.getStatus(), EntityStatus.BIZ_RESTART.getCode());
     }

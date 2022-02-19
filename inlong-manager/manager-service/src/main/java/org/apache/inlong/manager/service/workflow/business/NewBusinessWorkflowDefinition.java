@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.workflow.business;
 
-import java.util.List;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
@@ -26,12 +25,14 @@ import org.apache.inlong.manager.service.workflow.business.listener.BusinessCanc
 import org.apache.inlong.manager.service.workflow.business.listener.BusinessPassTaskListener;
 import org.apache.inlong.manager.service.workflow.business.listener.BusinessRejectProcessListener;
 import org.apache.inlong.manager.service.workflow.business.listener.StartCreateResourceProcessListener;
-import org.apache.inlong.manager.common.model.definition.EndEvent;
-import org.apache.inlong.manager.common.model.definition.Process;
-import org.apache.inlong.manager.common.model.definition.StartEvent;
-import org.apache.inlong.manager.common.model.definition.UserTask;
+import org.apache.inlong.manager.workflow.definition.EndEvent;
+import org.apache.inlong.manager.workflow.definition.StartEvent;
+import org.apache.inlong.manager.workflow.definition.UserTask;
+import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * New data access process definition
@@ -51,13 +52,13 @@ public class NewBusinessWorkflowDefinition implements WorkflowDefinition {
     private WorkflowApproverService workflowApproverService;
 
     @Override
-    public Process defineProcess() {
+    public WorkflowProcess defineProcess() {
         // Configuration process
-        Process process = new Process();
+        WorkflowProcess process = new WorkflowProcess();
         process.setType(getProcessName().getDisplayName());
         process.setName(getProcessName().name());
         process.setDisplayName(getProcessName().getDisplayName());
-        process.setFormClass(NewBusinessWorkflowForm.class);
+        process.setFormClass(NewBusinessProcessForm.class);
         process.setVersion(1);
 
         // Set up the listener

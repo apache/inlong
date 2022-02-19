@@ -33,8 +33,14 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface JsonTypeDefine {
 
+    /**
+     * Value of the type
+     */
     String value() default "";
 
+    /**
+     * Description of the type
+     */
     String desc() default "";
 
 }

@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.workflow;
 
 /**
- * Process name
+ * WorkflowProcess name
  */
 public enum ProcessName {
 

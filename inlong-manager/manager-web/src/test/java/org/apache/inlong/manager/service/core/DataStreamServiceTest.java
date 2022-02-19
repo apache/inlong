@@ -40,6 +40,9 @@ public class DataStreamServiceTest extends WebBaseTest {
     @Autowired
     private BusinessServiceTest businessServiceTest;
 
+    /**
+     * Test save inlong stream
+     */
     public Integer saveDataStream(String groupId, String streamId, String operator) {
         DataStreamInfo streamInfo;
         try {

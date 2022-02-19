@@ -41,11 +41,11 @@
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
-        from wf_approver
+        from workflow_approver
         where id = #{id,jdbcType=INTEGER} and is_deleted=0
     </select>
     <delete id="deleteByPrimaryKey">
-        update wf_approver
+        update workflow_approver
         set is_deleted = id,
             modify_time=now(),
             modifier=#{modifier,jdbcType=VARCHAR}
@@ -53,7 +53,7 @@
     </delete>
     <insert id="insert"
             parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
-        insert into wf_approver (id, process_name, task_name,
+        insert into workflow_approver (id, process_name, task_name,
                                  filter_key, filter_value, filter_value_desc, approvers,
                                  creator, modifier, create_time,
                                  modify_time, is_deleted)
@@ -65,7 +65,7 @@
     </insert>
     <insert id="insertSelective"
             parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
-        insert into wf_approver
+        insert into workflow_approver
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 id,
@@ -145,7 +145,7 @@
     </insert>
     <update id="updateByPrimaryKeySelective"
             parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
-        update wf_approver
+        update workflow_approver
         <set>
             <if test="processName != null">
                 process_name = #{processName,jdbcType=VARCHAR},
@@ -185,7 +185,7 @@
     </update>
     <update id="updateByPrimaryKey"
             parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
-        update wf_approver
+        update workflow_approver
         set process_name = #{processName,jdbcType=VARCHAR},
             task_name    = #{taskName,jdbcType=VARCHAR},
             filter_key   = #{filterKey,jdbcType=VARCHAR},
@@ -204,7 +204,7 @@
             resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
-        from wf_approver
+        from workflow_approver
         where is_deleted =0
         <if test="processName != null and processName!=''">
             and process_name = #{processName,jdbcType=VARCHAR}

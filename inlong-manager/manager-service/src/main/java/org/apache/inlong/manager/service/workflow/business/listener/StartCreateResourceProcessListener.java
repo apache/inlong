@@ -18,16 +18,16 @@
 package org.apache.inlong.manager.service.workflow.business.listener;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
-import org.apache.inlong.manager.service.workflow.business.NewBusinessWorkflowForm;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.process.ProcessEvent;
-import org.apache.inlong.manager.common.event.process.ProcessEventListener;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.service.workflow.business.BusinessResourceProcessForm;
+import org.apache.inlong.manager.service.workflow.business.NewBusinessProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
+import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -53,10 +53,10 @@ public class StartCreateResourceProcessListener implements ProcessEventListener 
      */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        NewBusinessWorkflowForm workflowForm = (NewBusinessWorkflowForm) context.getProcessForm();
+        NewBusinessProcessForm workflowForm = (NewBusinessProcessForm) context.getProcessForm();
 
         String groupId = workflowForm.getInlongGroupId();
-        BusinessResourceWorkflowForm resourceWorkflowForm = new BusinessResourceWorkflowForm();
+        BusinessResourceProcessForm resourceWorkflowForm = new BusinessResourceProcessForm();
         resourceWorkflowForm.setBusinessInfo(businessService.get(groupId));
         String username = context.getApplicant();
         workflowService.start(ProcessName.CREATE_BUSINESS_RESOURCE, username, resourceWorkflowForm);
@@ -68,4 +68,5 @@ public class StartCreateResourceProcessListener implements ProcessEventListener 
     public boolean async() {
         return true;
     }
+
 }
