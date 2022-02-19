@@ -24,6 +24,8 @@ public class BizConstant {
 
     public static final String STORAGE_HIVE = "HIVE";
 
+    public static final String STORAGE_KAFKA = "KAFKA";
+
     public static final String DATA_SOURCE_DB = "DB";
 
     public static final String DATA_SOURCE_FILE = "FILE";
