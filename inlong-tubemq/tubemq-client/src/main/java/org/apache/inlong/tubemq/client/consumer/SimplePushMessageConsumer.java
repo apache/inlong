@@ -249,7 +249,7 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
         } else {
             this.receiveMessages(request, topicProcessor);
         }
-        baseConsumer.clientMetrics.bookConfirmDuration(
+        baseConsumer.clientStatsInfo.bookConfirmDuration(
                 System.currentTimeMillis() - request.getUsedToken());
         return true;
     }

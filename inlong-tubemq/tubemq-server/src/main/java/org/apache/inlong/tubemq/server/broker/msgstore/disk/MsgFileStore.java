@@ -188,8 +188,10 @@ public class MsgFileStore implements Closeable {
             long currTime = System.currentTimeMillis();
             isMsgDataFlushed = (messageStore.getUnflushDataHold() > 0)
                     && (curUnflushSize.get() >= messageStore.getUnflushDataHold());
-            if ((isMsgCntFlushed = this.curUnflushed.addAndGet(msgCnt) >= messageStore.getUnflushThreshold())
-                || (isMsgTimeFlushed = currTime - this.lastFlushTime.get() >= messageStore.getUnflushInterval())
+            if ((isMsgCntFlushed =
+                    (this.curUnflushed.addAndGet(msgCnt) >= messageStore.getUnflushThreshold()))
+                || (isMsgTimeFlushed =
+                    (currTime - this.lastFlushTime.get() >= messageStore.getUnflushInterval()))
                 || isMsgDataFlushed || isDataSegFlushed || isIndexSegFlushed) {
                 isForceMetadata = (isDataSegFlushed || isIndexSegFlushed
                     || (currTime - this.lastMetaFlushTime.get() > MAX_META_REFRESH_DUR));

@@ -20,6 +20,8 @@ package org.apache.inlong.tubemq.server.broker.stats;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.metric.impl.ESTHistogram;
 import org.apache.inlong.tubemq.corebase.metric.impl.LongStatsCounter;
 import org.apache.inlong.tubemq.corebase.metric.impl.SimpleHistogram;
@@ -352,7 +354,7 @@ public class MsgStoreStatsHolder {
         long curSwitchTime = lstSnapshotTime.get();
         // Avoid frequent snapshots
         if ((System.currentTimeMillis() - curSwitchTime)
-                >= TServerConstants.MIN_SNAPSHOT_PERIOD_MS) {
+                >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
             if (lstSnapshotTime.compareAndSet(curSwitchTime, System.currentTimeMillis())) {
                 msgStoreStatsSets[getIndex(writableIndex.get() - 1)].clear();
                 msgStoreStatsSets[getIndex(writableIndex.getAndIncrement())]

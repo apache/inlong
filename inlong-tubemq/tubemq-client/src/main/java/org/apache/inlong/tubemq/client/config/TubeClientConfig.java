@@ -56,11 +56,11 @@ public class TubeClientConfig {
     // Link statistic check duration in ms.
     private long linkStatsDurationMs = RpcConstants.CFG_LQ_STATS_DURATION_MS;
     // Enable metric information print
-    private boolean enableMetricPrint = true;
+    private boolean enableStatsSelfPrint = true;
     // Metric print period in ms.
-    private long metricInfoPrintPeriodMs = TClientConstants.METRIC_PRINT_DEFAULT_PERIOD_MS;
+    private long statsSelfPrintPeriodMs = TClientConstants.STATS_SELF_PRINT_DEFAULT_PERIOD_MS;
     // Metric reset value period in ms.
-    private long metricForcedResetPeriodMs = TClientConstants.METRIC_RESET_DEFAULT_PERIOD_MS;
+    private long statsForcedResetPeriodMs = TClientConstants.STATS_AUTO_RESET_DEFAULT_PERIOD_MS;
 
     // The following 5 configuration parameters are used in broker exception process.
     //
@@ -469,34 +469,34 @@ public class TubeClientConfig {
         return usrPassWord;
     }
 
-    public boolean isEnableMetricPrint() {
-        return enableMetricPrint;
+    public boolean enableStatsSelfPrint() {
+        return enableStatsSelfPrint;
     }
 
-    public void setEnableMetricPrint(boolean enableMetricPrint) {
-        this.enableMetricPrint = enableMetricPrint;
+    public void setStatsSelfPrint(boolean enableStatsSelfPrint) {
+        this.enableStatsSelfPrint = enableStatsSelfPrint;
     }
 
-    public long getMetricInfoPrintPeriodMs() {
-        return metricInfoPrintPeriodMs;
+    public long getStatsSelfPrintPeriodMs() {
+        return statsSelfPrintPeriodMs;
     }
 
-    public void setMetricInfoPrintPeriodMs(long metricInfoPrintPeriodMs) {
-        this.metricInfoPrintPeriodMs =
-                MixedUtils.mid(metricInfoPrintPeriodMs,
-                        TClientConstants.METRIC_PRINT_MIN_PERIOD_MS,
-                        TClientConstants.METRIC_PRINT_MAX_PERIOD_MS);
+    public void setStatsSelfPrintPeriodMs(long statsSelfPrintPeriodMs) {
+        this.statsSelfPrintPeriodMs =
+                MixedUtils.mid(statsSelfPrintPeriodMs,
+                        TClientConstants.STATS_SELF_PRINT_MIN_PERIOD_MS,
+                        TClientConstants.STATS_SELF_PRINT_MAX_PERIOD_MS);
     }
 
-    public long getMetricForcedResetPeriodMs() {
-        return metricForcedResetPeriodMs;
+    public long getStatsForcedResetPeriodMs() {
+        return statsForcedResetPeriodMs;
     }
 
-    public void setMetricForcedResetPeriodMs(long metricForcedResetPeriodMs) {
-        this.metricForcedResetPeriodMs =
-                MixedUtils.mid(metricForcedResetPeriodMs,
-                        TClientConstants.METRIC_RESET_MIN_PERIOD_MS,
-                        TClientConstants.METRIC_RESET_MAX_PERIOD_MS);
+    public void setStatsForcedResetPeriodMs(long statsForcedResetPeriodMs) {
+        this.statsForcedResetPeriodMs =
+                MixedUtils.mid(statsForcedResetPeriodMs,
+                        TClientConstants.STATS_AUTO_RESET_MIN_PERIOD_MS,
+                        TClientConstants.STATS_AUTO_RESET_MAX_PERIOD_MS);
     }
 
     @Override
@@ -591,13 +591,13 @@ public class TubeClientConfig {
         if (!this.tlsConfig.equals(that.tlsConfig)) {
             return false;
         }
-        if (this.enableMetricPrint != that.enableMetricPrint) {
+        if (this.enableStatsSelfPrint != that.enableStatsSelfPrint) {
             return false;
         }
-        if (this.metricInfoPrintPeriodMs != that.metricInfoPrintPeriodMs) {
+        if (this.statsSelfPrintPeriodMs != that.statsSelfPrintPeriodMs) {
             return false;
         }
-        if (this.metricForcedResetPeriodMs != that.metricForcedResetPeriodMs) {
+        if (this.statsForcedResetPeriodMs != that.statsForcedResetPeriodMs) {
             return false;
         }
         return masterInfo.equals(that.masterInfo);
@@ -648,9 +648,9 @@ public class TubeClientConfig {
             .append(",\"sessionMaxAllowedDelayedMsgCount\":").append(this.sessionMaxAllowedDelayedMsgCount)
             .append(",\"unAvailableFbdDurationMs\":").append(this.unAvailableFbdDurationMs)
             .append(",\"enableUserAuthentic\":").append(this.enableUserAuthentic)
-            .append(",\"enableMetricPrint\":").append(this.enableMetricPrint)
-            .append(",\"metricInfoPrintPeriodMs\":").append(this.metricInfoPrintPeriodMs)
-            .append(",\"metricResetPeriodMs\":").append(this.metricForcedResetPeriodMs)
+            .append(",\"enableStatsSelfPrint\":").append(this.enableStatsSelfPrint)
+            .append(",\"statsSelfPrintPeriodMs\":").append(this.statsSelfPrintPeriodMs)
+            .append(",\"statsForcedResetPeriodMs\":").append(this.statsForcedResetPeriodMs)
             .append(",\"usrName\":\"").append(this.usrName)
             .append("\",\"usrPassWord\":\"").append(this.usrPassWord)
             .append("\",\"localAddress\":\"").append(localAddress)

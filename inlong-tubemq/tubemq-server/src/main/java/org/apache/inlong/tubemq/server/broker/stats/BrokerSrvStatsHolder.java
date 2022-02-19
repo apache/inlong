@@ -20,11 +20,11 @@ package org.apache.inlong.tubemq.server.broker.stats;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.metric.impl.ESTHistogram;
 import org.apache.inlong.tubemq.corebase.metric.impl.LongOnlineCounter;
 import org.apache.inlong.tubemq.corebase.metric.impl.LongStatsCounter;
 import org.apache.inlong.tubemq.corebase.metric.impl.SinceTime;
-import org.apache.inlong.tubemq.server.common.TServerConstants;
 
 /**
  * BrokerSrvStatsHolder, statistic Broker metrics information for RPC services
@@ -142,7 +142,7 @@ public class BrokerSrvStatsHolder {
         long curSnapshotTime = lstSnapshotTime.get();
         // Avoid frequent snapshots
         if ((System.currentTimeMillis() - curSnapshotTime)
-                >= TServerConstants.MIN_SNAPSHOT_PERIOD_MS) {
+                >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
             if (lstSnapshotTime.compareAndSet(curSnapshotTime, System.currentTimeMillis())) {
                 switchableSets[getIndex(writableIndex.incrementAndGet())].resetSinceTime();
                 return true;

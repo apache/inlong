@@ -139,9 +139,7 @@ public class MsgMemStore implements Closeable {
             dataOffset = this.writeDataStartPos + this.cacheDataOffset.get();
             indexEntry.putLong(DataStoreUtils.INDEX_POS_DATAOFFSET, dataOffset);
             dataEntry.putLong(DataStoreUtils.STORE_HEADER_POS_QUEUE_LOGICOFF, indexOffset);
-            // this.cacheDataSegment.position(this.cacheDataOffset.get());
             this.cacheDataSegment.put(dataEntry.array());
-            // this.cachedIndexSegment.position(this.cacheIndexOffset.get());
             this.cachedIndexSegment.put(indexEntry.array());
             this.cacheDataOffset.getAndAdd(dataEntryLength);
             indexSizePos = cacheIndexOffset.getAndAdd(DataStoreUtils.STORE_INDEX_HEAD_LEN);
@@ -392,6 +390,8 @@ public class MsgMemStore implements Closeable {
         this.curMessageCount.set(0);
         this.queuesMap.clear();
         this.keysMap.clear();
+        this.cacheDataSegment.rewind();
+        this.cachedIndexSegment.rewind();
         this.leftAppendTime.set(System.currentTimeMillis());
         this.rightAppendTime.set(System.currentTimeMillis());
     }
