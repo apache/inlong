@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.dao.entity.ClusterInfoEntity;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface ClusterInfoMapper {

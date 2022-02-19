@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.service.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.apache.inlong.manager.service.workflow.business.NewBusinessWorkflowForm;
 import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm;
@@ -89,7 +89,7 @@ public class BusinessProcessOperation {
         LOGGER.info("begin to suspend process, groupId = {}, operator = {}", groupId, operator);
         final EntityStatus nextEntityStatus = EntityStatus.BIZ_SUSPEND;
         BusinessInfo businessInfo = validateBusiness(groupId,
-                Sets.newHashSet(EntityStatus.BIZ_APPROVE_PASSED.getCode()),
+                Sets.newHashSet(EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode()),
                 nextEntityStatus);
 
         businessInfo.setStatus(nextEntityStatus.getCode());

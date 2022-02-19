@@ -15,17 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.client.api;
 
+import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.client.api.auth.Authentication;
 
 /**
- * DataProxy config
+ * A simple class to hold client configuration values.
  */
 @Data
-public class DataProxyConfig {
+@NoArgsConstructor
+@AllArgsConstructor
+public class ClientConfiguration implements Serializable {
 
-    private String topic;
-    private String m;
-    private String inlongGroupId;
+    private Authentication authentication;
+
+    private String bindHost;
+
+    private int bindPort;
+
+    private String serviceUrl;
+
+    private int readTimeout = 5;
+
+    private int writeTimeout = 5;
+
+    private int connectTimeout = 10;
+
+    private TimeUnit timeUnit = TimeUnit.SECONDS;
+
+    private boolean isUseTls = false;
+
+    private boolean retryOnConnectionFailure = true;
 }

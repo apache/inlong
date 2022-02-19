@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 @Data
 public class DataProxyClusterEntity implements Serializable {
@@ -41,5 +42,6 @@ public class DataProxyClusterEntity implements Serializable {
     private Date createTime;
     private Date modifyTime;
     private String extProps;
+    private String mqSetName;
 
 }

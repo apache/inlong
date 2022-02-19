@@ -112,6 +112,7 @@
         <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
         <docker.organization>inlong</docker.organization>
         <lombok.version>1.18.22</lombok.version>
+        <logback.version>1.2.10</logback.version>
     </properties>
 
     <dependencyManagement>
@@ -120,6 +121,16 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

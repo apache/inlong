@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.event.EventSelector;
 import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.model.definition.ProcessForm;
+import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +35,8 @@ public class ZkSortEventSelector implements EventSelector {
         if (processForm == null || !(processForm instanceof BusinessResourceWorkflowForm)) {
             return false;
         }
-        //todo check if push sort config to zookeeper
-        return true;
+        BusinessResourceWorkflowForm workflowForm = (BusinessResourceWorkflowForm) processForm;
+        BusinessInfo businessInfo = workflowForm.getBusinessInfo();
+        return businessInfo.getZookeeperEnabled() == 1;
     }
 }

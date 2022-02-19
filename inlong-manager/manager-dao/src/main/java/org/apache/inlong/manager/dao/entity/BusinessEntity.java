@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 @Data
 public class BusinessEntity implements Serializable {
@@ -37,6 +38,7 @@ public class BusinessEntity implements Serializable {
     private Integer dailyRecords;
     private Integer dailyStorage;
     private Integer peakRecords;
+    private Integer zookeeperEnabled;
     private Integer maxLength;
     private String schemaName;
     private String inCharges;
@@ -48,5 +50,6 @@ public class BusinessEntity implements Serializable {
     private Date createTime;
     private Date modifyTime;
     private String tempView;
+    private Integer proxyClusterId;
 
 }

@@ -46,6 +46,7 @@ import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.DoubleType;
 import org.apache.flink.table.types.logical.FloatType;
 import org.apache.flink.table.types.logical.IntType;
+import org.apache.flink.table.types.logical.LocalZonedTimestampType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.MapType;
 import org.apache.flink.table.types.logical.NullType;
@@ -77,6 +78,8 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.FormatUtils;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.IntTypeInfo;
+import org.apache.inlong.sort.formats.common.LocalZonedTimestampFormatInfo;
+import org.apache.inlong.sort.formats.common.LocalZonedTimestampTypeInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.LongTypeInfo;
 import org.apache.inlong.sort.formats.common.MapFormatInfo;
@@ -276,6 +279,8 @@ public class TableFormatUtils {
             return new TimeFormatInfo();
         } else if (logicalType instanceof TimestampType) {
             return new TimestampFormatInfo();
+        } else if (logicalType instanceof LocalZonedTimestampType) {
+            return new LocalZonedTimestampFormatInfo();
         } else if (logicalType instanceof ArrayType) {
             ArrayType arrayType = (ArrayType) logicalType;
             LogicalType elementType = arrayType.getElementType();
@@ -344,6 +349,8 @@ public class TableFormatUtils {
             return new DateType();
         } else if (formatInfo instanceof TimestampFormatInfo) {
             return new TimestampType(DEFAULT_PRECISION_FOR_TIMESTAMP);
+        } else if (formatInfo instanceof LocalZonedTimestampFormatInfo) {
+            return new LocalZonedTimestampType();
         } else if (formatInfo instanceof ArrayFormatInfo) {
             FormatInfo elementFormatInfo = ((ArrayFormatInfo) formatInfo).getElementFormatInfo();
             return new ArrayType(deriveLogicalType(elementFormatInfo));
@@ -402,6 +409,8 @@ public class TableFormatUtils {
             return Types.SQL_TIME;
         } else if (typeInfo instanceof TimestampTypeInfo) {
             return Types.SQL_TIMESTAMP;
+        } else if (typeInfo instanceof LocalZonedTimestampTypeInfo) {
+            return Types.LOCAL_DATE_TIME;
         } else if (typeInfo instanceof BinaryTypeInfo) {
             return Types.PRIMITIVE_ARRAY(Types.BYTE);
         } else if (typeInfo instanceof ArrayTypeInfo) {

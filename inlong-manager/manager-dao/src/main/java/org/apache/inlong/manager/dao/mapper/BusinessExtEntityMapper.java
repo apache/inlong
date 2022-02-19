@@ -40,11 +40,18 @@ public interface BusinessExtEntityMapper {
     BusinessExtEntity selectByGroupIdAndKeyName(String groupId, String keyName);
 
     /**
-     * Insert data in batches, update if it exists, create new if it does not exist
+     * Insert data in batches
      *
      * @param extEntityList need to insert data
      */
     int insertAll(@Param("extList") List<BusinessExtEntity> extEntityList);
+
+    /**
+     * Insert data in batches, update if it exists, create new if it does not exist
+     * @param extEntityList
+     * @return
+     */
+    int insertOnDuplicateKeyUpdate(@Param("extList") List<BusinessExtEntity> extEntityList);
 
     /**
      * Physically delete all extension fields based on the business group id

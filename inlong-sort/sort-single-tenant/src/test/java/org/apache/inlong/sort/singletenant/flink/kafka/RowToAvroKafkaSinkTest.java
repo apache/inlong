@@ -34,7 +34,7 @@ import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.AvroSerializationInfo;
-import org.apache.inlong.sort.singletenant.flink.serialization.RowSerializationSchemaFactory;
+import org.apache.inlong.sort.singletenant.flink.serialization.SerializationSchemaFactory;
 import org.apache.kafka.common.utils.Bytes;
 
 import java.io.IOException;
@@ -47,10 +47,10 @@ import java.util.Map;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.buildAvroRecordSchemaInJson;
 import static org.junit.Assert.assertEquals;
 
-public class RowToAvroKafkaSinkTest extends KafkaSinkTestBaseForRow {
+public class RowToAvroKafkaSinkTest extends KafkaSinkTestBase {
 
     @Override
-    protected void prepareData() {
+    protected void prepareData() throws IOException, ClassNotFoundException {
         fieldInfos = new FieldInfo[]{
                 new FieldInfo("f1", new StringFormatInfo()),
                 new FieldInfo("f2", new IntFormatInfo()),
@@ -68,7 +68,7 @@ public class RowToAvroKafkaSinkTest extends KafkaSinkTestBaseForRow {
                 ))
         };
         topic = "test_kafka_row_to_avro";
-        serializationSchema = RowSerializationSchemaFactory.build(fieldInfos, new AvroSerializationInfo());
+        serializationSchema = SerializationSchemaFactory.build(fieldInfos, new AvroSerializationInfo());
 
         prepareTestRows();
     }

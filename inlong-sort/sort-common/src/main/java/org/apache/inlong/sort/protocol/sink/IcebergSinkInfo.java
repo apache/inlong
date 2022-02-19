@@ -25,6 +25,8 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 
 public class IcebergSinkInfo extends SinkInfo {
 
+    private static final long serialVersionUID = 3682587731889008343L;
+
     @JsonProperty("table_location")
     private final String tableLocation;
 

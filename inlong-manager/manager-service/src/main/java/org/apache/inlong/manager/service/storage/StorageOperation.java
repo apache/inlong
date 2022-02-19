@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.storage;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.common.enums.StorageType;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageListResponse;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageRequest;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageResponse;
@@ -34,7 +35,7 @@ public interface StorageOperation {
     /**
      * Determines whether the current instance matches the specified type.
      */
-    Boolean accept(String storageType);
+    Boolean accept(StorageType storageType);
 
     /**
      * Save the storage info.

@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.storage;
 
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.StorageType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ public class StorageOperationFactory {
     /**
      * Get a storage operation instance via the given storageType
      */
-    public StorageOperation getInstance(String storageType) {
+    public StorageOperation getInstance(StorageType storageType) {
         Optional<StorageOperation> instance = storageOperationList.stream()
                 .filter(inst -> inst.accept(storageType))
                 .findFirst();

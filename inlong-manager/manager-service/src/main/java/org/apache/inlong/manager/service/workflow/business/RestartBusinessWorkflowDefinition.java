@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.model.definition.StartEvent;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
+import org.apache.inlong.manager.service.workflow.business.listener.UpdateBusinessInfoCompleteListener;
 import org.apache.inlong.manager.service.workflow.business.listener.UpdateBusinessInfoListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,6 +39,9 @@ public class RestartBusinessWorkflowDefinition implements WorkflowDefinition {
     private UpdateBusinessInfoListener updateBusinessInfoListener;
 
     @Autowired
+    private UpdateBusinessInfoCompleteListener updateBusinessInfoCompleteListener;
+
+    @Autowired
     private ServiceTaskListenerFactory serviceTaskListenerFactory;
 
     @Override
@@ -45,6 +49,7 @@ public class RestartBusinessWorkflowDefinition implements WorkflowDefinition {
         // Configuration process
         Process process = new Process();
         process.addListener(updateBusinessInfoListener);
+        process.addListener(updateBusinessInfoCompleteListener);
         process.setType("Business Resource Restart");
         process.setName(getProcessName().name());
         process.setDisplayName(getProcessName().getDisplayName());
