@@ -23,8 +23,8 @@ import org.apache.inlong.manager.common.event.process.ProcessEvent;
 import org.apache.inlong.manager.common.event.process.ProcessEventListener;
 import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
+import org.apache.inlong.manager.common.workflow.bussiness.UpdateBusinessWorkflowForm;
 import org.apache.inlong.manager.service.core.BusinessService;
-import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
