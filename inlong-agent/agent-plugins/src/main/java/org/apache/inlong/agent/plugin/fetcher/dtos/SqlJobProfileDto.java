@@ -35,7 +35,7 @@ public class SqlJobProfileDto {
     public static final String SQL_JOB = "SQL_JOB";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
-    public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.TextFileSource";
+    public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.DatabaseSqlSource";
 
     @Data
     public static class Running {
@@ -50,6 +50,16 @@ public class SqlJobProfileDto {
     }
 
     @Data
+    public static class Sql {
+
+        private String user;
+        private String password;
+        private String hostname;
+        private Integer port;
+        private String command;
+    }
+
+    @Data
     public static class Job {
 
         private int id;
@@ -57,16 +67,12 @@ public class SqlJobProfileDto {
         private String source;
         private String sink;
         private String channel;
-        private String ip;
-        private Integer port;
         private String dbName;
-        private String user;
-        private String password;
-        private String sqlStatement;
         private Integer totalLimit;
         private Integer onceLimit;
         private Integer timeLimit;
         private Integer retryTimes;
+        private Sql sql;
     }
 
     @Data
@@ -85,23 +91,24 @@ public class SqlJobProfileDto {
     }
 
     private static Job getJob(DbCollectorTask task) {
+        Sql sql = new Sql();
+        sql.setHostname(task.getIp());
+        sql.setPort(task.getDbport());
+        sql.setUser(task.getUser());
+        sql.setPassword(task.getPassword());
+        sql.setCommand(task.getSqlStatement());
         Job job = new Job();
         job.setId(Integer.parseInt(task.getId()));
         job.setName(SQL_JOB);
         job.setSource(DEFAULT_SOURCE);
         job.setSink(DEFAULT_DATAPROXY_SINK);
         job.setChannel(DEFAULT_CHANNEL);
-        job.setIp(task.getIp());
-        job.setPort(task.getPort());
         job.setDbName(task.getDbName());
-        job.setUser(task.getUser());
-        job.setPassword(task.getPassword());
-        job.setSqlStatement(task.getSqlStatement());
         job.setTotalLimit(task.getTotalLimit());
         job.setOnceLimit(task.getOnceLimit());
         job.setTimeLimit(task.getTimeLimit());
         job.setRetryTimes(task.getRetryTimes());
-
+        job.setSql(sql);
         return job;
     }
 

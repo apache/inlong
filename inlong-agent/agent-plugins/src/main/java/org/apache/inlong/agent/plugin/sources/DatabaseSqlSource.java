@@ -30,11 +30,14 @@ import org.apache.inlong.agent.plugin.sources.reader.SqlReader;
 import org.apache.inlong.agent.utils.AgentDbUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ConfigUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Make database as Source
  */
-public class DataBaseSource implements Source {
+public class DatabaseSqlSource  implements Source {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseSqlSource.class);
 
     private static final String JOB_DATABASE_SQL = "job.sql.command";
 
@@ -43,7 +46,7 @@ public class DataBaseSource implements Source {
     private final SourceMetrics sourceMetrics;
     private static AtomicLong metricsIndex = new AtomicLong(0);
 
-    public DataBaseSource() {
+    public DatabaseSqlSource() {
         if (ConfigUtil.isPrometheusEnabled()) {
             this.sourceMetrics = new SourcePrometheusMetrics(AgentUtils.getUniqId(
                 DATABASE_SOURCE_TAG_NAME, metricsIndex.incrementAndGet()));
