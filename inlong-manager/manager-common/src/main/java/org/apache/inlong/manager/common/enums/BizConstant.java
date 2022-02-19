@@ -28,6 +28,8 @@ public class BizConstant {
 
     public static final String STORAGE_CLICKHOUSE = "CLICKHOUSE";
 
+    public static final String STORAGE_ICEBERG = "ICEBERG";
+
     public static final String DATA_SOURCE_DB = "DB";
 
     public static final String DATA_SOURCE_FILE = "FILE";
