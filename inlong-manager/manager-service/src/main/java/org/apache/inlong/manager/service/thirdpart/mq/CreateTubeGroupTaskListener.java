@@ -24,7 +24,6 @@ import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest.GroupNameJsonSetBean;
 import org.apache.inlong.manager.common.pojo.tubemq.QueryTubeTopicRequest;
-import org.apache.inlong.manager.dao.mapper.ClusterInfoMapper;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -43,9 +42,6 @@ public class CreateTubeGroupTaskListener implements QueueOperateListener {
 
     @Autowired
     BusinessService businessService;
-
-    @Autowired
-    ClusterInfoMapper clusterInfoMapper;
 
     @Autowired
     TubeMqOptService tubeMqOptService;

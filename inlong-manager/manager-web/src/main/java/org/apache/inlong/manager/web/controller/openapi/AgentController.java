@@ -33,7 +33,7 @@ import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
 import org.apache.inlong.manager.service.core.AgentHeartBeatService;
 import org.apache.inlong.manager.service.core.AgentSysConfigService;
 import org.apache.inlong.manager.service.core.AgentTaskService;
-import org.apache.inlong.manager.service.core.ClusterInfoService;
+import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,7 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AgentController {
 
     @Autowired
-    private ClusterInfoService clusterInfoService;
+    private ThirdPartyClusterService thirdPartyClusterService;
 
     @Autowired
     private AgentTaskService agentTaskService;
@@ -61,7 +61,7 @@ public class AgentController {
     @GetMapping("/getInLongManagerIp")
     @ApiOperation(value = "get inlong manager ip list")
     public Response<List<String>> getInLongManagerIp() {
-        return Response.success(clusterInfoService.listClusterIpByType("inlong-openapi"));
+        return Response.success(thirdPartyClusterService.listClusterIpByType("inlong-openapi"));
     }
 
     @PostMapping("/fileAgent/getTaskConf")
