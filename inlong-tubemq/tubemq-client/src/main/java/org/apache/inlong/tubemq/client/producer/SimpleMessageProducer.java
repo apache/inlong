@@ -65,6 +65,13 @@ public class SimpleMessageProducer implements MessageProducer {
     private final RpcConfig rpcConfig = new RpcConfig();
     private final AtomicBoolean isShutDown = new AtomicBoolean(false);
 
+    /**
+     * Initial a producer object
+     *
+     * @param sessionFactory        the session factory
+     * @param tubeClientConfig      the client configure
+     * @throws TubeClientException  the exception while creating object
+     */
     public SimpleMessageProducer(final InnerSessionFactory sessionFactory,
                                  TubeClientConfig tubeClientConfig) throws TubeClientException {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");

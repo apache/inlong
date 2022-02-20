@@ -87,7 +87,7 @@ public class ProducerManager {
             new AtomicReference<>("");
     private final ClientAuthenticateHandler authenticateHandler =
             new SimpleClientAuthenticateHandler();
-    private MasterService masterService;
+    private final MasterService masterService;
     private Map<Integer, BrokerInfo> brokersMap = new ConcurrentHashMap<>();
     private long brokerInfoCheckSum = -1L;
     private long lastBrokerUpdatedTime = System.currentTimeMillis();
@@ -104,6 +104,13 @@ public class ProducerManager {
             new AtomicBoolean(false);
     private final ClientStatsInfo clientStatsInfo;
 
+    /**
+     * Initial a producer manager
+     *
+     * @param sessionFactory         the session factory
+     * @param tubeClientConfig       the client configure
+     * @throws TubeClientException   the exception while creating object
+     */
     public ProducerManager(final InnerSessionFactory sessionFactory,
                            final TubeClientConfig tubeClientConfig) throws TubeClientException {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");
@@ -163,7 +170,7 @@ public class ProducerManager {
     /**
      * Start the producer manager.
      *
-     * @throws Throwable
+     * @throws Throwable  the exception
      */
     public void start() throws Throwable {
         if (nodeStatus.get() <= 0) {
@@ -178,7 +185,7 @@ public class ProducerManager {
      * Publish a topic.
      *
      * @param topic topic name
-     * @throws TubeClientException
+     * @throws TubeClientException  the exception at publish
      */
     public void publish(final String topic) throws TubeClientException {
         checkServiceStatus();
@@ -223,7 +230,7 @@ public class ProducerManager {
      *
      * @param topicSet a set of topic names
      * @return a set of successful published topic names
-     * @throws TubeClientException
+     * @throws TubeClientException   the exception at publish
      */
     public Set<String> publish(Set<String> topicSet) throws TubeClientException {
         checkServiceStatus();
@@ -282,7 +289,7 @@ public class ProducerManager {
     /**
      * Shutdown the produce manager.
      *
-     * @throws Throwable
+     * @throws Throwable   the exception at shutdown
      */
     public void shutdown() throws Throwable {
         StringBuilder strBuff = new StringBuilder(512);
@@ -373,7 +380,7 @@ public class ProducerManager {
     /**
      * Remove published topics. We will ignore null topics or non-published topics.
      *
-     * @param topicSet
+     * @param topicSet   the topic set need to delete
      */
     public void removeTopic(Set<String> topicSet) {
         for (String topic : topicSet) {

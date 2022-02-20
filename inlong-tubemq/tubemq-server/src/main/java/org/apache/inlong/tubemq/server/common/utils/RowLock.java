@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RowLock {
     private static final Logger logger = LoggerFactory.getLogger(RowLock.class);
-    private static Random rand = new Random();
+    private static final Random rand = new Random();
     private final ConcurrentHashMap<HashedBytes, CountDownLatch> lockedRows =
             new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Integer, HashedBytes> lockIds =
@@ -103,6 +103,11 @@ public class RowLock {
         }
     }
 
+    /**
+     * Release row lock
+     *
+     * @param lockId the lock id
+     */
     public void releaseRowLock(final Integer lockId) {
         if (lockId == null) {
             return;

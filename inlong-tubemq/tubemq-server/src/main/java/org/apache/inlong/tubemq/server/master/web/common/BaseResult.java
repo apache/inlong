@@ -20,10 +20,8 @@ package org.apache.inlong.tubemq.server.master.web.common;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
@@ -476,42 +474,6 @@ public class BaseResult implements Serializable {
         return new String[0];
     }
 
-    public List getTaobaoSlider() {
-        List l = new ArrayList(10);
-        int leftStart = 1;
-        int leftEnd = 2;
-        int mStart = this.getCurrentPage().intValue() - 2;
-        int mEnd = this.getCurrentPage().intValue() + 2;
-        int rStart = this.getTotalPage() - 1;
-        int rEnd = this.getTotalPage();
-        if (mStart <= leftEnd) {
-            leftStart = 0;
-            leftEnd = 0;
-            mStart = 1;
-        }
-        if (mEnd >= rStart) {
-            rStart = 0;
-            rEnd = 0;
-            mEnd = this.getTotalPage();
-        }
-        if (leftEnd > leftStart) {
-            for (int i = leftStart; i <= leftEnd; ++i) {
-                l.add(String.valueOf(i));
-            }
-            l.add("...");
-        }
-        for (int i = mStart; i <= mEnd; ++i) {
-            l.add(String.valueOf(i));
-        }
-        if (rEnd > rStart) {
-            l.add("...");
-            for (int i = rStart; i <= rEnd; ++i) {
-                l.add(String.valueOf(i));
-            }
-        }
-        return l;
-    }
-
     /**
      * Get ajax prefix value
      *
@@ -645,6 +607,8 @@ public class BaseResult implements Serializable {
     }
 
     /**
+     * Set escape js status
+     *
      * @param jsEscape The jsEscape to set.
      */
     public final BaseResult setJsEscape(boolean jsEscape) {

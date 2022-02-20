@@ -125,7 +125,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         this.storeManager = tubeBroker.getStoreManager();
         this.offsetManager = tubeBroker.getOffsetManager();
         this.serverAuthHandler = tubeBroker.getServerAuthHandler();
-        ServiceStatusHolder.setStatisParameters(tubeConfig.getAllowedReadIOExcptCnt(),
+        ServiceStatusHolder.setStatsParameters(tubeConfig.getAllowedReadIOExcptCnt(),
                 tubeConfig.getAllowedWriteIOExcptCnt(), tubeConfig.getIoExcptStatsDurationMs());
         this.putCounterGroup = new TrafficStatsService("PutCounterGroup", "Producer", 60 * 1000);
         this.getCounterGroup = new TrafficStatsService("GetCounterGroup", "Consumer", 60 * 1000);

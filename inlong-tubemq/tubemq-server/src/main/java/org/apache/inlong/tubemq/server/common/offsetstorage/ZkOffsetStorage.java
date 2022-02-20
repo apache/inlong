@@ -65,9 +65,16 @@ public class ZkOffsetStorage implements OffsetStorage {
     private final boolean isBroker;
     private final int brokerId;
     private final String strBrokerId;
-    private ZKConfig zkConfig;
+    private final ZKConfig zkConfig;
     private ZooKeeperWatcher zkw;
 
+    /**
+     * Initial ZooKeeper offset storage ojbect
+     *
+     * @param zkConfig   the ZooKeeper configure
+     * @param isBroker   whether used in broker node
+     * @param brokerId   the broker id
+     */
     public ZkOffsetStorage(final ZKConfig zkConfig, boolean isBroker, int brokerId) {
         this.zkConfig = zkConfig;
         this.isBroker = isBroker;
@@ -302,9 +309,8 @@ public class ZkOffsetStorage implements OffsetStorage {
 
     /**
      * Get offset stored in zookeeper, if not found or error, set null
-     * <p/>
      *
-     * @return partitionId--offset map info
+     * @param groupTopicPartMap   the group topic-partition map
      */
     @Override
     public void deleteGroupOffsetInfo(
@@ -371,5 +377,4 @@ public class ZkOffsetStorage implements OffsetStorage {
             return root;
         }
     }
-
 }

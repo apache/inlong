@@ -1863,7 +1863,13 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         return result;
     }
 
-    // process unReset group balance
+    /**
+     * process unReset group balance
+     *
+     * @param rebalanceId   the re-balance id
+     * @param isFirstReb    whether is first re-balance
+     * @param groups        the need re-balance group set
+     */
     public void processRebalance(long rebalanceId, boolean isFirstReb, List<String> groups) {
         // #lizard forgives
         Map<String, Map<String, List<Partition>>> finalSubInfoMap = null;

@@ -75,13 +75,13 @@ public class PbEnDecoder {
     }
 
     /**
-     * lizard forgives
+     * Decode pb content
      *
-     * @param isRequest
-     * @param methodId
-     * @param bytes
-     * @return
-     * @throws Exception
+     * @param isRequest     whether a request message
+     * @param methodId      the method id
+     * @param bytes         the message content
+     * @return              the message's object
+     * @throws Exception    the exception while decoding messsage
      */
     public static Object pbDecode(boolean isRequest, int methodId, byte[] bytes) throws Exception {
         // #lizard forgives
@@ -236,13 +236,13 @@ public class PbEnDecoder {
     }
 
     /**
-     * lizard forgives
+     * Valid service type and method parameters
      *
-     * @param serviceId
-     * @param methodId
-     * @param sBuilder
-     * @return
-     * @throws Exception
+     * @param serviceId     the service id
+     * @param methodId      the method id
+     * @param sBuilder      the string buffer
+     * @return              whether is valid content.
+     * @throws Exception    the exception while processing.
      */
     public static boolean isValidServiceTypeAndMethod(int serviceId,
                                                       int methodId,
