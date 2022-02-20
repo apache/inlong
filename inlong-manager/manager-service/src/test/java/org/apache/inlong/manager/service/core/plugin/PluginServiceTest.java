@@ -17,14 +17,15 @@
 
 package org.apache.inlong.manager.service.core.plugin;
 
-import java.util.List;
-import java.util.Objects;
-import org.apache.inlong.manager.common.plugin.Plugin;
-import org.apache.inlong.manager.common.plugin.ProcessPlugin;
 import org.apache.inlong.manager.service.ServiceBaseTest;
+import org.apache.inlong.manager.workflow.plugin.Plugin;
+import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+import java.util.Objects;
 
 public class PluginServiceTest extends ServiceBaseTest {
 
@@ -40,4 +41,5 @@ public class PluginServiceTest extends ServiceBaseTest {
         Assert.assertTrue(pluginList.size() > 0);
         Assert.assertTrue(pluginList.get(0) instanceof ProcessPlugin);
     }
+
 }

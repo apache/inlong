@@ -17,14 +17,15 @@
 
 package org.apache.inlong.manager.plugin;
 
+import org.apache.inlong.manager.workflow.event.EventSelector;
+import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
+import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
+import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
+import org.apache.inlong.manager.workflow.event.task.StorageOperateListener;
+import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.apache.inlong.manager.common.event.EventSelector;
-import org.apache.inlong.manager.common.event.task.DataSourceOperateListener;
-import org.apache.inlong.manager.common.event.task.QueueOperateListener;
-import org.apache.inlong.manager.common.event.task.SortOperateListener;
-import org.apache.inlong.manager.common.event.task.StorageOperateListener;
-import org.apache.inlong.manager.common.plugin.ProcessPlugin;
 
 public class EmptyProcessPlugin implements ProcessPlugin {
 
@@ -47,4 +48,5 @@ public class EmptyProcessPlugin implements ProcessPlugin {
     public Map<StorageOperateListener, EventSelector> createStorageOperateListeners() {
         return ProcessPlugin.super.createStorageOperateListeners();
     }
+
 }

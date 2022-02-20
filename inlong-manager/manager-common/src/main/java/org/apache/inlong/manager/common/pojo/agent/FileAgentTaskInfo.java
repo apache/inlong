@@ -31,6 +31,6 @@ public class FileAgentTaskInfo {
     @ApiModelProperty(value = "Command config list")
     private List<FileAgentCMDConfig> cmdConfigs;
 
-    @ApiModelProperty(value = "Task config list")
+    @ApiModelProperty(value = "WorkflowTask config list")
     private List<FileAgentTaskConfig> dataConfigs;
 }

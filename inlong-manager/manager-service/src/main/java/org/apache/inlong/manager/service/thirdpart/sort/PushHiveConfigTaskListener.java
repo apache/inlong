@@ -23,11 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.BizConstant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.task.SortOperateListener;
-import org.apache.inlong.manager.common.event.task.TaskEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.business.BusinessExtInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageForSortDTO;
@@ -35,12 +31,16 @@ import org.apache.inlong.manager.common.pojo.datastorage.hive.HiveStorageDTO;
 import org.apache.inlong.manager.common.settings.BusinessSettings;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.dao.entity.BusinessEntity;
 import org.apache.inlong.manager.dao.entity.StorageFieldEntity;
 import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageFieldEntityMapper;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
+import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.sort.ZkTools;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
@@ -104,7 +104,7 @@ public class PushHiveConfigTaskListener implements SortOperateListener {
             log.debug("begin push hive config to sort, context={}", context);
         }
 
-        BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
+        BusinessResourceProcessForm form = (BusinessResourceProcessForm) context.getProcessForm();
         BusinessInfo businessInfo = form.getBusinessInfo();
         String groupId = businessInfo.getInlongGroupId();
 
@@ -143,6 +143,7 @@ public class PushHiveConfigTaskListener implements SortOperateListener {
                 throw new WorkflowListenerException("push hive config to sort failed, reason: " + e.getMessage());
             }
         }
+
         return ListenerResult.success();
     }
 

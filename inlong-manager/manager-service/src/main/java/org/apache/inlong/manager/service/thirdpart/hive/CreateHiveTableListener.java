@@ -17,18 +17,19 @@
 
 package org.apache.inlong.manager.service.thirdpart.hive;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.task.StorageOperateListener;
-import org.apache.inlong.manager.common.event.task.TaskEvent;
-import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageForSortDTO;
 import org.apache.inlong.manager.dao.mapper.StorageEntityMapper;
-import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.task.StorageOperateListener;
+import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Event listener of create hive table for all data stream
@@ -49,7 +50,7 @@ public class CreateHiveTableListener implements StorageOperateListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) {
-        BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
+        BusinessResourceProcessForm form = (BusinessResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
         log.info("begin to create hive table for groupId={}", groupId);
 
@@ -68,4 +69,5 @@ public class CreateHiveTableListener implements StorageOperateListener {
     public boolean async() {
         return false;
     }
+
 }

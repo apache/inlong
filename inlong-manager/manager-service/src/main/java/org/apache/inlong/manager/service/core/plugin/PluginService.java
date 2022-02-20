@@ -17,40 +17,38 @@
 
 package org.apache.inlong.manager.service.core.plugin;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.inlong.manager.common.plugin.Plugin;
-import org.apache.inlong.manager.common.plugin.PluginBinder;
-import org.apache.inlong.manager.common.plugin.PluginDefinition;
+import org.apache.inlong.manager.workflow.plugin.Plugin;
+import org.apache.inlong.manager.workflow.plugin.PluginBinder;
+import org.apache.inlong.manager.workflow.plugin.PluginDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
 public class PluginService {
 
     public static final String DEFAULT_PLUGIN_LOC = "/plugins";
-
+    @Getter
+    private final List<Plugin> plugins = new ArrayList<>();
     @Setter
     @Getter
     @Value("${plugin.location?:''}")
     private String pluginLoc;
-
     @Getter
     @Autowired
     private List<PluginBinder> pluginBinders;
-
-    @Getter
-    private final List<Plugin> plugins = new ArrayList<>();
 
     public PluginService() {
         if (StringUtils.isBlank(pluginLoc)) {
@@ -59,6 +57,9 @@ public class PluginService {
         pluginReload();
     }
 
+    /**
+     * Reload the plugin from the plugin path
+     */
     public void pluginReload() {
         Path path = Paths.get(pluginLoc).toAbsolutePath();
         log.info("search for plugin in {}", pluginLoc);
@@ -91,4 +92,5 @@ public class PluginService {
             }
         }
     }
+
 }

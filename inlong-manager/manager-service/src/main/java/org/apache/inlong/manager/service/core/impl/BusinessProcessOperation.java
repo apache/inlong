@@ -24,15 +24,15 @@ import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.datastream.StreamBriefResponse;
+import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.common.workflow.bussiness.NewBusinessWorkflowForm;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
-import org.apache.inlong.manager.common.workflow.bussiness.UpdateBusinessWorkflowForm;
-import org.apache.inlong.manager.common.workflow.bussiness.UpdateBusinessWorkflowForm.OperateType;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewBusinessProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateBusinessProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateBusinessProcessForm.OperateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,30 +60,29 @@ public class BusinessProcessOperation {
      *
      * @param groupId Business group id
      * @param operator Operator name
-     * @return Process information
+     * @return WorkflowProcess information
      */
     public WorkflowResult startProcess(String groupId, String operator) {
         LOGGER.info("begin to start approve process, groupId = {}, operator = {}", groupId, operator);
-        final EntityStatus nextEntityStatus = EntityStatus.BIZ_WAIT_SUBMIT;
-        BusinessInfo businessInfo = validateBusiness(groupId, EntityStatus.ALLOW_START_WORKFLOW_STATUS,
-                nextEntityStatus);
+        final EntityStatus nextStatus = EntityStatus.BIZ_WAIT_SUBMIT;
+        BusinessInfo businessInfo = validateBusiness(groupId, EntityStatus.ALLOW_START_WORKFLOW_STATUS, nextStatus);
 
         // Modify business status
-        businessInfo.setStatus(nextEntityStatus.getCode());
+        businessInfo.setStatus(nextStatus.getCode());
         businessService.update(businessInfo, operator);
 
         // Initiate the approval process
-        NewBusinessWorkflowForm form = genNewBusinessWorkflowForm(businessInfo);
+        NewBusinessProcessForm form = genNewBusinessWorkflowForm(businessInfo);
         return workflowService.start(ProcessName.NEW_BUSINESS_WORKFLOW, operator, form);
     }
 
     /**
      * Suspend resource application group which is started up successfully, stop dataSource collecting task
-     * and sort task related to application group asynchronously, persist the application state if necessary
+     * and sort task related to application group asynchronously, persist the application status if necessary
      *
      * @param groupId
      * @param operator
-     * @return Process information
+     * @return WorkflowProcess information
      */
     public WorkflowResult suspendProcess(String groupId, String operator) {
         LOGGER.info("begin to suspend process, groupId = {}, operator = {}", groupId, operator);
@@ -94,7 +93,7 @@ public class BusinessProcessOperation {
 
         businessInfo.setStatus(nextEntityStatus.getCode());
         businessService.update(businessInfo, operator);
-        UpdateBusinessWorkflowForm form = genUpdateBusinessWorkflowForm(businessInfo, OperateType.SUSPEND);
+        UpdateBusinessProcessForm form = genUpdateBusinessProcessForm(businessInfo, OperateType.SUSPEND);
         return workflowService.start(ProcessName.SUSPEND_BUSINESS_WORKFLOW, operator, form);
     }
 
@@ -103,7 +102,7 @@ public class BusinessProcessOperation {
      *
      * @param groupId
      * @param operator
-     * @return Process information
+     * @return WorkflowProcess information
      */
     public WorkflowResult restartProcess(String groupId, String operator) {
         LOGGER.info("begin to restart process, groupId = {}, operator = {}", groupId, operator);
@@ -112,7 +111,7 @@ public class BusinessProcessOperation {
                 nextEntityStatus);
         businessInfo.setStatus(nextEntityStatus.getCode());
         businessService.update(businessInfo, operator);
-        UpdateBusinessWorkflowForm form = genUpdateBusinessWorkflowForm(businessInfo, OperateType.RESTART);
+        UpdateBusinessProcessForm form = genUpdateBusinessProcessForm(businessInfo, OperateType.RESTART);
         return workflowService.start(ProcessName.RESTART_BUSINESS_WORKFLOW, operator, form);
     }
 
@@ -126,7 +125,7 @@ public class BusinessProcessOperation {
     public boolean deleteProcess(String groupId, String operator) {
         LOGGER.info("begin to delete process, groupId = {}, operator = {}", groupId, operator);
         BusinessInfo businessInfo = businessService.get(groupId);
-        UpdateBusinessWorkflowForm form = genUpdateBusinessWorkflowForm(businessInfo, OperateType.DELETE);
+        UpdateBusinessProcessForm form = genUpdateBusinessProcessForm(businessInfo, OperateType.DELETE);
         try {
             workflowService.start(ProcessName.DELETE_BUSINESS_WORKFLOW, operator, form);
         } catch (Exception ex) {
@@ -140,8 +139,8 @@ public class BusinessProcessOperation {
     /**
      * Generate the form of [New Business Workflow]
      */
-    public NewBusinessWorkflowForm genNewBusinessWorkflowForm(BusinessInfo businessInfo) {
-        NewBusinessWorkflowForm form = new NewBusinessWorkflowForm();
+    public NewBusinessProcessForm genNewBusinessWorkflowForm(BusinessInfo businessInfo) {
+        NewBusinessProcessForm form = new NewBusinessProcessForm();
         form.setBusinessInfo(businessInfo);
 
         // Query all data streams under the groupId and the storage information of each data stream
@@ -151,16 +150,15 @@ public class BusinessProcessOperation {
         return form;
     }
 
-    private UpdateBusinessWorkflowForm genUpdateBusinessWorkflowForm(BusinessInfo businessInfo,
+    private UpdateBusinessProcessForm genUpdateBusinessProcessForm(BusinessInfo businessInfo,
             OperateType operateType) {
-        UpdateBusinessWorkflowForm updateBusinessWorkflowForm = new UpdateBusinessWorkflowForm();
+        UpdateBusinessProcessForm updateBusinessWorkflowForm = new UpdateBusinessProcessForm();
         updateBusinessWorkflowForm.setBusinessInfo(businessInfo);
         updateBusinessWorkflowForm.setOperateType(operateType);
         return updateBusinessWorkflowForm;
     }
 
-    private BusinessInfo validateBusiness(String groupId, Set<Integer> allowedStatus,
-            EntityStatus nextBusinessStatus) {
+    private BusinessInfo validateBusiness(String groupId, Set<Integer> allowedStatus, EntityStatus nextStatus) {
         Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
 
         // Check whether the current status of the business allows the process to be re-initiated
@@ -170,7 +168,8 @@ public class BusinessProcessOperation {
             throw new BusinessException(BizErrorCodeEnum.BUSINESS_NOT_FOUND);
         }
         Preconditions.checkTrue(allowedStatus.contains(businessInfo.getStatus()),
-                String.format("current status was not allowed to %s workflow", nextBusinessStatus.getDescription()));
+                String.format("current status was not allowed to %s workflow", nextStatus.getDescription()));
         return businessInfo;
     }
+
 }

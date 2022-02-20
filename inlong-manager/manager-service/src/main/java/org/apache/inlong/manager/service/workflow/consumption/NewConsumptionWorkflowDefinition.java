@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.service.workflow.consumption;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
-import org.apache.inlong.manager.common.workflow.consumption.ConsumptionAdminApproveForm;
-import org.apache.inlong.manager.common.workflow.consumption.NewConsumptionWorkflowForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.ConsumptionAdminApproveForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
@@ -32,13 +29,17 @@ import org.apache.inlong.manager.service.workflow.consumption.listener.Consumpti
 import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionCompleteProcessListener;
 import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionPassTaskListener;
 import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionRejectProcessListener;
-import org.apache.inlong.manager.common.model.WorkflowContext;
-import org.apache.inlong.manager.common.model.definition.EndEvent;
-import org.apache.inlong.manager.common.model.definition.Process;
-import org.apache.inlong.manager.common.model.definition.StartEvent;
-import org.apache.inlong.manager.common.model.definition.UserTask;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.definition.EndEvent;
+import org.apache.inlong.manager.workflow.definition.StartEvent;
+import org.apache.inlong.manager.workflow.definition.UserTask;
+import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * New data consumption workflow definition
@@ -71,14 +72,13 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
     private BusinessService businessService;
 
     @Override
-    public Process defineProcess() {
-
+    public WorkflowProcess defineProcess() {
         // Define process information
-        Process process = new Process();
+        WorkflowProcess process = new WorkflowProcess();
         process.setType("Data Consumption Resource Creation");
         process.setName(getProcessName().name());
         process.setDisplayName(getProcessName().getDisplayName());
-        process.setFormClass(NewConsumptionWorkflowForm.class);
+        process.setFormClass(NewConsumptionProcessForm.class);
         process.setVersion(1);
         process.setProcessDetailHandler(newConsumptionProcessDetailHandler);
 
@@ -125,7 +125,7 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
     }
 
     private List<String> bizOwnerUserTaskApprover(WorkflowContext context) {
-        NewConsumptionWorkflowForm form = (NewConsumptionWorkflowForm) context.getProcessForm();
+        NewConsumptionProcessForm form = (NewConsumptionProcessForm) context.getProcessForm();
         BusinessInfo businessInfo = businessService.get(form.getConsumptionInfo().getInlongGroupId());
         if (businessInfo == null || businessInfo.getInCharges() == null) {
             return Collections.emptyList();
@@ -138,4 +138,5 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
     public ProcessName getProcessName() {
         return ProcessName.NEW_CONSUMPTION_WORKFLOW;
     }
+
 }

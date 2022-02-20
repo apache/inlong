@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.pojo.datasource.SourceFileBasicInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailInfo;
 import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailListVO;
 import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailPageRequest;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.SourceFileService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class SourceFileController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save basic information of file data source")
     public Response<Integer> saveBasic(@RequestBody SourceFileBasicInfo basicInfo) {
-        int result = fileSourceService.saveBasic(basicInfo, LoginUserUtil.getLoginUserDetail().getUserName());
+        int result = fileSourceService.saveBasic(basicInfo, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(result);
     }
 
@@ -73,7 +73,7 @@ public class SourceFileController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update basic information of file data source")
     public Response<Boolean> updateBasic(@RequestBody SourceFileBasicInfo basicInfo) {
-        boolean result = fileSourceService.updateBasic(basicInfo, LoginUserUtil.getLoginUserDetail().getUserName());
+        boolean result = fileSourceService.updateBasic(basicInfo, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(result);
     }
 
@@ -83,14 +83,14 @@ public class SourceFileController {
     @ApiImplicitParam(name = "id", value = "File data source id", dataTypeClass = String.class, required = true)
     public Response<Boolean> deleteBasic(@PathVariable Integer id) {
         return Response
-                .success(fileSourceService.logicDeleteBasic(id, LoginUserUtil.getLoginUserDetail().getUserName()));
+                .success(fileSourceService.logicDeleteBasic(id, LoginUserUtils.getLoginUserDetail().getUserName()));
     }
 
     @RequestMapping(value = "/saveDetail", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save file data source details")
     public Response<Integer> saveDetail(@RequestBody SourceFileDetailInfo detailInfo) {
-        int result = fileSourceService.saveDetail(detailInfo, LoginUserUtil.getLoginUserDetail().getUserName());
+        int result = fileSourceService.saveDetail(detailInfo, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(result);
     }
 
@@ -111,7 +111,7 @@ public class SourceFileController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Modify file data source details")
     public Response<Boolean> updateDetail(@RequestBody SourceFileDetailInfo detailInfo) {
-        boolean result = fileSourceService.updateDetail(detailInfo, LoginUserUtil.getLoginUserDetail().getUserName());
+        boolean result = fileSourceService.updateDetail(detailInfo, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(result);
     }
 
@@ -121,7 +121,7 @@ public class SourceFileController {
     @ApiImplicitParam(name = "id", value = "File data source id", dataTypeClass = String.class, required = true)
     public Response<Boolean> deleteDetail(@PathVariable Integer id) {
         return Response
-                .success(fileSourceService.logicDeleteDetail(id, LoginUserUtil.getLoginUserDetail().getUserName()));
+                .success(fileSourceService.logicDeleteDetail(id, LoginUserUtils.getLoginUserDetail().getUserName()));
     }
 
 }

@@ -19,14 +19,14 @@ package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
-import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.DataStreamService;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.process.ProcessEvent;
-import org.apache.inlong.manager.common.event.process.ProcessEventListener;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
+import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -53,7 +53,7 @@ public class StreamFailedProcessListener implements ProcessEventListener {
      */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
+        BusinessResourceProcessForm form = (BusinessResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
         String streamId = form.getInlongStreamId();
         String username = context.getApplicant();
@@ -70,4 +70,5 @@ public class StreamFailedProcessListener implements ProcessEventListener {
     public boolean async() {
         return false;
     }
+
 }

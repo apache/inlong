@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.workflow;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.workflow.BaseWorkflowFormType;
+import org.apache.inlong.manager.common.pojo.workflow.form.BaseProcessForm;
 
 /**
  * Workflow operation
@@ -30,9 +30,9 @@ import org.apache.inlong.manager.common.workflow.BaseWorkflowFormType;
 public class WorkflowOperation {
 
     /**
-     * Process name-KEY
+     * WorkflowProcess name-KEY
      */
-    @ApiModelProperty(value = "Process name", notes = "Specify the process name when initiating the process")
+    @ApiModelProperty(value = "WorkflowProcess name", notes = "Specify the process name when initiating the process")
     public ProcessName name;
     /**
      * Applicant
@@ -50,5 +50,6 @@ public class WorkflowOperation {
      */
     @ApiModelProperty(value = "Form information", notes = "When initiating a process or approving task, "
             + "submit the form information that needs to be submitted")
-    public BaseWorkflowFormType form;
+    public BaseProcessForm form;
+
 }

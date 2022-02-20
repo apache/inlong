@@ -48,6 +48,9 @@ public class BusinessServiceTest extends WebBaseTest {
     @Autowired
     private BusinessService businessService;
 
+    /**
+     * Test to save business
+     */
     public String saveBusiness(String groupName, String operator) {
         BusinessInfo businessInfo;
         try {

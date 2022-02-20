@@ -19,11 +19,11 @@ package org.apache.inlong.manager.service.thirdpart.mq;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.BizConstant;
-import org.apache.inlong.manager.common.event.EventSelector;
-import org.apache.inlong.manager.common.model.WorkflowContext;
-import org.apache.inlong.manager.common.model.definition.ProcessForm;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.workflow.event.EventSelector;
 
 @Slf4j
 public class TubeEventSelector implements EventSelector {
@@ -31,10 +31,10 @@ public class TubeEventSelector implements EventSelector {
     @Override
     public boolean accept(WorkflowContext context) {
         ProcessForm processForm = context.getProcessForm();
-        if (processForm == null || !(processForm instanceof BusinessResourceWorkflowForm)) {
+        if (!(processForm instanceof BusinessResourceProcessForm)) {
             return false;
         }
-        BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) processForm;
+        BusinessResourceProcessForm form = (BusinessResourceProcessForm) processForm;
         BusinessInfo businessInfo = form.getBusinessInfo();
         if (BizConstant.MIDDLEWARE_TUBE.equalsIgnoreCase(businessInfo.getMiddlewareType())) {
             return true;

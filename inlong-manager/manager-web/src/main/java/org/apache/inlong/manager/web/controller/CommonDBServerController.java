@@ -46,7 +46,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerInfo;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerListVo;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerPageRequest;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.SmallTools;
 import org.apache.inlong.manager.service.core.CommonDBServerService;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -215,7 +215,7 @@ public class CommonDBServerController {
             fileDir.mkdirs();
         }
 
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
         String time = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
         fileName = username + "_" + time + "_" + fileName;
 

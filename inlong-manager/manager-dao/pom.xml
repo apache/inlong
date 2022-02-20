@@ -37,11 +37,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>manager-workflow-engine</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
             <artifactId>manager-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

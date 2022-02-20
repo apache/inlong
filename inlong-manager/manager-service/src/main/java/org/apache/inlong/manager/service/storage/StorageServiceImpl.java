@@ -21,16 +21,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.BizConstant;
@@ -47,7 +37,6 @@ import org.apache.inlong.manager.common.pojo.datastorage.StorageRequest;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.dao.entity.BusinessEntity;
 import org.apache.inlong.manager.dao.entity.StorageEntity;
 import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
@@ -55,12 +44,24 @@ import org.apache.inlong.manager.dao.mapper.StorageEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageFieldEntityMapper;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.stream.CreateStreamWorkflowDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation of storage service interface
@@ -408,7 +409,7 @@ public class StorageServiceImpl implements StorageService {
             LOGGER.info("begin start data stream workflow, groupId={}, streamId={}", groupId, streamId);
 
             BusinessInfo businessInfo = CommonBeanUtils.copyProperties(businessEntity, BusinessInfo::new);
-            BusinessResourceWorkflowForm form = genBizResourceWorkflowForm(businessInfo, streamId);
+            BusinessResourceProcessForm form = genBizResourceWorkflowForm(businessInfo, streamId);
 
             workflowService.start(ProcessName.CREATE_DATASTREAM_RESOURCE, operator, form);
             LOGGER.info("success start data stream workflow, groupId={}, streamId={}", groupId, streamId);
@@ -417,8 +418,8 @@ public class StorageServiceImpl implements StorageService {
         /**
          * Generate [Create Business Resource] form
          */
-        private BusinessResourceWorkflowForm genBizResourceWorkflowForm(BusinessInfo businessInfo, String streamId) {
-            BusinessResourceWorkflowForm form = new BusinessResourceWorkflowForm();
+        private BusinessResourceProcessForm genBizResourceWorkflowForm(BusinessInfo businessInfo, String streamId) {
+            BusinessResourceProcessForm form = new BusinessResourceProcessForm();
             form.setBusinessInfo(businessInfo);
             form.setInlongStreamId(streamId);
             return form;

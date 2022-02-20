@@ -17,24 +17,25 @@
 
 package org.apache.inlong.manager.service.thirdpart.mq;
 
-import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ReTryConfigBean;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.task.QueueOperateListener;
-import org.apache.inlong.manager.common.event.task.TaskEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest.GroupNameJsonSetBean;
 import org.apache.inlong.manager.common.pojo.tubemq.QueryTubeTopicRequest;
-import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.dao.mapper.ClusterInfoMapper;
 import org.apache.inlong.manager.service.core.BusinessService;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
+import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
 
 @Component
 @Slf4j
@@ -62,15 +63,12 @@ public class CreateTubeGroupTaskListener implements QueueOperateListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
+        BusinessResourceProcessForm form = (BusinessResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
-
         log.info("try to create consumer group for groupId {}", groupId);
 
         BusinessInfo businessInfo = businessService.get(groupId);
-
         String topicName = businessInfo.getMqResourceObj();
-
         QueryTubeTopicRequest queryTubeTopicRequest = QueryTubeTopicRequest.builder()
                 .topicName(topicName).clusterId(clusterId)
                 .user(businessInfo.getCreator()).build();
@@ -113,4 +111,5 @@ public class CreateTubeGroupTaskListener implements QueueOperateListener {
     public boolean async() {
         return true;
     }
+
 }

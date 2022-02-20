@@ -31,7 +31,7 @@ import org.apache.inlong.manager.common.pojo.datastream.FullPageUpdateInfo;
 import org.apache.inlong.manager.common.pojo.datastream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.datastream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.datastream.StreamBriefResponse;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +59,7 @@ public class DataStreamController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save data stream information")
     public Response<Integer> save(@RequestBody DataStreamInfo dataStreamInfo) {
-        int result = dataStreamService.save(dataStreamInfo, LoginUserUtil.getLoginUserDetail().getUserName());
+        int result = dataStreamService.save(dataStreamInfo, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(result);
     }
 
@@ -67,14 +67,14 @@ public class DataStreamController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save data stream page information ,including source and storage")
     public Response<Boolean> saveAll(@RequestBody FullStreamRequest pageInfo) {
-        return Response.success(dataStreamService.saveAll(pageInfo, LoginUserUtil.getLoginUserDetail().getUserName()));
+        return Response.success(dataStreamService.saveAll(pageInfo, LoginUserUtils.getLoginUserDetail().getUserName()));
     }
 
     @RequestMapping(value = "/batchSaveAll", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Batch save data stream page information ,including source and storage")
     public Response<Boolean> batchSaveAll(@RequestBody List<FullStreamRequest> infoList) {
-        boolean result = dataStreamService.batchSaveAll(infoList, LoginUserUtil.getLoginUserDetail().getUserName());
+        boolean result = dataStreamService.batchSaveAll(infoList, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(result);
     }
 
@@ -91,14 +91,14 @@ public class DataStreamController {
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ApiOperation(value = "Paging query data stream list")
     public Response<PageInfo<DataStreamListVO>> listByCondition(DataStreamPageRequest request) {
-        request.setCurrentUser(LoginUserUtil.getLoginUserDetail().getUserName());
+        request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(dataStreamService.listByCondition(request));
     }
 
     @RequestMapping(value = "/listAll", method = RequestMethod.GET)
     @ApiOperation(value = "Paging query all data of the data stream page under the specified groupId")
     public Response<PageInfo<FullStreamResponse>> listAllWithGroupId(DataStreamPageRequest request) {
-        request.setCurrentUser(LoginUserUtil.getLoginUserDetail().getUserName());
+        request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(dataStreamService.listAllWithGroupId(request));
     }
 
@@ -106,7 +106,7 @@ public class DataStreamController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Modify data stream information")
     public Response<Boolean> update(@RequestBody DataStreamInfo dataStreamInfo) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
         return Response.success(dataStreamService.update(dataStreamInfo, username));
     }
 
@@ -114,7 +114,7 @@ public class DataStreamController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Modify data stream page information,including basic data source information")
     public Response<Boolean> updateAll(@RequestBody FullPageUpdateInfo updateInfo) {
-        boolean result = dataStreamService.updateAll(updateInfo, LoginUserUtil.getLoginUserDetail().getUserName());
+        boolean result = dataStreamService.updateAll(updateInfo, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(result);
     }
 
@@ -126,7 +126,7 @@ public class DataStreamController {
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
     public Response<Boolean> delete(@RequestParam String inlongGroupId, @RequestParam String streamId) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
         return Response.success(dataStreamService.delete(inlongGroupId, streamId, username));
     }
 

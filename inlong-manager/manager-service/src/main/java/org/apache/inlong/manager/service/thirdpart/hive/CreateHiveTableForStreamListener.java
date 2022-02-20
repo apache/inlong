@@ -18,13 +18,13 @@
 package org.apache.inlong.manager.service.thirdpart.hive;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.task.StorageOperateListener;
-import org.apache.inlong.manager.common.event.task.TaskEvent;
-import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageForSortDTO;
 import org.apache.inlong.manager.dao.mapper.StorageEntityMapper;
-import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.task.StorageOperateListener;
+import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +49,7 @@ public class CreateHiveTableForStreamListener implements StorageOperateListener 
 
     @Override
     public ListenerResult listen(WorkflowContext context) {
-        BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
+        BusinessResourceProcessForm form = (BusinessResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
         String streamId = form.getInlongStreamId();
         log.info("begin create hive table for groupId={}, streamId={}", groupId, streamId);

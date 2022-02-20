@@ -73,28 +73,29 @@ CREATE TABLE `business`
 (
     `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Business group id, filled in by the user, undeleted ones cannot be repeated',
-    `name`                varchar(128)          DEFAULT '' COMMENT 'Business name, English, numbers and underscore',
-    `cn_name`             varchar(256)          DEFAULT NULL COMMENT 'Chinese display name',
-    `description`         varchar(256)          DEFAULT '' COMMENT 'Business Introduction',
-    `middleware_type`     varchar(20)           DEFAULT 'TUBE' COMMENT 'The middleware type of message queue, high throughput: TUBE, high consistency: PULSAR',
-    `queue_module`        VARCHAR(20)  NULL     DEFAULT 'parallel' COMMENT 'Queue model of Pulsar, parallel: multiple partitions, high throughput, out-of-order messages; serial: single partition, low throughput, and orderly messages',
-    `topic_partition_num` INT(4)       NULL     DEFAULT '3' COMMENT 'The number of partitions of Pulsar Topic, 1-20',
+    `name`                varchar(128)      DEFAULT '' COMMENT 'Business name, English, numbers and underscore',
+    `cn_name`             varchar(256)      DEFAULT NULL COMMENT 'Chinese display name',
+    `description`         varchar(256)      DEFAULT '' COMMENT 'Business Introduction',
+    `middleware_type`     varchar(20)       DEFAULT 'TUBE' COMMENT 'The middleware type of message queue, high throughput: TUBE, high consistency: PULSAR',
+    `queue_module`        VARCHAR(20)  NULL DEFAULT 'parallel' COMMENT 'Queue model of Pulsar, parallel: multiple partitions, high throughput, out-of-order messages; serial: single partition, low throughput, and orderly messages',
+    `topic_partition_num` INT(4)       NULL DEFAULT '3' COMMENT 'The number of partitions of Pulsar Topic, 1-20',
     `mq_resource_obj`     varchar(128) NOT NULL COMMENT 'MQ resource object, for Tube, its Topic, for Pulsar, its Namespace',
-    `daily_records`       int(11)               DEFAULT '10' COMMENT 'Number of access records per day, unit: 10,000 records per day',
-    `daily_storage`       int(11)               DEFAULT '10' COMMENT 'Access size by day, unit: GB per day',
-    `peak_records`        int(11)               DEFAULT '1000' COMMENT 'Access peak per second, unit: records per second',
-    `max_length`          int(11)               DEFAULT '10240' COMMENT 'The maximum length of a single piece of data, unit: Byte',
-    `schema_name`         varchar(128)          DEFAULT NULL COMMENT 'Data type, associated data_schema table',
+    `daily_records`       int(11)           DEFAULT '10' COMMENT 'Number of access records per day, unit: 10,000 records per day',
+    `daily_storage`       int(11)           DEFAULT '10' COMMENT 'Access size by day, unit: GB per day',
+    `peak_records`        int(11)           DEFAULT '1000' COMMENT 'Access peak per second, unit: records per second',
+    `max_length`          int(11)           DEFAULT '10240' COMMENT 'The maximum length of a single piece of data, unit: Byte',
+    `schema_name`         varchar(128)      DEFAULT NULL COMMENT 'Data type, associated data_schema table',
     `in_charges`          varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
-    `followers`           varchar(512)          DEFAULT NULL COMMENT 'List of names of business followers, separated by commas',
-    `status`              int(4)                DEFAULT '21' COMMENT 'Business status',
-    `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `followers`           varchar(512)      DEFAULT NULL COMMENT 'List of names of business followers, separated by commas',
+    `status`              int(4)            DEFAULT '21' COMMENT 'Business status',
+    `is_deleted`          int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`             varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`            varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`           text                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
-    `zookeeper_enabled`   int(4)                DEFAULT '1'  COMMENT 'Need zookeeper support, 0 false 1 true',
+    `modifier`            varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `temp_view`           text              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
+    `zookeeper_enabled`   int(4)            DEFAULT '1' COMMENT 'Need zookeeper support, 0: false, 1: true',
+    `proxy_cluster_id`    int(11)      NOT NULL COMMENT 'The id of dataproxy cluster',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_business` (`inlong_group_id`, `is_deleted`, `modify_time`)
 );
@@ -107,18 +108,18 @@ CREATE TABLE `business_pulsar`
 (
     `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Business group id, filled in by the user, undeleted ones cannot be repeated',
-    `ensemble`            int(3)                DEFAULT '3' COMMENT 'The writable nodes number of ledger',
-    `write_quorum`        int(3)                DEFAULT '3' COMMENT 'The copies number of ledger',
-    `ack_quorum`          int(3)                DEFAULT '2' COMMENT 'The number of requested acks',
-    `retention_time`      int(11)               DEFAULT '72' COMMENT 'Message storage time',
-    `retention_time_unit` char(20)              DEFAULT 'hours' COMMENT 'The unit of the message storage time',
-    `ttl`                 int(11)               DEFAULT '24' COMMENT 'Message time-to-live duration',
-    `ttl_unit`            varchar(20)           DEFAULT 'hours' COMMENT 'The unit of time-to-live duration',
-    `retention_size`      int(11)               DEFAULT '-1' COMMENT 'Message size',
-    `retention_size_unit` varchar(20)           DEFAULT 'MB' COMMENT 'The unit of message size',
-    `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `create_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `ensemble`            int(3)            DEFAULT '3' COMMENT 'The writable nodes number of ledger',
+    `write_quorum`        int(3)            DEFAULT '3' COMMENT 'The copies number of ledger',
+    `ack_quorum`          int(3)            DEFAULT '2' COMMENT 'The number of requested acks',
+    `retention_time`      int(11)           DEFAULT '72' COMMENT 'Message storage time',
+    `retention_time_unit` char(20)          DEFAULT 'hours' COMMENT 'The unit of the message storage time',
+    `ttl`                 int(11)           DEFAULT '24' COMMENT 'Message time-to-live duration',
+    `ttl_unit`            varchar(20)       DEFAULT 'hours' COMMENT 'The unit of time-to-live duration',
+    `retention_size`      int(11)           DEFAULT '-1' COMMENT 'Message size',
+    `retention_size_unit` varchar(20)       DEFAULT 'MB' COMMENT 'The unit of message size',
+    `is_deleted`          int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `create_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`)
 );
 
@@ -131,11 +132,12 @@ CREATE TABLE `business_ext`
     `id`              int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id` varchar(256) NOT NULL COMMENT 'Business group id',
     `key_name`        varchar(64)  NOT NULL COMMENT 'Configuration item name',
-    `key_value`       varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
-    `is_deleted`      tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `modify_time`     timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `key_value`       varchar(256)      DEFAULT NULL COMMENT 'The value of the configuration item',
+    `is_deleted`      int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `modify_time`     timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `group_key_idx` (`inlong_group_id`,`key_name`)
+    KEY `index_group_id` (`inlong_group_id`),
+    UNIQUE KEY `group_key_idx` (`inlong_group_id`, `key_name`)
 );
 
 -- ----------------------------
@@ -150,15 +152,17 @@ CREATE TABLE `cluster_info`
     `ip`          varchar(64)  NOT NULL COMMENT 'Cluster IP address',
     `port`        int(11)      NOT NULL COMMENT 'Cluster port',
     `in_charges`  varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
-    `url`         varchar(256)          DEFAULT NULL COMMENT 'Cluster URL address',
-    `is_backup`   tinyint(1)            DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
-    `ext_props`   text                  DEFAULT NULL COMMENT 'extended properties',
-    `status`      int(4)                DEFAULT '1' COMMENT 'cluster status',
-    `is_deleted`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `token`       varchar(128) COMMENT 'Cluster token',
+    `url`         varchar(256)      DEFAULT NULL COMMENT 'Cluster URL address',
+    `is_backup`   tinyint(1)        DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
+    `ext_props`   text              DEFAULT NULL COMMENT 'extended properties',
+    `status`      int(4)            DEFAULT '1' COMMENT 'cluster status',
+    `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`    varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
-    `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
+    `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `mq_set_name` varchar(128) NOT NULL COMMENT 'MQ set name of this cluster',
     PRIMARY KEY (`id`)
 );
 
@@ -171,29 +175,29 @@ CREATE TABLE `common_db_server`
     `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `access_type`         varchar(20)  NOT NULL COMMENT 'Collection type, with Agent, DataProxy client, LoadProxy',
     `connection_name`     varchar(128) NOT NULL COMMENT 'The name of the database connection',
-    `db_type`             varchar(128)          DEFAULT 'MySQL' COMMENT 'DB type, such as MySQL, Oracle',
+    `db_type`             varchar(128)      DEFAULT 'MySQL' COMMENT 'DB type, such as MySQL, Oracle',
     `db_server_ip`        varchar(64)  NOT NULL COMMENT 'DB Server IP',
     `port`                int(11)      NOT NULL COMMENT 'Port number',
-    `db_name`             varchar(128)          DEFAULT NULL COMMENT 'Target database name',
+    `db_name`             varchar(128)      DEFAULT NULL COMMENT 'Target database name',
     `username`            varchar(64)  NOT NULL COMMENT 'Username',
     `password`            varchar(64)  NOT NULL COMMENT 'The password corresponding to the above user name',
-    `has_select`          tinyint(1)            DEFAULT '0' COMMENT 'Is there DB permission select, 0: No, 1: Yes',
-    `has_insert`          tinyint(1)            DEFAULT '0' COMMENT 'Is there DB permission to insert, 0: No, 1: Yes',
-    `has_update`          tinyint(1)            DEFAULT '0' COMMENT 'Is there a DB permission update, 0: No, 1: Yes',
-    `has_delete`          tinyint(1)            DEFAULT '0' COMMENT 'Is there a DB permission to delete, 0: No, 1: Yes',
+    `has_select`          tinyint(1)        DEFAULT '0' COMMENT 'Is there DB permission select, 0: No, 1: Yes',
+    `has_insert`          tinyint(1)        DEFAULT '0' COMMENT 'Is there DB permission to insert, 0: No, 1: Yes',
+    `has_update`          tinyint(1)        DEFAULT '0' COMMENT 'Is there a DB permission update, 0: No, 1: Yes',
+    `has_delete`          tinyint(1)        DEFAULT '0' COMMENT 'Is there a DB permission to delete, 0: No, 1: Yes',
     `in_charges`          varchar(512) NOT NULL COMMENT 'DB person in charge, separated by a comma when there are multiple ones',
-    `is_region_id`        tinyint(1)            DEFAULT '0' COMMENT 'Whether it contains a region ID, 0: No, 1: Yes',
-    `db_description`      varchar(256)          DEFAULT NULL COMMENT 'DB description',
-    `backup_db_server_ip` varchar(64)           DEFAULT NULL COMMENT 'Backup DB HOST',
-    `backup_db_port`      int(11)               DEFAULT NULL COMMENT 'Backup DB port',
-    `status`              int(4)                DEFAULT '0' COMMENT 'status',
-    `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `is_region_id`        tinyint(1)        DEFAULT '0' COMMENT 'Whether it contains a region ID, 0: No, 1: Yes',
+    `db_description`      varchar(256)      DEFAULT NULL COMMENT 'DB description',
+    `backup_db_server_ip` varchar(64)       DEFAULT NULL COMMENT 'Backup DB HOST',
+    `backup_db_port`      int(11)           DEFAULT NULL COMMENT 'Backup DB port',
+    `status`              int(4)            DEFAULT '0' COMMENT 'status',
+    `is_deleted`          int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`             varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`            varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `visible_person`      varchar(1024)         DEFAULT NULL COMMENT 'List of visible persons, separated by commas',
-    `visible_group`       varchar(1024)         DEFAULT NULL COMMENT 'List of visible groups, separated by commas',
+    `modifier`            varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `visible_person`      varchar(1024)     DEFAULT NULL COMMENT 'List of visible persons, separated by commas',
+    `visible_group`       varchar(1024)     DEFAULT NULL COMMENT 'List of visible groups, separated by commas',
     PRIMARY KEY (`id`)
 );
 
@@ -212,7 +216,7 @@ CREATE TABLE `common_file_server`
     `username`       varchar(64) NOT NULL COMMENT 'User name of the data source IP host',
     `password`       varchar(64) NOT NULL COMMENT 'The password corresponding to the above user name',
     `status`         int(4)               DEFAULT '0' COMMENT 'status',
-    `is_deleted`     tinyint(1)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `is_deleted`     int(11)              DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`        varchar(64) NOT NULL COMMENT 'Creator name',
     `modifier`       varchar(64)          DEFAULT NULL COMMENT 'Modifier name',
     `create_time`    timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
@@ -229,20 +233,20 @@ DROP TABLE IF EXISTS `consumption`;
 CREATE TABLE `consumption`
 (
     `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `consumer_group_name` varchar(256)          DEFAULT NULL COMMENT 'consumer group name',
+    `consumer_group_name` varchar(256)      DEFAULT NULL COMMENT 'consumer group name',
     `consumer_group_id`   varchar(256) NOT NULL COMMENT 'Consumer group ID',
     `in_charges`          varchar(512) NOT NULL COMMENT 'Person in charge of consumption',
     `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Business group id',
-    `middleware_type`     varchar(10)           DEFAULT 'TUBE' COMMENT 'The middleware type of message queue, high throughput: TUBE, high consistency: PULSAR',
+    `middleware_type`     varchar(10)       DEFAULT 'TUBE' COMMENT 'The middleware type of message queue, high throughput: TUBE, high consistency: PULSAR',
     `topic`               varchar(256) NOT NULL COMMENT 'Consumption topic',
-    `filter_enabled`      int(2)                DEFAULT '0' COMMENT 'Whether to filter, default 0, not filter consume',
-    `inlong_stream_id`    varchar(1024)         DEFAULT NULL COMMENT 'Data stream ID for consumption, if filter_enable is 1, it cannot empty',
+    `filter_enabled`      int(2)            DEFAULT '0' COMMENT 'Whether to filter, default 0, not filter consume',
+    `inlong_stream_id`    varchar(256)      DEFAULT NULL COMMENT 'Data stream ID for consumption, if filter_enable is 1, it cannot empty',
     `status`              int(4)       NOT NULL COMMENT 'Status: draft, pending approval, approval rejected, approval passed',
-    `is_deleted`          tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `is_deleted`          int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`             varchar(64)  NOT NULL COMMENT 'creator',
-    `modifier`            varchar(64)           DEFAULT NULL COMMENT 'modifier',
-    `create_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `modifier`            varchar(64)       DEFAULT NULL COMMENT 'modifier',
+    `create_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`)
 );
 
@@ -261,7 +265,7 @@ CREATE TABLE `consumption_pulsar`
     `retry_letter_topic`  varchar(256) DEFAULT NULL COMMENT 'The name of the retry queue topic',
     `is_dlq`              tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure dead letter topic, 0: no configuration, 1: means configuration',
     `dead_letter_topic`   varchar(256) DEFAULT NULL COMMENT 'dead letter topic name',
-    `is_deleted`          tinyint(1)   DEFAULT '0' COMMENT 'Whether to delete',
+    `is_deleted`          int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`)
 ) COMMENT ='Pulsar consumption table';
 
@@ -273,21 +277,23 @@ CREATE TABLE `data_proxy_cluster`
 (
     `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `name`        varchar(128) NOT NULL COMMENT 'cluster name',
-    `description` varchar(500)          DEFAULT NULL COMMENT 'cluster description',
+    `description` varchar(500)      DEFAULT NULL COMMENT 'cluster description',
     `address`     varchar(128) NOT NULL COMMENT 'cluster address',
-    `port`        varchar(256)          DEFAULT '46801' COMMENT 'Access port number, multiple ports are separated by a comma',
-    `is_backup`   tinyint(1)            DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
-    `is_inner_ip` tinyint(1)            DEFAULT '0' COMMENT 'Whether it is intranet, 0: no, 1: yes',
-    `net_type`    varchar(20)           DEFAULT NULL COMMENT 'Cluster network type, internal, or public',
-    `in_charges`  varchar(512)          DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
-    `ext_props`   text                  DEFAULT NULL COMMENT 'Extended properties',
-    `status`      int(4)                DEFAULT '1' COMMENT 'Cluster status',
-    `is_deleted`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `port`        varchar(256)      DEFAULT '46801' COMMENT 'Access port number, multiple ports are separated by a comma',
+    `is_backup`   tinyint(1)        DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
+    `is_inner_ip` tinyint(1)        DEFAULT '0' COMMENT 'Whether it is intranet, 0: no, 1: yes',
+    `net_type`    varchar(20)       DEFAULT NULL COMMENT 'Cluster network type, internal, or public',
+    `in_charges`  varchar(512)      DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
+    `ext_props`   text              DEFAULT NULL COMMENT 'Extended properties',
+    `status`      int(4)            DEFAULT '1' COMMENT 'Cluster status',
+    `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`    varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
-    `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time` timestamp             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
+    `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
+    `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `mq_set_name` varchar(128) NOT NULL COMMENT 'mq set name',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `cluster_name` (`name`, `is_deleted`)
 );
 
 -- ----------------------------
@@ -321,8 +327,8 @@ CREATE TABLE `data_source_cmd_config`
     `task_id`             int(11)     NOT NULL,
     `specified_data_time` varchar(64) NOT NULL,
     `bSend`               tinyint(1)  NOT NULL,
-    `modify_time`         timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Last update time ',
     `create_time`         timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`         timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `result_info`         varchar(64)          DEFAULT NULL,
     PRIMARY KEY (`id`)
 );
@@ -353,7 +359,7 @@ CREATE TABLE `data_stream`
     `in_charges`             varchar(512)      DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
     `status`                 int(4)            DEFAULT '0' COMMENT 'Data stream status',
     `previous_status`        int(4)            DEFAULT '0' COMMENT 'Previous status',
-    `is_deleted`             tinyint(1)        DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `is_deleted`             int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`                varchar(64)       DEFAULT NULL COMMENT 'Creator name',
     `modifier`               varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
@@ -373,11 +379,12 @@ CREATE TABLE `data_stream_ext`
     `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning business group id',
     `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning data stream id',
     `key_name`         varchar(64)  NOT NULL COMMENT 'Configuration item name',
-    `key_value`        varchar(256)          DEFAULT NULL COMMENT 'The value of the configuration item',
-    `is_deleted`       tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `key_value`        varchar(256)      DEFAULT NULL COMMENT 'The value of the configuration item',
+    `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `group_stream_key_idx` (`inlong_group_id`,`inlong_stream_id`,`key_name`)
+    KEY `index_stream_id` (`inlong_stream_id`),
+    UNIQUE KEY `group_stream_key_idx` (`inlong_group_id`, `inlong_stream_id`, `key_name`)
 );
 
 -- ----------------------------
@@ -389,15 +396,16 @@ CREATE TABLE `data_stream_field`
     `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Owning business group id',
     `inlong_stream_id`    varchar(256) NOT NULL COMMENT 'Owning data stream id',
-    `is_predefined_field` tinyint(1)    DEFAULT '0' COMMENT 'Whether it is a predefined field, 0: no, 1: yes',
-    `field_name`          varchar(50)  NOT NULL COMMENT 'field name',
-    `field_value`         varchar(128)  DEFAULT NULL COMMENT 'Field value, required if it is a predefined field',
-    `pre_expression`      varchar(256)  DEFAULT NULL COMMENT 'Pre-defined field value expression',
-    `field_type`          varchar(50)  NOT NULL COMMENT 'field type',
-    `field_comment`       varchar(2000) DEFAULT NULL COMMENT 'field description',
-    `rank_num`            smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
-    `is_deleted`          tinyint(1)    DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    PRIMARY KEY (`id`)
+    `is_predefined_field` tinyint(1)   DEFAULT '0' COMMENT 'Whether it is a predefined field, 0: no, 1: yes',
+    `field_name`          varchar(20)  NOT NULL COMMENT 'field name',
+    `field_value`         varchar(128) DEFAULT NULL COMMENT 'Field value, required if it is a predefined field',
+    `pre_expression`      varchar(256) DEFAULT NULL COMMENT 'Pre-defined field value expression',
+    `field_type`          varchar(20)  NOT NULL COMMENT 'field type',
+    `field_comment`       varchar(50)  DEFAULT NULL COMMENT 'Field description',
+    `rank_num`            smallint(6)  DEFAULT '0' COMMENT 'Field order (front-end display field order)',
+    `is_deleted`          int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    PRIMARY KEY (`id`),
+    KEY `index_field_stream_id` (`inlong_stream_id`)
 );
 
 -- ----------------------------
@@ -439,8 +447,8 @@ CREATE TABLE `role`
     `update_by`   varchar(256) NOT NULL,
     `disabled`    tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Is it disabled?',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_role_code` (`role_code`),
-    UNIQUE KEY `unique_role_name` (`role_name`)
+    UNIQUE KEY `unique_role_code_idx` (`role_code`),
+    UNIQUE KEY `unique_role_name_idx` (`role_name`)
 );
 
 -- ----------------------------
@@ -452,13 +460,13 @@ CREATE TABLE `source_db_basic`
     `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning business group id',
     `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning data stream id',
-    `sync_type`        tinyint(1)            DEFAULT '0' COMMENT 'Data synchronization type, 0: FULL, full amount, 1: INCREMENTAL, incremental',
-    `is_deleted`       tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `sync_type`        tinyint(1)        DEFAULT '0' COMMENT 'Data synchronization type, 0: FULL, full amount, 1: INCREMENTAL, incremental',
+    `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`          varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`         varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`        text                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
+    `modifier`         varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `temp_view`        text              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
     PRIMARY KEY (`id`)
 );
 
@@ -472,21 +480,21 @@ CREATE TABLE `source_db_detail`
     `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning business group id',
     `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning data stream id',
     `access_type`      varchar(20)  NOT NULL COMMENT 'Collection type, with Agent, DataProxy client, LoadProxy',
-    `db_name`          varchar(128)          DEFAULT NULL COMMENT 'database name',
-    `transfer_ip`      varchar(64)           DEFAULT NULL COMMENT 'Transfer IP',
-    `connection_name`  varchar(128)          DEFAULT NULL COMMENT 'The name of the database connection',
-    `table_name`       varchar(128)          DEFAULT NULL COMMENT 'Data table name, required for increment',
+    `db_name`          varchar(128)      DEFAULT NULL COMMENT 'database name',
+    `transfer_ip`      varchar(64)       DEFAULT NULL COMMENT 'Transfer IP',
+    `connection_name`  varchar(128)      DEFAULT NULL COMMENT 'The name of the database connection',
+    `table_name`       varchar(128)      DEFAULT NULL COMMENT 'Data table name, required for increment',
     `table_fields`     longtext COMMENT 'Data table fields, multiple are separated by half-width commas, required for increment',
     `data_sql`         longtext COMMENT 'SQL statement to collect source data, required for full amount',
-    `crontab`          varchar(56)           DEFAULT NULL COMMENT 'Timed scheduling expression, required for full amount',
-    `status`           int(4)                DEFAULT '0' COMMENT 'Data source status',
-    `previous_status`  int(4)                DEFAULT '0' COMMENT 'Previous status',
-    `is_deleted`       tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `crontab`          varchar(56)       DEFAULT NULL COMMENT 'Timed scheduling expression, required for full amount',
+    `status`           int(4)            DEFAULT '0' COMMENT 'Data source status',
+    `previous_status`  int(4)            DEFAULT '0' COMMENT 'Previous status',
+    `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`          varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`         varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`        text                  DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
+    `modifier`         varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `temp_view`        text              DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
     PRIMARY KEY (`id`)
 );
 
@@ -499,19 +507,19 @@ CREATE TABLE `source_file_basic`
     `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `inlong_group_id`   varchar(256) NOT NULL COMMENT 'Business group id',
     `inlong_stream_id`  varchar(256) NOT NULL COMMENT 'Data stream id',
-    `is_hybrid_source`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to mix data sources',
-    `is_table_mapping`  tinyint(1)            DEFAULT '0' COMMENT 'Is there a table name mapping',
-    `date_offset`       int(4)                DEFAULT '0' COMMENT 'Time offset\n',
-    `date_offset_unit`  varchar(2)            DEFAULT 'H' COMMENT 'Time offset unit',
-    `file_rolling_type` varchar(2)            DEFAULT 'H' COMMENT 'File rolling type',
-    `upload_max_size`   int(4)                DEFAULT '120' COMMENT 'Upload maximum size',
-    `need_compress`     tinyint(1)            DEFAULT '0' COMMENT 'Whether need compress',
-    `is_deleted`        tinyint(1)            DEFAULT '0' COMMENT 'Delete switch',
+    `is_hybrid_source`  tinyint(1)        DEFAULT '0' COMMENT 'Whether to mix data sources',
+    `is_table_mapping`  tinyint(1)        DEFAULT '0' COMMENT 'Is there a table name mapping',
+    `date_offset`       int(4)            DEFAULT '0' COMMENT 'Time offset\n',
+    `date_offset_unit`  varchar(2)        DEFAULT 'H' COMMENT 'Time offset unit',
+    `file_rolling_type` varchar(2)        DEFAULT 'H' COMMENT 'File rolling type',
+    `upload_max_size`   int(4)            DEFAULT '120' COMMENT 'Upload maximum size',
+    `need_compress`     tinyint(1)        DEFAULT '0' COMMENT 'Whether need compress',
+    `is_deleted`        int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`           varchar(64)  NOT NULL COMMENT 'Creator',
-    `modifier`          varchar(64)           DEFAULT NULL COMMENT 'Modifier',
-    `create_time`       timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`       timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`         text                  DEFAULT NULL COMMENT 'temp view',
+    `modifier`          varchar(64)       DEFAULT NULL COMMENT 'Modifier',
+    `create_time`       timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`       timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `temp_view`         text              DEFAULT NULL COMMENT 'temp view',
     PRIMARY KEY (`id`)
 );
 
@@ -524,23 +532,23 @@ CREATE TABLE `source_file_detail`
     `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning business group id',
     `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning data stream id',
-    `access_type`      varchar(20)           DEFAULT 'Agent' COMMENT 'Collection type, there are Agent, DataProxy client, LoadProxy, the file can only be Agent temporarily',
-    `server_name`      varchar(64)           DEFAULT NULL COMMENT 'The name of the data source service. If it is empty, add configuration through the following fields',
+    `access_type`      varchar(20)       DEFAULT 'Agent' COMMENT 'Collection type, there are Agent, DataProxy client, LoadProxy, the file can only be Agent temporarily',
+    `server_name`      varchar(64)       DEFAULT NULL COMMENT 'The name of the data source service. If it is empty, add configuration through the following fields',
     `ip`               varchar(128) NOT NULL COMMENT 'Data source IP address',
     `port`             int(11)      NOT NULL COMMENT 'Data source port number',
-    `is_inner_ip`      tinyint(1)            DEFAULT '0' COMMENT 'Whether it is intranet, 0: no, 1: yes',
-    `issue_type`       varchar(10)           DEFAULT 'SSH' COMMENT 'Issuing method, there are SSH, TCS',
-    `username`         varchar(32)           DEFAULT NULL COMMENT 'User name of the data source IP host',
-    `password`         varchar(64)           DEFAULT NULL COMMENT 'The password corresponding to the above user name',
+    `is_inner_ip`      tinyint(1)        DEFAULT '0' COMMENT 'Whether it is intranet, 0: no, 1: yes',
+    `issue_type`       varchar(10)       DEFAULT 'SSH' COMMENT 'Issuing method, there are SSH, TCS',
+    `username`         varchar(32)       DEFAULT NULL COMMENT 'User name of the data source IP host',
+    `password`         varchar(64)       DEFAULT NULL COMMENT 'The password corresponding to the above user name',
     `file_path`        varchar(256) NOT NULL COMMENT 'File path, supports regular matching',
-    `status`           int(4)                DEFAULT '0' COMMENT 'Data source status',
-    `previous_status`  int(4)                DEFAULT '0' COMMENT 'Previous status',
-    `is_deleted`       tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `status`           int(4)            DEFAULT '0' COMMENT 'Data source status',
+    `previous_status`  int(4)            DEFAULT '0' COMMENT 'Previous status',
+    `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`          varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`         varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`        text                  DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
+    `modifier`         varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `temp_view`        text              DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
     PRIMARY KEY (`id`)
 );
 
@@ -555,9 +563,10 @@ CREATE TABLE `storage_ext`
     `storage_id`   int(11)     NOT NULL COMMENT 'data storage id',
     `key_name`     varchar(64) NOT NULL COMMENT 'Configuration item name',
     `key_value`    varchar(256)         DEFAULT NULL COMMENT 'The value of the configuration item',
-    `is_deleted`   tinyint(1)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `is_deleted`   int(11)              DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `modify_time`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `index_storage_id` (`storage_id`)
 );
 
 -- ----------------------------
@@ -576,7 +585,7 @@ CREATE TABLE `data_storage`
     `operate_log`            varchar(5000)         DEFAULT NULL COMMENT 'Background operate log',
     `status`                 int(11)               DEFAULT '0' COMMENT 'Status',
     `previous_status`        int(11)               DEFAULT '0' COMMENT 'Previous status',
-    `is_deleted`             tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 1: deleted',
+    `is_deleted`             int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`                varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`               varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
@@ -585,7 +594,7 @@ CREATE TABLE `data_storage`
 );
 
 -- ----------------------------
--- Table structure for storage_field
+-- Table structure for data_storage_field
 -- ----------------------------
 DROP TABLE IF EXISTS `data_storage_field`;
 CREATE TABLE `data_storage_field`
@@ -601,7 +610,7 @@ CREATE TABLE `data_storage_field`
     `field_type`        varchar(50)  NOT NULL COMMENT 'field type',
     `field_comment`     varchar(2000) DEFAULT NULL COMMENT 'field description',
     `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
-    `is_deleted`        tinyint(1)    DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `is_deleted`        int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`)
 );
 
@@ -621,7 +630,7 @@ CREATE TABLE `user`
     `create_by`    varchar(256) NOT NULL COMMENT 'create by sb.',
     `update_by`    varchar(256)          DEFAULT NULL COMMENT 'update by sb.',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_user_name` (`name`)
+    UNIQUE KEY `unique_user_name_idx` (`name`)
 );
 
 -- create default admin user, username is 'admin', password is 'inlong'
@@ -647,10 +656,10 @@ CREATE TABLE `user_role`
 );
 
 -- ----------------------------
--- Table structure for wf_approver
+-- Table structure for workflow_approver
 -- ----------------------------
-DROP TABLE IF EXISTS `wf_approver`;
-CREATE TABLE `wf_approver`
+DROP TABLE IF EXISTS `workflow_approver`;
+CREATE TABLE `workflow_approver`
 (
     `id`                int(11)       NOT NULL AUTO_INCREMENT,
     `process_name`      varchar(256)  NOT NULL COMMENT 'process definition name',
@@ -662,14 +671,14 @@ CREATE TABLE `wf_approver`
     `creator`           varchar(64)   NOT NULL COMMENT 'creator',
     `modifier`          varchar(64)   NOT NULL COMMENT 'modifier',
     `create_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'update time',
+    `modify_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `is_deleted`        int(11)                DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `process_name_task_name_index` (`process_name`, `task_name`)
+    KEY `process_name_task_name_index` (`process_name`, `task_name`)
 );
 
 -- create default approver for new consumption and new business
-INSERT INTO `wf_approver`(`process_name`, `task_name`, `filter_key`, `filter_value`, `approvers`,
+INSERT INTO `workflow_approver`(`process_name`, `task_name`, `filter_key`, `filter_value`, `approvers`,
                           `creator`, `modifier`, `create_time`, `modify_time`, `is_deleted`)
 VALUES ('NEW_CONSUMPTION_WORKFLOW', 'ut_admin', 'DEFAULT', NULL, 'admin',
         'inlong_init', 'inlong_init', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
@@ -677,23 +686,23 @@ VALUES ('NEW_CONSUMPTION_WORKFLOW', 'ut_admin', 'DEFAULT', NULL, 'admin',
         'inlong_init', 'inlong_init', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
 
 -- ----------------------------
--- Table structure for wf_event_log
+-- Table structure for workflow_event_log
 -- ----------------------------
-DROP TABLE IF EXISTS `wf_event_log`;
-CREATE TABLE `wf_event_log`
+DROP TABLE IF EXISTS `workflow_event_log`;
+CREATE TABLE `workflow_event_log`
 (
     `id`                   int(11)      NOT NULL AUTO_INCREMENT,
-    `process_inst_id`      int(11)      NOT NULL,
-    `process_name`         varchar(256)  DEFAULT NULL COMMENT 'Process name',
-    `process_display_name` varchar(256) NOT NULL COMMENT 'Process name',
+    `process_id`           int(11)      NOT NULL,
+    `process_name`         varchar(256)  DEFAULT NULL COMMENT 'WorkflowProcess name',
+    `process_display_name` varchar(256) NOT NULL COMMENT 'WorkflowProcess name',
     `inlong_group_id`      varchar(256)  DEFAULT NULL COMMENT 'Business group id',
-    `task_inst_id`         int(11)       DEFAULT NULL COMMENT 'Task ID',
+    `task_id`              int(11)       DEFAULT NULL COMMENT 'WorkflowTask ID',
     `element_name`         varchar(256) NOT NULL COMMENT 'The name of the component that triggered the event',
-    `element_display_name` varchar(256) NOT NULL COMMENT 'Chinese name of the component that triggered the event',
+    `element_display_name` varchar(256) NOT NULL COMMENT 'Name of the component that triggered the event',
     `event_type`           varchar(64)  NOT NULL COMMENT 'Event type: process event/task event',
     `event`                varchar(64)  NOT NULL COMMENT 'Event name',
     `listener`             varchar(1024) DEFAULT NULL COMMENT 'Event listener name',
-    `state`                int(11)      NOT NULL COMMENT 'state',
+    `status`               int(11)      NOT NULL COMMENT 'status',
     `async`                tinyint(1)   NOT NULL COMMENT 'Asynchronous or not',
     `ip`                   varchar(64)   DEFAULT NULL COMMENT 'IP address executed by listener',
     `start_time`           datetime     NOT NULL COMMENT 'Monitor start execution time',
@@ -704,49 +713,49 @@ CREATE TABLE `wf_event_log`
 );
 
 -- ----------------------------
--- Table structure for wf_process_instance
+-- Table structure for workflow_process
 -- ----------------------------
-DROP TABLE IF EXISTS `wf_process_instance`;
-CREATE TABLE `wf_process_instance`
+DROP TABLE IF EXISTS `workflow_process`;
+CREATE TABLE `workflow_process`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT,
     `name`            varchar(256) NOT NULL COMMENT 'process name',
-    `display_name`    varchar(256) NOT NULL COMMENT 'Process display name',
-    `type`            varchar(256)          DEFAULT NULL COMMENT 'Process classification',
-    `title`           varchar(256)          DEFAULT NULL COMMENT 'Process title',
+    `display_name`    varchar(256) NOT NULL COMMENT 'WorkflowProcess display name',
+    `type`            varchar(256)          DEFAULT NULL COMMENT 'WorkflowProcess classification',
+    `title`           varchar(256)          DEFAULT NULL COMMENT 'WorkflowProcess title',
     `inlong_group_id` varchar(256)          DEFAULT NULL COMMENT 'Business group id: to facilitate related business',
     `applicant`       varchar(256) NOT NULL COMMENT 'applicant',
-    `state`           varchar(64)  NOT NULL COMMENT 'state',
+    `status`          varchar(64)  NOT NULL COMMENT 'status',
     `form_data`       mediumtext COMMENT 'form information',
     `start_time`      datetime     NOT NULL COMMENT 'start time',
     `end_time`        datetime              DEFAULT NULL COMMENT 'End event',
-    `ext`             text COMMENT 'Extended information-JSON',
-    `hidden`          tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Is it hidden',
+    `ext_params`      text COMMENT 'Extended information-json',
+    `hidden`          tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Whether to hidden, 0: not hidden, 1: hidden',
     PRIMARY KEY (`id`)
 );
 
 -- ----------------------------
--- Table structure for wf_task_instance
+-- Table structure for workflow_task
 -- ----------------------------
-DROP TABLE IF EXISTS `wf_task_instance`;
-CREATE TABLE `wf_task_instance`
+DROP TABLE IF EXISTS `workflow_task`;
+CREATE TABLE `workflow_task`
 (
     `id`                   int(11)       NOT NULL AUTO_INCREMENT,
-    `type`                 varchar(64)   NOT NULL COMMENT 'Task type: UserTask user task/ServiceTask system task',
-    `process_inst_id`      int(11)       NOT NULL COMMENT 'process ID',
-    `process_name`         varchar(256)  NOT NULL COMMENT 'process name',
-    `process_display_name` varchar(256)  NOT NULL COMMENT 'process name',
-    `name`                 varchar(256)  NOT NULL COMMENT 'task name',
+    `type`                 varchar(64)   NOT NULL COMMENT 'Task type: UserTask / ServiceTask',
+    `process_id`           int(11)       NOT NULL COMMENT 'Process ID',
+    `process_name`         varchar(256)  NOT NULL COMMENT 'Process name',
+    `process_display_name` varchar(256)  NOT NULL COMMENT 'Process name',
+    `name`                 varchar(256)  NOT NULL COMMENT 'Task name',
     `display_name`         varchar(256)  NOT NULL COMMENT 'Task display name',
     `applicant`            varchar(64)   DEFAULT NULL COMMENT 'applicant',
     `approvers`            varchar(1024) NOT NULL COMMENT 'approvers',
-    `state`                varchar(64)   NOT NULL COMMENT 'state',
+    `status`               varchar(64)   NOT NULL COMMENT 'status',
     `operator`             varchar(256)  DEFAULT NULL COMMENT 'actual operator',
     `remark`               varchar(1024) DEFAULT NULL COMMENT 'Remark information',
     `form_data`            mediumtext COMMENT 'form information submitted by the current task',
     `start_time`           datetime      NOT NULL COMMENT 'start time',
     `end_time`             datetime      DEFAULT NULL COMMENT 'End time',
-    `ext`                  text COMMENT 'Extended information-JSON',
+    `ext_params`           text COMMENT 'Extended information-json',
     PRIMARY KEY (`id`)
 );
 
@@ -760,15 +769,15 @@ CREATE TABLE `cluster_set`
     `set_name`        varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     `cn_name`         varchar(256) COMMENT 'Chinese display name',
     `description`     varchar(256) COMMENT 'ClusterSet Introduction',
-    `middleware_type` varchar(10)           DEFAULT 'TUBE' COMMENT 'The middleware type of message queue, high throughput: TUBE, high consistency: PULSAR',
+    `middleware_type` varchar(10)       DEFAULT 'TUBE' COMMENT 'The middleware type of message queue, high throughput: TUBE, high consistency: PULSAR',
     `in_charges`      varchar(512) COMMENT 'Name of responsible person, separated by commas',
     `followers`       varchar(512) COMMENT 'List of names of business followers, separated by commas',
-    `status`          int(4)                DEFAULT '21' COMMENT 'ClusterSet status',
-    `is_deleted`      tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `status`          int(4)            DEFAULT '21' COMMENT 'ClusterSet status',
+    `is_deleted`      int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`         varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`        varchar(64)  NULL COMMENT 'Modifier name',
-    `create_time`     timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`     timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `create_time`     timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`     timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_cluster_set` (`set_name`)
 );
@@ -780,7 +789,7 @@ DROP TABLE IF EXISTS `cluster_set_inlongid`;
 CREATE TABLE `cluster_set_inlongid`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `set_name`        varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
+    `set_name`        varchar(256) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     `inlong_group_id` varchar(256) NOT NULL COMMENT 'Business group id, filled in by the user, undeleted ones cannot be repeated',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_cluster_set_inlongid` (`set_name`, `inlong_group_id`)
@@ -810,9 +819,10 @@ CREATE TABLE `cache_cluster_ext`
     `cluster_name` varchar(128) NOT NULL COMMENT 'CacheCluster name, English, numbers and underscore',
     `key_name`     varchar(64)  NOT NULL COMMENT 'Configuration item name',
     `key_value`    varchar(256) NULL COMMENT 'The value of the configuration item',
-    `is_deleted`   tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `modify_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
+    `is_deleted`   int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `modify_time`  timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    KEY `index_cache_cluster` (`cluster_name`)
 );
 
 -- ----------------------------
@@ -883,9 +893,10 @@ CREATE TABLE `flume_source_ext`
     `set_name`    varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     `key_name`    varchar(64)  NOT NULL COMMENT 'Configuration item name',
     `key_value`   varchar(256) NULL COMMENT 'The value of the configuration item',
-    `is_deleted`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
+    `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    KEY `index_flume_source_ext` (`parent_name`)
 );
 
 -- ----------------------------
@@ -913,9 +924,10 @@ CREATE TABLE `flume_channel_ext`
     `set_name`    varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     `key_name`    varchar(64)  NOT NULL COMMENT 'Configuration item name',
     `key_value`   varchar(256) NULL COMMENT 'The value of the configuration item',
-    `is_deleted`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
+    `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
+    `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    KEY `index_flume_channel_ext` (`parent_name`)
 );
 
 -- ----------------------------
@@ -944,9 +956,10 @@ CREATE TABLE `flume_sink_ext`
     `set_name`    varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
     `key_name`    varchar(64)  NOT NULL COMMENT 'Configuration item name',
     `key_value`   varchar(256) NULL COMMENT 'The value of the configuration item',
-    `is_deleted`  tinyint(1)            DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
+    `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    KEY `index_flume_sink_ext` (`parent_name`)
 );
 
 SET FOREIGN_KEY_CHECKS = 1;

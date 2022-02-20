@@ -93,7 +93,7 @@ public interface ConsumptionService {
      *
      * @param id Data consumption id
      * @param operator Operator
-     * @return Process information
+     * @return WorkflowProcess information
      */
     WorkflowResult startProcess(Integer id, String operator);
 

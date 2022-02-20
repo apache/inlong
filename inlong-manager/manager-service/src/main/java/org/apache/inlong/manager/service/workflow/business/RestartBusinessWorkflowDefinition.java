@@ -18,17 +18,17 @@
 package org.apache.inlong.manager.service.workflow.business;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.model.definition.EndEvent;
-import org.apache.inlong.manager.common.model.definition.Process;
-import org.apache.inlong.manager.common.model.definition.ServiceTask;
-import org.apache.inlong.manager.common.model.definition.ServiceTaskType;
-import org.apache.inlong.manager.common.model.definition.StartEvent;
-import org.apache.inlong.manager.common.workflow.bussiness.UpdateBusinessWorkflowForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateBusinessProcessForm;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.business.listener.UpdateBusinessInfoCompleteListener;
 import org.apache.inlong.manager.service.workflow.business.listener.UpdateBusinessInfoListener;
+import org.apache.inlong.manager.workflow.definition.EndEvent;
+import org.apache.inlong.manager.workflow.definition.ServiceTask;
+import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
+import org.apache.inlong.manager.workflow.definition.StartEvent;
+import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,17 +46,17 @@ public class RestartBusinessWorkflowDefinition implements WorkflowDefinition {
     private ServiceTaskListenerFactory serviceTaskListenerFactory;
 
     @Override
-    public Process defineProcess() {
+    public WorkflowProcess defineProcess() {
         // Configuration process
-        Process process = new Process();
+        WorkflowProcess process = new WorkflowProcess();
         process.addListener(updateBusinessInfoListener);
         process.addListener(updateBusinessInfoCompleteListener);
         process.setType("Business Resource Restart");
         process.setName(getProcessName().name());
         process.setDisplayName(getProcessName().getDisplayName());
-        process.setFormClass(UpdateBusinessWorkflowForm.class);
+        process.setFormClass(UpdateBusinessProcessForm.class);
         process.setVersion(1);
-        process.setHidden(true);
+        process.setHidden(1);
 
         // Start node
         StartEvent startEvent = new StartEvent();
@@ -93,4 +93,5 @@ public class RestartBusinessWorkflowDefinition implements WorkflowDefinition {
     public ProcessName getProcessName() {
         return ProcessName.RESTART_BUSINESS_WORKFLOW;
     }
+
 }

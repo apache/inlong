@@ -17,20 +17,21 @@
 
 package org.apache.inlong.manager.service.workflow;
 
-import java.util.List;
 import org.apache.inlong.manager.common.enums.BizConstant;
-import org.apache.inlong.manager.common.event.task.QueueOperateListener;
-import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarGroupTaskListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarResourceTaskListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeGroupTaskListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeTopicTaskListener;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
 
@@ -40,20 +41,21 @@ public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
     @Test
     public void testGetQueueOperateListener() {
         WorkflowContext context = new WorkflowContext();
-        BusinessResourceWorkflowForm processForm = new BusinessResourceWorkflowForm();
+        BusinessResourceProcessForm processForm = new BusinessResourceProcessForm();
         BusinessInfo businessInfo = new BusinessInfo();
         //check pulsar listener
         businessInfo.setMiddlewareType(BizConstant.MIDDLEWARE_PULSAR);
         processForm.setBusinessInfo(businessInfo);
         context.setProcessForm(processForm);
         List<QueueOperateListener> queueOperateListeners = serviceTaskListenerFactory.getQueueOperateListener(context);
-        Assert.assertTrue(queueOperateListeners.size() == 2);
+        Assert.assertEquals(2, queueOperateListeners.size());
         Assert.assertTrue(queueOperateListeners.get(0) instanceof CreatePulsarResourceTaskListener);
         Assert.assertTrue(queueOperateListeners.get(1) instanceof CreatePulsarGroupTaskListener);
-        //check tube listener
+
+        // check tube listener
         businessInfo.setMiddlewareType(BizConstant.MIDDLEWARE_TUBE);
         queueOperateListeners = serviceTaskListenerFactory.getQueueOperateListener(context);
-        Assert.assertTrue(queueOperateListeners.size() == 2);
+        Assert.assertEquals(2, queueOperateListeners.size());
         Assert.assertTrue(queueOperateListeners.get(0) instanceof CreateTubeTopicTaskListener);
         Assert.assertTrue(queueOperateListeners.get(1) instanceof CreateTubeGroupTaskListener);
     }

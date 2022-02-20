@@ -31,7 +31,7 @@
         <result column="request_url" jdbcType="VARCHAR" property="requestUrl"/>
         <result column="remote_address" jdbcType="VARCHAR" property="remoteAddress"/>
         <result column="cost_time" jdbcType="BIGINT" property="costTime"/>
-        <result column="status" jdbcType="BIT" property="status"/>
+        <result column="status" jdbcType="TINYINT" property="status"/>
         <result column="request_time" jdbcType="TIMESTAMP" property="requestTime"/>
         <result column="body" jdbcType="LONGVARCHAR" property="body"/>
         <result column="param" jdbcType="LONGVARCHAR" property="param"/>
@@ -62,7 +62,7 @@
         values (#{id,jdbcType=INTEGER}, #{authenticationType,jdbcType=VARCHAR}, #{operationType,jdbcType=VARCHAR},
                 #{httpMethod,jdbcType=VARCHAR}, #{invokeMethod,jdbcType=VARCHAR}, #{operator,jdbcType=VARCHAR},
                 #{proxy,jdbcType=VARCHAR}, #{requestUrl,jdbcType=VARCHAR}, #{remoteAddress,jdbcType=VARCHAR},
-                #{costTime,jdbcType=BIGINT}, #{status,jdbcType=BIT}, #{requestTime,jdbcType=TIMESTAMP},
+                #{costTime,jdbcType=BIGINT}, #{status,jdbcType=TINYINT}, #{requestTime,jdbcType=TIMESTAMP},
                 #{body,jdbcType=LONGVARCHAR}, #{param,jdbcType=LONGVARCHAR}, #{errMsg,jdbcType=LONGVARCHAR})
     </insert>
     <insert id="insertBatch">
@@ -81,7 +81,7 @@
             #{log.operator,jdbcType=VARCHAR},
             #{log.proxy,jdbcType=VARCHAR}, #{log.requestUrl,jdbcType=VARCHAR},
             #{log.remoteAddress,jdbcType=VARCHAR},
-            #{log.costTime,jdbcType=BIGINT}, #{log.status,jdbcType=BIT},
+            #{log.costTime,jdbcType=BIGINT}, #{log.status,jdbcType=TINYINT},
             #{log.requestTime,jdbcType=TIMESTAMP},
             #{log.body,jdbcType=LONGVARCHAR}, #{log.param,jdbcType=LONGVARCHAR},
             #{log.errMsg,jdbcType=LONGVARCHAR}
@@ -170,7 +170,7 @@
                 #{costTime,jdbcType=BIGINT},
             </if>
             <if test="status != null">
-                #{status,jdbcType=BIT},
+                #{status,jdbcType=TINYINT},
             </if>
             <if test="requestTime != null">
                 #{requestTime,jdbcType=TIMESTAMP},
@@ -218,7 +218,7 @@
                 cost_time = #{costTime,jdbcType=BIGINT},
             </if>
             <if test="status != null">
-                status = #{status,jdbcType=BIT},
+                status = #{status,jdbcType=TINYINT},
             </if>
             <if test="requestTime != null">
                 request_time = #{requestTime,jdbcType=TIMESTAMP},
@@ -247,7 +247,7 @@
             request_url         = #{requestUrl,jdbcType=VARCHAR},
             remote_address      = #{remoteAddress,jdbcType=VARCHAR},
             cost_time           = #{costTime,jdbcType=BIGINT},
-            status              = #{status,jdbcType=BIT},
+            status              = #{status,jdbcType=TINYINT},
             request_time        = #{requestTime,jdbcType=TIMESTAMP},
             body                = #{body,jdbcType=LONGVARCHAR},
             param               = #{param,jdbcType=LONGVARCHAR},

@@ -19,14 +19,14 @@ package org.apache.inlong.manager.service.workflow.business.listener;
 
 import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
-import org.apache.inlong.manager.service.core.BusinessService;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.process.ProcessEvent;
-import org.apache.inlong.manager.common.event.process.ProcessEventListener;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
+import org.apache.inlong.manager.service.core.BusinessService;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
+import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +46,7 @@ public class InitBusinessInfoListener implements ProcessEventListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
+        BusinessResourceProcessForm form = (BusinessResourceProcessForm) context.getProcessForm();
         BusinessInfo businessInfo = businessService.get(context.getProcessForm().getInlongGroupId());
         if (businessInfo != null) {
             form.setBusinessInfo(businessInfo);
@@ -60,4 +60,5 @@ public class InitBusinessInfoListener implements ProcessEventListener {
     public boolean async() {
         return false;
     }
+
 }

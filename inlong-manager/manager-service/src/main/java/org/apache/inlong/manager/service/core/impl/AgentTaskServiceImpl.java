@@ -72,7 +72,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
             return null;
         }
 
-        // Process the status of the postback task
+        // WorkflowProcess the status of the postback task
         this.dealCommandResult(info);
 
         // Query pending tasks

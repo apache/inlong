@@ -20,15 +20,6 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.BizConstant;
@@ -45,6 +36,8 @@ import org.apache.inlong.manager.common.pojo.consumption.ConsumptionPulsarInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionSummary;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamTopicVO;
+import org.apache.inlong.manager.common.pojo.common.CountInfo;
+import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.BusinessEntity;
@@ -57,14 +50,22 @@ import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
-import org.apache.inlong.manager.common.workflow.consumption.NewConsumptionWorkflowForm;
-import org.apache.inlong.manager.common.model.view.CountByKey;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Data consumption service
@@ -90,15 +91,15 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
     @Override
     public ConsumptionSummary getSummary(ConsumptionQuery query) {
-        Map<String, Integer> countByState = consumptionMapper.countByStatus(query)
+        Map<String, Integer> countMap = consumptionMapper.countByQuery(query)
                 .stream()
-                .collect(Collectors.toMap(CountByKey::getKey, CountByKey::getValue));
+                .collect(Collectors.toMap(CountInfo::getKey, CountInfo::getValue));
 
         return ConsumptionSummary.builder()
-                .totalCount(countByState.values().stream().mapToInt(c -> c).sum())
-                .waitingAssignCount(countByState.getOrDefault(ConsumptionStatus.WAITING_ASSIGN.getStatus() + "", 0))
-                .waitingApproveCount(countByState.getOrDefault(ConsumptionStatus.WAITING_APPROVE.getStatus() + "", 0))
-                .rejectedCount(countByState.getOrDefault(ConsumptionStatus.REJECTED.getStatus() + "", 0)).build();
+                .totalCount(countMap.values().stream().mapToInt(c -> c).sum())
+                .waitingAssignCount(countMap.getOrDefault(ConsumptionStatus.WAIT_ASSIGN.getStatus() + "", 0))
+                .waitingApproveCount(countMap.getOrDefault(ConsumptionStatus.WAIT_APPROVE.getStatus() + "", 0))
+                .rejectedCount(countMap.getOrDefault(ConsumptionStatus.REJECTED.getStatus() + "", 0)).build();
     }
 
     @Override
@@ -319,7 +320,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         ConsumptionEntity updateConsumptionEntity = new ConsumptionEntity();
         updateConsumptionEntity.setId(consumptionInfo.getId());
         updateConsumptionEntity.setModifyTime(new Date());
-        updateConsumptionEntity.setStatus(ConsumptionStatus.WAITING_APPROVE.getStatus());
+        updateConsumptionEntity.setStatus(ConsumptionStatus.WAIT_APPROVE.getStatus());
         int success = this.consumptionMapper.updateByPrimaryKeySelective(updateConsumptionEntity);
         Preconditions.checkTrue(success == 1, "update consumption failed");
 
@@ -367,8 +368,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         log.debug("success save consumption, groupId={}, topic={}, consumer group={}", groupId, topic, consumerGroup);
     }
 
-    private NewConsumptionWorkflowForm genNewConsumptionWorkflowForm(ConsumptionInfo consumptionInfo) {
-        NewConsumptionWorkflowForm form = new NewConsumptionWorkflowForm();
+    private NewConsumptionProcessForm genNewConsumptionWorkflowForm(ConsumptionInfo consumptionInfo) {
+        NewConsumptionProcessForm form = new NewConsumptionProcessForm();
         Integer id = consumptionInfo.getId();
         if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(consumptionInfo.getMiddlewareType())) {
             ConsumptionPulsarEntity consumptionPulsarEntity = consumptionPulsarMapper.selectByConsumptionId(id);
@@ -382,7 +383,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
     private ConsumptionEntity saveConsumption(ConsumptionInfo info, String operator, Date now) {
         ConsumptionEntity entity = CommonBeanUtils.copyProperties(info, ConsumptionEntity::new);
-        entity.setStatus(ConsumptionStatus.WAITING_ASSIGN.getStatus());
+        entity.setStatus(ConsumptionStatus.WAIT_ASSIGN.getStatus());
         entity.setIsDeleted(0);
         entity.setCreator(operator);
         entity.setModifier(operator);

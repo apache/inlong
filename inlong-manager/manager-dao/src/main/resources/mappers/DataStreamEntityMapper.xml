@@ -90,7 +90,7 @@
             ds.data_encoding, ds.data_separator, ds.data_escape_char, ds.have_predefined_fields,
             ds.daily_records, ds.daily_storage, ds.peak_records, ds.max_length, ds.in_charges,
             ds.status, ds.creator, ds.modifier, ds.create_time, ds.modify_time
-        from data_stream ds, business biz, wf_approver approver
+        from data_stream ds, business biz, workflow_approver approver
         <where>
             ds.is_deleted = 0
             and approver.process_name = "NEW_BUSINESS_WORKFLOW" and approver.is_deleted = 0

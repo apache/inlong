@@ -32,7 +32,7 @@ import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerInfo;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerListVo;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerPageRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.CommonDbServerEntity;
 import org.apache.inlong.manager.dao.mapper.CommonDbServerEntityMapper;
@@ -105,7 +105,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
 
         CommonDbServerEntity record = CommonBeanUtils.copyProperties(info, CommonDbServerEntity::new);
         record.setStatus(0);
-        String userName = LoginUserUtil.getLoginUserDetail().getUserName();
+        String userName = LoginUserUtils.getLoginUserDetail().getUserName();
         record.setCreator(userName);
         record.setModifier(userName);
         Date now = new Date();
@@ -189,7 +189,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
         Preconditions.checkNotNull(entity, "CommonDbServerEntity not found by id=" + id);
         Preconditions.checkTrue(entity.getIsDeleted() == 0, "CommonDbServerEntity has been deleted, id=" + id);
 
-        String userName = LoginUserUtil.getLoginUserDetail().getUserName();
+        String userName = LoginUserUtils.getLoginUserDetail().getUserName();
         if (checkVisible(userName, entity)) {
             return CommonBeanUtils.copyProperties(entity, CommonDbServerInfo::new);
         } else {
@@ -200,7 +200,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
 
     @Override
     public void delete(int id) throws Exception {
-        String userName = LoginUserUtil.getLoginUserDetail().getUserName();
+        String userName = LoginUserUtils.getLoginUserDetail().getUserName();
         LOGGER.info("user={} delete CommonDbServerInfo id=[{}]", userName, id);
 
         CommonDbServerEntity entity = commonDbServerMapper.selectByPrimaryKey(id);
@@ -227,7 +227,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
 
     @Override
     public CommonDbServerInfo update(CommonDbServerInfo serverInfo) throws Exception {
-        String userName = LoginUserUtil.getLoginUserDetail().getUserName();
+        String userName = LoginUserUtils.getLoginUserDetail().getUserName();
         LOGGER.info("user={} update CommonDbServerInfo info=[{}]", userName, serverInfo);
         CommonDbServerEntity entity = commonDbServerMapper.selectByPrimaryKey(serverInfo.getId());
         Preconditions.checkNotNull(entity, "CommonDbServerEntity not found by id=" + serverInfo.getId());
@@ -325,7 +325,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
 
     @Override
     public CommonDbServerInfo addVisiblePerson(Integer id, String visiblePerson) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
         LOGGER.info("user={}, add visible person, id={}, visible group={}", username, id, visiblePerson);
 
         CommonDbServerEntity entity = commonDbServerMapper.selectByPrimaryKey(id);
@@ -368,7 +368,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
 
     @Override
     public CommonDbServerInfo deleteVisiblePerson(Integer id, String visiblePerson) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
         LOGGER.info("user={}, delete visible group, id={}, visible group={}", username, id, visiblePerson);
 
         CommonDbServerEntity entity = commonDbServerMapper.selectByPrimaryKey(id);
@@ -404,7 +404,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
 
     @Override
     public CommonDbServerInfo addVisibleGroup(Integer id, String visibleGroup) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
         LOGGER.info("user={}, add visible group, id={}, visible group={}", username, id, visibleGroup);
 
         CommonDbServerEntity entity = commonDbServerMapper.selectByPrimaryKey(id);
@@ -447,7 +447,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
 
     @Override
     public CommonDbServerInfo deleteVisibleGroup(Integer id, String visibleGroup) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
         LOGGER.info("user={}, delete visible group, id={}, visible group={}", username, id, visibleGroup);
 
         CommonDbServerEntity entity =
@@ -485,7 +485,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
     @Override
     public PageInfo<CommonDbServerListVo> listByCondition(CommonDbServerPageRequest request)
             throws Exception {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
         LOGGER.debug("{} begin to list CommonDbServer info by {}", username, request);
         request.setCurrentUser(username);
 

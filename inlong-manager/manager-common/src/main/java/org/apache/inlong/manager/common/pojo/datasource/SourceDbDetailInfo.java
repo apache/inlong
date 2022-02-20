@@ -66,7 +66,7 @@ public class SourceDbDetailInfo {
     @ApiModelProperty(value = "Data source status")
     private Integer status;
 
-    @ApiModelProperty(value = "Previous state")
+    @ApiModelProperty(value = "Previous status")
     private Integer previousStatus;
 
     @ApiModelProperty(value = "is deleted? 0: deleted, 1: not deleted")

@@ -17,18 +17,19 @@
 
 package org.apache.inlong.manager.service.workflow.consumption.listener;
 
-import java.util.Date;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
-import org.apache.inlong.manager.common.workflow.consumption.NewConsumptionWorkflowForm;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.process.ProcessEvent;
-import org.apache.inlong.manager.common.event.process.ProcessEventListener;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
+import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
 
 /**
  * Added data consumption process rejection event listener
@@ -36,7 +37,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConsumptionRejectProcessListener implements ProcessEventListener {
 
-    private ConsumptionEntityMapper consumptionEntityMapper;
+    private final ConsumptionEntityMapper consumptionEntityMapper;
 
     @Autowired
     public ConsumptionRejectProcessListener(ConsumptionEntityMapper consumptionEntityMapper) {
@@ -50,7 +51,7 @@ public class ConsumptionRejectProcessListener implements ProcessEventListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        NewConsumptionWorkflowForm workflowForm = (NewConsumptionWorkflowForm) context.getProcessForm();
+        NewConsumptionProcessForm workflowForm = (NewConsumptionProcessForm) context.getProcessForm();
 
         ConsumptionEntity update = new ConsumptionEntity();
         update.setId(workflowForm.getConsumptionInfo().getId());
@@ -65,4 +66,5 @@ public class ConsumptionRejectProcessListener implements ProcessEventListener {
     public boolean async() {
         return false;
     }
+
 }

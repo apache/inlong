@@ -33,11 +33,20 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>
+            <artifactId>manager-common</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
             <artifactId>manager-dao</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>manager-workflow</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-common</artifactId>
@@ -54,6 +63,7 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -81,7 +91,6 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
         </dependency>
-
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>

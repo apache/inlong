@@ -17,23 +17,24 @@
 
 package org.apache.inlong.manager.service.workflow.business.listener;
 
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
-import org.apache.inlong.manager.common.workflow.bussiness.BusinessAdminApproveForm;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.DataStreamService;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.task.TaskEvent;
-import org.apache.inlong.manager.common.event.task.TaskEventListener;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessAdminApproveForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.task.TaskEvent;
+import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
- * New Service Access-System Administrator Approval Task Event Listener
+ * New Service Access-System Administrator Approval WorkflowTask Event Listener
  */
 @Slf4j
 @Component
@@ -68,4 +69,5 @@ public class BusinessPassTaskListener implements TaskEventListener {
     public boolean async() {
         return false;
     }
+
 }

@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.common.exceptions;
 
 /**
- * Process form parsing exception
+ * WorkflowProcess form parsing exception
  */
 public class FormParseException extends WorkflowException {
 

@@ -17,19 +17,20 @@
 
 package org.apache.inlong.manager.service.thirdpart.mq;
 
-import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.task.QueueOperateListener;
-import org.apache.inlong.manager.common.event.task.TaskEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeMqTopicRequest;
-import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.service.core.BusinessService;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
+import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
 
 /**
  * Create a listener for MQ resource tasks
@@ -50,7 +51,7 @@ public class CreateTubeTopicTaskListener implements QueueOperateListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
+        BusinessResourceProcessForm form = (BusinessResourceProcessForm) context.getProcessForm();
 
         log.info("begin create tube topic for groupId={}", form.getInlongGroupId());
         String groupId = form.getInlongGroupId();
@@ -76,4 +77,5 @@ public class CreateTubeTopicTaskListener implements QueueOperateListener {
     public boolean async() {
         return false;
     }
+
 }

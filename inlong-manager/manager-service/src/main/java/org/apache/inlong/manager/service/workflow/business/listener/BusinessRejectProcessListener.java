@@ -19,13 +19,13 @@ package org.apache.inlong.manager.service.workflow.business.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
-import org.apache.inlong.manager.common.workflow.bussiness.NewBusinessWorkflowForm;
-import org.apache.inlong.manager.service.core.BusinessService;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.process.ProcessEvent;
-import org.apache.inlong.manager.common.event.process.ProcessEventListener;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.service.core.BusinessService;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewBusinessProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
+import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,7 +46,7 @@ public class BusinessRejectProcessListener implements ProcessEventListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        NewBusinessWorkflowForm form = (NewBusinessWorkflowForm) context.getProcessForm();
+        NewBusinessProcessForm form = (NewBusinessProcessForm) context.getProcessForm();
         // after reject, update business status to [BIZ_APPROVE_REJECT]
         String groupId = form.getInlongGroupId();
         String username = context.getApplicant();
@@ -58,4 +58,5 @@ public class BusinessRejectProcessListener implements ProcessEventListener {
     public boolean async() {
         return false;
     }
+
 }

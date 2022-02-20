@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.DataStream;
@@ -35,14 +32,18 @@ import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.DataStreamGroupTransfer;
 import org.apache.inlong.manager.client.api.util.InlongParser;
 import org.apache.inlong.manager.common.enums.EntityStatus;
-import org.apache.inlong.manager.common.model.ProcessState;
-import org.apache.inlong.manager.common.model.view.ProcessView;
-import org.apache.inlong.manager.common.model.view.TaskView;
+import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
 import org.apache.inlong.manager.common.pojo.datastream.FullStreamResponse;
+import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
+import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class DataStreamGroupImpl implements DataStreamGroup {
 
@@ -78,27 +79,28 @@ public class DataStreamGroupImpl implements DataStreamGroup {
     @Override
     public DataStreamGroupInfo init() throws Exception {
         WorkflowResult initWorkflowResult = managerClient.initBusinessGroup(this.groupContext.getBusinessInfo());
-        List<TaskView> taskViews = initWorkflowResult.getNewTasks();
-        AssertUtil.notEmpty(taskViews, "Init business info failed");
-        TaskView taskView = taskViews.get(0);
-        final int taskId = taskView.getId();
-        ProcessView processView = initWorkflowResult.getProcessInfo();
-        AssertUtil.isTrue(ProcessState.PROCESSING == processView.getState(),
-                String.format("Business info state : %s is not corrected , should be PROCESSING",
-                        processView.getState()));
-        String formData = processView.getFormData().toString();
+        List<TaskResponse> tasks = initWorkflowResult.getNewTasks();
+        AssertUtil.notEmpty(tasks, "Init business info failed");
+        TaskResponse task = tasks.get(0);
+        final int taskId = task.getId();
+
+        ProcessResponse processResponse = initWorkflowResult.getProcessInfo();
+        AssertUtil.isTrue(ProcessStatus.PROCESSING == processResponse.getStatus(),
+                String.format("Process status: %s is not corrected, should be PROCESSING",
+                        processResponse.getStatus()));
+        String formData = processResponse.getFormData().toString();
         Pair<BusinessApproveInfo, List<DataStreamApproveInfo>> initMsg = InlongParser.parseBusinessForm(formData);
         groupContext.setInitMsg(initMsg);
         WorkflowResult startWorkflowResult = managerClient.startBusinessGroup(taskId, initMsg);
-        processView = startWorkflowResult.getProcessInfo();
-        AssertUtil.isTrue(ProcessState.COMPLETED == processView.getState(),
+        processResponse = startWorkflowResult.getProcessInfo();
+        AssertUtil.isTrue(ProcessStatus.COMPLETED == processResponse.getStatus(),
                 String.format("Business info state : %s is not corrected , should be COMPLETED",
-                        processView.getState()));
+                        processResponse.getStatus()));
         return generateSnapshot(null);
     }
 
     @Override
-    public DataStreamGroupInfo suspend() throws Exception {
+    public DataStreamGroupInfo suspend() {
         Pair<String, String> idAndErr = managerClient.updateBusinessInfo(groupContext.getBusinessInfo());
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
@@ -108,7 +110,7 @@ public class DataStreamGroupImpl implements DataStreamGroup {
     }
 
     @Override
-    public DataStreamGroupInfo restart() throws Exception {
+    public DataStreamGroupInfo restart() {
         Pair<String, String> idAndErr = managerClient.updateBusinessInfo(groupContext.getBusinessInfo());
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
@@ -118,7 +120,7 @@ public class DataStreamGroupImpl implements DataStreamGroup {
     }
 
     @Override
-    public DataStreamGroupInfo delete() throws Exception {
+    public DataStreamGroupInfo delete() {
         BusinessInfo currentBusinessInfo = managerClient.getBusinessInfo(
                 groupContext.getBusinessInfo().getInlongGroupId());
         boolean isDeleted = managerClient.deleteBusinessGroup(currentBusinessInfo.getInlongGroupId());
@@ -129,7 +131,7 @@ public class DataStreamGroupImpl implements DataStreamGroup {
     }
 
     @Override
-    public List<DataStream> listStreams() throws Exception {
+    public List<DataStream> listStreams() {
         String inlongGroupId = this.groupContext.getGroupId();
         return fetchDataStreams(inlongGroupId);
     }
@@ -141,7 +143,7 @@ public class DataStreamGroupImpl implements DataStreamGroup {
         }
         String inlongGroupId = currentBizInfo.getInlongGroupId();
         List<DataStream> dataStreams = fetchDataStreams(inlongGroupId);
-        dataStreams.stream().forEach(dataStream -> groupContext.setStream(dataStream));
+        dataStreams.forEach(dataStream -> groupContext.setStream(dataStream));
         return new DataStreamGroupInfo(groupContext, groupConf);
     }
 
@@ -149,10 +151,9 @@ public class DataStreamGroupImpl implements DataStreamGroup {
         List<FullStreamResponse> streamResponses = managerClient.listStreamInfo(groupId);
         List<DataStream> streamList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(streamResponses)) {
-            streamList = streamResponses.stream().map(fullStreamResponse -> {
-                return new DataStreamImpl(fullStreamResponse);
-            }).collect(Collectors.toList());
+            streamList = streamResponses.stream().map(DataStreamImpl::new).collect(Collectors.toList());
         }
         return streamList;
     }
+
 }

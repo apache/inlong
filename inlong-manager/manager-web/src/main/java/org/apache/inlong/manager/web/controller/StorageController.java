@@ -32,7 +32,7 @@ import org.apache.inlong.manager.common.pojo.query.ColumnInfoBean;
 import org.apache.inlong.manager.common.pojo.query.ConnectionInfo;
 import org.apache.inlong.manager.common.pojo.query.DatabaseDetail;
 import org.apache.inlong.manager.common.pojo.query.TableQueryBean;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.DataSourceService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.apache.inlong.manager.service.storage.StorageService;
@@ -64,7 +64,7 @@ public class StorageController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save storage information")
     public Response<Integer> save(@Validated @RequestBody StorageRequest request) {
-        return Response.success(storageService.save(request, LoginUserUtil.getLoginUserDetail().getUserName()));
+        return Response.success(storageService.save(request, LoginUserUtils.getLoginUserDetail().getUserName()));
     }
 
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
@@ -87,7 +87,7 @@ public class StorageController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Modify data storage information")
     public Response<Boolean> update(@Validated @RequestBody StorageRequest request) {
-        return Response.success(storageService.update(request, LoginUserUtil.getLoginUserDetail().getUserName()));
+        return Response.success(storageService.update(request, LoginUserUtils.getLoginUserDetail().getUserName()));
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
@@ -98,7 +98,7 @@ public class StorageController {
             @ApiImplicitParam(name = "storageType", dataTypeClass = String.class, required = true)
     })
     public Response<Boolean> delete(@PathVariable Integer id, @RequestParam String storageType) {
-        boolean result = storageService.delete(id, storageType, LoginUserUtil.getLoginUserDetail().getUserName());
+        boolean result = storageService.delete(id, storageType, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(result);
     }
 

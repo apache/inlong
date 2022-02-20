@@ -18,14 +18,15 @@
 package org.apache.inlong.manager.service.core.plugin;
 
 import com.google.common.collect.Lists;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.plugin.Plugin;
-import org.apache.inlong.manager.common.plugin.PluginDefinition;
-import org.apache.inlong.manager.common.plugin.ProcessPlugin;
+import org.apache.inlong.manager.workflow.plugin.Plugin;
+import org.apache.inlong.manager.workflow.plugin.PluginDefinition;
+import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 public class PluginClassLoaderTest {
 
