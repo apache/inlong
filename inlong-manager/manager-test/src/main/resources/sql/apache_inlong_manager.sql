@@ -19,10 +19,10 @@ SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
--- Table structure for agent_heartbeat_log
+-- Table structure for agent_heartbeat
 -- ----------------------------
-DROP TABLE IF EXISTS `agent_heartbeat_log`;
-CREATE TABLE `agent_heartbeat_log`
+DROP TABLE IF EXISTS `agent_heartbeat`;
+CREATE TABLE `agent_heartbeat`
 (
     `ip`            varchar(64) NOT NULL COMMENT 'agent host ip',
     `version`       varchar(128)         DEFAULT NULL,

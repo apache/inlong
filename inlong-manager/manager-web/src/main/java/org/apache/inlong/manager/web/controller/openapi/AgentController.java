@@ -29,6 +29,7 @@ import org.apache.inlong.manager.common.pojo.agent.ConfirmAgentIpRequest;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
+import org.apache.inlong.manager.service.core.AgentHeartbeatService;
 import org.apache.inlong.manager.service.core.AgentSysConfigService;
 import org.apache.inlong.manager.service.core.AgentTaskService;
 import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
@@ -47,13 +48,13 @@ import java.util.List;
 public class AgentController {
 
     @Autowired
-    private ThirdPartyClusterService thirdPartyClusterService;
-
-    @Autowired
     private AgentTaskService agentTaskService;
-
     @Autowired
     private AgentSysConfigService agentSysConfigService;
+    @Autowired
+    private AgentHeartbeatService heartbeatService;
+    @Autowired
+    private ThirdPartyClusterService thirdPartyClusterService;
 
     @GetMapping("/getInLongManagerIp")
     @ApiOperation(value = "get inlong manager ip list")
@@ -82,8 +83,7 @@ public class AgentController {
     @PostMapping("/fileAgent/heartbeat")
     @ApiOperation(value = "agent heartbeat report")
     public Response<String> heartbeat(@RequestBody AgentHeartbeatRequest info) {
-        // return Response.success(agentHeartBeatService.heartbeat(info));
-        return Response.success();
+        return Response.success(heartbeatService.heartbeat(info));
     }
 
     @PostMapping("/fileAgent/checkAgentTaskConf")

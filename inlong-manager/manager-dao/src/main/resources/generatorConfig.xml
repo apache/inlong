@@ -67,7 +67,7 @@
         </javaClientGenerator>
 
         <!-- Which entities to generate -->
-        <!--<table tableName="agent_heartbeat_log" domainObjectName="AgentHeartbeatLogEntity" enableSelectByPrimaryKey="true"
+        <!--<table tableName="agent_heartbeat" domainObjectName="AgentHeartbeatEntity" enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"
                 enableCountByExample="false" enableDeleteByExample="false"
