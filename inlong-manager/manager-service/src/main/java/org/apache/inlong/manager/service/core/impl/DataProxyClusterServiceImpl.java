@@ -45,7 +45,7 @@ import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
 import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
 import org.apache.inlong.manager.dao.entity.DataStreamEntity;
 import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
-import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterMapper;
+import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.DataProxyClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.DataStreamEntityMapper;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
@@ -81,7 +81,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     @Autowired
     private ClusterBean clusterBean;
     @Autowired
-    private ThirdPartyClusterMapper clusterInfoMapper;
+    private ThirdPartyClusterEntityMapper thirdPartyClusterEntityMapper;
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -264,7 +264,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         DataProxyClusterEntity dataProxyClusterEntity = dataProxyClusterMapper.selectByName(dataproxyClusterName);
         List<String> groudIdList = businessMapper.selectGroupIdByProxyId(dataProxyClusterEntity.getId());
         ClusterRequest request = ClusterRequest.builder().mqSetName(dataProxyClusterEntity.getMqSetName()).build();
-        List<ThirdPartyClusterEntity> clusterInfoEntities = clusterInfoMapper
+        List<ThirdPartyClusterEntity> clusterInfoEntities = thirdPartyClusterEntityMapper
                 .selectByCondition(request);
         String tenant = clusterBean.getDefaultTenant();
         /*

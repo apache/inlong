@@ -47,7 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AgentController {
 
     @Autowired
-    private ThirdPartyClusterService clusterInfoService;
+    private ThirdPartyClusterService thirdPartyClusterService;
 
     @Autowired
     private AgentTaskService agentTaskService;
@@ -61,7 +61,7 @@ public class AgentController {
     @GetMapping("/getInLongManagerIp")
     @ApiOperation(value = "get inlong manager ip list")
     public Response<List<String>> getInLongManagerIp() {
-        return Response.success(clusterInfoService.listClusterIpByType("inlong-openapi"));
+        return Response.success(thirdPartyClusterService.listClusterIpByType("inlong-openapi"));
     }
 
     @PostMapping("/fileAgent/getTaskConf")

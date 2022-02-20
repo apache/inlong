@@ -25,7 +25,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ThirdPartyClusterMapper {
+public interface ThirdPartyClusterEntityMapper {
 
     int deleteByPrimaryKey(Integer id);
 

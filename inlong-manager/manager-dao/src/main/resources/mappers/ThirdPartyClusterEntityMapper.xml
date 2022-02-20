@@ -19,7 +19,7 @@
 -->
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.apache.inlong.manager.dao.mapper.ThirdPartyClusterMapper">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.ThirdPartyClusterEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
