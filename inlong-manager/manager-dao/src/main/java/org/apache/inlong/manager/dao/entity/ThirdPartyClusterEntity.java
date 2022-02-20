@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Data
-public class ThirdPartyClusterInfoEntity implements Serializable {
+public class ThirdPartyClusterEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;

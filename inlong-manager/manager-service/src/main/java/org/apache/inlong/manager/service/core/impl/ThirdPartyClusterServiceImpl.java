@@ -26,9 +26,9 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity;
-import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterInfoMapper;
-import org.apache.inlong.manager.service.core.ThirdPartyClusterInfoService;
+import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
+import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterMapper;
+import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,19 +44,19 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class ThirdPartyClusterInfoServiceImpl implements ThirdPartyClusterInfoService {
+public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ThirdPartyClusterInfoServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThirdPartyClusterServiceImpl.class);
 
     @Autowired
-    private ThirdPartyClusterInfoMapper clusterInfoMapper;
+    private ThirdPartyClusterMapper clusterInfoMapper;
 
     @Override
     public List<String> listClusterIpByType(String type) {
         ClusterRequest request = ClusterRequest.builder().type(type).build();
-        List<ThirdPartyClusterInfoEntity> clusterInfoEntities = clusterInfoMapper.selectByCondition(request);
+        List<ThirdPartyClusterEntity> clusterInfoEntities = clusterInfoMapper.selectByCondition(request);
         List<String> ipList = new ArrayList<>(clusterInfoEntities.size());
-        for (ThirdPartyClusterInfoEntity entity : clusterInfoEntities) {
+        for (ThirdPartyClusterEntity entity : clusterInfoEntities) {
             ipList.add(entity.getIp());
         }
         return ipList;
@@ -66,7 +66,7 @@ public class ThirdPartyClusterInfoServiceImpl implements ThirdPartyClusterInfoSe
     public List<ClusterInfo> list(ClusterRequest request) {
         LOGGER.info("begin to list cluster by request={}", request);
 
-        List<ThirdPartyClusterInfoEntity> entityList = clusterInfoMapper.selectByCondition(request);
+        List<ThirdPartyClusterEntity> entityList = clusterInfoMapper.selectByCondition(request);
         List<ClusterInfo> infoList = CommonBeanUtils.copyListProperties(entityList, ClusterInfo::new);
 
         LOGGER.info("success to get cluster");
@@ -78,7 +78,7 @@ public class ThirdPartyClusterInfoServiceImpl implements ThirdPartyClusterInfoSe
         if (CollectionUtils.isEmpty(clusterIdList)) {
             return Collections.emptyList();
         }
-        List<ThirdPartyClusterInfoEntity> entityList = clusterInfoMapper.selectByIdList(clusterIdList);
+        List<ThirdPartyClusterEntity> entityList = clusterInfoMapper.selectByIdList(clusterIdList);
         return CommonBeanUtils.copyListProperties(entityList, ClusterInfo::new);
     }
 
@@ -86,8 +86,8 @@ public class ThirdPartyClusterInfoServiceImpl implements ThirdPartyClusterInfoSe
     public Integer save(ClusterInfo clusterInfo, String operator) {
         LOGGER.info("begin to insert a cluster info cluster={}", clusterInfo);
         Preconditions.checkNotNull(clusterInfo, "cluster is empty");
-        ThirdPartyClusterInfoEntity entity =
-                CommonBeanUtils.copyProperties(clusterInfo, ThirdPartyClusterInfoEntity::new);
+        ThirdPartyClusterEntity entity =
+                CommonBeanUtils.copyProperties(clusterInfo, ThirdPartyClusterEntity::new);
         entity.setCreator(operator);
         entity.setCreateTime(new Date());
         clusterInfoMapper.insert(entity);
@@ -101,7 +101,7 @@ public class ThirdPartyClusterInfoServiceImpl implements ThirdPartyClusterInfoSe
         Preconditions.checkNotNull(clusterInfo, "cluster is empty");
         Integer id = clusterInfo.getId();
         Preconditions.checkNotNull(id, "cluster id is empty");
-        ThirdPartyClusterInfoEntity entity = clusterInfoMapper.selectByPrimaryKey(id);
+        ThirdPartyClusterEntity entity = clusterInfoMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("cluster not found by id={}", id);
             throw new BusinessException(BizErrorCodeEnum.CLUSTER_NOT_FOUND);
@@ -117,7 +117,7 @@ public class ThirdPartyClusterInfoServiceImpl implements ThirdPartyClusterInfoSe
     public Boolean delete(Integer id, String operator) {
         LOGGER.info("begin to delete cluster by id={}", id);
         Preconditions.checkNotNull(id, "cluster id is empty");
-        ThirdPartyClusterInfoEntity entity = clusterInfoMapper.selectByPrimaryKey(id);
+        ThirdPartyClusterEntity entity = clusterInfoMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("cluster not found by id={}", id);
             throw new BusinessException(BizErrorCodeEnum.CLUSTER_NOT_FOUND);
@@ -134,7 +134,7 @@ public class ThirdPartyClusterInfoServiceImpl implements ThirdPartyClusterInfoSe
     public ClusterInfo get(Integer id) {
         LOGGER.info("begin to get cluster by id={}", id);
         Preconditions.checkNotNull(id, "cluster id is empty");
-        ThirdPartyClusterInfoEntity entity = clusterInfoMapper.selectByPrimaryKey(id);
+        ThirdPartyClusterEntity entity = clusterInfoMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("cluster not found by id={}", id);
             throw new BusinessException(BizErrorCodeEnum.CLUSTER_NOT_FOUND);

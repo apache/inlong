@@ -19,8 +19,8 @@
 -->
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.apache.inlong.manager.dao.mapper.ThirdPartyClusterInfoMapper">
-    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.ThirdPartyClusterMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
@@ -54,7 +54,7 @@
         from third_party_cluster
         where id = #{id,jdbcType=INTEGER}
     </delete>
-    <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity">
+    <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
         insert into third_party_cluster (id, name, type,
                                   ip, port, in_charges,
                                   url, token, is_backup, status, is_deleted,
@@ -68,7 +68,7 @@
                 #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
                 #{modifyTime,jdbcType=TIMESTAMP}, #{extProps,jdbcType=LONGVARCHAR}, #{mqSetName,jdbcType=VARCHAR})
     </insert>
-    <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity">
+    <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
         insert into third_party_cluster
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -165,7 +165,7 @@
             </if>
         </trim>
     </insert>
-    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity">
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
         update third_party_cluster
         <set>
             <if test="name != null">
@@ -213,7 +213,7 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity">
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
         update third_party_cluster
         set name        = #{name,jdbcType=VARCHAR},
             type        = #{type,jdbcType=VARCHAR},
@@ -235,7 +235,7 @@
     </update>
 
     <select id="selectByCondition" parameterType="org.apache.inlong.manager.common.pojo.cluster.ClusterRequest"
-            resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity">
+            resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
         select
         <include refid="Base_Column_List"/>
         from third_party_cluster
@@ -258,7 +258,7 @@
             </if>
         </where>
     </select>
-    <select id="selectByIdList" resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity">
+    <select id="selectByIdList" resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
         select
         <include refid="Base_Column_List"/>
         from third_party_cluster

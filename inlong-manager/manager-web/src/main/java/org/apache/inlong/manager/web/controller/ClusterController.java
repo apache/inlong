@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterPageRequest;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.service.core.ThirdPartyClusterInfoService;
+import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +49,7 @@ import java.util.List;
 public class ClusterController {
 
     @Autowired
-    private ThirdPartyClusterInfoService clusterInfoService;
+    private ThirdPartyClusterService clusterInfoService;
     @Autowired
     private DataProxyClusterService dataProxyClusterService;
 

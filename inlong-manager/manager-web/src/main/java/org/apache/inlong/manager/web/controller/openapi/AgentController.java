@@ -33,7 +33,7 @@ import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
 import org.apache.inlong.manager.service.core.AgentHeartBeatService;
 import org.apache.inlong.manager.service.core.AgentSysConfigService;
 import org.apache.inlong.manager.service.core.AgentTaskService;
-import org.apache.inlong.manager.service.core.ThirdPartyClusterInfoService;
+import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,7 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AgentController {
 
     @Autowired
-    private ThirdPartyClusterInfoService clusterInfoService;
+    private ThirdPartyClusterService clusterInfoService;
 
     @Autowired
     private AgentTaskService agentTaskService;

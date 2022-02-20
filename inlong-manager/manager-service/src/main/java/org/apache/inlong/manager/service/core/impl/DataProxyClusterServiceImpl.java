@@ -41,11 +41,11 @@ import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.BusinessEntity;
-import org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity;
+import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
 import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
 import org.apache.inlong.manager.dao.entity.DataStreamEntity;
 import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
-import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterInfoMapper;
+import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterMapper;
 import org.apache.inlong.manager.dao.mapper.DataProxyClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.DataStreamEntityMapper;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
@@ -81,7 +81,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     @Autowired
     private ClusterBean clusterBean;
     @Autowired
-    private ThirdPartyClusterInfoMapper clusterInfoMapper;
+    private ThirdPartyClusterMapper clusterInfoMapper;
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -264,7 +264,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         DataProxyClusterEntity dataProxyClusterEntity = dataProxyClusterMapper.selectByName(dataproxyClusterName);
         List<String> groudIdList = businessMapper.selectGroupIdByProxyId(dataProxyClusterEntity.getId());
         ClusterRequest request = ClusterRequest.builder().mqSetName(dataProxyClusterEntity.getMqSetName()).build();
-        List<ThirdPartyClusterInfoEntity> clusterInfoEntities = clusterInfoMapper
+        List<ThirdPartyClusterEntity> clusterInfoEntities = clusterInfoMapper
                 .selectByCondition(request);
         String tenant = clusterBean.getDefaultTenant();
         /*
@@ -285,7 +285,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
          * construct pulsarSet info
          */
         Gson gson = new Gson();
-        for (ThirdPartyClusterInfoEntity cluster : clusterInfoEntities) {
+        for (ThirdPartyClusterEntity cluster : clusterInfoEntities) {
             PulsarClusterInfo pulsarCluster = new PulsarClusterInfo();
             pulsarCluster.setUrl(cluster.getUrl());
             pulsarCluster.setToken(cluster.getToken());

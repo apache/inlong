@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * The third party cluster (such as kafka) information service layer interface
  */
-public interface ThirdPartyClusterInfoService {
+public interface ThirdPartyClusterService {
 
     List<String> listClusterIpByType(String type);
 
