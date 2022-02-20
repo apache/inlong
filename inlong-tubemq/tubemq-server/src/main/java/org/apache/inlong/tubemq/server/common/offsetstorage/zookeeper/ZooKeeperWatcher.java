@@ -431,6 +431,8 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
     }
 
     /**
+     * Get the active Zookeeper address
+     *
      * @return Path to the currently active master.
      */
     public String getMasterAddressZNode() {

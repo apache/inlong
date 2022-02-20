@@ -922,6 +922,19 @@ public class MetaDataManager implements Server {
 
     // ////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Add or update topic deploy information
+     *
+     * @param isAddOp         whether add operation
+     * @param opEntity        the operation information
+     * @param brokerId        the broker id
+     * @param topicName       the topic name
+     * @param deployStatus    the deploy status
+     * @param topicPropInfo   the topic property set
+     * @param sBuffer         the string buffer
+     * @param result          the process result
+     * @return                true if success otherwise false
+     */
     public TopicProcessResult addOrUpdTopicDeployInfo(boolean isAddOp, BaseEntity opEntity,
                                                       int brokerId, String topicName,
                                                       TopicStatus deployStatus,

@@ -67,6 +67,12 @@ import org.apache.inlong.tubemq.corerpc.service.MasterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * SimpleClientBalanceConsumer, This type of consumer supports the client for
+ * independent partition allocation and consumption.
+ * Compared with the server-side allocation scheme, this type of client manages the partition by
+ * itself and is not affected by the server-side allocation cycle
+ */
 public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
     private static final Logger logger =
             LoggerFactory.getLogger(SimpleClientBalanceConsumer.class);
@@ -94,9 +100,9 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
     private final RpcConfig rpcConfig = new RpcConfig();
     private final AtomicLong visitToken =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private AtomicReference<String> authAuthorizedTokenRef =
+    private final AtomicReference<String> authAuthorizedTokenRef =
             new AtomicReference<>("");
-    private ClientAuthenticateHandler authenticateHandler =
+    private final ClientAuthenticateHandler authenticateHandler =
             new SimpleClientAuthenticateHandler();
     private final ScheduledExecutorService heartService2Master;
     private final AtomicInteger metaReqStatusId = new AtomicInteger(0);
@@ -110,6 +116,12 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
             new ConcurrentHashMap<>();
     protected final ClientStatsInfo clientStatsInfo;
 
+    /**
+     * Initial a client-balance consumer object
+     * @param messageSessionFactory   the session factory
+     * @param consumerConfig          the consumer configure
+     * @throws TubeClientException    the exception while creating object.
+     */
     public SimpleClientBalanceConsumer(final InnerSessionFactory messageSessionFactory,
                                        final ConsumerConfig consumerConfig) throws TubeClientException {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");

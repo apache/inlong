@@ -25,19 +25,38 @@ import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 public class OffsetStorageInfo implements Serializable {
 
     private static final long serialVersionUID = -4232003748320500757L;
-    private String topic;
-    private int brokerId;
-    private int partitionId;
-    private AtomicLong offset = new AtomicLong(0);
+    private final String topic;
+    private final int brokerId;
+    private final int partitionId;
+    private final AtomicLong offset = new AtomicLong(0);
     private long messageId;
     private boolean firstCreate = false;
     private boolean modified = false;
 
+    /**
+     * Initial offset storage information
+     *
+     * @param topic          the topic name
+     * @param brokerId       the broker id
+     * @param partitionId    the partition id
+     * @param offset         the offset
+     * @param messageId      the message id
+     */
     public OffsetStorageInfo(String topic, int brokerId, int partitionId,
                              long offset, long messageId) {
         this(topic, brokerId, partitionId, offset, messageId, true);
     }
 
+    /**
+     * Initial offset storage information
+     *
+     * @param topic          the topic name
+     * @param brokerId       the broker id
+     * @param partitionId    the partition id
+     * @param offset         the offset
+     * @param messageId      the message id
+     * @param firstCreate    whether is the first record creation
+     */
     public OffsetStorageInfo(String topic, int brokerId, int partitionId,
                              long offset, long messageId, boolean firstCreate) {
         this.topic = topic;
@@ -126,7 +145,7 @@ public class OffsetStorageInfo implements Serializable {
         if (!topic.equals(that.topic)) {
             return false;
         }
-        return offset != null ? offset.equals(that.offset) : that.offset == null;
+        return (offset.get() == that.offset.get());
 
     }
 
@@ -135,7 +154,7 @@ public class OffsetStorageInfo implements Serializable {
         int result = topic.hashCode();
         result = 31 * result + brokerId;
         result = 31 * result + partitionId;
-        result = 31 * result + (offset != null ? offset.hashCode() : 0);
+        result = 31 * result + offset.hashCode();
         result = 31 * result + (int) (messageId ^ (messageId >>> 32));
         result = 31 * result + (firstCreate ? 1 : 0);
         result = 31 * result + (modified ? 1 : 0);

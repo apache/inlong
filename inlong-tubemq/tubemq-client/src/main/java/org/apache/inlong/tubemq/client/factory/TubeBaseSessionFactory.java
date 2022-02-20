@@ -53,6 +53,12 @@ public class TubeBaseSessionFactory implements InnerSessionFactory {
     private final DefaultBrokerRcvQltyStats brokerRcvQltyStats;
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
+    /**
+     * Initial Session factory
+     *
+     * @param clientFactory      the client factory
+     * @param tubeClientConfig   the tube client configure
+     */
     public TubeBaseSessionFactory(final ClientFactory clientFactory,
                                   final TubeClientConfig tubeClientConfig) throws TubeClientException {
         super();

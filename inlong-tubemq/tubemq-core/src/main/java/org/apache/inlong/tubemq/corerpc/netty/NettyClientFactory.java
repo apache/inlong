@@ -83,8 +83,8 @@ public class NettyClientFactory implements ClientFactory {
     /**
      * initial the network by rpc config object
      *
-     * @param conf
-     * @throws IllegalArgumentException
+     * @param conf      the configure information
+     * @throws IllegalArgumentException  the exception while configuring object
      */
     public void configure(final RpcConfig conf) throws IllegalArgumentException {
         if (this.init.compareAndSet(false, true)) {
@@ -239,11 +239,11 @@ public class NettyClientFactory implements ClientFactory {
     /**
      * create a netty client
      *
-     * @param addressInfo
-     * @param connectTimeout
-     * @param conf
-     * @return
-     * @throws Exception
+     * @param addressInfo        the remote address information
+     * @param connectTimeout     the connection timeout
+     * @param conf               the configure information
+     * @return                   the client object
+     * @throws Exception         the exception while creating object.
      */
     private Client createClient(final NodeAddrInfo addressInfo,
                                 int connectTimeout, final RpcConfig conf) throws Exception {
