@@ -17,16 +17,54 @@
 
 package org.apache.inlong.commons.pojo.dataproxy;
 
-import lombok.Data;
-
 /**
  * DataProxy config
  */
-@Data
 public class DataProxyConfig {
 
     private String topic;
     private String m;
     private String inlongGroupId;
+
+    public DataProxyConfig() {
+    }
+
+    public DataProxyConfig(String topic, String m, String inlongGroupId) {
+        this.topic = topic;
+        this.m = m;
+        this.inlongGroupId = inlongGroupId;
+    }
+
+    @Override
+    public String toString() {
+        return "DataProxyConfig{topic='" + topic + '\''
+                + ", m='" + m + '\''
+                + ", inlongGroupId='" + inlongGroupId + '\''
+                + '}';
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public String getM() {
+        return m;
+    }
+
+    public void setM(String m) {
+        this.m = m;
+    }
+
+    public String getInlongGroupId() {
+        return inlongGroupId;
+    }
+
+    public void setInlongGroupId(String inlongGroupId) {
+        this.inlongGroupId = inlongGroupId;
+    }
 
 }
