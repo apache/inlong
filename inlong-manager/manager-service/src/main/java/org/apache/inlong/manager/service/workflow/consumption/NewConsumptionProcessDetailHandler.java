@@ -39,13 +39,13 @@ public class NewConsumptionProcessDetailHandler implements ProcessDetailHandler 
     public ProcessDetailResponse handle(ProcessDetailResponse workflowResponse) {
         WorkflowProcess process = processDefinitionService.getByName(workflowResponse.getWorkflow().getName());
 
-        NewConsumptionProcessForm workflowForm = WorkflowFormParserUtils
+        NewConsumptionProcessForm processForm = WorkflowFormParserUtils
                 .parseProcessForm(workflowResponse.getProcessInfo().getFormData().toString(), process);
-        if (workflowForm == null) {
+        if (processForm == null) {
             return workflowResponse;
         }
 
-        workflowResponse.getProcessInfo().setFormData(workflowForm);
+        workflowResponse.getProcessInfo().setFormData(processForm);
         return workflowResponse;
     }
 

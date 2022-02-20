@@ -55,8 +55,8 @@ public class ConsumptionInfo {
     @NotNull(message = "inCharges cannot be null")
     private String inCharges;
 
-    @ApiModelProperty(value = "consumption target business group id")
-    @NotBlank(message = "business group id cannot be null")
+    @ApiModelProperty(value = "consumption target inlong group id")
+    @NotBlank(message = "inlong group id cannot be null")
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")
@@ -72,7 +72,7 @@ public class ConsumptionInfo {
     @ApiModelProperty(value = "whether to filter consumption, 0: not filter, 1: filter")
     private Integer filterEnabled = 0;
 
-    @ApiModelProperty(value = "consumption target data stream id")
+    @ApiModelProperty(value = "consumption target inlong stream id")
     private String inlongStreamId;
 
     @ApiModelProperty(value = "status, 10: pending assigned, 11: pending approval, "
@@ -91,7 +91,7 @@ public class ConsumptionInfo {
     private ConsumptionMqExtBase mqExtInfo;
 
     @JsonIgnore
-    @AssertTrue(message = "when filter enabled, data stream id cannot be null")
+    @AssertTrue(message = "when filter enabled, inlong stream id cannot be null")
     public boolean isValidateFilter() {
         if (filterEnabled == 0) {
             return true;

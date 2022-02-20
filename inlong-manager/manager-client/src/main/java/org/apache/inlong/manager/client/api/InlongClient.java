@@ -29,14 +29,14 @@ import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
  * <code>
  * ClientConfiguration configuration = ..
  * InlongClient client = InlongClient.create(${serviceUrl}, configuration);
- * DataStreamGroupConf groupConf = ..
- * DataStreamGroup group = client.createStreamGroup(groupConf);
- * DataStreamConf streamConf = ..
- * DataStreamBuilder builder = group.createDataStream(streamConf);
+ * InlongGroupConf groupConf = ..
+ * InlongGroup group = client.createGroup(groupConf);
+ * InlongStreamConf streamConf = ..
+ * InlongStreamBuilder builder = group.createStream(streamConf);
  * StreamSource source = ..
  * StreamSink sink = ..
  * List<StreamField> fields = ..
- * DataStream stream = builder.source(source).sink(sink).fields(fields).init();
+ * InlongStream stream = builder.source(source).sink(sink).fields(fields).init();
  * group.init();
  * </code>
  * </pre>
@@ -49,11 +49,7 @@ public interface InlongClient {
 
     /**
      * Create stream group by conf
-     *
-     * @param groupConf
-     * @return streamGroupId
-     * @throws Exception
      */
-    DataStreamGroup createStreamGroup(DataStreamGroupConf groupConf) throws Exception;
+    InlongGroup createGroup(InlongGroupConf groupConf) throws Exception;
 
 }

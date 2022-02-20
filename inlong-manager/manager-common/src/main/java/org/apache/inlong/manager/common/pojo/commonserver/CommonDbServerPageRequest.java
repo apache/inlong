@@ -25,11 +25,11 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.beans.PageRequest;
 
 /**
- * DB data source query conditions
+ * DB source query conditions
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel("DB data source query conditions")
+@ApiModel("DB source query conditions")
 public class CommonDbServerPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "DB Server IP")

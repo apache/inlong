@@ -21,13 +21,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.ClusterSetMapper">
     <select id="selectClusterSet" resultType="org.apache.inlong.manager.dao.entity.ClusterSet">
-        select set_name,cn_name,description,middleware_type,in_charges,followers,status,is_deleted,creator,modifier
+        select set_name,
+               cn_name,
+               description,
+               middleware_type,
+               in_charges,
+               followers,
+               status,
+               is_deleted,
+               creator,
+               modifier
         from cluster_set
         where is_deleted = 0
     </select>
     <select id="selectInlongId" resultType="org.apache.inlong.manager.dao.entity.InLongId">
-        select biz.inlong_group_id as inlong_id, biz.mq_resource_obj as topic, d.sort_type as params, c.set_name as set_name
-        from business biz,
+        select biz.inlong_group_id as inlong_id,
+               biz.mq_resource_obj as topic,
+               d.sort_type         as params,
+               c.set_name          as set_name
+        from inlong_group biz,
              data_schema d,
              cluster_set_inlongid c
         where biz.status = 130
@@ -36,51 +48,52 @@
           and biz.inlong_group_id = c.inlong_group_id
     </select>
     <select id="selectCacheCluster" resultType="org.apache.inlong.manager.dao.entity.CacheCluster">
-        select cluster_name,set_name,zone
+        select cluster_name, set_name, zone
         from cache_cluster
     </select>
     <select id="selectCacheClusterExt" resultType="org.apache.inlong.manager.dao.entity.CacheClusterExt">
-        select cluster_name,key_name,key_value,is_deleted
+        select cluster_name, key_name, key_value, is_deleted
         from cache_cluster_ext
         where is_deleted = 0
     </select>
-    
+
     <select id="selectCacheTopic" resultType="org.apache.inlong.manager.dao.entity.CacheTopic">
-        select topic_name,set_name,partition_num
+        select topic_name, set_name, partition_num
         from cache_topic
     </select>
     <select id="selectProxyCluster" resultType="org.apache.inlong.manager.dao.entity.ProxyCluster">
-        select cluster_name,set_name,zone
+        select cluster_name, set_name, zone
         from proxy_cluster
     </select>
-    <select id="selectProxyClusterToCacheCluster" resultType="org.apache.inlong.manager.dao.entity.ProxyClusterToCacheCluster">
-        select proxy_cluster_name,cache_cluster_name
+    <select id="selectProxyClusterToCacheCluster"
+            resultType="org.apache.inlong.manager.dao.entity.ProxyClusterToCacheCluster">
+        select proxy_cluster_name, cache_cluster_name
         from proxy_cluster_to_cache_cluster
     </select>
     <select id="selectFlumeSource" resultType="org.apache.inlong.manager.dao.entity.FlumeSource">
-        select source_name,set_name,type,channels,selector_type
+        select source_name, set_name, type, channels, selector_type
         from flume_source
     </select>
     <select id="selectFlumeSourceExt" resultType="org.apache.inlong.manager.dao.entity.FlumeSourceExt">
-        select parent_name,set_name,key_name,key_value,is_deleted
+        select parent_name, set_name, key_name, key_value, is_deleted
         from flume_source_ext
         where is_deleted = 0
     </select>
     <select id="selectFlumeChannel" resultType="org.apache.inlong.manager.dao.entity.FlumeChannel">
-        select channel_name,set_name,type
+        select channel_name, set_name, type
         from flume_channel
     </select>
     <select id="selectFlumeChannelExt" resultType="org.apache.inlong.manager.dao.entity.FlumeChannelExt">
-        select parent_name,set_name,key_name,key_value,is_deleted
+        select parent_name, set_name, key_name, key_value, is_deleted
         from flume_channel_ext
         where is_deleted = 0
     </select>
     <select id="selectFlumeSink" resultType="org.apache.inlong.manager.dao.entity.FlumeSink">
-        select channel_name,set_name,type,channel
+        select channel_name, set_name, type, channel
         from flume_sink
     </select>
     <select id="selectFlumeSinkExt" resultType="org.apache.inlong.manager.dao.entity.FlumeSinkExt">
-        select parent_name,set_name,key_name,key_value,is_deleted
+        select parent_name, set_name, key_name, key_value, is_deleted
         from flume_sink_ext
         where is_deleted = 0
     </select>

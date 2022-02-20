@@ -21,7 +21,7 @@ import java.sql.Connection;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.query.ColumnInfoBean;
 import org.apache.inlong.manager.common.pojo.query.ConnectionInfo;
@@ -31,13 +31,13 @@ import org.apache.inlong.manager.common.pojo.query.hive.HiveTableQueryBean;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.HiveServerDao;
 import org.apache.inlong.manager.service.core.DataSourceService;
-import org.apache.inlong.manager.service.thirdpart.hive.builder.HiveAddColumnSqlBuilder;
-import org.apache.inlong.manager.service.thirdpart.hive.builder.HiveChangeColumnBuilder;
-import org.apache.inlong.manager.service.thirdpart.hive.builder.HiveCreateDbSqlBuilder;
-import org.apache.inlong.manager.service.thirdpart.hive.builder.HiveDropDbSqlBuilder;
-import org.apache.inlong.manager.service.thirdpart.hive.builder.HiveDropTableSqlBuilder;
-import org.apache.inlong.manager.service.thirdpart.hive.builder.HiveQueryTableSqlBuilder;
-import org.apache.inlong.manager.service.thirdpart.hive.builder.HiveTableCreateSqlBuilder;
+import org.apache.inlong.manager.service.thirdparty.hive.builder.HiveAddColumnSqlBuilder;
+import org.apache.inlong.manager.service.thirdparty.hive.builder.HiveChangeColumnBuilder;
+import org.apache.inlong.manager.service.thirdparty.hive.builder.HiveCreateDbSqlBuilder;
+import org.apache.inlong.manager.service.thirdparty.hive.builder.HiveDropDbSqlBuilder;
+import org.apache.inlong.manager.service.thirdparty.hive.builder.HiveDropTableSqlBuilder;
+import org.apache.inlong.manager.service.thirdparty.hive.builder.HiveQueryTableSqlBuilder;
+import org.apache.inlong.manager.service.thirdparty.hive.builder.HiveTableCreateSqlBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -184,7 +184,7 @@ public class HiveSourceServiceImpl implements DataSourceService<DatabaseQueryBea
             LOGGER.info("success to query db detail");
         } catch (Exception e) {
             LOGGER.error("query db detail error, ", e);
-            throw new BusinessException(BizErrorCodeEnum.HIVE_OPERATION_FAILED);
+            throw new BusinessException(ErrorCodeEnum.HIVE_OPERATION_FAILED);
         }
 
         LOGGER.info("success to query database");

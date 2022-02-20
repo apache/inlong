@@ -101,7 +101,7 @@ public class WorkflowEngineImpl implements WorkflowEngine {
     }
 
     @Override
-    public ProcessDefinitionRepository processDefinitionStorage() {
+    public ProcessDefinitionRepository processDefinitionRepository() {
         return processDefRepository;
     }
 

@@ -24,7 +24,7 @@ public enum ServiceTaskType {
     INIT_SOURCE,
     INIT_MQ,
     INIT_SORT,
-    INIT_STORAGE,
+    INIT_SINK,
 
     STOP_SOURCE,
     STOP_SORT,

@@ -32,15 +32,15 @@ import java.util.Map;
 @Component
 public class MemoryProcessDefinitionRepository implements ProcessDefinitionRepository {
 
-    private static final Map<String, WorkflowProcess> PROCESS_BY_NAME_STORAGE = Maps.newConcurrentMap();
+    private static final Map<String, WorkflowProcess> PROCESS_BY_NAME_MAP = Maps.newConcurrentMap();
 
     @Override
     public WorkflowProcess get(String name) {
-        if (!PROCESS_BY_NAME_STORAGE.containsKey(name)) {
+        if (!PROCESS_BY_NAME_MAP.containsKey(name)) {
             return null;
         }
         try {
-            return PROCESS_BY_NAME_STORAGE.get(name).clone();
+            return PROCESS_BY_NAME_MAP.get(name).clone();
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
             throw new WorkflowException();
@@ -50,20 +50,20 @@ public class MemoryProcessDefinitionRepository implements ProcessDefinitionRepos
     @Override
     public void add(WorkflowProcess process) {
         Preconditions.checkNotEmpty(process.getName(), "process name cannot be null");
-        if (PROCESS_BY_NAME_STORAGE.containsKey(process.getName())) {
+        if (PROCESS_BY_NAME_MAP.containsKey(process.getName())) {
             throw new WorkflowException("process already exist with the same name " + process.getName());
         }
 
-        PROCESS_BY_NAME_STORAGE.put(process.getName(), process);
+        PROCESS_BY_NAME_MAP.put(process.getName(), process);
     }
 
     @Override
     public void delete(String name) {
-        if (!PROCESS_BY_NAME_STORAGE.containsKey(name)) {
+        if (!PROCESS_BY_NAME_MAP.containsKey(name)) {
             throw new WorkflowException("process definition not found for name " + name);
         }
 
-        PROCESS_BY_NAME_STORAGE.remove(name);
+        PROCESS_BY_NAME_MAP.remove(name);
     }
 
 }

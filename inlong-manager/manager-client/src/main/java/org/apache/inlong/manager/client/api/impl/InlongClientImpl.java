@@ -26,8 +26,8 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.DataStreamGroup;
-import org.apache.inlong.manager.client.api.DataStreamGroupConf;
+import org.apache.inlong.manager.client.api.InlongGroup;
+import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.InlongClient;
 
 @Slf4j
@@ -60,8 +60,8 @@ public class InlongClientImpl implements InlongClient {
     }
 
     @Override
-    public DataStreamGroup createStreamGroup(DataStreamGroupConf groupConf) throws Exception {
-        return new DataStreamGroupImpl(groupConf, this);
+    public InlongGroup createGroup(InlongGroupConf groupConf) throws Exception {
+        return new InlongGroupImpl(groupConf, this);
     }
 
     private boolean checkConnectivity(String host, int port, int connectTimeout) {

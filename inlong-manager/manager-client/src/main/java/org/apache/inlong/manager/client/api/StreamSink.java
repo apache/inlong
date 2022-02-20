@@ -22,7 +22,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-@ApiModel("Data storage configuration")
+@ApiModel("Stream sink configuration")
 public abstract class StreamSink {
 
     public enum SinkType {

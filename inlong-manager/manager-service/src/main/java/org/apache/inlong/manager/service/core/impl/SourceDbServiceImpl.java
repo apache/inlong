@@ -20,24 +20,21 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.BizConstant;
-import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.datasource.SourceDbBasicInfo;
-import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailInfo;
-import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailListVO;
-import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailPageRequest;
+import org.apache.inlong.manager.common.pojo.source.SourceDbBasicInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceDbDetailInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceDbDetailListVO;
+import org.apache.inlong.manager.common.pojo.source.SourceDbDetailPageRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.BusinessEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.SourceDbBasicEntity;
 import org.apache.inlong.manager.dao.entity.SourceDbDetailEntity;
-import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SourceDbBasicEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SourceDbDetailEntityMapper;
 import org.apache.inlong.manager.service.core.SourceDbService;
@@ -47,6 +44,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  * DB data source service layer implementation
@@ -61,7 +62,7 @@ public class SourceDbServiceImpl implements SourceDbService {
     @Autowired
     private SourceDbDetailEntityMapper dbDetailMapper;
     @Autowired
-    private BusinessEntityMapper businessMapper;
+    private InlongGroupEntityMapper groupMapper;
 
     @Override
     public Integer saveBasic(SourceDbBasicInfo basicInfo, String operator) {
@@ -69,17 +70,17 @@ public class SourceDbServiceImpl implements SourceDbService {
         Preconditions.checkNotNull(basicInfo, "db data source basic");
         String groupId = basicInfo.getInlongGroupId();
         String streamId = basicInfo.getInlongStreamId();
-        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be added
-        this.checkBizIsTempStatus(groupId);
+        this.checkGroupIsTempStatus(groupId);
 
         // Each groupId + streamId has only 1 valid basic information
         SourceDbBasicEntity exist = dbBasicMapper.selectByIdentifier(groupId, streamId);
         if (exist != null) {
             LOGGER.error("db data source basic already exists");
-            throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DUPLICATE);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_DUPLICATE);
         }
 
         SourceDbBasicEntity entity = CommonBeanUtils.copyProperties(basicInfo, SourceDbBasicEntity::new);
@@ -95,14 +96,14 @@ public class SourceDbServiceImpl implements SourceDbService {
     @Override
     public SourceDbBasicInfo getBasicByIdentifier(String groupId, String streamId) {
         LOGGER.info("begin to get db data source basic by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
 
         SourceDbBasicEntity entity = dbBasicMapper.selectByIdentifier(groupId, streamId);
         SourceDbBasicInfo basicInfo = new SourceDbBasicInfo();
         if (entity == null) {
             LOGGER.error("file data source basic not found by streamId={}", streamId);
-            // throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_BASIC_NOTFOUND);
+            // throw new BusinessException(ErrorCodeEnum.DATA_SOURCE_BASIC_NOTFOUND);
             return basicInfo;
         }
         BeanUtils.copyProperties(entity, basicInfo);
@@ -116,9 +117,9 @@ public class SourceDbServiceImpl implements SourceDbService {
         LOGGER.info("begin to update db data source basic={}", basicInfo);
         Preconditions.checkNotNull(basicInfo, "db data source basic is empty");
 
-        // The groupId may be modified, it is necessary to determine whether the business status of
+        // The groupId may be modified, it is necessary to determine whether the inlong group status of
         // the modified groupId supports modification
-        this.checkBizIsTempStatus(basicInfo.getInlongGroupId());
+        this.checkGroupIsTempStatus(basicInfo.getInlongGroupId());
 
         // If id is empty, add
         if (basicInfo.getId() == null) {
@@ -127,7 +128,7 @@ public class SourceDbServiceImpl implements SourceDbService {
             SourceDbBasicEntity basicEntity = dbBasicMapper.selectByPrimaryKey(basicInfo.getId());
             if (basicEntity == null) {
                 LOGGER.error("db data source basic not found by id={}, update failed", basicInfo.getId());
-                throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_BASIC_NOT_FOUND);
+                throw new BusinessException(ErrorCodeEnum.SOURCE_BASIC_NOT_FOUND);
             }
             BeanUtils.copyProperties(basicInfo, basicEntity);
             basicEntity.setModifier(operator);
@@ -147,19 +148,19 @@ public class SourceDbServiceImpl implements SourceDbService {
         SourceDbBasicEntity entity = dbBasicMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("db data source basic not found by id={}, delete failed", id);
-            throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_BASIC_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_BASIC_NOT_FOUND);
         }
 
         String groupId = entity.getInlongGroupId();
         String streamId = entity.getInlongStreamId();
         // Check if it can be deleted
-        this.checkBizIsTempStatus(groupId);
+        this.checkGroupIsTempStatus(groupId);
 
         // If there are related data source details, it is not allowed to delete
         List<SourceDbDetailEntity> detailEntities = dbDetailMapper.selectByIdentifier(groupId, streamId);
         if (CollectionUtils.isNotEmpty(detailEntities)) {
             LOGGER.error("the data source basic have [{}] details, delete failed", detailEntities.size());
-            throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_BASIC_DELETE_HAS_DETAIL);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_BASIC_DELETE_HAS_DETAIL);
         }
         entity.setIsDeleted(1);
         entity.setModifier(operator);
@@ -173,11 +174,11 @@ public class SourceDbServiceImpl implements SourceDbService {
     public Integer saveDetail(SourceDbDetailInfo detailInfo, String operator) {
         LOGGER.info("begin to save db data source detail={}", detailInfo);
         Preconditions.checkNotNull(detailInfo, "db data source basic is null");
-        Preconditions.checkNotNull(detailInfo.getInlongGroupId(), BizConstant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(detailInfo.getInlongStreamId(), BizConstant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(detailInfo.getInlongGroupId(), Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(detailInfo.getInlongStreamId(), Constant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be added
-        this.checkBizIsTempStatus(detailInfo.getInlongGroupId());
+        this.checkGroupIsTempStatus(detailInfo.getInlongGroupId());
 
         int id = saveDetailOpt(detailInfo, operator);
         LOGGER.info("success to save db data source detail");
@@ -192,7 +193,7 @@ public class SourceDbServiceImpl implements SourceDbService {
         SourceDbDetailEntity entity = dbDetailMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("db data source detail not found by id={}", id);
-            throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DETAIL_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_DETAIL_NOT_FOUND);
         }
         SourceDbDetailInfo detailInfo = CommonBeanUtils.copyProperties(entity, SourceDbDetailInfo::new);
 
@@ -203,12 +204,12 @@ public class SourceDbServiceImpl implements SourceDbService {
     @Override
     public List<SourceDbDetailInfo> listDetailByIdentifier(String groupId, String streamId) {
         LOGGER.info("begin to list db data source detail by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
 
         List<SourceDbDetailEntity> entities = dbDetailMapper.selectByIdentifier(groupId, streamId);
         if (CollectionUtils.isEmpty(entities)) {
             LOGGER.error("db data source detail not found");
-            // throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DETAIL_NOTFOUND);
+            // throw new BusinessException(ErrorCodeEnum.DATA_SOURCE_DETAIL_NOTFOUND);
             return Collections.emptyList();
         }
         List<SourceDbDetailInfo> infoList = CommonBeanUtils.copyListProperties(entities, SourceDbDetailInfo::new);
@@ -239,22 +240,22 @@ public class SourceDbServiceImpl implements SourceDbService {
     public boolean updateDetail(SourceDbDetailInfo detailInfo, String operator) {
         LOGGER.info("begin to update db data source detail={}", detailInfo);
         Preconditions.checkNotNull(detailInfo, "db data source detail is empty");
-        Preconditions.checkNotNull(detailInfo.getInlongGroupId(), BizConstant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(detailInfo.getInlongStreamId(), BizConstant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(detailInfo.getInlongGroupId(), Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(detailInfo.getInlongStreamId(), Constant.STREAM_ID_IS_EMPTY);
 
-        // The groupId may be modified, it is necessary to determine whether the business status of
+        // The groupId may be modified, it is necessary to determine whether the inlong group status of
         // the modified groupId supports modification
-        this.checkBizIsTempStatus(detailInfo.getInlongGroupId());
+        this.checkGroupIsTempStatus(detailInfo.getInlongGroupId());
 
         // id exists, update, otherwise add
         if (detailInfo.getId() != null) {
             SourceDbDetailEntity entity = dbDetailMapper.selectByPrimaryKey(detailInfo.getId());
             if (entity == null) {
                 LOGGER.error("db data source detail not found by id=" + detailInfo.getId());
-                throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DETAIL_NOT_FOUND);
+                throw new BusinessException(ErrorCodeEnum.SOURCE_DETAIL_NOT_FOUND);
             }
             SourceDbDetailEntity dbEntity = CommonBeanUtils.copyProperties(detailInfo, SourceDbDetailEntity::new);
-            dbEntity.setStatus(EntityStatus.BIZ_CONFIG_ING.getCode());
+            dbEntity.setStatus(EntityStatus.GROUP_CONFIG_ING.getCode());
             dbEntity.setModifier(operator);
             dbDetailMapper.updateByPrimaryKeySelective(dbEntity);
         } else {
@@ -274,11 +275,11 @@ public class SourceDbServiceImpl implements SourceDbService {
         SourceDbDetailEntity entity = dbDetailMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("db data source detail not found by id={}", id);
-            throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DETAIL_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_DETAIL_NOT_FOUND);
         }
 
         // Check if it can be deleted
-        this.checkBizIsTempStatus(entity.getInlongGroupId());
+        this.checkGroupIsTempStatus(entity.getInlongGroupId());
 
         entity.setIsDeleted(1);
         entity.setModifier(operator);
@@ -291,11 +292,11 @@ public class SourceDbServiceImpl implements SourceDbService {
     @Override
     public boolean deleteAllByIdentifier(String groupId, String streamId) {
         LOGGER.info("begin delete all db basic and detail by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be deleted
-        this.checkBizIsTempStatus(groupId);
+        this.checkGroupIsTempStatus(groupId);
 
         dbBasicMapper.deleteByIdentifier(groupId, streamId);
         dbDetailMapper.deleteByIdentifier(groupId, streamId);
@@ -307,11 +308,11 @@ public class SourceDbServiceImpl implements SourceDbService {
     @Override
     public boolean logicDeleteAllByIdentifier(String groupId, String streamId, String operator) {
         LOGGER.info("begin logic delete all db basic and detail by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be deleted
-        this.checkBizIsTempStatus(groupId);
+        this.checkGroupIsTempStatus(groupId);
 
         dbBasicMapper.logicDeleteByIdentifier(groupId, streamId, operator);
         dbDetailMapper.logicDeleteByIdentifier(groupId, streamId, operator);
@@ -334,7 +335,7 @@ public class SourceDbServiceImpl implements SourceDbService {
         if (count > 0) {
             LOGGER.error("db source detail already exists, groupId={}, streamId={}, dbName={}, connectionName={}",
                     groupId, streamId, dbName, connectionName);
-            throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DUPLICATE);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_DUPLICATE);
         }
 
         SourceDbDetailEntity dbEntity = CommonBeanUtils.copyProperties(detailInfo, SourceDbDetailEntity::new);
@@ -348,20 +349,20 @@ public class SourceDbServiceImpl implements SourceDbService {
     }
 
     /**
-     * Check whether the business status is temporary
+     * Check whether the inlong group status is temporary
      *
-     * @param groupId Business group id
-     * @return usiness entity for caller reuse
+     * @param groupId Inlong group id
+     * @return inlong group entity for caller reuse
      */
-    private BusinessEntity checkBizIsTempStatus(String groupId) {
-        BusinessEntity businessEntity = businessMapper.selectByIdentifier(groupId);
-        Preconditions.checkNotNull(businessEntity, "groupId is invalid");
-        // Add/modify/delete is not allowed under certain business status
-        if (EntityStatus.BIZ_TEMP_STATUS.contains(businessEntity.getStatus())) {
-            LOGGER.error("business status was not allowed to add/update/delete data source info");
-            throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_OPT_NOT_ALLOWED);
+    private InlongGroupEntity checkGroupIsTempStatus(String groupId) {
+        InlongGroupEntity inlongGroupEntity = groupMapper.selectByIdentifier(groupId);
+        Preconditions.checkNotNull(inlongGroupEntity, "groupId is invalid");
+        // Add/modify/delete is not allowed under certain inlong group status
+        if (EntityStatus.GROUP_TEMP_STATUS.contains(inlongGroupEntity.getStatus())) {
+            LOGGER.error("inlong group status was not allowed to add/update/delete stream source");
+            throw new BusinessException(ErrorCodeEnum.SOURCE_OPT_NOT_ALLOWED);
         }
 
-        return businessEntity;
+        return inlongGroupEntity;
     }
 }

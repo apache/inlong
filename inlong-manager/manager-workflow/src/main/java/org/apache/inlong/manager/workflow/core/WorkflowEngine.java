@@ -30,16 +30,16 @@ public interface WorkflowEngine {
     ProcessDefinitionService processDefinitionService();
 
     /**
-     * Get data accessor
+     * Get process definition  repository
      *
-     * @return Data accessor
+     * @return Process repository.
      */
-    ProcessDefinitionRepository processDefinitionStorage();
+    ProcessDefinitionRepository processDefinitionRepository();
 
     /**
      * Get process instance service
      *
-     * @return WorkflowProcess instance service
+     * @return Process instance service
      */
     ProcessService processService();
 

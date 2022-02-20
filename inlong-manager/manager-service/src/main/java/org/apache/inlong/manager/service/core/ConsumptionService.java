@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionListVo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
@@ -100,6 +100,6 @@ public interface ConsumptionService {
     /**
      * Save the consumer group info for Sort to the database
      */
-    void saveSortConsumption(BusinessInfo bizInfo, String topic, String consumerGroup);
+    void saveSortConsumption(InlongGroupRequest bizInfo, String topic, String consumerGroup);
 
 }

@@ -20,16 +20,16 @@ package org.apache.inlong.manager.service.workflow;
 import com.google.common.collect.Lists;
 import lombok.Setter;
 import org.apache.commons.collections.MapUtils;
-import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableEventSelector;
-import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableListener;
-import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarGroupTaskListener;
-import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarResourceTaskListener;
-import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeGroupTaskListener;
-import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeTopicTaskListener;
-import org.apache.inlong.manager.service.thirdpart.mq.PulsarEventSelector;
-import org.apache.inlong.manager.service.thirdpart.mq.TubeEventSelector;
-import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigTaskListener;
-import org.apache.inlong.manager.service.thirdpart.sort.ZkSortEventSelector;
+import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveTableEventSelector;
+import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveTableListener;
+import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarGroupTaskListener;
+import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarResourceTaskListener;
+import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeGroupTaskListener;
+import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeTopicTaskListener;
+import org.apache.inlong.manager.service.thirdparty.mq.PulsarEventSelector;
+import org.apache.inlong.manager.service.thirdparty.mq.TubeEventSelector;
+import org.apache.inlong.manager.service.thirdparty.sort.PushHiveConfigTaskListener;
+import org.apache.inlong.manager.service.thirdparty.sort.ZkSortEventSelector;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskListenerProvider;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -37,7 +37,7 @@ import org.apache.inlong.manager.workflow.event.EventSelector;
 import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
-import org.apache.inlong.manager.workflow.event.task.StorageOperateListener;
+import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.apache.inlong.manager.workflow.plugin.Plugin;
 import org.apache.inlong.manager.workflow.plugin.PluginBinder;
@@ -56,7 +56,7 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
 
     private Map<DataSourceOperateListener, EventSelector> sourceOperateListeners;
 
-    private Map<StorageOperateListener, EventSelector> storageOperateListeners;
+    private Map<SinkOperateListener, EventSelector> sinkOperateListeners;
 
     private Map<QueueOperateListener, EventSelector> queueOperateListeners;
 
@@ -90,8 +90,8 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
     @PostConstruct
     public void init() {
         sourceOperateListeners = new LinkedHashMap<>();
-        storageOperateListeners = new LinkedHashMap<>();
-        storageOperateListeners.put(createHiveTableListener, createHiveTableEventSelector);
+        sinkOperateListeners = new LinkedHashMap<>();
+        sinkOperateListeners.put(createHiveTableListener, createHiveTableEventSelector);
         queueOperateListeners = new LinkedHashMap<>();
         queueOperateListeners.put(createTubeTopicTaskListener, new TubeEventSelector());
         queueOperateListeners.put(createTubeGroupTaskListener, new TubeEventSelector());
@@ -103,7 +103,7 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
 
     public void clearListeners() {
         sourceOperateListeners = new LinkedHashMap<>();
-        storageOperateListeners = new LinkedHashMap<>();
+        sinkOperateListeners = new LinkedHashMap<>();
         queueOperateListeners = new LinkedHashMap<>();
         sortOperateListeners = new LinkedHashMap<>();
     }
@@ -126,9 +126,9 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
             case DELETE_SOURCE:
                 List<DataSourceOperateListener> sourceOperateListeners = getSourceOperateListener(workflowContext);
                 return Lists.newArrayList(sourceOperateListeners);
-            case INIT_STORAGE:
-                List<StorageOperateListener> storageOperateListeners = getStorageOperateListener(workflowContext);
-                return Lists.newArrayList(storageOperateListeners);
+            case INIT_SINK:
+                List<SinkOperateListener> sinkOperateListeners = getSinkOperateListener(workflowContext);
+                return Lists.newArrayList(sinkOperateListeners);
             default:
                 throw new IllegalArgumentException(String.format("UnSupport ServiceTaskType %s", serviceTaskType));
         }
@@ -145,9 +145,9 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
         return listeners;
     }
 
-    public List<StorageOperateListener> getStorageOperateListener(WorkflowContext context) {
-        List<StorageOperateListener> listeners = new ArrayList<>();
-        for (Map.Entry<StorageOperateListener, EventSelector> entry : storageOperateListeners.entrySet()) {
+    public List<SinkOperateListener> getSinkOperateListener(WorkflowContext context) {
+        List<SinkOperateListener> listeners = new ArrayList<>();
+        for (Map.Entry<SinkOperateListener, EventSelector> entry : sinkOperateListeners.entrySet()) {
             EventSelector selector = entry.getValue();
             if (selector != null && selector.accept(context)) {
                 listeners.add(entry.getKey());
@@ -189,10 +189,10 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
         if (MapUtils.isNotEmpty(pluginDsOperateListeners)) {
             sourceOperateListeners.putAll(processPlugin.createSourceOperateListeners());
         }
-        Map<StorageOperateListener, EventSelector> pluginStorageOperateListeners =
-                processPlugin.createStorageOperateListeners();
-        if (MapUtils.isNotEmpty(pluginStorageOperateListeners)) {
-            storageOperateListeners.putAll(pluginStorageOperateListeners);
+        Map<SinkOperateListener, EventSelector> pluginSinkOperateListeners =
+                processPlugin.createSinkOperateListeners();
+        if (MapUtils.isNotEmpty(pluginSinkOperateListeners)) {
+            sinkOperateListeners.putAll(pluginSinkOperateListeners);
         }
         Map<QueueOperateListener, EventSelector> pluginQueueOperateListeners =
                 processPlugin.createQueueOperateListeners();

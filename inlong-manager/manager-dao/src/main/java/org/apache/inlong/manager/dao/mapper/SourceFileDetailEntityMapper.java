@@ -20,7 +20,7 @@ package org.apache.inlong.manager.dao.mapper;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig;
-import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailPageRequest;
+import org.apache.inlong.manager.common.pojo.source.SourceFileDetailPageRequest;
 import org.apache.inlong.manager.dao.entity.SourceFileDetailEntity;
 import org.springframework.stereotype.Repository;
 
@@ -40,14 +40,14 @@ public interface SourceFileDetailEntityMapper {
     int updateByPrimaryKey(SourceFileDetailEntity record);
 
     /**
-     * Update source db detail status after approving business
+     * Update source db detail status after approving inlong group
      *
-     * @param groupId Business group id
-     * @param streamId Data stream id
+     * @param groupId Inlong group id
+     * @param streamId Inlong stream id
      * @param status Modified status
      * @param modifier Modifier name
      * @return whether succeed
-     * @apiNote If stream id is null, update all data stream associated with group id
+     * @apiNote If stream id is null, update all inlong stream associated with group id
      */
     boolean updateStatusAfterApprove(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("status") Integer status, @Param("modifier") String modifier);
@@ -57,8 +57,8 @@ public interface SourceFileDetailEntityMapper {
     /**
      * Query whether the same file data source details exist
      *
-     * @param groupId business group id
-     * @param streamId data stream id
+     * @param groupId inlong group id
+     * @param streamId inlong stream id
      * @param ip IP of file source
      * @param username username corresponding to the data source IP
      * @return number of eligible file sources
@@ -71,24 +71,24 @@ public interface SourceFileDetailEntityMapper {
     List<FileAgentTaskConfig> selectFileAgentTaskByIpForCheck(@Param("ip") String agentIp);
 
     /**
-     * According to business group id and data stream id, query file source details
+     * According to inlong group id and inlong stream id, query file source details
      *
-     * @param groupId business group id
-     * @param streamId data stream id
+     * @param groupId inlong group id
+     * @param streamId inlong stream id
      * @return file source list
      */
     List<SourceFileDetailEntity> selectByIdentifier(@Param("groupId") String groupId,
             @Param("streamId") String streamId);
 
     /**
-     * According to business group id and data stream id, physically delete file data source details
+     * According to inlong group id and inlong stream id, physically delete file data source details
      *
      * @return rows deleted
      */
     int deleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to business group id and data stream id, logically delete file data source details
+     * According to inlong group id and inlong stream id, logically delete file data source details
      *
      * @return rows updated
      */

@@ -26,7 +26,7 @@ public class DatabaseQueryBean {
     private String dbType;
     private String dbName;
     private String dbDesc;
-    private String businessDesc;
+    private String inlongGroupDesc;
     private String owner;
     private String ownerId;
     private String projectId;

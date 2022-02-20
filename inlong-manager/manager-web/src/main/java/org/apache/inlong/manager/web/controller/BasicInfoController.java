@@ -20,7 +20,7 @@ package org.apache.inlong.manager.web.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.business.DataSchemaInfo;
+import org.apache.inlong.manager.common.pojo.group.DataSchemaInfo;
 import org.apache.inlong.manager.service.core.DataSchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;

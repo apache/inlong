@@ -33,7 +33,7 @@ import org.apache.inlong.manager.common.pojo.audit.AuditVO;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
 import org.apache.inlong.manager.service.core.AuditService;
-import org.apache.inlong.manager.service.thirdpart.elasticsearch.ElasticsearchApi;
+import org.apache.inlong.manager.service.thirdparty.elasticsearch.ElasticsearchApi;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;

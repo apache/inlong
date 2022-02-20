@@ -25,16 +25,18 @@ import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Hive storage configuration")
+@ApiModel("Hive sink configuration")
 public class HiveSink extends StreamSink {
 
-    @ApiModelProperty(value = "Data storage type", required = true)
+    @ApiModelProperty(value = "Sink type", required = true)
     private SinkType sinkType = SinkType.HIVE;
 
     @ApiModelProperty("Hive meta db URL, etc jdbc:hive2://${ip}:${port}")

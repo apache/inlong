@@ -51,10 +51,10 @@ public class ConsumptionRejectProcessListener implements ProcessEventListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        NewConsumptionProcessForm workflowForm = (NewConsumptionProcessForm) context.getProcessForm();
+        NewConsumptionProcessForm processForm = (NewConsumptionProcessForm) context.getProcessForm();
 
         ConsumptionEntity update = new ConsumptionEntity();
-        update.setId(workflowForm.getConsumptionInfo().getId());
+        update.setId(processForm.getConsumptionInfo().getId());
         update.setStatus(ConsumptionStatus.REJECTED.getStatus());
         update.setModifyTime(new Date());
 

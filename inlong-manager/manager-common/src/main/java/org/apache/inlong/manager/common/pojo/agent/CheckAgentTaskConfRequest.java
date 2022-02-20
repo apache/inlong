@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 import lombok.Data;
 
-@ApiModel("Agent data source comparison")
+@ApiModel("Agent source comparison")
 @Data
 public class CheckAgentTaskConfRequest {
 

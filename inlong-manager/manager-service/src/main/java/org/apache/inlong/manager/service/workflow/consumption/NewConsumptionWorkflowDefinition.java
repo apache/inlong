@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.service.workflow.consumption;
 
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
-import org.apache.inlong.manager.common.pojo.workflow.form.ConsumptionAdminApproveForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.ConsumptionApproveForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
-import org.apache.inlong.manager.service.core.BusinessService;
+import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
@@ -48,7 +48,7 @@ import java.util.List;
 public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
 
     public static final String UT_ADMINT_NAME = "ut_admin";
-    public static final String UT_BIZ_OWNER_NAME = "ut_biz_owner";
+    public static final String UT_GROUP_OWNER_NAME = "ut_biz_owner";
 
     @Autowired
     private ConsumptionCompleteProcessListener consumptionCompleteProcessListener;
@@ -69,7 +69,7 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
     private NewConsumptionProcessDetailHandler newConsumptionProcessDetailHandler;
 
     @Autowired
-    private BusinessService businessService;
+    private InlongGroupService groupService;
 
     @Override
     public WorkflowProcess defineProcess() {
@@ -90,25 +90,25 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
-        // Business approval tasks
-        UserTask bizOwnerUserTask = new UserTask();
-        bizOwnerUserTask.setName(UT_BIZ_OWNER_NAME);
-        bizOwnerUserTask.setDisplayName("Business Approval");
-        bizOwnerUserTask.setApproverAssign(this::bizOwnerUserTaskApprover);
-        process.addTask(bizOwnerUserTask);
+        // Group approval tasks
+        UserTask groupOwnerUserTask = new UserTask();
+        groupOwnerUserTask.setName(UT_GROUP_OWNER_NAME);
+        groupOwnerUserTask.setDisplayName("Group Approval");
+        groupOwnerUserTask.setApproverAssign(this::bizOwnerUserTaskApprover);
+        process.addTask(groupOwnerUserTask);
 
         // System administrator approval
         UserTask adminUserTask = new UserTask();
         adminUserTask.setName(UT_ADMINT_NAME);
         adminUserTask.setDisplayName("System Administrator");
-        adminUserTask.setFormClass(ConsumptionAdminApproveForm.class);
+        adminUserTask.setFormClass(ConsumptionApproveForm.class);
         adminUserTask.setApproverAssign(this::adminUserTaskApprover);
         adminUserTask.addListener(consumptionPassTaskListener);
         process.addTask(adminUserTask);
 
         // Set order relationship
-        startEvent.addNext(bizOwnerUserTask);
-        bizOwnerUserTask.addNext(adminUserTask);
+        startEvent.addNext(groupOwnerUserTask);
+        groupOwnerUserTask.addNext(adminUserTask);
         adminUserTask.addNext(endEvent);
 
         // Set up the listener
@@ -126,17 +126,17 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
 
     private List<String> bizOwnerUserTaskApprover(WorkflowContext context) {
         NewConsumptionProcessForm form = (NewConsumptionProcessForm) context.getProcessForm();
-        BusinessInfo businessInfo = businessService.get(form.getConsumptionInfo().getInlongGroupId());
-        if (businessInfo == null || businessInfo.getInCharges() == null) {
+        InlongGroupRequest groupInfo = groupService.get(form.getConsumptionInfo().getInlongGroupId());
+        if (groupInfo == null || groupInfo.getInCharges() == null) {
             return Collections.emptyList();
         }
 
-        return Arrays.asList(businessInfo.getInCharges().split(","));
+        return Arrays.asList(groupInfo.getInCharges().split(","));
     }
 
     @Override
     public ProcessName getProcessName() {
-        return ProcessName.NEW_CONSUMPTION_WORKFLOW;
+        return ProcessName.NEW_CONSUMPTION_PROCESS;
     }
 
 }

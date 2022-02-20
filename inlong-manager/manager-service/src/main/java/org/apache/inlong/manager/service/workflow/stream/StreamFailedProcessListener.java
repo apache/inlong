@@ -20,9 +20,9 @@ package org.apache.inlong.manager.service.workflow.stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.service.core.BusinessService;
-import org.apache.inlong.manager.service.core.DataStreamService;
-import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -31,16 +31,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Event listener for failed creation of data stream resource
+ * Event listener for failed creation of inlong stream resource
  */
 @Slf4j
 @Component
 public class StreamFailedProcessListener implements ProcessEventListener {
 
     @Autowired
-    private BusinessService businessService;
+    private InlongGroupService groupService;
     @Autowired
-    private DataStreamService dataStreamService;
+    private InlongStreamService streamService;
 
     @Override
     public ProcessEvent event() {
@@ -48,20 +48,20 @@ public class StreamFailedProcessListener implements ProcessEventListener {
     }
 
     /**
-     * The creation process ends abnormally, modify the status of business and all data stream
-     * belong to the business to [CONFIG_FAILED]
+     * The creation process ends abnormally, modify the status of inlong group and all inlong stream
+     * belong to the inlong group to [CONFIG_FAILED]
      */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        BusinessResourceProcessForm form = (BusinessResourceProcessForm) context.getProcessForm();
+        GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
         String streamId = form.getInlongStreamId();
         String username = context.getApplicant();
 
-        // update business status
-        businessService.updateStatus(groupId, EntityStatus.BIZ_CONFIG_FAILED.getCode(), username);
-        // update data stream status
-        dataStreamService.updateStatus(groupId, streamId, EntityStatus.DATA_STREAM_CONFIG_FAILED.getCode(), username);
+        // update inlong group status
+        groupService.updateStatus(groupId, EntityStatus.GROUP_CONFIG_FAILED.getCode(), username);
+        // update inlong stream status
+        streamService.updateStatus(groupId, streamId, EntityStatus.STREAM_CONFIG_FAILED.getCode(), username);
 
         return ListenerResult.success();
     }

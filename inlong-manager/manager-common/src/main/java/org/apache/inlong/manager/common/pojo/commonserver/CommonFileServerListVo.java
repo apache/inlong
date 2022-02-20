@@ -29,7 +29,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Response of file data source list")
+@ApiModel("Response of file source list")
 public class CommonFileServerListVo {
 
     private int id;
@@ -37,7 +37,7 @@ public class CommonFileServerListVo {
     @ApiModelProperty("access type, support: Agent, DataProxy Client, LoadProxy")
     private String accessType;
 
-    @ApiModelProperty("data source IP")
+    @ApiModelProperty("source IP")
     private String ip;
 
     private int port;

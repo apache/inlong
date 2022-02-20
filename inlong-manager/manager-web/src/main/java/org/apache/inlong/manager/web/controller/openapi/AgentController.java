@@ -30,7 +30,7 @@ import org.apache.inlong.manager.common.pojo.agent.ConfirmAgentIpRequest;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
-import org.apache.inlong.manager.service.core.AgentHeartBeatService;
+import org.apache.inlong.manager.service.core.AgentHeartbeatService;
 import org.apache.inlong.manager.service.core.AgentSysConfigService;
 import org.apache.inlong.manager.service.core.AgentTaskService;
 import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
@@ -56,7 +56,7 @@ public class AgentController {
     private AgentSysConfigService agentSysConfigService;
 
     @Autowired
-    private AgentHeartBeatService agentHeartBeatService;
+    private AgentHeartbeatService agentHeartBeatService;
 
     @GetMapping("/getInLongManagerIp")
     @ApiOperation(value = "get inlong manager ip list")

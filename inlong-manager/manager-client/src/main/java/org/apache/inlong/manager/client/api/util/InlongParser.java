@@ -21,16 +21,20 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
-import org.apache.inlong.manager.common.pojo.datastream.FullStreamResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 
+import java.util.List;
+
+/**
+ * Parser for Inlong entity
+ */
 public class InlongParser {
 
     public static Response parseResponse(String responseBody) {
@@ -40,14 +44,12 @@ public class InlongParser {
 
     public static WorkflowResult parseWorkflowResult(Response response) {
         Object data = response.getData();
-        WorkflowResult workflowResult = GsonUtil.fromJson(GsonUtil.toJson(data), WorkflowResult.class);
-        return workflowResult;
+        return GsonUtil.fromJson(GsonUtil.toJson(data), WorkflowResult.class);
     }
 
-    public static BusinessInfo parseBusinessInfo(Response response) {
+    public static InlongGroupRequest parseGroupInfo(Response response) {
         Object data = response.getData();
-        BusinessInfo businessInfo = GsonUtil.fromJson(GsonUtil.toJson(data), BusinessInfo.class);
-        return businessInfo;
+        return GsonUtil.fromJson(GsonUtil.toJson(data), InlongGroupRequest.class);
     }
 
     public static PageInfo<FullStreamResponse> parseStreamList(Response response) {
@@ -58,29 +60,30 @@ public class InlongParser {
         return pageInfo;
     }
 
-    public static Pair<BusinessApproveInfo, List<DataStreamApproveInfo>> parseBusinessForm(String formJson) {
-        final String businessInfoField = "businessInfo";
+    public static Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> parseGroupForm(String formJson) {
+        final String groupInfoField = "groupApproveInfo";
         final String mqExtInfoField = "mqExtInfo";
         JsonObject formData = GsonUtil.fromJson(formJson, JsonObject.class);
-        JsonObject businessJson = formData.getAsJsonObject(businessInfoField);
-        BusinessApproveInfo businessApproveInfo = GsonUtil.fromJson(businessJson.toString(), BusinessApproveInfo.class);
-        JsonObject mqExtInfo = businessJson.getAsJsonObject(mqExtInfoField);
+        JsonObject groupJson = formData.getAsJsonObject(groupInfoField);
+        InlongGroupApproveRequest groupApproveInfo = GsonUtil.fromJson(groupJson.toString(),
+                InlongGroupApproveRequest.class);
+        JsonObject mqExtInfo = groupJson.getAsJsonObject(mqExtInfoField);
         if (mqExtInfo.get("middlewareType").getAsString().equals("PULSAR")) {
-            BusinessPulsarInfo businessPulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), BusinessPulsarInfo.class);
-            businessApproveInfo.setAckQuorum(businessPulsarInfo.getAckQuorum());
-            businessApproveInfo.setEnsemble(businessPulsarInfo.getEnsemble());
-            businessApproveInfo.setWriteQuorum(businessPulsarInfo.getWriteQuorum());
-            businessApproveInfo.setRetentionTime(businessPulsarInfo.getRetentionTime());
-            businessApproveInfo.setRetentionTimeUnit(businessPulsarInfo.getRetentionTimeUnit());
-            businessApproveInfo.setTtl(businessPulsarInfo.getTtl());
-            businessApproveInfo.setTtlUnit(businessPulsarInfo.getTtlUnit());
-            businessApproveInfo.setRetentionSize(businessPulsarInfo.getRetentionSize());
-            businessApproveInfo.setRetentionSizeUnit(businessPulsarInfo.getRetentionSizeUnit());
+            InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
+            groupApproveInfo.setAckQuorum(pulsarInfo.getAckQuorum());
+            groupApproveInfo.setEnsemble(pulsarInfo.getEnsemble());
+            groupApproveInfo.setWriteQuorum(pulsarInfo.getWriteQuorum());
+            groupApproveInfo.setRetentionTime(pulsarInfo.getRetentionTime());
+            groupApproveInfo.setRetentionTimeUnit(pulsarInfo.getRetentionTimeUnit());
+            groupApproveInfo.setTtl(pulsarInfo.getTtl());
+            groupApproveInfo.setTtlUnit(pulsarInfo.getTtlUnit());
+            groupApproveInfo.setRetentionSize(pulsarInfo.getRetentionSize());
+            groupApproveInfo.setRetentionSizeUnit(pulsarInfo.getRetentionSizeUnit());
         }
         JsonArray streamJson = formData.getAsJsonArray("streamInfoList");
-        List<DataStreamApproveInfo> dataStreamApproveInfoList = GsonUtil.fromJson(streamJson.toString(),
-                new TypeToken<List<DataStreamApproveInfo>>() {
+        List<InlongStreamApproveRequest> streamApproveList = GsonUtil.fromJson(streamJson.toString(),
+                new TypeToken<List<InlongStreamApproveRequest>>() {
                 }.getType());
-        return Pair.of(businessApproveInfo, dataStreamApproveInfoList);
+        return Pair.of(groupApproveInfo, streamApproveList);
     }
 }

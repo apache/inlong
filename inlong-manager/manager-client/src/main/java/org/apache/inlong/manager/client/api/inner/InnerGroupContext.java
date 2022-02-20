@@ -24,39 +24,39 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.inlong.manager.client.api.DataStream;
+import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
-import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 
 @Data
 @NoArgsConstructor
 public class InnerGroupContext {
 
-    private BusinessInfo businessInfo;
+    private InlongGroupRequest groupInfo;
 
     private Map<String, InnerStreamContext> streamContextMap;
 
-    private Map<String, DataStream> streamMap;
+    private Map<String, InlongStream> streamMap;
 
-    private Pair<BusinessApproveInfo, List<DataStreamApproveInfo>> initMsg;
+    private Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> initMsg;
 
     public String getGroupId() {
-        AssertUtil.notNull(businessInfo, "BusinessInfo is not init");
-        return businessInfo.getInlongGroupId();
+        AssertUtil.notNull(groupInfo, "InlongGroupRequest is not init");
+        return groupInfo.getInlongGroupId();
     }
 
     public void setStreamContext(InnerStreamContext streamContext) {
-        AssertUtil.isTrue(streamContext != null && streamContext.getDataStreamInfo() != null,
+        AssertUtil.isTrue(streamContext != null && streamContext.getStreamInfo() != null,
                 "StreamContext should not be null");
         if (MapUtils.isEmpty(streamContextMap)) {
             streamContextMap = Maps.newHashMap();
         }
-        streamContextMap.put(streamContext.getDataStreamInfo().getName(), streamContext);
+        streamContextMap.put(streamContext.getStreamInfo().getName(), streamContext);
     }
 
-    public void setStream(DataStream stream) {
+    public void setStream(InlongStream stream) {
         AssertUtil.isTrue(stream != null,
                 "Stream should not be null");
         if (MapUtils.isEmpty(streamMap)) {

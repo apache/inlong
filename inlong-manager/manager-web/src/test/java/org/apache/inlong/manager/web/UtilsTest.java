@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.web;
 
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.BusinessEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -37,7 +37,7 @@ public class UtilsTest {
 
     @Test
     public void testCopyProperties() {
-        BusinessEntity entity = new BusinessEntity();
+        InlongGroupEntity entity = new InlongGroupEntity();
         entity.setInlongGroupId("test");
         entity.setStatus(1);
         entity.setCreator("user1");
@@ -45,7 +45,7 @@ public class UtilsTest {
         entity.setCreateTime(new Date());
         entity.setModifyTime(null);
 
-        BusinessInfo info = new BusinessInfo();
+        InlongGroupRequest info = new InlongGroupRequest();
         info.setInlongGroupId("info");
         info.setCreator("");
         info.setModifier("user2");
@@ -62,7 +62,7 @@ public class UtilsTest {
 
     @Test
     public void testCopyPropertiesIgnoreNull() {
-        BusinessEntity entity = new BusinessEntity();
+        InlongGroupEntity entity = new InlongGroupEntity();
         entity.setInlongGroupId("test");
         entity.setCreator("user1");
         entity.setModifier("");
@@ -70,7 +70,7 @@ public class UtilsTest {
         entity.setCreateTime(new Date());
         entity.setModifyTime(null);
 
-        BusinessInfo info = new BusinessInfo();
+        InlongGroupRequest info = new InlongGroupRequest();
         info.setInlongGroupId("info");
         info.setCreator("");
         info.setModifier("user2");

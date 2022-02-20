@@ -20,9 +20,9 @@ package org.apache.inlong.manager.client.api.inner;
 import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.pojo.datastorage.StorageRequest;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamFieldInfo;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamInfo;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 @Data
 @NoArgsConstructor
@@ -30,16 +30,16 @@ public class InnerStreamContext {
 
     //todo add SourceRequest
 
-    private DataStreamInfo dataStreamInfo;
+    private InlongStreamInfo streamInfo;
 
-    private StorageRequest storageRequest;
+    private SinkRequest sinkRequest;
 
-    public InnerStreamContext(DataStreamInfo dataStreamInfo) {
-        this.dataStreamInfo = dataStreamInfo;
+    public InnerStreamContext(InlongStreamInfo streamInfo) {
+        this.streamInfo = streamInfo;
     }
 
-    public void updateStreamFields(List<DataStreamFieldInfo> fieldInfoList) {
-        dataStreamInfo.setFieldList(fieldInfoList);
+    public void updateStreamFields(List<InlongStreamFieldInfo> fieldInfoList) {
+        streamInfo.setFieldList(fieldInfoList);
     }
 
 }
