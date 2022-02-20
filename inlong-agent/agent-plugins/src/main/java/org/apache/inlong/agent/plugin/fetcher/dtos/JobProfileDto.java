@@ -35,7 +35,6 @@ public class JobProfileDto {
     private Job job;
     private Proxy proxy;
 
-
     public static final String DEFAULT_TRIGGER = "org.apache.inlong.agent.plugin.trigger.DirectoryTrigger";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
@@ -49,7 +48,6 @@ public class JobProfileDto {
         private BinlogJob binlogJob;
         private KafkaJob kafkaJob;
     }
-
 
     @Data
     public static class Manager {
@@ -73,7 +71,6 @@ public class JobProfileDto {
         BinlogJob.BinlogJobTaskConfig binlogJobTaskConfig =new BinlogJob.BinlogJobTaskConfig();
         Gson gson = new Gson();
         binlogJobTaskConfig=gson.fromJson(dataConfigs.getTaskConfig(), BinlogJob.BinlogJobTaskConfig.class);
-
 
         binlogJobTaskConfig.setTrigger(DEFAULT_TRIGGER);
         binlogJobTaskConfig.setChannel(DEFAULT_CHANNEL);
@@ -111,7 +108,6 @@ public class JobProfileDto {
         fileJob.setName(MANAGER_JOB);
         fileJob.setSource(DEFAULT_SOURCE);
         fileJob.setSink(DEFAULT_DATAPROXY_SINK);
-
 
         dir.setPattern(fileJobTaskConfig.getDataName());
         dir.setPath(fileJobTaskConfig.getPath());

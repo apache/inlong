@@ -71,17 +71,12 @@ public class JobConstants extends CommonConstants {
     private static final  String SOURCE_KAFKA_MIN_INTERVAL = "source_kafka_min_interval";
     private static final  String SOURCE_KAFKA_OFFSET = "source_kafka_offset";
 
-
-
     // job type, delete/add
     public static final String JOB_TYPE = "job.type";
 
     public static final String JOB_CHECKPOINT = "job.checkpoint";
 
-
-
     public static final String DEFAULT_JOB_FILE_TIME_OFFSET = "0d";
-
 
     // time in min
     public static final int DEFAULT_JOB_FILE_MAX_WAIT = 1;
@@ -89,8 +84,6 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_READ_WAIT_TIMEOUT = "job.file.read.wait";
 
     public static final int DEFAULT_JOB_READ_WAIT_TIMEOUT = 100;
-
-
 
     public static final String JOB_ID_PREFIX = "job_";
 
@@ -105,14 +98,11 @@ public class JobConstants extends CommonConstants {
     // field splitter
     public static final String JOB_FIELD_SPLITTER = "job.splitter";
 
-
     // job delivery time
     public static final String JOB_DELIVERY_TIME = "job.deliveryTime";
 
     // job time reading file
     public static final String JOB_DATA_TIME = "job.dataTime";
-
-
 
     /**
      * when job is retried, the retry time should be provided

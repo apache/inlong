@@ -28,7 +28,6 @@ public class BinlogJob {
     @Data
     public static class BinlogJobTaskConfig {
 
-
         private String trigger;
         private String name;
         private String source;

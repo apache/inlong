@@ -26,7 +26,6 @@ public class KafkaJob {
     @Data
     public static class KafkaJobTaskConfig {
 
-
         private String trigger;
         private String name;
         private String source;

@@ -60,7 +60,6 @@ public class FileJob {
     @Data
     public static class FileJobTaskConfig {
 
-
         private String trigger;
         private String name;
         private String source;

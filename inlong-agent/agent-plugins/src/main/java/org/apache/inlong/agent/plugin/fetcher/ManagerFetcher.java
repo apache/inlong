@@ -18,7 +18,16 @@
 package org.apache.inlong.agent.plugin.fetcher;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.inlong.agent.constants.AgentConstants.*;
+import static org.apache.inlong.agent.constants.AgentConstants.AGENT_HOME;
+import static org.apache.inlong.agent.constants.AgentConstants.AGENT_LOCAL_CACHE;
+import static org.apache.inlong.agent.constants.AgentConstants.AGENT_LOCAL_CACHE_TIMEOUT;
+import static org.apache.inlong.agent.constants.AgentConstants.AGENT_LOCAL_IP;
+import static org.apache.inlong.agent.constants.AgentConstants.AGENT_UNIQ_ID;
+import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AGENT_HOME;
+import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AGENT_LOCAL_CACHE;
+import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AGENT_LOCAL_CACHE_TIMEOUT;
+import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AGENT_UNIQ_ID;
+import static org.apache.inlong.agent.constants.AgentConstants.AGENT_LOCAL_UUID;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_OP;
 import static org.apache.inlong.agent.constants.JobConstants.JOB_RETRY_TIME;
 import static org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter.getResultData;
