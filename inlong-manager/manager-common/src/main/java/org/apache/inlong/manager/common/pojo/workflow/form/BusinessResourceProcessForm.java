@@ -18,15 +18,12 @@
 package org.apache.inlong.manager.common.pojo.workflow.form;
 
 import com.google.common.collect.Maps;
-
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.BaseProcessForm;
-import org.apache.inlong.manager.common.exceptions.FormValidateException;
-
-import java.util.Map;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.exceptions.FormValidateException;
+import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
+
+import java.util.Map;
 
 /**
  * Form of create business resource

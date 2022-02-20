@@ -20,7 +20,7 @@ package org.apache.inlong.manager.common.pojo.workflow.form;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 
 /**
- * Form
+ * Interface of workflow form
  */
 public interface Form {
 
@@ -35,4 +35,5 @@ public interface Form {
      * @return form name
      */
     String getFormName();
+
 }

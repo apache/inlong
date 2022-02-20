@@ -21,9 +21,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.common.pojo.workflow.form.BaseTaskForm;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
+import org.apache.inlong.manager.common.util.Preconditions;
 
 /**
  * New consumption approve form for admin

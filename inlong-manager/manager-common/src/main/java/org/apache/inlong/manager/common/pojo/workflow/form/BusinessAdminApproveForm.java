@@ -18,14 +18,14 @@
 package org.apache.inlong.manager.common.pojo.workflow.form;
 
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
 import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.common.pojo.workflow.form.BaseTaskForm;
-import org.apache.inlong.manager.common.exceptions.FormValidateException;
+
+import java.util.List;
 
 /**
  * The system administrator approves and fills in the form
