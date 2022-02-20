@@ -114,7 +114,7 @@
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
-        <table tableName="cluster_info" domainObjectName="ClusterInfoEntity"
+        <table tableName="third_party_cluster" domainObjectName="ClusterInfoEntity"
                 enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"

@@ -19,8 +19,8 @@
 -->
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.apache.inlong.manager.dao.mapper.ClusterInfoMapper">
-    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.ClusterInfoEntity">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.ThirdPartyClusterInfoMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
@@ -46,16 +46,16 @@
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
-        from cluster_info
+        from third_party_cluster
         where id = #{id,jdbcType=INTEGER}
     </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         delete
-        from cluster_info
+        from third_party_cluster
         where id = #{id,jdbcType=INTEGER}
     </delete>
-    <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.ClusterInfoEntity">
-        insert into cluster_info (id, name, type,
+    <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity">
+        insert into third_party_cluster (id, name, type,
                                   ip, port, in_charges,
                                   url, token, is_backup, status, is_deleted,
                                   creator, modifier, create_time,
@@ -68,8 +68,8 @@
                 #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
                 #{modifyTime,jdbcType=TIMESTAMP}, #{extProps,jdbcType=LONGVARCHAR}, #{mqSetName,jdbcType=VARCHAR})
     </insert>
-    <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.ClusterInfoEntity">
-        insert into cluster_info
+    <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity">
+        insert into third_party_cluster
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 id,
@@ -165,8 +165,8 @@
             </if>
         </trim>
     </insert>
-    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.ClusterInfoEntity">
-        update cluster_info
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity">
+        update third_party_cluster
         <set>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
@@ -213,8 +213,8 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.ClusterInfoEntity">
-        update cluster_info
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity">
+        update third_party_cluster
         set name        = #{name,jdbcType=VARCHAR},
             type        = #{type,jdbcType=VARCHAR},
             ip          = #{ip,jdbcType=VARCHAR},
@@ -235,10 +235,10 @@
     </update>
 
     <select id="selectByCondition" parameterType="org.apache.inlong.manager.common.pojo.cluster.ClusterRequest"
-            resultType="org.apache.inlong.manager.dao.entity.ClusterInfoEntity">
+            resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity">
         select
         <include refid="Base_Column_List"/>
-        from cluster_info
+        from third_party_cluster
         <where>
             is_deleted = 0
             <if test="type != null and type != ''">
@@ -258,10 +258,10 @@
             </if>
         </where>
     </select>
-    <select id="selectByIdList" resultType="org.apache.inlong.manager.dao.entity.ClusterInfoEntity">
+    <select id="selectByIdList" resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterInfoEntity">
         select
         <include refid="Base_Column_List"/>
-        from cluster_info
+        from third_party_cluster
         <where>
             <if test="idList != null and idList.size()>0">
                 and id in

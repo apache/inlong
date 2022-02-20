@@ -23,9 +23,9 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import java.util.List;
 
 /**
- * Cluster information service layer interface
+ * The third party cluster (such as kafka) information service layer interface
  */
-public interface ClusterInfoService {
+public interface ThirdPartyClusterInfoService {
 
     List<String> listClusterIpByType(String type);
 

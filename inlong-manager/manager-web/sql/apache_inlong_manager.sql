@@ -152,10 +152,10 @@ CREATE TABLE `business_ext`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Business extension table';
 
 -- ----------------------------
--- Table structure for cluster_info
+-- Table structure for third_party_cluster
 -- ----------------------------
-DROP TABLE IF EXISTS `cluster_info`;
-CREATE TABLE `cluster_info`
+DROP TABLE IF EXISTS `third_party_cluster`;
+CREATE TABLE `third_party_cluster`
 (
     `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `name`        varchar(128) NOT NULL COMMENT 'cluster name',
