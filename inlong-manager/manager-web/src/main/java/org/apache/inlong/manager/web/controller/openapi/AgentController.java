@@ -19,7 +19,6 @@ package org.apache.inlong.manager.web.controller.openapi;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import java.util.List;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.agent.AgentHeartbeatRequest;
 import org.apache.inlong.manager.common.pojo.agent.AgentStatusReportRequest;
@@ -30,7 +29,6 @@ import org.apache.inlong.manager.common.pojo.agent.ConfirmAgentIpRequest;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
-import org.apache.inlong.manager.service.core.AgentHeartbeatService;
 import org.apache.inlong.manager.service.core.AgentSysConfigService;
 import org.apache.inlong.manager.service.core.AgentTaskService;
 import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
@@ -40,6 +38,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/openapi")
@@ -54,9 +54,6 @@ public class AgentController {
 
     @Autowired
     private AgentSysConfigService agentSysConfigService;
-
-    @Autowired
-    private AgentHeartbeatService agentHeartBeatService;
 
     @GetMapping("/getInLongManagerIp")
     @ApiOperation(value = "get inlong manager ip list")
@@ -85,7 +82,8 @@ public class AgentController {
     @PostMapping("/fileAgent/heartbeat")
     @ApiOperation(value = "agent heartbeat report")
     public Response<String> heartbeat(@RequestBody AgentHeartbeatRequest info) {
-        return Response.success(agentHeartBeatService.heartbeat(info));
+        // return Response.success(agentHeartBeatService.heartbeat(info));
+        return Response.success();
     }
 
     @PostMapping("/fileAgent/checkAgentTaskConf")
