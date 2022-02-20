@@ -35,12 +35,12 @@ import org.apache.inlong.manager.common.pojo.datastorage.hive.HiveStorageDTO;
 import org.apache.inlong.manager.common.settings.BusinessSettings;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.dao.entity.BusinessEntity;
 import org.apache.inlong.manager.dao.entity.StorageFieldEntity;
 import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageFieldEntityMapper;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.apache.inlong.sort.ZkTools;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
@@ -143,7 +143,6 @@ public class PushHiveConfigTaskListener implements SortOperateListener {
                 throw new WorkflowListenerException("push hive config to sort failed, reason: " + e.getMessage());
             }
         }
-
         return ListenerResult.success();
     }
 

@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.workflow;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.workflow.BaseWorkflowFormType;
 
 /**
  * Workflow operation

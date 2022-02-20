@@ -28,6 +28,11 @@ public enum ProcessName {
     NEW_BUSINESS_WORKFLOW("New-Business-Access"),
 
     /**
+     * Startup business application process
+     */
+    STARTUP_BUSINESS_WORKFLOW("Startup-Business"),
+
+    /**
      * Suspend business application process
      */
     SUSPEND_BUSINESS_WORKFLOW("Suspend-Business"),

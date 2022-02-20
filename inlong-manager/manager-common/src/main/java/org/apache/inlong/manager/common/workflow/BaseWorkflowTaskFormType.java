@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow;
+package org.apache.inlong.manager.common.workflow;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import lombok.Data;
-import org.apache.inlong.manager.service.workflow.business.BusinessAdminApproveForm;
-import org.apache.inlong.manager.service.workflow.consumption.ConsumptionAdminApproveForm;
+import org.apache.inlong.manager.common.workflow.bussiness.BusinessAdminApproveForm;
+import org.apache.inlong.manager.common.workflow.consumption.ConsumptionAdminApproveForm;
 import org.apache.inlong.manager.common.model.definition.TaskForm;
 
 /**

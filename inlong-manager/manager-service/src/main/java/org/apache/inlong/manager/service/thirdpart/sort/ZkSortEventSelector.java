@@ -21,8 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.event.EventSelector;
 import org.apache.inlong.manager.common.model.WorkflowContext;
 import org.apache.inlong.manager.common.model.definition.ProcessForm;
+import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
 import org.springframework.stereotype.Component;
 
 @Component

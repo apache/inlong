@@ -15,41 +15,37 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.business;
+package org.apache.inlong.manager.common.workflow.consumption;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.pojo.business.BusinessApproveInfo;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamApproveInfo;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.service.workflow.BaseWorkflowTaskFormType;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.common.workflow.BaseWorkflowTaskFormType;
 
 /**
- * The system administrator approves and fills in the form
+ * New consumption approve form for admin
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class BusinessAdminApproveForm extends BaseWorkflowTaskFormType {
+@EqualsAndHashCode(callSuper = true)
+@ApiModel("New data consumption-system administrator form")
+public class ConsumptionAdminApproveForm extends BaseWorkflowTaskFormType {
 
-    public static final String FORM_NAME = "BusinessAdminApproveForm";
+    public static final String FORM_NAME = "ConsumptionAdminApproveForm";
 
-    @ApiModelProperty(value = "Access business information", required = true)
-    private BusinessApproveInfo businessApproveInfo;
-
-    @ApiModelProperty(value = "All data stream information under the business, including the storage information")
-    private List<DataStreamApproveInfo> streamApproveInfoList;
+    @ApiModelProperty("Consumer group ID")
+    private String consumerGroupId;
 
     @Override
+
     public void validate() throws FormValidateException {
-        Preconditions.checkNotNull(businessApproveInfo, "business approve info is empty");
+        Preconditions.checkNotEmpty(consumerGroupId, "Consumer group cannot be empty");
     }
 
     @Override
     public String getFormName() {
         return FORM_NAME;
     }
-
 }

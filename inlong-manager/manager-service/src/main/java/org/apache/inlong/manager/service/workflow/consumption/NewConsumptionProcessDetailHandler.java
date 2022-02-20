@@ -21,6 +21,7 @@ import org.apache.inlong.manager.common.workflow.ProcessDefinitionService;
 import org.apache.inlong.manager.common.model.definition.Process;
 import org.apache.inlong.manager.common.model.definition.ProcessDetailHandler;
 import org.apache.inlong.manager.common.model.view.ProcessDetail;
+import org.apache.inlong.manager.common.workflow.consumption.NewConsumptionWorkflowForm;
 import org.apache.inlong.manager.workflow.util.WorkflowFormParserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

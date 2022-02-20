@@ -21,7 +21,7 @@ import java.util.Date;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
-import org.apache.inlong.manager.service.workflow.consumption.NewConsumptionWorkflowForm;
+import org.apache.inlong.manager.common.workflow.consumption.NewConsumptionWorkflowForm;
 import org.apache.inlong.manager.common.event.ListenerResult;
 import org.apache.inlong.manager.common.event.process.ProcessEvent;
 import org.apache.inlong.manager.common.event.process.ProcessEventListener;

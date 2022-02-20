@@ -15,31 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.consumption;
+package org.apache.inlong.manager.common.workflow.bussiness;
 
 import com.google.common.collect.Maps;
-import io.swagger.annotations.ApiModelProperty;
-import java.util.Map;
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
-import org.apache.inlong.manager.service.workflow.BaseWorkflowFormType;
+import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
-import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
+import org.apache.inlong.manager.common.workflow.BaseWorkflowFormType;
+
+import java.util.Map;
 
 /**
- * New data consumption form
+ * Form of create business resource
  */
 @Data
-public class NewConsumptionWorkflowForm extends BaseWorkflowFormType {
+@EqualsAndHashCode(callSuper = false)
+public class BusinessResourceWorkflowForm extends BaseWorkflowFormType {
 
-    public static final String FORM_NAME = "NewConsumptionWorkflowForm";
+    public static final String FORM_NAME = "BusinessResourceWorkflowForm";
 
-    @ApiModelProperty(value = "Data consumption information")
-    private ConsumptionInfo consumptionInfo;
+    private BusinessInfo businessInfo;
+
+    private String streamId;
+
+    public BusinessInfo getBusinessInfo() {
+        return businessInfo;
+    }
+
+    public void setBusinessInfo(BusinessInfo businessInfo) {
+        this.businessInfo = businessInfo;
+    }
 
     @Override
     public void validate() throws FormValidateException {
-        Preconditions.checkNotNull(consumptionInfo, "Data consumption information cannot be empty");
     }
 
     @Override
@@ -49,15 +58,21 @@ public class NewConsumptionWorkflowForm extends BaseWorkflowFormType {
 
     @Override
     public String getInlongGroupId() {
-        return consumptionInfo.getConsumerGroupId();
+        return businessInfo.getInlongGroupId();
+    }
+
+    public String getInlongStreamId() {
+        return streamId;
+    }
+
+    public void setInlongStreamId(String streamId) {
+        this.streamId = streamId;
     }
 
     @Override
     public Map<String, Object> showInList() {
         Map<String, Object> show = Maps.newHashMap();
-        if (consumptionInfo != null) {
-            show.put("groupId", consumptionInfo.getInlongGroupId());
-        }
+        show.put("groupId", businessInfo.getInlongGroupId());
         return show;
     }
 }

@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.model.definition.Process;
 import org.apache.inlong.manager.common.model.definition.ServiceTask;
 import org.apache.inlong.manager.common.model.definition.ServiceTaskType;
 import org.apache.inlong.manager.common.model.definition.StartEvent;
+import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;

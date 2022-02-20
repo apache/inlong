@@ -29,6 +29,43 @@ public class BusinessSettings {
 
     public static String DEFAULT_PULSAR_AUTHENTICATION_TYPE = "token";
 
+    /**
+     * oceanus need param start
+     */
+    public static String SORT_JOB_ID = "sort_job_id";
+
+    public static String ENDPOINT = "endpoint";
+
+    public static String DATA_FLOW = "dataFlow";
+
+    public static String SECRET_ID = "secretId";
+
+    public static String SECRET_KEY = "secretKey";
+
+    public static String REGION = "region";
+
+    public static String CLUSTER_ID = "clusterId";
+
+    public static String FS_ABSTRACT_FILE_SYSTEM_COSN_IMPL = "fs.AbstractFileSystem.cosn.impl";
+
+    public static String FS_COSN_IMPL = "fs.cosn.impl";
+
+    public static String FS_COSN_BUCKET_REGION = "fs.cosn.bucket.region";
+
+    public static String FS_COSN_USERINFO_APPID = "fs.cosn.userinfo.appid";
+
+    public static String FS_COSN_USERINFO_SECRET_ID = "fs.cosn.userinfo.secretId";
+
+    public static String FS_COSN_USERINFO_SECRET_KEY = "fs.cosn.userinfo.secretKey";
+
+    public static String FS_ABSTRACT_FILE_SYSTEM_OFS_IMPL = "fs.AbstractFileSystem.ofs.impl";
+
+    public static String FS_OFS_IMPL = "fs.ofs.impl";
+
+    public static String FS_OFS_TMP_CACHE_DIR = "fs.ofs.tmp.cache.dir";
+
+    public static String FS_OFS_USER_APPID = "fs.ofs.user.appid";
+
     public static String SORT_URL = "sort.url";
 
     public static String SORT_AUTHENTICATION = "sort.authentication";

@@ -31,7 +31,7 @@ import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarTopicForStream
 import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigTaskListener;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
+import org.apache.inlong.manager.common.workflow.bussiness.BusinessResourceWorkflowForm;
 import org.apache.inlong.manager.service.workflow.business.listener.InitBusinessInfoListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
