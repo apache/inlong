@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.flink.clickhouse;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.flink.shaded.guava18.com.google.common.annotations.VisibleForTesting;
+import org.apache.inlong.sort.formats.common.ArrayTypeInfo;
 import org.apache.inlong.sort.formats.common.BooleanTypeInfo;
 import org.apache.inlong.sort.formats.common.ByteTypeInfo;
 import org.apache.inlong.sort.formats.common.DateTypeInfo;
@@ -27,12 +30,16 @@ import org.apache.inlong.sort.formats.common.FloatTypeInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.IntTypeInfo;
 import org.apache.inlong.sort.formats.common.LongTypeInfo;
+import org.apache.inlong.sort.formats.common.MapTypeInfo;
 import org.apache.inlong.sort.formats.common.ShortTypeInfo;
 import org.apache.inlong.sort.formats.common.StringTypeInfo;
 import org.apache.inlong.sort.formats.common.TimeTypeInfo;
 import org.apache.inlong.sort.formats.common.TimestampTypeInfo;
 import org.apache.inlong.sort.formats.common.TypeInfo;
 import org.apache.flink.types.Row;
+import ru.yandex.clickhouse.ClickHouseArray;
+import ru.yandex.clickhouse.domain.ClickHouseDataType;
+import ru.yandex.clickhouse.util.Utils;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -40,6 +47,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Map;
 
 public class ClickHouseRowConverter {
 
@@ -83,8 +91,64 @@ public class ClickHouseRowConverter {
             statement.setDate(index + 1, (Date) value);
         } else if (typeInfo instanceof TimestampTypeInfo) {
             statement.setTimestamp(index + 1, (Timestamp) value);
+        } else if (typeInfo instanceof ArrayTypeInfo) {
+            TypeInfo elementTypeInfo = ((ArrayTypeInfo) typeInfo).getElementTypeInfo();
+            statement.setArray(index + 1, new ClickHouseArray(
+                    getClickHouseDataTypeFromTypeInfo(elementTypeInfo), toObjectArray(elementTypeInfo, value)));
+        } else if (typeInfo instanceof MapTypeInfo) {
+            Map<?, ?> mapValue = (Map<?, ?>) value;
+            int size = mapValue.size();
+            Object[] kvps = new Object[size * 2];
+            int i = 0;
+            for (Map.Entry<?, ?> entry : mapValue.entrySet()) {
+                kvps[i] = entry.getKey();
+                kvps[i + 1] = entry.getValue();
+                i += 2;
+            }
+            statement.setObject(index + 1, Utils.mapOf(kvps));
         } else {
             throw new IllegalArgumentException("Unsupported TypeInfo " + typeInfo.getClass().getName());
+        }
+    }
+
+    private static ClickHouseDataType getClickHouseDataTypeFromTypeInfo(TypeInfo typeInfo) {
+        if (typeInfo instanceof StringTypeInfo) {
+            return ClickHouseDataType.String;
+        } else if (typeInfo instanceof BooleanTypeInfo || typeInfo instanceof ByteTypeInfo) {
+            return ClickHouseDataType.Int8;
+        } else if (typeInfo instanceof ShortTypeInfo) {
+            return ClickHouseDataType.Int16;
+        } else if (typeInfo instanceof IntTypeInfo) {
+            return ClickHouseDataType.Int32;
+        } else if (typeInfo instanceof LongTypeInfo) {
+            return ClickHouseDataType.Int64;
+        } else if (typeInfo instanceof FloatTypeInfo) {
+            return ClickHouseDataType.Float32;
+        } else if (typeInfo instanceof DoubleTypeInfo) {
+            return ClickHouseDataType.Float64;
+        } else {
+            throw new IllegalArgumentException("Unsupported TypeInfo " + typeInfo.getClass().getName());
+        }
+    }
+
+    @VisibleForTesting
+    static Object toObjectArray(TypeInfo typeInfo, Object object) {
+        if (typeInfo instanceof BooleanTypeInfo && object instanceof boolean[]) {
+            return ArrayUtils.toObject((boolean[]) object);
+        } else if (typeInfo instanceof ByteTypeInfo && object instanceof byte[]) {
+            return ArrayUtils.toObject((byte[]) object);
+        } else if (typeInfo instanceof ShortTypeInfo && object instanceof short[]) {
+            return ArrayUtils.toObject((short[]) object);
+        } else if (typeInfo instanceof IntTypeInfo && object instanceof int[]) {
+            return ArrayUtils.toObject((int[]) object);
+        } else if (typeInfo instanceof LongTypeInfo && object instanceof long[]) {
+            return ArrayUtils.toObject((long[]) object);
+        } else if (typeInfo instanceof FloatTypeInfo && object instanceof float[]) {
+            return ArrayUtils.toObject((float[]) object);
+        } else if (typeInfo instanceof DoubleTypeInfo && object instanceof double[]) {
+            return ArrayUtils.toObject((double[]) object);
+        } else {
+            return object;
         }
     }
 }
