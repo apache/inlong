@@ -36,6 +36,12 @@ images:
   manager:
     repository: inlong/manager
     tag: latest
+  audit:
+    repository: inlong/audit
+    tag: latest
+  pulsar:
+    repository: apachepulsar/pulsar
+    tag: latest
   mysql:
     repository: mysql
     tag: 5.7
@@ -101,9 +107,32 @@ manager:
   service:
     type: LoadBalancer
 
+audit:
+  component: "audit"
+  replicaCount: 1
+  ports:
+    webPort: 8008
+  env:
+
+pulsar:
+  component: "pulsar"
+  replicaCount: 1
+  ports:
+    pulsarPort: 6650
+  persistentVolumeClaim:
+    accessModes:
+      - "ReadWriteOnce"
+    # storageClassName must support the above access mode(s): ReadWriteOnce
+    storageClassName: "-"
+    storage: "8Gi"
+
 mysql:
   component: "mysql"
   replicaCount: 1
+  username: "root"
+  # If the MySQL username is root,
+  # the password parameter can be omitted and the rootPassword will be used.
+  password: "inlong"
   rootPassword: "inlong"
   ports:
     server: 3306
