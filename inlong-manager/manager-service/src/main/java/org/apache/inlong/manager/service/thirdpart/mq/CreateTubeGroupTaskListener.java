@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest.G
 import org.apache.inlong.manager.common.pojo.tubemq.QueryTubeTopicRequest;
 import org.apache.inlong.manager.dao.mapper.ClusterInfoMapper;
 import org.apache.inlong.manager.service.core.BusinessService;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;

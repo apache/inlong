@@ -23,8 +23,8 @@ import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.workflow.definition.Element;
-import org.apache.inlong.manager.workflow.definition.ProcessForm;
-import org.apache.inlong.manager.workflow.definition.TaskForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 

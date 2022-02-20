@@ -51,7 +51,7 @@ import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.core.DataStreamService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
-import org.apache.inlong.manager.service.workflow.consumption.NewConsumptionProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

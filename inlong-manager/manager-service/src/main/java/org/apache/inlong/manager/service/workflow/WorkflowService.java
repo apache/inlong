@@ -24,12 +24,13 @@ import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessCountQuery;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessCountResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskCountQuery;
+import org.apache.inlong.manager.common.pojo.workflow.TaskExecuteLogQuery;
 import org.apache.inlong.manager.common.pojo.workflow.TaskQuery;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskCountResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.workflow.definition.ProcessForm;
-import org.apache.inlong.manager.workflow.definition.TaskForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
 
 import java.util.List;
 

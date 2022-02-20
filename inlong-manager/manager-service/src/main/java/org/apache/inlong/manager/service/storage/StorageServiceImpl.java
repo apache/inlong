@@ -44,7 +44,7 @@ import org.apache.inlong.manager.dao.mapper.StorageEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StorageFieldEntityMapper;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.stream.CreateStreamWorkflowDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

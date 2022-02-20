@@ -27,7 +27,7 @@ import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.workflow.base.impl.WorkflowEventNotifier;
+import org.apache.inlong.manager.workflow.core.impl.WorkflowEventNotifier;
 import org.apache.inlong.manager.workflow.definition.ApproverAssign;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;

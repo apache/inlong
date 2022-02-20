@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.workflow.business;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateBusinessProcessForm;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;

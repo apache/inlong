@@ -27,7 +27,7 @@ import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarTopicForStream
 import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigTaskListener;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.business.listener.InitBusinessInfoListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;

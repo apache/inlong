@@ -24,7 +24,7 @@ import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarGroupTaskListe
 import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarResourceTaskListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeGroupTaskListener;
 import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeTopicTaskListener;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.junit.Assert;

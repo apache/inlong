@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.workflow.business.listener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.service.core.BusinessService;
-import org.apache.inlong.manager.service.workflow.business.UpdateBusinessProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateBusinessProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;

@@ -19,6 +19,8 @@ package org.apache.inlong.manager.service.workflow.consumption;
 
 import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
+import org.apache.inlong.manager.common.pojo.workflow.form.ConsumptionAdminApproveForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
 import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.workflow.ProcessName;

@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.service.mocks;
 
-import org.apache.inlong.manager.service.workflow.business.UpdateBusinessProcessForm;
-import org.apache.inlong.manager.service.workflow.business.UpdateBusinessProcessForm.OperateType;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateBusinessProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateBusinessProcessForm.OperateType;
 import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.workflow.definition.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;

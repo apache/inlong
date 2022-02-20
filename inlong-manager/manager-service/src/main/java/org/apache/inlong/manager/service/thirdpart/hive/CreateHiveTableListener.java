@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.thirdpart.hive;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.datastorage.StorageForSortDTO;
 import org.apache.inlong.manager.dao.mapper.StorageEntityMapper;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.StorageOperateListener;

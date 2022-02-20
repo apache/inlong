@@ -21,8 +21,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
-import org.apache.inlong.manager.workflow.base.ProcessDefinitionRepository;
-import org.apache.inlong.manager.workflow.base.WorkflowQueryService;
+import org.apache.inlong.manager.workflow.core.ProcessDefinitionRepository;
+import org.apache.inlong.manager.workflow.core.WorkflowQueryService;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**

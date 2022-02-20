@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.workflow.business;
 
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
+import org.apache.inlong.manager.common.pojo.workflow.form.BusinessAdminApproveForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewBusinessProcessForm;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;

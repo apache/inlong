@@ -32,7 +32,7 @@ import org.apache.inlong.manager.service.core.BusinessService;
 import org.apache.inlong.manager.service.thirdpart.mq.PulsarOptService;
 import org.apache.inlong.manager.service.thirdpart.mq.TubeMqOptService;
 import org.apache.inlong.manager.service.thirdpart.mq.util.PulsarUtils;
-import org.apache.inlong.manager.service.workflow.consumption.NewConsumptionProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
