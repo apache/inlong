@@ -51,7 +51,7 @@ public class HiveSinkHelper {
             return ParquetRowWriterBuilder.createWriterFactory(
                     rowType, (ParquetFileFormat) hiveFileFormat);
         } else if (hiveFileFormat instanceof TextFileFormat) {
-            return new TextRowWriter.Factory((TextFileFormat) hiveFileFormat, config);
+            return new TextRowWriter.Factory((TextFileFormat) hiveFileFormat, fieldTypes, config);
         } else if (hiveFileFormat instanceof OrcFileFormat) {
             return OrcBulkWriterFactory.createWriterFactory(rowType, fieldTypes, config);
         } else {
