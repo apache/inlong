@@ -116,6 +116,13 @@ ${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}
 {{- end -}}
 
 {{/*
+Define the pulsar hostname
+*/}}
+{{- define "inlong.pulsar.hostname" -}}
+${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.pulsar.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{- end -}}
+
+{{/*
 Common labels
 */}}
 {{- define "inlong.labels" -}}
