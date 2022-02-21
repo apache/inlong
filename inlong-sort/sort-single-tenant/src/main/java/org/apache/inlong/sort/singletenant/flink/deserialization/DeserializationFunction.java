@@ -32,9 +32,14 @@ public class DeserializationFunction extends ProcessFunction<SerializedRecord, R
 
     private final DeserializationSchema<Row> deserializationSchema;
 
+    private final FieldMappingTransformer fieldMappingTransformer;
+
     public DeserializationFunction(
-            DeserializationSchema<Row> deserializationSchema) {
+            DeserializationSchema<Row> deserializationSchema,
+            FieldMappingTransformer fieldMappingTransformer
+    ) {
         this.deserializationSchema = deserializationSchema;
+        this.fieldMappingTransformer = fieldMappingTransformer;
     }
 
     @Override
@@ -58,7 +63,9 @@ public class DeserializationFunction extends ProcessFunction<SerializedRecord, R
                     continue;
                 }
 
-                deserializationSchema.deserialize(bodyBytes, out);
+                deserializationSchema.deserialize(bodyBytes, new CallbackCollector<>(inputRow -> {
+                    out.collect(fieldMappingTransformer.transform(inputRow, value.getTimestampMillis()));
+                }));
             }
         }
     }
