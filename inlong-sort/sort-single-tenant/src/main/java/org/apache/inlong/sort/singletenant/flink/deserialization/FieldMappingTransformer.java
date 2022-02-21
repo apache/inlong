@@ -64,7 +64,7 @@ public class FieldMappingTransformer {
         int sourceRowIndex = SOURCE_FIELD_SKIP_STEP;
         for (int i = 0; i < outputFieldInfos.length; i++) {
             Object fieldValue;
-            if (sourceRowIndex > sourceRow.getArity()) {
+            if (sourceRowIndex >= sourceRow.getArity()) {
                 fieldValue = null;
             } else if (!(outputFieldInfos[i] instanceof BuiltInFieldInfo)) {
                 fieldValue = sourceRow.getField(sourceRowIndex);
