@@ -39,9 +39,6 @@ images:
   audit:
     repository: inlong/audit
     tag: latest
-  pulsar:
-    repository: apachepulsar/pulsar
-    tag: latest
   mysql:
     repository: mysql
     tag: 5.7
@@ -114,27 +111,13 @@ audit:
     webPort: 8008
   env:
 
-# If not exists external pulsar, by default, InLong will use it.
-pulsar:
-  component: "pulsar"
-  enabled: false
-  replicaCount: 1
-  ports:
-    pulsarPort: 6650
-  persistentVolumeClaim:
-    enabled: false
-    accessModes:
-      - "ReadWriteOnce"
-    # storageClassName must support the above access mode(s): ReadWriteOnce
-    storageClassName: "-"
-    storage: "8Gi"
+# The message queue on InLong.
+messageQueue:
+  type: "pulsar"
 
-# If exists external pulsar, or the value of the pulsar.enabled is false,
-# InLong will use the external pulsar.
-externalPulsar:
+pulsar:
   hostname: "localhost"
-  ports:
-    pulsarPort: 6650
+  port: 6650
 
 mysql:
   component: "mysql"

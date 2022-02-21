@@ -102,7 +102,7 @@ spec:
                   name: {{ template "inlong.fullname" . }}-{{ .Values.audit.component }}
                   key: managerOpenApiPort
             - name: PULSAR_BROKER_URL_LIST
-              value: {{ include "inlong.pulsar.url" . | quote }}
+              value: {{ include "inlong.mq.url" . | quote }}
             {{- range $key, $value :=  .Values.audit.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}

@@ -116,13 +116,25 @@ ${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}
 {{- end -}}
 
 {{/*
-Define the pulsar url
+Define the message queue hostname
 */}}
-{{- define "inlong.pulsar.url" -}}
-{{- if .Values.pulsar.enabled -}}
-pulsar://${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.pulsar.component }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pulsar.ports.pulsarPort }}
+{{- define "inlong.mq.hostname" -}}
+{{- if eq .Values.messageQueue.type "pulsar" -}}
+{{ .Values.pulsar.hostname }}
+{{- else -}}
+{{ template "inlong.tubemqMaster.hostname" . }}
 {{- end -}}
-pulsar://{{ .Values.externalPulsar.hostname }}:{{ .Values.externalPulsar.ports.pulsarPort }}
+{{- end -}}
+
+{{/*
+Define the message queue url
+*/}}
+{{- define "inlong.mq.url" -}}
+{{- if eq .Values.messageQueue.type "pulsar" -}}
+pulsar://{{ .Values.pulsar.hostname }}:{{ .Values.pulsar.port }}
+{{- else -}}
+{{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}
+{{- end -}}
 {{- end -}}
 
 {{/*
