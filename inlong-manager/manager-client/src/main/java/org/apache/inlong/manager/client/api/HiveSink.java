@@ -61,7 +61,7 @@ public class HiveSink extends StreamSink {
     private Charset charset = StandardCharsets.UTF_8;
 
     @ApiModelProperty("Data separator, stored as ASCII code")
-    private DataSeparator dataSeparator = DataSeparator.VERTICAL_BAR;
+    private DataSeparator dataSeparator = DataSeparator.SOH;
 
     public enum FileFormat {
         TextFile, RCFile, SequenceFile, Avro;

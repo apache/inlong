@@ -45,7 +45,7 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
         <result column="temp_view" jdbcType="LONGVARCHAR" property="tempView"/>
         <result column="zookeeper_enabled" jdbcType="INTEGER" property="zookeeperEnabled"/>
-        <result column="proxy_cluster_id" jdbcType="INTEGER" property="proxyClusterID"/>
+        <result column="proxy_cluster_id" jdbcType="INTEGER" property="proxyClusterId"/>
     </resultMap>
 
     <resultMap id="statusCountMap" type="java.util.Map">

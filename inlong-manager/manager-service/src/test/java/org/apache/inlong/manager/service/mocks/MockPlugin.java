@@ -67,6 +67,7 @@ public class MockPlugin implements ProcessPlugin {
         }
     };
 
+    @Override
     public Map<DataSourceOperateListener, EventSelector> createSourceOperateListeners() {
         Map<DataSourceOperateListener, EventSelector> listeners = new HashMap<>();
         listeners.put(new MockDeleteSourceListener(), deleteProcessSelector);
@@ -75,6 +76,7 @@ public class MockPlugin implements ProcessPlugin {
         return listeners;
     }
 
+    @Override
     public Map<SortOperateListener, EventSelector> createSortOperateListeners() {
         Map<SortOperateListener, EventSelector> listeners = new HashMap<>();
         listeners.put(new MockDeleteSortListener(), deleteProcessSelector);

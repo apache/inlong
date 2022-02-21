@@ -101,6 +101,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         form.setInlongStreamId(inlongStreamId);
         form.setGroupInfo(groupInfo);
         groupInfo.setName("test");
+        groupInfo.setInCharges("admin");
         groupInfo.setInlongGroupId("b_test");
         groupInfo.setMiddlewareType(middlewareType);
         groupInfo.setMqExtInfo(new InlongGroupPulsarInfo());

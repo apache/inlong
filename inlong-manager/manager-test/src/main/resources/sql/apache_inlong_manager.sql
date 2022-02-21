@@ -90,12 +90,12 @@ CREATE TABLE `inlong_group`
     `status`              int(4)            DEFAULT '21' COMMENT 'Inlong group status',
     `is_deleted`          int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`             varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`            varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`           text              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
-    `zookeeper_enabled`   int(4)            DEFAULT '1' COMMENT 'Need zookeeper support, 0: false, 1: true',
-    `proxy_cluster_id`    int(11)      NOT NULL COMMENT 'The id of dataproxy cluster',
+    `modifier`            varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `temp_view`           text                  DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
+    `zookeeper_enabled`   int(4)                DEFAULT '1'  COMMENT 'Need zookeeper support, 0 false 1 true',
+    `proxy_cluster_id`    int(11)               DEFAULT NULL COMMENT 'The id of dataproxy cluster',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`, `modify_time`)
 );

@@ -38,7 +38,7 @@ public class InlongClientImpl implements InlongClient {
 
     private static final String URL_SPLITTER = ",";
 
-    private static final String HOST_SPLITTER = ";";
+    private static final String HOST_SPLITTER = ":";
 
     public InlongClientImpl(String serviceUrl, ClientConfiguration configuration) {
         Map<String, String> hostPorts = Splitter.on(URL_SPLITTER).withKeyValueSeparator(HOST_SPLITTER)
@@ -47,14 +47,19 @@ public class InlongClientImpl implements InlongClient {
             throw new IllegalArgumentException(String.format("Unsupported serviceUrl : %s", serviceUrl));
         }
         configuration.setServiceUrl(serviceUrl);
+        boolean isConnective = false;
         for (Map.Entry<String, String> hostPort : hostPorts.entrySet()) {
             String host = hostPort.getKey();
             int port = Integer.valueOf(hostPort.getValue());
             if (checkConnectivity(host, port, configuration.getReadTimeout())) {
                 configuration.setBindHost(host);
                 configuration.setBindPort(port);
+                isConnective = true;
                 break;
             }
+        }
+        if (!isConnective) {
+            throw new RuntimeException(String.format("%s is not connective", serviceUrl));
         }
         this.configuration = configuration;
     }
@@ -65,13 +70,13 @@ public class InlongClientImpl implements InlongClient {
     }
 
     private boolean checkConnectivity(String host, int port, int connectTimeout) {
-        InetSocketAddress socketAddress = InetSocketAddress.createUnresolved(host, port);
+        InetSocketAddress socketAddress = new InetSocketAddress(host, port);
         Socket socket = new Socket();
         try {
-            socket.connect(socketAddress, connectTimeout);
+            socket.connect(socketAddress, connectTimeout * 1000);
             return socket.isConnected();
         } catch (IOException e) {
-            log.error(String.format("%s:%s connected failed with err msg:%", host, port, e.getMessage()));
+            log.error(String.format("%s:%s connected failed with err msg:%s", host, port, e.getMessage()));
             return false;
         }
     }

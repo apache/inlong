@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api.inner;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Call;
 import okhttp3.MediaType;
@@ -39,14 +40,12 @@ import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.client.api.util.InlongParser;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.util.JsonUtils;
-
-import java.util.List;
 
 /**
  * InnerInlongManagerClient is used to invoke http api of inlong manager.
@@ -103,11 +102,9 @@ public class InnerInlongManagerClient {
             throw new IllegalArgumentException("InlongGroupId should not be empty");
         }
         String path = HTTP_PATH + "/group/get/" + inlongGroupId;
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
         final String url = formatUrl(path);
-        Request request = new Request.Builder()
+        Request request = new Request.Builder().get()
                 .url(url)
-                .method("POST", requestBody)
                 .build();
 
         Call call = httpClient.newCall(request);
@@ -117,8 +114,12 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
             org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
-            if (responseBody.getErrMsg() != null && responseBody.getErrMsg().contains("Inlong group does not exist")) {
-                return null;
+            if (responseBody.getErrMsg() != null) {
+                if (responseBody.getErrMsg().contains("Inlong group does not exist")) {
+                    return null;
+                } else {
+                    throw new RuntimeException(responseBody.getErrMsg());
+                }
             } else {
                 return InlongParser.parseGroupInfo(responseBody);
             }
@@ -132,7 +133,7 @@ public class InnerInlongManagerClient {
      */
     public String createGroupInfo(InlongGroupRequest groupInfo) {
         String path = HTTP_PATH + "/group/save";
-        final String biz = JsonUtils.toJson(groupInfo);
+        final String biz = GsonUtil.toJson(groupInfo);
         final RequestBody bizBody = RequestBody.create(MediaType.parse("application/json"), biz);
         final String url = formatUrl(path);
         Request request = new Request.Builder()
@@ -162,7 +163,7 @@ public class InnerInlongManagerClient {
      */
     public Pair<String, String> updateGroupInfo(InlongGroupRequest groupInfo) {
         String path = HTTP_PATH + "/group/update";
-        final String biz = JsonUtils.toJson(groupInfo);
+        final String biz = GsonUtil.toJson(groupInfo);
         final RequestBody bizBody = RequestBody.create(MediaType.parse("application/json"), biz);
         final String url = formatUrl(path);
         Request request = new Request.Builder()
@@ -179,13 +180,13 @@ public class InnerInlongManagerClient {
             org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
             return Pair.of(responseBody.getData().toString(), responseBody.getErrMsg());
         } catch (Exception e) {
-            throw new RuntimeException(String.format("inlong group save failed: %s", e.getMessage()), e);
+            throw new RuntimeException(String.format("Inlong group save failed: %s", e.getMessage()), e);
         }
     }
 
     public String createStreamInfo(InlongStreamInfo streamInfo) {
         String path = HTTP_PATH + "/stream/save";
-        final String stream = JsonUtils.toJson(streamInfo);
+        final String stream = GsonUtil.toJson(streamInfo);
         final RequestBody streamBody = RequestBody.create(MediaType.parse("application/json"), stream);
         final String url = formatUrl(path);
         Request request = new Request.Builder()
@@ -205,6 +206,69 @@ public class InnerInlongManagerClient {
             return responseBody.getData().toString();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong stream save failed: %s", e.getMessage()), e);
+        }
+    }
+
+    public Pair<Boolean, InlongStreamInfo> isStreamExists(InlongStreamInfo streamInfo) {
+        InlongStreamInfo currentStreamInfo = getStreamInfo(streamInfo);
+        if (currentStreamInfo != null) {
+            return Pair.of(true, currentStreamInfo);
+        } else {
+            return Pair.of(false, null);
+        }
+    }
+
+    public Pair<Boolean, String> updateStreamInfo(InlongStreamInfo streamInfo) {
+        final String path = HTTP_PATH + "/stream/update";
+        final String url = formatUrl(path);
+        final String stream = GsonUtil.toJson(streamInfo);
+        RequestBody bizBody = RequestBody.create(MediaType.parse("application/json"), stream);
+        Request request = new Request.Builder()
+                .method("POST", bizBody)
+                .url(url)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            Response response = call.execute();
+            String body = response.body().string();
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            if (responseBody.getData() != null) {
+                return Pair.of(Boolean.valueOf(responseBody.getData().toString()), responseBody.getErrMsg());
+            } else {
+                return Pair.of(false, responseBody.getErrMsg());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Inlong stream update failed with ex:%s", e.getMessage()), e);
+        }
+    }
+
+    public InlongStreamInfo getStreamInfo(InlongStreamInfo streamInfo) {
+        String path = HTTP_PATH + "/stream/get";
+        String url = formatUrl(path);
+        url += String.format("&groupId=%s&streamId=%s", streamInfo.getInlongGroupId(), streamInfo.getInlongStreamId());
+        Request request = new Request.Builder().get()
+                .url(url)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            Response response = call.execute();
+            String body = response.body().string();
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            if (responseBody.getErrMsg() != null) {
+                if (responseBody.getErrMsg().contains("Inlong stream does not exist")) {
+                    return null;
+                } else {
+                    throw new RuntimeException(responseBody.getErrMsg());
+                }
+            } else {
+                return InlongParser.parseStreamInfo(responseBody);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Inlong stream get failed with ex:%s", e.getMessage()), e);
         }
     }
 
@@ -234,7 +298,7 @@ public class InnerInlongManagerClient {
 
     public String createSink(SinkRequest sinkRequest) {
         String path = HTTP_PATH + "/sink/save";
-        final String sink = JsonUtils.toJson(sinkRequest);
+        final String sink = GsonUtil.toJson(sinkRequest);
         final RequestBody sinkBody = RequestBody.create(MediaType.parse("application/json"), sink);
         final String url = formatUrl(path);
         Request request = new Request.Builder()
@@ -254,6 +318,56 @@ public class InnerInlongManagerClient {
             return responseBody.getData().toString();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong sink save failed: %s", e.getMessage()), e);
+        }
+    }
+
+    public List<SinkListResponse> listHiveStorage(String groupId, String streamId) {
+        final String path = HTTP_PATH + "/sink/list";
+        String url = formatUrl(path);
+        url = String.format("%s&inlongGroupId=%s&dataStreamId=%s&storageType=HIVE", url, groupId, streamId);
+        Request request = new Request.Builder().get()
+                .url(url)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            Response response = call.execute();
+            String body = response.body().string();
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed:%s", responseBody.getErrMsg()));
+            PageInfo<SinkListResponse> hiveStorageListResponsePageInfo = InlongParser.parseHiveSinkList(
+                    responseBody);
+            return hiveStorageListResponsePageInfo.getList();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Inlong storage list failed with ex:%s", e.getMessage()), e);
+        }
+    }
+
+    public Pair<Boolean, String> updateStorage(SinkRequest sinkRequest) {
+        final String path = HTTP_PATH + "/sink/update";
+        final String url = formatUrl(path);
+        final String storage = GsonUtil.toJson(sinkRequest);
+        final RequestBody storageBody = RequestBody.create(MediaType.parse("application/json"), storage);
+        Request request = new Request.Builder()
+                .method("POST", storageBody)
+                .url(url)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            Response response = call.execute();
+            String body = response.body().string();
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            if (responseBody.getData() != null) {
+                return Pair.of(Boolean.valueOf(responseBody.getData().toString()), responseBody.getErrMsg());
+            } else {
+                return Pair.of(false, responseBody.getErrMsg());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Inlong sink update failed with ex:%s", e.getMessage()), e);
         }
     }
 

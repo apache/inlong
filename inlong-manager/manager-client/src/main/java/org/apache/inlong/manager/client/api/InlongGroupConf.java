@@ -45,14 +45,17 @@ public class InlongGroupConf {
     private SortBaseConf sortBaseConf;
 
     @ApiModelProperty("Number of access items per day, unit: 10,000 items per day")
-    private Integer dailyRecords;
+    private Long dailyRecords;
 
     @ApiModelProperty("peak access per second, unit: bars per second")
-    private Integer peakRecords;
+    private Long peakRecords;
 
     @ApiModelProperty("The maximum length of a single piece of data, unit: Byte")
     private Integer maxLength;
 
-    @ApiModelProperty("The maximum length of a single piece of data, unit: Byte")
-    private String operator;
+    @ApiModelProperty("The operator of stream group, default : admin")
+    private String operator = "admin";
+
+    @ApiModelProperty("Need zookeeper support")
+    private boolean zookeeperEnabled = true;
 }

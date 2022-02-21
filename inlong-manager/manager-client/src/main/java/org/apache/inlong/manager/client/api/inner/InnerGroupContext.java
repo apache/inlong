@@ -23,6 +23,7 @@ import java.util.Map;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
@@ -34,7 +35,7 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 @NoArgsConstructor
 public class InnerGroupContext {
 
-    private InlongGroupRequest groupInfo;
+    private InlongGroupRequest groupRequest;
 
     private Map<String, InnerStreamContext> streamContextMap;
 
@@ -43,8 +44,8 @@ public class InnerGroupContext {
     private Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> initMsg;
 
     public String getGroupId() {
-        AssertUtil.notNull(groupInfo, "InlongGroupRequest is not init");
-        return groupInfo.getInlongGroupId();
+        AssertUtil.notNull(groupRequest, "InlongGroupRequest is not init");
+        return groupRequest.getInlongGroupId();
     }
 
     public void setStreamContext(InnerStreamContext streamContext) {
@@ -63,5 +64,14 @@ public class InnerGroupContext {
             streamMap = Maps.newHashMap();
         }
         streamMap.put(stream.getName(), stream);
+    }
+
+    public InlongStream getStream(String name) {
+        AssertUtil.isTrue(StringUtils.isNotEmpty(name),
+                "Stream name should not be null");
+        if (MapUtils.isNotEmpty(streamMap)) {
+            return streamMap.get(name);
+        }
+        return null;
     }
 }

@@ -42,12 +42,6 @@ public class InlongStreamConf {
     @ApiModelProperty("Stream source field list")
     private List<StreamField> streamFields;
 
-    @ApiModelProperty("Data source from which data is collected")
-    private StreamSource source;
-
-    @ApiModelProperty("Data sink to which data is stored")
-    private StreamSink sink;
-
     @ApiModelProperty("Data encoding format: UTF-8, GBK")
     private Charset charset = StandardCharsets.UTF_8;
 

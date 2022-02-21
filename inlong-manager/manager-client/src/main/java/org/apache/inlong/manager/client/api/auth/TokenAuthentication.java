@@ -17,16 +17,23 @@
 
 package org.apache.inlong.manager.client.api.auth;
 
+import com.alibaba.fastjson.JSONObject;
 import java.util.Map;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
 
+@NoArgsConstructor
 public class TokenAuthentication implements Authentication {
 
     public static final String TOKEN = "token";
 
     @Getter
-    private String token;
+    protected String token;
+
+    public TokenAuthentication(String token) {
+        this.token = token;
+    }
 
     @Override
     public AuthType getAuthType() {
@@ -37,5 +44,12 @@ public class TokenAuthentication implements Authentication {
     public void configure(Map<String, String> properties) {
         AssertUtil.notEmpty(properties, "Properties should not be empty when init TokenAuthentification");
         this.token = properties.get(TOKEN);
+    }
+
+    @Override
+    public String toString() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(TOKEN, this.getToken());
+        return jsonObject.toString();
     }
 }

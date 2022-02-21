@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.Map;
 import lombok.Data;
 import org.apache.inlong.manager.client.api.auth.Authentication;
-import org.apache.inlong.manager.client.api.auth.Authentication.AuthType;
 
 @Data
 @ApiModel("Base configuration for flink cluster")
@@ -30,9 +29,6 @@ public class FlinkSortBaseConf extends SortBaseConf {
 
     @ApiModelProperty(value = "Sort type")
     private SortType type = SortType.FLINK;
-
-    @ApiModelProperty("Authentication type")
-    private AuthType authType;
 
     @ApiModelProperty("Authentication")
     private Authentication authentication;

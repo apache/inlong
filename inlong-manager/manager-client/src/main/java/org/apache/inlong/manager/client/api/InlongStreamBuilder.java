@@ -22,7 +22,7 @@ import java.util.List;
 public abstract class InlongStreamBuilder {
 
     /**
-     * create source in stream.
+     * Create source in stream.
      *
      * @return inlong stream builder
      */
@@ -30,24 +30,31 @@ public abstract class InlongStreamBuilder {
 
     /**
      * create sink in stream.
-     *
+     * *
      * @return inlong stream builder
      */
     public abstract InlongStreamBuilder sink(StreamSink sink);
 
     /**
-     * create or update stream fields.
+     * Create or update stream fields.
      *
      * @return inlong stream builder
      */
     public abstract InlongStreamBuilder fields(List<StreamField> fieldList);
 
     /**
-     * create inlong stream created by builder
+     * Create data stream by builder
      *
      * @return inlong stream
      */
     public abstract InlongStream init();
+
+    /**
+     * Create or update data stream if exists by builder
+     *
+     * @return data stream
+     */
+    public abstract InlongStream initOrUpdate();
 }
 
 

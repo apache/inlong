@@ -103,7 +103,7 @@ CREATE TABLE `inlong_group`
     `modify_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `temp_view`           text              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
     `zookeeper_enabled`   int(4)            DEFAULT '1' COMMENT 'Need zookeeper support, 0: false, 1: true',
-    `proxy_cluster_id`    int(11)      NOT NULL COMMENT 'The id of dataproxy cluster',
+    `proxy_cluster_id`    int(11)           DEFAULT NULL COMMENT 'The id of dataproxy cluster',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`, `modify_time`)
 ) ENGINE = InnoDB

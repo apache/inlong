@@ -21,16 +21,17 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-
-import java.util.List;
 
 /**
  * Parser for Inlong entity
@@ -44,7 +45,9 @@ public class InlongParser {
 
     public static WorkflowResult parseWorkflowResult(Response response) {
         Object data = response.getData();
-        return GsonUtil.fromJson(GsonUtil.toJson(data), WorkflowResult.class);
+        String resultData = GsonUtil.toJson(data);
+        WorkflowResult workflowResult = GsonUtil.fromJson(resultData, WorkflowResult.class);
+        return workflowResult;
     }
 
     public static InlongGroupRequest parseGroupInfo(Response response) {
@@ -52,16 +55,32 @@ public class InlongParser {
         return GsonUtil.fromJson(GsonUtil.toJson(data), InlongGroupRequest.class);
     }
 
+    public static InlongStreamInfo parseStreamInfo(Response response) {
+        Object data = response.getData();
+        InlongStreamInfo streamInfo = GsonUtil.fromJson(GsonUtil.toJson(data), InlongStreamInfo.class);
+        return streamInfo;
+    }
+
     public static PageInfo<FullStreamResponse> parseStreamList(Response response) {
         Object data = response.getData();
-        PageInfo<FullStreamResponse> pageInfo = GsonUtil.fromJson(GsonUtil.toJson(data),
+        String pageInfoJson = GsonUtil.toJson(data);
+        PageInfo<FullStreamResponse> pageInfo = GsonUtil.fromJson(pageInfoJson,
                 new TypeToken<PageInfo<FullStreamResponse>>() {
                 }.getType());
         return pageInfo;
     }
 
+    public static PageInfo<SinkListResponse> parseHiveSinkList(Response response) {
+        Object data = response.getData();
+        String pageInfoJson = GsonUtil.toJson(data);
+        PageInfo<SinkListResponse> pageInfo = GsonUtil.fromJson(pageInfoJson,
+                new TypeToken<PageInfo<SinkListResponse>>() {
+                }.getType());
+        return pageInfo;
+    }
+
     public static Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> parseGroupForm(String formJson) {
-        final String groupInfoField = "groupApproveInfo";
+        final String groupInfoField = "groupInfo";
         final String mqExtInfoField = "mqExtInfo";
         JsonObject formData = GsonUtil.fromJson(formJson, JsonObject.class);
         JsonObject groupJson = formData.getAsJsonObject(groupInfoField);

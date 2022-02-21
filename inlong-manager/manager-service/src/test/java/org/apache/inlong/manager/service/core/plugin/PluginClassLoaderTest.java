@@ -32,6 +32,7 @@ public class PluginClassLoaderTest {
 
     @Test
     public void testLoadPlugin() {
+
         String path = this.getClass().getClassLoader().getResource("").getPath();
         PluginClassLoader pluginClassLoader = PluginClassLoader.getFromPluginUrl(path + "plugins",
                 Thread.currentThread()

@@ -50,6 +50,6 @@
                 </includes>
             </resource>
         </resources>
-        <finalName>${project.name}</finalName>
+        <finalName>manager-plugin-example</finalName>
     </build>
 </project>

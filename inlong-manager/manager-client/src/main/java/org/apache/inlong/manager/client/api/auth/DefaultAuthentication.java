@@ -17,10 +17,13 @@
 
 package org.apache.inlong.manager.client.api.auth;
 
+import com.alibaba.fastjson.JSONObject;
 import java.util.Map;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
 
+@NoArgsConstructor
 public class DefaultAuthentication implements Authentication {
 
     public static final String USER_NAME = "user_name";
@@ -28,10 +31,10 @@ public class DefaultAuthentication implements Authentication {
     public static final String PASSWORD = "password";
 
     @Getter
-    private String userName;
+    protected String userName;
 
     @Getter
-    private String password;
+    protected String password;
 
     public DefaultAuthentication(String userName, String password) {
         this.userName = userName;
@@ -48,5 +51,13 @@ public class DefaultAuthentication implements Authentication {
         AssertUtil.notEmpty(properties, "Properties should not be empty when init DefaultAuthentification");
         this.userName = properties.get(USER_NAME);
         this.password = properties.get(PASSWORD);
+    }
+
+    @Override
+    public String toString() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(USER_NAME, this.getUserName());
+        jsonObject.put(PASSWORD, this.getPassword());
+        return jsonObject.toString();
     }
 }
