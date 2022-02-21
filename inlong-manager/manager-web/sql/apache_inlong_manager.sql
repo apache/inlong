@@ -307,7 +307,7 @@ CREATE TABLE `data_proxy_cluster`
     `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `mq_set_name` varchar(128) NOT NULL COMMENT 'mq set name',
+    `mq_set_name` varchar(128) DEFAULT NULL COMMENT 'mq set name',
     PRIMARY KEY (`id`),
     UNIQUE KEY `cluster_name` (`name`, `is_deleted`)
 ) ENGINE = InnoDB
