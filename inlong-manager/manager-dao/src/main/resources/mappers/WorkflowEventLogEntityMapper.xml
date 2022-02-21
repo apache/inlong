@@ -41,7 +41,7 @@
         <result column="remark" jdbcType="LONGVARCHAR" property="remark"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, process_id,process_name, process_display_name, inlong_group_id, task_id,
+        id, process_id, process_name, process_display_name, inlong_group_id, task_id,
         element_name, element_display_name, event_type, event, listener, status, async, ip,
         start_time, end_time, remark, exception
     </sql>

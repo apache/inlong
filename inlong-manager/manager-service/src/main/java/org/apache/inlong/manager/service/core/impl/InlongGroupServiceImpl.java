@@ -51,6 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -155,7 +156,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     public InlongGroupRequest get(String groupId) {
         LOGGER.debug("begin to get inlong group info by groupId={}", groupId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
-        InlongGroupEntity entity = groupMapper.selectByIdentifier(groupId);
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
@@ -215,14 +216,14 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         String groupId = groupInfo.getInlongGroupId();
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
 
-        InlongGroupEntity entity = groupMapper.selectByIdentifier(groupId);
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
 
         // Check whether the current status can be modified
-        this.checkBizCanUpdate(entity, groupInfo);
+        this.checkGroupCanUpdate(entity, groupInfo, operator);
 
         CommonBeanUtils.copyProperties(groupInfo, entity, true);
         if (EntityStatus.GROUP_CONFIG_FAILED.getCode().equals(entity.getStatus())) {
@@ -255,19 +256,31 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     /**
-     * Check whether modification is supported under the current inlong group status, and which fields can be modified
+     * Check whether modification is supported under the current inlong group status, and which fields can be modified.
      *
-     * @param entity Original inlong group entity
-     * @param groupInfo New inlong group information
+     * @param entity Original inlong group entity.
+     * @param groupInfo New inlong group info.
+     * @param operator Current operator.
      */
-    private void checkBizCanUpdate(InlongGroupEntity entity, InlongGroupRequest groupInfo) {
+    private void checkGroupCanUpdate(InlongGroupEntity entity, InlongGroupRequest groupInfo, String operator) {
         if (entity == null || groupInfo == null) {
             return;
+        }
+
+        // Only the person in charges can update
+        if (StringUtils.isEmpty(entity.getInCharges())) {
+            LOGGER.error("group [{}] has no inCharges", entity.getInlongGroupId());
+            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCONSISTENT);
+        }
+        List<String> inCharges = Arrays.asList(entity.getInCharges().split(","));
+        if (!inCharges.contains(operator)) {
+            LOGGER.error("user [{}] has no privilege for the inlong group", operator);
+            throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
         }
         // Check whether the current status supports modification
         Integer oldStatus = entity.getStatus();
         if (!EntityStatus.ALLOW_UPDATE_GROUP_STATUS.contains(oldStatus)) {
-            LOGGER.error("current status was not allowed to update");
+            LOGGER.error("current status was not allowed to update inlong group info");
             throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED);
         }
 
@@ -298,7 +311,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
                 operator);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
 
-        groupMapper.updateStatusByIdentifier(groupId, status, operator);
+        groupMapper.updateStatus(groupId, status, operator);
 
         LOGGER.info("success to update inlong group status for groupId={}", groupId);
         return true;
@@ -310,7 +323,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         LOGGER.debug("begin to delete inlong group, groupId={}", groupId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
 
-        InlongGroupEntity entity = groupMapper.selectByIdentifier(groupId);
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
@@ -367,7 +380,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         LOGGER.debug("begin to count inlong group by user={}", operator);
 
         InlongGroupCountResponse countVO = new InlongGroupCountResponse();
-        List<Map<String, Object>> statusCount = groupMapper.countCurrentUserGroup(operator);
+        List<Map<String, Object>> statusCount = groupMapper.countGroupByUser(operator);
         for (Map<String, Object> map : statusCount) {
             int status = (Integer) map.get("status");
             long count = (Long) map.get("count");

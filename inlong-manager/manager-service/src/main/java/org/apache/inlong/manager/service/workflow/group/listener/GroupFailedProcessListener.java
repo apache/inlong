@@ -20,10 +20,9 @@ package org.apache.inlong.manager.service.workflow.group.listener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -58,11 +57,10 @@ public class GroupFailedProcessListener implements ProcessEventListener {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
         String username = context.getApplicant();
-        InlongGroupRequest groupInfo = form.getGroupInfo();
-        groupInfo.setStatus(EntityStatus.GROUP_CONFIG_FAILED.getCode());
-        // update inlong group status and props
-        groupService.update(groupInfo, username);
-        // update inlong stream status
+
+        // Update inlong group status
+        groupService.updateStatus(groupId, EntityStatus.GROUP_CONFIG_FAILED.getCode(), username);
+        // Update inlong stream status
         streamService.updateStatus(groupId, null, EntityStatus.STREAM_CONFIG_FAILED.getCode(), username);
         return ListenerResult.success();
     }

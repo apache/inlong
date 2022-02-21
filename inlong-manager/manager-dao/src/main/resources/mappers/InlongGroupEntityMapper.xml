@@ -64,14 +64,14 @@
         from inlong_group
         where id = #{id,jdbcType=INTEGER}
     </select>
-    <select id="countCurrentUserGroup" resultMap="statusCountMap">
+    <select id="countGroupByUser" resultMap="statusCountMap">
         select count(*) as total, status
         from inlong_group
         where is_deleted = 0
-          and (creator = #{currentUser,jdbcType=VARCHAR} or find_in_set(#{currentUser,jdbcType=VARCHAR}, in_charges))
+          and (creator = #{username,jdbcType=VARCHAR} or find_in_set(#{username,jdbcType=VARCHAR}, in_charges))
         group by status
     </select>
-    <select id="selectByIdentifier" resultMap="BaseResultMap">
+    <select id="selectByGroupId" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from inlong_group
@@ -119,6 +119,11 @@
         where biz.status = 130
           and biz.is_deleted = 0
           and biz.schema_name = d.name
+    </select>
+    <select id="selectGroupIdByProxyId" parameterType="java.lang.Integer" resultType="java.lang.String">
+        select inlong_group_id
+        from inlong_group
+        where proxy_cluster_id = #{proxyClusterId,jdbcType=INTEGER}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
@@ -469,18 +474,12 @@
             proxy_cluster_id    = #{proxyClusterId,jdbcType=INTEGER}
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateStatusByIdentifier">
+    <update id="updateStatus">
         update inlong_group
         set status   = #{status,jdbcType=INTEGER},
             modifier = #{modifier,jdbcType=VARCHAR}
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
           and is_deleted = 0
     </update>
-
-    <select id="selectGroupIdByProxyId" parameterType="java.lang.Integer">
-        select inlong_group_id
-        from inlong_group
-        where proxy_cluster_id = #{proxyClusterId,jdbcType=INTEGER}
-    </select>
 
 </mapper>

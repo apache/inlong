@@ -108,7 +108,7 @@ public class PushHiveConfigTaskListener implements SortOperateListener {
         InlongGroupRequest groupInfo = form.getGroupInfo();
         String groupId = groupInfo.getInlongGroupId();
 
-        InlongGroupEntity groupEntity = groupMapper.selectByIdentifier(groupId);
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         if (groupEntity == null || EntityStatus.IS_DELETED.getCode().equals(groupEntity.getIsDeleted())) {
             log.warn("skip to push sort hive config for groupId={}, as biz not exists or has been deleted", groupId);
             return ListenerResult.success();

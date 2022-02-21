@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -28,6 +30,8 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * Approve reject listener for new inlong group
@@ -38,6 +42,8 @@ public class GroupRejectProcessListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
+    @Autowired
+    private InlongGroupEntityMapper groupMapper;
 
     @Override
     public ProcessEvent event() {
@@ -47,8 +53,18 @@ public class GroupRejectProcessListener implements ProcessEventListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         NewGroupProcessForm form = (NewGroupProcessForm) context.getProcessForm();
-        // after reject, update inlong group status to [GROUP_APPROVE_REJECT]
+
+        // Only the [Wait approval] status allowed the rejecting operation
         String groupId = form.getInlongGroupId();
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        if (entity == null) {
+            throw new WorkflowListenerException("inlong group not found with group id=" + groupId);
+        }
+        if (!Objects.equals(EntityStatus.GROUP_WAIT_APPROVAL.getCode(), entity.getStatus())) {
+            throw new WorkflowListenerException("current status was not allowed to reject inlong group");
+        }
+
+        // After reject, update inlong group status to [GROUP_APPROVE_REJECT]
         String username = context.getApplicant();
         groupService.updateStatus(groupId, EntityStatus.GROUP_APPROVE_REJECTED.getCode(), username);
         return ListenerResult.success();

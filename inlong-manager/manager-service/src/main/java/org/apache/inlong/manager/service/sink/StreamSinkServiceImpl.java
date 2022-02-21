@@ -360,7 +360,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
      * @return Inlong group entity, For caller reuse
      */
     public InlongGroupEntity checkGroupIsTempStatus(String groupId, String operator) {
-        InlongGroupEntity inlongGroupEntity = groupMapper.selectByIdentifier(groupId);
+        InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
         Preconditions.checkNotNull(inlongGroupEntity, "groupId is invalid");
 
         List<String> managers = Arrays.asList(inlongGroupEntity.getInCharges().split(","));

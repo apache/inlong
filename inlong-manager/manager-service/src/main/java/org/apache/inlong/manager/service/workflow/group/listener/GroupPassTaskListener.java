@@ -18,10 +18,13 @@
 package org.apache.inlong.manager.service.workflow.group.listener;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.workflow.form.InlongGroupApproveForm;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -32,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Approve pass listener for new inlong group
@@ -43,6 +47,8 @@ public class GroupPassTaskListener implements TaskEventListener {
     @Autowired
     private InlongGroupService groupService;
     @Autowired
+    private InlongGroupEntityMapper groupMapper;
+    @Autowired
     private InlongStreamService streamService;
 
     @Override
@@ -53,14 +59,25 @@ public class GroupPassTaskListener implements TaskEventListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         // Save the data format selected at the time of approval and the cluster information of the inlong stream
-        InlongGroupApproveForm approveForm = (InlongGroupApproveForm) context.getActionContext().getForm();
+        InlongGroupApproveForm form = (InlongGroupApproveForm) context.getActionContext().getForm();
+
+        InlongGroupApproveRequest approveInfo = form.getGroupApproveInfo();
+
+        // Only the [Wait approval] status allowed the passing operation
+        String groupId = approveInfo.getInlongGroupId();
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        if (entity == null) {
+            throw new WorkflowListenerException("inlong group not found with group id=" + groupId);
+        }
+        if (!Objects.equals(EntityStatus.GROUP_WAIT_APPROVAL.getCode(), entity.getStatus())) {
+            throw new WorkflowListenerException("current status was not allowed to approve inlong group");
+        }
 
         // Save the inlong group information after approval
-        InlongGroupApproveRequest approveInfo = approveForm.getGroupApproveInfo();
         groupService.updateAfterApprove(approveInfo, context.getApplicant());
 
         // Save inlong stream information after approval
-        List<InlongStreamApproveRequest> streamApproveInfoList = approveForm.getStreamApproveInfoList();
+        List<InlongStreamApproveRequest> streamApproveInfoList = form.getStreamApproveInfoList();
         streamService.updateAfterApprove(streamApproveInfoList, context.getApplicant());
         return ListenerResult.success();
     }
