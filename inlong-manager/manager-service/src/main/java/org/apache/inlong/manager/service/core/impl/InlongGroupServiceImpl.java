@@ -266,7 +266,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             return;
         }
 
-        // 只有责任人才可以修改 - 创建人不可以修改
+        // Only the person in charges can update
         if (StringUtils.isEmpty(entity.getInCharges())) {
             LOGGER.error("group [{}] has no inCharges", entity.getInlongGroupId());
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCONSISTENT);
