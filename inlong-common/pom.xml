@@ -73,6 +73,20 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>berkeleydb-je</id>
+            <name>berkeleydb-je</name>
+            <url>https://download.dcache.org/nexus/repository/berkeleydb-je/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
