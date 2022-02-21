@@ -65,6 +65,12 @@
             <artifactId>lombok</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sleepycat</groupId>
+            <artifactId>je</artifactId>
+            <version>7.3.7</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>

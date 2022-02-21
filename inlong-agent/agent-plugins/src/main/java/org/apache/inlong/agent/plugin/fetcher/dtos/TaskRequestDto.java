@@ -20,7 +20,7 @@ package org.apache.inlong.agent.plugin.fetcher.dtos;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
-import org.apache.inlong.agent.db.CommandEntity;
+import org.apache.inlong.commons.db.CommandEntity;
 
 @Data
 public class TaskRequestDto {

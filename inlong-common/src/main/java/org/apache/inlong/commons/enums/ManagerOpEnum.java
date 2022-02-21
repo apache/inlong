@@ -15,32 +15,42 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.enums;
+package org.apache.inlong.commons.enums;
 
 import static java.util.Objects.requireNonNull;
 
-public enum TaskTypeEnum {
-    SQL(1), BINLOG(2), FILE(3), KAFKA(4);
+public enum ManagerOpEnum {
+    ADD(0), DEL(1), RETRY(2), BACKTRACK(3), FROZEN(4), ACTIVE(5), CHECK(6), REDOMETRIC(7), MAKEUP(8);
 
     private int type;
 
-    TaskTypeEnum(int type) {
+    ManagerOpEnum(int type) {
         this.type = type;
     }
 
-    public static TaskTypeEnum getTaskType(int taskType) {
-        requireNonNull(taskType);
-        switch (taskType) {
+    public static ManagerOpEnum getOpType(int opType) {
+        requireNonNull(opType);
+        switch (opType) {
+            case 0:
+                return ADD;
             case 1:
-                return SQL;
+                return DEL;
             case 2:
-                return BINLOG;
+                return RETRY;
             case 3:
-                return FILE;
+                return BACKTRACK;
             case 4:
-                return KAFKA;
+                return FROZEN;
+            case 5:
+                return ACTIVE;
+            case 6:
+                return CHECK;
+            case 7:
+                return REDOMETRIC;
+            case 8:
+                return MAKEUP;
             default:
-                throw new RuntimeException("such task type doesn't exist");
+                throw new RuntimeException("such op type doesn't exist");
         }
     }
 

@@ -15,16 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.dto;
+package org.apache.inlong.commons.dto;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Data;
-import org.apache.inlong.agent.db.CommandEntity;
 
 @Data
-public class TaskRequestDto {
-    private String agentIp;
+public class DataConfig {
+    private String inlongGroupId;
+    private String inlongStreamId;
+    private String deliveryTime;
     private String uuid;
-    private List<CommandEntity> commandInfo = new ArrayList<>();
+    private String ip;
+    private String op;
+    private Integer taskId;
+    private Integer taskType;
+    private String taskConfig;
+
+    public boolean isValid() {
+        return true;
+    }
 }

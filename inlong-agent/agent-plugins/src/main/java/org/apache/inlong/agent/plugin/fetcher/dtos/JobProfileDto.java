@@ -25,8 +25,8 @@ import com.google.gson.Gson;
 import lombok.Data;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.dto.DataConfig;
-import org.apache.inlong.agent.enums.TaskTypeEnum;
+import org.apache.inlong.commons.dto.DataConfig;
+import org.apache.inlong.commons.enums.TaskTypeEnum;
 
 @Data
 public class JobProfileDto {
