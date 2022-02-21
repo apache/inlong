@@ -105,7 +105,33 @@ ${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component
 Define the mysql hostname
 */}}
 {{- define "inlong.mysql.hostname" -}}
+{{- if .Values.mysql.enabled -}}
 ${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{- else -}}
+{{ .Values.externalMySQL.hostname }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define the mysql port
+*/}}
+{{- define "inlong.mysql.port" -}}
+{{- if .Values.mysql.enabled -}}
+{{ .Values.mysql.ports.server }}
+{{- else -}}
+{{ .Values.externalMySQL.port }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define the mysql username
+*/}}
+{{- define "inlong.mysql.username" -}}
+{{- if .Values.mysql.enabled -}}
+{{ .Values.mysql.username }}
+{{- else -}}
+{{ .Values.externalMySQL.username }}
+{{- end -}}
 {{- end -}}
 
 {{/*

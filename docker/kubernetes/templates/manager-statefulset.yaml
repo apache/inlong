@@ -65,9 +65,12 @@ spec:
             - name: JDBC_URL
               value: "{{ template "inlong.mysql.hostname" . }}:{{ .Values.mysql.ports.server }}"
             - name: USERNAME
-              value: {{ .Values.manager.username }}
+              value: {{ include "inlong.mysql.username" . | quote }}
             - name: PASSWORD
-              value: {{ .Values.manager.password }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
+                  key: mysql-password
             - name: TUBE_MANAGER
               value: "http://{{ template "inlong.tubemqManager.hostname" . }}:{{ .Values.tubemqManager.containerPort }}"
             - name: TUBE_MASTER

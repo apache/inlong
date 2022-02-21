@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-{{- if .Values.mysql.persistentVolumeClaim.enabled }}
+{{- if and .Values.mysql.enabled .Values.mysql.persistentVolumeClaim.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.mysql.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -70,3 +71,4 @@ spec:
           emptyDir: {}
           {{- end }}
       restartPolicy: Always
+{{- end }}
