@@ -120,6 +120,7 @@ pulsar:
   ports:
     pulsarPort: 6650
   persistentVolumeClaim:
+    enabled: false
     accessModes:
       - "ReadWriteOnce"
     # storageClassName must support the above access mode(s): ReadWriteOnce

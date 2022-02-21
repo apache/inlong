@@ -50,14 +50,14 @@ spec:
               mountPath: /pulsar/conf
       volumes:
         - name: data
-          {{- if .Values.pulsar.persistentVolumeClaim }}
+          {{- if .Values.pulsar.persistentVolumeClaim.enabled }}
           persistentVolumeClaim:
             claimName: {{ template "inlong.fullname" . }}-{{ .Values.pulsar.component }}
           {{- else }}
           emptyDir: {}
           {{- end }}
         - name: conf
-          {{- if .Values.pulsar.persistentVolumeClaim }}
+          {{- if .Values.pulsar.persistentVolumeClaim.enabled }}
           persistentVolumeClaim:
             claimName: {{ template "inlong.fullname" . }}-{{ .Values.pulsar.component }}
           {{- else }}
