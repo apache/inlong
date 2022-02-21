@@ -27,7 +27,7 @@ export const valuesToData = (values, inlongGroupId) => {
       dataSourceType,
       dataSourceBasicId,
       dataSourcesConfig = [],
-      sinkInfo = [],
+      streamSink = [],
       ...rest
     } = item;
     const output = {} as any;
@@ -47,11 +47,11 @@ export const valuesToData = (values, inlongGroupId) => {
       }));
     }
 
-    output.sinkInfo = sinkInfo.reduce((acc, type) => {
+    output.streamSink = streamSink.reduce((acc, type) => {
       if (!type) return acc;
 
-      const data = rest[`sinkInfo${type}`] || [];
-      delete rest[`sinkInfo${type}`];
+      const data = rest[`streamSink${type}`] || [];
+      delete rest[`streamSink${type}`];
       const formatData = data.map(ds => ({
         ...ds,
         inlongGroupId,
@@ -116,10 +116,10 @@ export const dataToValues = data => {
     }
 
     sinkInfo.forEach(({ sinkType, ...item }) => {
-      if (!output[`sinkInfo${sinkType}`]) output[`sinkInfo${sinkType}`] = [];
-      output[`sinkInfo${sinkType}`].push(item);
+      if (!output[`streamSink${sinkType}`]) output[`streamSink${sinkType}`] = [];
+      output[`streamSink${sinkType}`].push(item);
     });
-    output.sinkInfo = sinkInfo.map(item => item.sinkType);
+    output.streamSink = sinkInfo.map(item => item.sinkType);
 
     const fieldList = streamInfo.fieldList?.reduce(
       (acc, cur) => {

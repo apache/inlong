@@ -108,7 +108,7 @@
   "components.AccessHelper.FieldsConfig.dataFields.DataStreamOwners": "Owners",
   "components.AccessHelper.FieldsConfig.dataFields.DataStreamOwnerHelp": "Owners can view and modify data flow information",
   "components.AccessHelper.FieldsConfig.dataFields.Space": "Space",
-  "components.AccessHelper.FieldsConfig.dataFields.Comma": "Comma",
+  "components.AccessHelper.FieldsConfig.dataFields.Comma": "Comma(,)",
   "components.AccessHelper.FieldsConfig.dataFields.DataFlowIntroduction": "Description",
   "components.AccessHelper.FieldsConfig.dataFields.SourceDataField": "Source data field",
   "components.AccessHelper.FieldsConfig.dataFields.VerticalLine": "Vertical line (|)",

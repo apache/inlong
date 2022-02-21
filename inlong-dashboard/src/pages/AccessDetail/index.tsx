@@ -62,7 +62,7 @@ const Comp: React.FC = () => {
         },
         {
           label: t('pages.AccessDetail.DataStorages'),
-          value: 'dataStorage',
+          value: 'streamSink',
           content: DataStorage,
           hidden: isReadonly,
         },
