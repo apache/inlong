@@ -355,7 +355,7 @@ public class SourceDbServiceImpl implements SourceDbService {
      * @return inlong group entity for caller reuse
      */
     private InlongGroupEntity checkGroupIsTempStatus(String groupId) {
-        InlongGroupEntity inlongGroupEntity = groupMapper.selectByIdentifier(groupId);
+        InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
         Preconditions.checkNotNull(inlongGroupEntity, "groupId is invalid");
         // Add/modify/delete is not allowed under certain inlong group status
         if (EntityStatus.GROUP_TEMP_STATUS.contains(inlongGroupEntity.getStatus())) {

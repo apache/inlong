@@ -37,9 +37,9 @@ public interface InlongGroupEntityMapper {
 
     InlongGroupEntity selectByPrimaryKey(Integer id);
 
-    List<Map<String, Object>> countCurrentUserGroup(@Param(value = "currentUser") String currentUser);
+    List<Map<String, Object>> countGroupByUser(@Param(value = "username") String username);
 
-    InlongGroupEntity selectByIdentifier(String groupId);
+    InlongGroupEntity selectByGroupId(String groupId);
 
     Integer selectIdentifierExist(String groupId);
 
@@ -52,15 +52,15 @@ public interface InlongGroupEntityMapper {
      */
     List<DataProxyConfig> selectDataProxyConfig();
 
+    List<String> selectGroupIdByProxyId(Integer proxyClusterId);
+
     int updateByPrimaryKeySelective(InlongGroupEntity record);
 
     int updateByIdentifierSelective(InlongGroupEntity record);
 
     int updateByPrimaryKey(InlongGroupEntity record);
 
-    int updateStatusByIdentifier(@Param("groupId") String groupId, @Param("status") Integer status,
-                                 @Param("modifier") String modifier);
-
-    List<String> selectGroupIdByProxyId(Integer proxyClusterId);
+    int updateStatus(@Param("groupId") String groupId, @Param("status") Integer status,
+            @Param("modifier") String modifier);
 
 }
