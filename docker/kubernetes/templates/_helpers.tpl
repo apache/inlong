@@ -74,7 +74,7 @@ release: {{ .Release.Name }}
 {{- end -}}
 
 {{/*
-Define the manager web hostname
+Define the manager hostname
 */}}
 {{- define "inlong.manager.hostname" -}}
 ${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}.{{ .Release.Namespace }}.svc.cluster.local
