@@ -111,13 +111,12 @@ audit:
     webPort: 8008
   env:
 
-# The message queue on InLong.
-messageQueue:
-  type: "pulsar"
-
+# If pulsar is not enabled, InLong will use tubemq.
 pulsar:
-  hostname: "localhost"
-  port: 6650
+  component: "pulsar"
+  enabled: false
+  serviceUrl: "pulsar://localhost:6650"
+  adminUrl:
 
 mysql:
   component: "mysql"
