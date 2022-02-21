@@ -63,7 +63,7 @@ public class WorkflowController {
     @Autowired
     private WorkflowService workflowService;
 
-    @PostMapping("start")
+    @PostMapping("/start")
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Initiation process")
     public Response<WorkflowResult> start(@RequestBody WorkflowOperation operation) {
@@ -71,7 +71,7 @@ public class WorkflowController {
         return Response.success(workflowService.start(operation.getName(), applicant, operation.getForm()));
     }
 
-    @PostMapping("cancel/{id}")
+    @PostMapping("/cancel/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Cancellation process")
     @ApiImplicitParam(name = "id", value = "WorkflowProcess ID", dataTypeClass = Integer.class, required = true)
@@ -80,7 +80,7 @@ public class WorkflowController {
         return Response.success(workflowService.cancel(id, operator, operation.getRemark()));
     }
 
-    @PostMapping("approve/{id}")
+    @PostMapping("/approve/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Approval and consent")
     @ApiImplicitParam(name = "id", value = "WorkflowTask ID", dataTypeClass = Integer.class, required = true)
@@ -89,7 +89,7 @@ public class WorkflowController {
         return Response.success(workflowService.approve(id, operation.getRemark(), operation.getForm(), operator));
     }
 
-    @PostMapping("reject/{id}")
+    @PostMapping("/reject/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Approval rejected")
     @ApiImplicitParam(name = "id", value = "WorkflowTask ID", dataTypeClass = Integer.class, required = true)
@@ -98,7 +98,7 @@ public class WorkflowController {
         return Response.success(workflowService.reject(id, operation.getRemark(), operator));
     }
 
-    @PostMapping("transfer/{id}")
+    @PostMapping("/transfer/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Turn to do", notes = "Change approver")
     @ApiImplicitParam(name = "id", value = "WorkflowTask ID", dataTypeClass = Integer.class, required = true)
@@ -108,7 +108,7 @@ public class WorkflowController {
                 operation.getTransferTo(), operator));
     }
 
-    @PostMapping("complete/{id}")
+    @PostMapping("/complete/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Finish task by id")
     @ApiImplicitParam(name = "id", value = "WorkflowTask ID", dataTypeClass = Integer.class, required = true)

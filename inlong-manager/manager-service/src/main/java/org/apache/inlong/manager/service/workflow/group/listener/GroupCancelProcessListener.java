@@ -21,13 +21,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
-import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * Event listener for new group access, the initiator cancels the approval
@@ -37,7 +40,7 @@ import org.springframework.stereotype.Component;
 public class GroupCancelProcessListener implements ProcessEventListener {
 
     @Autowired
-    private InlongGroupService groupService;
+    private InlongGroupEntityMapper groupMapper;
 
     @Override
     public ProcessEvent event() {
@@ -49,8 +52,20 @@ public class GroupCancelProcessListener implements ProcessEventListener {
         NewGroupProcessForm form = (NewGroupProcessForm) context.getProcessForm();
         // After canceling the approval, the status becomes [Waiting to submit]
         String groupId = form.getInlongGroupId();
+
+        // Only the [Wait approval] status allowed the canceling operation
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        if (entity == null) {
+            throw new WorkflowListenerException("inlong group not found with group id=" + groupId);
+        }
+        if (!Objects.equals(EntityStatus.GROUP_WAIT_APPROVAL.getCode(), entity.getStatus())) {
+            throw new WorkflowListenerException("current status was not allowed to cancel business");
+        }
+
+        // After canceling the approval, the status becomes [Waiting to submit]
         String username = context.getApplicant();
-        groupService.updateStatus(groupId, EntityStatus.GROUP_WAIT_SUBMIT.getCode(), username);
+        groupMapper.updateStatus(groupId, EntityStatus.GROUP_WAIT_SUBMIT.getCode(), username);
+
         return ListenerResult.success();
     }
 

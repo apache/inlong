@@ -468,7 +468,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         // 1. Query all valid data sources under groupId
         String groupId = request.getInlongGroupId();
         // The person in charge of the inlong group has the authority of all inlong streams
-        InlongGroupEntity inlongGroupEntity = groupMapper.selectByIdentifier(groupId);
+        InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
         Preconditions.checkNotNull(inlongGroupEntity, "inlong group not found by groupId=" + groupId);
 
         String inCharges = inlongGroupEntity.getInCharges();
@@ -582,11 +582,12 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     @Override
     public boolean updateAfterApprove(List<InlongStreamApproveRequest> streamApproveList, String operator) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to update stream after approve={}", streamApproveList);
-        }
         if (CollectionUtils.isEmpty(streamApproveList)) {
             return true;
+        }
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("begin to update stream after approve={}", streamApproveList);
         }
 
         String groupId = null;
@@ -727,7 +728,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
      * @return usiness entity for caller reuse
      */
     private InlongGroupEntity checkBizIsTempStatus(String groupId) {
-        InlongGroupEntity inlongGroupEntity = groupMapper.selectByIdentifier(groupId);
+        InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
         Preconditions.checkNotNull(inlongGroupEntity, "groupId is invalid");
         // Add/modify/delete is not allowed under certain inlong group status
         if (EntityStatus.GROUP_TEMP_STATUS.contains(inlongGroupEntity.getStatus())) {

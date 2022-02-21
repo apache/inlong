@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.workflow.group.listener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
@@ -62,14 +61,15 @@ public class GroupCompleteProcessListener implements ProcessEventListener {
 
         String groupId = form.getInlongGroupId();
         String username = context.getApplicant();
-        InlongGroupRequest groupInfo = form.getGroupInfo();
-        groupInfo.setStatus(EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode());
-        // update inlong group status and props
-        groupService.update(groupInfo, username);
-        // update inlong stream status
+
+        // Update inlong group status
+        groupService.updateStatus(groupId, EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode(), username);
+        // Update inlong stream status
         streamService.updateStatus(groupId, null, EntityStatus.STREAM_CONFIG_SUCCESSFUL.getCode(), username);
-        // update file data source status
+        // Update file data source status
         fileDetailMapper.updateStatusAfterApprove(groupId, null, EntityStatus.AGENT_ADD.getCode(), username);
+        // TODO Update source db detail status
+        // dbDetailMapper.updateStatusAfterApprove(bid, null, EntityStatus.AGENT_WAIT_CREATE.getCode(), username);
 
         return ListenerResult.success();
     }
