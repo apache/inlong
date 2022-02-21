@@ -47,7 +47,7 @@ const Create: React.FC = () => {
 
   const [middlewareType, setMiddlewareType] = useState();
 
-  useRequest(`/business/get/${inlongGroupId}`, {
+  useRequest(`/group/get/${inlongGroupId}`, {
     ready: !!inlongGroupId && !middlewareType,
     onSuccess: result => setMiddlewareType(result.middlewareType),
   });

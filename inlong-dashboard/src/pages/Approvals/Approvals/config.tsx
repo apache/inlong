@@ -26,7 +26,7 @@ import { timestampFormat } from '@/utils';
 export const getFilterFormContent = defaultValues => [
   {
     type: 'inputnumber',
-    name: 'processInstId',
+    name: 'processId',
     props: {
       style: { width: 150 },
       min: 1,
@@ -42,8 +42,8 @@ export const getFilterFormContent = defaultValues => [
   {
     type: 'select',
     label: i18n.t('basic.Status'),
-    name: 'states',
-    initialValue: defaultValues.states,
+    name: 'status',
+    initialValue: defaultValues.status,
     props: {
       dropdownMatchSelectWidth: false,
       options: statusList,
@@ -55,7 +55,7 @@ export const getFilterFormContent = defaultValues => [
 export const getColumns = activedName => [
   {
     title: i18n.t('pages.Approvals.ProcessID'),
-    dataIndex: 'processInstId',
+    dataIndex: 'processId',
     render: (text, record) => (
       <Link to={`/approvals/detail/${text}?actived=${activedName}&taskId=${record.id}`}>
         {text}
@@ -71,7 +71,7 @@ export const getColumns = activedName => [
     dataIndex: 'processDisplayName',
   },
   {
-    title: i18n.t('pages.Approvals.BusinessId'),
+    title: i18n.t('pages.Approvals.GroupId'),
     dataIndex: 'inlongGroupId',
     render: (text, record) => record.showInList?.inlongGroupId,
   },
@@ -82,16 +82,14 @@ export const getColumns = activedName => [
   },
   {
     title: i18n.t('basic.Status'),
-    dataIndex: 'state',
+    dataIndex: 'status',
     render: text => genStatusTag(text),
   },
   {
     title: i18n.t('basic.Operating'),
     dataIndex: 'action',
     render: (text, record) => (
-      <Link
-        to={`/approvals/detail/${record.processInstId}?actived=${activedName}&taskId=${record.id}`}
-      >
+      <Link to={`/approvals/detail/${record.processId}?actived=${activedName}&taskId=${record.id}`}>
         {i18n.t('basic.Detail')}
       </Link>
     ),

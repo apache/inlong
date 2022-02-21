@@ -35,7 +35,7 @@ const Comp = ({ defaultData, isViwer, suffixContent }: Props, ref) => {
     const values = await form.validateFields();
 
     const data = {
-      businessApproveInfo: values,
+      groupApproveInfo: values,
     };
 
     return { ...values, form: data };

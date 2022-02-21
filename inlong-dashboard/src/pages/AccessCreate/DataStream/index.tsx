@@ -45,7 +45,7 @@ const Comp = ({ inlongGroupId, middlewareType }: Props, ref) => {
 
   useRequest(
     {
-      url: '/datastream/listAll',
+      url: '/stream/listAll',
       params: {
         pageSize: 100,
         pageNum: 1,
@@ -80,12 +80,12 @@ const Comp = ({ inlongGroupId, middlewareType }: Props, ref) => {
     const { list } = await form.validateFields();
     const data = valuesToData(list, inlongGroupId);
     await request({
-      url: '/datastream/batchSaveAll',
+      url: '/stream/batchSaveAll',
       method: 'POST',
       data,
     });
     const result = await request({
-      url: `/business/startProcess/${inlongGroupId}`,
+      url: `/group/startProcess/${inlongGroupId}`,
       method: 'POST',
     });
     return result;
