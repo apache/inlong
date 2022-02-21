@@ -13,7 +13,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package org.apache.inlong.agent.plugin.fetcher.dtos;
+ */
+
+package org.apache.inlong.agent.plugin.fetcher.dtos;
 
 import lombok.Data;
 
@@ -32,14 +34,14 @@ public class KafkaJob {
         private String sink;
         private String channel;
 
-        private  String source_kafka_topic;
-        private  String source_kafka_key_deserializer;
-        private  String source_kafka_value_deserializer ;
-        private  String source_kafka_bootstrap_servers ;
-        private  String source_kafka_group_id;
-        private  String source_kafka_record_speed;
-        private  String source_kafka_byte_speed_limit;
-        private  String source_kafka_min_interval;
-        private  String source_kafka_offset;
+        private  String topic;
+        private  String keyDeserializer;
+        private  String valueDeserializer;
+        private  String bootstrapServers;
+        private  String groupId;
+        private  String recordSpeed;
+        private  String byteSpeedLimit;
+        private  String minInterval;
+        private  String offset;
     }
 }

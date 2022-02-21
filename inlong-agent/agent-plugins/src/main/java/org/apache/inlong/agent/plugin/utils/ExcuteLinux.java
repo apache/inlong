@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.inlong.agent.plugin.utils;
 
 import java.io.BufferedReader;
@@ -35,7 +36,6 @@ public class ExcuteLinux {
                 sb.append(line).append("\n");
             }
             result = sb.toString();
-
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.inlong.agent.plugin.fetcher.dtos;
 
 import lombok.Data;
@@ -34,15 +35,15 @@ public class BinlogJob {
         private String sink;
         private String channel;
 
-        private  String job_database_user;
-        private  String job_database_password;
-        private  String job_database_hostname ;
-        private  String job_database_whitelist ;
-        private  String job_database_server_time_zone;
-        private  String job_database_store_offset_interval_ms;
-        private  String job_database_store_history_filename;
-        private  String job_database_snapshot_mode;
-        private  String job_database_offset;
+        private  String user;
+        private  String password;
+        private  String hostname;
+        private  String whitelist;
+        private  String timeZone;
+        private  String intervalMs;
+        private  String storeHistoryFilename;
+        private  String snapshotMode;
+        private  String offset;
     }
 
 }
