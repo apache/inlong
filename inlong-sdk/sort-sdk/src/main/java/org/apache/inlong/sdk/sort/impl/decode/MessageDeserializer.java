@@ -118,11 +118,14 @@ public class MessageDeserializer implements Deserializer {
      * transform MessageObjs to SortSdkMessage
      *
      * @param messageObjs {@link MessageObjs}
-     * @return {@link List< InLongMessage >}
+     * @return {@link List<InLongMessage>}
      */
     private List<InLongMessage> transformMessageObjs(ClientContext context, InLongTopic inLongTopic,
             MessageObjs messageObjs, String inlongGroupId,
             String inlongStreamId) {
+        if (null == messageObjs) {
+            return null;
+        }
         List<InLongMessage> inLongMessages = new ArrayList<>();
         for (MessageObj messageObj : messageObjs.getMsgsList()) {
             List<MapFieldEntry> mapFieldEntries = messageObj.getParamsList();
