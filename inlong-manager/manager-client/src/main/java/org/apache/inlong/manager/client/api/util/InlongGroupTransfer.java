@@ -48,12 +48,14 @@ public class InlongGroupTransfer {
         groupInfo.setName(groupConf.getGroupName());
         groupInfo.setCnName(groupConf.getCnName());
         groupInfo.setDescription(groupConf.getDescription());
-        groupInfo.setDailyRecords(groupConf.getDailyRecords());
-        groupInfo.setPeakRecords(groupConf.getPeakRecords());
+        groupInfo.setZookeeperEnabled(groupConf.isZookeeperEnabled() ? 1 : 0);
+        groupInfo.setDailyRecords(groupConf.getDailyRecords().intValue());
+        groupInfo.setPeakRecords(groupConf.getPeakRecords().intValue());
         groupInfo.setMaxLength(groupConf.getMaxLength());
         MqBaseConf mqConf = groupConf.getMqBaseConf();
         MqType mqType = mqConf.getType();
         groupInfo.setMiddlewareType(mqType.name());
+        groupInfo.setInCharges(groupConf.getOperator());
         groupInfo.setExtList(Lists.newArrayList());
         groupInfo.setCreator(groupConf.getOperator());
         if (mqType == MqType.PULSAR) {

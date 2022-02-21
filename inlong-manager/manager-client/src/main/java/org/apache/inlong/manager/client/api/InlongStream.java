@@ -28,5 +28,4 @@ public abstract class InlongStream {
     public abstract StreamSource getSource();
 
     public abstract StreamSink getSink();
-
 }

@@ -54,7 +54,7 @@ public class AssertUtil {
     }
 
     public static void hasLength(String text, String message) {
-        if (!StringUtils.isEmpty(text)) {
+        if (StringUtils.isEmpty(text)) {
             throw new IllegalStateException(message);
         }
     }
@@ -64,7 +64,7 @@ public class AssertUtil {
     }
 
     public static void hasText(String text, String message) {
-        if (!StringUtils.isEmpty(text)) {
+        if (StringUtils.isEmpty(text)) {
             throw new IllegalStateException(message);
         }
     }

@@ -48,9 +48,11 @@ public class InlongStreamImpl extends InlongStream {
 
     private List<StreamField> streamFields;
 
-    public InlongStreamImpl(FullStreamResponse fullStreamResponse) {
+    public InlongStreamImpl(FullStreamResponse fullStreamResponse,InlongStream curStreamInfo) {
         InlongStreamInfo streamInfo = fullStreamResponse.getStreamInfo();
         this.name = streamInfo.getName();
+        this.streamSink = curStreamInfo.getSink();
+        this.streamSource = curStreamInfo.getSource();
         List<InlongStreamFieldInfo> streamFieldInfos = streamInfo.getFieldList();
         this.streamFields = streamFieldInfos.stream().map(streamFieldInfo -> {
             return new StreamField(streamFieldInfo.getId(),
@@ -62,7 +64,7 @@ public class InlongStreamImpl extends InlongStream {
         }).collect(Collectors.toList());
         List<SinkResponse> sinkList = fullStreamResponse.getSinkInfo();
         if (CollectionUtils.isNotEmpty(sinkList)) {
-            this.streamSink = InlongStreamTransfer.parseStreamSink(sinkList.get(0));
+            this.streamSink = InlongStreamTransfer.parseStreamSink(sinkList.get(0), streamSink);
         }
         // todo generate source
     }

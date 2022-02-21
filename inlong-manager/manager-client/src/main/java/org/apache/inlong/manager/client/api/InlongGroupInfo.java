@@ -43,7 +43,7 @@ public class InlongGroupInfo implements Serializable {
     private GroupState state;
 
     public InlongGroupInfo(InnerGroupContext groupContext, InlongGroupConf streamGroupConf) {
-        InlongGroupRequest groupInfo = groupContext.getGroupInfo();
+        InlongGroupRequest groupInfo = groupContext.getGroupRequest();
         AssertUtil.notNull(groupInfo);
         this.groupId = groupInfo.getInlongGroupId();
         this.groupName = groupInfo.getName();

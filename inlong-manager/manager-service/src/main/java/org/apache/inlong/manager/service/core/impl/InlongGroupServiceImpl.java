@@ -173,6 +173,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             InlongGroupPulsarEntity pulsarEntity = groupPulsarMapper.selectByGroupId(groupId);
             Preconditions.checkNotNull(pulsarEntity, "Pulsar info not found under the inlong group");
             InlongGroupPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(pulsarEntity, InlongGroupPulsarInfo::new);
+            pulsarInfo.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
             groupInfo.setMqExtInfo(pulsarInfo);
         }
 

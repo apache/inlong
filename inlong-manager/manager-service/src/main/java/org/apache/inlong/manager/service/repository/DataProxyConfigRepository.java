@@ -60,6 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * DataProxyConfigRepository
@@ -96,6 +97,8 @@ public class DataProxyConfigRepository implements IRepository {
     /**
      * reload
      */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public void reload() {
         LOGGER.info("start to reload config.");
         List<ClusterSet> setList = clusterSetMapper.selectClusterSet();

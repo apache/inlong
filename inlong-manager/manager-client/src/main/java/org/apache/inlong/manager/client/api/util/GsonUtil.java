@@ -27,30 +27,48 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class GsonUtil {
 
-    private static Gson gson = new Gson();
-    private static Gson gsonWithNull = new GsonBuilder().serializeNulls().create();
+    private static Gson gson;
+    private static Gson gsonWithNull;
 
-    // Use for timestamp deserialized
-    private static Gson gsonTL;
+    private static JsonDeserializer<Date> dataJsonDeserializer = new JsonDeserializer<Date>() {
+
+        private Pattern pattern = Pattern.compile("[0-9]+.?[0-9E]+");
+
+        @SneakyThrows
+        @Override
+        public Date deserialize(JsonElement json, Type typeOfT,
+                JsonDeserializationContext context) throws JsonParseException {
+            String dateStr = json.getAsString();
+            Matcher isNum = pattern.matcher(dateStr);
+            if (isNum.matches()) {
+                long timestamp = Double.valueOf(dateStr).longValue();
+                return new Date(timestamp);
+            } else {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                return formatter.parse(dateStr);
+            }
+        }
+    };
 
     static {
         final GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-            @Override
-            public Date deserialize(JsonElement json, Type typeOfT,
-                    JsonDeserializationContext context) throws JsonParseException {
-                String dateStr = json.getAsJsonPrimitive().getAsString();
-                long timestamp = Double.valueOf(dateStr).longValue();
-                return new Date(timestamp);
-            }
-        });
-        gsonTL = builder.create();
+        builder.registerTypeAdapter(Date.class, dataJsonDeserializer);
+        gson = builder.create();
+        final GsonBuilder builderWithNull = new GsonBuilder().serializeNulls();
+        builder.registerTypeAdapter(Date.class, dataJsonDeserializer);
+        gsonWithNull = builderWithNull.create();
     }
 
     private GsonUtil() {
@@ -62,10 +80,6 @@ public class GsonUtil {
 
     public static Gson getGsonWithNull() {
         return gsonWithNull;
-    }
-
-    public static Gson getGsonTL() {
-        return gsonTL;
     }
 
     public static void jsonObjectToMap(Map<String, String> parameterMap, JsonObject jsonObject) {

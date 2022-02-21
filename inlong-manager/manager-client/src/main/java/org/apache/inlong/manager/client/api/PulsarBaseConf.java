@@ -23,7 +23,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.auth.Authentication;
-import org.apache.inlong.manager.client.api.auth.Authentication.AuthType;
 
 @Data
 @AllArgsConstructor
@@ -42,9 +41,6 @@ public class PulsarBaseConf extends MqBaseConf {
 
     @ApiModelProperty("Pulsar namespace")
     private String namespace;
-
-    @ApiModelProperty("Authentication type")
-    private AuthType authType;
 
     @ApiModelProperty("Authentication")
     private Authentication authentication;

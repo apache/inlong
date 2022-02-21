@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.apache.inlong.manager.common.enums.Constant;
 
 /**
  * Inlong group information for Pulsar
@@ -31,6 +32,10 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong group information for Pulsar")
 public class InlongGroupPulsarInfo extends InlongGroupMqExtBase {
+
+    public InlongGroupPulsarInfo() {
+        this.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
+    }
 
     @ApiModelProperty(value = "Ledger's number of writable nodes")
     private Integer ensemble = 3;

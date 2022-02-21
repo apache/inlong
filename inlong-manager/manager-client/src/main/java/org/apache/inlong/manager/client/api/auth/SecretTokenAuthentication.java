@@ -17,17 +17,25 @@
 
 package org.apache.inlong.manager.client.api.auth;
 
+import com.alibaba.fastjson.JSONObject;
 import java.util.Map;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
+@NoArgsConstructor
 public class SecretTokenAuthentication extends SecretAuthentication {
 
     public static final String SECRET_TOKEN = "secret_token";
 
     @Getter
-    private String sToken;
+    protected String sToken;
+
+    public SecretTokenAuthentication(String secretId, String secretKey, String secretToken) {
+        this.secretId = secretId;
+        this.secretKey = secretKey;
+        this.sToken = secretToken;
+    }
 
     @Override
     public AuthType getAuthType() {

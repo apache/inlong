@@ -17,10 +17,13 @@
 
 package org.apache.inlong.manager.client.api.auth;
 
+import com.alibaba.fastjson.JSONObject;
 import java.util.Map;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
 
+@NoArgsConstructor
 public class SecretAuthentication implements Authentication {
 
     public static final String SECRET_ID = "secret_id";
@@ -28,10 +31,15 @@ public class SecretAuthentication implements Authentication {
     public static final String SECRET_KEY = "secret_key";
 
     @Getter
-    private String secretId;
+    protected String secretId;
 
     @Getter
-    private String secretKey;
+    protected String secretKey;
+
+    public SecretAuthentication(String secretId, String secretKey) {
+        this.secretId = secretId;
+        this.secretKey = secretKey;
+    }
 
     @Override
     public AuthType getAuthType() {
@@ -43,5 +51,13 @@ public class SecretAuthentication implements Authentication {
         AssertUtil.notEmpty(properties, "Properties should not be empty when init SecretAuthentication");
         this.secretId = properties.get(SECRET_ID);
         this.secretKey = properties.get(SECRET_KEY);
+    }
+
+    @Override
+    public String toString() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(SECRET_ID, this.getSecretId());
+        jsonObject.put(SECRET_KEY, this.getSecretKey());
+        return jsonObject.toString();
     }
 }
