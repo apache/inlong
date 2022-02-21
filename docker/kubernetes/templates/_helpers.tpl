@@ -116,10 +116,13 @@ ${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}
 {{- end -}}
 
 {{/*
-Define the pulsar hostname
+Define the pulsar url
 */}}
-{{- define "inlong.pulsar.hostname" -}}
-${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.pulsar.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{- define "inlong.pulsar.url" -}}
+{{- if .Values.pulsar.enabled -}}
+pulsar://${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.pulsar.component }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pulsar.ports.pulsarPort }}
+{{- end -}}
+pulsar://{{ .Values.externalPulsar.hostname }}:{{ .Values.externalPulsar.ports.pulsarPort }}
 {{- end -}}
 
 {{/*

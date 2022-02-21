@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.pulsar.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -64,3 +65,4 @@ spec:
           emptyDir: {}
           {{- end }}
       restartPolicy: Always
+{{- end }}
