@@ -29,6 +29,7 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_RETRY = "job.retry";
 
     public static final String JOB_SOURCE = "job.source";
+
     public static final String JOB_SINK = "job.sink";
     public static final String JOB_CHANNEL = "job.channel";
     public static final String JOB_TRIGGER = "job.trigger";
@@ -40,36 +41,36 @@ public class JobConstants extends CommonConstants {
     public static final String DEFAULT_JOB_LINE_FILTER = "";
 
     //File job
-    public static final String JOB_LINE_FILTER_PATTERN = "job.pattern";
-    public static final String JOB_DIR_FILTER_PATTERN = "job.dir.pattern";
-    public static final String JOB_FILE_TIME_OFFSET = "job.timeOffset";
-    public static final String JOB_FILE_MAX_WAIT = "job.file.max.wait";
-    public static final String JOB_ADDITION_STR = "job.additionStr";
-    public static final String JOB_CYCLE_UNIT = "job.cycleUnit";
+    public static final String JOB_LINE_FILTER_PATTERN = "job.filejob.pattern";
+    public static final String JOB_DIR_FILTER_PATTERN = "job.filejob.dir.pattern";
+    public static final String JOB_FILE_TIME_OFFSET = "job.filejob.timeOffset";
+    public static final String JOB_FILE_MAX_WAIT = "job.filejob.file.max.wait";
+    public static final String JOB_ADDITION_STR = "job.filejob.additionStr";
+    public static final String JOB_CYCLE_UNIT = "job.filejob.cycleUnit";
 
-    public static final String JOB_DIR_FILTER_PATH = "job.dir.path";
+    public static final String JOB_DIR_FILTER_PATH = "job.filejob.dir.path";
 
     //Binlog job
-    private static final String JOB_DATABASE_USER = "job.database.user";
-    private static final String JOB_DATABASE_PASSWORD = "job.database.password";
-    private static final String JOB_DATABASE_HOSTNAME = "job.database.hostname";
-    private static final String JOB_DATABASE_WHITELIST = "job.database.tableWhiteList";
-    private static final String JOB_DATABASE_SERVER_TIME_ZONE = "job.database.serverTimezone";
-    private static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "offset.flush.interval.ms";
-    private static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.database.history.file.filename";
-    private static final String JOB_DATABASE_SNAPSHOT_MODE = "job.database.snapshot.mode";
-    private static final  String JOB_DATABASE_OFFSET = "job.database.offset";
+    private static final String JOB_DATABASE_USER = "job.binlogjob.user";
+    private static final String JOB_DATABASE_PASSWORD = "job.binlogjob.password";
+    private static final String JOB_DATABASE_HOSTNAME = "job.binlogjob.hostname";
+    private static final String JOB_DATABASE_WHITELIST = "job.binlogjob.tableWhiteList";
+    private static final String JOB_DATABASE_SERVER_TIME_ZONE = "job.binlogjob.timeZone";
+    private static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "job.binlogjob.intervalMs";
+    private static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.binlogjob.storeHistoryFilename";
+    private static final String JOB_DATABASE_SNAPSHOT_MODE = "job.binlogjob.snapshotMode";
+    private static final  String JOB_DATABASE_OFFSET = "job.binlogjob.offset";
 
     //Kafka job
-    private static final  String SOURCE_KAFKA_TOPIC = "source_kafka_topic";
-    private static final  String SOURCE_KAFKA_KEY_DESERIALIZER = "source_kafka_key_deserializer";
-    private static final  String SOURCE_KAFKA_VALUE_DESERIALIZER = "source_kafka_value_deserializer";
-    private static final  String SOURCE_KAFKA_BOOTSTRAP_SERVERS = "source_kafka_bootstrap_servers";
-    private static final  String SOURCE_KAFKA_GROUP_ID = "source_kafka_group_id";
-    private static final  String SOURCE_KAFKA_RECORD_SPEED = "source_kafka_record_speed";
-    private static final  String SOURCE_KAFKA_BYTE_SPEED_LImIT = "source_kafka_byte_speed_limit";
-    private static final  String SOURCE_KAFKA_MIN_INTERVAL = "source_kafka_min_interval";
-    private static final  String SOURCE_KAFKA_OFFSET = "source_kafka_offset";
+    private static final  String SOURCE_KAFKA_TOPIC = "job.kafkajob.topic";
+    private static final  String SOURCE_KAFKA_KEY_DESERIALIZER = "job.kafkajob.keyDeserializer";
+    private static final  String SOURCE_KAFKA_VALUE_DESERIALIZER = "job.kafkajob.valueDeserializer";
+    private static final  String SOURCE_KAFKA_BOOTSTRAP_SERVERS = "job.kafkajob.bootstrapServers";
+    private static final  String SOURCE_KAFKA_GROUP_ID = "job.kafkajob.groupId";
+    private static final  String SOURCE_KAFKA_RECORD_SPEED = "job.kafkajob.recordSpeed";
+    private static final  String SOURCE_KAFKA_BYTE_SPEED_LIMIT = "job.kafkajob.byteSpeedLimit";
+    private static final  String SOURCE_KAFKA_MIN_INTERVAL = "job.kafkajob.minInterval";
+    private static final  String SOURCE_KAFKA_OFFSET = "job.kafkajob.offset";
 
     // job type, delete/add
     public static final String JOB_TYPE = "job.type";

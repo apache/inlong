@@ -61,12 +61,6 @@ public class FileJob {
     @Data
     public static class FileJobTaskConfig {
 
-        private String trigger;
-        private String name;
-        private String source;
-        private String sink;
-        private String channel;
-
         private String dataName;
         private String path;
         private int taskId;

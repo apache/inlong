@@ -23,16 +23,24 @@ import lombok.Data;
 public class KafkaJob {
     private String deliveryTime;
     private String op;
-    private KafkaJobTaskConfig kafkaJobTaskConfig;
+
+    private String name;
+    private String source;
+    private String sink;
+    private String channel;
+
+    private  String topic;
+    private  String keyDeserializer;
+    private  String valueDeserializer;
+    private  String bootstrapServers;
+    private  String groupId;
+    private  String recordSpeed;
+    private  String byteSpeedLimit;
+    private  String minInterval;
+    private  String offset;
 
     @Data
     public static class KafkaJobTaskConfig {
-
-        private String trigger;
-        private String name;
-        private String source;
-        private String sink;
-        private String channel;
 
         private  String topic;
         private  String keyDeserializer;

@@ -24,16 +24,24 @@ public class BinlogJob {
 
     private String deliveryTime;
     private String op;
-    private BinlogJobTaskConfig binlogJobTaskConfig;
+
+    private String name;
+    private String source;
+    private String sink;
+    private String channel;
+
+    private  String user;
+    private  String password;
+    private  String hostname;
+    private  String whitelist;
+    private  String timeZone;
+    private  String intervalMs;
+    private  String storeHistoryFilename;
+    private  String snapshotMode;
+    private  String offset;
 
     @Data
     public static class BinlogJobTaskConfig {
-
-        private String trigger;
-        private String name;
-        private String source;
-        private String sink;
-        private String channel;
 
         private  String user;
         private  String password;
