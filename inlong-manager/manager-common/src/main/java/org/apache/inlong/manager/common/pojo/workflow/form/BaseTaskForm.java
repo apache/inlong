@@ -28,8 +28,8 @@ import lombok.Data;
 @Data
 @JsonTypeInfo(use = Id.NAME, property = "formName")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = BusinessAdminApproveForm.class, name = BusinessAdminApproveForm.FORM_NAME),
-        @JsonSubTypes.Type(value = ConsumptionAdminApproveForm.class, name = ConsumptionAdminApproveForm.FORM_NAME),
+        @JsonSubTypes.Type(value = InlongGroupApproveForm.class, name = InlongGroupApproveForm.FORM_NAME),
+        @JsonSubTypes.Type(value = ConsumptionApproveForm.class, name = ConsumptionApproveForm.FORM_NAME),
 })
 public abstract class BaseTaskForm implements TaskForm {
 

@@ -17,12 +17,12 @@
 
 package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.manager.common.pojo.business.DataSchemaInfo;
+import org.apache.inlong.manager.common.pojo.group.DataSchemaInfo;
 
 import java.util.List;
 
 /**
- * Data format service layer interface for business access
+ * Data format service layer interface for inlong group
  *
  */
 public interface DataSchemaService {

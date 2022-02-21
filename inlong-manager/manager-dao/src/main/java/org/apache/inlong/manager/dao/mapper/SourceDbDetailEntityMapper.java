@@ -19,7 +19,7 @@ package org.apache.inlong.manager.dao.mapper;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailPageRequest;
+import org.apache.inlong.manager.common.pojo.source.SourceDbDetailPageRequest;
 import org.apache.inlong.manager.dao.entity.SourceDbDetailEntity;
 import org.springframework.stereotype.Repository;
 
@@ -44,17 +44,17 @@ public interface SourceDbDetailEntityMapper {
             @Param("dbName") String dbName, @Param("connectionName") String connectionName);
 
     /**
-     * According to the business group id and data stream id, query data source details
+     * According to the inlong group id and inlong stream id, query data source details
      */
     List<SourceDbDetailEntity> selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business group id and data stream id, physically delete DB data source details
+     * According to the inlong group id and inlong stream id, physically delete DB data source details
      */
     int deleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business group id and data stream id, logically delete DB data source details
+     * According to the inlong group id and inlong stream id, logically delete DB data source details
      */
     int logicDeleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("operator") String operator);

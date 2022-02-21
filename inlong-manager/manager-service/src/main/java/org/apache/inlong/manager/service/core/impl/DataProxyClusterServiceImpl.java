@@ -28,9 +28,9 @@ import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfigResponse;
 import org.apache.inlong.commons.pojo.dataproxy.ProxyPulsarDTO;
 import org.apache.inlong.commons.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.enums.BizConstant;
-import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterInfo;
@@ -40,14 +40,14 @@ import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.BusinessEntity;
 import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
 import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
-import org.apache.inlong.manager.dao.entity.DataStreamEntity;
-import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterEntityMapper;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.mapper.DataProxyClusterEntityMapper;
-import org.apache.inlong.manager.dao.mapper.DataStreamEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.slf4j.Logger;
@@ -73,9 +73,9 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     @Autowired
     private DataProxyClusterEntityMapper dataProxyClusterMapper;
     @Autowired
-    private BusinessEntityMapper businessMapper;
+    private InlongGroupEntityMapper groupMapper;
     @Autowired
-    private DataStreamEntityMapper dataStreamMapper;
+    private InlongStreamEntityMapper streamMapper;
     @Autowired
     private DataProxyConfigRepository proxyRepository;
     @Autowired
@@ -108,7 +108,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         DataProxyClusterEntity entity = dataProxyClusterMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("data proxy cluster not found by id={}", id);
-            throw new BusinessException(BizErrorCodeEnum.CLUSTER_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
 
         DataProxyClusterInfo clusterInfo = CommonBeanUtils.copyProperties(entity, DataProxyClusterInfo::new);
@@ -146,7 +146,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         DataProxyClusterEntity entity = dataProxyClusterMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("data proxy cluster not found by id={}", id);
-            throw new BusinessException(BizErrorCodeEnum.CLUSTER_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
 
         CommonBeanUtils.copyProperties(clusterInfo, entity, true);
@@ -166,7 +166,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         DataProxyClusterEntity entity = dataProxyClusterMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("data proxy cluster not found by id={}", id);
-            throw new BusinessException(BizErrorCodeEnum.CLUSTER_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
 
         entity.setIsDeleted(EntityStatus.IS_DELETED.getCode());
@@ -221,22 +221,22 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
 
     @Override
     public List<DataProxyConfig> getConfig() {
-        // get all configs with business status of 130, that is, config successful
+        // get all configs with inlong group status of 130, that is, config successful
         // TODO Optimize query conditions
-        List<BusinessEntity> bizEntityList = businessMapper.selectAll(EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode());
+        List<InlongGroupEntity> bizEntityList = groupMapper.selectAll(EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode());
         List<DataProxyConfig> configList = new ArrayList<>();
-        for (BusinessEntity entity : bizEntityList) {
+        for (InlongGroupEntity entity : bizEntityList) {
             String groupId = entity.getInlongGroupId();
             String bizResource = entity.getMqResourceObj();
 
             DataProxyConfig config = new DataProxyConfig();
             config.setM(entity.getSchemaName());
-            if (BizConstant.MIDDLEWARE_TUBE.equals(entity.getMiddlewareType())) {
+            if (Constant.MIDDLEWARE_TUBE.equals(entity.getMiddlewareType())) {
                 config.setInlongGroupId(groupId);
                 config.setTopic(bizResource);
-            } else if (BizConstant.MIDDLEWARE_PULSAR.equals(entity.getMiddlewareType())) {
-                List<DataStreamEntity> streamList = dataStreamMapper.selectByGroupId(groupId);
-                for (DataStreamEntity stream : streamList) {
+            } else if (Constant.MIDDLEWARE_PULSAR.equals(entity.getMiddlewareType())) {
+                List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
+                for (InlongStreamEntity stream : streamList) {
                     String streamId = stream.getInlongStreamId();
                     config.setInlongGroupId(groupId + "/" + streamId);
                     config.setTopic("persistent://" + clusterBean.getDefaultTenant() + "/" + groupId + "/" + streamId);
@@ -251,9 +251,6 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
 
     /**
      * query data proxy config by cluster id, result includes pulsar cluster configs and topic etc
-     *
-     * @param dataproxyClusterName
-     * @return
      */
     @Override
     public ProxyPulsarDTO getConfigV2(String dataproxyClusterName) {
@@ -262,17 +259,17 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         List<DataProxyConfig> topicList = new ArrayList<>();
 
         DataProxyClusterEntity dataProxyClusterEntity = dataProxyClusterMapper.selectByName(dataproxyClusterName);
-        List<String> groudIdList = businessMapper.selectGroupIdByProxyId(dataProxyClusterEntity.getId());
+        List<String> groupIdList = groupMapper.selectGroupIdByProxyId(dataProxyClusterEntity.getId());
         ClusterRequest request = ClusterRequest.builder().mqSetName(dataProxyClusterEntity.getMqSetName()).build();
         List<ThirdPartyClusterEntity> clusterInfoEntities = thirdPartyClusterEntityMapper
                 .selectByCondition(request);
         String tenant = clusterBean.getDefaultTenant();
         /*
-         * based on group id, get topiclist
+         * based on group id, get topic list
          */
-        for (String groupId : groudIdList) {
-            List<DataStreamEntity> streamList = dataStreamMapper.selectByGroupId(groupId);
-            for (DataStreamEntity stream : streamList) {
+        for (String groupId : groupIdList) {
+            List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
+            for (InlongStreamEntity stream : streamList) {
                 DataProxyConfig topicConfig = new DataProxyConfig();
                 String streamId = stream.getInlongStreamId();
                 topicConfig.setInlongGroupId(groupId + "/" + streamId);

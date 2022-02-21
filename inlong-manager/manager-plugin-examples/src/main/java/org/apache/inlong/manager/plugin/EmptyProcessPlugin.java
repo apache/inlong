@@ -20,8 +20,8 @@ package org.apache.inlong.manager.plugin;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
+import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
-import org.apache.inlong.manager.workflow.event.task.StorageOperateListener;
 import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 
 import java.util.LinkedHashMap;
@@ -45,8 +45,8 @@ public class EmptyProcessPlugin implements ProcessPlugin {
     }
 
     @Override
-    public Map<StorageOperateListener, EventSelector> createStorageOperateListeners() {
-        return ProcessPlugin.super.createStorageOperateListeners();
+    public Map<SinkOperateListener, EventSelector> createSinkOperateListeners() {
+        return ProcessPlugin.super.createSinkOperateListeners();
     }
 
 }

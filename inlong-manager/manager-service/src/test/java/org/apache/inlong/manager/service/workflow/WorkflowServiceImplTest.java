@@ -19,20 +19,23 @@ package org.apache.inlong.manager.service.workflow;
 
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-import org.apache.inlong.manager.common.enums.BizConstant;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskExecuteLogQuery;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.service.core.BusinessService;
+import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.mocks.MockDeleteSortListener;
 import org.apache.inlong.manager.service.mocks.MockDeleteSourceListener;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
@@ -40,15 +43,12 @@ import org.apache.inlong.manager.service.mocks.MockRestartSortListener;
 import org.apache.inlong.manager.service.mocks.MockRestartSourceListener;
 import org.apache.inlong.manager.service.mocks.MockStopSortListener;
 import org.apache.inlong.manager.service.mocks.MockStopSourceListener;
-import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableListener;
-import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarGroupTaskListener;
-import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarResourceTaskListener;
-import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeGroupTaskListener;
-import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeTopicTaskListener;
-import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigTaskListener;
-import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateBusinessProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateBusinessProcessForm.OperateType;
+import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveTableListener;
+import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarGroupTaskListener;
+import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarResourceTaskListener;
+import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeGroupTaskListener;
+import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeTopicTaskListener;
+import org.apache.inlong.manager.service.thirdparty.sort.PushHiveConfigTaskListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.WorkflowEngine;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
@@ -78,7 +78,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     @Autowired
     private WorkflowEngine workflowEngine;
     @Autowired
-    private BusinessService businessService;
+    private InlongGroupService groupService;
     @Autowired
     private ServiceTaskListenerFactory taskListenerFactory;
     @Autowired
@@ -90,23 +90,23 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     private String applicant;
 
-    private BusinessResourceProcessForm form;
+    private GroupResourceProcessForm form;
 
-    public BusinessInfo initBusinessForm(String middlewareType) {
-        processName = ProcessName.CREATE_BUSINESS_RESOURCE;
-        applicant = "test_create_new_business";
-        form = new BusinessResourceProcessForm();
-        BusinessInfo businessInfo = new BusinessInfo();
+    public InlongGroupRequest initGroupForm(String middlewareType) {
+        processName = ProcessName.CREATE_GROUP_RESOURCE;
+        applicant = "test_create_new_group";
+        form = new GroupResourceProcessForm();
+        InlongGroupRequest groupInfo = new InlongGroupRequest();
         String inlongStreamId = "test_stream";
         form.setInlongStreamId(inlongStreamId);
-        form.setBusinessInfo(businessInfo);
-        businessInfo.setName("test");
-        businessInfo.setInlongGroupId("b_test");
-        businessInfo.setMiddlewareType(middlewareType);
-        businessInfo.setMqExtInfo(new BusinessPulsarInfo());
-        businessInfo.setMqResourceObj("test-queue");
-        businessService.save(businessInfo, OPERATOR);
-        return businessInfo;
+        form.setGroupInfo(groupInfo);
+        groupInfo.setName("test");
+        groupInfo.setInlongGroupId("b_test");
+        groupInfo.setMiddlewareType(middlewareType);
+        groupInfo.setMqExtInfo(new InlongGroupPulsarInfo());
+        groupInfo.setMqResourceObj("test-queue");
+        groupService.save(groupInfo, OPERATOR);
+        return groupInfo;
     }
 
     /**
@@ -156,7 +156,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     @Test
     public void testStartCreatePulsarWorkflow() {
-        initBusinessForm(BizConstant.MIDDLEWARE_PULSAR);
+        initGroupForm(Constant.MIDDLEWARE_PULSAR);
         mockTaskListenerFactory();
         WorkflowContext context = workflowEngine.processService().start(processName.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
@@ -174,7 +174,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     @Test
     public void testStartCreateTubeWorkflow() {
-        initBusinessForm(BizConstant.MIDDLEWARE_TUBE);
+        initGroupForm(Constant.MIDDLEWARE_TUBE);
         mockTaskListenerFactory();
         WorkflowContext context = workflowEngine.processService().start(processName.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
@@ -193,16 +193,16 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     @Test
     public void testSuspendProcess() {
-        BusinessInfo businessInfo = initBusinessForm(BizConstant.MIDDLEWARE_PULSAR);
-        businessInfo.setStatus(EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode());
-        businessService.update(businessInfo, OPERATOR);
-        UpdateBusinessProcessForm form = new UpdateBusinessProcessForm();
-        form.setBusinessInfo(businessInfo);
+        InlongGroupRequest groupInfo = initGroupForm(Constant.MIDDLEWARE_PULSAR);
+        groupInfo.setStatus(EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode());
+        groupService.update(groupInfo, OPERATOR);
+        UpdateGroupProcessForm form = new UpdateGroupProcessForm();
+        form.setGroupInfo(groupInfo);
         form.setOperateType(OperateType.SUSPEND);
         taskListenerFactory.acceptPlugin(new MockPlugin());
 
         WorkflowContext context = workflowEngine.processService()
-                .start(ProcessName.SUSPEND_BUSINESS_WORKFLOW.name(), applicant, form);
+                .start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
         Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
@@ -221,16 +221,16 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     @Test
     public void testRestartProcess() {
-        BusinessInfo businessInfo = initBusinessForm(BizConstant.MIDDLEWARE_PULSAR);
-        businessInfo.setStatus(EntityStatus.BIZ_SUSPEND.getCode());
-        businessService.update(businessInfo, OPERATOR);
-        UpdateBusinessProcessForm form = new UpdateBusinessProcessForm();
-        form.setBusinessInfo(businessInfo);
+        InlongGroupRequest groupInfo = initGroupForm(Constant.MIDDLEWARE_PULSAR);
+        groupInfo.setStatus(EntityStatus.GROUP_SUSPEND.getCode());
+        groupService.update(groupInfo, OPERATOR);
+        UpdateGroupProcessForm form = new UpdateGroupProcessForm();
+        form.setGroupInfo(groupInfo);
         form.setOperateType(OperateType.RESTART);
         taskListenerFactory.acceptPlugin(new MockPlugin());
 
         WorkflowContext context = workflowEngine.processService()
-                .start(ProcessName.RESTART_BUSINESS_WORKFLOW.name(), applicant, form);
+                .start(ProcessName.RESTART_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
         Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
@@ -251,16 +251,16 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     @Test
     public void testStopProcess() {
-        BusinessInfo businessInfo = initBusinessForm(BizConstant.MIDDLEWARE_PULSAR);
-        businessInfo.setStatus(EntityStatus.BIZ_RESTART.getCode());
-        businessService.update(businessInfo, OPERATOR);
-        UpdateBusinessProcessForm form = new UpdateBusinessProcessForm();
-        form.setBusinessInfo(businessInfo);
+        InlongGroupRequest groupInfo = initGroupForm(Constant.MIDDLEWARE_PULSAR);
+        groupInfo.setStatus(EntityStatus.GROUP_RESTART.getCode());
+        groupService.update(groupInfo, OPERATOR);
+        UpdateGroupProcessForm form = new UpdateGroupProcessForm();
+        form.setGroupInfo(groupInfo);
         form.setOperateType(OperateType.DELETE);
         taskListenerFactory.acceptPlugin(new MockPlugin());
 
         WorkflowContext context = workflowEngine.processService()
-                .start(ProcessName.DELETE_BUSINESS_WORKFLOW.name(), applicant, form);
+                .start(ProcessName.DELETE_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse view = result.getProcessInfo();
         Assert.assertSame(view.getStatus(), ProcessStatus.COMPLETED);
@@ -281,11 +281,11 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     @Test
     public void testListTaskExecuteLogs() {
         // insert process instance
-        String groupId = "test_business";
+        String groupId = "test_group";
         WorkflowProcessEntity process = new WorkflowProcessEntity();
         process.setId(1);
         process.setInlongGroupId(groupId);
-        process.setName("CREATE_BUSINESS_RESOURCE");
+        process.setName("CREATE_GROUP_RESOURCE");
         process.setHidden(1);
         process.setStatus(ProcessStatus.COMPLETED.name());
         processEntityMapper.insert(process);
@@ -300,7 +300,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         // query execute logs
         TaskExecuteLogQuery query = new TaskExecuteLogQuery();
         query.setInlongGroupId(groupId);
-        query.setProcessNames(Collections.singletonList("CREATE_BUSINESS_RESOURCE"));
+        query.setProcessNames(Collections.singletonList("CREATE_GROUP_RESOURCE"));
         PageInfo<WorkflowExecuteLog> logPageInfo = workflowService.listTaskExecuteLogs(query);
 
         Assert.assertEquals(1, logPageInfo.getTotal());

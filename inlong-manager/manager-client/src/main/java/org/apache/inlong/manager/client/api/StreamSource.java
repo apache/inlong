@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 @Data
-@ApiModel("Data source configuration")
+@ApiModel("Stream source configuration")
 public abstract class StreamSource {
 
     public enum SourceType {

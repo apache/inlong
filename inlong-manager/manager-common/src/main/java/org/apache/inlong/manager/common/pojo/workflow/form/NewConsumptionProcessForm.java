@@ -58,7 +58,7 @@ public class NewConsumptionProcessForm extends BaseProcessForm {
     public Map<String, Object> showInList() {
         Map<String, Object> show = Maps.newHashMap();
         if (consumptionInfo != null) {
-            show.put("groupId", consumptionInfo.getInlongGroupId());
+            show.put("inlongGroupId", consumptionInfo.getInlongGroupId());
         }
         return show;
     }

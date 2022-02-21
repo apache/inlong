@@ -53,7 +53,7 @@
         where id = #{id,jdbcType=INTEGER}
     </select>
     <select id="selectByCondition" resultMap="BaseResultMap"
-            parameterType="org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailPageRequest">
+            parameterType="org.apache.inlong.manager.common.pojo.source.SourceDbDetailPageRequest">
         select
         <include refid="Base_Column_List"/>
         from source_db_detail

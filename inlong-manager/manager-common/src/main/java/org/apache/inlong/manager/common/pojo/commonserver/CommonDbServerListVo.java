@@ -23,10 +23,10 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * File data source list
+ * File source list
  */
 @Data
-@ApiModel("File data source list")
+@ApiModel("File source list")
 public class CommonDbServerListVo {
 
     private int id;

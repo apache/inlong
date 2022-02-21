@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 @Data
-@ApiModel("Sort configuration for data stream group")
+@ApiModel("Sort configuration for inlong group")
 public abstract class SortBaseConf {
 
     public enum SortType {

@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.core.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
@@ -104,7 +104,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         ThirdPartyClusterEntity entity = thirdPartyClusterEntityMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("cluster not found by id={}", id);
-            throw new BusinessException(BizErrorCodeEnum.CLUSTER_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
         CommonBeanUtils.copyProperties(clusterInfo, entity, true);
         entity.setModifier(operator);
@@ -120,7 +120,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         ThirdPartyClusterEntity entity = thirdPartyClusterEntityMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("cluster not found by id={}", id);
-            throw new BusinessException(BizErrorCodeEnum.CLUSTER_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
         entity.setIsDeleted(EntityStatus.IS_DELETED.getCode());
         entity.setStatus(EntityStatus.DELETED.getCode());
@@ -137,7 +137,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         ThirdPartyClusterEntity entity = thirdPartyClusterEntityMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("cluster not found by id={}", id);
-            throw new BusinessException(BizErrorCodeEnum.CLUSTER_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
         ClusterInfo clusterInfo = CommonBeanUtils.copyProperties(entity, ClusterInfo::new);
         LOGGER.info("success to get cluster info");

@@ -28,10 +28,10 @@ import lombok.Data;
 @Data
 @JsonTypeInfo(use = Id.NAME, property = "formName")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = NewBusinessProcessForm.class, name = NewBusinessProcessForm.FORM_NAME),
+        @JsonSubTypes.Type(value = NewGroupProcessForm.class, name = NewGroupProcessForm.FORM_NAME),
         @JsonSubTypes.Type(value = NewConsumptionProcessForm.class, name = NewConsumptionProcessForm.FORM_NAME),
-        @JsonSubTypes.Type(value = BusinessResourceProcessForm.class, name = BusinessResourceProcessForm.FORM_NAME),
-        @JsonSubTypes.Type(value = UpdateBusinessProcessForm.class, name = UpdateBusinessProcessForm.FORM_NAME),
+        @JsonSubTypes.Type(value = GroupResourceProcessForm.class, name = GroupResourceProcessForm.FORM_NAME),
+        @JsonSubTypes.Type(value = UpdateGroupProcessForm.class, name = UpdateGroupProcessForm.FORM_NAME),
 })
 public abstract class BaseProcessForm implements ProcessForm {
 

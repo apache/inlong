@@ -20,24 +20,21 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.BizConstant;
-import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.datasource.SourceFileBasicInfo;
-import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailInfo;
-import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailListVO;
-import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailPageRequest;
+import org.apache.inlong.manager.common.pojo.source.SourceFileBasicInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceFileDetailInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceFileDetailListVO;
+import org.apache.inlong.manager.common.pojo.source.SourceFileDetailPageRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.BusinessEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.SourceFileBasicEntity;
 import org.apache.inlong.manager.dao.entity.SourceFileDetailEntity;
-import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SourceFileBasicEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.service.core.SourceFileService;
@@ -47,6 +44,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  * File data source service layer implementation
@@ -61,7 +62,7 @@ public class SourceFileServiceImpl implements SourceFileService {
     @Autowired
     private SourceFileDetailEntityMapper fileDetailMapper;
     @Autowired
-    private BusinessEntityMapper businessMapper;
+    private InlongGroupEntityMapper groupMapper;
 
     @Override
     public Integer saveBasic(SourceFileBasicInfo basicInfo, String operator) {
@@ -69,17 +70,17 @@ public class SourceFileServiceImpl implements SourceFileService {
         Preconditions.checkNotNull(basicInfo, "file data source basic is empty");
         String groupId = basicInfo.getInlongGroupId();
         String streamId = basicInfo.getInlongStreamId();
-        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be added
-        this.checkBizIsTempStatus(groupId);
+        this.checkGroupIsTempStatus(groupId);
 
         // Each groupId + streamId has only 1 valid basic information
         SourceFileBasicEntity exist = fileBasicMapper.selectByIdentifier(groupId, streamId);
         if (exist != null) {
             LOGGER.error("file data source basic already exists, please check");
-            throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DUPLICATE);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_DUPLICATE);
         }
 
         SourceFileBasicEntity entity = CommonBeanUtils.copyProperties(basicInfo, SourceFileBasicEntity::new);
@@ -95,14 +96,14 @@ public class SourceFileServiceImpl implements SourceFileService {
     @Override
     public SourceFileBasicInfo getBasicByIdentifier(String groupId, String streamId) {
         LOGGER.info("begin to get file data source basic by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
 
         SourceFileBasicEntity entity = fileBasicMapper.selectByIdentifier(groupId, streamId);
         SourceFileBasicInfo basicInfo = new SourceFileBasicInfo();
         if (entity == null) {
             LOGGER.error("file data source basic not found by streamId={}", streamId);
-            // throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_BASIC_NOTFOUND);
+            // throw new BusinessException(ErrorCodeEnum.DATA_SOURCE_BASIC_NOTFOUND);
             return basicInfo;
         }
         CommonBeanUtils.copyProperties(entity, basicInfo);
@@ -116,9 +117,9 @@ public class SourceFileServiceImpl implements SourceFileService {
         LOGGER.info("begin to update file data source basic={}", basicInfo);
         Preconditions.checkNotNull(basicInfo, "file data source basic is empty");
 
-        // The groupId may be modified, it is necessary to determine whether the business status of
+        // The groupId may be modified, it is necessary to determine whether the inlong group status of
         // the modified groupId supports modification
-        this.checkBizIsTempStatus(basicInfo.getInlongGroupId());
+        this.checkGroupIsTempStatus(basicInfo.getInlongGroupId());
 
         // If id is empty, add
         if (basicInfo.getId() == null) {
@@ -127,7 +128,7 @@ public class SourceFileServiceImpl implements SourceFileService {
             SourceFileBasicEntity basicEntity = fileBasicMapper.selectByPrimaryKey(basicInfo.getId());
             if (basicEntity == null) {
                 LOGGER.error("file data source basic not found by id={}, update failed", basicInfo.getId());
-                throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_BASIC_NOT_FOUND);
+                throw new BusinessException(ErrorCodeEnum.SOURCE_BASIC_NOT_FOUND);
             }
 
             BeanUtils.copyProperties(basicInfo, basicEntity);
@@ -148,19 +149,19 @@ public class SourceFileServiceImpl implements SourceFileService {
         SourceFileBasicEntity entity = fileBasicMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("file data source basic not found by id={}, delete failed", id);
-            throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_BASIC_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_BASIC_NOT_FOUND);
         }
 
         String groupId = entity.getInlongGroupId();
         String streamId = entity.getInlongStreamId();
         // Check if it can be deleted
-        this.checkBizIsTempStatus(groupId);
+        this.checkGroupIsTempStatus(groupId);
 
         // If there are related data source details, it is not allowed to delete
         List<SourceFileDetailEntity> detailEntities = fileDetailMapper.selectByIdentifier(groupId, streamId);
         if (CollectionUtils.isNotEmpty(detailEntities)) {
             LOGGER.error("the data source basic have [{}] details, delete failed", detailEntities.size());
-            throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_BASIC_DELETE_HAS_DETAIL);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_BASIC_DELETE_HAS_DETAIL);
         }
 
         entity.setIsDeleted(1);
@@ -175,11 +176,11 @@ public class SourceFileServiceImpl implements SourceFileService {
     public Integer saveDetail(SourceFileDetailInfo detailInfo, String operator) {
         LOGGER.info("begin to save file data source detail={}", detailInfo);
         Preconditions.checkNotNull(detailInfo, "file data source detail is empty");
-        Preconditions.checkNotNull(detailInfo.getInlongGroupId(), BizConstant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(detailInfo.getInlongStreamId(), BizConstant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(detailInfo.getInlongGroupId(), Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(detailInfo.getInlongStreamId(), Constant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be added
-        BusinessEntity businessEntity = this.checkBizIsTempStatus(detailInfo.getInlongGroupId());
+        InlongGroupEntity inlongGroupEntity = this.checkGroupIsTempStatus(detailInfo.getInlongGroupId());
 
         // If there are data sources under the same groupId, streamId, ip, username, the addition fails
         String groupId = detailInfo.getInlongGroupId();
@@ -190,7 +191,7 @@ public class SourceFileServiceImpl implements SourceFileService {
         if (count > 0) {
             LOGGER.error("file data source already exists: groupId=" + groupId + ", streamId=" + streamId
                     + ", ip=" + ip + ", username=" + username);
-            throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DUPLICATE);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_DUPLICATE);
         }
 
         detailInfo.setStatus(EntityStatus.AGENT_ADD.getCode());
@@ -214,7 +215,7 @@ public class SourceFileServiceImpl implements SourceFileService {
         SourceFileDetailEntity entity = fileDetailMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("file data source detail not found by id={}", id);
-            throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DETAIL_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_DETAIL_NOT_FOUND);
         }
         SourceFileDetailInfo detailInfo = CommonBeanUtils.copyProperties(entity, SourceFileDetailInfo::new);
 
@@ -225,12 +226,12 @@ public class SourceFileServiceImpl implements SourceFileService {
     @Override
     public List<SourceFileDetailInfo> listDetailByIdentifier(String groupId, String streamId) {
         LOGGER.info("begin list file data source detail by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
 
         List<SourceFileDetailEntity> entities = fileDetailMapper.selectByIdentifier(groupId, streamId);
         if (CollectionUtils.isEmpty(entities)) {
             LOGGER.warn("file data source detail not found");
-            // throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DETAIL_NOTFOUND);
+            // throw new BusinessException(ErrorCodeEnum.DATA_SOURCE_DETAIL_NOTFOUND);
             return Collections.emptyList();
         }
 
@@ -262,16 +263,16 @@ public class SourceFileServiceImpl implements SourceFileService {
         Preconditions.checkNotNull(detailInfo, "file data source detail is empty");
 
         Integer id = detailInfo.getId();
-        Preconditions.checkNotNull(id, BizConstant.ID_IS_EMPTY);
+        Preconditions.checkNotNull(id, Constant.ID_IS_EMPTY);
 
         SourceFileDetailEntity entity = fileDetailMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("file data source detail not found by id=" + id);
-            throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DETAIL_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_DETAIL_NOT_FOUND);
         }
 
         // After the approval is passed, the status needs to be revised to be revised to be issued: 205
-        this.checkBizIsTempStatus(detailInfo.getInlongGroupId());
+        this.checkGroupIsTempStatus(detailInfo.getInlongGroupId());
         detailInfo.setStatus(EntityStatus.AGENT_ADD.getCode());
 
         SourceFileDetailEntity updateEntity = CommonBeanUtils.copyProperties(detailInfo, SourceFileDetailEntity::new);
@@ -292,14 +293,14 @@ public class SourceFileServiceImpl implements SourceFileService {
         SourceFileDetailEntity entity = fileDetailMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("file data source detail not found by id={}", id);
-            throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_DETAIL_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_DETAIL_NOT_FOUND);
         }
 
         // Check if it can be deleted
-        BusinessEntity bizEntity = this.checkBizIsTempStatus(entity.getInlongGroupId());
+        InlongGroupEntity bizEntity = this.checkGroupIsTempStatus(entity.getInlongGroupId());
 
         // After the approval is passed, the status needs to be modified to delete to be issued: 204
-        if (EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode().equals(bizEntity.getStatus())) {
+        if (EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode().equals(bizEntity.getStatus())) {
             entity.setPreviousStatus(entity.getStatus());
             entity.setStatus(EntityStatus.AGENT_DELETE.getCode());
         } else {
@@ -319,11 +320,11 @@ public class SourceFileServiceImpl implements SourceFileService {
     @Override
     public boolean deleteAllByIdentifier(String groupId, String streamId) {
         LOGGER.info("begin delete all file basic and detail by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be deleted
-        this.checkBizIsTempStatus(groupId);
+        this.checkGroupIsTempStatus(groupId);
 
         fileBasicMapper.deleteByIdentifier(groupId, streamId);
         fileDetailMapper.deleteByIdentifier(groupId, streamId);
@@ -335,11 +336,11 @@ public class SourceFileServiceImpl implements SourceFileService {
     @Override
     public boolean logicDeleteAllByIdentifier(String groupId, String streamId, String operator) {
         LOGGER.info("begin logic delete all file basic and detail by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, BizConstant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, BizConstant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be deleted
-        this.checkBizIsTempStatus(groupId);
+        this.checkGroupIsTempStatus(groupId);
 
         fileBasicMapper.logicDeleteByIdentifier(groupId, streamId, operator);
         fileDetailMapper.logicDeleteByIdentifier(groupId, streamId, operator);
@@ -348,21 +349,21 @@ public class SourceFileServiceImpl implements SourceFileService {
     }
 
     /**
-     * Check whether the business status is temporary
+     * Check whether the inlong group status is temporary
      *
-     * @param groupId Business group id
-     * @return Business entity for caller reuse
+     * @param groupId Inlong group id
+     * @return Inlong group entity for caller reuse
      */
-    private BusinessEntity checkBizIsTempStatus(String groupId) {
-        BusinessEntity businessEntity = businessMapper.selectByIdentifier(groupId);
-        Preconditions.checkNotNull(businessEntity, "groupId is invalid");
-        // Add/modify/delete is not allowed under certain business status
-        if (EntityStatus.BIZ_TEMP_STATUS.contains(businessEntity.getStatus())) {
-            LOGGER.error("business status was not allowed to add/update/delete data source info");
-            throw new BusinessException(BizErrorCodeEnum.DATA_SOURCE_OPT_NOT_ALLOWED);
+    private InlongGroupEntity checkGroupIsTempStatus(String groupId) {
+        InlongGroupEntity inlongGroupEntity = groupMapper.selectByIdentifier(groupId);
+        Preconditions.checkNotNull(inlongGroupEntity, "groupId is invalid");
+        // Add/modify/delete is not allowed under certain inlong group status
+        if (EntityStatus.GROUP_TEMP_STATUS.contains(inlongGroupEntity.getStatus())) {
+            LOGGER.error("inlong group status was not allowed to add/update/delete data source info");
+            throw new BusinessException(ErrorCodeEnum.SOURCE_OPT_NOT_ALLOWED);
         }
 
-        return businessEntity;
+        return inlongGroupEntity;
     }
 
 }

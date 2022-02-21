@@ -25,10 +25,10 @@ CREATE DATABASE IF NOT EXISTS apache_inlong_manager;
 USE apache_inlong_manager;
 
 -- ----------------------------
--- Table structure for agent_heartbeat_log
+-- Table structure for agent_heartbeat
 -- ----------------------------
-DROP TABLE IF EXISTS `agent_heartbeat_log`;
-CREATE TABLE `agent_heartbeat_log`
+DROP TABLE IF EXISTS `agent_heartbeat`;
+CREATE TABLE `agent_heartbeat`
 (
     `ip`            varchar(64) NOT NULL COMMENT 'agent host ip',
     `version`       varchar(128)         DEFAULT NULL,
@@ -74,16 +74,16 @@ CREATE TABLE `agent_sys_conf`
   DEFAULT CHARSET = utf8 COMMENT ='Agent system configuration table';
 
 -- ----------------------------
--- Table structure for business
+-- Table structure for inlong_group
 -- ----------------------------
-DROP TABLE IF EXISTS `business`;
-CREATE TABLE `business`
+DROP TABLE IF EXISTS `inlong_group`;
+CREATE TABLE `inlong_group`
 (
     `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Business group id, filled in by the user, undeleted ones cannot be repeated',
-    `name`                varchar(128)      DEFAULT '' COMMENT 'Business name, English, numbers and underscore',
+    `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Inlong group id, filled in by the user, undeleted ones cannot be repeated',
+    `name`                varchar(128)      DEFAULT '' COMMENT 'Inlong group name, English, numbers and underscore',
     `cn_name`             varchar(256)      DEFAULT NULL COMMENT 'Chinese display name',
-    `description`         varchar(256)      DEFAULT '' COMMENT 'Business Introduction',
+    `description`         varchar(256)      DEFAULT '' COMMENT 'Inlong group Introduction',
     `middleware_type`     varchar(20)       DEFAULT 'TUBE' COMMENT 'The middleware type of message queue, high throughput: TUBE, high consistency: PULSAR',
     `queue_module`        VARCHAR(20)  NULL DEFAULT 'parallel' COMMENT 'Queue model of Pulsar, parallel: multiple partitions, high throughput, out-of-order messages; serial: single partition, low throughput, and orderly messages',
     `topic_partition_num` INT(4)       NULL DEFAULT '3' COMMENT 'The number of partitions of Pulsar Topic, 1-20',
@@ -94,8 +94,8 @@ CREATE TABLE `business`
     `max_length`          int(11)           DEFAULT '10240' COMMENT 'The maximum length of a single piece of data, unit: Byte',
     `schema_name`         varchar(128)      DEFAULT NULL COMMENT 'Data type, associated data_schema table',
     `in_charges`          varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
-    `followers`           varchar(512)      DEFAULT NULL COMMENT 'List of names of business followers, separated by commas',
-    `status`              int(4)            DEFAULT '21' COMMENT 'Business status',
+    `followers`           varchar(512)      DEFAULT NULL COMMENT 'Name of followers, separated by commas',
+    `status`              int(4)            DEFAULT '21' COMMENT 'Inlong group status',
     `is_deleted`          int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`             varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`            varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
@@ -105,18 +105,18 @@ CREATE TABLE `business`
     `zookeeper_enabled`   int(4)            DEFAULT '1' COMMENT 'Need zookeeper support, 0: false, 1: true',
     `proxy_cluster_id`    int(11)      NOT NULL COMMENT 'The id of dataproxy cluster',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_business` (`inlong_group_id`, `is_deleted`, `modify_time`)
+    UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`, `modify_time`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Business table';
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong group table';
 
 -- ----------------------------
--- Table structure for business_pulsar
+-- Table structure for inlong_group_pulsar
 -- ----------------------------
-DROP TABLE IF EXISTS `business_pulsar`;
-CREATE TABLE `business_pulsar`
+DROP TABLE IF EXISTS `inlong_group_pulsar`;
+CREATE TABLE `inlong_group_pulsar`
 (
     `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Business group id, filled in by the user, undeleted ones cannot be repeated',
+    `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Inlong group id, filled in by the user, undeleted ones cannot be repeated',
     `ensemble`            int(3)            DEFAULT '3' COMMENT 'The writable nodes number of ledger',
     `write_quorum`        int(3)            DEFAULT '3' COMMENT 'The copies number of ledger',
     `ack_quorum`          int(3)            DEFAULT '2' COMMENT 'The number of requested acks',
@@ -134,13 +134,13 @@ CREATE TABLE `business_pulsar`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Pulsar info table';
 
 -- ----------------------------
--- Table structure for business_ext
+-- Table structure for inlong_group_ext
 -- ----------------------------
-DROP TABLE IF EXISTS `business_ext`;
-CREATE TABLE `business_ext`
+DROP TABLE IF EXISTS `inlong_group_ext`;
+CREATE TABLE `inlong_group_ext`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id` varchar(256) NOT NULL COMMENT 'Business group id',
+    `inlong_group_id` varchar(256) NOT NULL COMMENT 'Inlong group id',
     `key_name`        varchar(64)  NOT NULL COMMENT 'Configuration item name',
     `key_value`       varchar(256)      DEFAULT NULL COMMENT 'The value of the configuration item',
     `is_deleted`      int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
@@ -149,7 +149,7 @@ CREATE TABLE `business_ext`
     KEY `index_group_id` (`inlong_group_id`),
     UNIQUE KEY `group_key_idx` (`inlong_group_id`, `key_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Business extension table';
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong group extension table';
 
 -- ----------------------------
 -- Table structure for third_party_cluster
@@ -250,11 +250,11 @@ CREATE TABLE `consumption`
     `consumer_group_name` varchar(256)      DEFAULT NULL COMMENT 'consumer group name',
     `consumer_group_id`   varchar(256) NOT NULL COMMENT 'Consumer group ID',
     `in_charges`          varchar(512) NOT NULL COMMENT 'Person in charge of consumption',
-    `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Business group id',
+    `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Inlong group id',
     `middleware_type`     varchar(10)       DEFAULT 'TUBE' COMMENT 'The middleware type of message queue, high throughput: TUBE, high consistency: PULSAR',
     `topic`               varchar(256) NOT NULL COMMENT 'Consumption topic',
     `filter_enabled`      int(2)            DEFAULT '0' COMMENT 'Whether to filter, default 0, not filter consume',
-    `inlong_stream_id`    varchar(256)      DEFAULT NULL COMMENT 'Data stream ID for consumption, if filter_enable is 1, it cannot empty',
+    `inlong_stream_id`    varchar(256)      DEFAULT NULL COMMENT 'Inlong stream ID for consumption, if filter_enable is 1, it cannot empty',
     `status`              int(4)       NOT NULL COMMENT 'Status: draft, pending approval, approval rejected, approval passed',
     `is_deleted`          int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`             varchar(64)  NOT NULL COMMENT 'creator',
@@ -275,7 +275,7 @@ CREATE TABLE `consumption_pulsar`
     `consumption_id`      int(11)      DEFAULT NULL COMMENT 'ID of the consumption information to which it belongs, guaranteed to be uniquely associated with consumption information',
     `consumer_group_id`   varchar(256) NOT NULL COMMENT 'Consumer group ID',
     `consumer_group_name` varchar(256) DEFAULT NULL COMMENT 'Consumer group name',
-    `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Business group ID',
+    `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Inlong group ID',
     `is_rlq`              tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure the retry letter topic, 0: no configuration, 1: configuration',
     `retry_letter_topic`  varchar(256) DEFAULT NULL COMMENT 'The name of the retry queue topic',
     `is_dlq`              tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure dead letter topic, 0: no configuration, 1: means configuration',
@@ -338,10 +338,10 @@ INSERT INTO `data_schema` (name, agent_type, data_generate_rule, sort_type, time
 values ('m0_day', 'file_agent', 'day', 0, '-0d');
 
 -- ----------------------------
--- Table structure for data_source_cmd_config
+-- Table structure for stream_source_cmd_config
 -- ----------------------------
-DROP TABLE IF EXISTS `data_source_cmd_config`;
-CREATE TABLE `data_source_cmd_config`
+DROP TABLE IF EXISTS `stream_source_cmd_config`;
+CREATE TABLE `stream_source_cmd_config`
 (
     `id`                  int(11)     NOT NULL AUTO_INCREMENT COMMENT 'cmd id',
     `cmd_type`            int(11)     NOT NULL,
@@ -357,30 +357,30 @@ CREATE TABLE `data_source_cmd_config`
   DEFAULT CHARSET = utf8;
 
 -- ----------------------------
--- Table structure for data_stream
+-- Table structure for inlong_stream
 -- ----------------------------
-DROP TABLE IF EXISTS `data_stream`;
-CREATE TABLE `data_stream`
+DROP TABLE IF EXISTS `inlong_stream`;
+CREATE TABLE `inlong_stream`
 (
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_stream_id`       varchar(256) NOT NULL COMMENT 'Data stream id, non-deleted globally unique',
-    `inlong_group_id`        varchar(256) NOT NULL COMMENT 'Owning business group id',
-    `name`                   varchar(64)       DEFAULT NULL COMMENT 'The name of the data stream page display, can be Chinese',
-    `description`            varchar(256)      DEFAULT '' COMMENT 'Introduction to data stream',
-    `mq_resource_obj`        varchar(128)      DEFAULT NULL COMMENT 'MQ resource object, in the data stream, Tube is data_stream_id, Pulsar is Topic',
+    `inlong_stream_id`       varchar(256) NOT NULL COMMENT 'Inlong stream id, non-deleted globally unique',
+    `inlong_group_id`        varchar(256) NOT NULL COMMENT 'Owning inlong group id',
+    `name`                   varchar(64)       DEFAULT NULL COMMENT 'The name of the inlong stream page display, can be Chinese',
+    `description`            varchar(256)      DEFAULT '' COMMENT 'Introduction to inlong stream',
+    `mq_resource_obj`        varchar(128)      DEFAULT NULL COMMENT 'MQ resource object, in the inlong stream, Tube is inlong_stream_id, Pulsar is Topic',
     `data_source_type`       varchar(32)       DEFAULT 'FILE' COMMENT 'Data source type, including: FILE, DB, Auto-Push (DATA_PROXY_SDK, HTTP)',
     `storage_period`         int(11)           DEFAULT '1' COMMENT 'The storage period of data in MQ, unit: day',
     `data_type`              varchar(20)       DEFAULT 'TEXT' COMMENT 'Data type, there are: TEXT, KEY-VALUE, PB, BON, TEXT and BON should be treated differently',
     `data_encoding`          varchar(8)        DEFAULT 'UTF-8' COMMENT 'Data encoding format, including: UTF-8, GBK',
     `data_separator`         varchar(8)        DEFAULT NULL COMMENT 'The source data field separator, stored as ASCII code',
     `data_escape_char`       varchar(8)        DEFAULT NULL COMMENT 'Source data field escape character, the default is NULL (NULL), stored as 1 character',
-    `have_predefined_fields` tinyint(1)        DEFAULT '0' COMMENT '(File, DB access) whether there are predefined fields, 0: none, 1: yes (save to data_stream_field)',
+    `have_predefined_fields` tinyint(1)        DEFAULT '0' COMMENT '(File, DB access) whether there are predefined fields, 0: none, 1: yes (save to inlong_stream_field)',
     `daily_records`          int(11)           DEFAULT '10' COMMENT 'Number of access records per day, unit: 10,000 records per day',
     `daily_storage`          int(11)           DEFAULT '10' COMMENT 'Access size by day, unit: GB per day',
     `peak_records`           int(11)           DEFAULT '1000' COMMENT 'Access peak per second, unit: records per second',
     `max_length`             int(11)           DEFAULT '10240' COMMENT 'The maximum length of a single piece of data, unit: Byte',
     `in_charges`             varchar(512)      DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
-    `status`                 int(4)            DEFAULT '0' COMMENT 'Data stream status',
+    `status`                 int(4)            DEFAULT '0' COMMENT 'Inlong stream status',
     `previous_status`        int(4)            DEFAULT '0' COMMENT 'Previous status',
     `is_deleted`             int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`                varchar(64)       DEFAULT NULL COMMENT 'Creator name',
@@ -389,19 +389,19 @@ CREATE TABLE `data_stream`
     `modify_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `temp_view`              text              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_data_stream` (`inlong_stream_id`, `inlong_group_id`, `is_deleted`, `modify_time`)
+    UNIQUE KEY `unique_inlong_stream` (`inlong_stream_id`, `inlong_group_id`, `is_deleted`, `modify_time`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Data stream table';
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong stream table';
 
 -- ----------------------------
--- Table structure for data_stream_ext
+-- Table structure for inlong_stream_ext
 -- ----------------------------
-DROP TABLE IF EXISTS `data_stream_ext`;
-CREATE TABLE `data_stream_ext`
+DROP TABLE IF EXISTS `inlong_stream_ext`;
+CREATE TABLE `inlong_stream_ext`
 (
     `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning business group id',
-    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning data stream id',
+    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning inlong group id',
+    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning inlong stream id',
     `key_name`         varchar(64)  NOT NULL COMMENT 'Configuration item name',
     `key_value`        varchar(256)      DEFAULT NULL COMMENT 'The value of the configuration item',
     `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
@@ -410,17 +410,17 @@ CREATE TABLE `data_stream_ext`
     KEY `index_stream_id` (`inlong_stream_id`),
     UNIQUE KEY `group_stream_key_idx` (`inlong_group_id`, `inlong_stream_id`, `key_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Data stream extension table';
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong stream extension table';
 
 -- ----------------------------
--- Table structure for data_stream_field
+-- Table structure for inlong_stream_field
 -- ----------------------------
-DROP TABLE IF EXISTS `data_stream_field`;
-CREATE TABLE `data_stream_field`
+DROP TABLE IF EXISTS `inlong_stream_field`;
+CREATE TABLE `inlong_stream_field`
 (
     `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Owning business group id',
-    `inlong_stream_id`    varchar(256) NOT NULL COMMENT 'Owning data stream id',
+    `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Owning inlong group id',
+    `inlong_stream_id`    varchar(256) NOT NULL COMMENT 'Owning inlong stream id',
     `is_predefined_field` tinyint(1)   DEFAULT '0' COMMENT 'Whether it is a predefined field, 0: no, 1: yes',
     `field_name`          varchar(20)  NOT NULL COMMENT 'field name',
     `field_value`         varchar(128) DEFAULT NULL COMMENT 'Field value, required if it is a predefined field',
@@ -486,8 +486,8 @@ DROP TABLE IF EXISTS `source_db_basic`;
 CREATE TABLE `source_db_basic`
 (
     `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning business group id',
-    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning data stream id',
+    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning inlong group id',
+    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning inlong stream id',
     `sync_type`        tinyint(1)        DEFAULT '0' COMMENT 'Data synchronization type, 0: FULL, full amount, 1: INCREMENTAL, incremental',
     `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`          varchar(64)  NOT NULL COMMENT 'Creator name',
@@ -506,8 +506,8 @@ DROP TABLE IF EXISTS `source_db_detail`;
 CREATE TABLE `source_db_detail`
 (
     `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning business group id',
-    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning data stream id',
+    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning inlong group id',
+    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning inlong stream id',
     `access_type`      varchar(20)  NOT NULL COMMENT 'Collection type, with Agent, DataProxy client, LoadProxy',
     `db_name`          varchar(128)      DEFAULT NULL COMMENT 'database name',
     `transfer_ip`      varchar(64)       DEFAULT NULL COMMENT 'Transfer IP',
@@ -535,8 +535,8 @@ DROP TABLE IF EXISTS `source_file_basic`;
 CREATE TABLE `source_file_basic`
 (
     `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'ID',
-    `inlong_group_id`   varchar(256) NOT NULL COMMENT 'Business group id',
-    `inlong_stream_id`  varchar(256) NOT NULL COMMENT 'Data stream id',
+    `inlong_group_id`   varchar(256) NOT NULL COMMENT 'Inlong group id',
+    `inlong_stream_id`  varchar(256) NOT NULL COMMENT 'Inlong stream id',
     `is_hybrid_source`  tinyint(1)        DEFAULT '0' COMMENT 'Whether to mix data sources',
     `is_table_mapping`  tinyint(1)        DEFAULT '0' COMMENT 'Is there a table name mapping',
     `date_offset`       int(4)            DEFAULT '0' COMMENT 'Time offset\n',
@@ -561,8 +561,8 @@ DROP TABLE IF EXISTS `source_file_detail`;
 CREATE TABLE `source_file_detail`
 (
     `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning business group id',
-    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning data stream id',
+    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning inlong group id',
+    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning inlong stream id',
     `access_type`      varchar(20)       DEFAULT 'Agent' COMMENT 'Collection type, there are Agent, DataProxy client, LoadProxy, the file can only be Agent temporarily',
     `server_name`      varchar(64)       DEFAULT NULL COMMENT 'The name of the data source service. If it is empty, add configuration through the following fields',
     `ip`               varchar(128) NOT NULL COMMENT 'Data source IP address',
@@ -585,35 +585,17 @@ CREATE TABLE `source_file_detail`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Detailed table of file data source';
 
 -- ----------------------------
--- Table structure for storage_ext
+-- Table structure for stream_sink
 -- ----------------------------
-DROP TABLE IF EXISTS `storage_ext`;
-CREATE TABLE `storage_ext`
-(
-    `id`           int(11)     NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `storage_type` varchar(20) NOT NULL COMMENT 'Storage type, including: HDFS, HIVE, etc.',
-    `storage_id`   int(11)     NOT NULL COMMENT 'data storage id',
-    `key_name`     varchar(64) NOT NULL COMMENT 'Configuration item name',
-    `key_value`    varchar(256)         DEFAULT NULL COMMENT 'The value of the configuration item',
-    `is_deleted`   int(11)              DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `modify_time`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    KEY `index_storage_id` (`storage_id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Data storage extension table';
-
--- ----------------------------
--- Table structure for data_storage
--- ----------------------------
-DROP TABLE IF EXISTS `data_storage`;
-CREATE TABLE `data_storage`
+DROP TABLE IF EXISTS `stream_sink`;
+CREATE TABLE `stream_sink`
 (
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`        varchar(256) NOT NULL COMMENT 'Owning business group id',
-    `inlong_stream_id`       varchar(256) NOT NULL COMMENT 'Owning data stream id',
-    `storage_type`           varchar(15)           DEFAULT 'HIVE' COMMENT 'Storage type, including: HIVE, ES, etc',
+    `inlong_group_id`        varchar(256) NOT NULL COMMENT 'Owning inlong group id',
+    `inlong_stream_id`       varchar(256) NOT NULL COMMENT 'Owning inlong stream id',
+    `sink_type`              varchar(15)           DEFAULT 'HIVE' COMMENT 'Sink type, including: HIVE, ES, etc',
     `storage_period`         int(11)               DEFAULT '10' COMMENT 'Data storage period, unit: day',
-    `enable_create_resource` tinyint(1)            DEFAULT '1' COMMENT 'Whether to enable create storage resource? 0: disable, 1: enable. default is 1',
+    `enable_create_resource` tinyint(1)            DEFAULT '1' COMMENT 'Whether to enable create sink resource? 0: disable, 1: enable. default is 1',
     `ext_params`             text COMMENT 'Another fields, will saved as JSON type',
     `operate_log`            varchar(5000)         DEFAULT NULL COMMENT 'Background operate log',
     `status`                 int(11)               DEFAULT '0' COMMENT 'Status',
@@ -625,19 +607,37 @@ CREATE TABLE `data_storage`
     `modify_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Data storage table';
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Stream sink table';
 
 -- ----------------------------
--- Table structure for data_storage_field
+-- Table structure for stream_sink_ext
 -- ----------------------------
-DROP TABLE IF EXISTS `data_storage_field`;
-CREATE TABLE `data_storage_field`
+DROP TABLE IF EXISTS `stream_sink_ext`;
+CREATE TABLE `stream_sink_ext`
+(
+    `id`          int(11)     NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `sink_type`   varchar(20) NOT NULL COMMENT 'Sink type, including: HDFS, HIVE, etc.',
+    `sink_id`     int(11)     NOT NULL COMMENT 'sink id',
+    `key_name`    varchar(64) NOT NULL COMMENT 'Configuration item name',
+    `key_value`   varchar(256)         DEFAULT NULL COMMENT 'The value of the configuration item',
+    `is_deleted`  int(11)              DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `modify_time` timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    KEY `index_sink_id` (`sink_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Stream sink extension table';
+
+-- ----------------------------
+-- Table structure for stream_sink_field
+-- ----------------------------
+DROP TABLE IF EXISTS `stream_sink_field`;
+CREATE TABLE `stream_sink_field`
 (
     `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id`   varchar(256) NOT NULL COMMENT 'inlong group id',
     `inlong_stream_id`  varchar(256) NOT NULL COMMENT 'inlong stream id',
-    `storage_id`        int(11)      NOT NULL COMMENT 'data storage id',
-    `storage_type`      varchar(15)  NOT NULL COMMENT 'storage type',
+    `sink_id`           int(11)      NOT NULL COMMENT 'sink id',
+    `sink_type`         varchar(15)  NOT NULL COMMENT 'sink type',
     `source_field_name` varchar(50)   DEFAULT NULL COMMENT 'source field name',
     `source_field_type` varchar(50)   DEFAULT NULL COMMENT 'source field type',
     `field_name`        varchar(50)  NOT NULL COMMENT 'field name',
@@ -647,7 +647,7 @@ CREATE TABLE `data_storage_field`
     `is_deleted`        int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Data storage field table';
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Stream sink field table';
 
 -- ----------------------------
 -- Table structure for user
@@ -699,14 +699,14 @@ DROP TABLE IF EXISTS `workflow_approver`;
 CREATE TABLE `workflow_approver`
 (
     `id`                int(11)       NOT NULL AUTO_INCREMENT,
-    `process_name`      varchar(256)  NOT NULL COMMENT 'process definition name',
+    `process_name`      varchar(256)  NOT NULL COMMENT 'Process name',
     `task_name`         varchar(256)  NOT NULL COMMENT 'Approval task name',
-    `filter_key`        varchar(64)   NOT NULL COMMENT 'filter condition KEY',
+    `filter_key`        varchar(64)   NOT NULL COMMENT 'Filter condition KEY',
     `filter_value`      varchar(256)           DEFAULT NULL COMMENT 'Filter matching value',
     `filter_value_desc` varchar(256)           DEFAULT NULL COMMENT 'Filter value description',
     `approvers`         varchar(1024) NOT NULL COMMENT 'Approvers, separated by commas',
-    `creator`           varchar(64)   NOT NULL COMMENT 'creator',
-    `modifier`          varchar(64)   NOT NULL COMMENT 'modifier',
+    `creator`           varchar(64)   NOT NULL COMMENT 'Creator',
+    `modifier`          varchar(64)   NOT NULL COMMENT 'Modifier',
     `create_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `is_deleted`        int(11)                DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
@@ -715,12 +715,12 @@ CREATE TABLE `workflow_approver`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow approver table';
 
--- create default approver for new consumption and new business
+-- create default approver for new consumption and new inlong group
 INSERT INTO `workflow_approver`(`process_name`, `task_name`, `filter_key`, `filter_value`, `approvers`,
                                 `creator`, `modifier`, `create_time`, `modify_time`, `is_deleted`)
-VALUES ('NEW_CONSUMPTION_WORKFLOW', 'ut_admin', 'DEFAULT', NULL, 'admin',
+VALUES ('NEW_CONSUMPTION_PROCESS', 'ut_admin', 'DEFAULT', NULL, 'admin',
         'inlong_init', 'inlong_init', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
-       ('NEW_BUSINESS_WORKFLOW', 'ut_admin', 'DEFAULT', NULL, 'admin',
+       ('NEW_GROUP_PROCESS', 'ut_admin', 'DEFAULT', NULL, 'admin',
         'inlong_init', 'inlong_init', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
 
 -- ----------------------------
@@ -731,16 +731,16 @@ CREATE TABLE `workflow_event_log`
 (
     `id`                   int(11)      NOT NULL AUTO_INCREMENT,
     `process_id`           int(11)      NOT NULL,
-    `process_name`         varchar(256)  DEFAULT NULL COMMENT 'WorkflowProcess name',
-    `process_display_name` varchar(256) NOT NULL COMMENT 'WorkflowProcess name',
-    `inlong_group_id`      varchar(256)  DEFAULT NULL COMMENT 'Business group id',
-    `task_id`              int(11)       DEFAULT NULL COMMENT 'WorkflowTask ID',
-    `element_name`         varchar(256) NOT NULL COMMENT 'The name of the component that triggered the event',
-    `element_display_name` varchar(256) NOT NULL COMMENT 'Name of the component that triggered the event',
-    `event_type`           varchar(64)  NOT NULL COMMENT 'Event type: process event/task event',
+    `process_name`         varchar(256)  DEFAULT NULL COMMENT 'Process name',
+    `process_display_name` varchar(256) NOT NULL COMMENT 'Process name',
+    `inlong_group_id`      varchar(256)  DEFAULT NULL COMMENT 'Inlong group id',
+    `task_id`              int(11)       DEFAULT NULL COMMENT 'Task ID',
+    `element_name`         varchar(256) NOT NULL COMMENT 'Name of the component that triggered the event',
+    `element_display_name` varchar(256) NOT NULL COMMENT 'Display name of the component that triggered the event',
+    `event_type`           varchar(64)  NOT NULL COMMENT 'Event type: process / task ',
     `event`                varchar(64)  NOT NULL COMMENT 'Event name',
     `listener`             varchar(1024) DEFAULT NULL COMMENT 'Event listener name',
-    `status`               int(11)      NOT NULL COMMENT 'status',
+    `status`               int(11)      NOT NULL COMMENT 'Status',
     `async`                tinyint(1)   NOT NULL COMMENT 'Asynchronous or not',
     `ip`                   varchar(64)   DEFAULT NULL COMMENT 'IP address executed by listener',
     `start_time`           datetime     NOT NULL COMMENT 'Monitor start execution time',
@@ -762,7 +762,7 @@ CREATE TABLE `workflow_process`
     `display_name`    varchar(256) NOT NULL COMMENT 'WorkflowProcess display name',
     `type`            varchar(256)          DEFAULT NULL COMMENT 'WorkflowProcess classification',
     `title`           varchar(256)          DEFAULT NULL COMMENT 'WorkflowProcess title',
-    `inlong_group_id` varchar(256)          DEFAULT NULL COMMENT 'Business group id: to facilitate related business',
+    `inlong_group_id` varchar(256)          DEFAULT NULL COMMENT 'Inlong group id: to facilitate related inlong group',
     `applicant`       varchar(256) NOT NULL COMMENT 'applicant',
     `status`          varchar(64)  NOT NULL COMMENT 'status',
     `form_data`       mediumtext COMMENT 'form information',
@@ -787,13 +787,13 @@ CREATE TABLE `workflow_task`
     `process_display_name` varchar(256)  NOT NULL COMMENT 'Process name',
     `name`                 varchar(256)  NOT NULL COMMENT 'Task name',
     `display_name`         varchar(256)  NOT NULL COMMENT 'Task display name',
-    `applicant`            varchar(64)   DEFAULT NULL COMMENT 'applicant',
-    `approvers`            varchar(1024) NOT NULL COMMENT 'approvers',
-    `status`               varchar(64)   NOT NULL COMMENT 'status',
-    `operator`             varchar(256)  DEFAULT NULL COMMENT 'actual operator',
+    `applicant`            varchar(64)   DEFAULT NULL COMMENT 'Applicant',
+    `approvers`            varchar(1024) NOT NULL COMMENT 'Approvers',
+    `status`               varchar(64)   NOT NULL COMMENT 'Status',
+    `operator`             varchar(256)  DEFAULT NULL COMMENT 'Actual operator',
     `remark`               varchar(1024) DEFAULT NULL COMMENT 'Remark information',
-    `form_data`            mediumtext COMMENT 'form information submitted by the current task',
-    `start_time`           datetime      NOT NULL COMMENT 'start time',
+    `form_data`            mediumtext COMMENT 'Form information submitted by the current task',
+    `start_time`           datetime      NOT NULL COMMENT 'Start time',
     `end_time`             datetime      DEFAULT NULL COMMENT 'End time',
     `ext_params`           text COMMENT 'Extended information-json',
     PRIMARY KEY (`id`)
@@ -812,7 +812,7 @@ CREATE TABLE `cluster_set`
     `description`     varchar(256) COMMENT 'ClusterSet Introduction',
     `middleware_type` varchar(10)       DEFAULT 'TUBE' COMMENT 'The middleware type of message queue, high throughput: TUBE, high consistency: PULSAR',
     `in_charges`      varchar(512) COMMENT 'Name of responsible person, separated by commas',
-    `followers`       varchar(512) COMMENT 'List of names of business followers, separated by commas',
+    `followers`       varchar(512) COMMENT 'Name of followers, separated by commas',
     `status`          int(4)            DEFAULT '21' COMMENT 'ClusterSet status',
     `is_deleted`      int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
     `creator`         varchar(64)  NOT NULL COMMENT 'Creator name',
@@ -832,7 +832,7 @@ CREATE TABLE `cluster_set_inlongid`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `set_name`        varchar(256) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-    `inlong_group_id` varchar(256) NOT NULL COMMENT 'Business group id, filled in by the user, undeleted ones cannot be repeated',
+    `inlong_group_id` varchar(256) NOT NULL COMMENT 'Inlong group id, filled in by the user, undeleted ones cannot be repeated',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_cluster_set_inlongid` (`set_name`, `inlong_group_id`)
 ) ENGINE = InnoDB

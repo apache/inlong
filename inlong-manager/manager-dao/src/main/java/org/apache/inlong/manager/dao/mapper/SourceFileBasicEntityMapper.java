@@ -39,13 +39,13 @@ public interface SourceFileBasicEntityMapper {
     SourceFileBasicEntity selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business group id and data stream id,
+     * According to the inlong group id and inlong stream id,
      * physically delete the basic information of the file data source
      */
     int deleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * According to the business group id and data stream id,
+     * According to the inlong group id and inlong stream id,
      * logical delete the basic information of the file data source
      */
     int logicDeleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId,

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.manager.common.enums.BizConstant;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionPulsarInfo;
 import org.apache.inlong.manager.web.WebBaseTest;
@@ -33,18 +33,18 @@ public class ConsumptionServiceTest extends WebBaseTest {
     @Autowired
     private ConsumptionService consumptionService;
     @Autowired
-    private BusinessServiceTest businessServiceTest;
+    private InlongGroupServiceTest groupServiceTest;
 
     private Integer saveConsumption(String inlongGroup, String consumerGroup, String operator) {
         ConsumptionInfo consumptionInfo = new ConsumptionInfo();
         consumptionInfo.setTopic(inlongGroup);
         consumptionInfo.setConsumerGroupName(consumerGroup);
         consumptionInfo.setInlongGroupId("b_" + inlongGroup);
-        consumptionInfo.setMiddlewareType(BizConstant.MIDDLEWARE_PULSAR);
+        consumptionInfo.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
         consumptionInfo.setCreator(operator);
 
         ConsumptionPulsarInfo pulsarInfo = new ConsumptionPulsarInfo();
-        pulsarInfo.setMiddlewareType(BizConstant.MIDDLEWARE_PULSAR);
+        pulsarInfo.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
         pulsarInfo.setIsDlq(1);
         pulsarInfo.setDeadLetterTopic("test_dlq");
         pulsarInfo.setIsRlq(0);
@@ -59,7 +59,7 @@ public class ConsumptionServiceTest extends WebBaseTest {
         String inlongGroup = "inlong_group1";
         String consumerGroup = "test_save_consumer_group";
         String operator = "test_user";
-        businessServiceTest.saveBusiness(inlongGroup, operator);
+        groupServiceTest.saveGroup(inlongGroup, operator);
         Integer id = this.saveConsumption(inlongGroup, consumerGroup, operator);
         Assert.assertNotNull(id);
     }
@@ -69,7 +69,7 @@ public class ConsumptionServiceTest extends WebBaseTest {
         String inlongGroup = "inlong_group2";
         String operator = "test_user";
         String consumerGroup = "test_delete_consumer_group";
-        businessServiceTest.saveBusiness(inlongGroup, operator);
+        groupServiceTest.saveGroup(inlongGroup, operator);
         Integer id = this.saveConsumption(inlongGroup, consumerGroup, operator);
         boolean result = consumptionService.delete(id, operator);
         Assert.assertTrue(result);

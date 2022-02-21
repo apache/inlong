@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.service.mocks;
 
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateBusinessProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateBusinessProcessForm.OperateType;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.workflow.event.EventSelector;
@@ -35,10 +35,10 @@ public class MockPlugin implements ProcessPlugin {
         @Override
         public boolean accept(WorkflowContext context) {
             ProcessForm processForm = context.getProcessForm();
-            if (!(processForm instanceof UpdateBusinessProcessForm)) {
+            if (!(processForm instanceof UpdateGroupProcessForm)) {
                 return false;
             }
-            UpdateBusinessProcessForm form = (UpdateBusinessProcessForm) processForm;
+            UpdateGroupProcessForm form = (UpdateGroupProcessForm) processForm;
             return form.getOperateType() == OperateType.SUSPEND;
         }
     };
@@ -47,10 +47,10 @@ public class MockPlugin implements ProcessPlugin {
         @Override
         public boolean accept(WorkflowContext context) {
             ProcessForm processForm = context.getProcessForm();
-            if (!(processForm instanceof UpdateBusinessProcessForm)) {
+            if (!(processForm instanceof UpdateGroupProcessForm)) {
                 return false;
             }
-            UpdateBusinessProcessForm form = (UpdateBusinessProcessForm) processForm;
+            UpdateGroupProcessForm form = (UpdateGroupProcessForm) processForm;
             return form.getOperateType() == OperateType.RESTART;
         }
     };
@@ -59,10 +59,10 @@ public class MockPlugin implements ProcessPlugin {
         @Override
         public boolean accept(WorkflowContext context) {
             ProcessForm processForm = context.getProcessForm();
-            if (!(processForm instanceof UpdateBusinessProcessForm)) {
+            if (!(processForm instanceof UpdateGroupProcessForm)) {
                 return false;
             }
-            UpdateBusinessProcessForm form = (UpdateBusinessProcessForm) processForm;
+            UpdateGroupProcessForm form = (UpdateGroupProcessForm) processForm;
             return form.getOperateType() == OperateType.DELETE;
         }
     };

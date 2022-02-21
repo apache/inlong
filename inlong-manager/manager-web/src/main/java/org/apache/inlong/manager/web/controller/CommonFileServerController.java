@@ -42,7 +42,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonFileServerInfo;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonFileServerListVo;
@@ -241,7 +241,7 @@ public class CommonFileServerController {
 
         Path path = Paths.get(fileDir.getAbsolutePath(), fileName);
         if (Files.exists(path)) {
-            throw new BusinessException(BizErrorCodeEnum.COMMON_FILE_UPLOAD_FAIL,
+            throw new BusinessException(ErrorCodeEnum.COMMON_FILE_UPLOAD_FAIL,
                     "The file [" + fileName + "] already exists, please try again later");
         }
 
@@ -251,13 +251,13 @@ public class CommonFileServerController {
             file.transferTo(path.toFile());
 
             try (BufferedReader br = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-                ColumnPositionMappingStrategy strategy = new ColumnPositionMappingStrategy();
+                ColumnPositionMappingStrategy<CommonFileServerInfo> strategy = new ColumnPositionMappingStrategy<>();
                 strategy.setType(CommonFileServerInfo.class);
                 String[] fields = {"ip", "port", "type", "isInnerIp", "issueType", "username",
                         "password", "visiblePerson", "visibleGroup"};
                 strategy.setColumnMapping(fields);
 
-                CsvToBean csvToBean = new CsvToBeanBuilder(br)
+                CsvToBean<CommonFileServerInfo> csvToBean = new CsvToBeanBuilder<CommonFileServerInfo>(br)
                         .withType(CommonFileServerInfo.class)
                         .withMappingStrategy(strategy)
                         .withIgnoreLeadingWhiteSpace(true)
@@ -277,11 +277,11 @@ public class CommonFileServerController {
                 boolean passed = true;
                 for (CommonFileServerInfo entry : fileServerInfos) {
                     if (!SmallTools.ipCheck(entry.getIp())) {
-                        sb.append(i + " column, ip=[" + entry.getIp() + "]Incorrect check\n");
+                        sb.append(i).append(" column, ip=[").append(entry.getIp()).append("]Incorrect check\n");
                         passed = false;
                     }
                     if (!SmallTools.portCheck(entry.getPort())) {
-                        sb.append(i + " column, port=[" + entry.getPort() + "]Incorrect check\n");
+                        sb.append(i).append(" column, port=[").append(entry.getPort()).append("]Incorrect check\n");
                         passed = false;
                     }
                     i++;

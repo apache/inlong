@@ -36,7 +36,7 @@ public class TableQueryBean {
     // Basic attributes
     private String tableName;
     private String tableDesc; // Low-level description of the library table
-    private String businessDesc; // Business description
+    private String inlongGroupDesc; // Inlong group description
 
     private String tableType;
     private String dbName;

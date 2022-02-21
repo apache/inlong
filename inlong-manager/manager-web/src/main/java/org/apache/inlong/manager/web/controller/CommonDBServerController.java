@@ -41,7 +41,7 @@ import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerInfo;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerListVo;
@@ -221,7 +221,7 @@ public class CommonDBServerController {
 
         Path path = Paths.get(fileDir.getAbsolutePath(), fileName);
         if (Files.exists(path)) {
-            throw new BusinessException(BizErrorCodeEnum.COMMON_FILE_UPLOAD_FAIL,
+            throw new BusinessException(ErrorCodeEnum.COMMON_FILE_UPLOAD_FAIL,
                     "The file [" + fileName + "] already exists, please try again later");
         }
 

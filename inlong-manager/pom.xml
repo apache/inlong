@@ -79,6 +79,8 @@
         <checkstyle.version>6.19</checkstyle.version>
         <project.build.encoding>UTF-8</project.build.encoding>
         <plugin.compile.version>3.8.1</plugin.compile.version>
+        <plugin.surefire.version>2.22.2</plugin.surefire.version>
+        <plugin.failsafe.version>2.22.0</plugin.failsafe.version>
         <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
         <okhttp.version>3.14.9</okhttp.version>
         <fastjson.version>1.2.76</fastjson.version>
@@ -90,10 +92,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -493,6 +491,9 @@
                     <encoding>${project.build.encoding}</encoding>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                    <compilerArgument>-Xlint:unchecked</compilerArgument>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -502,6 +503,14 @@
                     </annotationProcessorPaths>
                 </configuration>
                 <version>${plugin.compile.version}</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${plugin.surefire.version}</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${plugin.failsafe.version}</version>
             </plugin>
         </plugins>
     </build>

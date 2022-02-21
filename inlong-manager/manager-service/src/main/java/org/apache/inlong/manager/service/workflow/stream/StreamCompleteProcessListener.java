@@ -20,10 +20,10 @@ package org.apache.inlong.manager.service.workflow.stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
-import org.apache.inlong.manager.service.core.BusinessService;
-import org.apache.inlong.manager.service.core.DataStreamService;
-import org.apache.inlong.manager.common.pojo.workflow.form.BusinessResourceProcessForm;
+import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -32,16 +32,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Event listener for completed creation of data stream resource
+ * Event listener for completed creation of inlong stream resource
  */
 @Slf4j
 @Component
 public class StreamCompleteProcessListener implements ProcessEventListener {
 
     @Autowired
-    private BusinessService businessService;
+    private InlongGroupService groupService;
     @Autowired
-    private DataStreamService streamService;
+    private InlongStreamService streamService;
     @Autowired
     private SourceFileDetailEntityMapper fileDetailMapper;
 
@@ -51,20 +51,20 @@ public class StreamCompleteProcessListener implements ProcessEventListener {
     }
 
     /**
-     * The creation process ends normally, modify the status of business and all data stream
-     * belong to the business to [CONFIG_SUCCESSFUL]
+     * The creation process ends normally, modify the status of inlong group and all inlong stream
+     * belong to the inlong group to [CONFIG_SUCCESSFUL]
      */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        BusinessResourceProcessForm form = (BusinessResourceProcessForm) context.getProcessForm();
+        GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
         String streamId = form.getInlongStreamId();
         String user = context.getApplicant();
 
-        // update business status
-        businessService.updateStatus(groupId, EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode(), user);
-        // update data stream status
-        streamService.updateStatus(groupId, streamId, EntityStatus.DATA_STREAM_CONFIG_SUCCESSFUL.getCode(), user);
+        // update inlong group status
+        groupService.updateStatus(groupId, EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode(), user);
+        // update inlong stream status
+        streamService.updateStatus(groupId, streamId, EntityStatus.STREAM_CONFIG_SUCCESSFUL.getCode(), user);
         // update file data source status
         fileDetailMapper.updateStatusAfterApprove(groupId, streamId, EntityStatus.AGENT_ADD.getCode(), user);
 

@@ -67,7 +67,7 @@
         </javaClientGenerator>
 
         <!-- Which entities to generate -->
-        <!--<table tableName="agent_heartbeat_log" domainObjectName="AgentHeartBeatLogEntity" enableSelectByPrimaryKey="true"
+        <!--<table tableName="agent_heartbeat" domainObjectName="AgentHeartbeatEntity" enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"
                 enableCountByExample="false" enableDeleteByExample="false"
@@ -86,14 +86,14 @@
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
-        <table tableName="business" domainObjectName="BusinessEntity"
+        <table tableName="inlong_group" domainObjectName="InlongGroupEntity"
                 enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
-        <table tableName="business_ext" domainObjectName="BusinessExtEntity"
+        <table tableName="inlong_group_ext" domainObjectName="InlongGroupExtEntity"
                 enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"
@@ -121,21 +121,21 @@
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
-        <table tableName="data_stream" domainObjectName="DataStreamEntity"
+        <table tableName="inlong_stream" domainObjectName="InlongStreamEntity"
                 enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
-        <table tableName="data_stream_ext" domainObjectName="DataStreamExtEntity"
+        <table tableName="inlong_stream_ext" domainObjectName="InlongStreamExtEntity"
                 enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
-        <table tableName="data_stream_field" domainObjectName="DataStreamFieldEntity"
+        <table tableName="inlong_stream_field" domainObjectName="InlongStreamFieldEntity"
                 enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"
@@ -170,21 +170,21 @@
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
-        <table tableName="storage_ext" domainObjectName="StorageExtEntity"
+        <table tableName="stream_sink" domainObjectName="StreamSinkEntity"
                 enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
-        <table tableName="storage" domainObjectName="StorageEntity"
+        <table tableName="stream_sink_ext" domainObjectName="StreamSinkExtEntity"
                 enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
-        <table tableName="storage_field" domainObjectName="StorageFieldEntity"
+        <table tableName="stream_sink_field" domainObjectName="StreamSinkFieldEntity"
                 enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"

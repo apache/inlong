@@ -21,7 +21,7 @@ import org.apache.inlong.manager.workflow.event.EventSelector;
 import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
-import org.apache.inlong.manager.workflow.event.task.StorageOperateListener;
+import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
 
 import java.util.Map;
 
@@ -31,7 +31,7 @@ public interface ProcessPlugin extends Plugin {
         return null;
     }
 
-    default Map<StorageOperateListener, EventSelector> createStorageOperateListeners() {
+    default Map<SinkOperateListener, EventSelector> createSinkOperateListeners() {
         return null;
     }
 

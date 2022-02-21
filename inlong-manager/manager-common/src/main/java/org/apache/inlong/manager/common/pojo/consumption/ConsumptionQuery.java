@@ -43,7 +43,7 @@ public class ConsumptionQuery extends PageRequest {
     @ApiModelProperty(value = "Person in charge of consumption")
     private String inCharges;
 
-    @ApiModelProperty(value = "Consumption target business group id")
+    @ApiModelProperty(value = "Consumption target inlong group id")
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")

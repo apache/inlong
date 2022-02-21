@@ -38,11 +38,11 @@ import java.util.Optional;
 public abstract class LogableEventListener<EventType extends WorkflowEvent> implements EventListener<EventType> {
 
     private final EventListener<EventType> eventListener;
-    private final WorkflowEventLogEntityMapper eventLogStorage;
+    private final WorkflowEventLogEntityMapper eventLogMapper;
 
     public LogableEventListener(EventListener<EventType> eventListener, WorkflowEventLogEntityMapper eventLogMapper) {
         this.eventListener = eventListener;
-        this.eventLogStorage = eventLogMapper;
+        this.eventLogMapper = eventLogMapper;
     }
 
     @Override
@@ -94,7 +94,7 @@ public abstract class LogableEventListener<EventType extends WorkflowEvent> impl
             result = ListenerResult.fail(e);
         } finally {
             logEntity.setEndTime(new Date());
-            eventLogStorage.insert(logEntity);
+            eventLogMapper.insert(logEntity);
         }
         return result;
     }

@@ -38,10 +38,10 @@ import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo.CommandI
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
 import org.apache.inlong.manager.dao.entity.DataSourceCmdConfigEntity;
-import org.apache.inlong.manager.dao.entity.DataStreamFieldEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
 import org.apache.inlong.manager.dao.entity.SourceFileDetailEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
-import org.apache.inlong.manager.dao.mapper.DataStreamFieldEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.service.core.AgentTaskService;
 import org.slf4j.Logger;
@@ -62,7 +62,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
     private DataSourceCmdConfigEntityMapper sourceCmdConfigMapper;
 
     @Autowired
-    private DataStreamFieldEntityMapper streamFieldMapper;
+    private InlongStreamFieldEntityMapper streamFieldMapper;
 
     @Override
     public FileAgentTaskInfo getFileAgentTask(FileAgentCommandInfo info) {
@@ -111,12 +111,12 @@ public class AgentTaskServiceImpl implements AgentTaskService {
                 s.append("p=t").append("&");
             }
 
-            List<DataStreamFieldEntity> preFields = streamFieldMapper
-                    .selectDataStreamFields(config.getInlongGroupId(), config.getInlongStreamId());
+            List<InlongStreamFieldEntity> preFields = streamFieldMapper
+                    .selectStreamFields(config.getInlongGroupId(), config.getInlongStreamId());
 
             if (!config.getSortType().equalsIgnoreCase("13")) {
                 int fIndex = 0;
-                for (DataStreamFieldEntity f : preFields) {
+                for (InlongStreamFieldEntity f : preFields) {
                     s.append("__addcol" + fIndex + "__" + f.getFieldName());
                     s.append("=");
                     s.append(f.getFieldValue());
@@ -259,13 +259,13 @@ public class AgentTaskServiceImpl implements AgentTaskService {
             s.append("p=t").append("&");
         }
 
-        List<DataStreamFieldEntity> preFields = streamFieldMapper.selectDataStreamFields(
+        List<InlongStreamFieldEntity> preFields = streamFieldMapper.selectStreamFields(
                 config.getInlongGroupId(),
                 config.getInlongStreamId());
 
         if (!config.getSortType().equalsIgnoreCase("13")) {
             int fIndex = 0;
-            for (DataStreamFieldEntity f : preFields) {
+            for (InlongStreamFieldEntity f : preFields) {
                 s.append("__addcol" + fIndex + "__" + f.getFieldName());
                 s.append("=");
                 s.append(f.getFieldValue());
