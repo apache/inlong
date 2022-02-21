@@ -35,7 +35,7 @@ public class SortSourceConfigResponse {
 
     @Data
     @Builder
-    public class SortSourceConfig {
+    public static class SortSourceConfig {
         String sortClusterName;
         String sortId;
         Map<String, CacheZone> cacheZones;
@@ -43,7 +43,7 @@ public class SortSourceConfigResponse {
 
     @Data
     @Builder
-    public class CacheZone {
+    public static class CacheZone {
         String zoneName;
         String serviceUrl;
         String authentication;
@@ -54,7 +54,7 @@ public class SortSourceConfigResponse {
 
     @Data
     @Builder
-    public class Topic {
+    public static class Topic {
         String topic;
         int partitionCnt;
         Map<String, String> topicProperties;
