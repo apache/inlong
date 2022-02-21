@@ -31,7 +31,6 @@ import org.apache.inlong.agent.enums.TaskTypeEnum;
 public class JobProfileDto {
 
     private static final Gson GSON = new Gson();
-
     private Job job;
     private Proxy proxy;
 
@@ -40,6 +39,25 @@ public class JobProfileDto {
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
     public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.TextFileSource";
+
+    @Data
+    public static class Dir {
+
+        private String path;
+        private String pattern;
+    }
+
+    @Data
+    public static class Running {
+
+        private String core;
+    }
+
+    @Data
+    public static class Thread {
+
+        private Running running;
+    }
 
     @Data
     public static class Job {
@@ -175,7 +193,7 @@ public class JobProfileDto {
         if (!dataConfigs.isValid()) {
             throw new IllegalArgumentException("input dataConfig" + dataConfigs + "is invalid please check");
         }
-        TaskTypeEnum taskType=TaskTypeEnum.getTaskType(dataConfigs.getTaskType());
+        TaskTypeEnum taskType= TaskTypeEnum.getTaskType(dataConfigs.getTaskType());
         JobProfileDto profileDto = new JobProfileDto();
         Proxy proxy = getProxy(dataConfigs);
         Job job =new Job();
