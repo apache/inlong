@@ -263,10 +263,10 @@ public class ParquetRowWriter {
                 if (inputArray.length > 0) {
                     recordConsumer.startField(ARRAY_FIELD_NAME, 0);
                     for (Object ele : inputArray) {
-                        startGroupAndField(elementTypeParquet.getName(), 0);
+                        startGroupAndField(elementTypeParquet.getName());
                         FieldWriter writer = createWriter(elementTypeFlink, elementTypeParquet);
                         writer.write(Row.of(ele), 0);
-                        endGroupAndField(elementTypeParquet.getName(), 0);
+                        endGroupAndField(elementTypeParquet.getName());
                     }
                     recordConsumer.endField(ARRAY_FIELD_NAME, 0);
                 }
@@ -281,10 +281,10 @@ public class ParquetRowWriter {
                 if (inputArray.length > 0) {
                     recordConsumer.startField(ARRAY_FIELD_NAME, 0);
                     for (boolean ele : inputArray) {
-                        startGroupAndField(elementTypeParquet.getName(), 0);
+                        startGroupAndField(elementTypeParquet.getName());
                         FieldWriter writer = createWriter(elementTypeFlink, elementTypeParquet);
                         writer.write(Row.of(ele), 0);
-                        endGroupAndField(elementTypeParquet.getName(), 0);
+                        endGroupAndField(elementTypeParquet.getName());
                     }
                     recordConsumer.endField(ARRAY_FIELD_NAME, 0);
                 }
@@ -301,10 +301,10 @@ public class ParquetRowWriter {
                 if (inputArray.length > 0) {
                     recordConsumer.startField(ARRAY_FIELD_NAME, 0);
                     for (byte ele : inputArray) {
-                        startGroupAndField(elementTypeParquet.getName(), 0);
+                        startGroupAndField(elementTypeParquet.getName());
                         FieldWriter writer = createWriter(elementTypeFlink, elementTypeParquet);
                         writer.write(Row.of(ele), 0);
-                        endGroupAndField(elementTypeParquet.getName(), 0);
+                        endGroupAndField(elementTypeParquet.getName());
                     }
                     recordConsumer.endField(ARRAY_FIELD_NAME, 0);
                 }
@@ -321,10 +321,10 @@ public class ParquetRowWriter {
                 if (inputArray.length > 0) {
                     recordConsumer.startField(ARRAY_FIELD_NAME, 0);
                     for (short ele : inputArray) {
-                        startGroupAndField(elementTypeParquet.getName(), 0);
+                        startGroupAndField(elementTypeParquet.getName());
                         FieldWriter writer = createWriter(elementTypeFlink, elementTypeParquet);
                         writer.write(Row.of(ele), 0);
-                        endGroupAndField(elementTypeParquet.getName(), 0);
+                        endGroupAndField(elementTypeParquet.getName());
                     }
                     recordConsumer.endField(ARRAY_FIELD_NAME, 0);
                 }
@@ -341,10 +341,10 @@ public class ParquetRowWriter {
                 if (inputArray.length > 0) {
                     recordConsumer.startField(ARRAY_FIELD_NAME, 0);
                     for (int ele : inputArray) {
-                        startGroupAndField(elementTypeParquet.getName(), 0);
+                        startGroupAndField(elementTypeParquet.getName());
                         FieldWriter writer = createWriter(elementTypeFlink, elementTypeParquet);
                         writer.write(Row.of(ele), 0);
-                        endGroupAndField(elementTypeParquet.getName(), 0);
+                        endGroupAndField(elementTypeParquet.getName());
                     }
                     recordConsumer.endField(ARRAY_FIELD_NAME, 0);
                 }
@@ -361,10 +361,10 @@ public class ParquetRowWriter {
                 if (inputArray.length > 0) {
                     recordConsumer.startField(ARRAY_FIELD_NAME, 0);
                     for (long ele : inputArray) {
-                        startGroupAndField(elementTypeParquet.getName(), 0);
+                        startGroupAndField(elementTypeParquet.getName());
                         FieldWriter writer = createWriter(elementTypeFlink, elementTypeParquet);
                         writer.write(Row.of(ele), 0);
-                        endGroupAndField(elementTypeParquet.getName(), 0);
+                        endGroupAndField(elementTypeParquet.getName());
                     }
                     recordConsumer.endField(ARRAY_FIELD_NAME, 0);
                 }
@@ -381,10 +381,10 @@ public class ParquetRowWriter {
                 if (inputArray.length > 0) {
                     recordConsumer.startField(ARRAY_FIELD_NAME, 0);
                     for (float ele : inputArray) {
-                        startGroupAndField(elementTypeParquet.getName(), 0);
+                        startGroupAndField(elementTypeParquet.getName());
                         FieldWriter writer = createWriter(elementTypeFlink, elementTypeParquet);
                         writer.write(Row.of(ele), 0);
-                        endGroupAndField(elementTypeParquet.getName(), 0);
+                        endGroupAndField(elementTypeParquet.getName());
                     }
                     recordConsumer.endField(ARRAY_FIELD_NAME, 0);
                 }
@@ -401,10 +401,10 @@ public class ParquetRowWriter {
                 if (inputArray.length > 0) {
                     recordConsumer.startField(ARRAY_FIELD_NAME, 0);
                     for (double ele : inputArray) {
-                        startGroupAndField(elementTypeParquet.getName(), 0);
+                        startGroupAndField(elementTypeParquet.getName());
                         FieldWriter writer = createWriter(elementTypeFlink, elementTypeParquet);
                         writer.write(Row.of(ele), 0);
-                        endGroupAndField(elementTypeParquet.getName(), 0);
+                        endGroupAndField(elementTypeParquet.getName());
                     }
                     recordConsumer.endField(ARRAY_FIELD_NAME, 0);
                 }
@@ -438,45 +438,42 @@ public class ParquetRowWriter {
         public void write(Row row, int ordinal) {
             recordConsumer.startGroup();
             Object inputField = row.getField(ordinal);
-            if (inputField == null) {
-                return;
-            }
+            if (inputField != null) {
+                Map<?, ?> inputMap = (Map<?, ?>) inputField;
+                if (inputMap.size() > 0) {
+                    FieldWriter keyWriter = createWriter(keyTypeFlink, keyTypeParquet);
+                    FieldWriter valueWriter = createWriter(valueTypeFlink, valueTypeParquet);
+                    recordConsumer.startField(MAP_ENTITY_FIELD_NAME, 0);
+                    for (Map.Entry<?, ?> entry : inputMap.entrySet()) {
+                        recordConsumer.startGroup();
 
-            Map<?, ?> inputMap = (Map<?, ?>) row.getField(ordinal);
-            if (inputMap.size() > 0) {
-                FieldWriter keyWriter = createWriter(keyTypeFlink, keyTypeParquet);
-                FieldWriter valueWriter = createWriter(valueTypeFlink, valueTypeParquet);
-                recordConsumer.startField(MAP_ENTITY_FIELD_NAME, 0);
-                for (Map.Entry<?, ?> entry : inputMap.entrySet()) {
-                    recordConsumer.startGroup();
+                        recordConsumer.startField(MAP_KEY_FIELD_NAME, 0);
+                        keyWriter.write(Row.of(entry.getKey()), 0);
+                        recordConsumer.endField(MAP_KEY_FIELD_NAME,0);
 
-                    recordConsumer.startField(MAP_KEY_FIELD_NAME, 0);
-                    keyWriter.write(Row.of(entry.getKey()), 0);
-                    recordConsumer.endField(MAP_KEY_FIELD_NAME,0);
+                        Object value = entry.getValue();
+                        if (value != null) {
+                            recordConsumer.startField(MAP_VALUE_FIELD_NAME, 1);
+                            valueWriter.write(Row.of(value), 0);
+                            recordConsumer.endField(MAP_VALUE_FIELD_NAME, 1);
+                        }
 
-                    Object value = entry.getValue();
-                    if (value != null) {
-                        recordConsumer.startField(MAP_VALUE_FIELD_NAME, 1);
-                        valueWriter.write(Row.of(value), 0);
-                        recordConsumer.endField(MAP_VALUE_FIELD_NAME, 1);
+                        recordConsumer.endGroup();
                     }
-
-                    recordConsumer.endGroup();
+                    recordConsumer.endField(MAP_ENTITY_FIELD_NAME, 0);
                 }
-                recordConsumer.endField(MAP_ENTITY_FIELD_NAME, 0);
             }
             recordConsumer.endGroup();
         }
-
     }
 
-    private void startGroupAndField(String fieldName, int index) {
+    private void startGroupAndField(String fieldName) {
         recordConsumer.startGroup();
-        recordConsumer.startField(fieldName, index);
+        recordConsumer.startField(fieldName, 0);
     }
 
-    private void endGroupAndField(String fieldName, int index) {
-        recordConsumer.endField(fieldName, index);
+    private void endGroupAndField(String fieldName) {
+        recordConsumer.endField(fieldName, 0);
         recordConsumer.endGroup();
     }
 }

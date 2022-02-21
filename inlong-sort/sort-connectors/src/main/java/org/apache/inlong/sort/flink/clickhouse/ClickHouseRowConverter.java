@@ -96,16 +96,7 @@ public class ClickHouseRowConverter {
             statement.setArray(index + 1, new ClickHouseArray(
                     getClickHouseDataTypeFromTypeInfo(elementTypeInfo), toObjectArray(elementTypeInfo, value)));
         } else if (typeInfo instanceof MapTypeInfo) {
-            Map<?, ?> mapValue = (Map<?, ?>) value;
-            int size = mapValue.size();
-            Object[] kvps = new Object[size * 2];
-            int i = 0;
-            for (Map.Entry<?, ?> entry : mapValue.entrySet()) {
-                kvps[i] = entry.getKey();
-                kvps[i + 1] = entry.getValue();
-                i += 2;
-            }
-            statement.setObject(index + 1, Utils.mapOf(kvps));
+            statement.setObject(index + 1, Utils.mapOf(toKeyValuePairObjectArray(value)));
         } else {
             throw new IllegalArgumentException("Unsupported TypeInfo " + typeInfo.getClass().getName());
         }
@@ -150,5 +141,20 @@ public class ClickHouseRowConverter {
         } else {
             return object;
         }
+    }
+
+    @VisibleForTesting
+    static Object[] toKeyValuePairObjectArray(Object input) {
+        Map<?, ?> mapValue = (Map<?, ?>) input;
+        int size = mapValue.size();
+        Object[] kvps = new Object[size * 2];
+        int i = 0;
+        for (Map.Entry<?, ?> entry : mapValue.entrySet()) {
+            kvps[i] = entry.getKey();
+            kvps[i + 1] = entry.getValue();
+            i += 2;
+        }
+
+        return kvps;
     }
 }

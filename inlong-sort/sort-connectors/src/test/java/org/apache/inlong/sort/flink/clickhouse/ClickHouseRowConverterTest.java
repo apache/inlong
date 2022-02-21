@@ -21,7 +21,11 @@ import org.apache.inlong.sort.formats.common.IntTypeInfo;
 import org.apache.inlong.sort.formats.common.StringTypeInfo;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ClickHouseRowConverterTest {
@@ -39,5 +43,24 @@ public class ClickHouseRowConverterTest {
         String[] strs = new String[] {"f1", "f2", "f3"};
         Object strsArray = ClickHouseRowConverter.toObjectArray(new StringTypeInfo(), strs);
         assertEquals(strs, strsArray);
+    }
+
+    @Test
+    public void testToKeyValuePairObjectArray() {
+        Map<String, Double> testMap1 = new HashMap<>();
+        testMap1.put("f1", 1.0);
+        testMap1.put("f2", 2.0);
+        Object[] objects1 = ClickHouseRowConverter.toKeyValuePairObjectArray(testMap1);
+        assertEquals(4, objects1.length);
+        assertTrue(objects1[0].equals("f1") || objects1[0].equals("f2"));
+        assertTrue(objects1[2].equals("f1") || objects1[2].equals("f2"));
+        assertNotEquals(objects1[0], objects1[2]);
+        assertTrue(objects1[1].equals(1.0) || objects1[1].equals(2.0));
+        assertTrue(objects1[3].equals(1.0) || objects1[3].equals(2.0));
+        assertNotEquals(objects1[1], objects1[3]);
+
+        Map<String, Integer> testMap2 = new HashMap<>();
+        Object[] objects2 = ClickHouseRowConverter.toKeyValuePairObjectArray(testMap2);
+        assertEquals(0, objects2.length);
     }
 }
