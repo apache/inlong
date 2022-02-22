@@ -53,6 +53,12 @@ public enum EntityStatus {
     STREAM_CONFIG_FAILED(120, "configuration failed"),
     STREAM_CONFIG_SUCCESSFUL(130, "configuration successful"),
 
+    // Stream source related status
+    SOURCE_NEW(100, "new"),
+    SOURCE_CONFIG_ING(110, "in configure"),
+    SOURCE_CONFIG_FAILED(120, "configuration failed"),
+    SOURCE_CONFIG_SUCCESSFUL(130, "configuration successful"),
+
     // Stream sink related status
     SINK_NEW(100, "new"),
     SINK_CONFIG_ING(110, "in configure"),

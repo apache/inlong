@@ -317,10 +317,10 @@ INSERT INTO `data_schema` (name, agent_type, data_generate_rule, sort_type, time
 values ('m0_day', 'file_agent', 'day', 0, '-0d');
 
 -- ----------------------------
--- Table structure for data_source_cmd_config
+-- Table structure for stream_source_cmd_config
 -- ----------------------------
-DROP TABLE IF EXISTS `data_source_cmd_config`;
-CREATE TABLE `data_source_cmd_config`
+DROP TABLE IF EXISTS `stream_source_cmd_config`;
+CREATE TABLE `stream_source_cmd_config`
 (
     `id`                  int(11)     NOT NULL AUTO_INCREMENT COMMENT 'cmd id',
     `cmd_type`            int(11)     NOT NULL,
@@ -553,20 +553,31 @@ CREATE TABLE `source_file_detail`
 );
 
 -- ----------------------------
--- Table structure for stream_sink_ext
+-- Table structure for stream_source
 -- ----------------------------
-DROP TABLE IF EXISTS `stream_sink_ext`;
-CREATE TABLE `stream_sink_ext`
+DROP TABLE IF EXISTS `stream_source`;
+CREATE TABLE `stream_source`
 (
-    `id`          int(11)     NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `sink_type`   varchar(20) NOT NULL COMMENT 'Sink type, including: HDFS, HIVE, etc.',
-    `sink_id`     int(11)     NOT NULL COMMENT 'sink id',
-    `key_name`    varchar(64) NOT NULL COMMENT 'Configuration item name',
-    `key_value`   varchar(256)         DEFAULT NULL COMMENT 'The value of the configuration item',
-    `is_deleted`  int(11)              DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `modify_time` timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    KEY `index_sink_id` (`sink_id`)
+    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Inlong group id',
+    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Inlong stream id',
+    `source_type`      varchar(20)       DEFAULT '0' COMMENT 'Source type, including: FILE, DB, etc',
+    `agent_ip`         varchar(40)       DEFAULT NULL COMMENT 'Ip of the agent running the task',
+    `uuid`             varchar(30)       DEFAULT NULL COMMENT 'Mac uuid of the agent running the task',
+    `server_id`        int(11)           DEFAULT NULL COMMENT 'Id of the source server',
+    `server_name`      varchar(50)       DEFAULT '' COMMENT 'Name of the source server',
+    `cluster_id`       int(11)           DEFAULT NULL COMMENT 'Id of the cluster that collected this source',
+    `cluster_name`     varchar(50)       DEFAULT '' COMMENT 'Name of the cluster that collected this source',
+    `heartbeat`        text              DEFAULT NULL COMMENT 'Heartbeat of this source task',
+    `ext_params`       text              DEFAULT NULL COMMENT 'Another fields will saved as JSON string, such as filePath, dbName, tableName, etc',
+    `status`           int(4)            DEFAULT '0' COMMENT 'Data source status',
+    `previous_status`  int(4)            DEFAULT '0' COMMENT 'Previous status',
+    `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`          varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`         varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`)
 );
 
 -- ----------------------------
@@ -594,21 +605,38 @@ CREATE TABLE `stream_sink`
 );
 
 -- ----------------------------
+-- Table structure for stream_sink_ext
+-- ----------------------------
+DROP TABLE IF EXISTS `stream_sink_ext`;
+CREATE TABLE `stream_sink_ext`
+(
+    `id`          int(11)     NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `sink_type`   varchar(20) NOT NULL COMMENT 'Sink type, including: HDFS, HIVE, etc.',
+    `sink_id`     int(11)     NOT NULL COMMENT 'Sink id',
+    `key_name`    varchar(64) NOT NULL COMMENT 'Configuration item name',
+    `key_value`   varchar(256)         DEFAULT NULL COMMENT 'The value of the configuration item',
+    `is_deleted`  int(11)              DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `modify_time` timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    KEY `index_sink_id` (`sink_id`)
+);
+
+-- ----------------------------
 -- Table structure for stream_sink_field
 -- ----------------------------
 DROP TABLE IF EXISTS `stream_sink_field`;
 CREATE TABLE `stream_sink_field`
 (
     `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`   varchar(256) NOT NULL COMMENT 'inlong group id',
-    `inlong_stream_id`  varchar(256) NOT NULL COMMENT 'inlong stream id',
-    `sink_id`           int(11)      NOT NULL COMMENT 'sink id',
-    `sink_type`         varchar(15)  NOT NULL COMMENT 'sink type',
-    `source_field_name` varchar(50)   DEFAULT NULL COMMENT 'source field name',
-    `source_field_type` varchar(50)   DEFAULT NULL COMMENT 'source field type',
-    `field_name`        varchar(50)  NOT NULL COMMENT 'field name',
-    `field_type`        varchar(50)  NOT NULL COMMENT 'field type',
-    `field_comment`     varchar(2000) DEFAULT NULL COMMENT 'field description',
+    `inlong_group_id`   varchar(256) NOT NULL COMMENT 'Inlong group id',
+    `inlong_stream_id`  varchar(256) NOT NULL COMMENT 'Inlong stream id',
+    `sink_id`           int(11)      NOT NULL COMMENT 'Sink id',
+    `sink_type`         varchar(15)  NOT NULL COMMENT 'Sink type',
+    `source_field_name` varchar(50)   DEFAULT NULL COMMENT 'Source field name',
+    `source_field_type` varchar(50)   DEFAULT NULL COMMENT 'Source field type',
+    `field_name`        varchar(50)  NOT NULL COMMENT 'Field name',
+    `field_type`        varchar(50)  NOT NULL COMMENT 'Field type',
+    `field_comment`     varchar(2000) DEFAULT NULL COMMENT 'Field description',
     `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`        int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`)
@@ -747,13 +775,13 @@ CREATE TABLE `workflow_task`
     `process_display_name` varchar(256)  NOT NULL COMMENT 'Process name',
     `name`                 varchar(256)  NOT NULL COMMENT 'Task name',
     `display_name`         varchar(256)  NOT NULL COMMENT 'Task display name',
-    `applicant`            varchar(64)   DEFAULT NULL COMMENT 'applicant',
-    `approvers`            varchar(1024) NOT NULL COMMENT 'approvers',
-    `status`               varchar(64)   NOT NULL COMMENT 'status',
-    `operator`             varchar(256)  DEFAULT NULL COMMENT 'actual operator',
+    `applicant`            varchar(64)   DEFAULT NULL COMMENT 'Applicant',
+    `approvers`            varchar(1024) NOT NULL COMMENT 'Approvers',
+    `status`               varchar(64)   NOT NULL COMMENT 'Status',
+    `operator`             varchar(256)  DEFAULT NULL COMMENT 'Actual operator',
     `remark`               varchar(1024) DEFAULT NULL COMMENT 'Remark information',
-    `form_data`            mediumtext COMMENT 'form information submitted by the current task',
-    `start_time`           datetime      NOT NULL COMMENT 'start time',
+    `form_data`            mediumtext COMMENT 'Form information submitted by the current task',
+    `start_time`           datetime      NOT NULL COMMENT 'Start time',
     `end_time`             datetime      DEFAULT NULL COMMENT 'End time',
     `ext_params`           text COMMENT 'Extended information-json',
     PRIMARY KEY (`id`)
@@ -960,6 +988,82 @@ CREATE TABLE `flume_sink_ext`
     `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     KEY `index_flume_sink_ext` (`parent_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeSink extension table';
+
+-- ----------------------------
+-- Table structure for db_collector_detail_task
+-- ----------------------------
+DROP TABLE IF EXISTS `db_collector_detail_task`;
+CREATE TABLE `db_collector_detail_task`
+(
+    `id`            int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `main_id`       varchar(128) NOT NULL COMMENT 'main task id',
+    `type`          int(11)      NOT NULL COMMENT 'task type',
+    `time_var`      varchar(64)  NOT NULL COMMENT 'time variable',
+    `db_type`       int(11)      NOT NULL COMMENT 'db type',
+    `ip`            varchar(64)  NOT NULL COMMENT 'db ip',
+    `port`          int(11)      NOT NULL COMMENT 'db port',
+    `db_name`       varchar(64)  NULL COMMENT 'db name',
+    `user`          varchar(64)  NULL COMMENT 'user name',
+    `password`      varchar(64)  NULL COMMENT 'password',
+    `sql_statement` varchar(256) NULL COMMENT 'sql statement',
+    `offset`        int(11)      NOT NULL COMMENT 'offset for the data source',
+    `total_limit`   int(11)      NOT NULL COMMENT 'total limit in a task',
+    `once_limit`    int(11)      NOT NULL COMMENT 'limit for one query',
+    `time_limit`    int(11)      NOT NULL COMMENT 'time limit for task',
+    `retry_times`   int(11)      NOT NULL COMMENT 'max retry times if task failes',
+    `group_id`      varchar(64)  NULL COMMENT 'group id',
+    `stream_id`     varchar(64)  NULL COMMENT 'stream id',
+    `state`         int(11)      NOT NULL COMMENT 'task state',
+    `create_time`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
+    `modify_time`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
+    PRIMARY KEY (`id`)
+);
+
+-- ----------------------------
+-- Table structure for sort_cluster_config
+-- ----------------------------
+DROP TABLE IF EXISTS `sort_cluster_config`;
+CREATE TABLE `sort_cluster_config`
+(
+    `id`           int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `cluster_name` varchar(128) NOT NULL COMMENT 'Cluster name',
+    `task_name`    varchar(128) NOT NULL COMMENT 'Task name',
+    `sink_type`    varchar(128) NOT NULL COMMENT 'Type of sink',
+    PRIMARY KEY (`id`),
+    KEY `index_sort_cluster_config` (`cluster_name`)
+);
+
+-- ----------------------------
+-- Table structure for sort_task_id_param
+-- ----------------------------
+DROP TABLE IF EXISTS `sort_task_id_param`;
+CREATE TABLE `sort_task_id_param`
+(
+    `id`          int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `task_name`   varchar(128)  NOT NULL COMMENT 'Task name',
+    `group_id`    varchar(128)  NOT NULL COMMENT 'Inlong group id',
+    `stream_id`   varchar(128)  NULL COMMENT 'Inlong stream id',
+    `param_key`   varchar(128)  NOT NULL COMMENT 'Key of param',
+    `param_value` varchar(1024) NOT NULL COMMENT 'Value of param',
+    PRIMARY KEY (`id`),
+    KEY `index_sort_task_id_param` (`task_name`)
+);
+
+-- ----------------------------
+-- Table structure for sort_task_sink_param
+-- ----------------------------
+DROP TABLE IF EXISTS `sort_task_sink_param`;
+CREATE TABLE `sort_task_sink_param`
+(
+    `id`          int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `task_name`   varchar(128)  NOT NULL COMMENT 'Task name',
+    `sink_type`   varchar(128)  NOT NULL COMMENT 'Type of sink',
+    `param_key`   varchar(128)  NOT NULL COMMENT 'Key of param',
+    `param_value` varchar(1024) NOT NULL COMMENT 'Value of param',
+    PRIMARY KEY (`id`),
+    KEY `index_sort_task_sink_params` (`task_name`, `sink_type`)
 );
 
 SET FOREIGN_KEY_CHECKS = 1;

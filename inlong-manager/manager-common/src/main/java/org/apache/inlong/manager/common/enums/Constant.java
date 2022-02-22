@@ -22,6 +22,14 @@ package org.apache.inlong.manager.common.enums;
  */
 public class Constant {
 
+    public static final String SOURCE_FILE = "FILE";
+
+    public static final String SOURCE_DB_SQL = "DB_SQL";
+
+    public static final String SOURCE_DB_BINLOG = "DB_BINLOG";
+
+    public static final String SOURCE_KAFKA = "KAFKA";
+
     public static final String SINK_HIVE = "HIVE";
 
     public static final String SINK_KAFKA = "KAFKA";
@@ -63,6 +71,10 @@ public class Constant {
     public static final String STREAM_ID_IS_EMPTY = "inlong stream id is empty";
 
     public static final String REQUEST_IS_EMPTY = "request is empty";
+
+    public static final String SOURCE_TYPE_IS_EMPTY = "sourceType is empty";
+
+    public static final String SOURCE_TYPE_NOT_SAME = "Expected sourceType is %s, but found %s";
 
     public static final String SINK_TYPE_IS_EMPTY = "sinkType is empty";
 
