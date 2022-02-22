@@ -368,7 +368,7 @@
             modify_time            = #{modifyTime,jdbcType=TIMESTAMP}
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateSinkStatus" parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
+    <update id="updateStatus" parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         update stream_sink
         set status          = #{status,jdbcType=INTEGER},
             previous_status = status,

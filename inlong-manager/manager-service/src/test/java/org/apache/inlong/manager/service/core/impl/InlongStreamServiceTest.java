@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.web.WebBaseTest;
+import org.apache.inlong.manager.service.ServiceBaseTest;
+import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ import org.springframework.boot.test.context.TestComponent;
  * Inlong stream service test
  */
 @TestComponent
-public class InlongStreamServiceTest extends WebBaseTest {
+public class InlongStreamServiceTest extends ServiceBaseTest {
 
     private final String globalGroupId = "b_group1";
     private final String globalGroupName = "group1";

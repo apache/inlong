@@ -15,77 +15,75 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.service.core.sink;
 
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.service.ServiceBaseTest;
+import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.apache.inlong.manager.web.WebBaseTest;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Stream sink service test
  */
-public class ClickHouseStreamSinkServiceTest extends WebBaseTest {
+public class HiveStreamSinkServiceTest extends ServiceBaseTest {
 
-    // Partial test data
-    private static final String globalGroupId = "b_group1";
-    private static final String globalStreamId = "stream1";
-    private static final String globalOperator = "test_user";
-    private static final String ckJdbcUrl = "jdbc:clickhouse://127.0.0.1:8123/default";
-    private static final String ckUsername = "ck_user";
-    private static final String ckDatabaseName = "ck_db";
-    private static final String ckTableName = "ck_tbl";
-    private static Integer sinkId;
+    private final String globalGroupId = "b_group1";
+    private final String globalStreamId = "stream1";
+    private final String globalOperator = "test_user";
+
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
-    @Before
-    public void saveSink() {
+    public Integer saveSink() {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-        ClickHouseSinkRequest sinkInfo = new ClickHouseSinkRequest();
+
+        HiveSinkRequest sinkInfo = new HiveSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(Constant.SINK_CLICKHOUSE);
-        sinkInfo.setJdbcUrl(ckJdbcUrl);
-        sinkInfo.setUsername(ckUsername);
-        sinkInfo.setDatabaseName(ckDatabaseName);
-        sinkInfo.setTableName(ckTableName);
+        sinkInfo.setSinkType(Constant.SINK_HIVE);
         sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
-        sinkId = sinkService.save(sinkInfo, globalOperator);
+
+        return sinkService.save(sinkInfo, globalOperator);
     }
 
-    @After
-    public void deleteKafkaSink() {
-        boolean result = sinkService.delete(sinkId, Constant.SINK_CLICKHOUSE, globalOperator);
+    @Test
+    public void testSaveAndDelete() {
+        Integer id = this.saveSink();
+        Assert.assertNotNull(id);
+
+        boolean result = sinkService.delete(id, Constant.SINK_HIVE, globalOperator);
         Assert.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
-        SinkResponse sink = sinkService.get(sinkId, Constant.SINK_CLICKHOUSE);
+        Integer id = this.saveSink();
+
+        SinkResponse sink = sinkService.get(id, Constant.SINK_HIVE);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
+
+        sinkService.delete(id, Constant.SINK_HIVE, globalOperator);
     }
 
     @Test
     public void testGetAndUpdate() {
-        SinkResponse response = sinkService.get(sinkId, Constant.SINK_CLICKHOUSE);
+        Integer id = this.saveSink();
+        SinkResponse response = sinkService.get(id, Constant.SINK_HIVE);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
-        ClickHouseSinkResponse kafkaSinkResponse = (ClickHouseSinkResponse) response;
-        kafkaSinkResponse.setEnableCreateResource(Constant.ENABLE_CREATE_RESOURCE);
+        HiveSinkResponse hiveResponse = (HiveSinkResponse) response;
+        hiveResponse.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
 
-        ClickHouseSinkRequest request = CommonBeanUtils
-                .copyProperties(kafkaSinkResponse, ClickHouseSinkRequest::new);
+        HiveSinkRequest request = CommonBeanUtils.copyProperties(hiveResponse, HiveSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
         Assert.assertTrue(result);
     }
