@@ -71,7 +71,7 @@ public class JobConstants extends CommonConstants {
     private static final  String SOURCE_KAFKA_BYTE_SPEED_LIMIT = "job.kafkajob.byte.speed.limit";
     private static final  String SOURCE_KAFKA_MIN_INTERVAL = "job.kafkajob.min.interval";
     private static final  String SOURCE_KAFKA_OFFSET = "job.kafkajob.offset";
-    private static final  String SOURCE_KAFKA_READ_TIMEOUT="job.kafkajob.read.timeout";
+    private static final  String SOURCE_KAFKA_READ_TIMEOUT = "job.kafkajob.read.timeout";
 
     // job type, delete/add
     public static final String JOB_TYPE = "job.type";
