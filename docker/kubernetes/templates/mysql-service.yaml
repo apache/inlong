@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.mysql.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -31,3 +32,4 @@ spec:
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.mysql.component }}
+{{- end }}

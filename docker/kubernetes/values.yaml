@@ -127,14 +127,13 @@ pulsar:
     storageClassName: "-"
     storage: "8Gi"
 
+# If not exists external MySQL, by default, InLong will use it.
 mysql:
   component: "mysql"
+  enabled: false
   replicaCount: 1
   username: "root"
-  # If the MySQL username is root,
-  # the password parameter can be omitted and the rootPassword will be used.
   password: "inlong"
-  rootPassword: "inlong"
   ports:
     server: 3306
   persistentVolumeClaim:
@@ -143,6 +142,14 @@ mysql:
       - "ReadWriteOnce"
     storageClassName: "-"
     storage: "8Gi"
+
+# If exists external MySQL, or the value of the mysql.enabled is false,
+# InLong will use the external MySQL.
+externalMySQL:
+  hostname: "localhost"
+  port: 3306
+  username: "root"
+  password: "password"
 
 zookeeper:
   component: "zookeeper"

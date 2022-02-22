@@ -79,21 +79,14 @@ spec:
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           env:
             - name: JDBC_URL
-              value: "jdbc:mysql://{{ include "inlong.mysql.hostname" . }}:{{ .Values.mysql.ports.server }}/apache_inlong_audit?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&nullCatalogMeansCurrent=true&serverTimezone=GMT%2b8"
+              value: "jdbc:mysql://{{ template "inlong.mysql.hostname" . }}:{{ .Values.mysql.ports.server }}/apache_inlong_audit?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&nullCatalogMeansCurrent=true&serverTimezone=GMT%2b8"
             - name: USERNAME
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "inlong.fullname" . }}-{{ .Values.audit.component }}
-                  key: mysqlUsername
+              value: {{ include "inlong.mysql.username" . | quote }}
             - name: PASSWORD
-              {{- if eq .Values.mysql.username "root" }}
               valueFrom:
                 secretKeyRef:
                   name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
-                  key: mysql-root-password
-              {{- else }}
-              value: {{ .Values.mysql.password | quote }}
-              {{- end }}
+                  key: mysql-password
             - name: MANAGER_OPENAPI_IP
               value: {{ include "inlong.tubemqManager.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
