@@ -24,4 +24,3 @@ metadata:
     component: {{ .Values.audit.component }}
 data:
   mysqlUsername: {{ .Values.mysql.username | default "root" | quote }}
-  managerOpenApiPort: {{ .Values.manager.ports.webPort }}

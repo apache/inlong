@@ -90,10 +90,7 @@ spec:
             - name: MANAGER_OPENAPI_IP
               value: {{ include "inlong.tubemqManager.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "inlong.fullname" . }}-{{ .Values.audit.component }}
-                  key: managerOpenApiPort
+              value: {{ .Values.manager.ports.webPort }}
             - name: PULSAR_BROKER_URL_LIST
               value: {{ .Values.pulsar.serviceUrl }}
             {{- range $key, $value := .Values.audit.env }}
