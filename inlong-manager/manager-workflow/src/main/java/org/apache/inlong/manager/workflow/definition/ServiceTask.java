@@ -19,6 +19,7 @@ package org.apache.inlong.manager.workflow.definition;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.WorkflowAction;
@@ -33,6 +34,7 @@ import java.util.Set;
 /**
  * System task
  */
+@Slf4j
 public class ServiceTask extends WorkflowTask {
 
     private static final Set<WorkflowAction> SUPPORTED_ACTIONS = ImmutableSet
@@ -41,6 +43,8 @@ public class ServiceTask extends WorkflowTask {
     private ServiceTaskListenerProvider listenerProvider;
 
     private ServiceTaskType serviceTaskType;
+
+    private boolean isInit;
 
     @Override
     public WorkflowAction defaultNextAction() {
@@ -90,11 +94,17 @@ public class ServiceTask extends WorkflowTask {
     }
 
     public void initListeners(WorkflowContext workflowContext) {
+        if (isInit) {
+            log.debug("ServiceTask:{} is already init", getName());
+            return;
+        }
         if (listenerProvider == null || serviceTaskType == null) {
+            isInit = true;
             return;
         }
         Iterable<TaskEventListener> listeners = listenerProvider.get(workflowContext, serviceTaskType);
         addListeners(Lists.newArrayList(listeners));
+        isInit = true;
     }
 
 }
