@@ -22,7 +22,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfigResponse;
 import org.apache.inlong.commons.pojo.dataproxy.ProxyPulsarDTO;
@@ -40,14 +39,14 @@ import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
 import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
-import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterEntityMapper;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
+import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
 import org.apache.inlong.manager.dao.mapper.DataProxyClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
+import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterEntityMapper;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.slf4j.Logger;
@@ -181,36 +180,18 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     @Override
     public List<DataProxyIpResponse> getIpList(DataProxyIpRequest request) {
         LOGGER.debug("begin to get data proxy ip list, request: {}", request);
-
         List<DataProxyClusterEntity> entityList = dataProxyClusterMapper.selectAll();
         if (entityList == null || entityList.isEmpty()) {
             LOGGER.info("success to get data proxy ip list, but result is empty, request ip={}", request.getIp());
             return null;
         }
 
-        final String requestNetTag = request.getNetTag();
         List<DataProxyIpResponse> responseList = new ArrayList<>();
         for (DataProxyClusterEntity entity : entityList) {
-            // Subject to the net tag of any entity
-            String netTag = requestNetTag;
-            if (StringUtils.isEmpty(netTag)) {
-                int innerIp = entity.getIsInnerIp();
-                if (innerIp == 1) {
-                    netTag = "auto";
-                } else {
-                    netTag = entity.getNetType();
-                }
-
-                if (StringUtils.isEmpty(netTag)) {
-                    netTag = "all";
-                }
-            }
-
             DataProxyIpResponse response = new DataProxyIpResponse();
             response.setId(entity.getId());
             response.setPort(entity.getPort());
             response.setIp(entity.getAddress());
-            response.setNetTag(netTag);
 
             responseList.add(response);
         }
@@ -286,7 +267,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
             PulsarClusterInfo pulsarCluster = new PulsarClusterInfo();
             pulsarCluster.setUrl(cluster.getUrl());
             pulsarCluster.setToken(cluster.getToken());
-            Map<String, String> configParams = gson.fromJson(cluster.getExtProps(), Map.class);
+            Map<String, String> configParams = gson.fromJson(cluster.getExtParams(), Map.class);
             pulsarCluster.setParams(configParams);
 
             pulsarSet.add(pulsarCluster);

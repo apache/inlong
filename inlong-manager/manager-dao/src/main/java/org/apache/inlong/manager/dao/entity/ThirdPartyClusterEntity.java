@@ -31,17 +31,18 @@ public class ThirdPartyClusterEntity implements Serializable {
     private String type;
     private String ip;
     private Integer port;
-    private String inCharges;
     private String url;
     private String token;
     private Integer isBackup;
+    private String mqSetName;
+    private String extParams;
+    private String inCharges;
+
     private Integer status;
-    private Integer isDeleted = 0;
+    private Integer isDeleted;
     private String creator;
     private String modifier;
     private Date createTime;
     private Date modifyTime;
-    private String extProps;
-    private String mqSetName;
 
 }
