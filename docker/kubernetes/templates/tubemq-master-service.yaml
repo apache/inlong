@@ -30,7 +30,6 @@ spec:
   ports:
     - name: web-port
       port: {{ .Values.tubemqMaster.ports.webPort }}
-      nodePort: {{ .Values.tubemqMaster.ports.webNodePort }}
     - name: help-port
       port: {{ .Values.tubemqMaster.ports.helpPort }}
     - name: rpc-port

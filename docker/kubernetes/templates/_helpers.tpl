@@ -105,10 +105,10 @@ ${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component
 Define the mysql hostname
 */}}
 {{- define "inlong.mysql.hostname" -}}
-{{- if .Values.mysql.enabled -}}
-${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{- if .Values.external.mysql.enabled -}}
+{{ .Values.external.mysql.hostname }}
 {{- else -}}
-{{ .Values.externalMySQL.hostname }}
+${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}.{{ .Release.Namespace }}.svc.cluster.local
 {{- end -}}
 {{- end -}}
 
@@ -116,10 +116,10 @@ ${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}.{{ 
 Define the mysql port
 */}}
 {{- define "inlong.mysql.port" -}}
-{{- if .Values.mysql.enabled -}}
-{{ .Values.mysql.ports.server }}
+{{- if .Values.external.mysql.enabled -}}
+{{ .Values.external.mysql.port }}
 {{- else -}}
-{{ .Values.externalMySQL.port }}
+{{ .Values.mysql.ports.server }}
 {{- end -}}
 {{- end -}}
 
@@ -127,10 +127,10 @@ Define the mysql port
 Define the mysql username
 */}}
 {{- define "inlong.mysql.username" -}}
-{{- if .Values.mysql.enabled -}}
-{{ .Values.mysql.username }}
+{{- if .Values.external.mysql.enabled -}}
+{{ .Values.external.mysql.username }}
 {{- else -}}
-{{ .Values.externalMySQL.username }}
+{{ .Values.mysql.username }}
 {{- end -}}
 {{- end -}}
 
@@ -139,17 +139,6 @@ Define the zookeeper hostname
 */}}
 {{- define "inlong.zookeeper.hostname" -}}
 ${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}.{{ .Release.Namespace }}.svc.cluster.local
-{{- end -}}
-
-{{/*
-Define the message queue url
-*/}}
-{{- define "inlong.mq.url" -}}
-{{- if .Values.pulsar.enabled -}}
-{{ .Values.pulsar.serviceUrl }}
-{{- else -}}
-{{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}
-{{- end -}}
 {{- end -}}
 
 {{/*

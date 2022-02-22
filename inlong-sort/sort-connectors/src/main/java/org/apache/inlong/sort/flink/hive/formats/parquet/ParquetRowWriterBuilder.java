@@ -95,6 +95,8 @@ public class ParquetRowWriterBuilder extends ParquetWriter.Builder<Row, ParquetR
     /** Flink Row {@link ParquetBuilder}. */
     public static class FlinkParquetBuilder implements ParquetBuilder<Row> {
 
+        private static final long serialVersionUID = 5891262136717753537L;
+
         private final RowType rowType;
         private final ParquetFileFormat parquetFileFormat;
 

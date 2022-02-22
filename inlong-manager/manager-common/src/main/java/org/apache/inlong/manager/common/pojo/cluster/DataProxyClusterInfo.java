@@ -20,8 +20,9 @@ package org.apache.inlong.manager.common.pojo.cluster;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Date;
 import lombok.Data;
+
+import java.util.Date;
 
 /**
  * DataProxy cluster information
@@ -48,11 +49,11 @@ public class DataProxyClusterInfo {
     @ApiModelProperty(value = "Whether it is a backup cluster, 0: no, 1: yes")
     private Integer isBackup;
 
+    @ApiModelProperty(value = "Extended params, string in JSON format")
+    private String extParams;
+
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
     private String inCharges;
-
-    @ApiModelProperty(value = "Extended property, string in JSON format")
-    private String extProps;
 
     @ApiModelProperty(value = "Cluster status")
     private Integer status;

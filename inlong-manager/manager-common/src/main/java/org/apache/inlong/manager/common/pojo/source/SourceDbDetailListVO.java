@@ -26,6 +26,7 @@ import lombok.Data;
 /**
  * DB source list
  */
+@Deprecated
 @Data
 @ApiModel("DB source list")
 public class SourceDbDetailListVO {

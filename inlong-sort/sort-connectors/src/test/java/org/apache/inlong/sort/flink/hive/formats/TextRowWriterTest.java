@@ -29,8 +29,18 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.flink.core.fs.local.LocalDataOutputStream;
+import org.apache.flink.table.types.logical.ArrayType;
+import org.apache.flink.table.types.logical.BigIntType;
+import org.apache.flink.table.types.logical.CharType;
+import org.apache.flink.table.types.logical.DoubleType;
+import org.apache.flink.table.types.logical.IntType;
+import org.apache.flink.table.types.logical.LogicalType;
+import org.apache.flink.table.types.logical.MapType;
 import org.apache.flink.types.Row;
 import org.apache.hadoop.io.compress.CompressionInputStream;
 import org.apache.inlong.sort.configuration.Configuration;
@@ -50,7 +60,8 @@ public class TextRowWriterTest {
         TextRowWriter textRowWriter = new TextRowWriter(
                 new LocalDataOutputStream(file),
                 new TextFileFormat(','),
-                new Configuration()
+                new Configuration(),
+                new LogicalType[] {new CharType(), new IntType()}
         );
 
         textRowWriter.addElement(Row.of("zhangsan", 1));
@@ -78,7 +89,8 @@ public class TextRowWriterTest {
         TextRowWriter textRowWriter = new TextRowWriter(
                 new LocalDataOutputStream(gzipFile),
                 new TextFileFormat(',', CompressionType.GZIP),
-                new Configuration()
+                new Configuration(),
+                new LogicalType[] {new CharType(), new IntType()}
         );
 
         textRowWriter.addElement(Row.of("zhangsan", 1));
@@ -96,7 +108,8 @@ public class TextRowWriterTest {
         TextRowWriter textRowWriter = new TextRowWriter(
                 new LocalDataOutputStream(lzoFile),
                 new TextFileFormat(',', CompressionType.LZO),
-                new Configuration()
+                new Configuration(),
+                new LogicalType[] {new CharType(), new IntType()}
         );
 
         textRowWriter.addElement(Row.of("zhangsan", 1));
@@ -141,5 +154,33 @@ public class TextRowWriterTest {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Test
+    public void testConvertArrayField() {
+        int[] ints = new int[] {1, 2, 3};
+        assertEquals("[1,2,3]", TextRowWriter.convertField(ints, new ArrayType(new IntType())));
+
+        String[] strings = new String[] {"f1", "f2", null};
+        assertEquals("[f1,f2,null]", TextRowWriter.convertField(strings, new ArrayType(new CharType())));
+
+        Double[] doubles = new Double[] {1.0, null, 2.0};
+        assertEquals("[1.0,null,2.0]", TextRowWriter.convertField(doubles, new ArrayType(new DoubleType())));
+
+        long[] longs = new long[] {};
+        assertEquals("[]", TextRowWriter.convertField(longs, new ArrayType(new BigIntType())));
+    }
+
+    @Test
+    public void testConvertMapField() {
+        Map<String, Double> map = new HashMap<>();
+        map.put("f1", 1.0);
+        map.put("f2", null);
+        map.put("f3", 3.0);
+        assertEquals("{f1=1.0,f2=null,f3=3.0}",
+                TextRowWriter.convertField(map, new MapType(new CharType(), new DoubleType())));
+
+        Map<Double, Integer> emptyMap = new HashMap<>();
+        assertEquals("{}", TextRowWriter.convertField(emptyMap, new MapType(new DoubleType(), new IntType())));
     }
 }

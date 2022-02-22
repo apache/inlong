@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.beans.PageRequest;
 /**
  * DB source detailed information paging query conditions
  */
+@Deprecated
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("DB source query conditions")

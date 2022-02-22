@@ -24,11 +24,10 @@ metadata:
     {{- include "inlong.commonLabels" . | nindent 4 }}
     component: {{ .Values.manager.component }}
 spec:
-  type: {{ .Values.manager.service.type }}
+  type: ClusterIP
   ports:
     - name: {{ .Values.manager.component }}-port
       port: {{ .Values.manager.ports.webPort }}
-      nodePort: {{ .Values.manager.ports.webNodePort }}
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.manager.component }}
