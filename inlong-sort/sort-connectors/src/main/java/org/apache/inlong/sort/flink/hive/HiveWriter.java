@@ -21,10 +21,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.configuration.Constants.SINK_HIVE_ROLLING_POLICY_CHECK_INTERVAL;
 import static org.apache.inlong.sort.configuration.Constants.SINK_HIVE_ROLLING_POLICY_FILE_SIZE;
 import static org.apache.inlong.sort.configuration.Constants.SINK_HIVE_ROLLING_POLICY_ROLLOVER_INTERVAL;
-
 import java.io.IOException;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import org.apache.flink.api.common.serialization.BulkWriter;
 import org.apache.flink.api.common.state.CheckpointListener;
 import org.apache.flink.core.fs.Path;
@@ -36,6 +37,7 @@ import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.Collector;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.flink.filesystem.Bucket;
 import org.apache.inlong.sort.flink.filesystem.DefaultBucketFactoryImpl;
@@ -49,12 +51,16 @@ import org.apache.inlong.sort.flink.hive.partition.PartitionCommitInfo;
 import org.apache.inlong.sort.flink.hive.partition.PartitionComputer;
 import org.apache.inlong.sort.flink.hive.partition.RowPartitionComputer;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Hive sink writer.
  */
 public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
         implements CheckpointedFunction, CheckpointListener {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HiveWriter.class);
 
     private static final long serialVersionUID = 4293562058643851159L;
 
@@ -68,9 +74,24 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
 
     private transient List<HivePartition> newPartitions;
 
+    private static UserGroupInformation proxyUgi;
+
     public HiveWriter(Configuration configuration, long dataFlowId, HiveSinkInfo hiveSinkInfo) {
         this.configuration = checkNotNull(configuration);
         this.dataFlowId = dataFlowId;
+        UserGroupInformation realUgi = null;
+        try {
+            realUgi = UserGroupInformation.getLoginUser();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//        System.out.println("superUser:" + realUgi.getUserName());
+        String proxyUser = hiveSinkInfo.getHadoopProxyUser();
+//        System.out.println("proxyUser:" + proxyUser);
+        if (proxyUser != null && !proxyUser.isEmpty()) {
+            //create proxyUser
+            proxyUgi = UserGroupInformation.createProxyUser(proxyUser, realUgi);
+        }
         final BulkWriter.Factory<Row> bulkWriterFactory = HiveSinkHelper.createBulkWriterFactory(
                 hiveSinkInfo, configuration);
         final RowPartitionComputer rowPartitionComputer = new RowPartitionComputer("", hiveSinkInfo);
@@ -91,39 +112,79 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
 
     @Override
     public void initializeState(FunctionInitializationContext functionInitializationContext) throws Exception {
-        newPartitions = new ArrayList<>();
-        fileWriterContext = new FileWriterContext();
-        fileWriter.setRuntimeContext(getRuntimeContext());
-        fileWriter.initializeState(functionInitializationContext);
+        doAsWithUGI(proxyUgi, () -> {
+            newPartitions = new ArrayList<>();
+            fileWriterContext = new FileWriterContext();
+            fileWriter.setRuntimeContext(getRuntimeContext());
+            fileWriter.initializeState(functionInitializationContext);
+            return null;
+        });
     }
 
     @Override
     public void open(org.apache.flink.configuration.Configuration parameters) throws Exception {
-        fileWriter.open(parameters);
+//        System.out.println("init:" + proxyUgi);
+        doAsWithUGI(proxyUgi, () -> {
+            fileWriter.open(parameters);
+            return null;
+        });
+
     }
 
     @Override
     public void close() throws Exception {
-        fileWriter.close();
+        doAsWithUGI(proxyUgi, () -> {
+            fileWriter.close();
+            return null;
+        });
     }
 
     @Override
     public void snapshotState(FunctionSnapshotContext functionSnapshotContext) throws Exception {
-        fileWriter.snapshotState(functionSnapshotContext);
+        doAsWithUGI(proxyUgi, () -> {
+            fileWriter.snapshotState(functionSnapshotContext);
+            return null;
+        });
     }
 
     @Override
     public void processElement(Row in, Context context, Collector<PartitionCommitInfo> collector) throws Exception {
-        fileWriter.invoke(in, fileWriterContext.setContext(context));
-        if (!newPartitions.isEmpty()) {
-            collector.collect(new PartitionCommitInfo(dataFlowId, new ArrayList<>(newPartitions)));
-            newPartitions.clear();
-        }
+//        System.out.println("processs:" + proxyUgi);
+        doAsWithUGI(proxyUgi, () -> {
+            fileWriter.invoke(in, fileWriterContext.setContext(context));
+            if (!newPartitions.isEmpty()) {
+                collector.collect(new PartitionCommitInfo(dataFlowId, new ArrayList<>(newPartitions)));
+                newPartitions.clear();
+            }
+            return null;
+        });
     }
 
     @Override
     public void notifyCheckpointComplete(long checkpointId) throws Exception {
-        fileWriter.notifyCheckpointComplete(checkpointId);
+        doAsWithUGI(proxyUgi, () -> {
+            fileWriter.notifyCheckpointComplete(checkpointId);
+            return null;
+        });
+    }
+
+    public static <R> R doAsWithUGI(UserGroupInformation ugi, Callable<R> callable) throws IOException {
+        if (ugi != null) {
+            try {
+                return ugi.doAs((PrivilegedExceptionAction<R>) callable::call);
+            } catch (InterruptedException e) {
+                LOG.error("Cannot access resource via doAs. user:{} error:{}", ugi.getUserName(), e);
+                throw new IOException(e);
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
+        } else {
+            try {
+                return callable.call();
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
+        }
     }
 
     private class FileWriterContext implements SinkFunction.Context {
