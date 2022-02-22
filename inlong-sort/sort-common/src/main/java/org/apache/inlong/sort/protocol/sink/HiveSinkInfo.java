@@ -53,6 +53,7 @@ public class HiveSinkInfo extends SinkInfo {
     @JsonProperty("password")
     private final String password;
 
+    @JsonInclude(Include.NON_NULL)
     @JsonProperty("hadoop_proxy_user")
     private String hadoopProxyUser;
 

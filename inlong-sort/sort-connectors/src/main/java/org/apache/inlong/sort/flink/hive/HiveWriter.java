@@ -85,9 +85,7 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        System.out.println("superUser:" + realUgi.getUserName());
         String proxyUser = hiveSinkInfo.getHadoopProxyUser();
-//        System.out.println("proxyUser:" + proxyUser);
         if (proxyUser != null && !proxyUser.isEmpty()) {
             //create proxyUser
             proxyUgi = UserGroupInformation.createProxyUser(proxyUser, realUgi);
@@ -123,7 +121,6 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
 
     @Override
     public void open(org.apache.flink.configuration.Configuration parameters) throws Exception {
-//        System.out.println("init:" + proxyUgi);
         doAsWithUGI(proxyUgi, () -> {
             fileWriter.open(parameters);
             return null;
@@ -149,7 +146,6 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
 
     @Override
     public void processElement(Row in, Context context, Collector<PartitionCommitInfo> collector) throws Exception {
-//        System.out.println("processs:" + proxyUgi);
         doAsWithUGI(proxyUgi, () -> {
             fileWriter.invoke(in, fileWriterContext.setContext(context));
             if (!newPartitions.isEmpty()) {
