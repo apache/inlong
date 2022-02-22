@@ -142,6 +142,7 @@ public class HiveSinkInfo extends SinkInfo {
         return dataPath;
     }
 
+    @Nullable
     @JsonProperty("hadoop_proxy_user")
     public String getHadoopProxyUser() {
         return hadoopProxyUser;

@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.configuration.Constants.SINK_HIVE_ROLLING_POLICY_CHECK_INTERVAL;
 import static org.apache.inlong.sort.configuration.Constants.SINK_HIVE_ROLLING_POLICY_FILE_SIZE;
 import static org.apache.inlong.sort.configuration.Constants.SINK_HIVE_ROLLING_POLICY_ROLLOVER_INTERVAL;
+
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
@@ -86,7 +87,7 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
             e.printStackTrace();
         }
         String proxyUser = hiveSinkInfo.getHadoopProxyUser();
-        if (proxyUser != null && !proxyUser.isEmpty()) {
+        if (proxyUser != null && !proxyUser.isEmpty() && realUgi != null && proxyUser != realUgi.getUserName()) {
             //create proxyUser
             proxyUgi = UserGroupInformation.createProxyUser(proxyUser, realUgi);
         }
@@ -125,7 +126,6 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
             fileWriter.open(parameters);
             return null;
         });
-
     }
 
     @Override
@@ -164,7 +164,7 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
         });
     }
 
-    public static <R> R doAsWithUGI(UserGroupInformation ugi, Callable<R> callable) throws IOException {
+    public <R> R doAsWithUGI(UserGroupInformation ugi, Callable<R> callable) throws IOException {
         if (ugi != null) {
             try {
                 return ugi.doAs((PrivilegedExceptionAction<R>) callable::call);
