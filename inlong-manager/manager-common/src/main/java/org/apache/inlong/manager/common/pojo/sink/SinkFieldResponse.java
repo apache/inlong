@@ -26,7 +26,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("Sink field response")
-public class SinkeFieldResponse {
+public class SinkFieldResponse {
 
     private Integer id;
 
