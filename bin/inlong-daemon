@@ -213,7 +213,7 @@ start_inlong_all() {
   echo "Judge the choice of message middleware tubemq or pulsar"
   if [ $source_type == "pulsar" ]; then
     # Judge whether the pulsar cluster is started in the current system
-    pulsar_thread=$($JAVA_HOME/bin/jps | grep PulsarBrokerStarter)
+    pulsar_thread=$($JAVA_HOME/bin/jps | egrep 'PulsarBrokerStarter|PulsarStandaloneStarter')
     if [ ! -n "$pulsar_thread" ]; then
       echo "The system does not start the pulsar. Please start the pulsar manually first"
       exit 1
