@@ -132,7 +132,7 @@ spec:
             failureThreshold: {{ .Values.tubemqMaster.probe.liveness.failureThreshold }}
           {{- end }}
           volumeMounts:
-            - name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-{{ .Values.tubemqMaster.volumes.data.name }}
+            - name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-{{ .Values.tubemqMaster.volumes.name }}
               mountPath: /data
             - name: config
               mountPath: /config-scripts
@@ -150,18 +150,18 @@ spec:
             name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-ini
             defaultMode: 0644
         {{- if not .Values.volumes.persistence }}
-        - name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-{{ .Values.tubemqMaster.volumes.data.name }}
+        - name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-{{ .Values.tubemqMaster.volumes.name }}
           emptyDir: {}
         {{- end }}
   {{- if .Values.volumes.persistence }}
   volumeClaimTemplates:
     - metadata:
-        name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-{{ .Values.tubemqMaster.volumes.data.name }}
+        name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-{{ .Values.tubemqMaster.volumes.name }}
       spec:
         accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
-            storage: {{ .Values.tubemqMaster.volumes.data.size }}
+            storage: {{ .Values.tubemqMaster.volumes.size }}
         {{- if .Values.volumes.storageClassName }}
         storageClassName: "{{ .Values.volumes.storageClassName }}"
         {{- end }}
