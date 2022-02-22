@@ -142,10 +142,14 @@ ${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}
 {{- end -}}
 
 {{/*
-Define the pulsar hostname
+Define the message queue url
 */}}
-{{- define "inlong.pulsar.hostname" -}}
-${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.pulsar.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{- define "inlong.mq.url" -}}
+{{- if .Values.pulsar.enabled -}}
+{{ .Values.pulsar.serviceUrl }}
+{{- else -}}
+{{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}
+{{- end -}}
 {{- end -}}
 
 {{/*

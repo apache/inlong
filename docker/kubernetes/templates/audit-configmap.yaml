@@ -25,4 +25,3 @@ metadata:
 data:
   mysqlUsername: {{ .Values.mysql.username | default "root" | quote }}
   managerOpenApiPort: {{ .Values.manager.ports.webPort }}
-  pulsarBrokerUrlList: "pulsar://{{ include "inlong.pulsar.hostname" . }}:{{ .Values.pulsar.ports.pulsarPort }}"

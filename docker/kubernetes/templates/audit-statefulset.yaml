@@ -95,11 +95,8 @@ spec:
                   name: {{ template "inlong.fullname" . }}-{{ .Values.audit.component }}
                   key: managerOpenApiPort
             - name: PULSAR_BROKER_URL_LIST
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "inlong.fullname" . }}-{{ .Values.audit.component }}
-                  key: pulsarBrokerUrlList
-            {{- range $key, $value :=  .Values.audit.env }}
+              value: {{ .Values.pulsar.serviceUrl }}
+            {{- range $key, $value := .Values.audit.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
