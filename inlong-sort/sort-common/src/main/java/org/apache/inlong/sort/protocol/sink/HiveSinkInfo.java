@@ -94,7 +94,7 @@ public class HiveSinkInfo extends SinkInfo {
             @JsonProperty("table") String tableName,
             @JsonProperty("username") @Nullable String username,
             @JsonProperty("password") @Nullable String password,
-            @JsonProperty("hadoop_proxy_user") String hadoopProxyUser,
+            @JsonProperty("hadoop_proxy_user") @Nullable String hadoopProxyUser,
             @JsonProperty("data_path") String dataPath,
             @JsonProperty("partitions") HivePartitionInfo[] partitions,
             @JsonProperty("file_format") HiveFileFormat hiveFileFormat) {

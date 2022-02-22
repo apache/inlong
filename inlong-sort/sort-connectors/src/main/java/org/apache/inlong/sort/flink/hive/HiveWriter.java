@@ -87,7 +87,7 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
             e.printStackTrace();
         }
         String proxyUser = hiveSinkInfo.getHadoopProxyUser();
-        if (proxyUser != null && !proxyUser.isEmpty() && realUgi != null && proxyUser != realUgi.getUserName()) {
+        if (proxyUser != null && !proxyUser.isEmpty() && realUgi != null && !proxyUser.equals(realUgi.getUserName())) {
             //create proxyUser
             proxyUgi = UserGroupInformation.createProxyUser(proxyUser, realUgi);
         }
