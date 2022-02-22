@@ -48,7 +48,7 @@ spec:
             do
               replica="{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}-$i"
               host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-              port={{ .Values.manager.ports.webNodePort }}
+              port={{ .Values.manager.ports.webPort }}
               until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
               do
                 echo "waiting for $replica to be ready"
@@ -59,6 +59,10 @@ spec:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }}
           image: {{ .Values.images.dashboard.repository }}:{{ .Values.images.tubemqManager.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
+          {{- if .Values.tubemqBroker.resources }}
+          resources:
+{{ toYaml .Values.tubemqBroker.resources | indent 12 }}
+          {{- end }}
           env:
             - name: MANAGER_API_ADDRESS
               value: "{{ template "inlong.tubemqManager.hostname" .}}:{{ .Values.tubemqManager.containerPort }}"

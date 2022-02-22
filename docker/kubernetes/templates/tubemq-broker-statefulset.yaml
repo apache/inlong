@@ -51,7 +51,7 @@ spec:
       {{- end }}
       initContainers:
         - name: wait-{{ .Values.tubemqMaster.component }}-ready
-          image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
+          image: {{ .Values.images.tubemqServer.repository }}:{{ .Values.images.tubemqServer.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           command: [ "/bin/sh", "-c" ]
           args:
@@ -61,7 +61,7 @@ spec:
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-$i"
                 host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-                port={{ .Values.tubemqMaster.ports.webNodePort }}
+                port={{ .Values.tubemqMaster.ports.webPort }}
                 until curl $host:$port/index.htm
                 do
                   echo "waiting for $replica to be ready"
@@ -130,7 +130,7 @@ spec:
             failureThreshold: {{ .Values.tubemqBroker.probe.liveness.failureThreshold }}
           {{- end }}
           volumeMounts:
-            - name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }}-{{ .Values.tubemqBroker.volumes.data.name }}
+            - name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }}-{{ .Values.tubemqBroker.volumes.name }}
               mountPath: /data
             - name: config
               mountPath: /config-scripts
@@ -148,18 +148,18 @@ spec:
             name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }}-ini
             defaultMode: 0644
         {{- if not .Values.volumes.persistence }}
-        - name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }}-{{ .Values.tubemqBroker.volumes.data.name }}
+        - name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }}-{{ .Values.tubemqBroker.volumes.name }}
           emptyDir: {}
         {{- end }}
   {{- if .Values.volumes.persistence }}
   volumeClaimTemplates:
     - metadata:
-        name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }}-{{ .Values.tubemqBroker.volumes.data.name }}
+        name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }}-{{ .Values.tubemqBroker.volumes.name }}
       spec:
         accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
-            storage: {{ .Values.tubemqBroker.volumes.data.size }}
+            storage: {{ .Values.tubemqBroker.volumes.size }}
         {{- if .Values.volumes.storageClassName }}
         storageClassName: "{{ .Values.volumes.storageClassName }}"
         {{- end }}

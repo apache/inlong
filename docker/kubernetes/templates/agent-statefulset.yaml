@@ -77,6 +77,10 @@ spec:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.agent.component }}
           image: {{ .Values.images.agent.repository }}:{{ .Values.images.agent.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
+          {{- if .Values.agent.resources }}
+          resources:
+{{ toYaml .Values.agent.resources | indent 12 }}
+          {{- end }}
           env:
             - name: MANAGER_OPENAPI_IP
               value: {{ include "inlong.tubemqManager.hostname" . | quote }}

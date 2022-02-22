@@ -113,7 +113,7 @@ spec:
             failureThreshold: {{ .Values.zookeeper.probe.liveness.failureThreshold }}
           {{- end }}
           volumeMounts:
-            - name: {{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}
+            - name: {{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.name }}
               mountPath: /data
             - name: config
               mountPath: /config-scripts
@@ -124,18 +124,18 @@ spec:
               {{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}
             defaultMode: 0755
         {{- if not .Values.volumes.persistence }}
-        - name: {{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}
+        - name: {{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.name }}
           emptyDir: {}
         {{- end }}
   {{- if .Values.volumes.persistence }}
   volumeClaimTemplates:
     - metadata:
-        name: {{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}
+        name: {{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.name }}
       spec:
         accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
-            storage: {{ .Values.zookeeper.volumes.data.size }}
+            storage: {{ .Values.zookeeper.volumes.size }}
         {{- if .Values.volumes.storageClassName }}
         storageClassName: "{{ .Values.volumes.storageClassName }}"
         {{- end }}
