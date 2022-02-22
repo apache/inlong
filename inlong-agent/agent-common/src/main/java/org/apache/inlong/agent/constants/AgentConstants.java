@@ -162,6 +162,8 @@ public class AgentConstants {
 
     public static final String AGENT_LOCAL_IP = "agent.local.ip";
 
+    public static final String AGENT_LOCAL_UUID = "agent.local.uuid";
+
     public static final String PROMETHEUS_ENABLE = "agent.prometheus.enable";
     public static final boolean DEFAULT_PROMETHEUS_ENABLE = false;
 

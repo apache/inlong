@@ -17,13 +17,17 @@
 
 package org.apache.inlong.agent.plugin.fetcher.dtos;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Data;
-import org.apache.inlong.commons.db.CommandEntity;
 
 @Data
-public class TaskRequestDto {
-    private String agentIp;
-    private List<CommandEntity> commandInfo = new ArrayList<>();
+public class Job {
+
+    private String deliveryTime;
+    private String op;
+
+    private String name;
+    private String source;
+    private String sink;
+    private String channel;
+
 }

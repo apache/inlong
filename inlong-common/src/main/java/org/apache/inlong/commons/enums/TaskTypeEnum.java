@@ -15,15 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.fetcher.dtos;
+package org.apache.inlong.commons.enums;
 
-import java.util.ArrayList;
-import java.util.List;
-import lombok.Data;
-import org.apache.inlong.commons.db.CommandEntity;
+import static java.util.Objects.requireNonNull;
 
-@Data
-public class TaskRequestDto {
-    private String agentIp;
-    private List<CommandEntity> commandInfo = new ArrayList<>();
+public enum TaskTypeEnum {
+    SQL(1), BINLOG(2), FILE(3), KAFKA(4);
+
+    private int type;
+
+    TaskTypeEnum(int type) {
+        this.type = type;
+    }
+
+    public static TaskTypeEnum getTaskType(int taskType) {
+        requireNonNull(taskType);
+        switch (taskType) {
+            case 1:
+                return SQL;
+            case 2:
+                return BINLOG;
+            case 3:
+                return FILE;
+            case 4:
+                return KAFKA;
+            default:
+                throw new RuntimeException("such task type doesn't exist");
+        }
+    }
+
+    public int getType() {
+        return type;
+    }
 }

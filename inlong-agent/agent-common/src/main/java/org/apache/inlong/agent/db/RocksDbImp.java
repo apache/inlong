@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constants.AgentConstants;
+import org.apache.inlong.commons.db.CommandEntity;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.slf4j.Logger;

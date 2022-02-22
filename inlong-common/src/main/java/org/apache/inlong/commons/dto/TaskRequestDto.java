@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.fetcher.dtos;
+package org.apache.inlong.commons.dto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,5 +25,6 @@ import org.apache.inlong.commons.db.CommandEntity;
 @Data
 public class TaskRequestDto {
     private String agentIp;
+    private String uuid;
     private List<CommandEntity> commandInfo = new ArrayList<>();
 }

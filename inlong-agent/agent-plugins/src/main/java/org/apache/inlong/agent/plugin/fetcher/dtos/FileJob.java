@@ -17,13 +17,50 @@
 
 package org.apache.inlong.agent.plugin.fetcher.dtos;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Data;
-import org.apache.inlong.commons.db.CommandEntity;
 
 @Data
-public class TaskRequestDto {
-    private String agentIp;
-    private List<CommandEntity> commandInfo = new ArrayList<>();
+public class FileJob extends Job {
+
+    private String trigger;
+
+    private Dir dir;
+    private Thread thread;
+    private int id;
+    private String pattern;
+    private String cycleUnit;
+    private String timeOffset;
+    private String addictiveString;
+
+    @Data
+    public static class Dir {
+
+        private String path;
+        private String pattern;
+    }
+
+    @Data
+    public static class Running {
+
+        private String core;
+    }
+
+    @Data
+    public static class Thread {
+
+        private Running running;
+    }
+
+    @Data
+    public static class FileJobTaskConfig {
+
+        private String dataName;
+        private String path;
+        private int taskId;
+        private String pattern;
+        private String cycleUnit;
+        private String timeOffset;
+        private String additionalAttr;
+    }
+
 }

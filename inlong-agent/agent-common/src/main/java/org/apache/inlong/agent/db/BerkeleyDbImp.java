@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constants.AgentConstants;
 import org.apache.inlong.agent.constants.CommonConstants;
+import org.apache.inlong.commons.db.CommandEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
