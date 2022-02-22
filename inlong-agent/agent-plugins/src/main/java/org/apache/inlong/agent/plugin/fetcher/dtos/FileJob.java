@@ -20,16 +20,9 @@ package org.apache.inlong.agent.plugin.fetcher.dtos;
 import lombok.Data;
 
 @Data
-public class FileJob {
+public class FileJob extends Job {
 
     private String trigger;
-    private String name;
-    private String source;
-    private String sink;
-    private String channel;
-
-    private String deliveryTime;
-    private String op;
 
     private Dir dir;
     private Thread thread;

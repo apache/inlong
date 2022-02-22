@@ -20,15 +20,7 @@ package org.apache.inlong.agent.plugin.fetcher.dtos;
 import lombok.Data;
 
 @Data
-public class BinlogJob {
-
-    private String deliveryTime;
-    private String op;
-
-    private String name;
-    private String source;
-    private String sink;
-    private String channel;
+public class BinlogJob extends Job {
 
     private  String user;
     private  String password;

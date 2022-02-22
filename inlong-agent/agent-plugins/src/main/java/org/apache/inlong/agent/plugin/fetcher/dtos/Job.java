@@ -20,29 +20,14 @@ package org.apache.inlong.agent.plugin.fetcher.dtos;
 import lombok.Data;
 
 @Data
-public class KafkaJob extends Job {
+public class Job {
 
-    private  String topic;
-    private  String keyDeserializer;
-    private  String valueDeserializer;
-    private  String bootstrapServers;
-    private  String groupId;
-    private  String recordSpeed;
-    private  String byteSpeedLimit;
-    private  String minInterval;
-    private  String offset;
+    private String deliveryTime;
+    private String op;
 
-    @Data
-    public static class KafkaJobTaskConfig {
+    private String name;
+    private String source;
+    private String sink;
+    private String channel;
 
-        private  String topic;
-        private  String keyDeserializer;
-        private  String valueDeserializer;
-        private  String bootstrapServers;
-        private  String groupId;
-        private  String recordSpeed;
-        private  String byteSpeedLimit;
-        private  String minInterval;
-        private  String offset;
-    }
 }
