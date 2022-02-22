@@ -23,23 +23,29 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.beans.PageRequest;
 
+import javax.validation.constraints.NotNull;
+
 /**
- * DB source detailed information paging query conditions
+ * Paging query request for Source
  */
-@Deprecated
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel("DB source query conditions")
-public class SourceDbDetailPageRequest extends PageRequest {
+@ApiModel("Paging query request for Source")
+public class SourcePageRequest extends PageRequest {
 
-    @ApiModelProperty(value = "Inlong group id")
+    @NotNull
+    @ApiModelProperty(value = "Inlong group id", required = true)
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "Keywords")
-    private String keyWord;
+    @ApiModelProperty(value = "Inlong stream id")
+    private String inlongStreamId;
 
-    @ApiModelProperty(value = "Type")
-    private String accessType;
+    @NotNull
+    @ApiModelProperty(value = "Source type, such as FILE", required = true)
+    private String sourceType;
+
+    @ApiModelProperty(value = "Key word")
+    private String keyWord;
 
     @ApiModelProperty(value = "Status")
     private Integer status;

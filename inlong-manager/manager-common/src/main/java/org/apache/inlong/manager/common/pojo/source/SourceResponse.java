@@ -25,57 +25,54 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * DB source details
+ * Response of the stream source
  */
-@Deprecated
 @Data
-@ApiModel("DB source details")
-public class SourceDbDetailInfo {
+@ApiModel("Response of the stream source")
+public class SourceResponse {
 
-    @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Inlong group id")
+    @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "Inlong stream id")
+    @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
 
-    @ApiModelProperty(value = "Collection type, with Agent, DataProxy client, LoadProxy")
-    private String accessType;
+    @ApiModelProperty("Source type, including: FILE, KAFKA, etc.")
+    private String sourceType;
 
-    @ApiModelProperty(value = "Database name")
-    private String dbName;
+    @ApiModelProperty("Ip of the agent running the task")
+    private String agentIp;
 
-    @ApiModelProperty(value = "Transfer IP")
-    private String transferIp;
+    @ApiModelProperty("Mac uuid of the agent running the task")
+    private String uuid;
 
-    @ApiModelProperty(value = "The name of the database connection")
-    private String connectionName;
+    @ApiModelProperty("Id of the source server")
+    private Integer serverId;
 
-    @ApiModelProperty(value = "Timed scheduling expression, required for full amount")
-    private String crontab;
+    @ApiModelProperty("Name of the source server")
+    private String serverName;
 
-    @ApiModelProperty(value = "SQL statement to collect source data, required for full amount")
-    private String dataSql;
+    @ApiModelProperty("Id of the cluster that collected this source")
+    private Integer clusterId;
 
-    @ApiModelProperty(value = "Data table name, required for increment")
-    private String tableName;
+    @ApiModelProperty("Name of the cluster that collected this source")
+    private String clusterName;
 
-    @ApiModelProperty(value = "Data table fields, separated by commas, need to be incremented")
-    private String tableFields;
+    @ApiModelProperty("Heartbeat of this source task")
+    private String heartbeat;
 
-    @ApiModelProperty(value = "Source status")
+    @ApiModelProperty("Status")
     private Integer status;
 
-    @ApiModelProperty(value = "Previous status")
+    @ApiModelProperty("Previous State")
     private Integer previousStatus;
 
-    @ApiModelProperty(value = "is deleted? 0: deleted, 1: not deleted")
-    private Integer isDeleted = 0;
-
+    @ApiModelProperty("Creator")
     private String creator;
 
+    @ApiModelProperty("Modifier")
     private String modifier;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -83,8 +80,5 @@ public class SourceDbDetailInfo {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
-
-    @ApiModelProperty(value = "Temporary view, string in JSON format")
-    private String tempView;
 
 }

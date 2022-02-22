@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Control layer of DB type data source
  */
+@Deprecated
 @RestController
 @RequestMapping("/datasource/db")
 @Api(tags = "DataSource - DB")

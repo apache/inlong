@@ -33,85 +33,83 @@ import java.util.List;
 public interface StreamSinkService {
 
     /**
-     * Save the sink information
+     * Save the sink information.
      *
      * @param request Sink request.
      * @param operator Operator's name.
-     * @return sink id after saving.
+     * @return Sink id after saving.
      */
     Integer save(SinkRequest request, String operator);
 
     /**
      * Query sink information based on id and type.
      *
-     * @param id sink id.
+     * @param id Sink id.
      * @param sinkType Sink type.
-     * @return Store info
+     * @return Sink info.
      */
     SinkResponse get(Integer id, String sinkType);
 
     /**
-     * Query sink information based on inlong group id and inlong stream id
+     * Query sink information based on inlong group id and inlong stream id.
      *
-     * @param groupId Inlong group id
-     * @param streamId Inlong stream id, can be null
-     * @return Store information list
-     * @apiNote Sink types only support temporarily: HIVE
+     * @param groupId Inlong group id.
+     * @param streamId Inlong stream id, can be null.
+     * @return Sink info list.
      */
     List<SinkResponse> listSink(String groupId, String streamId);
 
     /**
-     * Query stored summary information based on inlong group id and inlong stream id, including sink cluster
+     * Query sink summary based on inlong group id and inlong stream id, including sink cluster.
      *
-     * @param groupId Inlong group id
-     * @param streamId Inlong stream id
-     * @return Store information list
-     * @apiNote Sink types only support temporarily: HIVE
+     * @param groupId Inlong group id.
+     * @param streamId Inlong stream id.
+     * @return Sink info list.
      */
     List<SinkBriefResponse> listBrief(String groupId, String streamId);
 
     /**
-     * Query the number of undeleted stored information based on inlong group and inlong stream id
+     * Query the number of undeleted sink info based on inlong group and inlong stream id
      *
-     * @param groupId Inlong group id
-     * @param streamId Inlong stream id
-     * @return Number of stored information
+     * @param groupId Inlong group id.
+     * @param streamId Inlong stream id.
+     * @return Number of sink info.
      */
     Integer getCount(String groupId, String streamId);
 
     /**
-     * Paging query sink information based on conditions
+     * Paging query sink information based on conditions.
      *
-     * @param request Paging request
-     * @return Store information list
+     * @param request Paging request.
+     * @return Sink info list.
      */
     PageInfo<? extends SinkListResponse> listByCondition(SinkPageRequest request);
 
     /**
-     * Modify data sink information
+     * Modify data sink information.
      *
-     * @param sinkRequest Information that needs to be modified
-     * @param operator Edit person's name
-     * @return whether succeed
+     * @param sinkRequest Information that needs to be modified.
+     * @param operator Operator's name.
+     * @return Whether succeed.
      */
-    boolean update(SinkRequest sinkRequest, String operator);
+    Boolean update(SinkRequest sinkRequest, String operator);
 
     /**
      * Delete the stream sink by the given id and sink type.
      *
      * @param id The primary key of the sink.
      * @param sinkType Sink type.
-     * @param operator The operator's name.
+     * @param operator Operator's name.
      * @return Whether succeed
      */
-    boolean delete(Integer id, String sinkType, String operator);
+    Boolean delete(Integer id, String sinkType, String operator);
 
     /**
-     * Modify sink data status
+     * Modify sink data status.
      *
-     * @param id Stored id
-     * @param status Goal status
-     * @param log Modify the description
+     * @param id Sink id.
+     * @param status Target status.
+     * @param log Modify the log.
      */
     void updateStatus(int id, int status, String log);
 
@@ -120,29 +118,29 @@ public interface StreamSinkService {
      *
      * @param groupId InLong group id to which the data source belongs.
      * @param streamId InLong stream id to which the data source belongs.
-     * @param operator The operator's name.
+     * @param operator Operator's name.
      * @return Whether succeed.
      */
-    boolean logicDeleteAll(String groupId, String streamId, String operator);
+    Boolean logicDeleteAll(String groupId, String streamId, String operator);
 
     /**
      * Physically delete stream sink with the given conditions.
      *
      * @param groupId InLong group id.
      * @param streamId InLong stream id.
-     * @param operator The operator's name.
+     * @param operator Operator's name.
      * @return Whether succeed.
      */
-    boolean deleteAll(String groupId, String streamId, String operator);
+    Boolean deleteAll(String groupId, String streamId, String operator);
 
     /**
-     * According to the existing inlong stream ID list, filter out the inlong stream ID list containing the specified
-     * sink type
+     * According to the existing inlong stream ID list, filter out the inlong stream id list
+     * containing the specified sink type.
      *
-     * @param groupId Inlong group id
-     * @param sinkType Sink type
-     * @param streamIdList Inlong stream ID list
-     * @return List of filtered inlong stream IDs
+     * @param groupId Inlong group id.
+     * @param sinkType Sink type.
+     * @param streamIdList Inlong stream id list.
+     * @return List of filtered inlong stream ids.
      */
     List<String> getExistsStreamIdList(String groupId, String sinkType, List<String> streamIdList);
 
@@ -159,9 +157,9 @@ public interface StreamSinkService {
      * Save the information modified when the approval is passed
      *
      * @param sinkApproveList Stream sink approval information
-     * @param operator Edit person's name
+     * @param operator Operator's name
      * @return whether succeed
      */
-    boolean updateAfterApprove(List<SinkApproveDTO> sinkApproveList, String operator);
+    Boolean updateAfterApprove(List<SinkApproveDTO> sinkApproveList, String operator);
 
 }

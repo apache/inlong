@@ -15,78 +15,72 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.service.core.sink;
 
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.service.ServiceBaseTest;
+import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.apache.inlong.manager.web.WebBaseTest;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Stream sink service test
- */
-public class KafkaStreamSinkServiceTest extends WebBaseTest {
+public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
+
+    private final String globalGroupId = "b_group1";
+    private final String globalStreamId = "stream1";
+    private final String globalOperator = "test_user";
 
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
-    private static final String globalGroupId = "b_group1";
-    private static final String globalStreamId = "stream1";
-    private static final String globalOperator = "test_user";
-    private static final String bootstrapServers = "127.0.0.1:9092";
-    private static final String serializationType = "Json";
-    private static final String topicName = "kafka_topic_name";
-
-
-    private static Integer kafkaSinkId;
-
-    @Before
-    public void saveSink() {
+    public Integer saveSink() {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-        KafkaSinkRequest sinkInfo = new KafkaSinkRequest();
+
+        IcebergSinkRequest sinkInfo = new IcebergSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(Constant.SINK_KAFKA);
-        sinkInfo.setSerializationType(serializationType);
-        sinkInfo.setAddress(bootstrapServers);
-        sinkInfo.setTopicName(topicName);
+        sinkInfo.setSinkType(Constant.SINK_ICEBERG);
         sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
-        kafkaSinkId = sinkService.save(sinkInfo, globalOperator);
+        sinkInfo.setTableLocation("hdfs://127.0.0.1:8020/data");
+
+        return sinkService.save(sinkInfo, globalOperator);
     }
 
-    @After
-    public void deleteKafkaSink() {
-        boolean result = sinkService.delete(kafkaSinkId, Constant.SINK_KAFKA, globalOperator);
+    @Test
+    public void testSaveAndDelete() {
+        Integer id = this.saveSink();
+        Assert.assertNotNull(id);
+        boolean result = sinkService.delete(id, Constant.SINK_ICEBERG, globalOperator);
         Assert.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
-        SinkResponse sink = sinkService.get(kafkaSinkId, Constant.SINK_KAFKA);
+        Integer id = this.saveSink();
+        SinkResponse sink = sinkService.get(id, Constant.SINK_ICEBERG);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
+        sinkService.delete(id, Constant.SINK_ICEBERG, globalOperator);
     }
 
     @Test
     public void testGetAndUpdate() {
-        SinkResponse response = sinkService.get(kafkaSinkId, Constant.SINK_KAFKA);
+        Integer id = this.saveSink();
+        SinkResponse response = sinkService.get(id, Constant.SINK_ICEBERG);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
-        KafkaSinkResponse kafkaSinkResponse = (KafkaSinkResponse) response;
-        kafkaSinkResponse.setEnableCreateResource(Constant.ENABLE_CREATE_RESOURCE);
+        IcebergSinkResponse icebergSinkResponse = (IcebergSinkResponse) response;
+        icebergSinkResponse.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
 
-        KafkaSinkRequest request = CommonBeanUtils.copyProperties(kafkaSinkResponse, KafkaSinkRequest::new);
+        IcebergSinkRequest request = CommonBeanUtils.copyProperties(icebergSinkResponse,
+                IcebergSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
         Assert.assertTrue(result);
     }
-
 }

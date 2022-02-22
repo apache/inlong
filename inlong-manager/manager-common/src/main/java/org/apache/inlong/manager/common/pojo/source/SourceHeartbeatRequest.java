@@ -20,28 +20,21 @@ package org.apache.inlong.manager.common.pojo.source;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.beans.PageRequest;
+
+import javax.validation.constraints.NotNull;
 
 /**
- * DB source detailed information paging query conditions
+ * Request of the source heartbeat
  */
-@Deprecated
 @Data
-@EqualsAndHashCode(callSuper = false)
-@ApiModel("DB source query conditions")
-public class SourceDbDetailPageRequest extends PageRequest {
+@ApiModel("Request of the source heartbeat")
+public class SourceHeartbeatRequest {
 
-    @ApiModelProperty(value = "Inlong group id")
-    private String inlongGroupId;
+    @NotNull
+    @ApiModelProperty("Id of the source")
+    private Integer id;
 
-    @ApiModelProperty(value = "Keywords")
-    private String keyWord;
-
-    @ApiModelProperty(value = "Type")
-    private String accessType;
-
-    @ApiModelProperty(value = "Status")
-    private Integer status;
+    @ApiModelProperty("Heartbeat of this source task")
+    private String heartbeat;
 
 }

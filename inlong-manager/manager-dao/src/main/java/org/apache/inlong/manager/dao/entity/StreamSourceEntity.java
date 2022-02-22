@@ -15,33 +15,39 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source;
+package org.apache.inlong.manager.dao.entity;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.beans.PageRequest;
 
-/**
- * DB source detailed information paging query conditions
- */
-@Deprecated
+import java.io.Serializable;
+import java.util.Date;
+
 @Data
-@EqualsAndHashCode(callSuper = false)
-@ApiModel("DB source query conditions")
-public class SourceDbDetailPageRequest extends PageRequest {
+public class StreamSourceEntity implements Serializable {
 
-    @ApiModelProperty(value = "Inlong group id")
+    private static final long serialVersionUID = 1L;
+    private Integer id;
     private String inlongGroupId;
+    private String inlongStreamId;
+    private String sourceType;
+    private String agentIp;
+    private String uuid;
 
-    @ApiModelProperty(value = "Keywords")
-    private String keyWord;
+    private Integer serverId;
+    private String serverName;
+    private Integer clusterId;
+    private String clusterName;
+    private String heartbeat;
 
-    @ApiModelProperty(value = "Type")
-    private String accessType;
+    // extParams saved filePath, fileRollingType, dbName, tableName, etc.
+    private String extParams;
 
-    @ApiModelProperty(value = "Status")
     private Integer status;
+    private Integer previousStatus;
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime;
 
 }

@@ -38,6 +38,9 @@ public enum ErrorCodeEnum {
     GROUP_NAME_UPDATE_NOT_ALLOWED(1012, "The current inlong group status does not support modifying the name"),
     GROUP_INFO_INCONSISTENT(1013, "The inlong group info is inconsistent, please contact the administrator"),
 
+    OPT_NOT_ALLOWED_BY_STATUS(1021,
+            "The current inlong group status does not allow adding/modifying/deleting related info"),
+
     MIDDLEWARE_TYPE_NOT_SUPPORTED(1021, "MIDDLEWARE_TYPE_NOT_SUPPORTED"),
 
     CLUSTER_NOT_FOUND(1101, "Cluster information does not exist"),
@@ -55,28 +58,34 @@ public enum ErrorCodeEnum {
     STREAM_DELETE_HAS_SOURCE(1209, "The inlong stream contains source info and is not allowed to be deleted"),
     STREAM_DELETE_HAS_SINK(1210, "The inlong stream contains data sink info and is not allowed to be deleted"),
 
+    SOURCE_TYPE_IS_NULL(1300, "Source type is null"),
+    SOURCE_TYPE_NOT_SUPPORT(1301, "Source type '%s' not support"),
+    SOURCE_INFO_NOT_FOUND(1302, "Source information does not exist/no operation authority"),
+    SOURCE_INFO_INCORRECT(1303, "Source information was incorrect"),
+    SOURCE_ALREADY_EXISTS(1304, "Source already exist with the groupId and streamId"),
+    SOURCE_SAVE_FAILED(1305, "Failed to save or update source info"),
+    SOURCE_OPT_NOT_ALLOWED(1306, "Current status does not allow add/modification/delete source info"),
+
     SOURCE_DUPLICATE(1301, "Stream source already exists"),
     SOURCE_BASIC_NOT_FOUND(1302, "The basic information of the stream source does not exist"),
     SOURCE_DETAIL_NOT_FOUND(1303, "Stream source info does not exist"),
     SOURCE_TYPE_NOT_SUPPORTED(1304, "Source type is not supported"),
     SOURCE_BASIC_DELETE_HAS_DETAIL(1305,
             "The stream source contains detailed info and is not allowed to be deleted"),
-    SOURCE_OPT_NOT_ALLOWED(1306,
-            "The current inlong group status does not allow adding/modifying/deleting stream source info"),
 
     HIVE_OPERATION_FAILED(1311, "Hive operation failed"),
 
     SINK_TYPE_IS_NULL(1400, "Sink type is null"),
     SINK_TYPE_NOT_SUPPORT(1401, "Sink type '%s' not support"),
     SINK_INFO_NOT_FOUND(1402, "Sink information does not exist/no operation authority"),
-    SINK_INFO_INCORRECT(1402, "Sink information was incorrect"),
-    SINK_ALREADY_EXISTS(1403, "Sink already exist with the groupId and streamId"),
-    SINK_SAVE_FAILED(1404, "Failed to save or update sink info"),
-    SINK_FIELD_SAVE_FAILED(1405, "Failed to save or update sink field"),
-    SINK_OPT_NOT_ALLOWED(1406, "Current status does not allow add/modification/delete sink info"),
-    SINK_DB_NAME_UPDATE_NOT_ALLOWED(1407, "Current status does not allow modification the database name"),
-    SINK_TB_NAME_UPDATE_NOT_ALLOWED(1408, "Current status does not allow modification the table name"),
-    SINK_FIELD_UPDATE_NOT_ALLOWED(1409, "Current status not allowed to modification/delete field"),
+    SINK_INFO_INCORRECT(1403, "Sink information was incorrect"),
+    SINK_ALREADY_EXISTS(1404, "Sink already exist with the groupId and streamId"),
+    SINK_SAVE_FAILED(1405, "Failed to save or update sink info"),
+    SINK_FIELD_SAVE_FAILED(1406, "Failed to save or update sink field"),
+    SINK_OPT_NOT_ALLOWED(1407, "Current status does not allow add/modification/delete sink info"),
+    SINK_DB_NAME_UPDATE_NOT_ALLOWED(1408, "Current status does not allow modification the database name"),
+    SINK_TB_NAME_UPDATE_NOT_ALLOWED(1409, "Current status does not allow modification the table name"),
+    SINK_FIELD_UPDATE_NOT_ALLOWED(1410, "Current status not allowed to modification/delete field"),
 
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
 

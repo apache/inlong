@@ -52,6 +52,7 @@ import java.util.List;
 /**
  * File data source service layer implementation
  */
+@Deprecated
 @Service
 public class SourceFileServiceImpl implements SourceFileService {
 

@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.beans.PageRequest;
 /**
  * File source query conditions
  */
+@Deprecated
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("File source query conditions")

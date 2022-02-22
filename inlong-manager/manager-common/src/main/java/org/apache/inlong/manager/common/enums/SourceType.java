@@ -19,20 +19,33 @@ package org.apache.inlong.manager.common.enums;
 
 import java.util.Locale;
 
-public enum SinkType {
+public enum SourceType {
 
-    HIVE, ES, CLICKHOUSE, ICEBERG, KAFKA;
+    FILE("FILE"),
+    DB_SQL("DB_SQL"),
+    DB_BINLOG("DB_BINLOG"),
+    KAFKA("KAFKA");
+
+    private final String type;
+
+    SourceType(String type) {
+        this.type = type;
+    }
 
     /**
-     * Get the SinkType enum via the given sinkType string
+     * Get the SourceType enum via the given sourceType string
      */
-    public static SinkType getType(String sinkType) {
-        for (SinkType type : values()) {
-            if (type.name().equals(sinkType)) {
+    public static SourceType getType(String sourceType) {
+        for (SourceType type : values()) {
+            if (type.name().equals(sourceType)) {
                 return type;
             }
         }
-        throw new IllegalArgumentException(String.format("Illegal sink type for %s", sinkType));
+        throw new IllegalArgumentException(String.format("Illegal sink type for %s", sourceType));
+    }
+
+    public String getType() {
+        return this.type;
     }
 
     @Override

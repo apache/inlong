@@ -17,31 +17,49 @@
 
 package org.apache.inlong.manager.common.pojo.source;
 
-import io.swagger.annotations.ApiModel;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.beans.PageRequest;
+
+import java.util.Date;
 
 /**
- * DB source detailed information paging query conditions
+ * Response of the source list
  */
-@Deprecated
 @Data
-@EqualsAndHashCode(callSuper = false)
-@ApiModel("DB source query conditions")
-public class SourceDbDetailPageRequest extends PageRequest {
+public class SourceListResponse {
+
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
+
+    @ApiModelProperty(value = "Status")
+    private Integer status;
 
     @ApiModelProperty(value = "Inlong group id")
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "Keywords")
-    private String keyWord;
+    @ApiModelProperty(value = "Inlong stream id")
+    private String inlongStreamId;
 
-    @ApiModelProperty(value = "Type")
-    private String accessType;
+    @ApiModelProperty("Source type, including: FILE, KAFKA, etc.")
+    private String sourceType;
 
-    @ApiModelProperty(value = "Status")
-    private Integer status;
+    @ApiModelProperty("Id of the source server")
+    private Integer serverId;
+
+    @ApiModelProperty("Name of the source server")
+    private String serverName;
+
+    @ApiModelProperty("Id of the cluster that collected this source")
+    private Integer clusterId;
+
+    @ApiModelProperty("Name of the cluster that collected this source")
+    private String clusterName;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
 
 }

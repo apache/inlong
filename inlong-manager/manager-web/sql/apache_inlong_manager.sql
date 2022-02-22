@@ -585,6 +585,35 @@ CREATE TABLE `source_file_detail`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Detailed table of file data source';
 
 -- ----------------------------
+-- Table structure for stream_source
+-- ----------------------------
+DROP TABLE IF EXISTS `stream_source`;
+CREATE TABLE `stream_source`
+(
+    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Inlong group id',
+    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Inlong stream id',
+    `source_type`      varchar(20)       DEFAULT '0' COMMENT 'Source type, including: FILE, DB, etc',
+    `agent_ip`         varchar(40)       DEFAULT NULL COMMENT 'Ip of the agent running the task',
+    `uuid`             varchar(30)       DEFAULT NULL COMMENT 'Mac uuid of the agent running the task',
+    `server_id`        int(11)           DEFAULT NULL COMMENT 'Id of the source server',
+    `server_name`      varchar(50)       DEFAULT '' COMMENT 'Name of the source server',
+    `cluster_id`       int(11)           DEFAULT NULL COMMENT 'Id of the cluster that collected this source',
+    `cluster_name`     varchar(50)       DEFAULT '' COMMENT 'Name of the cluster that collected this source',
+    `heartbeat`        text              DEFAULT NULL COMMENT 'Heartbeat of this source task',
+    `ext_params`       text              DEFAULT NULL COMMENT 'Another fields will saved as JSON string, such as filePath, dbName, tableName, etc',
+    `status`           int(4)            DEFAULT '0' COMMENT 'Data source status',
+    `previous_status`  int(4)            DEFAULT '0' COMMENT 'Previous status',
+    `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`          varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`         varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Stream source table';
+
+-- ----------------------------
 -- Table structure for stream_sink
 -- ----------------------------
 DROP TABLE IF EXISTS `stream_sink`;
@@ -617,7 +646,7 @@ CREATE TABLE `stream_sink_ext`
 (
     `id`          int(11)     NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `sink_type`   varchar(20) NOT NULL COMMENT 'Sink type, including: HDFS, HIVE, etc.',
-    `sink_id`     int(11)     NOT NULL COMMENT 'sink id',
+    `sink_id`     int(11)     NOT NULL COMMENT 'Sink id',
     `key_name`    varchar(64) NOT NULL COMMENT 'Configuration item name',
     `key_value`   varchar(256)         DEFAULT NULL COMMENT 'The value of the configuration item',
     `is_deleted`  int(11)              DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
@@ -634,15 +663,15 @@ DROP TABLE IF EXISTS `stream_sink_field`;
 CREATE TABLE `stream_sink_field`
 (
     `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`   varchar(256) NOT NULL COMMENT 'inlong group id',
-    `inlong_stream_id`  varchar(256) NOT NULL COMMENT 'inlong stream id',
-    `sink_id`           int(11)      NOT NULL COMMENT 'sink id',
-    `sink_type`         varchar(15)  NOT NULL COMMENT 'sink type',
-    `source_field_name` varchar(50)   DEFAULT NULL COMMENT 'source field name',
-    `source_field_type` varchar(50)   DEFAULT NULL COMMENT 'source field type',
-    `field_name`        varchar(50)  NOT NULL COMMENT 'field name',
-    `field_type`        varchar(50)  NOT NULL COMMENT 'field type',
-    `field_comment`     varchar(2000) DEFAULT NULL COMMENT 'field description',
+    `inlong_group_id`   varchar(256) NOT NULL COMMENT 'Inlong group id',
+    `inlong_stream_id`  varchar(256) NOT NULL COMMENT 'Inlong stream id',
+    `sink_id`           int(11)      NOT NULL COMMENT 'Sink id',
+    `sink_type`         varchar(15)  NOT NULL COMMENT 'Sink type',
+    `source_field_name` varchar(50)   DEFAULT NULL COMMENT 'Source field name',
+    `source_field_type` varchar(50)   DEFAULT NULL COMMENT 'Source field type',
+    `field_name`        varchar(50)  NOT NULL COMMENT 'Field name',
+    `field_type`        varchar(50)  NOT NULL COMMENT 'Field type',
+    `field_comment`     varchar(2000) DEFAULT NULL COMMENT 'Field description',
     `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`        int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`)
