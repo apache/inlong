@@ -47,7 +47,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
       params: {
         ...options,
         inlongGroupId: inlongGroupId,
-        processNames: 'CREATE_BUSINESS_RESOURCE,CREATE_DATASTREAM_RESOURCE',
+        processNames: 'CREATE_GROUP_RESOURCE,CREATE_STREAM_RESOURCE',
         taskType: 'ServiceTask',
       },
     },
@@ -65,12 +65,12 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
   }, []);
 
   const reRun = useCallback(
-    ({ taskInstId }) => {
+    ({ taskId }) => {
       Modal.confirm({
         title: t('pages.AccessDashboard.ExecutionLogModal.ConfirmThatItIsRe-executed'),
         onOk: async () => {
           await request({
-            url: `/workflow/complete/` + taskInstId,
+            url: `/workflow/complete/` + taskId,
             method: 'POST',
             data: {
               remark: '',
@@ -102,18 +102,18 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
     },
     {
       title: t('pages.AccessDashboard.ExecutionLogModal.RunResults'),
-      dataIndex: 'state',
+      dataIndex: 'status',
       render: (text, record) => (
         <>
           <div>
-            {record.state === 'COMPLETED' ? (
+            {record.status === 'COMPLETED' ? (
               <StatusTag
                 type={'success'}
                 title={t('pages.AccessDashboard.ExecutionLogModal.Success')}
               />
-            ) : record.state === 'FAILED' ? (
+            ) : record.status === 'FAILED' ? (
               <StatusTag type={'error'} title={t('pages.AccessDashboard.ExecutionLogModal.Fail')} />
-            ) : record.state === 'SKIPPED' ? (
+            ) : record.status === 'SKIPPED' ? (
               <StatusTag
                 type={'primary'}
                 title={t('pages.AccessDashboard.ExecutionLogModal.Skip')}
@@ -158,7 +158,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
       dataIndex: 'actions',
       render: (text, record) => (
         <>
-          {record?.state && record.state === 'FAILED' && (
+          {record?.status && record.status === 'FAILED' && (
             <Button type="link" onClick={() => reRun(record)}>
               {t('pages.AccessDashboard.ExecutionLogModal.CarriedOut')}
             </Button>
@@ -176,13 +176,13 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
     >
       {data?.list?.length ? (
         <>
-          <Collapse accordion defaultActiveKey={[data.list[0]?.processInstId]}>
+          <Collapse accordion defaultActiveKey={[data.list[0]?.processId]}>
             {data.list.map(item => (
-              <Panel header={item.processDisplayName} key={item.processInstId}>
+              <Panel header={item.processDisplayName} key={item.processId}>
                 <HighTable
                   table={{
                     columns,
-                    rowKey: 'taskInstId',
+                    rowKey: 'taskId',
                     size: 'small',
                     dataSource: item.taskExecutorLogs,
                   }}

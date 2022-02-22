@@ -65,7 +65,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
 
   const { data = realTimeValues, run: getList, mutate } = useRequest(
     {
-      url: '/datastream/listAll',
+      url: '/stream/listAll',
       params: {
         ...options,
         inlongGroupId,
@@ -124,7 +124,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
         pickObject(['dbBasicInfo', 'fileBasicInfo', 'streamInfo'], item),
       );
       await request({
-        url: '/datastream/updateAll',
+        url: '/stream/updateAll',
         method: 'POST',
         data: submitData?.[0],
       });
@@ -134,7 +134,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
       const values = list?.[0];
       const data = valuesToData(values ? [values] : [], inlongGroupId);
       await request({
-        url: '/datastream/saveAll',
+        url: '/stream/saveAll',
         method: 'POST',
         data: data?.[0],
       });
@@ -159,7 +159,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
       title: t('basic.DeleteConfirm'),
       onOk: async () => {
         await request({
-          url: '/datastream/delete',
+          url: '/stream/delete',
           method: 'DELETE',
           params: {
             inlongGroupId,

@@ -58,6 +58,7 @@ const getContentMap = content => {
 };
 
 const FormGenerator: React.FC<FormGeneratorProps> = props => {
+  // eslint-disable-next-line
   const [form] = useState(props.form || Form.useForm()[0]);
 
   // Record real-time values

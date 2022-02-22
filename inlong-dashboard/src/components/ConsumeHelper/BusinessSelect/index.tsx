@@ -60,7 +60,7 @@ const Comp: React.FC<Props> = ({ value, onChange, onSelect, ...rest }) => {
   const onTextChange = async value => {
     setData(value);
 
-    const bussinessData = await request(`/business/get/${value}`);
+    const bussinessData = await request(`/group/get/${value}`);
     if (bussinessData) {
       triggerChange(value, bussinessData);
     }

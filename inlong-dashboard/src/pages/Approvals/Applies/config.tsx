@@ -37,7 +37,7 @@ export const getFilterFormContent = defaultValues => [
   {
     type: 'select',
     label: i18n.t('basic.Status'),
-    name: 'state',
+    name: 'status',
     initialValue: defaultValues.state,
     props: {
       dropdownMatchSelectWidth: false,
@@ -60,7 +60,7 @@ export const getColumns = activedName => [
     dataIndex: 'displayName',
   },
   {
-    title: i18n.t('pages.Approvals.BusinessId'),
+    title: i18n.t('pages.Approvals.GroupId'),
     dataIndex: 'inlongGroupId',
     width: 200,
     render: (text, record) => record.showInList?.inlongGroupId,
@@ -79,7 +79,7 @@ export const getColumns = activedName => [
   },
   {
     title: i18n.t('basic.Status'),
-    dataIndex: 'state',
+    dataIndex: 'status',
     width: 100,
     render: text => genStatusTag(text),
   },

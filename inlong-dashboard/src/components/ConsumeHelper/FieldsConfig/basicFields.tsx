@@ -81,7 +81,7 @@ export default (
       props: {
         mode: currentValues.middlewareType === 'PULSAR' ? 'multiple' : '',
         options: {
-          requestService: `/business/getTopic/${currentValues.inlongGroupId}`,
+          requestService: `/group/getTopic/${currentValues.inlongGroupId}`,
           requestParams: {
             formatResult: result =>
               result.middlewareType === 'TUBE'

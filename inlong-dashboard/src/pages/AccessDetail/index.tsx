@@ -32,7 +32,7 @@ const Comp: React.FC = () => {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
 
-  const { data } = useRequest(`/business/get/${id}`, {
+  const { data } = useRequest(`/group/get/${id}`, {
     refreshDeps: [id],
   });
 
@@ -46,7 +46,7 @@ const Comp: React.FC = () => {
       [
         {
           label: t('pages.AccessDetail.Business'),
-          value: 'businessInfo',
+          value: 'groupInfo',
           content: Info,
         },
         {
@@ -62,7 +62,7 @@ const Comp: React.FC = () => {
         },
         {
           label: t('pages.AccessDetail.DataStorages'),
-          value: 'dataStorage',
+          value: 'streamSink',
           content: DataStorage,
           hidden: isReadonly,
         },

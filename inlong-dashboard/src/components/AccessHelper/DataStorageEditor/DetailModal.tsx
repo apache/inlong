@@ -40,7 +40,7 @@ export interface DetailModalProps extends ModalProps {
   record?: Record<string, any>;
   // You can customize the conversion format after successfully obtaining the existing data during editing
   onSuccessDataFormat?: Function;
-  storageType: 'HIVE' | 'TEST';
+  sinkType: 'HIVE' | 'TEST';
   dataType?: string;
   // defaultRowTypeFields, which can be used to auto-fill form default values
   defaultRowTypeFields?: Record<string, unknown>[];
@@ -53,7 +53,7 @@ const Comp: React.FC<DetailModalProps> = ({
   inlongGroupId,
   id,
   record,
-  storageType,
+  sinkType,
   onSuccessDataFormat,
   name,
   content = [],
@@ -86,14 +86,14 @@ const Comp: React.FC<DetailModalProps> = ({
           fieldName: 'fieldName',
         },
       },
-    }[storageType];
-  }, [storageType]);
+    }[sinkType];
+  }, [sinkType]);
 
   const { data, run: getData } = useRequest(
     id => ({
-      url: `/storage/get/${id}`,
+      url: `/sink/get/${id}`,
       params: {
-        storageType,
+        sinkType,
       },
     }),
     {
@@ -160,7 +160,7 @@ const Comp: React.FC<DetailModalProps> = ({
       HIVE: getHiveForm,
       CLICK_HOUSE: getClickhouseForm,
     };
-    const item = map[storageType];
+    const item = map[sinkType];
 
     return item('form', {
       dataType,
@@ -169,7 +169,7 @@ const Comp: React.FC<DetailModalProps> = ({
       currentValues,
       form,
     }) as FormItemProps[];
-  }, [storageType, dataType, inlongGroupId, id, currentValues, form]);
+  }, [sinkType, dataType, inlongGroupId, id, currentValues, form]);
 
   const onOk = async () => {
     const values = await form.validateFields();
@@ -186,7 +186,7 @@ const Comp: React.FC<DetailModalProps> = ({
   };
 
   return (
-    <Modal title={storageType} width={1200} {...modalProps} onOk={onOk}>
+    <Modal title={sinkType} width={1200} {...modalProps} onOk={onOk}>
       <FormGenerator
         name={name}
         labelCol={{ span: 4 }}
