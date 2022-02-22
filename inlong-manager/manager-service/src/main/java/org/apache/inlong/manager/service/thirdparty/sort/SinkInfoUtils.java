@@ -56,7 +56,7 @@ public class SinkInfoUtils {
 
     public static SinkInfo createSinkInfo(SinkResponse sinkResponse) {
         String sinkType = sinkResponse.getSinkType();
-        if (SinkType.getSinkType(sinkType) == SinkType.HIVE) {
+        if (SinkType.getType(sinkType) == SinkType.HIVE) {
             return createHiveSinkInfo((HiveSinkResponse) sinkResponse);
         } else {
             //todo clickhouse and iceberg is wait to support
