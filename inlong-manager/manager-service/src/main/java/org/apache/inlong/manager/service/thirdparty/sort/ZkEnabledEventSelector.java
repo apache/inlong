@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class ZkSortEventSelector implements EventSelector {
+public class ZkEnabledEventSelector implements EventSelector {
 
     @Override
     public boolean accept(WorkflowContext context) {

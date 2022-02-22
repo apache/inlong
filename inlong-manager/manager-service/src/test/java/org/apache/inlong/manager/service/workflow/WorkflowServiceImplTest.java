@@ -48,7 +48,7 @@ import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarGroupTaskList
 import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarResourceTaskListener;
 import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeGroupTaskListener;
 import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeTopicTaskListener;
-import org.apache.inlong.manager.service.thirdparty.sort.PushHiveConfigTaskListener;
+import org.apache.inlong.manager.service.thirdparty.sort.PushSortConfigListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.WorkflowEngine;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
@@ -71,37 +71,38 @@ import static org.mockito.Mockito.when;
 
 public class WorkflowServiceImplTest extends ServiceBaseTest {
 
-    private static final String OPERATOR = "admin";
+    public static final String OPERATOR = "admin";
+
+    public static final String STREAM_ID = "test_stream";
 
     @Autowired
-    private WorkflowServiceImpl workflowService;
+    protected WorkflowServiceImpl workflowService;
     @Autowired
-    private WorkflowEngine workflowEngine;
+    protected WorkflowEngine workflowEngine;
     @Autowired
-    private InlongGroupService groupService;
+    protected InlongGroupService groupService;
     @Autowired
-    private ServiceTaskListenerFactory taskListenerFactory;
+    protected ServiceTaskListenerFactory taskListenerFactory;
     @Autowired
-    private WorkflowProcessEntityMapper processEntityMapper;
+    protected WorkflowProcessEntityMapper processEntityMapper;
     @Autowired
-    private WorkflowTaskEntityMapper taskEntityMapper;
+    protected WorkflowTaskEntityMapper taskEntityMapper;
 
-    private ProcessName processName;
+    protected ProcessName processName;
 
-    private String applicant;
+    protected String applicant;
 
-    private GroupResourceProcessForm form;
+    protected GroupResourceProcessForm form;
 
     public InlongGroupRequest initGroupForm(String middlewareType) {
         processName = ProcessName.CREATE_GROUP_RESOURCE;
-        applicant = "test_create_new_group";
+        applicant = OPERATOR;
         form = new GroupResourceProcessForm();
         InlongGroupRequest groupInfo = new InlongGroupRequest();
-        String inlongStreamId = "test_stream";
-        form.setInlongStreamId(inlongStreamId);
+        form.setInlongStreamId(STREAM_ID);
         form.setGroupInfo(groupInfo);
         groupInfo.setName("test");
-        groupInfo.setInCharges("admin");
+        groupInfo.setInCharges(OPERATOR);
         groupInfo.setInlongGroupId("b_test");
         groupInfo.setMiddlewareType(middlewareType);
         groupInfo.setMqExtInfo(new InlongGroupPulsarInfo());
@@ -146,11 +147,11 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         when(createHiveTableListener.event()).thenReturn(TaskEvent.COMPLETE);
         taskListenerFactory.setCreateHiveTableListener(createHiveTableListener);
 
-        PushHiveConfigTaskListener pushHiveConfigTaskListener = mock(PushHiveConfigTaskListener.class);
-        when(pushHiveConfigTaskListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
-        when(pushHiveConfigTaskListener.name()).thenReturn(PushHiveConfigTaskListener.class.getSimpleName());
-        when(pushHiveConfigTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
-        taskListenerFactory.setPushHiveConfigTaskListener(pushHiveConfigTaskListener);
+        PushSortConfigListener pushSortConfigListener = mock(PushSortConfigListener.class);
+        when(pushSortConfigListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
+        when(pushSortConfigListener.name()).thenReturn(PushSortConfigListener.class.getSimpleName());
+        when(pushSortConfigListener.event()).thenReturn(TaskEvent.COMPLETE);
+        taskListenerFactory.setPushSortConfigListener(pushSortConfigListener);
         taskListenerFactory.clearListeners();
         taskListenerFactory.init();
     }
@@ -214,7 +215,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         List<TaskEventListener> listeners = Lists.newArrayList(stopSortTask.getNameToListenerMap().values());
         Assert.assertTrue(listeners.get(0) instanceof MockStopSortListener);
 
-        WorkflowTask stopSourceTask = process.getTaskByName("stopDataSource");
+        WorkflowTask stopSourceTask = process.getTaskByName("stopSource");
         Assert.assertTrue(stopSourceTask instanceof ServiceTask);
         listeners = Lists.newArrayList(stopSourceTask.getNameToListenerMap().values());
         Assert.assertTrue(listeners.get(0) instanceof MockStopSourceListener);
@@ -272,7 +273,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         Assert.assertEquals(1, listeners.size());
         Assert.assertTrue(listeners.get(0) instanceof MockDeleteSortListener);
 
-        WorkflowTask deleteSourceTask = process.getTaskByName("deleteDataSource");
+        WorkflowTask deleteSourceTask = process.getTaskByName("deleteSource");
         Assert.assertTrue(deleteSourceTask instanceof ServiceTask);
         listeners = Lists.newArrayList(deleteSourceTask.getNameToListenerMap().values());
         Assert.assertEquals(1, listeners.size());

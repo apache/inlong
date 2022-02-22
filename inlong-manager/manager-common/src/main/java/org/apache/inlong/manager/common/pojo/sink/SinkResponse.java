@@ -72,6 +72,6 @@ public class SinkResponse {
     private Date modifyTime;
 
     @ApiModelProperty("Sink field list")
-    private List<SinkeFieldResponse> fieldList;
+    private List<SinkFieldResponse> fieldList;
 
 }

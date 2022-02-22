@@ -153,7 +153,7 @@ public class InlongGroupTransfer {
         }
         if (MapUtils.isNotEmpty(flinkSortBaseConf.getProperties())) {
             InlongGroupExtInfo flinkProperties = new InlongGroupExtInfo();
-            flinkProperties.setKeyValue(InlongGroupSettings.SORT_PROPERTIES);
+            flinkProperties.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
             flinkProperties.setKeyValue(JsonUtils.toJson(flinkSortBaseConf.getProperties()));
             extInfos.add(flinkProperties);
         }
