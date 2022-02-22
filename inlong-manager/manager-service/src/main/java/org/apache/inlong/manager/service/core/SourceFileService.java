@@ -18,15 +18,17 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import java.util.List;
 import org.apache.inlong.manager.common.pojo.source.SourceFileBasicInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceFileDetailInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceFileDetailListVO;
 import org.apache.inlong.manager.common.pojo.source.SourceFileDetailPageRequest;
 
+import java.util.List;
+
 /**
  * File data source service layer interface
  */
+@Deprecated
 public interface SourceFileService {
 
     /**

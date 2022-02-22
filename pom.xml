@@ -113,6 +113,7 @@
         <docker.organization>inlong</docker.organization>
         <lombok.version>1.18.22</lombok.version>
         <logback.version>1.2.10</logback.version>
+        <je.version>7.3.7</je.version>
     </properties>
 
     <dependencyManagement>
@@ -131,6 +132,11 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
                 <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sleepycat</groupId>
+                <artifactId>je</artifactId>
+                <version>${je.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -293,6 +299,17 @@
     </build>
 
     <repositories>
+        <repository>
+            <id>berkeleydb-je</id>
+            <name>berkeleydb-je</name>
+            <url>https://download.dcache.org/nexus/repository/berkeleydb-je/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
 </project>

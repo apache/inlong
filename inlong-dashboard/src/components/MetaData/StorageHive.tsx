@@ -182,7 +182,7 @@ export const getHiveForm: GetStorageFormFieldsType = (
           onClick={async () => {
             const values = await form.validateFields(['username', 'password', 'jdbcUrl']);
             const res = await request({
-              url: '/storage/query/testConnection',
+              url: '/sink/query/testConnection',
               method: 'POST',
               data: values,
             });

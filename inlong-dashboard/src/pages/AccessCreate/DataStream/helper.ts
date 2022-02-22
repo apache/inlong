@@ -27,7 +27,7 @@ export const valuesToData = (values, inlongGroupId) => {
       dataSourceType,
       dataSourceBasicId,
       dataSourcesConfig = [],
-      dataStorage = [],
+      streamSink = [],
       ...rest
     } = item;
     const output = {} as any;
@@ -47,16 +47,16 @@ export const valuesToData = (values, inlongGroupId) => {
       }));
     }
 
-    output.storageInfo = dataStorage.reduce((acc, type) => {
+    output.streamSink = streamSink.reduce((acc, type) => {
       if (!type) return acc;
 
-      const data = rest[`dataStorage${type}`] || [];
-      delete rest[`dataStorage${type}`];
+      const data = rest[`streamSink${type}`] || [];
+      delete rest[`streamSink${type}`];
       const formatData = data.map(ds => ({
         ...ds,
         inlongGroupId,
         inlongStreamId,
-        storageType: type,
+        sinkType: type,
       }));
 
       return acc.concat(formatData);
@@ -93,7 +93,7 @@ export const dataToValues = data => {
       fileDetailInfoList,
       dbBasicInfo,
       dbDetailInfoList,
-      storageInfo,
+      sinkInfo,
       streamInfo,
     } = item;
     let output = {} as any;
@@ -115,11 +115,11 @@ export const dataToValues = data => {
       output.dataSourcesConfig = fileDetailInfoList;
     }
 
-    storageInfo.forEach(({ storageType, ...item }) => {
-      if (!output[`dataStorage${storageType}`]) output[`dataStorage${storageType}`] = [];
-      output[`dataStorage${storageType}`].push(item);
+    sinkInfo.forEach(({ sinkType, ...item }) => {
+      if (!output[`streamSink${sinkType}`]) output[`streamSink${sinkType}`] = [];
+      output[`streamSink${sinkType}`].push(item);
     });
-    output.dataStorage = storageInfo.map(item => item.storageType);
+    output.streamSink = sinkInfo.map(item => item.sinkType);
 
     const fieldList = streamInfo.fieldList?.reduce(
       (acc, cur) => {

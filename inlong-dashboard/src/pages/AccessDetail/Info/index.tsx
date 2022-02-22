@@ -35,7 +35,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, isActive, readonly, extraRef }) 
 
   const [form] = useForm();
 
-  const { data, run: getData } = useRequest(`/business/get/${inlongGroupId}`, {
+  const { data, run: getData } = useRequest(`/group/get/${inlongGroupId}`, {
     formatResult: data => ({
       ...data,
       inCharges: data.inCharges.split(','),
@@ -57,7 +57,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, isActive, readonly, extraRef }) 
       },
     };
     await request({
-      url: '/business/update',
+      url: '/group/update',
       method: 'POST',
       data: {
         ...data,

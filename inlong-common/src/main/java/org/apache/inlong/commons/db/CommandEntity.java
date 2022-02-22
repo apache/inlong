@@ -15,29 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.fetcher.dtos;
+package org.apache.inlong.commons.db;
 
+import com.sleepycat.persist.model.Entity;
+import com.sleepycat.persist.model.PrimaryKey;
+import com.sleepycat.persist.model.Relationship;
+import com.sleepycat.persist.model.SecondaryKey;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Entity(version = 1)
 @Data
-public class DataConfig {
-    private String additionalAttr;
-    private String inlongGroupId;
-    private String dataName;
-    private String inlongStreamId;
+@AllArgsConstructor
+@NoArgsConstructor
+public class CommandEntity {
+    @PrimaryKey
+    private String id;
+    private int commandResult;
+    @SecondaryKey(relate = Relationship.MANY_TO_ONE)
+    private boolean isAcked;
+    private String taskId;
     private String deliveryTime;
-    private String fieldSplitter;
-    private String cycleUnit;
-    private String ip;
-    private String middlewareType;
-    private String mqMasterAddress;
-    private String op;
-    private String scheduleTime;
-    private Integer taskId;
-    private String timeOffset;
-    private String topic;
 
-    public boolean isValid() {
-        return true;
+    public static String generateCommanid(String taskId, int opType) {
+        return taskId + opType;
     }
 }

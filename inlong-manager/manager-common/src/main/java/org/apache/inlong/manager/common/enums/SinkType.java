@@ -26,7 +26,7 @@ public enum SinkType {
     /**
      * Get the SinkType enum via the given sinkType string
      */
-    public static SinkType getSinkType(String sinkType) {
+    public static SinkType getType(String sinkType) {
         for (SinkType type : values()) {
             if (type.name().equals(sinkType)) {
                 return type;
@@ -37,7 +37,7 @@ public enum SinkType {
 
     @Override
     public String toString() {
-        return this.name().toLowerCase(Locale.ROOT);
+        return this.name().toUpperCase(Locale.ROOT);
     }
 
 }

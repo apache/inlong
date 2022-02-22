@@ -20,12 +20,14 @@ package org.apache.inlong.manager.common.pojo.source;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Date;
 import lombok.Data;
+
+import java.util.Date;
 
 /**
  * File source details
  */
+@Deprecated
 @Data
 @ApiModel("File source details")
 public class SourceFileDetailInfo {

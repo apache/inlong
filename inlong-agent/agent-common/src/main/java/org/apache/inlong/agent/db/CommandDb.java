@@ -19,6 +19,7 @@ package org.apache.inlong.agent.db;
 
 import java.util.List;
 import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.commons.db.CommandEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

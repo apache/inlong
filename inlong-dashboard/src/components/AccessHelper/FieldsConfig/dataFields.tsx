@@ -266,7 +266,7 @@ export default (
     {
       type: 'checkboxgroup',
       label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataFlowDirection'),
-      name: 'dataStorage',
+      name: 'streamSink',
       props: {
         options: [
           {
@@ -279,7 +279,7 @@ export default (
           },
           {
             label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.AutoConsumption'),
-            value: 'AUTO_PUSH',
+            value: 'AUTO_CONSUMPTION',
           },
         ],
       },
@@ -297,8 +297,8 @@ export default (
               {...basicProps}
             />
           ),
-          name: `dataStorage${item}`,
-          visible: values => (values.dataStorage as string[])?.includes(item),
+          name: `streamSink${item}`,
+          visible: values => (values.streamSink as string[])?.includes(item),
         }),
       [],
     ),

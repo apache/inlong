@@ -105,7 +105,33 @@ ${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component
 Define the mysql hostname
 */}}
 {{- define "inlong.mysql.hostname" -}}
+{{- if .Values.external.mysql.enabled -}}
+{{ .Values.external.mysql.hostname }}
+{{- else -}}
 ${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define the mysql port
+*/}}
+{{- define "inlong.mysql.port" -}}
+{{- if .Values.external.mysql.enabled -}}
+{{ .Values.external.mysql.port }}
+{{- else -}}
+{{ .Values.mysql.ports.server }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define the mysql username
+*/}}
+{{- define "inlong.mysql.username" -}}
+{{- if .Values.external.mysql.enabled -}}
+{{ .Values.external.mysql.username }}
+{{- else -}}
+{{ .Values.mysql.username }}
+{{- end -}}
 {{- end -}}
 
 {{/*
@@ -113,13 +139,6 @@ Define the zookeeper hostname
 */}}
 {{- define "inlong.zookeeper.hostname" -}}
 ${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}.{{ .Release.Namespace }}.svc.cluster.local
-{{- end -}}
-
-{{/*
-Define the pulsar hostname
-*/}}
-{{- define "inlong.pulsar.hostname" -}}
-${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.pulsar.component }}.{{ .Release.Namespace }}.svc.cluster.local
 {{- end -}}
 
 {{/*

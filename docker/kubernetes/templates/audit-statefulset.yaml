@@ -66,7 +66,7 @@ spec:
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}-$i"
                 host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-                port={{ .Values.manager.ports.webNodePort }}
+                port={{ .Values.manager.ports.webPort }}
                 until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
                 do
                   echo "waiting for $replica to be ready"
@@ -77,39 +77,26 @@ spec:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.audit.component }}
           image: {{ .Values.images.audit.repository }}:{{ .Values.images.audit.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
+          {{- if .Values.audit.resources }}
+          resources:
+{{ toYaml .Values.audit.resources | indent 12 }}
+          {{- end }}
           env:
             - name: JDBC_URL
-              value: "jdbc:mysql://{{ include "inlong.mysql.hostname" . }}:{{ .Values.mysql.ports.server }}/apache_inlong_audit?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&nullCatalogMeansCurrent=true&serverTimezone=GMT%2b8"
+              value: "jdbc:mysql://{{ template "inlong.mysql.hostname" . }}:{{ .Values.mysql.ports.server }}/apache_inlong_audit?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&nullCatalogMeansCurrent=true&serverTimezone=GMT%2b8"
             - name: USERNAME
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "inlong.fullname" . }}-{{ .Values.audit.component }}
-                  key: mysqlUsername
+              value: {{ include "inlong.mysql.username" . | quote }}
             - name: PASSWORD
-              {{- if eq .Values.mysql.username "root" }}
               valueFrom:
                 secretKeyRef:
                   name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
-                  key: mysql-root-password
-              {{- else }}
-              value: {{ .Values.mysql.password | quote }}
-              {{- end }}
+                  key: mysql-password
             - name: MANAGER_OPENAPI_IP
               value: {{ include "inlong.tubemqManager.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "inlong.fullname" . }}-{{ .Values.audit.component }}
-                  key: managerOpenApiPort
+              value: {{ .Values.manager.ports.webPort | quote }}
             - name: PULSAR_BROKER_URL_LIST
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "inlong.fullname" . }}-{{ .Values.audit.component }}
-                  key: pulsarBrokerUrlList
-            {{- range $key, $value :=  .Values.audit.env }}
-            - name: {{ $key }}
-              value: {{ $value | quote }}
-            {{- end }}
+              value: {{ .Values.external.pulsar.serviceUrl }}
           ports:
             - name: {{ .Values.audit.component }}-port
               containerPort: 8008

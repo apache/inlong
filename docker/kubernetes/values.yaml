@@ -39,9 +39,6 @@ images:
   audit:
     repository: inlong/audit
     tag: latest
-  pulsar:
-    repository: apachepulsar/pulsar
-    tag: latest
   mysql:
     repository: mysql
     tag: 5.7
@@ -67,6 +64,10 @@ ingress:
 agent:
   component: "agent"
   replicaCount: 1
+  resources:
+    requests:
+      cpu: 0.5
+      memory: "512Mi"
   ports:
     agent: 8008
     managerOpenApi: ${manager.containerPort}
@@ -75,78 +76,78 @@ agent:
 dashboard:
   component: "dashboard"
   replicaCount: 1
+  resources:
+    requests:
+      cpu: 0.5
+      memory: "512Mi"
   ports:
     webPort: 80
-    webNodePort: 80
+    webNodePort: 30080
   service:
     type: LoadBalancer
 
 dataproxy:
   component: "dataproxy"
   replicaCount: 1
+  resources:
+    requests:
+      cpu: 0.5
+      memory: "512Mi"
   containerPort: 46801
   managerOpenApiPort: ${manager.containerPort}
 
 tubemqManager:
   component: "tubemq-manager"
   replicaCount: 1
+  resources:
+    requests:
+      cpu: 0.5
+      memory: "512Mi"
   containerPort: 8089
-  mysqlUser: "root"
-  mysqlPassword: ${mysql.rootPassword}
 
 manager:
   component: "manager"
   replicaCount: 1
+  resources:
+    requests:
+      cpu: 0.5
+      memory: "512Mi"
   ports:
     webPort: 8083
-    webNodePort: 8083
   activeProfile: "prod"
   username: "root"
   password: "inlong"
   sortAppName: "inlong_hive"
-  service:
-    type: LoadBalancer
 
 audit:
   component: "audit"
   replicaCount: 1
+  resources:
+    requests:
+      cpu: 0.5
+      memory: "512Mi"
   ports:
     webPort: 8008
-  env:
 
-pulsar:
-  component: "pulsar"
-  replicaCount: 1
-  ports:
-    pulsarPort: 6650
-  persistentVolumeClaim:
-    enabled: false
-    accessModes:
-      - "ReadWriteOnce"
-    # storageClassName must support the above access mode(s): ReadWriteOnce
-    storageClassName: "-"
-    storage: "8Gi"
-
+# If not exists external MySQL, InLong will use it.
 mysql:
   component: "mysql"
   replicaCount: 1
+  resources:
+    requests:
+      cpu: 0.5
+      memory: "512Mi"
   username: "root"
-  # If the MySQL username is root,
-  # the password parameter can be omitted and the rootPassword will be used.
   password: "inlong"
-  rootPassword: "inlong"
   ports:
     server: 3306
-  persistentVolumeClaim:
-    enabled: false
-    accessModes:
-      - "ReadWriteOnce"
-    storageClassName: "-"
-    storage: "8Gi"
+  volumes:
+    name: data
+    size: "10Gi"
 
 zookeeper:
   component: "zookeeper"
-  replicaCount: 1
+  replicaCount: 3
   updateStrategy:
     type: "RollingUpdate"
   podManagementPolicy: "OrderedReady"
@@ -172,12 +173,11 @@ zookeeper:
   gracePeriod: 30
   resources:
     requests:
-      cpu: 1
-      memory: "1Gi"
+      cpu: 0.5
+      memory: "512Mi"
   volumes:
-    data:
-      name: data
-      size: "10Gi"
+    name: data
+    size: "10Gi"
   service:
     annotations:
       service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
@@ -194,7 +194,6 @@ tubemqMaster:
   ports:
     rpcPort: 8715
     webPort: 8080
-    webNodePort: 8080
     helpPort: 9001
   probe:
     liveness:
@@ -211,12 +210,11 @@ tubemqMaster:
   gracePeriod: 30
   resources:
     requests:
-      cpu: 1
-      memory: "1Gi"
+      cpu: 0.5
+      memory: "512Mi"
   volumes:
-    data:
-      name: data
-      size: "10Gi"
+    name: data
+    size: "10Gi"
   service:
     type: LoadBalancer
     annotations:
@@ -249,12 +247,11 @@ tubemqBroker:
   gracePeriod: 30
   resources:
     requests:
-      cpu: 1
-      memory: "1Gi"
+      cpu: 0.5
+      memory: "512Mi"
   volumes:
-    data:
-      name: data
-      size: "10Gi"
+    name: data
+    size: "10Gi"
   service:
     type: LoadBalancer
     annotations:
@@ -262,3 +259,16 @@ tubemqBroker:
   pdb:
     usePolicy: true
     maxUnavailable: 1
+
+# InLong will use the external Services.
+external:
+  mysql:
+    enabled: false
+    hostname: "localhost"
+    port: 3306
+    username: "root"
+    password: "password"
+  pulsar:
+    enabled: false
+    serviceUrl: "pulsar://localhost:6650"
+    adminUrl: "http://localhost:8080"

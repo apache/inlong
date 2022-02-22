@@ -181,7 +181,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         disabled: !!createModal.id,
         options: {
           requestService: {
-            url: '/datastream/list',
+            url: '/stream/list',
             params: {
               pageNum: 1,
               pageSize: 1000,

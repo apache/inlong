@@ -86,7 +86,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
       options: {
         requestAuto: true,
         requestService: {
-          url: '/datastream/list',
+          url: '/stream/list',
           params: {
             pageNum: 1,
             pageSize: 1000,
