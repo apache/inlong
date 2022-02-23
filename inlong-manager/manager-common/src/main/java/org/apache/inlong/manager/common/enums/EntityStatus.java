@@ -19,6 +19,9 @@ package org.apache.inlong.manager.common.enums;
 
 import com.google.common.collect.ImmutableSet;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -73,9 +76,43 @@ public enum EntityStatus {
 
     // ADD(0), DEL(1), RETRY(2), BACKTRACK(3), FROZEN(4), ACTIVE(5), CHECK(6), REDOMETRIC(7), MAKEUP(8);
     AGENT_ADD(200, "wait add"),
-    AGENT_DELETE(201, "wait delete"),
+    AGENT_DELETE(201, "wait delete");
 
-    ;
+    private static final Map<EntityStatus, Set<EntityStatus>> GROUP_STATUS_TRANSITIONS = Maps.newHashMap();
+
+    /**
+     * Init group finite state machine
+     */
+    static {
+        GROUP_STATUS_TRANSITIONS.put(GROUP_WAIT_SUBMIT, Sets.newHashSet(GROUP_WAIT_APPROVAL, DELETED));
+        GROUP_STATUS_TRANSITIONS.put(GROUP_WAIT_APPROVAL,
+                Sets.newHashSet(GROUP_APPROVE_REJECTED, GROUP_APPROVE_PASSED, DELETED));
+        GROUP_STATUS_TRANSITIONS.put(GROUP_APPROVE_REJECTED,
+                Sets.newHashSet(GROUP_WAIT_APPROVAL, DELETED));
+        GROUP_STATUS_TRANSITIONS.put(GROUP_APPROVE_PASSED,
+                Sets.newHashSet(GROUP_CONFIG_ING, DELETED));
+        GROUP_STATUS_TRANSITIONS.put(GROUP_CONFIG_ING,
+                Sets.newHashSet(GROUP_CONFIG_FAILED, GROUP_CONFIG_SUCCESSFUL, DELETED));
+        GROUP_STATUS_TRANSITIONS.put(GROUP_CONFIG_FAILED,
+                Sets.newHashSet(GROUP_CONFIG_ING, DELETED));
+        GROUP_STATUS_TRANSITIONS.put(GROUP_CONFIG_SUCCESSFUL,
+                Sets.newHashSet(GROUP_SUSPEND, DELETED));
+        GROUP_STATUS_TRANSITIONS.put(GROUP_SUSPEND,
+                Sets.newHashSet(GROUP_RESTART, DELETED));
+        GROUP_STATUS_TRANSITIONS.put(GROUP_RESTART,
+                Sets.newHashSet(GROUP_SUSPEND, DELETED));
+        GROUP_STATUS_TRANSITIONS.put(DELETED,
+                Sets.newHashSet());
+    }
+
+    public static boolean isAllowedForGroup(EntityStatus pre, EntityStatus now) {
+        Set<EntityStatus> allowedStatus = GROUP_STATUS_TRANSITIONS.get(pre);
+        if (allowedStatus == null || !allowedStatus.contains(now)){
+            return false;
+        } else {
+            return true;
+        }
+    }
 
     /**
      * The status of the inlong group that can initiate the approval process:
@@ -114,12 +151,6 @@ public enum EntityStatus {
      */
     public static final Set<Integer> ALLOW_DELETE_GROUP_CASCADE_STATUS = ImmutableSet.of(
             DRAFT.getCode(), GROUP_WAIT_SUBMIT.getCode());
-
-    /**
-     * Status of inlong group approval
-     */
-    public static final Set<Integer> GROUP_APPROVE_PASS_STATUS = ImmutableSet.of(
-            GROUP_CONFIG_FAILED.getCode(), GROUP_CONFIG_SUCCESSFUL.getCode());
 
     /**
      * Temporary inlong group status, adding, deleting and modifying operations are not allowed
