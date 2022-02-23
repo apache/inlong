@@ -324,7 +324,7 @@ public class InnerInlongManagerClient {
     public List<SinkListResponse> listHiveStorage(String groupId, String streamId) {
         final String path = HTTP_PATH + "/sink/list";
         String url = formatUrl(path);
-        url = String.format("%s&inlongGroupId=%s&dataStreamId=%s&storageType=HIVE", url, groupId, streamId);
+        url = String.format("%s&inlongGroupId=%s&inlongStreamId=%s&sinkType=HIVE", url, groupId, streamId);
         Request request = new Request.Builder().get()
                 .url(url)
                 .build();
