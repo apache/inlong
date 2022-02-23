@@ -19,6 +19,7 @@ package org.apache.inlong.manager.workflow.definition;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -44,7 +45,7 @@ public class ServiceTask extends WorkflowTask {
 
     private ServiceTaskType serviceTaskType;
 
-    private boolean isInit;
+    private AtomicBoolean isInit = new AtomicBoolean(false);
 
     @Override
     public WorkflowAction defaultNextAction() {
@@ -94,17 +95,15 @@ public class ServiceTask extends WorkflowTask {
     }
 
     public void initListeners(WorkflowContext workflowContext) {
-        if (isInit) {
+        if (isInit.compareAndSet(false, true)) {
+            if (listenerProvider == null || serviceTaskType == null) {
+                return;
+            }
+            Iterable<TaskEventListener> listeners = listenerProvider.get(workflowContext, serviceTaskType);
+            addListeners(Lists.newArrayList(listeners));
+        } else {
             log.debug("ServiceTask:{} is already init", getName());
-            return;
         }
-        if (listenerProvider == null || serviceTaskType == null) {
-            isInit = true;
-            return;
-        }
-        Iterable<TaskEventListener> listeners = listenerProvider.get(workflowContext, serviceTaskType);
-        addListeners(Lists.newArrayList(listeners));
-        isInit = true;
     }
 
 }
