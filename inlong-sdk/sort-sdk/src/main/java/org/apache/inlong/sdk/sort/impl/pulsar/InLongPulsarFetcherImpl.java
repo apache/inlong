@@ -139,6 +139,9 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
     }
 
     private boolean createConsumer(PulsarClient client) {
+        if (null == client) {
+            return false;
+        }
         try {
             consumer = client.newConsumer(Schema.BYTES)
                     .topic(inLongTopic.getTopic())
