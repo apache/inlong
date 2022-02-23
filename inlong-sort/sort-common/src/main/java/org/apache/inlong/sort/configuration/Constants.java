@@ -336,4 +336,6 @@ public class Constants {
     public static final ConfigOption<Integer> ORC_SINK_BATCH_SIZE =
             key(HIVE_SINK_PREFIX + "orc.row.batch.size")
                     .defaultValue(64);
+
+    public static final String CHDFS_CONFIG_PREFIX = "fs.ofs.";
 }

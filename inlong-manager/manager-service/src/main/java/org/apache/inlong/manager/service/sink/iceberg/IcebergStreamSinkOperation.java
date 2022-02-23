@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkeFieldResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
@@ -141,8 +141,8 @@ public class IcebergStreamSinkOperation implements StreamSinkOperation {
 
         SinkResponse response = this.getFromEntity(entity, IcebergSinkResponse::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(id);
-        List<SinkeFieldResponse> infos = CommonBeanUtils.copyListProperties(entities,
-                SinkeFieldResponse::new);
+        List<SinkFieldResponse> infos = CommonBeanUtils.copyListProperties(entities,
+                SinkFieldResponse::new);
         response.setFieldList(infos);
 
         return response;

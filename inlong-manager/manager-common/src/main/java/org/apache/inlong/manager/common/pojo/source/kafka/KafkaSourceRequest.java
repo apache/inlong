@@ -15,43 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink;
+package org.apache.inlong.manager.common.pojo.source.kafka;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Sink field response
+ * Request of the kafka source info
  */
 @Data
-@ApiModel("Sink field response")
-public class SinkeFieldResponse {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@ApiModel(value = "Request of the kafka source info")
+@JsonTypeDefine(value = Constant.SOURCE_KAFKA)
+public class KafkaSourceRequest extends SourceRequest {
 
-    private Integer id;
+    @ApiModelProperty("Kafka bootstrap servers")
+    private String address;
 
-    @ApiModelProperty("Sink ID")
-    private Integer sinkId;
+    @ApiModelProperty("Kafka topicName")
+    private String topicName;
 
-    @ApiModelProperty("Field name")
-    private String fieldName;
-
-    @ApiModelProperty("Field type")
-    private String fieldType;
-
-    @ApiModelProperty("Field comment")
-    private String fieldComment;
-
-    @ApiModelProperty("Required or not, 0: no need, 1: required")
-    private Integer isRequired;
-
-    @ApiModelProperty("Source field name")
-    private String sourceFieldName;
-
-    @ApiModelProperty("Source field type")
-    private String sourceFieldType;
-
-    @ApiModelProperty("Field order")
-    private Short rankNum;
-
+    @ApiModelProperty("Data Serialization, support: Json, Canal, Avro")
+    private String serializationType;
 }

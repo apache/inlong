@@ -48,7 +48,7 @@ public abstract class WorkflowTask extends NextableElement implements SkippableE
     public WorkflowTask addListener(TaskEventListener listener) {
         if (nameToListenerMap.containsKey(listener.name())) {
             throw new WorkflowListenerException(
-                    String.format("duplicate listener:%s for task:%s" + listener.name(), getName()));
+                    String.format("duplicate listener:%s for task:%s", listener.name(), getName()));
         }
         nameToListenerMap.put(listener.name(), listener);
 

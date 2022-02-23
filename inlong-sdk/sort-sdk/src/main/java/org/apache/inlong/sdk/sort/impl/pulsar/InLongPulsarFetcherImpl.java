@@ -19,7 +19,6 @@ package org.apache.inlong.sdk.sort.impl.pulsar;
 
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,10 +47,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
     private final Logger logger = LoggerFactory.getLogger(InLongPulsarFetcherImpl.class);
     private final ReentrantReadWriteLock mainLock = new ReentrantReadWriteLock(true);
     private final ConcurrentHashMap<String, MessageId> offsetCache = new ConcurrentHashMap<>();
-
     private Consumer<byte[]> consumer;
-
-    private volatile Thread fetchThread;
 
     public InLongPulsarFetcherImpl(InLongTopic inLongTopic,
             ClientContext context) {
@@ -291,8 +287,11 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                             String offsetKey = getOffset(msg.getMessageId());
                             offsetCache.put(offsetKey, msg.getMessageId());
 
+                            List<InLongMessage> inLongMessages = deserializer
+                                    .deserialize(context, inLongTopic, msg.getProperties(), msg.getData());
+
                             msgs.add(new MessageRecord(inLongTopic.getTopicKey(),
-                                    Collections.singletonList(new InLongMessage(msg.getData(), msg.getProperties())),
+                                    inLongMessages,
                                     offsetKey, System.currentTimeMillis()));
                             context.getStatManager()
                                     .getStatistics(context.getConfig().getSortTaskId(),

@@ -132,7 +132,7 @@ CREATE TABLE `inlong_group_ext`
     `id`              int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id` varchar(256) NOT NULL COMMENT 'Inlong group id',
     `key_name`        varchar(64)  NOT NULL COMMENT 'Configuration item name',
-    `key_value`       varchar(256)      DEFAULT NULL COMMENT 'The value of the configuration item',
+    `key_value`       varchar(2048)     DEFAULT NULL COMMENT 'The value of the configuration item',
     `is_deleted`      int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `modify_time`     timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
