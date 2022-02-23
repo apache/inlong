@@ -92,7 +92,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     public SourceResponse get(Integer id, String sourceType) {
         LOGGER.debug("begin to get source by id={}, sourceType={}", id, sourceType);
         StreamSourceOperation operation = operationFactory.getInstance(SourceType.getType(sourceType));
-        SourceResponse sourceResponse = operation.getById(sourceType, id);
+        SourceResponse sourceResponse = operation.getById(id);
         LOGGER.debug("success to get source info");
         return sourceResponse;
     }
