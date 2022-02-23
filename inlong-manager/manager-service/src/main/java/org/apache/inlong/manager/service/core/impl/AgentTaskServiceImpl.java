@@ -27,6 +27,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.agent.plugin.fetcher.dtos.TaskResult;
+import org.apache.inlong.commons.dto.CmdConfig;
+import org.apache.inlong.commons.dto.DataConfig;
+import org.apache.inlong.commons.dto.TaskRequestDto;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.FileAgentDataGenerateRule;
 import org.apache.inlong.manager.common.pojo.agent.AgentStatusReportRequest;
@@ -43,6 +47,7 @@ import org.apache.inlong.manager.dao.entity.SourceFileDetailEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.core.AgentTaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,8 +67,46 @@ public class AgentTaskServiceImpl implements AgentTaskService {
     private DataSourceCmdConfigEntityMapper sourceCmdConfigMapper;
 
     @Autowired
+    private StreamSourceEntityMapper streamSourceMapper;
+
+    @Autowired
     private InlongStreamFieldEntityMapper streamFieldMapper;
 
+    @Override
+    public TaskResult getAgentTask(TaskRequestDto taskRequestDto) {
+        LOGGER.debug("begin to get agent task by taskRequestDto={}", taskRequestDto);
+        if (taskRequestDto == null || taskRequestDto.getAgentIp() == null) {
+            LOGGER.error("agent command taskRequestDto cannot be empty");
+            return null;
+        }
+        // Query pending tasks by agentIp
+        List<DataConfig> dataConfigs = getAgentDataConfigs(taskRequestDto);
+
+        // Query pending special commands
+        List<CmdConfig> cmdConfigs = getAgentCmdConfigs(taskRequestDto);
+
+        return TaskResult.builder().dataConfigs(dataConfigs).cmdConfigs(cmdConfigs).build();
+    }
+
+
+    private List<DataConfig> getAgentDataConfigs(TaskRequestDto taskRequestDto){
+        List<DataConfig> dataConfigs = streamSourceMapper.selectAgentTaskDataConfig(taskRequestDto);
+        //Forward Compatible File task type
+        return dataConfigs;
+    }
+
+    private List<CmdConfig> getAgentCmdConfigs(TaskRequestDto taskRequestDto){
+        return sourceCmdConfigMapper.queryCmdByAgentIp(taskRequestDto.getAgentIp()).stream().map(cmd -> {
+            CmdConfig cmdConfig = new CmdConfig();
+            cmdConfig.setDataTime(cmd.getSpecifiedDataTime());
+            cmdConfig.setOp(cmd.getCmdType());
+            cmdConfig.setId(cmd.getId());
+            cmdConfig.setTaskId(cmd.getTaskId());
+            return cmdConfig;
+        }).collect(Collectors.toList());
+    }
+
+    @Deprecated
     @Override
     public FileAgentTaskInfo getFileAgentTask(FileAgentCommandInfo info) {
         LOGGER.debug("begin to get file agent task by info={}", info);
@@ -84,6 +127,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
         return FileAgentTaskInfo.builder().cmdConfigs(cmdConfigs).dataConfigs(taskConfigs).build();
     }
 
+    @Deprecated
     private List<FileAgentCMDConfig> getFileAgentCMDConfigs(FileAgentCommandInfo info) {
         return sourceCmdConfigMapper.queryCmdByAgentIp(info.getAgentIp()).stream().map(cmd -> {
             FileAgentCMDConfig cmdConfig = new FileAgentCMDConfig();
@@ -95,6 +139,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
         }).collect(Collectors.toList());
     }
 
+    @Deprecated
     private List<FileAgentTaskConfig> getFileAgentTaskConfigs(FileAgentCommandInfo info) {
         // Query pending special commands
         List<FileAgentTaskConfig> taskConfigs = fileDetailMapper.selectFileAgentTaskByIp(info.getAgentIp());
@@ -129,6 +174,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
         return taskConfigs;
     }
 
+    @Deprecated
     private void dealCommandResult(FileAgentCommandInfo info) {
         if (CollectionUtils.isEmpty(info.getCommandInfo())) {
             LOGGER.warn("command info is empty, just return");

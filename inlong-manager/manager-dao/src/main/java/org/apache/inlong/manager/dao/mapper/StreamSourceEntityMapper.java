@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.inlong.commons.dto.DataConfig;
+import org.apache.inlong.commons.dto.TaskRequestDto;
 import org.apache.inlong.manager.common.pojo.source.SourceHeartbeatRequest;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
@@ -85,5 +87,7 @@ public interface StreamSourceEntityMapper {
     int updateHeartbeat(SourceHeartbeatRequest request);
 
     int deleteByPrimaryKey(Integer id);
+
+    List<DataConfig> selectAgentTaskDataConfig(TaskRequestDto taskRequestDto);
 
 }

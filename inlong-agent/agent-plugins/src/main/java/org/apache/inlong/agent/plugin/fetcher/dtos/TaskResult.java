@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.fetcher.dtos;
 
+import lombok.Builder;
 import lombok.Data;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.commons.dto.CmdConfig;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@Builder
 public class TaskResult {
 
     private List<CmdConfig> cmdConfigs;
