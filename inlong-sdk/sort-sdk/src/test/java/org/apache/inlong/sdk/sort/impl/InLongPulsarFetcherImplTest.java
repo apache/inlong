@@ -45,7 +45,6 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-@PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)
 public class InLongPulsarFetcherImplTest {
 
