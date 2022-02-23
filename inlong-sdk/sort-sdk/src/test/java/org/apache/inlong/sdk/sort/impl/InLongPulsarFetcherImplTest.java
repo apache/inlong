@@ -77,6 +77,7 @@ public class InLongPulsarFetcherImplTest {
                 inLongTopic.getTopic(), 0);
         when(statManager.getStatistics(anyString(), anyString(), anyString())).thenReturn(sortClientStateCounter);
         when(sortClientConfig.getSortTaskId()).thenReturn("sortTaskId");
+        System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
     }
 
     @Test
