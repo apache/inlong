@@ -44,7 +44,7 @@ public class SortController {
         return sortService.getClusterConfig(clusterName, md5);
     }
 
-    @GetMapping("/getSortSourceConfig")
+    @GetMapping("/getSortSource")
     @ApiOperation(value = "get sort sdk cnfig")
     public SortSourceConfigResponse getSortSourceConfig(
             @RequestParam String clusterName,
