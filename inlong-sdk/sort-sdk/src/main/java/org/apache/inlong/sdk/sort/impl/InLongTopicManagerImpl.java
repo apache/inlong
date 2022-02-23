@@ -350,9 +350,10 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
                             .authentication(AuthenticationFactory.token(inLongTopic.getInLongCluster().getToken()))
                             .build();
                     pulsarClients.put(inLongTopic.getInLongCluster().getClusterId(), pulsarClient);
-                    logger.info("create pulsar client succ {} {} {}", inLongTopic.getInLongCluster().getClusterId(),
+                    logger.info("create pulsar client succ {} {} {}",
+                            new String[]{inLongTopic.getInLongCluster().getClusterId(),
                             inLongTopic.getInLongCluster().getBootstraps(),
-                            inLongTopic.getInLongCluster().getToken());
+                            inLongTopic.getInLongCluster().getToken()});
                 } catch (Exception e) {
                     logger.error("create pulsar client error {}", inLongTopic);
                     logger.error(e.getMessage(), e);
@@ -377,9 +378,10 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
                     TubeConsumerCreater tubeConsumerCreater = new TubeConsumerCreater(messageSessionFactory,
                             tubeConfig);
                     tubeFactories.put(inLongTopic.getInLongCluster().getClusterId(), tubeConsumerCreater);
-                    logger.info("create tube client succ {} {} {}", inLongTopic.getInLongCluster().getClusterId(),
+                    logger.info("create tube client succ {} {} {}",
+                            new String[]{inLongTopic.getInLongCluster().getClusterId(),
                             inLongTopic.getInLongCluster().getBootstraps(),
-                            inLongTopic.getInLongCluster().getToken());
+                            inLongTopic.getInLongCluster().getToken()});
                 } catch (Exception e) {
                     logger.error("create tube client error {}", inLongTopic);
                     logger.error(e.getMessage(), e);
