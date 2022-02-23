@@ -20,9 +20,9 @@ package org.apache.inlong.sort.standalone.metrics;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.inlong.commons.config.metrics.MetricDomain;
-import org.apache.inlong.commons.config.metrics.MetricItem;
-import org.apache.inlong.commons.config.metrics.MetricItemSet;
+import org.apache.inlong.common.config.metrics.MetricDomain;
+import org.apache.inlong.common.config.metrics.MetricItem;
+import org.apache.inlong.common.config.metrics.MetricItemSet;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 

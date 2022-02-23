@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Base source context <b>WITHOUT</b> metric reporter.
- * The derived classes of SourceContext may implement {@link org.apache.inlong.commons.config.metrics.MetricItem} and
+ * The derived classes of SourceContext may implement {@link org.apache.inlong.common.config.metrics.MetricItem} and
  * realize methods to report customized metrics.
  */
 public class SourceContext {

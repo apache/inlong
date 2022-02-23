@@ -19,7 +19,7 @@ package org.apache.inlong.dataproxy.metrics;
 
 import java.util.Map;
 
-import org.apache.inlong.commons.config.metrics.MetricValue;
+import org.apache.inlong.common.config.metrics.MetricValue;
 import org.apache.pulsar.shade.com.google.gson.Gson;
 
 /**

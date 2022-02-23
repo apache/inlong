@@ -19,8 +19,8 @@ package org.apache.inlong.dataproxy.http;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
-import org.apache.inlong.commons.monitor.CounterGroup;
-import org.apache.inlong.commons.monitor.CounterGroupExt;
+import org.apache.inlong.common.monitor.CounterGroup;
+import org.apache.inlong.common.monitor.CounterGroupExt;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 import org.apache.flume.Context;

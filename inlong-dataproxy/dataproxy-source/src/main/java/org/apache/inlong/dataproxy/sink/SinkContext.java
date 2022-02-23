@@ -23,7 +23,7 @@ import java.util.TimerTask;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
-import org.apache.inlong.commons.config.metrics.MetricRegister;
+import org.apache.inlong.common.config.metrics.MetricRegister;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.slf4j.Logger;

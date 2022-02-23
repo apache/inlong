@@ -18,7 +18,7 @@
 package org.apache.inlong.agent.conf;
 
 import com.google.gson.Gson;
-import org.apache.inlong.agent.constants.JobConstants;
+import org.apache.inlong.agent.constant.JobConstants;
 
 /**
  * job profile which contains details describing properties of one job.

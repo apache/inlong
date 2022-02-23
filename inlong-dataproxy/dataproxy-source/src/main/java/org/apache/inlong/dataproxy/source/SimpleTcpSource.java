@@ -39,7 +39,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;
-import org.apache.inlong.commons.config.metrics.MetricRegister;
+import org.apache.inlong.common.config.metrics.MetricRegister;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.utils.EventLoopUtil;

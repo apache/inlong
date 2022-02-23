@@ -17,8 +17,8 @@
 
 package org.apache.inlong.dataproxy.config;
 
-import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
-import org.apache.inlong.commons.pojo.dataproxy.PulsarClusterInfo;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 
 import java.util.ArrayList;
 import java.util.List;

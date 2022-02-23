@@ -19,11 +19,11 @@ package org.apache.inlong.sort.standalone.metrics;
 
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.Event;
-import org.apache.inlong.commons.config.metrics.CountMetric;
-import org.apache.inlong.commons.config.metrics.Dimension;
-import org.apache.inlong.commons.config.metrics.MetricDomain;
-import org.apache.inlong.commons.config.metrics.MetricItem;
-import org.apache.inlong.commons.msg.AttributeConstants;
+import org.apache.inlong.common.config.metrics.CountMetric;
+import org.apache.inlong.common.config.metrics.Dimension;
+import org.apache.inlong.common.config.metrics.MetricDomain;
+import org.apache.inlong.common.config.metrics.MetricItem;
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.utils.Constants;
 

@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.inlong.commons.config.metrics.MetricRegister;
+import org.apache.inlong.common.config.metrics.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.junit.Test;
 import org.junit.runner.RunWith;

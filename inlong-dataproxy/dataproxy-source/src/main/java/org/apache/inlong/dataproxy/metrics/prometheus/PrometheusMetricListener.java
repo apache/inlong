@@ -17,8 +17,8 @@
 
 package org.apache.inlong.dataproxy.metrics.prometheus;
 
-import static org.apache.inlong.commons.config.metrics.MetricItemMBean.DOMAIN_SEPARATOR;
-import static org.apache.inlong.commons.config.metrics.MetricRegister.JMX_DOMAIN;
+import static org.apache.inlong.common.config.metrics.MetricItemMBean.DOMAIN_SEPARATOR;
+import static org.apache.inlong.common.config.metrics.MetricRegister.JMX_DOMAIN;
 import static org.apache.inlong.dataproxy.metrics.DataProxyMetricItem.M_NODE_DURATION;
 import static org.apache.inlong.dataproxy.metrics.DataProxyMetricItem.M_READ_FAIL_COUNT;
 import static org.apache.inlong.dataproxy.metrics.DataProxyMetricItem.M_READ_FAIL_SIZE;
@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.inlong.commons.config.metrics.MetricValue;
+import org.apache.inlong.common.config.metrics.MetricValue;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
