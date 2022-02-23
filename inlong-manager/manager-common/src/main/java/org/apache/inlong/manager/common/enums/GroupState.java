@@ -37,33 +37,33 @@ public enum GroupState {
     GROUP_RESTART(150, "restart"),
     GROUP_DELETE(40, "delete");
 
-    private static final Map<GroupState, Set<GroupState>> GROUP_FINITE_STATE_MACHINE = Maps.newHashMap();
+    private static final Map<GroupState, Set<GroupState>> GROUP_FINITE_STATE_AUTOMATON = Maps.newHashMap();
 
     /**
      * Init group finite state machine
      */
     static {
-        GROUP_FINITE_STATE_MACHINE.put(GROUP_DRAFT,
+        GROUP_FINITE_STATE_AUTOMATON.put(GROUP_DRAFT,
                 Sets.newHashSet(GROUP_WAIT_SUBMIT, GROUP_DELETE));
-        GROUP_FINITE_STATE_MACHINE.put(GROUP_WAIT_SUBMIT,
+        GROUP_FINITE_STATE_AUTOMATON.put(GROUP_WAIT_SUBMIT,
                 Sets.newHashSet(GROUP_WAIT_APPROVAL, GROUP_DELETE));
-        GROUP_FINITE_STATE_MACHINE.put(GROUP_WAIT_APPROVAL,
+        GROUP_FINITE_STATE_AUTOMATON.put(GROUP_WAIT_APPROVAL,
                 Sets.newHashSet(GROUP_APPROVE_REJECTED, GROUP_APPROVE_PASSED));
-        GROUP_FINITE_STATE_MACHINE.put(GROUP_APPROVE_REJECTED,
+        GROUP_FINITE_STATE_AUTOMATON.put(GROUP_APPROVE_REJECTED,
                 Sets.newHashSet(GROUP_WAIT_APPROVAL, GROUP_DELETE));
-        GROUP_FINITE_STATE_MACHINE.put(GROUP_APPROVE_PASSED,
+        GROUP_FINITE_STATE_AUTOMATON.put(GROUP_APPROVE_PASSED,
                 Sets.newHashSet(GROUP_CONFIG_ING, GROUP_DELETE));
-        GROUP_FINITE_STATE_MACHINE.put(GROUP_CONFIG_ING,
+        GROUP_FINITE_STATE_AUTOMATON.put(GROUP_CONFIG_ING,
                 Sets.newHashSet(GROUP_CONFIG_FAILED, GROUP_CONFIG_SUCCESSFUL));
-        GROUP_FINITE_STATE_MACHINE.put(GROUP_CONFIG_FAILED,
+        GROUP_FINITE_STATE_AUTOMATON.put(GROUP_CONFIG_FAILED,
                 Sets.newHashSet(GROUP_WAIT_SUBMIT, GROUP_DELETE));
-        GROUP_FINITE_STATE_MACHINE.put(GROUP_CONFIG_SUCCESSFUL,
+        GROUP_FINITE_STATE_AUTOMATON.put(GROUP_CONFIG_SUCCESSFUL,
                 Sets.newHashSet(GROUP_WAIT_APPROVAL, GROUP_SUSPEND, GROUP_DELETE));
-        GROUP_FINITE_STATE_MACHINE.put(GROUP_SUSPEND,
+        GROUP_FINITE_STATE_AUTOMATON.put(GROUP_SUSPEND,
                 Sets.newHashSet(GROUP_RESTART, GROUP_DELETE));
-        GROUP_FINITE_STATE_MACHINE.put(GROUP_RESTART,
+        GROUP_FINITE_STATE_AUTOMATON.put(GROUP_RESTART,
                 Sets.newHashSet(GROUP_SUSPEND, GROUP_DELETE));
-        GROUP_FINITE_STATE_MACHINE.put(GROUP_DELETE,
+        GROUP_FINITE_STATE_AUTOMATON.put(GROUP_DELETE,
                 Sets.newHashSet());
     }
 
@@ -77,7 +77,7 @@ public enum GroupState {
     }
 
     public static boolean isAllowedTransition(GroupState pre, GroupState now) {
-        Set<GroupState> nextStates = GROUP_FINITE_STATE_MACHINE.get(pre);
+        Set<GroupState> nextStates = GROUP_FINITE_STATE_AUTOMATON.get(pre);
         if (nextStates == null || !nextStates.contains(now)) {
             return false;
         } else {
