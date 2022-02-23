@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.service.workflow.group.listener;
 
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
@@ -31,8 +31,6 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 /**
  * Approve reject listener for new inlong group

@@ -89,6 +89,10 @@ public enum GroupState {
         return state != GroupState.GROUP_CONFIG_ING && state != GroupState.GROUP_WAIT_APPROVAL;
     }
 
+    public static boolean isAllowedLogicDel(GroupState state) {
+        return state == GroupState.GROUP_DRAFT || state == GroupState.GROUP_WAIT_SUBMIT;
+    }
+
     private final Integer code;
     private final String description;
 

@@ -18,10 +18,6 @@
 package org.apache.inlong.manager.common.enums;
 
 import com.google.common.collect.ImmutableSet;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import java.util.Map;
 import java.util.Set;
 
 /**

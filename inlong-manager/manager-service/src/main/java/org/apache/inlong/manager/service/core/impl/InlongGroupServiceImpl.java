@@ -331,7 +331,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
 
         // [DRAFT] [GROUP_WAIT_SUBMIT] status, all associated data can be logically deleted directly
-        if (EntityStatus.ALLOW_DELETE_GROUP_CASCADE_STATUS.contains(entity.getStatus())) {
+        if (GroupState.isAllowedLogicDel(curState)) {
             // Logically delete inlong streams, data sources and data sink information
             streamService.logicDeleteAll(entity.getInlongGroupId(), operator);
         } else {
