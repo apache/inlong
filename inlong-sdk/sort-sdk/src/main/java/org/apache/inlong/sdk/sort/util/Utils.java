@@ -20,6 +20,7 @@
 package org.apache.inlong.sdk.sort.util;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -35,6 +36,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import org.xerial.snappy.Snappy;
 
 public class Utils {
@@ -165,6 +167,22 @@ public class Utils {
         return result;
     }
 
+    public static byte[] compressGZip(byte[] data) {
+        if (data == null || data.length == 0) {
+            return null;
+        }
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        GZIPOutputStream gzip;
+        try {
+            gzip = new GZIPOutputStream(out);
+            gzip.write(data);
+            gzip.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return out.toByteArray();
+    }
+
     public static byte[] gzipDecompress(byte[] data, int startOffset, int dataLength)
             throws IOException {
         GZIPInputStream gzip = null;
@@ -194,6 +212,14 @@ public class Utils {
                 gzip.close();
             }
         }
+    }
+
+    public static byte[] snappyCompress(byte[] data) throws IOException {
+        if (data == null || data.length == 0) {
+            return null;
+        }
+
+        return Snappy.compress(data);
     }
 
     public static byte[] snappyDecompress(byte[] data, int startOffset, int dataLength)
