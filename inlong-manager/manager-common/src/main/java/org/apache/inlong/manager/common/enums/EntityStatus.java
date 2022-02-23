@@ -27,6 +27,7 @@ import java.util.Set;
 /**
  * Entity status enum
  */
+@Deprecated
 public enum EntityStatus {
 
     UN_DELETED(0, "not deleted"),
@@ -77,42 +78,6 @@ public enum EntityStatus {
     // ADD(0), DEL(1), RETRY(2), BACKTRACK(3), FROZEN(4), ACTIVE(5), CHECK(6), REDOMETRIC(7), MAKEUP(8);
     AGENT_ADD(200, "wait add"),
     AGENT_DELETE(201, "wait delete");
-
-    private static final Map<EntityStatus, Set<EntityStatus>> GROUP_STATUS_TRANSITIONS = Maps.newHashMap();
-
-    /**
-     * Init group finite state machine
-     */
-    static {
-        GROUP_STATUS_TRANSITIONS.put(GROUP_WAIT_SUBMIT, Sets.newHashSet(GROUP_WAIT_APPROVAL, DELETED));
-        GROUP_STATUS_TRANSITIONS.put(GROUP_WAIT_APPROVAL,
-                Sets.newHashSet(GROUP_APPROVE_REJECTED, GROUP_APPROVE_PASSED, DELETED));
-        GROUP_STATUS_TRANSITIONS.put(GROUP_APPROVE_REJECTED,
-                Sets.newHashSet(GROUP_WAIT_APPROVAL, DELETED));
-        GROUP_STATUS_TRANSITIONS.put(GROUP_APPROVE_PASSED,
-                Sets.newHashSet(GROUP_CONFIG_ING, DELETED));
-        GROUP_STATUS_TRANSITIONS.put(GROUP_CONFIG_ING,
-                Sets.newHashSet(GROUP_CONFIG_FAILED, GROUP_CONFIG_SUCCESSFUL, DELETED));
-        GROUP_STATUS_TRANSITIONS.put(GROUP_CONFIG_FAILED,
-                Sets.newHashSet(GROUP_CONFIG_ING, DELETED));
-        GROUP_STATUS_TRANSITIONS.put(GROUP_CONFIG_SUCCESSFUL,
-                Sets.newHashSet(GROUP_SUSPEND, DELETED));
-        GROUP_STATUS_TRANSITIONS.put(GROUP_SUSPEND,
-                Sets.newHashSet(GROUP_RESTART, DELETED));
-        GROUP_STATUS_TRANSITIONS.put(GROUP_RESTART,
-                Sets.newHashSet(GROUP_SUSPEND, DELETED));
-        GROUP_STATUS_TRANSITIONS.put(DELETED,
-                Sets.newHashSet());
-    }
-
-    public static boolean isAllowedForGroup(EntityStatus pre, EntityStatus now) {
-        Set<EntityStatus> allowedStatus = GROUP_STATUS_TRANSITIONS.get(pre);
-        if (allowedStatus == null || !allowedStatus.contains(now)){
-            return false;
-        } else {
-            return true;
-        }
-    }
 
     /**
      * The status of the inlong group that can initiate the approval process:

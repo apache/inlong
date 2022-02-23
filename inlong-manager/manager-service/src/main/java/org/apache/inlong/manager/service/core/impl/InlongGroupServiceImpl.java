@@ -20,12 +20,18 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
@@ -50,13 +56,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * Inlong group service layer implementation
@@ -102,7 +101,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         entity.setSchemaName(Constant.SCHEMA_M0_DAY);
 
         // After saving, the status is set to [GROUP_WAIT_SUBMIT]
-        entity.setStatus(EntityStatus.GROUP_WAIT_SUBMIT.getCode());
+        entity.setStatus(GroupState.GROUP_WAIT_SUBMIT.getCode());
         entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
         if (StringUtils.isEmpty(entity.getCreator())) {
             entity.setCreator(operator);
@@ -179,7 +178,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
 
         // For approved inlong group, encapsulate the cluster address of the middleware
-        if (EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode().equals(groupInfo.getStatus())) {
+        if (GroupState.GROUP_CONFIG_SUCCESSFUL == GroupState.forCode(groupInfo.getStatus())) {
             if (Constant.MIDDLEWARE_TUBE.equalsIgnoreCase(middlewareType)) {
                 groupInfo.setTubeMaster(clusterBean.getTubeMaster());
             } else if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
@@ -226,9 +225,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         this.checkGroupCanUpdate(entity, groupInfo, operator);
 
         CommonBeanUtils.copyProperties(groupInfo, entity, true);
-        if (EntityStatus.GROUP_CONFIG_FAILED.getCode().equals(entity.getStatus())) {
-            entity.setStatus(EntityStatus.GROUP_WAIT_SUBMIT.getCode());
-        }
+        entity.setStatus(groupInfo.getStatus());
+
         entity.setModifier(operator);
         groupMapper.updateByIdentifierSelective(entity);
 
@@ -277,31 +275,14 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             LOGGER.error("user [{}] has no privilege for the inlong group", operator);
             throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
         }
-        // Check whether the current status supports modification
-        Integer oldStatus = entity.getStatus();
-        if (!EntityStatus.ALLOW_UPDATE_GROUP_STATUS.contains(oldStatus)) {
-            LOGGER.error("current status was not allowed to update inlong group info");
-            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED);
-        }
-
-        // Non-[DRAFT] status, no groupId modification allowed
-        boolean updateGroupId = !EntityStatus.DRAFT.getCode().equals(oldStatus)
-                && !Objects.equals(entity.getInlongGroupId(), groupInfo.getInlongGroupId());
-        if (updateGroupId) {
-            LOGGER.error("current status was not allowed to update inlong group id");
-            throw new BusinessException(ErrorCodeEnum.GROUP_ID_UPDATE_NOT_ALLOWED);
-        }
-
-        // [Configuration successful] Status, groupId and middleware type are not allowed to be modified
-        if (EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode().equals(oldStatus)) {
-            if (!Objects.equals(entity.getInlongGroupId(), groupInfo.getInlongGroupId())) {
-                LOGGER.error("current status was not allowed to update inlong group id");
-                throw new BusinessException(ErrorCodeEnum.GROUP_ID_UPDATE_NOT_ALLOWED);
-            }
-            if (!Objects.equals(entity.getMiddlewareType(), groupInfo.getMiddlewareType())) {
-                LOGGER.error("current status was not allowed to update middleware type");
-                throw new BusinessException(ErrorCodeEnum.GROUP_MIDDLEWARE_UPDATE_NOT_ALLOWED);
-            }
+        // Check whether the current state supports modification
+        GroupState curState = GroupState.forCode(entity.getStatus());
+        GroupState nextState = GroupState.forCode(groupInfo.getStatus());
+        if (!GroupState.isAllowedTransition(curState, nextState)) {
+            String errMsg = String.format("Current state=%s is not allowed to transfer to state=%s",
+                    curState, nextState);
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
         }
     }
 
@@ -310,11 +291,23 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         LOGGER.debug("begin to update inlong group status, groupId={}, status={}, username={}", groupId, status,
                 operator);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
-
-        groupMapper.updateStatus(groupId, status, operator);
-
-        LOGGER.info("success to update inlong group status for groupId={}", groupId);
-        return true;
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        if (entity == null) {
+            LOGGER.error("inlong group not found by groupId={}", groupId);
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        GroupState curState = GroupState.forCode(entity.getStatus());
+        GroupState nextState = GroupState.forCode(status);
+        if (GroupState.isAllowedTransition(curState, nextState)) {
+            groupMapper.updateStatus(groupId, status, operator);
+            LOGGER.info("success to update inlong group status for groupId={}", groupId);
+            return true;
+        } else {
+            String warnMsg = String.format("Current state=%s is not allowed to transfer to state=%s",
+                    curState, nextState);
+            LOGGER.warn(warnMsg);
+            return false;
+        }
     }
 
     @Transactional(rollbackFor = Throwable.class)
@@ -330,9 +323,11 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
 
         // Determine whether the current status can be deleted
-        if (!EntityStatus.ALLOW_DELETE_GROUP_STATUS.contains(entity.getStatus())) {
-            LOGGER.error("current status was not allowed to delete");
-            throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED);
+        GroupState curState = GroupState.forCode(entity.getStatus());
+        if (!GroupState.isAllowedTransition(curState, GroupState.GROUP_DELETE)) {
+            String errMsg = String.format("Current state=%s was not allowed to delete", curState);
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED, errMsg);
         }
 
         // [DRAFT] [GROUP_WAIT_SUBMIT] status, all associated data can be logically deleted directly
@@ -351,7 +346,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
 
         entity.setIsDeleted(EntityStatus.IS_DELETED.getCode());
-        entity.setStatus(EntityStatus.DELETED.getCode());
+        entity.setStatus(GroupState.GROUP_DELETE.getCode());
         entity.setModifier(operator);
         groupMapper.updateByIdentifierSelective(entity);
 
@@ -385,11 +380,11 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             int status = (Integer) map.get("status");
             long count = (Long) map.get("count");
             countVO.setTotalCount(countVO.getTotalCount() + count);
-            if (status == EntityStatus.GROUP_CONFIG_ING.getCode()) {
+            if (status == GroupState.GROUP_CONFIG_ING.getCode()) {
                 countVO.setWaitAssignCount(countVO.getWaitAssignCount() + count);
-            } else if (status == EntityStatus.GROUP_WAIT_APPROVAL.getCode()) {
+            } else if (status == GroupState.GROUP_WAIT_APPROVAL.getCode()) {
                 countVO.setWaitApproveCount(countVO.getWaitApproveCount() + count);
-            } else if (status == EntityStatus.GROUP_APPROVE_REJECTED.getCode()) {
+            } else if (status == GroupState.GROUP_APPROVE_REJECTED.getCode()) {
                 countVO.setRejectCount(countVO.getRejectCount() + count);
             }
         }
@@ -438,7 +433,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // Update status to [GROUP_CONFIG_ING]
         // If you need to change inlong group info after approve, just do in here
-        this.updateStatus(groupId, EntityStatus.GROUP_CONFIG_ING.getCode(), operator);
+        this.updateStatus(groupId, GroupState.GROUP_CONFIG_ING.getCode(), operator);
 
         LOGGER.info("success to update inlong group status after approve for groupId={}", groupId);
         return true;

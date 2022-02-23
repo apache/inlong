@@ -17,8 +17,10 @@
 
 package org.apache.inlong.manager.service;
 
-import org.apache.inlong.manager.common.enums.EntityStatus;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -27,9 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Common operation service
@@ -56,8 +55,9 @@ public class CommonOperateService {
         Preconditions.checkTrue(managers.contains(operator),
                 String.format(ErrorCodeEnum.USER_IS_NOT_MANAGER.getMessage(), operator, managers));
 
-        // Add/modify/delete is not allowed under certain group status
-        if (EntityStatus.GROUP_TEMP_STATUS.contains(inlongGroupEntity.getStatus())) {
+        GroupState state = GroupState.forCode(inlongGroupEntity.getStatus());
+        // Add/modify/delete is not allowed under certain group state
+        if (!GroupState.isAllowedUpdate(state)) {
             LOGGER.error("inlong group status was not allowed to add/update/delete related info");
             throw new BusinessException(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS);
         }
