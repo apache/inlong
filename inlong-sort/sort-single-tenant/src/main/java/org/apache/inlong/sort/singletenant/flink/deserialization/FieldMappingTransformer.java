@@ -20,23 +20,16 @@ package org.apache.inlong.sort.singletenant.flink.deserialization;
 
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.configuration.Configuration;
-import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.IntFormatInfo;
-import org.apache.inlong.sort.formats.common.LongFormatInfo;
-import org.apache.inlong.sort.formats.common.ShortFormatInfo;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.util.DefaultValueStrategy;
 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkNotNull;
 
@@ -63,15 +56,13 @@ public class FieldMappingTransformer {
         final Row outputRow = new Row(outputFieldInfos.length);
         int sourceRowIndex = SOURCE_FIELD_SKIP_STEP;
         for (int i = 0; i < outputFieldInfos.length; i++) {
-            Object fieldValue;
-            if (sourceRowIndex >= sourceRow.getArity()) {
-                fieldValue = null;
-            } else if (!(outputFieldInfos[i] instanceof BuiltInFieldInfo)) {
-                fieldValue = sourceRow.getField(sourceRowIndex);
-                sourceRowIndex++;
-            } else {
+            Object fieldValue = null;
+            if (outputFieldInfos[i] instanceof BuiltInFieldInfo) {
                 BuiltInFieldInfo builtInFieldInfo = (BuiltInFieldInfo) outputFieldInfos[i];
                 fieldValue = transformBuiltInField(builtInFieldInfo, dt);
+            } else if (sourceRowIndex < sourceRow.getArity()) {
+                fieldValue = sourceRow.getField(sourceRowIndex);
+                sourceRowIndex++;
             }
 
             if (fieldValue == null) {
@@ -106,50 +97,5 @@ public class FieldMappingTransformer {
             dataTimeValue = new Date(dataTime);
         }
         return dataTimeValue;
-    }
-
-    private static class DefaultValueStrategy {
-
-        private final Map<String, Object> typeDefaultValues = new HashMap<>();
-
-        public DefaultValueStrategy(Configuration config) {
-            // if nullable is true, we don't have to set the value specifically
-            // it would get null if there is no key in typeDefaultValues
-            if (!config.getBoolean(Constants.SINK_FIELD_TYPE_STRING_NULLABLE)) {
-                typeDefaultValues.put(StringFormatInfo.class.getSimpleName(), "");
-            }
-            if (!config.getBoolean(Constants.SINK_FIELD_TYPE_INT_NULLABLE)) {
-                typeDefaultValues.put(IntFormatInfo.class.getSimpleName(), 0);
-            }
-            if (!config.getBoolean(Constants.SINK_FIELD_TYPE_SHORT_NULLABLE)) {
-                typeDefaultValues.put(ShortFormatInfo.class.getSimpleName(), 0);
-            }
-            if (!config.getBoolean(Constants.SINK_FIELD_TYPE_LONG_NULLABLE)) {
-                typeDefaultValues.put(LongFormatInfo.class.getSimpleName(), 0L);
-            }
-            // TODO, support all types
-        }
-
-        public Object getDefaultValue(FormatInfo formatInfo) {
-            return typeDefaultValues.get(getTypeKey(formatInfo));
-        }
-
-        private static String getTypeKey(FormatInfo formatInfo) {
-            return formatInfo.getClass().getSimpleName();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            DefaultValueStrategy other = (DefaultValueStrategy) o;
-            return Objects.equals(typeDefaultValues, other.typeDefaultValues);
-        }
     }
 }
