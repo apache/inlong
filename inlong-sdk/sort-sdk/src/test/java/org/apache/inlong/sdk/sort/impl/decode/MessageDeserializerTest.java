@@ -40,9 +40,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
+@PowerMockIgnore("javax.management.*")
 public class MessageDeserializerTest {
 
     private MessageDeserializer messageDeserializer;
@@ -60,7 +62,7 @@ public class MessageDeserializerTest {
      */
     @Before
     public void setUp() throws Exception {
-        messageDeserializer = PowerMockito.spy(new MessageDeserializer());
+        messageDeserializer = new MessageDeserializer();
         headers = new HashMap<>();
         context = PowerMockito.mock(ClientContext.class);
         sortClientConfig = PowerMockito.mock(SortClientConfig.class);
