@@ -30,7 +30,8 @@ public class DataConfig {
     private String op;
     private Integer taskId;
     private Integer taskType;
-    private String taskConfig;
+    private String snapshot;
+    private String extParams;
 
     public boolean isValid() {
         return true;

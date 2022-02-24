@@ -50,7 +50,8 @@
         <result column="op" jdbcType="VARCHAR" property="op"/>
         <result column="id" jdbcType="VARCHAR" property="taskId"/>
         <result column="source_type" jdbcType="INTEGER" property="taskType"/>
-        <result column="ext_params" jdbcType="VARCHAR" property="taskConfig"/>
+        <result column="snapshot" jdbcType="LONGVARCHAR" property="snapshot"/>
+        <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
     </resultMap>
     <sql id="Base_Column_List">
         id, inlong_group_id, inlong_stream_id, source_type, agent_ip, uuid, server_id, server_name,
@@ -394,6 +395,7 @@
         detail.status mod 100                             as op,
         detail.id,
         detail.source_type,
+        detail.snapshot,
         detail.ext_params,
         from stream_source detail,
         where  detail.is_deleted = 0
