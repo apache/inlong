@@ -37,7 +37,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = Constant.SOURCE_KAFKA)
 public class KafkaSourceRequest extends SourceRequest {
 
-    public KafkaSourceRequest(){
+    public KafkaSourceRequest() {
         this.setSourceType(SourceType.KAFKA.toString());
     }
 

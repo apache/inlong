@@ -37,7 +37,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = Constant.SOURCE_DB_BINLOG)
 public class BinlogSourceRequest extends SourceRequest {
 
-    public BinlogSourceRequest(){
+    public BinlogSourceRequest() {
         this.setSourceType(SourceType.DB_BINLOG.toString());
     }
 
