@@ -59,6 +59,7 @@
         <mockito.version>2.23.0</mockito.version>
         <jakarta.validation.version>2.0.2</jakarta.validation.version>
         <elasticsearch-version>6.8.13</elasticsearch-version>
+        <cls-version>1.0.5</cls-version>
     </properties>
 
     <dependencies>
@@ -269,7 +270,12 @@
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
             <version>${elasticsearch-version}</version>
-        </dependency>    
+        </dependency>
+        <dependency>
+            <groupId>com.tencentcloudapi.cls</groupId>
+            <artifactId>tencentcloud-cls-sdk-java</artifactId>
+            <version>${cls-version}</version>
+        </dependency>
     </dependencies>
 
 </project>
