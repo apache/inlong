@@ -17,19 +17,11 @@
 
 package org.apache.inlong.dataproxy.sink;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import org.apache.commons.collections.SetUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -42,6 +34,7 @@ import org.apache.flume.source.shaded.guava.RateLimiter;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
+import org.apache.inlong.dataproxy.config.pojo.ThirdPartyClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
@@ -62,92 +55,66 @@ import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MetaSink extends AbstractSink implements Configurable {
 
     private static final Logger logger = LoggerFactory.getLogger(MetaSink.class);
-    private static int MAX_TOPICS_EACH_PRODUCER_HOLD = 200;
-    private static final String TUBE_REQUEST_TIMEOUT = "tube-request-timeout";
-    private static final String KEY_DISK_IO_RATE_PER_SEC = "disk-io-rate-per-sec";
 
-    private static int BAD_EVENT_QUEUE_SIZE = 10000;
-
-    private static final String SINK_THREAD_NUM = "thread-num";
-    private static int EVENT_QUEUE_SIZE = 1000;
     private volatile boolean canTake = false;
     private volatile boolean canSend = false;
-    private static int BATCH_SIZE = 10000;
-    private static final int defaultRetryCnt = -1;
-    private static final int defaultLogEveryNEvents = 100000;
-    private static final int defaultSendTimeout = 20000; // in millsec
-    private static final int defaultStatIntervalSec = 60;
+    //    private static int BATCH_SIZE = 10000; //unused
     private static final int sendNewMetricRetryCount = 3;
 
-    private static String MASTER_HOST_PORT_LIST = "master-host-port-list";
     private static String TOPIC = "topic";
-    private static String SEND_TIMEOUT = "send_timeout"; // in millsec
-    private static String LOG_EVERY_N_EVENTS = "log-every-n-events";
-    private static String RETRY_CNT = "retry-currentSuccSendedCnt";
-    private static String STAT_INTERVAL_SEC = "stat-interval-sec"; // in sec
-    private static String MAX_TOPICS_EACH_PRODUCER_HOLD_NAME = "max-topic-each-producer-hold";
 
-    private static final String LOG_TOPIC = "proxy-log-topic";
-    private static final String STREAMID = "proxy-log-streamid";
-    private static final String GROUPID = "proxy-log-groupid";
-    private static final String SEND_REMOTE = "send-remote";
-    private static final String topicsFilePath = "topics.properties";
+    private static final String topicsFilePath = "topics.properties"; //unused
     private static final String slaTopicFilePath = "slaTopics.properties";
-    private static final String SLA_METRIC_SINK = "sla-metric-sink";
 
-    private static String MAX_SURVIVED_TIME = "max-survived-time";
-    private static String MAX_SURVIVED_SIZE = "max-survived-size";
-    private static String CLIENT_ID_CACHE = "client-id-cache";
-
-    private int maxSurvivedTime = 3 * 1000 * 30;
-    private int maxSurvivedSize = 100000;
-
-    private String proxyLogTopic = "teg_manager";
-    private String proxyLogGroupId = "b_teg_manager";
-    private String proxyLogStreamId = "proxy_measure_log";
-    private boolean sendRemote = false;
     private ConfigManager configManager;
     private Map<String, String> topicProperties;
 
-    public MessageProducer producer;
-    public Map<String, MessageProducer> producerMap;
+    private ThirdPartyClusterConfig tubeConfig;
+    private Set<String> masterHostAndPortLists;
+
+    // key: masterUrl
+    public Map<String, TubeMultiSessionFactory> sessionFactories;
+    public Map<String, List<TopicProducerInfo>> masterUrl2producers;
+
+    // used for RoundRobin different cluster while send message
+    private AtomicInteger clusterIndex = new AtomicInteger(0);
+
+    // key: topic
+    public Map<String, List<TopicProducerInfo>> producerInfoMap;
 
     private LinkedBlockingQueue<EventStat> resendQueue;
     private LinkedBlockingQueue<Event> eventQueue;
 
-    private long diskIORatePerSec;
     private RateLimiter diskRateLimiter;
 
     public AtomicInteger currentPublishTopicNum = new AtomicInteger(0);
-    public TubeMultiSessionFactory sessionFactory;
-    private String masterHostAndPortList;
-    private Integer logEveryNEvents;
-    private Integer sendTimeout;
-    private static int retryCnt = defaultRetryCnt;
-    private int requestTimeout = 60;
-    private int threadNum;
+
     private Thread[] sinkThreadPool;
 
     private String metaTopicFilePath = topicsFilePath;
-    private long linkMaxAllowedDelayedMsgCount;
-    private long sessionWarnDelayedMsgCount;
-    private long sessionMaxAllowedDelayedMsgCount;
-    private long nettyWriteBufferHighWaterMark;
-    private int recoverthreadcount;
-    //
+
     private Map<String, String> dimensions;
     private DataProxyMetricItemSet metricItemSet;
 
     private static final LoadingCache<String, Long> agentIdCache = CacheBuilder
-            .newBuilder().concurrencyLevel(4 * 8).initialCapacity(5000000).expireAfterAccess(30, TimeUnit.SECONDS)
+            .newBuilder().concurrencyLevel(4 * 8).initialCapacity(5000000)
+            .expireAfterAccess(30, TimeUnit.SECONDS)
             .build(new CacheLoader<String, Long>() {
 
                 @Override
@@ -158,11 +125,11 @@ public class MetaSink extends AbstractSink implements Configurable {
 
     private IdCacheCleaner idCacheCleaner;
     protected static boolean idCleanerStarted = false;
-    protected static final ConcurrentHashMap<String, Long> agentIdMap =
-            new ConcurrentHashMap<String, Long>();
-    private static ConcurrentHashMap<String, Long> illegalTopicMap =
-            new ConcurrentHashMap<String, Long>();
+    protected static final ConcurrentHashMap<String, Long> agentIdMap = new ConcurrentHashMap<String, Long>();
+    private static ConcurrentHashMap<String, Long> illegalTopicMap = new ConcurrentHashMap<String, Long>();
 
+    private int maxSurvivedTime = 3 * 1000 * 30;
+    private int maxSurvivedSize = 100000;
     private boolean clientIdCache = false;
     private boolean isNewCache = true;
 
@@ -175,52 +142,141 @@ public class MetaSink extends AbstractSink implements Configurable {
      * @param endSet
      */
     public void diffSetPublish(Set<String> originalSet, Set<String> endSet) {
+        if (SetUtils.isEqualSet(originalSet, endSet)) {
+            return;
+        }
 
         boolean changed = false;
+        Set<String> newTopics = new HashSet<>();
         for (String s : endSet) {
             if (!originalSet.contains(s)) {
                 changed = true;
-                try {
-                    producer = getProducer(s);
-                } catch (Exception e) {
-                    logger.error("Get producer failed!", e);
-                }
+                newTopics.add(s);
             }
         }
 
         if (changed) {
+            try {
+                initTopicSet(newTopics);
+            } catch (Exception e) {
+                logger.info("meta sink publish new topic fail.", e);
+            }
+
             logger.info("topics.properties has changed, trigger diff publish for {}", getName());
             topicProperties = configManager.getTopicProperties();
         }
     }
 
-    private MessageProducer getProducer(String topic) throws TubeClientException {
-        if (producerMap.containsKey(topic)) {
-            return producerMap.get(topic);
-        } else {
-            synchronized (this) {
-                if (!producerMap.containsKey(topic)) {
-                    if (producer == null || currentPublishTopicNum.get() >= MAX_TOPICS_EACH_PRODUCER_HOLD) {
-                        producer = sessionFactory.createProducer();
-                        currentPublishTopicNum.set(0);
+    /**
+     * when masterUrlLists change, update tubeClient
+     *
+     * @param originalCluster, previous masterHostAndPortList set
+     * @param endCluster,      new masterHostAndPortList set
+     */
+    public void diffUpdateTubeClient(Set<String> originalCluster, Set<String> endCluster) {
+        if (SetUtils.isEqualSet(originalCluster, endCluster)) {
+            return;
+        }
+        // close
+        for (String masterUrl : originalCluster) {
+
+            if (!endCluster.contains(masterUrl)) {
+                // step1: close and remove all related producers
+                List<TopicProducerInfo> producerInfoList = masterUrl2producers.get(masterUrl);
+                if (producerInfoList != null) {
+                    for (TopicProducerInfo producerInfo : producerInfoList) {
+                        producerInfo.shutdown();
+                        // remove from topic<->producer map
+                        for (String topic : producerInfo.getTopicSet()) {
+                            List<TopicProducerInfo> curTopicProducers = producerInfoMap.get(topic);
+                            if (curTopicProducers != null) {
+                                curTopicProducers.remove(producerInfo);
+                            }
+                        }
                     }
-                    // publish topic
-                    producer.publish(topic);
-                    producerMap.put(topic, producer);
-                    currentPublishTopicNum.incrementAndGet();
+                    // remove from masterUrl<->producer map
+                    masterUrl2producers.remove(masterUrl);
+                }
+
+                // step2: close and remove related sessionFactories
+                TubeMultiSessionFactory sessionFactory = sessionFactories.get(masterUrl);
+                if (sessionFactory != null) {
+                    try {
+                        sessionFactory.shutdown();
+                    } catch (TubeClientException e) {
+                        logger.error("destroy sessionFactory error in metasink, MetaClientException {}",
+                                e.getMessage());
+                    }
+                    sessionFactories.remove(masterUrl);
+                }
+
+                logger.info("close tubeClient of masterList:{}", masterUrl);
+            }
+
+        }
+        // start new client
+        for (String masterUrl : endCluster) {
+            if (!originalCluster.contains(masterUrl)) {
+
+                TubeMultiSessionFactory sessionFactory = createConnection(masterUrl);
+
+                if (sessionFactory != null) {
+                    List<Set<String>> topicGroups = partitionTopicSet(new HashSet<>(topicProperties.values()));
+                    for (Set<String> topicSet : topicGroups) {
+                        createTopicProducers(masterUrl, sessionFactory, topicSet);
+                    }
+
+                    logger.info("successfully start new tubeClient for the new masterList: {}", masterUrl);
                 }
             }
-            return producerMap.get(topic);
         }
+
+        masterHostAndPortLists = configManager.getThirdPartyClusterUrl2Token().keySet();
     }
 
-    private TubeClientConfig initTubeConfig() throws Exception {
-        final TubeClientConfig tubeClientConfig = new TubeClientConfig(NetworkUtils.getLocalIp(),
-                this.masterHostAndPortList);
-        tubeClientConfig.setLinkMaxAllowedDelayedMsgCount(linkMaxAllowedDelayedMsgCount);
-        tubeClientConfig.setSessionWarnDelayedMsgCount(sessionWarnDelayedMsgCount);
-        tubeClientConfig.setSessionMaxAllowedDelayedMsgCount(sessionMaxAllowedDelayedMsgCount);
-        tubeClientConfig.setNettyWriteBufferHighWaterMark(nettyWriteBufferHighWaterMark);
+    /**
+     * when there are multi clusters, pick producer based on round-robin
+     *
+     * @param topic
+     * @return
+     * @throws TubeClientException
+     */
+    private MessageProducer getProducer(String topic) throws TubeClientException {
+        if (producerInfoMap.containsKey(topic) && !producerInfoMap.get(topic).isEmpty()) {
+
+            List<TopicProducerInfo> producers = producerInfoMap.get(topic);
+            // round-roubin dispatch
+            int currentIndex = clusterIndex.getAndIncrement();
+            if (currentIndex > Integer.MAX_VALUE / 2) {
+                clusterIndex.set(0);
+            }
+            int producerIndex = currentIndex % producers.size();
+            return producers.get(producerIndex).getProducer();
+        }
+        return null;
+//        else {
+//            synchronized (this) {
+//              if (!producerInfoMap.containsKey(topic)) {
+//                 if (producer == null || currentPublishTopicNum.get() >= tubeConfig.getMaxTopicsEachProducerHold()) {
+//                        producer = sessionFactory.createProducer();
+//                        currentPublishTopicNum.set(0);
+//                    }
+//                    // publish topic
+//                    producer.publish(topic);
+//                    producerMap.put(topic, producer);
+//                    currentPublishTopicNum.incrementAndGet();
+//                }
+//            }
+//            return producerMap.get(topic);
+//        }
+    }
+
+    private TubeClientConfig initTubeConfig(String masterUrl) throws Exception {
+        final TubeClientConfig tubeClientConfig = new TubeClientConfig(masterUrl);
+        tubeClientConfig.setLinkMaxAllowedDelayedMsgCount(tubeConfig.getLinkMaxAllowedDelayedMsgCount());
+        tubeClientConfig.setSessionWarnDelayedMsgCount(tubeConfig.getSessionWarnDelayedMsgCount());
+        tubeClientConfig.setSessionMaxAllowedDelayedMsgCount(tubeConfig.getSessionMaxAllowedDelayedMsgCount());
+        tubeClientConfig.setNettyWriteBufferHighWaterMark(tubeConfig.getNettyWriteBufferHighWaterMark());
         tubeClientConfig.setHeartbeatPeriodMs(15000L);
         tubeClientConfig.setRpcTimeoutMs(20000L);
 
@@ -233,17 +289,30 @@ public class MetaSink extends AbstractSink implements Configurable {
      *
      * @throws FlumeException if an RPC client connection could not be opened
      */
-    private void createConnection() throws FlumeException {
+    private void initCreateConnection() throws FlumeException {
 //        synchronized (tubeSessionLock) {
         // if already connected, just skip
-        if (sessionFactory != null) {
+        if (sessionFactories != null) {
             return;
         }
+        sessionFactories = new HashMap<>();
+        Preconditions.checkState(masterHostAndPortLists != null && !masterHostAndPortLists.isEmpty(),
+                "No tube service url specified");
+        for (String masterUrl : masterHostAndPortLists) {
+            createConnection(masterUrl);
+        }
 
+        if (sessionFactories.size() == 0) {
+            throw new FlumeException("create tube sessionFactories err, please re-check");
+        }
+    }
+
+    private TubeMultiSessionFactory createConnection(String masterHostAndPortList) {
+        TubeMultiSessionFactory sessionFactory;
         try {
-            TubeClientConfig conf = initTubeConfig();
-            //sessionFactory = new TubeMutilMessageSessionFactory(conf);
+            TubeClientConfig conf = initTubeConfig(masterHostAndPortList);
             sessionFactory = new TubeMultiSessionFactory(conf);
+            sessionFactories.put(masterHostAndPortList, sessionFactory);
         } catch (TubeClientException e) {
             logger.error("create connnection error in metasink, "
                     + "maybe tube master set error, please re-check. ex1 {}", e.getMessage());
@@ -256,51 +325,55 @@ public class MetaSink extends AbstractSink implements Configurable {
             throw new FlumeException("connect to meta error2, "
                     + "maybe tube master set error/shutdown in progress, please re-check");
         }
-
-        if (producerMap == null) {
-            producerMap = new HashMap<String, MessageProducer>();
-        }
-        logger.debug("building tube producer");
-//        }
+        return sessionFactory;
     }
 
     private void destroyConnection() {
-        for (Map.Entry<String, MessageProducer> entry : producerMap.entrySet()) {
-            MessageProducer producer = entry.getValue();
-            try {
-                producer.shutdown();
-            } catch (TubeClientException e) {
-                logger.error("destroy producer error in metasink, MetaClientException {}", e.getMessage());
-            } catch (Throwable e) {
-                logger.error("destroy producer error in metasink, ex {}", e.getMessage());
+        for (List<TopicProducerInfo> producerInfoList : producerInfoMap.values()) {
+            for (TopicProducerInfo producerInfo : producerInfoList) {
+                producerInfo.shutdown();
             }
         }
-        producerMap.clear();
+        producerInfoMap.clear();
 
-        if (sessionFactory != null) {
-            try {
-                sessionFactory.shutdown();
-            } catch (TubeClientException e) {
-                logger.error("destroy sessionFactory error in metasink, MetaClientException {}",
-                        e.getMessage());
-            } catch (Exception e) {
-                logger.error("destroy sessionFactory error in metasink, ex {}", e.getMessage());
+        if (sessionFactories != null) {
+            for (TubeMultiSessionFactory sessionFactory : sessionFactories.values()) {
+                try {
+                    sessionFactory.shutdown();
+                } catch (TubeClientException e) {
+                    logger.error("destroy sessionFactory error in metasink, MetaClientException {}",
+                            e.getMessage());
+                } catch (Exception e) {
+                    logger.error("destroy sessionFactory error in metasink, ex {}", e.getMessage());
+                }
             }
         }
-        sessionFactory = null;
+        sessionFactories.clear();
+        masterUrl2producers.clear();
         logger.debug("closed meta producer");
     }
 
-    private void initTopicSet(Set<String> topicSet) throws Exception {
+    /**
+     * partition topicSet to different group, each group is associated with a producer;
+     * if there are multi clusters, then each group is associated with a set of producer
+     *
+     * @param topicSet
+     * @return
+     */
+    private List<Set<String>> partitionTopicSet(Set<String> topicSet) {
+        List<Set<String>> topicGroups = new ArrayList<>();
+
         List<String> sortedList = new ArrayList(topicSet);
         Collections.sort(sortedList);
-        int cycle = sortedList.size() / MAX_TOPICS_EACH_PRODUCER_HOLD;
-        int remainder = sortedList.size() % MAX_TOPICS_EACH_PRODUCER_HOLD;
-        long startTime = System.currentTimeMillis();
+        int maxTopicsEachProducerHolder = tubeConfig.getMaxTopicsEachProducerHold();
+        int cycle = sortedList.size() / maxTopicsEachProducerHolder;
+        int remainder = sortedList.size() % maxTopicsEachProducerHolder;
+
         for (int i = 0; i <= cycle; i++) {
+            // allocate topic
             Set<String> subset = new HashSet<String>();
-            int startIndex = i * MAX_TOPICS_EACH_PRODUCER_HOLD;
-            int endIndex = startIndex + MAX_TOPICS_EACH_PRODUCER_HOLD - 1;
+            int startIndex = i * maxTopicsEachProducerHolder;
+            int endIndex = startIndex + maxTopicsEachProducerHolder - 1;
             if (i == cycle) {
                 if (remainder == 0) {
                     continue;
@@ -311,22 +384,49 @@ public class MetaSink extends AbstractSink implements Configurable {
             for (int index = startIndex; index <= endIndex; index++) {
                 subset.add(sortedList.get(index));
             }
-            producer = sessionFactory.createProducer();
-            try {
-                Set<String> succTopicSet = producer.publish(subset);
-                if (succTopicSet != null) {
-                    for (String succTopic : succTopicSet) {
-                        producerMap.put(succTopic, producer);
-                    }
-                    currentPublishTopicNum.set(succTopicSet.size());
-                    logger.info(getName() + " success Subset  : " + succTopicSet);
-                }
-            } catch (Exception e) {
-                logger.info(getName() + " meta sink initTopicSet fail.", e);
+
+            topicGroups.add(subset);
+        }
+        return topicGroups;
+    }
+
+    /**
+     * create producer and publish topic
+     *
+     * @param masterUrl
+     * @param sessionFactory
+     * @param topicGroup
+     */
+    private void createTopicProducers(String masterUrl, TubeMultiSessionFactory sessionFactory,
+                                      Set<String> topicGroup) {
+
+        TopicProducerInfo info = new TopicProducerInfo(sessionFactory);
+        info.initProducer();
+        Set<String> succTopicSet = info.publishTopic(topicGroup);
+
+        masterUrl2producers.computeIfAbsent(masterUrl, k -> new ArrayList<>()).add(info);
+
+        if (succTopicSet != null) {
+            for (String succTopic : succTopicSet) {
+                producerInfoMap.computeIfAbsent(succTopic, k -> new ArrayList<>()).add(info);
+
             }
         }
-        logger.info(getName() + " initTopicSet cost: " + (System.currentTimeMillis() - startTime) + "ms");
-        logger.info(getName() + " producer is ready for topics : " + producerMap.keySet());
+    }
+
+    private void initTopicSet(Set<String> topicSet) throws Exception {
+        long startTime = System.currentTimeMillis();
+
+        if (sessionFactories != null) {
+            List<Set<String>> topicGroups = partitionTopicSet(topicSet);
+            for (Set<String> subset : topicGroups) {
+                for (Map.Entry<String, TubeMultiSessionFactory> entry : sessionFactories.entrySet()) {
+                    createTopicProducers(entry.getKey(), entry.getValue(), subset);
+                }
+            }
+            logger.info(getName() + " producer is ready for topics : " + producerInfoMap.keySet());
+            logger.info(getName() + " initTopicSet cost: " + (System.currentTimeMillis() - startTime) + "ms");
+        }
     }
 
     @Override
@@ -337,10 +437,10 @@ public class MetaSink extends AbstractSink implements Configurable {
         //register metrics
         this.metricItemSet = new DataProxyMetricItemSet(this.getName());
         MetricRegister.register(metricItemSet);
-        
+
         //create tube connection
         try {
-            createConnection();
+            initCreateConnection();
         } catch (FlumeException e) {
             logger.error("Unable to create tube client" + ". Exception follows.", e);
 
@@ -376,8 +476,8 @@ public class MetaSink extends AbstractSink implements Configurable {
     }
 
     class SinkTask implements Runnable {
-        private void sendMessage(Event event, String topic, AtomicBoolean flag, EventStat es)
-            throws TubeClientException, InterruptedException {
+        private void sendMessage(MessageProducer producer, Event event, String topic, AtomicBoolean flag, EventStat es)
+                throws TubeClientException, InterruptedException {
             String clientId = event.getHeaders().get(ConfigConstants.SEQUENCE_ID);
             if (!isNewCache) {
                 Long lastTime = 0L;
@@ -523,7 +623,7 @@ public class MetaSink extends AbstractSink implements Configurable {
                     }
 
                     AtomicBoolean flagAtomic = new AtomicBoolean(decrementFlag);
-                    sendMessage(event, topic, flagAtomic, es);
+                    sendMessage(producer, event, topic, flagAtomic, es);
                     decrementFlag = flagAtomic.get();
 
                 } catch (InterruptedException e) {
@@ -571,7 +671,7 @@ public class MetaSink extends AbstractSink implements Configurable {
 
         /**
          * addMetric
-         * 
+         *
          * @param event
          * @param result
          * @param sendTime
@@ -714,6 +814,10 @@ public class MetaSink extends AbstractSink implements Configurable {
 
         configManager = ConfigManager.getInstance();
         topicProperties = configManager.getTopicProperties();
+        masterHostAndPortLists = configManager.getThirdPartyClusterUrl2Token().keySet();
+        Preconditions.checkState(masterHostAndPortLists != null || masterHostAndPortLists.isEmpty(),
+                "No master and port list specified");
+        tubeConfig = configManager.getThirdPartyClusterConfig();
         configManager.getTopicConfig().addUpdateCallback(new ConfigUpdateCallback() {
             @Override
             public void update() {
@@ -722,84 +826,52 @@ public class MetaSink extends AbstractSink implements Configurable {
                         new HashSet<String>(configManager.getTopicProperties().values()));
             }
         });
+        configManager.getThirdPartyClusterHolder().addUpdateCallback(new ConfigUpdateCallback() {
+            @Override
+            public void update() {
+                diffUpdateTubeClient(masterHostAndPortLists, configManager.getThirdPartyClusterUrl2Token().keySet());
+            }
+        });
 
-        masterHostAndPortList = context.getString(MASTER_HOST_PORT_LIST);
-        Preconditions.checkState(masterHostAndPortList != null, "No master and port list specified");
+        producerInfoMap = new ConcurrentHashMap<>();
+        masterUrl2producers = new ConcurrentHashMap<>();
 
-        producerMap = new HashMap<String, MessageProducer>();
-
-        logEveryNEvents = context.getInteger(LOG_EVERY_N_EVENTS, defaultLogEveryNEvents);
-        logger.debug(this.getName() + " " + LOG_EVERY_N_EVENTS + " " + logEveryNEvents);
-        Preconditions.checkArgument(logEveryNEvents > 0, "logEveryNEvents must be > 0");
-
-        sendTimeout = context.getInteger(SEND_TIMEOUT, defaultSendTimeout);
-        logger.debug(this.getName() + " " + SEND_TIMEOUT + " " + sendTimeout);
-        Preconditions.checkArgument(sendTimeout > 0, "sendTimeout must be > 0");
-
-        MAX_TOPICS_EACH_PRODUCER_HOLD = context.getInteger(MAX_TOPICS_EACH_PRODUCER_HOLD_NAME, 200);
-        retryCnt = context.getInteger(RETRY_CNT, defaultRetryCnt);
-        logger.debug(this.getName() + " " + RETRY_CNT + " " + retryCnt);
-
-        boolean isSlaMetricSink = context.getBoolean(SLA_METRIC_SINK, false);
-        if (isSlaMetricSink) {
+        if (tubeConfig.getEnableSlaMetricSink()) {
             this.metaTopicFilePath = slaTopicFilePath;
         }
 
-        clientIdCache = context.getBoolean(CLIENT_ID_CACHE, clientIdCache);
+        clientIdCache = tubeConfig.getClientIdCache();
         if (clientIdCache) {
-            int survivedTime = context.getInteger(MAX_SURVIVED_TIME, maxSurvivedTime);
+            int survivedTime = tubeConfig.getMaxSurvivedTime();
             if (survivedTime > 0) {
                 maxSurvivedTime = survivedTime;
             } else {
-                logger.warn("invalid {}:{}", MAX_SURVIVED_TIME, survivedTime);
+                logger.warn("invalid {}", survivedTime);
             }
 
-            int survivedSize = context.getInteger(MAX_SURVIVED_SIZE, maxSurvivedSize);
+            int survivedSize = tubeConfig.getMaxSurvivedSize();
             if (survivedSize > 0) {
                 maxSurvivedSize = survivedSize;
             } else {
-                logger.warn("invalid {}:{}", MAX_SURVIVED_SIZE, survivedSize);
+                logger.warn("invalid {}", survivedSize);
             }
         }
 
-        String requestTimeout = context.getString(TUBE_REQUEST_TIMEOUT);
-        if (requestTimeout != null) {
-            this.requestTimeout = Integer.parseInt(requestTimeout);
-        }
+        int badEventQueueSize = tubeConfig.getBadEventQueueSize();
+        Preconditions.checkArgument(badEventQueueSize > 0, "badEventQueueSize must be > 0");
+        resendQueue = new LinkedBlockingQueue<>(badEventQueueSize);
 
-        String sendRemoteStr = context.getString(SEND_REMOTE);
-        if (sendRemoteStr != null) {
-            sendRemote = Boolean.parseBoolean(sendRemoteStr);
-        }
-        if (sendRemote) {
-            proxyLogTopic = context.getString(LOG_TOPIC, proxyLogTopic);
-            proxyLogGroupId = context.getString(GROUPID, proxyLogStreamId);
-            proxyLogStreamId = context.getString(STREAMID, proxyLogStreamId);
-        }
-
-        resendQueue = new LinkedBlockingQueue<>(BAD_EVENT_QUEUE_SIZE);
-
-        String sinkThreadNum = context.getString(SINK_THREAD_NUM, "4");
-        threadNum = Integer.parseInt(sinkThreadNum);
+        int threadNum = tubeConfig.getThreadNum();
         Preconditions.checkArgument(threadNum > 0, "threadNum must be > 0");
         sinkThreadPool = new Thread[threadNum];
-        eventQueue = new LinkedBlockingQueue<Event>(EVENT_QUEUE_SIZE);
+        int eventQueueSize = tubeConfig.getEventQueueSize();
+        Preconditions.checkArgument(eventQueueSize > 0, "eventQueueSize must be > 0");
+        eventQueue = new LinkedBlockingQueue<Event>(eventQueueSize);
 
-        diskIORatePerSec = context.getLong(KEY_DISK_IO_RATE_PER_SEC, 0L);
-        if (diskIORatePerSec != 0) {
-            diskRateLimiter = RateLimiter.create(diskIORatePerSec);
+        if (tubeConfig.getDiskIoRatePerSec() != 0) {
+            diskRateLimiter = RateLimiter.create(tubeConfig.getDiskIoRatePerSec());
         }
 
-        linkMaxAllowedDelayedMsgCount = context.getLong(ConfigConstants.LINK_MAX_ALLOWED_DELAYED_MSG_COUNT,
-                80000L);
-        sessionWarnDelayedMsgCount = context.getLong(ConfigConstants.SESSION_WARN_DELAYED_MSG_COUNT,
-                2000000L);
-        sessionMaxAllowedDelayedMsgCount = context.getLong(ConfigConstants.SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT,
-                4000000L);
-        nettyWriteBufferHighWaterMark = context.getLong(ConfigConstants.NETTY_WRITE_BUFFER_HIGH_WATER_MARK,
-                15 * 1024 * 1024L);
-        recoverthreadcount = context.getInteger(ConfigConstants.RECOVER_THREAD_COUNT,
-                Runtime.getRuntime().availableProcessors() + 1);
     }
 
     private Map getNewDimension(String otherKey, String value) {
@@ -812,10 +884,63 @@ public class MetaSink extends AbstractSink implements Configurable {
 
     /**
      * get metricItemSet
+     *
      * @return the metricItemSet
      */
     public DataProxyMetricItemSet getMetricItemSet() {
         return metricItemSet;
     }
-    
+
+    class TopicProducerInfo {
+
+        private TubeMultiSessionFactory sessionFactory;
+        private MessageProducer producer;
+        private Set<String> topicSet;
+
+        public TopicProducerInfo(TubeMultiSessionFactory sessionFactory) {
+            this.sessionFactory = sessionFactory;
+        }
+
+        public void shutdown() {
+            if (producer != null) {
+                try {
+                    producer.shutdown();
+                } catch (TubeClientException e) {
+                    logger.error("destroy producer error in metasink, MetaClientException {}", e.getMessage());
+                } catch (Throwable e) {
+                    logger.error("destroy producer error in metasink, ex {}", e.getMessage());
+                }
+            }
+        }
+
+        public void initProducer() {
+            if (sessionFactory == null) {
+                logger.error("sessionFactory is null, can't create producer");
+                return;
+            }
+            try {
+                this.producer = sessionFactory.createProducer();
+            } catch (TubeClientException e) {
+                logger.error("create tube messageProducer error in metasink, ex {}", e.getMessage());
+            }
+        }
+
+        public Set<String> publishTopic(Set<String> topicSet) {
+            try {
+                this.topicSet = producer.publish(topicSet);
+            } catch (TubeClientException e) {
+                logger.info(getName() + " meta sink initTopicSet fail.", e);
+            }
+            return this.topicSet;
+        }
+
+        public MessageProducer getProducer() {
+            return producer;
+        }
+
+        public Set<String> getTopicSet() {
+            return this.topicSet;
+        }
+    }
+
 }

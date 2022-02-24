@@ -17,27 +17,35 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ProxyPulsarDTO {
+public class ThirdPartyClusterInfo {
+    private String url;
+    private String token;
+    private Map<String, String> params = new HashMap<>();
 
-    private List<PulsarClusterInfo> pulsarSet = new ArrayList<>();
-    private List<DataProxyConfig> topicList = new ArrayList<>();
-
-    public List<PulsarClusterInfo> getPulsarSet() {
-        return pulsarSet;
+    public String getUrl() {
+        return url;
     }
 
-    public void setPulsarSet(List<PulsarClusterInfo> pulsarSet) {
-        this.pulsarSet = pulsarSet;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
-    public List<DataProxyConfig> getTopicList() {
-        return topicList;
+    public String getToken() {
+        return token;
     }
 
-    public void setTopicList(List<DataProxyConfig> topicList) {
-        this.topicList = topicList;
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Map<String, String> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, String> params) {
+        this.params = params;
     }
 }

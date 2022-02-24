@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
-import org.apache.inlong.common.pojo.dataproxy.ProxyPulsarDTO;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
@@ -106,5 +106,5 @@ public interface DataProxyClusterService {
      * @param dataproxyClusterName
      * @return
      */
-    ProxyPulsarDTO getConfigV2(String dataproxyClusterName);
+    ThirdPartyClusterDTO getConfigV2(String dataproxyClusterName);
 }

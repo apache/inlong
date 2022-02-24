@@ -30,28 +30,13 @@ import org.apache.flume.event.EventBuilder;
 import org.apache.flume.lifecycle.LifecycleController;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.holder.PropertiesConfigHolder;
-import org.apache.inlong.dataproxy.config.holder.PulsarConfigHolder;
-import org.apache.inlong.dataproxy.config.pojo.PulsarConfig;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.testng.PowerMockTestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 
-import java.util.Map;
-
-import static org.mockito.Mockito.when;
-
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ConfigManager.class})
-@PowerMockIgnore({"javax.net.ssl.*", "javax.management.*"})
 public class TestPulsarSink extends PowerMockTestCase {
     private static final Logger logger = LoggerFactory
             .getLogger(TestPulsarSink.class);
@@ -63,8 +48,8 @@ public class TestPulsarSink extends PowerMockTestCase {
 
     private PulsarSink sink;
     private Channel channel;
-    private PulsarConfig pulsarConfig = new PulsarConfig();
-    private Map<String, String> url2token;
+//    private ThirdPartyClusterConfig pulsarConfig = new ThirdPartyClusterConfig();
+//    private Map<String, String> url2token;
 
     @Mock
     private static ConfigManager configManager;
@@ -72,16 +57,7 @@ public class TestPulsarSink extends PowerMockTestCase {
     public void setUp() {
         sink = new PulsarSink();
         channel = new MemoryChannel();
-        url2token = ConfigManager.getInstance().getPulsarUrl2Token();
-        pulsarConfig.setUrl2token(url2token);
-
-        configManager = PowerMockito.mock(ConfigManager.class);
-        PowerMockito.mockStatic(ConfigManager.class);
-        PowerMockito.when(ConfigManager.getInstance()).thenReturn(configManager);
-        when(configManager.getPulsarConfig()).thenReturn(pulsarConfig);
-        when(configManager.getTopicConfig()).thenReturn(new PropertiesConfigHolder("topics.properties"));
-        when(configManager.getPulsarCluster()).thenReturn(new PulsarConfigHolder("pulsar_config.properties"));
-
+//        url2token = ConfigManager.getInstance().getThirdPartyClusterUrl2Token();
         Context context = new Context();
         context.put("type", "org.apache.inlong.dataproxy.sink.PulsarSink");
         sink.setChannel(channel);
