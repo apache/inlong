@@ -31,7 +31,7 @@ import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.InlongGroupInfo.GroupState;
+import org.apache.inlong.manager.client.api.InlongGroupInfo.InlongGroupState;
 import org.apache.inlong.manager.client.api.auth.Authentication;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
@@ -324,7 +324,7 @@ public class InnerInlongManagerClient {
     public List<SinkListResponse> listHiveStorage(String groupId, String streamId) {
         final String path = HTTP_PATH + "/sink/list";
         String url = formatUrl(path);
-        url = String.format("%s&inlongGroupId=%s&dataStreamId=%s&storageType=HIVE", url, groupId, streamId);
+        url = String.format("%s&inlongGroupId=%s&inlongStreamId=%s&sinkType=HIVE", url, groupId, streamId);
         Request request = new Request.Builder().get()
                 .url(url)
                 .build();
@@ -434,11 +434,11 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public boolean operateInlongGroup(String groupId, GroupState status) {
+    public boolean operateInlongGroup(String groupId, InlongGroupState status) {
         String path = HTTP_PATH;
-        if (status == GroupState.SUSPEND) {
+        if (status == InlongGroupState.SUSPEND) {
             path += "/group/suspendProcess/";
-        } else if (status == GroupState.RESTART) {
+        } else if (status == InlongGroupState.RESTART) {
             path += "/group/restartProcess/";
         } else {
             throw new IllegalArgumentException(String.format("Unsupported state: %s", status));

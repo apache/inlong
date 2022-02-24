@@ -27,7 +27,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
-import org.apache.inlong.commons.config.metrics.MetricRegister;
+import org.apache.inlong.commons.metrics.metric.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.BufferQueueChannel;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;

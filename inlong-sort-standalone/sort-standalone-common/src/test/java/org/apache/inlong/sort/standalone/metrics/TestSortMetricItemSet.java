@@ -28,12 +28,12 @@ import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import org.apache.inlong.commons.config.metrics.MetricItem;
-import org.apache.inlong.commons.config.metrics.MetricItemMBean;
-import org.apache.inlong.commons.config.metrics.MetricItemSetMBean;
-import org.apache.inlong.commons.config.metrics.MetricRegister;
-import org.apache.inlong.commons.config.metrics.MetricUtils;
-import org.apache.inlong.commons.config.metrics.MetricValue;
+import org.apache.inlong.commons.metrics.metric.MetricItem;
+import org.apache.inlong.commons.metrics.metric.MetricItemMBean;
+import org.apache.inlong.commons.metrics.metric.MetricItemSetMBean;
+import org.apache.inlong.commons.metrics.metric.MetricRegister;
+import org.apache.inlong.commons.metrics.metric.MetricUtils;
+import org.apache.inlong.commons.metrics.metric.MetricValue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

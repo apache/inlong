@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
-import org.apache.inlong.commons.config.metrics.MetricRegister;
+import org.apache.inlong.commons.metrics.metric.MetricRegister;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.apache.inlong.dataproxy.config.holder.CacheClusterConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;

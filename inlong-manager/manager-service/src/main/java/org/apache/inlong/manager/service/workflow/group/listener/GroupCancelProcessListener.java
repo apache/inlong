@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.service.workflow.group.listener;
 
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -29,8 +30,6 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 /**
  * Event listener for new group access, the initiator cancels the approval
@@ -58,13 +57,13 @@ public class GroupCancelProcessListener implements ProcessEventListener {
         if (entity == null) {
             throw new WorkflowListenerException("inlong group not found with group id=" + groupId);
         }
-        if (!Objects.equals(EntityStatus.GROUP_WAIT_APPROVAL.getCode(), entity.getStatus())) {
+        if (!Objects.equals(GroupState.GROUP_WAIT_APPROVAL.getCode(), entity.getStatus())) {
             throw new WorkflowListenerException("current status was not allowed to cancel business");
         }
 
         // After canceling the approval, the status becomes [Waiting to submit]
         String username = context.getApplicant();
-        groupMapper.updateStatus(groupId, EntityStatus.GROUP_WAIT_SUBMIT.getCode(), username);
+        groupMapper.updateStatus(groupId, GroupState.GROUP_WAIT_SUBMIT.getCode(), username);
 
         return ListenerResult.success();
     }

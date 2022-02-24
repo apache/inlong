@@ -61,6 +61,7 @@ public class InLongTopicManagerImplTest {
         when(sortClientConfig.getSortTaskId()).thenReturn("test");
 
         queryConsumeConfig = PowerMockito.mock(QueryConsumeConfigImpl.class);
+        System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
 
     }
 

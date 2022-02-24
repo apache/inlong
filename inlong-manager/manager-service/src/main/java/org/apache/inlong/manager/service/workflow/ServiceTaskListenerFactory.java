@@ -28,8 +28,10 @@ import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeGroupTaskListen
 import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeTopicTaskListener;
 import org.apache.inlong.manager.service.thirdparty.mq.PulsarEventSelector;
 import org.apache.inlong.manager.service.thirdparty.mq.TubeEventSelector;
-import org.apache.inlong.manager.service.thirdparty.sort.PushHiveConfigTaskListener;
-import org.apache.inlong.manager.service.thirdparty.sort.ZkSortEventSelector;
+import org.apache.inlong.manager.service.thirdparty.sort.CreateSortConfigListener;
+import org.apache.inlong.manager.service.thirdparty.sort.PushSortConfigListener;
+import org.apache.inlong.manager.service.thirdparty.sort.ZkDisabledEventSelector;
+import org.apache.inlong.manager.service.thirdparty.sort.ZkEnabledEventSelector;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskListenerProvider;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -83,9 +85,14 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
 
     @Autowired
     @Setter
-    private PushHiveConfigTaskListener pushHiveConfigTaskListener;
+    private PushSortConfigListener pushSortConfigListener;
     @Autowired
-    private ZkSortEventSelector zkSortEventSelector;
+    private ZkEnabledEventSelector zkEnabledEventSelector;
+
+    @Autowired
+    private ZkDisabledEventSelector zkDisabledEventSelector;
+    @Autowired
+    private CreateSortConfigListener createSortConfigListener;
 
     @PostConstruct
     public void init() {
@@ -98,7 +105,8 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
         queueOperateListeners.put(createPulsarResourceTaskListener, new PulsarEventSelector());
         queueOperateListeners.put(createPulsarGroupTaskListener, new PulsarEventSelector());
         sortOperateListeners = new LinkedHashMap<>();
-        sortOperateListeners.put(pushHiveConfigTaskListener, zkSortEventSelector);
+        sortOperateListeners.put(pushSortConfigListener, zkEnabledEventSelector);
+        sortOperateListeners.put(createSortConfigListener, zkDisabledEventSelector);
     }
 
     public void clearListeners() {

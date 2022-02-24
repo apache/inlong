@@ -22,9 +22,7 @@ import java.util.List;
 public class MessageRecord {
 
     private final String msgKey;
-
     private final List<InLongMessage> msgs;
-
     private final String offset;
     private final long recTime;
 

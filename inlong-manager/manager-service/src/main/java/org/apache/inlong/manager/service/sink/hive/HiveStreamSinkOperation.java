@@ -31,7 +31,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.SinkeFieldResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkDTO;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
@@ -147,8 +147,8 @@ public class HiveStreamSinkOperation implements StreamSinkOperation {
 
         SinkResponse response = this.getFromEntity(entity, HiveSinkResponse::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(id);
-        List<SinkeFieldResponse> infos = CommonBeanUtils.copyListProperties(entities,
-                SinkeFieldResponse::new);
+        List<SinkFieldResponse> infos = CommonBeanUtils.copyListProperties(entities,
+                SinkFieldResponse::new);
         response.setFieldList(infos);
 
         return response;

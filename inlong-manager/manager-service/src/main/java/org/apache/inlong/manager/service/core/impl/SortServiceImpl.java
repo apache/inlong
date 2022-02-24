@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse;
+import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse;
 import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.SinkType;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.SortTaskConfig;
@@ -78,6 +79,11 @@ public class SortServiceImpl implements SortService {
         }
 
         return SortClusterConfigResponse.builder().tasks(taskConfigs).msg("success").build();
+    }
+
+    @Override
+    public SortSourceConfigResponse getSourceConfig(String clusterName, String sortTaskId, String md5) {
+        return null;
     }
 
     private SortTaskConfig getTaskConfig(SortClusterConfigEntity clusterConfig) {

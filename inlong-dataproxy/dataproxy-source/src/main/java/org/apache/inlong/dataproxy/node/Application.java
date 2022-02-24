@@ -54,7 +54,7 @@ import org.apache.flume.util.SSLUtil;
 import org.apache.inlong.commons.config.IDataProxyConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
-import org.apache.inlong.dataproxy.metrics.MetricObserver;
+import org.apache.inlong.commons.metrics.MetricObserver;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

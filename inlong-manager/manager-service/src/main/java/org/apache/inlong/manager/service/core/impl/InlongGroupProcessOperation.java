@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import com.google.common.collect.Sets;
+import java.util.List;
 import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
@@ -37,9 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * Operation related to inlong group process
@@ -64,11 +61,11 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult startProcess(String groupId, String operator) {
         LOGGER.info("begin to start approve process, groupId = {}, operator = {}", groupId, operator);
-        final EntityStatus nextStatus = EntityStatus.GROUP_WAIT_APPROVAL;
-        InlongGroupRequest groupInfo = validateGroup(groupId, EntityStatus.ALLOW_START_WORKFLOW_STATUS, nextStatus);
+        final GroupState nextState = GroupState.GROUP_WAIT_APPROVAL;
+        InlongGroupRequest groupInfo = validateGroup(groupId, nextState);
 
         // Modify inlong group status
-        groupInfo.setStatus(nextStatus.getCode());
+        groupInfo.setStatus(nextState.getCode());
         groupService.update(groupInfo, operator);
 
         // Initiate the approval process
@@ -84,12 +81,10 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult suspendProcess(String groupId, String operator) {
         LOGGER.info("begin to suspend process, groupId = {}, operator = {}", groupId, operator);
-        final EntityStatus nextEntityStatus = EntityStatus.GROUP_SUSPEND;
-        InlongGroupRequest groupInfo = validateGroup(groupId,
-                Sets.newHashSet(EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode()),
-                nextEntityStatus);
+        final GroupState nextState = GroupState.GROUP_SUSPEND;
+        InlongGroupRequest groupInfo = validateGroup(groupId, nextState);
 
-        groupInfo.setStatus(nextEntityStatus.getCode());
+        groupInfo.setStatus(nextState.getCode());
         groupService.update(groupInfo, operator);
         UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, OperateType.SUSPEND);
         return workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form);
@@ -102,10 +97,9 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult restartProcess(String groupId, String operator) {
         LOGGER.info("begin to restart process, groupId = {}, operator = {}", groupId, operator);
-        EntityStatus nextStatus = EntityStatus.GROUP_RESTART;
-        InlongGroupRequest groupInfo = validateGroup(groupId, Sets.newHashSet(EntityStatus.GROUP_SUSPEND.getCode()),
-                nextStatus);
-        groupInfo.setStatus(nextStatus.getCode());
+        GroupState nextState = GroupState.GROUP_RESTART;
+        InlongGroupRequest groupInfo = validateGroup(groupId, nextState);
+        groupInfo.setStatus(nextState.getCode());
         groupService.update(groupInfo, operator);
         UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, OperateType.RESTART);
         return workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form);
@@ -147,7 +141,7 @@ public class InlongGroupProcessOperation {
         return updateForm;
     }
 
-    private InlongGroupRequest validateGroup(String groupId, Set<Integer> allowedStatus, EntityStatus nextStatus) {
+    private InlongGroupRequest validateGroup(String groupId, GroupState nextState) {
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
 
         // Check whether the current status of the inlong group allows the process to be re-initiated
@@ -156,8 +150,9 @@ public class InlongGroupProcessOperation {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-        Preconditions.checkTrue(allowedStatus.contains(groupInfo.getStatus()),
-                String.format("current status was not allowed to %s workflow", nextStatus.getDescription()));
+        GroupState curState = GroupState.forCode(groupInfo.getStatus());
+        Preconditions.checkTrue(GroupState.isAllowedTransition(curState, nextState),
+                String.format("current status was not allowed to %s workflow", nextState.getDescription()));
         return groupInfo;
     }
 

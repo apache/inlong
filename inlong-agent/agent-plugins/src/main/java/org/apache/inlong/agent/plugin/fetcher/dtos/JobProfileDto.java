@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.fetcher.dtos;
 
+import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 
@@ -24,56 +25,36 @@ import com.google.gson.Gson;
 import lombok.Data;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.commons.dto.DataConfig;
+import org.apache.inlong.commons.enums.TaskTypeEnum;
 
 @Data
 public class JobProfileDto {
 
     private static final Gson GSON = new Gson();
+
     private Job job;
     private Proxy proxy;
 
     public static final String DEFAULT_TRIGGER = "org.apache.inlong.agent.plugin.trigger.DirectoryTrigger";
+
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
+
+    //filesource
     public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.TextFileSource";
-
-    @Data
-    public static class Dir {
-
-        private String path;
-        private String pattern;
-    }
-
-    @Data
-    public static class Running {
-
-        private String core;
-    }
-
-    @Data
-    public static class Thread {
-
-        private Running running;
-    }
+    //binlogsource
+    public static final String BINLOG_SOURCE = "org.apache.inlong.agent.plugin.sources.BinlogSource";
+    //kafkasource
+    public static final String KAFKA_SOURCE = "org.apache.inlong.agent.plugin.sources.KafkaSource";
 
     @Data
     public static class Job {
 
-        private Dir dir;
-        private String trigger;
-        private int id;
-        private Thread thread;
-        private String name;
-        private String source;
-        private String sink;
-        private String channel;
-        private String pattern;
-        private String op;
-        private String cycleUnit;
-        private String timeOffset;
-        private String deliveryTime;
-        private String addictiveString;
+        private FileJob fileJob;
+        private BinlogJob binlogJob;
+        private KafkaJob kafkaJob;
     }
 
     @Data
@@ -91,27 +72,91 @@ public class JobProfileDto {
         private Manager manager;
     }
 
-    private static Job getJob(DataConfig dataConfigs) {
-        Job job = new Job();
-        Dir dir = new Dir();
-        dir.setPattern(dataConfigs.getDataName());
-        job.setDir(dir);
-        job.setTrigger(DEFAULT_TRIGGER);
-        job.setChannel(DEFAULT_CHANNEL);
-        job.setName(MANAGER_JOB);
-        job.setSource(DEFAULT_SOURCE);
-        job.setSink(DEFAULT_DATAPROXY_SINK);
-        job.setId(dataConfigs.getTaskId());
-        job.setTimeOffset(dataConfigs.getTimeOffset());
-        job.setOp(dataConfigs.getOp());
-        job.setDeliveryTime(dataConfigs.getDeliveryTime());
-        if (!dataConfigs.getAdditionalAttr().isEmpty()) {
-            job.setAddictiveString(dataConfigs.getAdditionalAttr());
+    private static BinlogJob getBinlogJob(DataConfig dataConfigs) {
+
+        BinlogJob.BinlogJobTaskConfig binlogJobTaskConfig = new BinlogJob.BinlogJobTaskConfig();
+        Gson gson = new Gson();
+        binlogJobTaskConfig = gson.fromJson(dataConfigs.getTaskConfig(), BinlogJob.BinlogJobTaskConfig.class);
+        BinlogJob binlogJob = new BinlogJob();
+
+        binlogJob.setHostname(binlogJobTaskConfig.getHostname());
+        binlogJob.setPassword(binlogJobTaskConfig.getPassword());
+        binlogJob.setTimeZone(binlogJobTaskConfig.getTimeZone());
+        binlogJob.setSnapshotMode(binlogJobTaskConfig.getSnapshotMode());
+        binlogJob.setUser(binlogJobTaskConfig.getUser());
+        binlogJob.setStoreHistoryFilename(binlogJobTaskConfig.getStoreHistoryFilename());
+        binlogJob.setIntervalMs(binlogJobTaskConfig.getIntervalMs());
+        binlogJob.setSnapshotMode(binlogJobTaskConfig.getSnapshotMode());
+        binlogJob.setOffset(binlogJobTaskConfig.getOffset());
+
+        binlogJob.setChannel(DEFAULT_CHANNEL);
+        binlogJob.setName(MANAGER_JOB);
+        binlogJob.setSource(BINLOG_SOURCE);
+        binlogJob.setSink(DEFAULT_DATAPROXY_SINK);
+        binlogJob.setDeliveryTime(dataConfigs.getDeliveryTime());
+        binlogJob.setOp(dataConfigs.getOp());
+
+        return binlogJob;
+    }
+
+    private static FileJob getFileJob(DataConfig dataConfigs) {
+
+        FileJob fileJob = new FileJob();
+        fileJob.setTrigger(DEFAULT_TRIGGER);
+        fileJob.setChannel(DEFAULT_CHANNEL);
+        fileJob.setName(MANAGER_JOB);
+        fileJob.setSource(DEFAULT_SOURCE);
+        fileJob.setSink(DEFAULT_DATAPROXY_SINK);
+
+        FileJob.FileJobTaskConfig fileJobTaskConfig = new FileJob.FileJobTaskConfig();
+        Gson gson = new Gson();
+        fileJobTaskConfig = gson.fromJson(dataConfigs.getTaskConfig(), FileJob.FileJobTaskConfig.class);
+
+        FileJob.Dir dir = new FileJob.Dir();
+        dir.setPattern(fileJobTaskConfig.getDataName());
+        dir.setPath(fileJobTaskConfig.getPath());
+        fileJob.setDir(dir);
+
+        fileJob.setId(fileJobTaskConfig.getTaskId());
+        fileJob.setTimeOffset(fileJobTaskConfig.getTimeOffset());
+
+        if (!fileJobTaskConfig.getAdditionalAttr().isEmpty()) {
+            fileJob.setAddictiveString(fileJobTaskConfig.getAdditionalAttr());
         }
-        if (dataConfigs.getCycleUnit() != null) {
-            job.setCycleUnit(dataConfigs.getCycleUnit());
+        if (fileJobTaskConfig.getCycleUnit() != null) {
+            fileJob.setCycleUnit(fileJobTaskConfig.getCycleUnit());
         }
-        return job;
+        fileJob.setDeliveryTime(dataConfigs.getDeliveryTime());
+        fileJob.setOp(dataConfigs.getOp());
+
+        return fileJob;
+    }
+
+    private static KafkaJob getKafkaJob(DataConfig dataConfigs) {
+
+        KafkaJob.KafkaJobTaskConfig kafkaJobTaskConfig = new KafkaJob.KafkaJobTaskConfig();
+        Gson gson = new Gson();
+        kafkaJobTaskConfig = gson.fromJson(dataConfigs.getTaskConfig(), KafkaJob.KafkaJobTaskConfig.class);
+        KafkaJob kafkaJob = new KafkaJob();
+
+        kafkaJob.setTopic(kafkaJobTaskConfig.getTopic());
+        kafkaJob.setKeyDeserializer(kafkaJobTaskConfig.getValueDeserializer());
+        kafkaJob.setValueDeserializer(kafkaJobTaskConfig.getKeyDeserializer());
+        kafkaJob.setBootstrapServers(kafkaJobTaskConfig.getBootstrapServers());
+        kafkaJob.setGroupId(kafkaJobTaskConfig.getGroupId());
+        kafkaJob.setRecordSpeed(kafkaJobTaskConfig.getRecordSpeed());
+        kafkaJob.setByteSpeedLimit(kafkaJobTaskConfig.getByteSpeedLimit());
+        kafkaJob.setMinInterval(kafkaJobTaskConfig.getMinInterval());
+        kafkaJob.setOffset(kafkaJobTaskConfig.getOffset());
+
+        kafkaJob.setChannel(DEFAULT_CHANNEL);
+        kafkaJob.setName(MANAGER_JOB);
+        kafkaJob.setSource(KAFKA_SOURCE);
+        kafkaJob.setSink(DEFAULT_DATAPROXY_SINK);
+        kafkaJob.setDeliveryTime(dataConfigs.getDeliveryTime());
+        kafkaJob.setOp(dataConfigs.getOp());
+
+        return kafkaJob;
     }
 
     private static Proxy getProxy(DataConfig dataConfigs) {
@@ -130,11 +175,30 @@ public class JobProfileDto {
         if (!dataConfigs.isValid()) {
             throw new IllegalArgumentException("input dataConfig" + dataConfigs + "is invalid please check");
         }
+        TaskTypeEnum taskType = TaskTypeEnum.getTaskType(dataConfigs.getTaskType());
         JobProfileDto profileDto = new JobProfileDto();
         Proxy proxy = getProxy(dataConfigs);
-        Job job = getJob(dataConfigs);
         profileDto.setProxy(proxy);
-        profileDto.setJob(job);
+        Job job = new Job();
+        switch (requireNonNull(taskType)) {
+            case SQL:
+            case BINLOG:
+                BinlogJob binlogJob = getBinlogJob(dataConfigs);
+                job.setBinlogJob(binlogJob);
+                profileDto.setJob(job);
+                break;
+            case FILE:
+                FileJob fileJob = getFileJob(dataConfigs);
+                job.setFileJob(fileJob);
+                profileDto.setJob(job);
+                break;
+            case KAFKA:
+                KafkaJob kafkaJob = getKafkaJob(dataConfigs);
+                job.setKafkaJob(kafkaJob);
+                profileDto.setJob(job);
+                break;
+            default:
+        }
         return TriggerProfile.parseJsonStr(GSON.toJson(profileDto));
     }
 }

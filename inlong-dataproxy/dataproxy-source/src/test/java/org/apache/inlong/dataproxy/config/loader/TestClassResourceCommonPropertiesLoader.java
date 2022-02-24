@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Map;
 
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
-import org.apache.inlong.dataproxy.metrics.MetricListener;
+import org.apache.inlong.commons.metrics.MetricListener;
 import org.junit.Test;
 
 /**

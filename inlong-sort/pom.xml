@@ -249,10 +249,6 @@
                         <artifactId>xml-apis</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.hive</groupId>
-                        <artifactId>hive-service-rpc</artifactId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>org.apache.logging.log4j</groupId>
                         <artifactId>log4j-web</artifactId>
                     </exclusion>
