@@ -158,8 +158,8 @@ public class InLongPulsarFetcherImplTest {
             when(consumerBuilder.subscribe()).thenReturn(consumer);
             doNothing().when(consumer).close();
             boolean init = inLongTopicFetcher.init(pulsarClient);
-            Assert.assertTrue(init);
             inLongTopicFetcher.close();
+            Assert.assertTrue(init);
         } catch (Exception e) {
             e.printStackTrace();
         }
