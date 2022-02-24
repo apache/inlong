@@ -53,6 +53,8 @@ public class InLongPulsarFetcherImplTest {
 
     private ClientContext clientContext;
     private InLongTopic inLongTopic;
+    private SortClientConfig sortClientConfig;
+    private StatManager statManager;
 
     /**
      * setUp
@@ -74,8 +76,8 @@ public class InLongPulsarFetcherImplTest {
             e.printStackTrace();
         }
 
-        SortClientConfig sortClientConfig = PowerMockito.mock(SortClientConfig.class);
-        StatManager statManager = PowerMockito.mock(StatManager.class);
+        sortClientConfig = PowerMockito.mock(SortClientConfig.class);
+        statManager = PowerMockito.mock(StatManager.class);
 
         when(clientContext.getConfig()).thenReturn(sortClientConfig);
         when(clientContext.getStatManager()).thenReturn(statManager);

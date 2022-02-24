@@ -54,13 +54,16 @@ public class MessageDeserializerTest {
     private InLongTopic inLongTopic;
     private String testData;
     private MessageObjs messageObjs;
+    private SortClientConfig sortClientConfig;
+    private StatManager statManager;
+
 
     private void setUp() throws Exception {
         messageDeserializer = new MessageDeserializer();
         headers = new HashMap<>();
         context = PowerMockito.mock(ClientContext.class);
-        SortClientConfig sortClientConfig = PowerMockito.mock(SortClientConfig.class);
-        StatManager statManager = PowerMockito.mock(StatManager.class);
+        sortClientConfig = PowerMockito.mock(SortClientConfig.class);
+        statManager = PowerMockito.mock(StatManager.class);
         inLongTopic = new InLongTopic();
         inLongTopic.setTopic("testTopic");
 
