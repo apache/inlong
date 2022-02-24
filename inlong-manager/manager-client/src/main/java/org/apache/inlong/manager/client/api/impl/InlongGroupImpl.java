@@ -73,8 +73,7 @@ public class InlongGroupImpl implements InlongGroup {
 
     @Override
     public InlongStreamBuilder createStream(InlongStreamConf dataStreamConf) throws Exception {
-        return new DefaultInlongStreamBuilder(dataStreamConf, this.groupContext, this.managerClient) {
-        };
+        return new DefaultInlongStreamBuilder(dataStreamConf, this.groupContext, this.managerClient);
     }
 
     @Override
