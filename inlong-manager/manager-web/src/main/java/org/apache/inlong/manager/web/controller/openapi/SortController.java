@@ -45,7 +45,7 @@ public class SortController {
     }
 
     @GetMapping("/getSortSource")
-    @ApiOperation(value = "get sort sdk cnfig")
+    @ApiOperation(value = "get sort sdk config")
     public SortSourceConfigResponse getSortSourceConfig(
             @RequestParam String clusterName,
             @RequestParam String sortTaskId,
