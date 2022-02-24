@@ -298,7 +298,7 @@ CREATE TABLE `data_proxy_cluster`
     `port`        varchar(256)      DEFAULT '46801' COMMENT 'Access port number, multiple ports are separated by a comma',
     `is_backup`   tinyint(1)        DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
     `mq_set_name` varchar(128) NULL COMMENT 'MQ set name of this cluster',
-    `ext_props`   text              DEFAULT NULL COMMENT 'Extended properties',
+    `ext_params`   text              DEFAULT NULL COMMENT 'Extended properties',
     `in_charges`  varchar(512)      DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
     `status`      int(4)            DEFAULT '1' COMMENT 'Cluster status',
     `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
