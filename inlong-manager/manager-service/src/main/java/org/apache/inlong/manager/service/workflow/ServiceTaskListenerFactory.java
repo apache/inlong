@@ -20,6 +20,12 @@ package org.apache.inlong.manager.service.workflow;
 import com.google.common.collect.Lists;
 import lombok.Setter;
 import org.apache.commons.collections.MapUtils;
+import org.apache.inlong.manager.service.source.listener.SourceDeleteEventSelector;
+import org.apache.inlong.manager.service.source.listener.SourceDeleteListener;
+import org.apache.inlong.manager.service.source.listener.SourceRestartEventSelector;
+import org.apache.inlong.manager.service.source.listener.SourceRestartListener;
+import org.apache.inlong.manager.service.source.listener.SourceStopEventSelector;
+import org.apache.inlong.manager.service.source.listener.SourceStopListener;
 import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveTableEventSelector;
 import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveTableListener;
 import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarGroupTaskListener;
@@ -66,6 +72,18 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
 
     @Autowired
     @Setter
+    private SourceStopListener sourceStopListener;
+
+    @Autowired
+    @Setter
+    private SourceRestartListener sourceRestartListener;
+
+    @Autowired
+    @Setter
+    private SourceDeleteListener sourceDeleteListener;
+
+    @Autowired
+    @Setter
     private CreateTubeTopicTaskListener createTubeTopicTaskListener;
     @Autowired
     @Setter
@@ -97,6 +115,9 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
     @PostConstruct
     public void init() {
         sourceOperateListeners = new LinkedHashMap<>();
+        sourceOperateListeners.put(sourceStopListener, new SourceStopEventSelector());
+        sourceOperateListeners.put(sourceDeleteListener, new SourceDeleteEventSelector());
+        sourceOperateListeners.put(sourceRestartListener, new SourceRestartEventSelector());
         sinkOperateListeners = new LinkedHashMap<>();
         sinkOperateListeners.put(createHiveTableListener, createHiveTableEventSelector);
         queueOperateListeners = new LinkedHashMap<>();

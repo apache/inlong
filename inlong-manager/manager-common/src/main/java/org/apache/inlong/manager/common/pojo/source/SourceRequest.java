@@ -68,4 +68,6 @@ public class SourceRequest {
     @ApiModelProperty("Heartbeat of the source task")
     private String heartbeat;
 
+    @ApiModelProperty("Status")
+    private Integer status;
 }

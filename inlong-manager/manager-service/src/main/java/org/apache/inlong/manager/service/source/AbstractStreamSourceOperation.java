@@ -17,9 +17,12 @@
 
 package org.apache.inlong.manager.service.source;
 
+import java.util.Date;
+import javax.validation.constraints.NotNull;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -29,9 +32,6 @@ import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.validation.constraints.NotNull;
-import java.util.Date;
 
 public abstract class AbstractStreamSourceOperation implements StreamSourceOperation {
 
@@ -75,10 +75,18 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     public void updateOpt(SourceRequest request, String operator) {
         StreamSourceEntity entity = sourceMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
+        final SourceState curState = SourceState.forCode(entity.getStatus());
         // Setting updated parameters of stream source entity.
         setTargetEntity(request, entity);
-        entity.setPreviousStatus(entity.getStatus());
-        entity.setStatus(EntityStatus.GROUP_CONFIG_ING.getCode());
+        final SourceState nextState = SourceState.forCode(request.getStatus());
+        if (!SourceState.isAllowedTransition(curState, nextState)) {
+            String errMsg = String.format("Current state=%s of source=%s is not supported to transfer to %s",
+                    curState, entity, nextState);
+            LOGGER.error(errMsg);
+            throw new RuntimeException(errMsg);
+        }
+        entity.setPreviousStatus(curState.getCode());
+        entity.setStatus(nextState.getCode());
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
         sourceMapper.updateByPrimaryKeySelective(entity);
@@ -88,7 +96,7 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     @Override
     public Integer saveOpt(SourceRequest request, String operator) {
         StreamSourceEntity entity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        entity.setStatus(EntityStatus.SOURCE_NEW.getCode());
+        entity.setStatus(SourceState.SOURCE_ADD.getCode());
         entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
         entity.setCreator(operator);
         entity.setModifier(operator);

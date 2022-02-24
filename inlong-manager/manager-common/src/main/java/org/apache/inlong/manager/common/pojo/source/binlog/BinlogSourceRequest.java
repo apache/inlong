@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
@@ -35,6 +36,10 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ApiModel(value = "Request of the binlog source info")
 @JsonTypeDefine(value = Constant.SOURCE_DB_BINLOG)
 public class BinlogSourceRequest extends SourceRequest {
+
+    public BinlogSourceRequest(){
+        this.setSourceType(SourceType.DB_BINLOG.toString());
+    }
 
     @ApiModelProperty("Source database name")
     private String dbName;
@@ -50,24 +55,6 @@ public class BinlogSourceRequest extends SourceRequest {
 
     @ApiModelProperty(value = "Data separator, default is 0x01")
     private String dataSeparator = "0x01";
-
-    @ApiModelProperty(value = "Middleware type, such as: TUBE, PULSAR")
-    private String middlewareType;
-
-    @ApiModelProperty(value = "Topic of Tube")
-    private String tubeTopic;
-
-    @ApiModelProperty(value = "Cluster address of Tube")
-    private String tubeCluster;
-
-    @ApiModelProperty(value = "Namespace of Pulsar")
-    private String pulsarNamespace;
-
-    @ApiModelProperty(value = "Topic of Pulsar")
-    private String pulsarTopic;
-
-    @ApiModelProperty(value = "Cluster address of Pulsar")
-    private String pulsarCluster;
 
     @ApiModelProperty(value = "Whether to skip delete events in binlog, default: 1, that is skip")
     private Integer skipDelete;
