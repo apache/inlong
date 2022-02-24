@@ -47,13 +47,12 @@ public interface StreamSourceOperation {
     Integer saveOpt(SourceRequest request, String operator);
 
     /**
-     * Get source info by source type and source id.
+     * Get source info by source id.
      *
-     * @param sourceType Source type.
      * @param id Source id.
      * @return Source info.
      */
-    SourceResponse getById(String sourceType, Integer id);
+    SourceResponse getById(Integer id);
 
     /**
      * Get the target from the given entity.
