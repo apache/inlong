@@ -431,7 +431,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         String middlewareType = approveInfo.getMiddlewareType();
         Preconditions.checkNotNull(middlewareType, "Middleware type is empty");
 
-        // Update status to [GROUP_CONFIG_ING]
+        // Update status to [GROUP_APPROVE_PASSED]
         // If you need to change inlong group info after approve, just do in here
         this.updateStatus(groupId, GroupState.GROUP_APPROVE_PASSED.getCode(), operator);
 
