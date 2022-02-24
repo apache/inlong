@@ -20,7 +20,7 @@ package org.apache.inlong.agent.core.job;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constants.JobConstants;
+import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.core.task.Task;
 import org.apache.inlong.agent.plugin.Channel;
 import org.apache.inlong.agent.plugin.Reader;

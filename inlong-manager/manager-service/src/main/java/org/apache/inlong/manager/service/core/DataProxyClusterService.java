@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
-import org.apache.inlong.commons.pojo.dataproxy.ProxyPulsarDTO;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
@@ -36,7 +36,7 @@ public interface DataProxyClusterService {
      * Save DataProxy cluster information
      *
      * @param clusterInfo Cluster information
-     * @param operator    Current operator
+     * @param operator Current operator
      * @return ID after saving
      */
     Integer save(DataProxyClusterInfo clusterInfo, String operator);
@@ -61,7 +61,7 @@ public interface DataProxyClusterService {
      * Change DataProxy cluster information
      *
      * @param clusterInfo The information to be modified
-     * @param operator    Current operator
+     * @param operator Current operator
      * @return Whether succeed
      */
     Boolean update(DataProxyClusterInfo clusterInfo, String operator);
@@ -69,7 +69,7 @@ public interface DataProxyClusterService {
     /**
      * Delete DataProxy cluster information
      *
-     * @param id       Cluster ID to be deleted
+     * @param id Cluster ID to be deleted
      * @param operator Current operator
      * @return Whether succeed
      */
@@ -92,7 +92,7 @@ public interface DataProxyClusterService {
 
     /**
      * query data proxy config by cluster id
-     * 
+     *
      * @param clusterName
      * @param setName
      * @param md5
@@ -102,8 +102,9 @@ public interface DataProxyClusterService {
 
     /**
      * query data proxy config by cluster id, result includes pulsar cluster configs and topic etc
+     *
      * @param dataproxyClusterName
      * @return
      */
-    ProxyPulsarDTO getConfigV2(String dataproxyClusterName);
+    ThirdPartyClusterDTO getConfigV2(String dataproxyClusterName);
 }

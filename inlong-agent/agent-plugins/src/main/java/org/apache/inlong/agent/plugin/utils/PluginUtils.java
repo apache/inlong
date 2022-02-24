@@ -17,14 +17,14 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
-import static org.apache.inlong.agent.constants.CommonConstants.AGENT_COLON;
-import static org.apache.inlong.agent.constants.CommonConstants.AGENT_NIX_OS;
-import static org.apache.inlong.agent.constants.CommonConstants.AGENT_NUX_OS;
-import static org.apache.inlong.agent.constants.CommonConstants.AGENT_OS_NAME;
-import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_FILE_MAX_NUM;
-import static org.apache.inlong.agent.constants.CommonConstants.FILE_MAX_NUM;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_DIR_FILTER_PATTERN;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_RETRY_TIME;
+import static org.apache.inlong.agent.constant.CommonConstants.AGENT_COLON;
+import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NIX_OS;
+import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NUX_OS;
+import static org.apache.inlong.agent.constant.CommonConstants.AGENT_OS_NAME;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FILE_MAX_NUM;
+import static org.apache.inlong.agent.constant.CommonConstants.FILE_MAX_NUM;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_RETRY_TIME;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -39,7 +39,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.constants.JobConstants;
+import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.trigger.PathPattern;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.pulsar.client.api.CompressionType;

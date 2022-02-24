@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sdk.sort.metrics;
 
-import static org.apache.inlong.commons.metrics.metric.MetricItemMBean.DOMAIN_SEPARATOR;
-import static org.apache.inlong.commons.metrics.metric.MetricRegister.JMX_DOMAIN;
+import static org.apache.inlong.common.metric.MetricItemMBean.DOMAIN_SEPARATOR;
+import static org.apache.inlong.common.metric.MetricRegister.JMX_DOMAIN;
 
 import java.lang.management.ManagementFactory;
 import java.util.Map;

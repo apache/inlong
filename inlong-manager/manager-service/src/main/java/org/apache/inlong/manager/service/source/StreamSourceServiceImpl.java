@@ -30,7 +30,7 @@ import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceHeartbeatRequest;
+import org.apache.inlong.manager.common.pojo.source.SourceSnapshotRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
@@ -252,11 +252,11 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    public Boolean reportHeartbeat(SourceHeartbeatRequest request) {
-        if (request == null || request.getId() == null || request.getHeartbeat() == null) {
+    public Boolean reportSnapshot(SourceSnapshotRequest request) {
+        if (request == null || request.getId() == null || request.getSnapshot() == null) {
             return true;
         }
-        return sourceMapper.updateHeartbeat(request) > 0;
+        return sourceMapper.updateSnapshot(request) > 0;
     }
 
     private void checkParams(SourceRequest request) {

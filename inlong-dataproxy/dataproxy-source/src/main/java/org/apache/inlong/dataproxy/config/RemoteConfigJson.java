@@ -17,8 +17,8 @@
 
 package org.apache.inlong.dataproxy.config;
 
-import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
-import org.apache.inlong.commons.pojo.dataproxy.PulsarClusterInfo;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class RemoteConfigJson {
 
     private boolean result;
     private int errCode;
-    private List<PulsarClusterInfo> pulsarSet = new ArrayList<>();
+    private List<ThirdPartyClusterInfo> pulsarSet = new ArrayList<>();
     private List<DataProxyConfig> topicList = new ArrayList<>();
 
     public boolean isResult() {
@@ -38,7 +38,7 @@ public class RemoteConfigJson {
         return errCode;
     }
 
-    public List<PulsarClusterInfo> getPulsarSet() {
+    public List<ThirdPartyClusterInfo> getPulsarSet() {
         return pulsarSet;
     }
 

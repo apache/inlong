@@ -17,8 +17,8 @@
 
 package org.apache.inlong.agent.message;
 
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_KEY_GROUP_ID;
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_KEY_STREAM_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_STREAM_ID;
 
 import java.util.Map;
 import org.apache.inlong.agent.plugin.Message;

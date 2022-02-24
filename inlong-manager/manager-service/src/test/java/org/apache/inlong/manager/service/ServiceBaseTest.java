@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service;
 
 import org.apache.inlong.manager.test.BaseTest;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 

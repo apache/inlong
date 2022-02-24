@@ -17,8 +17,8 @@
 
 package org.apache.inlong.dataproxy.metrics.prometheus;
 
-import static org.apache.inlong.commons.metrics.metric.MetricItemMBean.DOMAIN_SEPARATOR;
-import static org.apache.inlong.commons.metrics.metric.MetricRegister.JMX_DOMAIN;
+import static org.apache.inlong.common.metric.MetricItemMBean.DOMAIN_SEPARATOR;
+import static org.apache.inlong.common.metric.MetricRegister.JMX_DOMAIN;
 import static org.apache.inlong.dataproxy.metrics.DataProxyMetricItem.M_NODE_DURATION;
 import static org.apache.inlong.dataproxy.metrics.DataProxyMetricItem.M_READ_FAIL_COUNT;
 import static org.apache.inlong.dataproxy.metrics.DataProxyMetricItem.M_READ_FAIL_SIZE;
@@ -46,12 +46,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.inlong.commons.metrics.metric.MetricValue;
+import org.apache.inlong.common.metric.MetricValue;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
-import org.apache.inlong.commons.metrics.MetricItemValue;
-import org.apache.inlong.commons.metrics.MetricListener;
+import org.apache.inlong.common.metric.MetricItemValue;
+import org.apache.inlong.common.metric.MetricListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

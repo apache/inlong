@@ -18,7 +18,7 @@
 package org.apache.inlong.sort.singletenant.flink.deserialization;
 
 import org.apache.flink.types.Row;
-import org.apache.inlong.commons.msg.InLongMsg;
+import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.singletenant.flink.SerializedRecord;

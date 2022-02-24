@@ -98,10 +98,10 @@
     </appenders>
 
     <loggers>
-        <logger name="org.apache.inlong.commons.monitor.MonitorIndexExt" level="info" additivity="false">
+        <logger name="org.apache.inlong.common.monitor.MonitorIndexExt" level="info" additivity="false">
             <appender-ref ref="MonitorFile"/>
         </logger>
-        <logger name="org.apache.inlong.commons.monitor.MonitorIndex" level="info" additivity="false">
+        <logger name="org.apache.inlong.common.monitor.MonitorIndex" level="info" additivity="false">
             <appender-ref ref="IndexFile"/>
         </logger>
         <root level="${output_log_level}">

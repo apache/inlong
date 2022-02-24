@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.inlong.commons.metrics.metric.MetricRegister;
-import org.apache.inlong.commons.metrics.metric.MetricUtils;
-import org.apache.inlong.commons.metrics.metric.MetricValue;
+import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.metric.MetricUtils;
+import org.apache.inlong.common.metric.MetricValue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

@@ -20,7 +20,7 @@ package org.apache.inlong.sort.standalone.sink.elasticsearch;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.flume.Transaction;
-import org.apache.inlong.commons.metrics.metric.MetricRegister;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.junit.Before;
 import org.junit.Test;
