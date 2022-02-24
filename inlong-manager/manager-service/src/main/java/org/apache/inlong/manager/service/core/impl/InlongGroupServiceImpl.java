@@ -276,13 +276,15 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
         }
         // Check whether the current state supports modification
-        GroupState curState = GroupState.forCode(entity.getStatus());
-        GroupState nextState = GroupState.forCode(groupInfo.getStatus());
-        if (!GroupState.isAllowedTransition(curState, nextState)) {
-            String errMsg = String.format("Current state=%s is not allowed to transfer to state=%s",
-                    curState, nextState);
-            LOGGER.error(errMsg);
-            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
+        if (groupInfo.getStatus() != null) {
+            GroupState curState = GroupState.forCode(entity.getStatus());
+            GroupState nextState = GroupState.forCode(groupInfo.getStatus());
+            if (!GroupState.isAllowedTransition(curState, nextState)) {
+                String errMsg = String.format("Current state=%s is not allowed to transfer to state=%s",
+                        curState, nextState);
+                LOGGER.error(errMsg);
+                throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
+            }
         }
     }
 
