@@ -87,6 +87,7 @@ import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_LOCAL_IP
 import static org.apache.inlong.agent.constant.FetcherConstants.VERSION;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_OP;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_RETRY_TIME;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
 import static org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter.getResultData;
 import static org.apache.inlong.agent.plugin.utils.PluginUtils.copyJobProfile;
 
@@ -274,7 +275,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
         for (DataConfig dataConfig : taskResult.getDataConfigs()) {
             TriggerProfile profile = TriggerProfile.getTriggerProfiles(dataConfig);
-            if (profile.hasKey(JobConstants.JOB_TRIGGER)) {
+            if (profile.hasKey(JOB_TRIGGER)) {
                 dealWithTdmTriggerProfile(profile);
             } else {
                 dealWithJobProfile(profile);
