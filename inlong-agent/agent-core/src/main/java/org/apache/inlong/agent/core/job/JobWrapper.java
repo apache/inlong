@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.core.job;
 
-import static org.apache.inlong.agent.constants.JobConstants.JOB_OFFSET_DELIMITER;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
 
 import java.util.ArrayList;
 import java.util.List;
