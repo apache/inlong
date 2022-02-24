@@ -21,9 +21,9 @@ import com.alibaba.fastjson.JSON;
 import com.tencentcloudapi.cls.producer.AsyncProducerClient;
 import com.tencentcloudapi.cls.producer.AsyncProducerConfig;
 import com.tencentcloudapi.cls.producer.errors.ProducerException;
+import com.tencentcloudapi.cls.producer.util.NetworkUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
-import org.apache.inlong.commons.util.NetworkUtils;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
@@ -156,7 +156,7 @@ public class ClsSinkContext extends SinkContext {
                 idConfig.getEndpoint(),
                 idConfig.getSecretId(),
                 idConfig.getSecretKey(),
-                NetworkUtils.getLocalIp());
+                NetworkUtils.getLocalMachineIP());
         // todo set other configs
         AsyncProducerClient client = new AsyncProducerClient(producerConfig);
         clientMap.put(uid, client);
