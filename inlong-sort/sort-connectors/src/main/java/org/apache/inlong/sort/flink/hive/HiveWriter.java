@@ -84,7 +84,7 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
         try {
             realUgi = UserGroupInformation.getLoginUser();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("Cannot access real resource user:{} error:{}", realUgi.getUserName(), e);
         }
         String proxyUser = hiveSinkInfo.getHadoopProxyUser();
         if (proxyUser != null && !proxyUser.isEmpty() && realUgi != null && !proxyUser.equals(realUgi.getUserName())) {
