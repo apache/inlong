@@ -32,56 +32,73 @@ import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.impl.ClientContextImpl;
 import org.apache.inlong.sdk.sort.stat.SortClientStateCounter;
 import org.apache.inlong.sdk.sort.stat.StatManager;
 import org.apache.inlong.sdk.sort.util.Utils;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.management.*")
 public class MessageDeserializerTest {
 
     private MessageDeserializer messageDeserializer;
     private Map<String, String> headers;
     private ClientContext context;
-    private SortClientConfig sortClientConfig;
-    private StatManager statManager;
-    private SortClientStateCounter sortClientStateCounter;
     private InLongTopic inLongTopic;
     private String testData;
     private MessageObjs messageObjs;
+    private SortClientConfig sortClientConfig;
+    private StatManager statManager;
 
-    /**
-     * setUp
-     */
-    @Before
-    public void setUp() throws Exception {
+    private void setUp() throws Exception {
+        System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
         messageDeserializer = new MessageDeserializer();
         headers = new HashMap<>();
-        context = PowerMockito.mock(ClientContext.class);
+        context = PowerMockito.mock(ClientContextImpl.class);
         sortClientConfig = PowerMockito.mock(SortClientConfig.class);
         statManager = PowerMockito.mock(StatManager.class);
+
         inLongTopic = new InLongTopic();
         inLongTopic.setTopic("testTopic");
-
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
+
         when(context.getConfig()).thenReturn(sortClientConfig);
         when(context.getStatManager()).thenReturn(statManager);
-        sortClientStateCounter = new SortClientStateCounter("sortTaskId", cacheZoneCluster.getClusterId(),
+        SortClientStateCounter sortClientStateCounter = new SortClientStateCounter("sortTaskId",
+                cacheZoneCluster.getClusterId(),
                 inLongTopic.getTopic(), 0);
         when(statManager.getStatistics(anyString(), anyString(), anyString())).thenReturn(sortClientStateCounter);
         when(sortClientConfig.getSortTaskId()).thenReturn("sortTaskId");
     }
 
     @Test
-    public void testDeserializeVersion0() {
+    public void testDeserialize() {
+        //1. setUp
+        try {
+            setUp();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //2. testDeserializeVersion0
+        testDeserializeVersion0();
+
+        //3. testDeserializeVersion1CompressionType0
+        testDeserializeVersion1CompressionType0();
+
+        //4. testDeserializeVersion1CompressionType1
+        testDeserializeVersion1CompressionType1();
+
+        //5. testDeserializeVersion1CompressionType2
+        testDeserializeVersion1CompressionType2();
+    }
+
+    private void testDeserializeVersion0() {
         try {
             // test version == 0
             headers.put("version", "0");
@@ -95,8 +112,7 @@ public class MessageDeserializerTest {
         }
     }
 
-    @Test
-    public void testDeserializeVersion1CompressionType0() {
+    private void testDeserializeVersion1CompressionType0() {
         try {
             // test version == 1
             prepareTestMessageObjs();
@@ -112,8 +128,7 @@ public class MessageDeserializerTest {
         }
     }
 
-    @Test
-    public void testDeserializeVersion1CompressionType1() {
+    private void testDeserializeVersion1CompressionType1() {
         try {
             // test version == 1
             prepareTestMessageObjs();
@@ -131,8 +146,7 @@ public class MessageDeserializerTest {
         }
     }
 
-    @Test
-    public void testDeserializeVersion1CompressionType2() {
+    private void testDeserializeVersion1CompressionType2() {
         try {
             // test version == 1
             prepareTestMessageObjs();

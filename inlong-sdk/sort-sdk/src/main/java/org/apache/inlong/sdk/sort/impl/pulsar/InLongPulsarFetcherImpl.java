@@ -200,7 +200,6 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
     public boolean close() {
         mainLock.writeLock().lock();
         try {
-            this.closed = true;
             try {
                 if (consumer != null) {
                     consumer.close();
@@ -211,10 +210,10 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
             } catch (PulsarClientException e) {
                 e.printStackTrace();
             }
-
             logger.info("closed {}", inLongTopic);
             return true;
         } finally {
+            this.closed = true;
             mainLock.writeLock().unlock();
         }
     }
@@ -329,6 +328,10 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                     if (hasPermit) {
                         context.releaseRequestPermit();
                     }
+                }
+
+                if (closed) {
+                    break;
                 }
             }
         }
