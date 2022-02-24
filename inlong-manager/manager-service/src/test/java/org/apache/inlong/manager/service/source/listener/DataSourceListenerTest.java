@@ -66,7 +66,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         InlongGroupRequest groupRequest = initGroupForm("PULSAR");
         groupRequest.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
         groupService.update(groupRequest, OPERATOR);
-        InlongStreamInfo streamInfo = createStreamInfo(groupRequest);
+        final InlongStreamInfo streamInfo = createStreamInfo(groupRequest);
         form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupRequest);
         form.setOperateType(OperateType.SUSPEND);
@@ -94,7 +94,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         groupService.update(groupRequest, OPERATOR);
         groupRequest.setStatus(GroupState.GROUP_SUSPEND.getCode());
         groupService.update(groupRequest, OPERATOR);
-        InlongStreamInfo streamInfo = createStreamInfo(groupRequest);
+        final InlongStreamInfo streamInfo = createStreamInfo(groupRequest);
         form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupRequest);
         form.setOperateType(OperateType.RESTART);
@@ -102,7 +102,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         int sourceId = streamSourceService.save(sourceRequest, OPERATOR);
         sourceRequest.setId(sourceId);
         sourceRequest.setStatus(SourceState.SOURCE_FROZEN.getCode());
-        streamSourceService.update(sourceRequest,OPERATOR);
+        streamSourceService.update(sourceRequest, OPERATOR);
         WorkflowContext context = workflowEngine.processService()
                 .start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
