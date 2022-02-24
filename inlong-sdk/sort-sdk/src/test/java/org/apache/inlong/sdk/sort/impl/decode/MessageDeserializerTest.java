@@ -56,8 +56,7 @@ public class MessageDeserializerTest {
     private MessageObjs messageObjs;
     private SortClientConfig sortClientConfig;
     private StatManager statManager;
-
-
+    
     private void setUp() throws Exception {
         messageDeserializer = new MessageDeserializer();
         headers = new HashMap<>();

@@ -57,11 +57,13 @@ public class InLongTopicManagerImplTest {
 
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
+
         try {
             clientContext = PowerMockito.mock(ClientContext.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         SortClientConfig sortClientConfig = PowerMockito.mock(SortClientConfig.class);
         when(clientContext.getConfig()).thenReturn(sortClientConfig);
         when(sortClientConfig.getSortTaskId()).thenReturn("test");
@@ -74,7 +76,6 @@ public class InLongTopicManagerImplTest {
 
         InLongTopicFetcher inLongTopicFetcher = inLongTopicManager.addFetcher(inLongTopic);
         Assert.assertNull(inLongTopicFetcher);
-
     }
 
     @Test
