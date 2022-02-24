@@ -55,7 +55,7 @@ public class JobProfileDto {
     private Proxy proxy;
 
     private static BinlogJob getBinlogJob(DataConfig dataConfigs) {
-        BinlogJob.BinlogJobTaskConfig binlogJobTaskConfig = GSON.fromJson(dataConfigs.getTaskConfig(),
+        BinlogJob.BinlogJobTaskConfig binlogJobTaskConfig = GSON.fromJson(dataConfigs.getExtParams(),
                 BinlogJob.BinlogJobTaskConfig.class);
 
         BinlogJob binlogJob = new BinlogJob();
@@ -87,7 +87,7 @@ public class JobProfileDto {
         fileJob.setSource(DEFAULT_SOURCE);
         fileJob.setSink(DEFAULT_DATAPROXY_SINK);
 
-        FileJob.FileJobTaskConfig fileJobTaskConfig = GSON.fromJson(dataConfigs.getTaskConfig(),
+        FileJob.FileJobTaskConfig fileJobTaskConfig = GSON.fromJson(dataConfigs.getExtParams(),
                 FileJob.FileJobTaskConfig.class);
 
         FileJob.Dir dir = new FileJob.Dir();
@@ -112,7 +112,7 @@ public class JobProfileDto {
 
     private static KafkaJob getKafkaJob(DataConfig dataConfigs) {
 
-        KafkaJob.KafkaJobTaskConfig kafkaJobTaskConfig = GSON.fromJson(dataConfigs.getTaskConfig(),
+        KafkaJob.KafkaJobTaskConfig kafkaJobTaskConfig = GSON.fromJson(dataConfigs.getExtParams(),
                 KafkaJob.KafkaJobTaskConfig.class);
         KafkaJob kafkaJob = new KafkaJob();
         kafkaJob.setTopic(kafkaJobTaskConfig.getTopic());
