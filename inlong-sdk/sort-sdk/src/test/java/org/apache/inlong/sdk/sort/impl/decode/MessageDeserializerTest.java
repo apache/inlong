@@ -32,6 +32,7 @@ import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.impl.ClientContextImpl;
 import org.apache.inlong.sdk.sort.stat.SortClientStateCounter;
 import org.apache.inlong.sdk.sort.stat.StatManager;
 import org.apache.inlong.sdk.sort.util.Utils;
@@ -39,12 +40,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.management.*")
 @PrepareForTest({ClientContext.class})
 public class MessageDeserializerTest {
 
@@ -58,16 +57,18 @@ public class MessageDeserializerTest {
     private StatManager statManager;
 
     private void setUp() throws Exception {
+        System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
         messageDeserializer = new MessageDeserializer();
         headers = new HashMap<>();
-        context = PowerMockito.mock(ClientContext.class);
+        context = PowerMockito.mock(ClientContextImpl.class);
         sortClientConfig = PowerMockito.mock(SortClientConfig.class);
         statManager = PowerMockito.mock(StatManager.class);
+
         inLongTopic = new InLongTopic();
         inLongTopic.setTopic("testTopic");
-
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
+
         when(context.getConfig()).thenReturn(sortClientConfig);
         when(context.getStatManager()).thenReturn(statManager);
         SortClientStateCounter sortClientStateCounter = new SortClientStateCounter("sortTaskId",
