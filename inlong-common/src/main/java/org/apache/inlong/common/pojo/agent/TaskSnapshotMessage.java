@@ -15,26 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source;
+package org.apache.inlong.common.pojo.agent;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
-
 /**
- * Request of the source heartbeat
+ * Snapshot message
  */
 @Data
-@ApiModel("Request of the source heartbeat")
-public class SourceSnapshotRequest {
+public class TaskSnapshotMessage {
 
-    @NotNull
-    @ApiModelProperty("Id of the source")
-    private Integer id;
+    /**
+     * The job id
+     */
+    private Integer jobId;
 
-    @ApiModelProperty("snapshot of this source task")
+    /**
+     * Snapshot of this source task
+     */
     private String snapshot;
 
 }

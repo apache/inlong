@@ -32,6 +32,7 @@
         <result column="cluster_id" jdbcType="INTEGER" property="clusterId"/>
         <result column="cluster_name" jdbcType="VARCHAR" property="clusterName"/>
         <result column="snapshot" jdbcType="LONGVARCHAR" property="snapshot"/>
+        <result column="report_time" jdbcType="TIMESTAMP" property="reportTime"/>
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
         <result column="previous_status" jdbcType="INTEGER" property="previousStatus"/>
@@ -55,8 +56,8 @@
     </resultMap>
     <sql id="Base_Column_List">
         id, inlong_group_id, inlong_stream_id, source_type, agent_ip, uuid, server_id, server_name,
-        cluster_id, cluster_name, snapshot, ext_params, status, previous_status, is_deleted,
-        creator, modifier, create_time, modify_time
+        cluster_id, cluster_name, snapshot, report_time, ext_params, status, previous_status,
+        is_deleted, creator, modifier, create_time, modify_time
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
@@ -64,15 +65,15 @@
         insert into stream_source (id, inlong_group_id, inlong_stream_id,
                                    source_type, agent_ip, uuid,
                                    server_id, server_name, cluster_id,
-                                   cluster_name, snapshot, ext_params,
-                                   status, previous_status,
+                                   cluster_name, snapshot, report_time,
+                                   ext_params, status, previous_status,
                                    is_deleted, creator, modifier,
                                    create_time, modify_time)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{sourceType,jdbcType=VARCHAR}, #{agentIp,jdbcType=VARCHAR}, #{uuid,jdbcType=VARCHAR},
                 #{serverId,jdbcType=INTEGER}, #{serverName,jdbcType=VARCHAR}, #{clusterId,jdbcType=INTEGER},
-                #{clusterName,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
-                #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER},
+                #{clusterName,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR}, #{modifyTime,jdbcType=TIMESTAMP},
+                #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER},
                 #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
                 #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
     </insert>
@@ -113,6 +114,12 @@
             <if test="snapshot != null">
                 snapshot,
             </if>
+            <if test="reportTime != null">
+                report_time,
+            </if>
+            <if test="extParams != null">
+                ext_params,
+            </if>
             <if test="status != null">
                 status,
             </if>
@@ -133,9 +140,6 @@
             </if>
             <if test="modifyTime != null">
                 modify_time,
-            </if>
-            <if test="extParams != null">
-                ext_params,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -171,6 +175,9 @@
             </if>
             <if test="snapshot != null">
                 #{snapshot,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="reportTime != null">
+                #{reportTime,jdbcType=TIMESTAMP},
             </if>
             <if test="extParams != null">
                 #{extParams,jdbcType=LONGVARCHAR},
@@ -316,6 +323,9 @@
             <if test="snapshot != null">
                 snapshot = #{snapshot,jdbcType=LONGVARCHAR},
             </if>
+            <if test="reportTime != null">
+                report_time = #{reportTime,jdbcType=TIMESTAMP},
+            </if>
             <if test="extParams != null">
                 ext_params = #{extParams,jdbcType=LONGVARCHAR},
             </if>
@@ -354,7 +364,8 @@
             server_name      = #{serverName,jdbcType=VARCHAR},
             cluster_id       = #{clusterId,jdbcType=INTEGER},
             cluster_name     = #{clusterName,jdbcType=VARCHAR},
-            snapshot        = #{snapshot,jdbcType=LONGVARCHAR},
+            snapshot         = #{snapshot,jdbcType=LONGVARCHAR},
+            report_time      = #{reportTime,jdbcType=TIMESTAMP},
             ext_params       = #{extParams,jdbcType=LONGVARCHAR},
             status           = #{status,jdbcType=INTEGER},
             previous_status  = #{previousStatus,jdbcType=INTEGER},
@@ -372,10 +383,10 @@
             modify_time     = now()
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateSnapshot" parameterType="org.apache.inlong.manager.common.pojo.source.SourceSnapshotRequest">
+    <update id="updateSnapshot" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         update stream_source
-        set snapshot   = #{snapshot,jdbcType=LONGVARCHAR},
-            modify_time = now()
+        set snapshot    = #{snapshot,jdbcType=LONGVARCHAR},
+            report_time = #{reportTime,jdbcType=TIMESTAMP}
         where id = #{id,jdbcType=INTEGER}
     </update>
 
@@ -385,20 +396,21 @@
         where id = #{id,jdbcType=INTEGER}
     </delete>
 
-    <select id="selectAgentTaskDataConfig" parameterType="org.apache.inlong.common.pojo.agent.TaskRequest" resultMap="DataConfig">
+    <select id="selectAgentTaskDataConfig" parameterType="org.apache.inlong.common.pojo.agent.TaskRequest"
+            resultMap="DataConfig">
         select
         detail.inlong_group_id,
         detail.inlong_stream_id,
         detail.modify_time,
         detail.uuid,
         detail.agent_ip,
-        detail.status mod 100                             as op,
+        detail.status mod 100 as op,
         detail.id,
         detail.source_type,
         detail.snapshot,
         detail.ext_params,
         from stream_source detail,
-        where  detail.is_deleted = 0
+        where detail.is_deleted = 0
         <if test="agentIp != null and agentIp != ''">
             and detail.agent_ip = #{agentIp, jdbcType=VARCHAR}
         </if>
