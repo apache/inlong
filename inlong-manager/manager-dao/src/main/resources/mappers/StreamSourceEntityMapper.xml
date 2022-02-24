@@ -31,7 +31,7 @@
         <result column="server_name" jdbcType="VARCHAR" property="serverName"/>
         <result column="cluster_id" jdbcType="INTEGER" property="clusterId"/>
         <result column="cluster_name" jdbcType="VARCHAR" property="clusterName"/>
-        <result column="heartbeat" jdbcType="LONGVARCHAR" property="heartbeat"/>
+        <result column="snapshot" jdbcType="LONGVARCHAR" property="snapshot"/>
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
         <result column="previous_status" jdbcType="INTEGER" property="previousStatus"/>
@@ -41,9 +41,21 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
+    <resultMap id="DataConfig" type="org.apache.inlong.common.pojo.agent.DataConfig">
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
+        <result column="modify_time" jdbcType="VARCHAR" property="deliveryTime"/>
+        <result column="uuid" jdbcType="VARCHAR" property="uuid"/>
+        <result column="agent_ip" jdbcType="VARCHAR" property="ip"/>
+        <result column="op" jdbcType="VARCHAR" property="op"/>
+        <result column="id" jdbcType="VARCHAR" property="taskId"/>
+        <result column="source_type" jdbcType="INTEGER" property="taskType"/>
+        <result column="snapshot" jdbcType="LONGVARCHAR" property="snapshot"/>
+        <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
+    </resultMap>
     <sql id="Base_Column_List">
         id, inlong_group_id, inlong_stream_id, source_type, agent_ip, uuid, server_id, server_name,
-        cluster_id, cluster_name, heartbeat, ext_params, status, previous_status, is_deleted,
+        cluster_id, cluster_name, snapshot, ext_params, status, previous_status, is_deleted,
         creator, modifier, create_time, modify_time
     </sql>
 
@@ -52,14 +64,14 @@
         insert into stream_source (id, inlong_group_id, inlong_stream_id,
                                    source_type, agent_ip, uuid,
                                    server_id, server_name, cluster_id,
-                                   cluster_name, heartbeat, ext_params,
+                                   cluster_name, snapshot, ext_params,
                                    status, previous_status,
                                    is_deleted, creator, modifier,
                                    create_time, modify_time)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{sourceType,jdbcType=VARCHAR}, #{agentIp,jdbcType=VARCHAR}, #{uuid,jdbcType=VARCHAR},
                 #{serverId,jdbcType=INTEGER}, #{serverName,jdbcType=VARCHAR}, #{clusterId,jdbcType=INTEGER},
-                #{clusterName,jdbcType=VARCHAR}, #{heartbeat,jdbcType=LONGVARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
+                #{clusterName,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
                 #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER},
                 #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
                 #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
@@ -98,8 +110,8 @@
             <if test="clusterName != null">
                 cluster_name,
             </if>
-            <if test="heartbeat != null">
-                heartbeat,
+            <if test="snapshot != null">
+                snapshot,
             </if>
             <if test="status != null">
                 status,
@@ -157,8 +169,8 @@
             <if test="clusterName != null">
                 #{clusterName,jdbcType=VARCHAR},
             </if>
-            <if test="heartbeat != null">
-                #{heartbeat,jdbcType=LONGVARCHAR},
+            <if test="snapshot != null">
+                #{snapshot,jdbcType=LONGVARCHAR},
             </if>
             <if test="extParams != null">
                 #{extParams,jdbcType=LONGVARCHAR},
@@ -301,8 +313,8 @@
             <if test="clusterName != null">
                 cluster_name = #{clusterName,jdbcType=VARCHAR},
             </if>
-            <if test="heartbeat != null">
-                heartbeat = #{heartbeat,jdbcType=LONGVARCHAR},
+            <if test="snapshot != null">
+                snapshot = #{snapshot,jdbcType=LONGVARCHAR},
             </if>
             <if test="extParams != null">
                 ext_params = #{extParams,jdbcType=LONGVARCHAR},
@@ -342,7 +354,7 @@
             server_name      = #{serverName,jdbcType=VARCHAR},
             cluster_id       = #{clusterId,jdbcType=INTEGER},
             cluster_name     = #{clusterName,jdbcType=VARCHAR},
-            heartbeat        = #{heartbeat,jdbcType=LONGVARCHAR},
+            snapshot        = #{snapshot,jdbcType=LONGVARCHAR},
             ext_params       = #{extParams,jdbcType=LONGVARCHAR},
             status           = #{status,jdbcType=INTEGER},
             previous_status  = #{previousStatus,jdbcType=INTEGER},
@@ -360,9 +372,9 @@
             modify_time     = now()
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateHeartbeat" parameterType="org.apache.inlong.manager.common.pojo.source.SourceHeartbeatRequest">
+    <update id="updateSnapshot" parameterType="org.apache.inlong.manager.common.pojo.source.SourceSnapshotRequest">
         update stream_source
-        set heartbeat   = #{heartbeat,jdbcType=LONGVARCHAR},
+        set snapshot   = #{snapshot,jdbcType=LONGVARCHAR},
             modify_time = now()
         where id = #{id,jdbcType=INTEGER}
     </update>
@@ -372,4 +384,28 @@
         from stream_source
         where id = #{id,jdbcType=INTEGER}
     </delete>
+
+    <select id="selectAgentTaskDataConfig" parameterType="org.apache.inlong.common.pojo.agent.TaskRequest" resultMap="DataConfig">
+        select
+        detail.inlong_group_id,
+        detail.inlong_stream_id,
+        detail.modify_time,
+        detail.uuid,
+        detail.agent_ip,
+        detail.status mod 100                             as op,
+        detail.id,
+        detail.source_type,
+        detail.snapshot,
+        detail.ext_params,
+        from stream_source detail,
+        where  detail.is_deleted = 0
+        <if test="agentIp != null and agentIp != ''">
+            and detail.agent_ip = #{agentIp, jdbcType=VARCHAR}
+        </if>
+        <if test="uuid != null and uuid != ''">
+            and detail.uuid = #{uuid, jdbcType=VARCHAR}
+        </if>
+        and (floor(detail.STATUS / 100) = 2)
+    </select>
+
 </mapper>

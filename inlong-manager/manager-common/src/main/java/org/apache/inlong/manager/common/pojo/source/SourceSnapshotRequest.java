@@ -28,13 +28,13 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @ApiModel("Request of the source heartbeat")
-public class SourceHeartbeatRequest {
+public class SourceSnapshotRequest {
 
     @NotNull
     @ApiModelProperty("Id of the source")
     private Integer id;
 
-    @ApiModelProperty("Heartbeat of this source task")
-    private String heartbeat;
+    @ApiModelProperty("snapshot of this source task")
+    private String snapshot;
 
 }
