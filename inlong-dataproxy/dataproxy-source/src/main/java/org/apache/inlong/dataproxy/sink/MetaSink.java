@@ -39,7 +39,7 @@ import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
 import org.apache.flume.source.shaded.guava.RateLimiter;
-import org.apache.inlong.common.config.metrics.MetricRegister;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
@@ -664,21 +664,27 @@ public class MetaSink extends AbstractSink implements Configurable {
                 if (diskRateLimiter != null) {
                     diskRateLimiter.acquire(event.getBody().length);
                 }
+                Map<String, String> dimensions;
+                if (event.getHeaders().containsKey(TOPIC)) {
+                    dimensions = getNewDimension(DataProxyMetricItem.KEY_SINK_DATA_ID,
+                            event.getHeaders().get(TOPIC));
+                } else {
+                    dimensions = getNewDimension(DataProxyMetricItem.KEY_SINK_DATA_ID,
+                            "");
+                }
                 if (!eventQueue.offer(event, 3 * 1000, TimeUnit.MILLISECONDS)) {
                     logger.info("[{}] Channel --> Queue(has no enough space,current code point) "
                             + "--> Tube,Check if Tube server or network is ok.(if this situation last long time "
                             + "it will cause memoryChannel full and fileChannel write.)", getName());
                     tx.rollback();
-                } else {
-                    tx.commit();
                     // metric
-                    if (event.getHeaders().containsKey(TOPIC)) {
-                        dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, event.getHeaders().get(TOPIC));
-                    } else {
-                        dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, "");
-                    }
                     DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
                     metricItem.readFailCount.incrementAndGet();
+                    metricItem.readFailSize.addAndGet(event.getBody().length);
+                } else {
+                    tx.commit();
+                    DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
+                    metricItem.readSuccessCount.incrementAndGet();
                     metricItem.readFailSize.addAndGet(event.getBody().length);
                 }
             } else {
@@ -794,6 +800,14 @@ public class MetaSink extends AbstractSink implements Configurable {
                 15 * 1024 * 1024L);
         recoverthreadcount = context.getInteger(ConfigConstants.RECOVER_THREAD_COUNT,
                 Runtime.getRuntime().availableProcessors() + 1);
+    }
+
+    private Map getNewDimension(String otherKey, String value) {
+        Map dimensions = new HashMap<>();
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
+        dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());
+        dimensions.put(otherKey, value);
+        return dimensions;
     }
 
     /**

@@ -17,8 +17,8 @@
 
 package org.apache.inlong.dataproxy.metrics;
 
-import org.apache.inlong.common.config.metrics.MetricDomain;
-import org.apache.inlong.common.config.metrics.MetricItemSet;
+import org.apache.inlong.common.metric.MetricDomain;
+import org.apache.inlong.common.metric.MetricItemSet;
 
 /**
  * 

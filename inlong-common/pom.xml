@@ -30,10 +30,14 @@
     <name>Apache InLong - Common</name>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <snappy-java.version>1.1.8.4</snappy-java.version>
         <jackson.version>2.13.1</jackson.version>
         <slf4j-api.version>1.7.36</slf4j-api.version>
         <sleepycat.version>7.3.7</sleepycat.version>
+        <simpleclient_httpserver.version>0.14.1</simpleclient_httpserver.version>
+        <common.lang.version>2.4</common.lang.version>
+        <commons-lang3.version>3.3.2</commons-lang3.version>
     </properties>
 
     <dependencies>
@@ -68,7 +72,25 @@
         <dependency>
             <groupId>com.sleepycat</groupId>
             <artifactId>je</artifactId>
-            <version>${sleepycat.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>${common.lang.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient_httpserver</artifactId>
+            <version>${simpleclient_httpserver.version}</version>
         </dependency>
     </dependencies>
 

@@ -18,7 +18,7 @@
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
 import org.apache.flume.Context;
-import org.apache.inlong.common.config.metrics.MetricRegister;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItemSet;

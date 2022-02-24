@@ -19,7 +19,7 @@ package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.inlong.common.config.metrics.MetricRegister;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.elasticsearch.action.DocWriteRequest.OpType;
 import org.elasticsearch.action.bulk.BulkItemResponse;
