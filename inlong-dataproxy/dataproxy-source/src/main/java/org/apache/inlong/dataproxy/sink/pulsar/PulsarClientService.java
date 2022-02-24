@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
-import org.apache.inlong.commons.monitor.LogCounter;
+import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.PulsarConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;

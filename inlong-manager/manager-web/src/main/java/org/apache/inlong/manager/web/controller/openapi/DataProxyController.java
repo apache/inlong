@@ -19,11 +19,11 @@ package org.apache.inlong.manager.web.controller.openapi;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.commons.pojo.dataproxy.ProxyPulsarDTO;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.common.pojo.dataproxy.ProxyPulsarDTO;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
-import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -70,7 +70,7 @@ public class DataProxyController {
     @GetMapping("/getAllConfig")
     @ApiOperation(value = "get data proxy config")
     public String getAllConfig(@RequestParam("clusterName") String clusterName, @RequestParam("setName") String setName,
-                               @RequestParam("md5") String md5) {
+            @RequestParam("md5") String md5) {
         return dataProxyClusterService.getAllConfig(clusterName, setName, md5);
     }
 }

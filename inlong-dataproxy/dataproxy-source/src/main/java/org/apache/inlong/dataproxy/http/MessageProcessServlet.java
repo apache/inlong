@@ -24,7 +24,7 @@ import static org.apache.inlong.dataproxy.http.HttpSourceConstants.BODY;
 import static org.apache.inlong.dataproxy.http.HttpSourceConstants.HTTP_REQUEST;
 import static org.apache.inlong.dataproxy.http.HttpSourceConstants.HTTP_RESPONSE;
 
-import org.apache.inlong.commons.monitor.LogCounter;
+import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.dataproxy.http.exception.MessageProcessException;
 
 import java.io.IOException;

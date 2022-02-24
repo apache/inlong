@@ -39,7 +39,7 @@ public enum GroupState {
 
     private static final Map<GroupState, Set<GroupState>> GROUP_FINITE_STATE_AUTOMATON = Maps.newHashMap();
 
-    /**
+    /*
      * Init group finite state machine
      */
     static {

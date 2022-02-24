@@ -35,7 +35,7 @@ import org.apache.flume.interceptor.Interceptor;
 import org.apache.flume.interceptor.InterceptorBuilderFactory;
 import org.apache.flume.interceptor.InterceptorChain;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.commons.monitor.LogCounter;
+import org.apache.inlong.common.monitor.LogCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
