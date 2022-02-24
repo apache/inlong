@@ -34,19 +34,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 @RunWith(PowerMockRunner.class)
+@PrepareForTest({ClientContext.class})
 public class InLongTopicManagerImplTest {
 
     private InLongTopic inLongTopic;
     private ClientContext clientContext;
-    private SortClientConfig sortClientConfig;
     private QueryConsumeConfig queryConsumeConfig;
 
     @Before
     public void setUp() throws Exception {
+        System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
+
         inLongTopic = new InLongTopic();
         inLongTopic.setTopic("testTopic");
         inLongTopic.setPartitionId(0);
@@ -54,15 +57,15 @@ public class InLongTopicManagerImplTest {
 
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
-        clientContext = PowerMockito.mock(ClientContext.class);
-        sortClientConfig = PowerMockito.mock(SortClientConfig.class);
-
+        try {
+            clientContext = PowerMockito.mock(ClientContext.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        SortClientConfig sortClientConfig = PowerMockito.mock(SortClientConfig.class);
         when(clientContext.getConfig()).thenReturn(sortClientConfig);
         when(sortClientConfig.getSortTaskId()).thenReturn("test");
-
         queryConsumeConfig = PowerMockito.mock(QueryConsumeConfigImpl.class);
-        System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
-
     }
 
     @Test

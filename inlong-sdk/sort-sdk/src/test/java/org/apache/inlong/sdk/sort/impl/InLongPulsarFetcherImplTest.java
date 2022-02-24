@@ -42,24 +42,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 @PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)
+@PrepareForTest({ClientContext.class})
 public class InLongPulsarFetcherImplTest {
 
     private ClientContext clientContext;
-    private SortClientConfig sortClientConfig;
     private InLongTopic inLongTopic;
-    private StatManager statManager;
-    private SortClientStateCounter sortClientStateCounter;
 
     /**
      * setUp
      */
     @Before
     public void setUp() throws Exception {
+        System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
+
         inLongTopic = new InLongTopic();
         inLongTopic.setTopic("testTopic");
         inLongTopic.setPartitionId(0);
@@ -67,17 +68,23 @@ public class InLongPulsarFetcherImplTest {
 
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
-        clientContext = PowerMockito.mock(ClientContext.class);
-        sortClientConfig = PowerMockito.mock(SortClientConfig.class);
-        statManager = PowerMockito.mock(StatManager.class);
+        try {
+            clientContext = PowerMockito.mock(ClientContext.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        SortClientConfig sortClientConfig = PowerMockito.mock(SortClientConfig.class);
+        StatManager statManager = PowerMockito.mock(StatManager.class);
 
         when(clientContext.getConfig()).thenReturn(sortClientConfig);
         when(clientContext.getStatManager()).thenReturn(statManager);
-        sortClientStateCounter = new SortClientStateCounter("sortTaskId", cacheZoneCluster.getClusterId(),
+        SortClientStateCounter sortClientStateCounter = new SortClientStateCounter("sortTaskId",
+                cacheZoneCluster.getClusterId(),
                 inLongTopic.getTopic(), 0);
         when(statManager.getStatistics(anyString(), anyString(), anyString())).thenReturn(sortClientStateCounter);
         when(sortClientConfig.getSortTaskId()).thenReturn("sortTaskId");
-        System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
+
     }
 
     @Test
