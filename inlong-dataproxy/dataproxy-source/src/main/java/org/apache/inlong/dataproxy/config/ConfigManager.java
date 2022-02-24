@@ -27,13 +27,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
-import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterInfo;
 import org.apache.inlong.dataproxy.config.holder.FileConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.GroupIdPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.MxPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.PropertiesConfigHolder;
-import org.apache.inlong.dataproxy.config.holder.PulsarConfigHolder;
-import org.apache.inlong.dataproxy.config.pojo.PulsarConfig;
+import org.apache.inlong.dataproxy.config.holder.ThirdPartyClusterConfigHolder;
+import org.apache.inlong.dataproxy.config.pojo.ThirdPartyClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +56,8 @@ public class ConfigManager {
             new PropertiesConfigHolder("common.properties");
     private final PropertiesConfigHolder topicConfig =
             new PropertiesConfigHolder("topics.properties");
-    private final PulsarConfigHolder pulsarUrl2token =
-            new PulsarConfigHolder("pulsar_config.properties");
+    private final ThirdPartyClusterConfigHolder thirdPartyClusterConfigHolder =
+            new ThirdPartyClusterConfigHolder("third_party_cluster.properties");
     private final MxPropertiesHolder mxConfig = new MxPropertiesHolder("mx.properties");
     private final GroupIdPropertiesHolder groupIdConfig =
             new GroupIdPropertiesHolder("groupid_mapping.properties");
@@ -71,8 +71,6 @@ public class ConfigManager {
             new PropertiesConfigHolder("weight.properties");
     private final FileConfigHolder blackListConfig =
             new FileConfigHolder("blacklist.properties");
-
-    private final PulsarConfig pulsarConfig = new PulsarConfig();
 
     /**
      * get instance for manager
@@ -145,12 +143,8 @@ public class ConfigManager {
         return updatePropertiesHolder(result, topicConfig, false);
     }
 
-    public boolean addPulsarProperties(Map<String, String> result) {
-        return updatePropertiesHolder(result, pulsarUrl2token, true);
-    }
-
-    public boolean deletePulsarProperties(Map<String, String> result) {
-        return updatePropertiesHolder(result, pulsarUrl2token, false);
+    public boolean updateThirdPartyClusterProperties(Map<String, String> result) {
+        return updatePropertiesHolder(result, thirdPartyClusterConfigHolder, true);
     }
 
     public Map<String, String> getMxProperties() {
@@ -201,16 +195,16 @@ public class ConfigManager {
         return topicConfig;
     }
 
-    public PulsarConfigHolder getPulsarCluster() {
-        return pulsarUrl2token;
+    public ThirdPartyClusterConfigHolder getThirdPartyClusterHolder() {
+        return thirdPartyClusterConfigHolder;
     }
 
-    public PulsarConfig getPulsarConfig() {
-        return pulsarConfig;
+    public ThirdPartyClusterConfig getThirdPartyClusterConfig() {
+        return thirdPartyClusterConfigHolder.getClusterConfig();
     }
 
-    public Map<String, String> getPulsarUrl2Token() {
-        return pulsarUrl2token.getValueMaps();
+    public Map<String, String> getThirdPartyClusterUrl2Token() {
+        return thirdPartyClusterConfigHolder.getUrl2token();
     }
 
     /**
@@ -291,19 +285,25 @@ public class ConfigManager {
                 RemoteConfigJson configJson = gson.fromJson(returnStr, RemoteConfigJson.class);
                 Map<String, String> groupIdToTopic = new HashMap<String, String>();
                 Map<String, String> groupIdToMValue = new HashMap<String, String>();
-                Map<String, String> pulsarUrlToToken = new HashMap<>();
+                Map<String, String> mqConfig = new HashMap<>();// include url2token and other params
 
                 if (configJson.getErrCode() == 0) {
-                    // get pulsar <->token maps; store format: pulsar.index1=pulsar1url=pulsar1token
+                    /*
+                     * get mqUrls <->token maps;
+                     * if mq is pulsar, store format: third-party-cluster.index1=cluster1url1,cluster1url2=token
+                     * if mq is tubemq, token is "", store format: third-party-cluster.index1=cluster1url1,cluster1url2=
+                     */
                     int index = 1;
-                    List<PulsarClusterInfo> pulsarSet = configJson.getPulsarSet();
-                    for (PulsarClusterInfo pulsarCluster : pulsarSet) {
-                        String key = "pulsar.index" + index;
-                        String value = pulsarCluster.getUrl() + AttributeConstants.KEY_VALUE_SEPARATOR
-                                + pulsarCluster.getToken();
-                        pulsarUrlToToken.put(key, value);
+                    List<ThirdPartyClusterInfo> clusterSet = configJson.getPulsarSet();
+                    for (ThirdPartyClusterInfo mqCluster : clusterSet) {
+                        String key = ThirdPartyClusterConfigHolder.URL_STORE_PREFIX + index;
+                        String value = mqCluster.getUrl() + AttributeConstants.KEY_VALUE_SEPARATOR
+                                + mqCluster.getToken();
+                        mqConfig.put(key, value);
                         ++index;
                     }
+                    // mq other params
+                    mqConfig.putAll(clusterSet.get(0).getParams());
 
                     for (DataProxyConfig topic : configJson.getTopicList()) {
                         groupIdToMValue.put(topic.getInlongGroupId(), topic.getM());
@@ -311,11 +311,12 @@ public class ConfigManager {
                     }
                     configManager.addMxProperties(groupIdToMValue);
                     configManager.addTopicProperties(groupIdToTopic);
-                    configManager.addPulsarProperties(pulsarUrlToToken);
+                    configManager.updateThirdPartyClusterProperties(mqConfig);
 
-                    // store pulsarcluster common configs and url2token
-                    configManager.getPulsarConfig().putAll(pulsarSet.get(0).getParams());
-                    configManager.getPulsarConfig().setUrl2token(configManager.getPulsarCluster().getValueMaps());
+                    // store mq common configs and url2token
+                    configManager.getThirdPartyClusterConfig().putAll(clusterSet.get(0).getParams());
+                    configManager.getThirdPartyClusterHolder()
+                            .setUrl2token(configManager.getThirdPartyClusterHolder().getUrl2token());
                 }
             } catch (Exception ex) {
                 LOG.error("exception caught", ex);

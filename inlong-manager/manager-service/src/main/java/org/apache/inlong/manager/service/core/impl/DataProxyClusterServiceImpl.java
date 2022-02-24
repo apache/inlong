@@ -24,8 +24,8 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
-import org.apache.inlong.common.pojo.dataproxy.ProxyPulsarDTO;
-import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
@@ -39,14 +39,14 @@ import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
 import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
+import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterEntityMapper;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
-import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
 import org.apache.inlong.manager.dao.mapper.DataProxyClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
-import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterEntityMapper;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.slf4j.Logger;
@@ -231,12 +231,12 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     }
 
     /**
-     * query data proxy config by cluster id, result includes pulsar cluster configs and topic etc
+     * query data proxy config by cluster name, result includes pulsar/tube cluster configs and topic etc
      */
     @Override
-    public ProxyPulsarDTO getConfigV2(String dataproxyClusterName) {
-        ProxyPulsarDTO object = new ProxyPulsarDTO();
-        List<PulsarClusterInfo> pulsarSet = new ArrayList<>();
+    public ThirdPartyClusterDTO getConfigV2(String dataproxyClusterName) {
+
+        List<ThirdPartyClusterInfo> mqSet = new ArrayList<>();
         List<DataProxyConfig> topicList = new ArrayList<>();
 
         DataProxyClusterEntity dataProxyClusterEntity = dataProxyClusterMapper.selectByName(dataproxyClusterName);
@@ -244,36 +244,49 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         ClusterRequest request = ClusterRequest.builder().mqSetName(dataProxyClusterEntity.getMqSetName()).build();
         List<ThirdPartyClusterEntity> clusterInfoEntities = thirdPartyClusterEntityMapper
                 .selectByCondition(request);
+
+        // third-party-cluster type
+        String middlewareType = "";
+        if (!groupIdList.isEmpty()) {
+            middlewareType = groupMapper.selectByGroupId(groupIdList.get(0)).getMiddlewareType();
+        }
         String tenant = clusterBean.getDefaultTenant();
-        /*
-         * based on group id, get topic list
-         */
+
+        // based on group id, get topic list
         for (String groupId : groupIdList) {
-            List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
-            for (InlongStreamEntity stream : streamList) {
+            if (Constant.MIDDLEWARE_PULSAR.equals(middlewareType)) {
+                List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
+
+                for (InlongStreamEntity stream : streamList) {
+                    DataProxyConfig topicConfig = new DataProxyConfig();
+                    String streamId = stream.getInlongStreamId();
+                    topicConfig.setInlongGroupId(groupId + "/" + streamId);
+                    topicConfig.setTopic("persistent://" + tenant + "/" + groupId + "/" + streamId);
+                    topicList.add(topicConfig);
+
+                }
+            } else if (Constant.MIDDLEWARE_TUBE.equals(middlewareType)) {
                 DataProxyConfig topicConfig = new DataProxyConfig();
-                String streamId = stream.getInlongStreamId();
-                topicConfig.setInlongGroupId(groupId + "/" + streamId);
-                topicConfig.setTopic("persistent://" + tenant + "/" + groupId + "/" + streamId);
+                topicConfig.setInlongGroupId(groupId);
+                topicConfig.setTopic(groupId);
                 topicList.add(topicConfig);
 
             }
         }
-        /*
-         * construct pulsarSet info
-         */
+        // construct pulsarSet info
         Gson gson = new Gson();
         for (ThirdPartyClusterEntity cluster : clusterInfoEntities) {
-            PulsarClusterInfo pulsarCluster = new PulsarClusterInfo();
-            pulsarCluster.setUrl(cluster.getUrl());
-            pulsarCluster.setToken(cluster.getToken());
+            ThirdPartyClusterInfo clusterInfo = new ThirdPartyClusterInfo();
+            clusterInfo.setUrl(cluster.getUrl());
+            clusterInfo.setToken(cluster.getToken());
             Map<String, String> configParams = gson.fromJson(cluster.getExtParams(), Map.class);
-            pulsarCluster.setParams(configParams);
+            clusterInfo.setParams(configParams);
 
-            pulsarSet.add(pulsarCluster);
+            mqSet.add(clusterInfo);
         }
 
-        object.setPulsarSet(pulsarSet);
+        ThirdPartyClusterDTO object = new ThirdPartyClusterDTO();
+        object.setMqSet(mqSet);
         object.setTopicList(topicList);
 
         return object;

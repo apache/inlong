@@ -23,7 +23,7 @@ import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.pojo.PulsarConfig;
+import org.apache.inlong.dataproxy.config.pojo.ThirdPartyClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -72,7 +73,7 @@ public class PulsarClientService {
     private long retryIntervalWhenSendMsgError = 30 * 1000L;
     public Map<String, List<TopicProducerInfo>> producerInfoMap;
     public Map<String, AtomicLong> topicSendIndexMap;
-    public List<PulsarClient> pulsarClients;
+    public Map<String, PulsarClient> pulsarClients;
 
     public int pulsarClientIoThreads;
     public int pulsarConnectionsPreBroker;
@@ -83,7 +84,7 @@ public class PulsarClientService {
      *
      * @param pulsarConfig
      */
-    public PulsarClientService(PulsarConfig pulsarConfig) {
+    public PulsarClientService(ThirdPartyClusterConfig pulsarConfig) {
 
 //        String pulsarServerUrlList = context.getString(PULSAR_SERVER_URL_LIST);
         authType = pulsarConfig.getAuthType();
@@ -189,8 +190,8 @@ public class PulsarClientService {
         if (pulsarClients != null) {
             return;
         }
-        pulsarClients = new ArrayList<PulsarClient>();
-        pulsarUrl2token = ConfigManager.getInstance().getPulsarConfig().getUrl2token();
+        pulsarClients = new ConcurrentHashMap<>();
+        pulsarUrl2token = ConfigManager.getInstance().getThirdPartyClusterUrl2Token();
         Preconditions.checkState(!pulsarUrl2token.isEmpty(), "No pulsar server url specified");
         logger.debug("number of pulsarcluster is {}", pulsarUrl2token.size());
         for (Map.Entry<String, String> info : pulsarUrl2token.entrySet()) {
@@ -199,7 +200,7 @@ public class PulsarClientService {
                     logger.debug("url = {}, token = {}", info.getKey(), info.getValue());
                 }
                 PulsarClient client = initPulsarClient(info.getKey(), info.getValue());
-                pulsarClients.add(client);
+                pulsarClients.put(info.getKey(), client);
                 callBack.handleCreateClientSuccess(info.getKey());
             } catch (PulsarClientException e) {
                 callBack.handleCreateClientException(info.getKey());
@@ -224,7 +225,7 @@ public class PulsarClientService {
 
     private PulsarClient initPulsarClient(String pulsarUrl, String token) throws Exception {
         ClientBuilder builder = PulsarClient.builder();
-        if (PulsarConfig.PULSAR_DEFAULT_AUTH_TYPE.equals(authType) && StringUtils.isNotEmpty(token)) {
+        if (ThirdPartyClusterConfig.PULSAR_DEFAULT_AUTH_TYPE.equals(authType) && StringUtils.isNotEmpty(token)) {
             builder.authentication(AuthenticationFactory.token(token));
         }
         builder.serviceUrl(pulsarUrl)
@@ -239,7 +240,7 @@ public class PulsarClientService {
             List<TopicProducerInfo> newList = null;
             if (pulsarClients != null) {
                 newList = new ArrayList<>();
-                for (PulsarClient pulsarClient : pulsarClients) {
+                for (PulsarClient pulsarClient : pulsarClients.values()) {
                     TopicProducerInfo info = new TopicProducerInfo(pulsarClient, topic);
                     info.initProducer();
                     if (info.isCanUseToSendMessage()) {
@@ -284,7 +285,7 @@ public class PulsarClientService {
     private void destroyConnection() {
         producerInfoMap.clear();
         if (pulsarClients != null) {
-            for (PulsarClient pulsarClient : pulsarClients) {
+            for (PulsarClient pulsarClient : pulsarClients.values()) {
                 try {
                     pulsarClient.shutdown();
                 } catch (PulsarClientException e) {
@@ -297,6 +298,77 @@ public class PulsarClientService {
         }
         pulsarClients = null;
         logger.debug("closed meta producer");
+    }
+
+    private void removeProducers(PulsarClient pulsarClient) {
+        for (List<TopicProducerInfo> producers : producerInfoMap.values()) {
+            for (TopicProducerInfo topicProducer : producers) {
+                if (topicProducer.getPulsarClient().equals(pulsarClient)) {
+                    topicProducer.close();
+                    producers.remove(topicProducer);
+                }
+            }
+        }
+    }
+
+    /**
+     * close pulsarClients(the related url is removed); start pulsarClients for new url, and create producers for them
+     *
+     * @param callBack
+     * @param needToClose url-token map
+     * @param needToStart url-token map
+     * @param topicSet    for new pulsarClient, create these topics' producers
+     */
+    public void updatePulsarClients(CreatePulsarClientCallBack callBack, Map<String, String> needToClose,
+                                    Map<String, String> needToStart, Set<String> topicSet) {
+        // close
+        for (String url : needToClose.keySet()) {
+            PulsarClient pulsarClient = pulsarClients.get(url);
+            if (pulsarClient != null) {
+                try {
+                    removeProducers(pulsarClient);
+                    pulsarClient.shutdown();
+                    pulsarClients.remove(url);
+                } catch (PulsarClientException e) {
+                    logger.error("shutdown pulsarClient error in PulsarSink, PulsarClientException {}",
+                            e.getMessage());
+                } catch (Exception e) {
+                    logger.error("shutdown pulsarClient error in PulsarSink, ex {}", e.getMessage());
+                }
+            }
+        }
+        // new pulsarClient
+        for (Map.Entry<String, String> entry : needToStart.entrySet()) {
+            String url = entry.getKey();
+            String token = entry.getValue();
+            try {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("url = {}, token = {}", url, token);
+                }
+                PulsarClient client = initPulsarClient(url, token);
+                pulsarClients.put(url, client);
+                callBack.handleCreateClientSuccess(url);
+
+                //create related topicProducers
+                for (String topic : topicSet) {
+                    TopicProducerInfo info = new TopicProducerInfo(client, topic);
+                    info.initProducer();
+                    if (info.isCanUseToSendMessage()) {
+                        producerInfoMap.computeIfAbsent(topic, k -> new ArrayList<>()).add(info);
+                    }
+                }
+
+            } catch (PulsarClientException e) {
+                callBack.handleCreateClientException(url);
+                logger.error("create connnection error in pulsarsink, "
+                        + "maybe pulsar master set error, please re-check.url{}, ex1 {}", url, e.getMessage());
+            } catch (Throwable e) {
+                callBack.handleCreateClientException(url);
+                logger.error("create connnection error in pulsarsink, "
+                        + "maybe pulsar master set error/shutdown in progress, please "
+                        + "re-check. url{}, ex2 {}", url, e.getMessage());
+            }
+        }
     }
 
     public void close() {
@@ -359,8 +431,20 @@ public class PulsarClientService {
             return false;
         }
 
+        public void close() {
+            try {
+                producer.close();
+            } catch (PulsarClientException e) {
+                logger.error("close pulsar producer has error e = {}", e);
+            }
+        }
+
         public Producer getProducer() {
             return producer;
+        }
+
+        public PulsarClient getPulsarClient() {
+            return pulsarClient;
         }
     }
 }

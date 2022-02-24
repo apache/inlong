@@ -15,22 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.config.loader;
+package org.apache.inlong.common.pojo.dataproxy;
 
-import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.junit.Test;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.util.Map;
+public class ThirdPartyClusterDTO {
 
-import static org.testng.AssertJUnit.assertEquals;
+    private List<ThirdPartyClusterInfo> mqSet = new ArrayList<>();
+    private List<DataProxyConfig> topicList = new ArrayList<>();
 
-public class TestPulsarConfigLoader {
+    public List<ThirdPartyClusterInfo> getMqSet() {
+        return mqSet;
+    }
 
-    @Test
-    public void testResult() {
-        Map<String, String> url2token = ConfigManager.getInstance().getPulsarUrl2Token();
-        assertEquals("pulsartoken1", url2token.get("pulsar1://127.0.0.1:6650"));
-        assertEquals("pulsartoken2", url2token.get("pulsar2://127.0.0.1:6680"));
+    public void setMqSet(List<ThirdPartyClusterInfo> mqSet) {
+        this.mqSet = mqSet;
+    }
 
+    public List<DataProxyConfig> getTopicList() {
+        return topicList;
+    }
+
+    public void setTopicList(List<DataProxyConfig> topicList) {
+        this.topicList = topicList;
     }
 }
