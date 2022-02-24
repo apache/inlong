@@ -15,17 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.standalone.metrics;
+package org.apache.inlong.commons.metrics.metric.set;
 
 import static org.junit.Assert.assertEquals;
 
 import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.management.MBeanServer;
-import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 import org.apache.inlong.commons.metrics.metric.MetricItem;
@@ -41,10 +39,10 @@ import org.junit.Test;
  * 
  * TestMetricItemSetMBean
  */
-public class TestSortMetricItemSet {
+public class TestMetricItemSetMBean {
 
-    public static final String CLUSTER_ID = "inlong5th_sz";
-    public static final String CONTAINER_NAME = "2222.inlong.Sort.sz100001";
+    public static final String SET_ID = "inlong5th_sz";
+    public static final String CONTAINER_NAME = "2222.inlong.DataProxy.sz100001";
     public static final String CONTAINER_IP = "127.0.0.1";
     private static final String SOURCE_ID = "agent-source";
     private static final String SOURCE_DATA_ID = "12069";
@@ -53,7 +51,7 @@ public class TestSortMetricItemSet {
     private static final String INLONG_STREAM_ID = "";
     private static final String SINK_ID = "inlong5th-pulsar-sz";
     private static final String SINK_DATA_ID = "PULSAR_TOPIC_1";
-    private static SortMetricItemSet itemSet;
+    private static DataProxyMetricItemSet itemSet;
     private static Map<String, String> dimSource;
     private static Map<String, String> dimSink;
 
@@ -62,19 +60,23 @@ public class TestSortMetricItemSet {
      */
     @BeforeClass
     public static void setup() {
-        itemSet = new SortMetricItemSet(CLUSTER_ID);
+        itemSet = DataProxyMetricItemSet.getInstance();
         MetricRegister.register(itemSet);
         // prepare
-        SortMetricItem itemSource = new SortMetricItem();
-        itemSource.clusterId = CLUSTER_ID;
+        DataProxyMetricItem itemSource = new DataProxyMetricItem();
+        itemSource.setId = SET_ID;
+        itemSource.containerName = CONTAINER_NAME;
+        itemSource.containerIp = CONTAINER_IP;
         itemSource.sourceId = SOURCE_ID;
         itemSource.sourceDataId = SOURCE_DATA_ID;
         itemSource.inlongGroupId = INLONG_GROUP_ID1;
         itemSource.inlongStreamId = INLONG_STREAM_ID;
         dimSource = itemSource.getDimensions();
         //
-        SortMetricItem itemSink = new SortMetricItem();
-        itemSink.clusterId = CLUSTER_ID;
+        DataProxyMetricItem itemSink = new DataProxyMetricItem();
+        itemSink.setId = SET_ID;
+        itemSink.containerName = CONTAINER_NAME;
+        itemSink.containerIp = CONTAINER_IP;
         itemSink.sinkId = SINK_ID;
         itemSink.sinkDataId = SINK_DATA_ID;
         itemSink.inlongGroupId = INLONG_GROUP_ID1;
@@ -91,7 +93,7 @@ public class TestSortMetricItemSet {
     @Test
     public void testResult() throws Exception {
         // increase source
-        SortMetricItem item = null;
+        DataProxyMetricItem item = null;
         item = itemSet.findMetricItem(dimSource);
         item.readSuccessCount.incrementAndGet();
         item.readSuccessSize.addAndGet(100);
@@ -119,14 +121,14 @@ public class TestSortMetricItemSet {
         String keySink2 = MetricUtils.getDimensionsKey(dimSink);
         // report
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+        StringBuilder beanName = new StringBuilder();
+        beanName.append(MetricRegister.JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR)
+                .append("type=").append(MetricUtils.getDomain(DataProxyMetricItemSet.class))
+                .append(MetricItemMBean.PROPERTY_SEPARATOR)
+                .append("name=").append(itemSet.getName());
+        String strBeanName = beanName.toString();
+        ObjectName objName = new ObjectName(strBeanName);
         {
-            StringBuilder beanName = new StringBuilder();
-            beanName.append(MetricRegister.JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR)
-                    .append("type=").append(MetricUtils.getDomain(SortMetricItemSet.class))
-                    .append(MetricItemMBean.PROPERTY_SEPARATOR)
-                    .append("name=").append(itemSet.getName());
-            String strBeanName = beanName.toString();
-            ObjectName objName = new ObjectName(strBeanName);
             List<MetricItem> items = (List<MetricItem>) mbs.invoke(objName, MetricItemSetMBean.METHOD_SNAPSHOT, null,
                     null);
             for (MetricItem itemObj : items) {
@@ -154,17 +156,6 @@ public class TestSortMetricItemSet {
                     System.out.println("bad MetricItem:" + itemObj.getDimensionsKey());
                 }
             }
-        }
-        {
-            StringBuilder beanName = new StringBuilder();
-            beanName.append(MetricRegister.JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR)
-                    .append("type=").append(MetricUtils.getDomain(SortMetricItemSet.class))
-                    .append(MetricItemMBean.PROPERTY_SEPARATOR)
-                    .append("name=").append(itemSet.getName());
-
-            String strBeanName = beanName.toString();
-            ObjectName objName = new ObjectName(strBeanName);
-            Set<ObjectInstance> mbeans = mbs.queryMBeans(objName, null);
         }
     }
 }

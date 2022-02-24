@@ -22,12 +22,12 @@ package org.apache.inlong.agent.core.job;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.inlong.commons.config.metrics.CountMetric;
-import org.apache.inlong.commons.config.metrics.Dimension;
-import org.apache.inlong.commons.config.metrics.GaugeMetric;
-import org.apache.inlong.commons.config.metrics.MetricDomain;
-import org.apache.inlong.commons.config.metrics.MetricItem;
-import org.apache.inlong.commons.config.metrics.MetricRegister;
+import org.apache.inlong.commons.metrics.metric.CountMetric;
+import org.apache.inlong.commons.metrics.metric.Dimension;
+import org.apache.inlong.commons.metrics.metric.GaugeMetric;
+import org.apache.inlong.commons.metrics.metric.MetricDomain;
+import org.apache.inlong.commons.metrics.metric.MetricItem;
+import org.apache.inlong.commons.metrics.metric.MetricRegister;
 
 @MetricDomain(name = "AgentJob")
 public class JobJmxMetrics extends MetricItem implements JobMetrics {

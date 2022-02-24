@@ -15,33 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.config.loader;
-
-import static org.junit.Assert.assertEquals;
-
-import java.util.Map;
-
-import org.apache.inlong.dataproxy.config.RemoteConfigManager;
-import org.apache.inlong.commons.metrics.MetricListener;
-import org.junit.Test;
+package org.apache.inlong.commons.metrics.metric;
 
 /**
  * 
- * TestClassResourceCommonPropertiesLoader
+ * MetricValue
  */
-public class TestClassResourceCommonPropertiesLoader {
+public class MetricValue {
+
+    public String name;
+    public long value;
 
     /**
-     * testResult
+     * Constructor
      * 
-     * @throws Exception
+     * @param value
      */
-    @Test
-    public void testResult() throws Exception {
-        // increase source
-        ClassResourceCommonPropertiesLoader loader = new ClassResourceCommonPropertiesLoader();
-        Map<String, String> props = loader.load();
-        assertEquals("proxy_inlong5th_sz", props.get(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME));
-        assertEquals("DataProxy", props.get(MetricListener.KEY_METRIC_DOMAINS));
+    private MetricValue(String name, long value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    /**
+     * of
+     * 
+     * @param  value
+     * @return
+     */
+    public static MetricValue of(String name, long value) {
+        return new MetricValue(name, value);
     }
 }

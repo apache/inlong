@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.standalone.metrics;
+package org.apache.inlong.commons.metrics;
 
 import java.util.Map;
 
 import org.apache.inlong.commons.metrics.metric.MetricValue;
+import com.google.gson.Gson;
 
 /**
  * 
@@ -69,5 +70,15 @@ public class MetricItemValue {
      */
     public Map<String, MetricValue> getMetrics() {
         return metrics;
+    }
+
+    /**
+     * toString
+     * 
+     * @return
+     */
+    public String toString() {
+        Gson gson = new Gson();
+        return gson.toJson(this);
     }
 }
