@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.core.source;
 
+import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
+import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
@@ -29,10 +31,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collections;
+import java.util.Date;
+
 /**
  * Stream source service test
  */
-public class BinlogStreamSourceServiceTest extends ServiceBaseTest {
+public class StreamSourceServiceTest extends ServiceBaseTest {
 
     private final String globalGroupId = "b_group1";
     private final String globalStreamId = "stream1";
@@ -49,7 +54,7 @@ public class BinlogStreamSourceServiceTest extends ServiceBaseTest {
         BinlogSourceRequest sourceInfo = new BinlogSourceRequest();
         sourceInfo.setInlongGroupId(globalGroupId);
         sourceInfo.setInlongStreamId(globalStreamId);
-        sourceInfo.setSourceType(Constant.SINK_HIVE);
+        sourceInfo.setSourceType(Constant.SOURCE_DB_BINLOG);
 
         return sourceService.save(sourceInfo, globalOperator);
     }
@@ -59,7 +64,7 @@ public class BinlogStreamSourceServiceTest extends ServiceBaseTest {
         Integer id = this.saveSource();
         Assert.assertNotNull(id);
 
-        boolean result = sourceService.delete(id, Constant.SINK_HIVE, globalOperator);
+        boolean result = sourceService.delete(id, Constant.SOURCE_DB_BINLOG, globalOperator);
         Assert.assertTrue(result);
     }
 
@@ -67,16 +72,16 @@ public class BinlogStreamSourceServiceTest extends ServiceBaseTest {
     public void testListByIdentifier() {
         Integer id = this.saveSource();
 
-        SourceResponse source = sourceService.get(id, Constant.SINK_HIVE);
+        SourceResponse source = sourceService.get(id, Constant.SOURCE_DB_BINLOG);
         Assert.assertEquals(globalGroupId, source.getInlongGroupId());
 
-        sourceService.delete(id, Constant.SINK_HIVE, globalOperator);
+        sourceService.delete(id, Constant.SOURCE_DB_BINLOG, globalOperator);
     }
 
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSource();
-        SourceResponse response = sourceService.get(id, Constant.SINK_HIVE);
+        SourceResponse response = sourceService.get(id, Constant.SOURCE_DB_BINLOG);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         BinlogSourceResponse binlogResponse = (BinlogSourceResponse) response;
@@ -84,6 +89,27 @@ public class BinlogStreamSourceServiceTest extends ServiceBaseTest {
         BinlogSourceRequest request = CommonBeanUtils.copyProperties(binlogResponse, BinlogSourceRequest::new);
         boolean result = sourceService.update(request, globalOperator);
         Assert.assertTrue(result);
+
+        sourceService.delete(id, Constant.SOURCE_DB_BINLOG, globalOperator);
+    }
+
+    @Test
+    public void testReportSnapshot() {
+        Integer id = this.saveSource();
+
+        TaskSnapshotRequest request = new TaskSnapshotRequest();
+        request.setAgentIp("127.0.0.1");
+        request.setReportTime(new Date());
+
+        TaskSnapshotMessage message = new TaskSnapshotMessage();
+        message.setJobId(id);
+        message.setSnapshot("{\"offset\": 100}");
+        request.setSnapshotList(Collections.singletonList(message));
+
+        Boolean result = sourceService.reportSnapshot(request);
+        Assert.assertTrue(result);
+
+        sourceService.delete(id, Constant.SOURCE_DB_BINLOG, globalOperator);
     }
 
 }
