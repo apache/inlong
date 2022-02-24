@@ -37,7 +37,7 @@ public class StreamSourceEntity implements Serializable {
     private String serverName;
     private Integer clusterId;
     private String clusterName;
-    private String heartbeat;
+    private String snapshot;
 
     // extParams saved filePath, fileRollingType, dbName, tableName, etc.
     private String extParams;

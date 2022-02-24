@@ -88,14 +88,13 @@ public class AgentTaskServiceImpl implements AgentTaskService {
         return TaskResult.builder().dataConfigs(dataConfigs).cmdConfigs(cmdConfigs).build();
     }
 
-
-    private List<DataConfig> getAgentDataConfigs(TaskRequestDto taskRequestDto){
+    private List<DataConfig> getAgentDataConfigs(TaskRequestDto taskRequestDto) {
         List<DataConfig> dataConfigs = streamSourceMapper.selectAgentTaskDataConfig(taskRequestDto);
         //Forward Compatible File task type
         return dataConfigs;
     }
 
-    private List<CmdConfig> getAgentCmdConfigs(TaskRequestDto taskRequestDto){
+    private List<CmdConfig> getAgentCmdConfigs(TaskRequestDto taskRequestDto) {
         return sourceCmdConfigMapper.queryCmdByAgentIp(taskRequestDto.getAgentIp()).stream().map(cmd -> {
             CmdConfig cmdConfig = new CmdConfig();
             cmdConfig.setDataTime(cmd.getSpecifiedDataTime());
