@@ -274,7 +274,11 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
         for (DataConfig dataConfig : taskResult.getDataConfigs()) {
             TriggerProfile profile = TriggerProfile.getTriggerProfiles(dataConfig);
-            dealWithTdmTriggerProfile(profile);
+            if (profile.hasKey(JobConstants.JOB_TRIGGER)) {
+                dealWithTdmTriggerProfile(profile);
+            } else {
+                dealWithJobProfile(profile);
+            }
         }
 
         for (CmdConfig cmdConfig : taskResult.getCmdConfigs()) {
@@ -387,6 +391,27 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             case DEL:
             case FROZEN:
                 success = agentManager.getTriggerManager().deleteTrigger(triggerProfile.getTriggerId());
+                break;
+            default:
+        }
+        commandDb.saveNormalCmds(triggerProfile, success);
+    }
+
+    /**
+     *
+     * @param triggerProfile
+     */
+    public void dealWithJobProfile(TriggerProfile triggerProfile) {
+        ManagerOpEnum opType = ManagerOpEnum.getOpType(triggerProfile.getInt(JOB_OP));
+        boolean success = false;
+        switch (requireNonNull(opType)) {
+            case ACTIVE:
+            case ADD:
+                success = agentManager.getJobManager().submitJobProfile(triggerProfile, true);
+                break;
+            case DEL:
+            case FROZEN:
+                success = agentManager.getJobManager().deleteJob(triggerProfile.getTriggerId());
                 break;
             default:
         }
