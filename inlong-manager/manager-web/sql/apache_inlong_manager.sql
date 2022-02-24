@@ -166,7 +166,7 @@ CREATE TABLE `third_party_cluster`
     `url`         varchar(256)      DEFAULT NULL COMMENT 'Cluster URL address',
     `is_backup`   tinyint(1)        DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
     `mq_set_name` varchar(128) NULL COMMENT 'MQ set name of this cluster',
-    `ext_props`   text              DEFAULT NULL COMMENT 'extended properties',
+    `ext_params`  text              DEFAULT NULL COMMENT 'extended properties',
     `in_charges`  varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `status`      int(4)            DEFAULT '1' COMMENT 'cluster status',
     `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
