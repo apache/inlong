@@ -20,7 +20,7 @@ package org.apache.inlong.agent.plugin.channel;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constants.AgentConstants;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.plugin.Channel;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;

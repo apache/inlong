@@ -46,7 +46,7 @@ import org.apache.flume.Event;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.source.AbstractSource;
-import org.apache.inlong.commons.msg.InLongMsg;
+import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;

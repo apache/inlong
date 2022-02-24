@@ -598,7 +598,7 @@ CREATE TABLE `stream_source`
     `server_name`      varchar(50)       DEFAULT '' COMMENT 'Name of the source server',
     `cluster_id`       int(11)           DEFAULT NULL COMMENT 'Id of the cluster that collected this source',
     `cluster_name`     varchar(50)       DEFAULT '' COMMENT 'Name of the cluster that collected this source',
-    `heartbeat`        text              DEFAULT NULL COMMENT 'Heartbeat of this source task',
+    `snapshot`        text              DEFAULT NULL COMMENT 'snapshot of this source task',
     `ext_params`       text              DEFAULT NULL COMMENT 'Another fields will saved as JSON string, such as filePath, dbName, tableName, etc',
     `status`           int(4)            DEFAULT '0' COMMENT 'Data source status',
     `previous_status`  int(4)            DEFAULT '0' COMMENT 'Previous status',

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
 
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.MessageFilter;

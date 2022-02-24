@@ -41,7 +41,7 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
-    <resultMap id="DataConfig" type="org.apache.inlong.commons.dto.DataConfig">
+    <resultMap id="DataConfig" type="org.apache.inlong.common.pojo.agent.DataConfig">
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
         <result column="modify_time" jdbcType="VARCHAR" property="deliveryTime"/>
@@ -384,7 +384,7 @@
         where id = #{id,jdbcType=INTEGER}
     </delete>
 
-    <select id="selectAgentTaskDataConfig" parameterType="org.apache.inlong.commons.dto.TaskRequestDto" resultMap="DataConfig">
+    <select id="selectAgentTaskDataConfig" parameterType="org.apache.inlong.common.pojo.agent.TaskRequest" resultMap="DataConfig">
         select
         detail.inlong_group_id,
         detail.inlong_stream_id,

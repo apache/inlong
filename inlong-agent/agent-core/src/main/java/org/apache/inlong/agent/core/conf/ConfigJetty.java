@@ -17,14 +17,14 @@
 
 package org.apache.inlong.agent.core.conf;
 
-import static org.apache.inlong.agent.constants.JobConstants.JOB_DIR_FILTER_PATTERN;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_TRIGGER;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
 
 import java.io.Closeable;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.constants.AgentConstants;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.job.JobManager;
 import org.apache.inlong.agent.core.trigger.TriggerManager;
 import org.eclipse.jetty.server.Connector;

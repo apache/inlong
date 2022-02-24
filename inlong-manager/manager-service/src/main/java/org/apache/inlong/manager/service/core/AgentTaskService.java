@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.core;
 
 import java.util.List;
-import org.apache.inlong.agent.plugin.fetcher.dtos.TaskResult;
-import org.apache.inlong.commons.dto.TaskRequestDto;
+import org.apache.inlong.common.pojo.agent.TaskRequest;
+import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.manager.common.pojo.agent.AgentStatusReportRequest;
 import org.apache.inlong.manager.common.pojo.agent.CheckAgentTaskConfRequest;
 import org.apache.inlong.manager.common.pojo.agent.ConfirmAgentIpRequest;
@@ -29,7 +29,7 @@ import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
 
 public interface AgentTaskService {
 
-    TaskResult getAgentTask(TaskRequestDto taskRequestDto);
+    TaskResult getAgentTask(TaskRequest taskRequest);
 
     @Deprecated
     FileAgentTaskInfo getFileAgentTask(FileAgentCommandInfo info);

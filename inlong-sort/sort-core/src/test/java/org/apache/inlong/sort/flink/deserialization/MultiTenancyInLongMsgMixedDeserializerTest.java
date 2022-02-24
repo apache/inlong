@@ -25,7 +25,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.inlong.commons.msg.InLongMsg;
+import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sort.flink.Record;
 import org.apache.inlong.sort.flink.InLongMsgMixedSerializedRecord;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;

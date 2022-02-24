@@ -21,6 +21,7 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
@@ -226,7 +227,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     @Test
     public void testRestartProcess() {
         InlongGroupRequest groupInfo = initGroupForm(Constant.MIDDLEWARE_PULSAR);
-        groupInfo.setStatus(EntityStatus.GROUP_SUSPEND.getCode());
+        groupInfo.setStatus(GroupState.GROUP_SUSPEND.getCode());
         groupService.update(groupInfo, OPERATOR);
         UpdateGroupProcessForm form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);

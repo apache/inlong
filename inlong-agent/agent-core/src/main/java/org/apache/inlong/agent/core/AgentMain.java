@@ -33,8 +33,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_PROMETHEUS_EXPORTER_PORT;
-import static org.apache.inlong.agent.constants.AgentConstants.PROMETHEUS_EXPORTER_PORT;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_PROMETHEUS_EXPORTER_PORT;
+import static org.apache.inlong.agent.constant.AgentConstants.PROMETHEUS_EXPORTER_PORT;
 
 /**
  * Agent entrance class

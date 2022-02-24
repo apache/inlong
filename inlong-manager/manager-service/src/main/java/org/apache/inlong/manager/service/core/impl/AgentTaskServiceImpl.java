@@ -27,10 +27,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.agent.plugin.fetcher.dtos.TaskResult;
-import org.apache.inlong.commons.dto.CmdConfig;
-import org.apache.inlong.commons.dto.DataConfig;
-import org.apache.inlong.commons.dto.TaskRequestDto;
+import org.apache.inlong.common.pojo.agent.CmdConfig;
+import org.apache.inlong.common.pojo.agent.DataConfig;
+import org.apache.inlong.common.pojo.agent.TaskRequest;
+import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.FileAgentDataGenerateRule;
 import org.apache.inlong.manager.common.pojo.agent.AgentStatusReportRequest;
@@ -73,29 +73,29 @@ public class AgentTaskServiceImpl implements AgentTaskService {
     private InlongStreamFieldEntityMapper streamFieldMapper;
 
     @Override
-    public TaskResult getAgentTask(TaskRequestDto taskRequestDto) {
-        LOGGER.debug("begin to get agent task by taskRequestDto={}", taskRequestDto);
-        if (taskRequestDto == null || taskRequestDto.getAgentIp() == null) {
+    public TaskResult getAgentTask(TaskRequest taskRequest) {
+        LOGGER.debug("begin to get agent task by taskRequestDto={}", taskRequest);
+        if (taskRequest == null || taskRequest.getAgentIp() == null) {
             LOGGER.error("agent command taskRequestDto cannot be empty");
             return null;
         }
         // Query pending tasks by agentIp
-        List<DataConfig> dataConfigs = getAgentDataConfigs(taskRequestDto);
+        List<DataConfig> dataConfigs = getAgentDataConfigs(taskRequest);
 
         // Query pending special commands
-        List<CmdConfig> cmdConfigs = getAgentCmdConfigs(taskRequestDto);
+        List<CmdConfig> cmdConfigs = getAgentCmdConfigs(taskRequest);
 
         return TaskResult.builder().dataConfigs(dataConfigs).cmdConfigs(cmdConfigs).build();
     }
 
-    private List<DataConfig> getAgentDataConfigs(TaskRequestDto taskRequestDto) {
-        List<DataConfig> dataConfigs = streamSourceMapper.selectAgentTaskDataConfig(taskRequestDto);
+    private List<DataConfig> getAgentDataConfigs(TaskRequest taskRequest) {
+        List<DataConfig> dataConfigs = streamSourceMapper.selectAgentTaskDataConfig(taskRequest);
         //Forward Compatible File task type
         return dataConfigs;
     }
 
-    private List<CmdConfig> getAgentCmdConfigs(TaskRequestDto taskRequestDto) {
-        return sourceCmdConfigMapper.queryCmdByAgentIp(taskRequestDto.getAgentIp()).stream().map(cmd -> {
+    private List<CmdConfig> getAgentCmdConfigs(TaskRequest taskRequest) {
+        return sourceCmdConfigMapper.queryCmdByAgentIp(taskRequest.getAgentIp()).stream().map(cmd -> {
             CmdConfig cmdConfig = new CmdConfig();
             cmdConfig.setDataTime(cmd.getSpecifiedDataTime());
             cmdConfig.setOp(cmd.getCmdType());

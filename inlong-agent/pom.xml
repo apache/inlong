@@ -19,8 +19,8 @@
 -->
 
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -54,7 +54,7 @@
         <mockito.version>3.3.3</mockito.version>
         <plugin.assembly.version>3.2.0</plugin.assembly.version>
         <slf4j.version>1.7.30</slf4j.version>
-        <unit.version>4.13</unit.version>
+        <junit.version>4.13</junit.version>
         <common.lang.version>2.4</common.lang.version>
         <oro.version>2.0.8</oro.version>
         <avro.version>1.7.2</avro.version>
@@ -85,13 +85,6 @@
             </snapshots>
         </repository>
     </repositories>
-
-    <dependencies>
-    <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-    </dependency>
-    </dependencies>
 
     <dependencyManagement>
         <dependencies>
@@ -237,7 +230,7 @@
                 <artifactId>junit</artifactId>
                 <groupId>junit</groupId>
                 <scope>test</scope>
-                <version>${unit.version}</version>
+                <version>${junit.version}</version>
             </dependency>
 
             <dependency>
