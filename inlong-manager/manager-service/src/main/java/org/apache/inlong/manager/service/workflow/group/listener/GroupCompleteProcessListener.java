@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.workflow.group.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
@@ -64,9 +65,9 @@ public class GroupCompleteProcessListener implements ProcessEventListener {
         String username = context.getApplicant();
 
         InlongGroupRequest groupInfo = form.getGroupInfo();
-        groupInfo.setStatus(EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode());
+        groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
 
-        // Update inlong group status
+        // Update inlong group
         groupService.update(groupInfo, username);
         // Update inlong stream status
         streamService.updateStatus(groupId, null, EntityStatus.STREAM_CONFIG_SUCCESSFUL.getCode(), username);

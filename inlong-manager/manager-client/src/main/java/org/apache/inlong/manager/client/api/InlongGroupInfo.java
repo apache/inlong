@@ -40,7 +40,7 @@ public class InlongGroupInfo implements Serializable {
 
     private List<String> errMsg;
 
-    private GroupState state;
+    private InlongGroupState state;
 
     public InlongGroupInfo(InnerGroupContext groupContext, InlongGroupConf streamGroupConf) {
         InlongGroupRequest groupInfo = groupContext.getGroupRequest();
@@ -50,14 +50,14 @@ public class InlongGroupInfo implements Serializable {
         this.groupConf = streamGroupConf;
         this.inlongStreamMap = groupContext.getStreamMap();
         this.errMsg = Lists.newArrayList();
-        this.state = GroupState.parseByBizStatus(groupInfo.getStatus());
+        this.state = InlongGroupState.parseByBizStatus(groupInfo.getStatus());
     }
 
-    public enum GroupState {
+    public enum InlongGroupState {
         INIT, FAIL, START, SUSPEND, RESTART, DELETE;
 
         // Reference to  org.apache.inlong.manager.common.enums.EntityStatus code
-        public static GroupState parseByBizStatus(int bizCode) {
+        public static InlongGroupState parseByBizStatus(int bizCode) {
 
             switch (bizCode) {
                 case 100:
