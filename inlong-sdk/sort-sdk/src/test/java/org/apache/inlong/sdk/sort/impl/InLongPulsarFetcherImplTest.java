@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -118,7 +119,6 @@ public class InLongPulsarFetcherImplTest {
         InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
         long ackedOffset = inLongTopicFetcher.getAckedOffset();
         Assert.assertEquals(0L, ackedOffset);
-
     }
 
     @Test
@@ -156,8 +156,10 @@ public class InLongPulsarFetcherImplTest {
 
             Consumer consumer = PowerMockito.mock(Consumer.class);
             when(consumerBuilder.subscribe()).thenReturn(consumer);
+            doNothing().when(consumer).close();
             boolean init = inLongTopicFetcher.init(pulsarClient);
             Assert.assertTrue(init);
+            inLongTopicFetcher.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
