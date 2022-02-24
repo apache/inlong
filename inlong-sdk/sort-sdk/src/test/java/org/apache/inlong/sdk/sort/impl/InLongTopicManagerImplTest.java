@@ -58,11 +58,7 @@ public class InLongTopicManagerImplTest {
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
 
-        try {
-            clientContext = PowerMockito.mock(ClientContext.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        clientContext = PowerMockito.mock(ClientContextImpl.class);
 
         SortClientConfig sortClientConfig = PowerMockito.mock(SortClientConfig.class);
         when(clientContext.getConfig()).thenReturn(sortClientConfig);

@@ -71,11 +71,7 @@ public class InLongPulsarFetcherImplTest {
 
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
-        try {
-            clientContext = PowerMockito.mock(ClientContext.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        clientContext = PowerMockito.mock(ClientContextImpl.class);
 
         sortClientConfig = PowerMockito.mock(SortClientConfig.class);
         statManager = PowerMockito.mock(StatManager.class);
