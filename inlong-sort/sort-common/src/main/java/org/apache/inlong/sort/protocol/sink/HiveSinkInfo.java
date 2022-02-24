@@ -53,6 +53,10 @@ public class HiveSinkInfo extends SinkInfo {
     @JsonProperty("password")
     private final String password;
 
+    @JsonInclude(Include.NON_NULL)
+    @JsonProperty("hadoop_proxy_user")
+    private String hadoopProxyUser;
+
     @JsonProperty("data_path")
     private final String dataPath;
 
@@ -78,6 +82,29 @@ public class HiveSinkInfo extends SinkInfo {
         this.tableName = checkNotNull(tableName);
         this.username = username;
         this.password = password;
+        this.dataPath = checkNotNull(dataPath);
+        this.partitions = checkNotNull(partitions);
+        this.hiveFileFormat = checkNotNull(hiveFileFormat);
+    }
+
+    public HiveSinkInfo(
+            @JsonProperty("fields") FieldInfo[] fields,
+            @JsonProperty("hive_server_jdbc_url") String hiveServerJdbcUrl,
+            @JsonProperty("database") String databaseName,
+            @JsonProperty("table") String tableName,
+            @JsonProperty("username") @Nullable String username,
+            @JsonProperty("password") @Nullable String password,
+            @JsonProperty("hadoop_proxy_user") @Nullable String hadoopProxyUser,
+            @JsonProperty("data_path") String dataPath,
+            @JsonProperty("partitions") HivePartitionInfo[] partitions,
+            @JsonProperty("file_format") HiveFileFormat hiveFileFormat) {
+        super(fields);
+        this.hiveServerJdbcUrl = checkNotNull(hiveServerJdbcUrl);
+        this.databaseName = checkNotNull(databaseName);
+        this.tableName = checkNotNull(tableName);
+        this.username = username;
+        this.password = password;
+        this.hadoopProxyUser = hadoopProxyUser;
         this.dataPath = checkNotNull(dataPath);
         this.partitions = checkNotNull(partitions);
         this.hiveFileFormat = checkNotNull(hiveFileFormat);
@@ -113,6 +140,12 @@ public class HiveSinkInfo extends SinkInfo {
     @JsonProperty("data_path")
     public String getDataPath() {
         return dataPath;
+    }
+
+    @Nullable
+    @JsonProperty("hadoop_proxy_user")
+    public String getHadoopProxyUser() {
+        return hadoopProxyUser;
     }
 
     @JsonProperty("partitions")
