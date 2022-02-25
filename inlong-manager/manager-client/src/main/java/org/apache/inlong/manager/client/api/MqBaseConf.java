@@ -26,7 +26,7 @@ import lombok.Data;
 @ApiModel("Base configuration for message queue")
 public abstract class MqBaseConf implements Serializable {
 
-    public static final MqBaseConf noneMqConf = new MqBaseConf() {
+    public static final MqBaseConf blankMqBaseConf = new MqBaseConf() {
         @Override
         public MqType getType() {
             return MqType.NONE;
