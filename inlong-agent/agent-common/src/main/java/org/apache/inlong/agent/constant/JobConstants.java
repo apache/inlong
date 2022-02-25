@@ -51,27 +51,27 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_DIR_FILTER_PATH = "job.filejob.dir.path";
 
     //Binlog job
-    private static final String JOB_DATABASE_USER = "job.binlogjob.user";
-    private static final String JOB_DATABASE_PASSWORD = "job.binlogjob.password";
-    private static final String JOB_DATABASE_HOSTNAME = "job.binlogjob.hostname";
-    private static final String JOB_DATABASE_WHITELIST = "job.binlogjob.tableWhiteList";
-    private static final String JOB_DATABASE_SERVER_TIME_ZONE = "job.binlogjob.database.serverTimezone";
-    private static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "offset.binlogjob.offset.flush.interval.ms";
-    private static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.binlogjob.database.history.file.filename";
-    private static final String JOB_DATABASE_SNAPSHOT_MODE = "job.binlogjob.database.snapshot.mode";
-    private static final  String JOB_DATABASE_OFFSET = "job.binlogjob.database.offset";
+    public static final String JOB_DATABASE_USER = "job.binlogjob.user";
+    public static final String JOB_DATABASE_PASSWORD = "job.binlogjob.password";
+    public static final String JOB_DATABASE_HOSTNAME = "job.binlogjob.hostname";
+    public static final String JOB_DATABASE_WHITELIST = "job.binlogjob.tableWhiteList";
+    public static final String JOB_DATABASE_SERVER_TIME_ZONE = "job.binlogjob.database.serverTimezone";
+    public static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "offset.binlogjob.offset.flush.interval.ms";
+    public static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.binlogjob.database.history.file.filename";
+    public static final String JOB_DATABASE_SNAPSHOT_MODE = "job.binlogjob.database.snapshot.mode";
+    public static final  String JOB_DATABASE_OFFSET = "job.binlogjob.database.offset";
 
     //Kafka job
-    private static final  String SOURCE_KAFKA_TOPIC = "job.kafkajob.topic";
-    private static final  String SOURCE_KAFKA_KEY_DESERIALIZER = "job.kafkajob.key.deserializer";
-    private static final  String SOURCE_KAFKA_VALUE_DESERIALIZER = "job.kafkajob.value.Deserializer";
-    private static final  String SOURCE_KAFKA_BOOTSTRAP_SERVERS = "job.kafkajob.bootstrap.servers";
-    private static final  String SOURCE_KAFKA_GROUP_ID = "job.kafkajob.group.Id";
-    private static final  String SOURCE_KAFKA_RECORD_SPEED = "job.kafkajob.record.speed";
-    private static final  String SOURCE_KAFKA_BYTE_SPEED_LIMIT = "job.kafkajob.byte.speed.limit";
-    private static final  String SOURCE_KAFKA_MIN_INTERVAL = "job.kafkajob.min.interval";
-    private static final  String SOURCE_KAFKA_OFFSET = "job.kafkajob.offset";
-    private static final  String SOURCE_KAFKA_READ_TIMEOUT = "job.kafkajob.read.timeout";
+    public static final  String JOB_KAFKA_TOPIC = "job.kafkajob.topic";
+    public static final  String JOB_KAFKA_KEY_DESERIALIZER = "job.kafkajob.key.deserializer";
+    public static final  String JOB_KAFKA_VALUE_DESERIALIZER = "job.kafkajob.value.Deserializer";
+    public static final  String JOB_KAFKA_BOOTSTRAP_SERVERS = "job.kafkajob.bootstrap.servers";
+    public static final  String JOB_KAFKA_GROUP_ID = "job.kafkajob.group.Id";
+    public static final  String JOB_KAFKA_RECORD_SPEED = "job.kafkajob.record.Speed";
+    public static final  String JOB_KAFKA_BYTE_SPEED_LIMIT = "job.kafkajob.byte.speed.limit";
+    public static final  String JOB_KAFKA_MIN_INTERVAL = "job.kafkajob.min.interval";
+    public static final  String JOB_KAFKA_OFFSET = "job.kafkajob.partition.offset";
+    public static final  String JOB_KAFKA_READ_TIMEOUT = "job.kafkajob.read.timeout";
 
     // job type, delete/add
     public static final String JOB_TYPE = "job.type";
@@ -115,5 +115,10 @@ public class JobConstants extends CommonConstants {
      * delimiter to split offset for different task
      */
     public static final String JOB_OFFSET_DELIMITER = "_";
+
+    /**
+     * delimiter to split all partition offset for all kafka tasks
+     */
+    public static final String JOB_KAFKA_PARTITION_OFFSET_DELIMITER = "#";
 
 }

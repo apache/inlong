@@ -111,20 +111,19 @@ public class JobProfileDto {
     }
 
     private static KafkaJob getKafkaJob(DataConfig dataConfigs) {
-
+        /*kafkaJob.setRecordSpeed(kafkaJobTaskConfig.getRecordSpeed());
+        kafkaJob.setByteSpeedLimit(kafkaJobTaskConfig.getByteSpeedLimit());
+        kafkaJob.setMinInterval(kafkaJobTaskConfig.getMinInterval());*/
         KafkaJob.KafkaJobTaskConfig kafkaJobTaskConfig = GSON.fromJson(dataConfigs.getExtParams(),
                 KafkaJob.KafkaJobTaskConfig.class);
+        KafkaJob.Bootstrap bootstrap = new KafkaJob.Bootstrap();
+        bootstrap.setServers(kafkaJobTaskConfig.getBootstrapServers());
+        KafkaJob.Partition partition = new KafkaJob.Partition();
+        partition.setOffset(kafkaJobTaskConfig.getOffset());
+        KafkaJob.Group group = new KafkaJob.Group();
+        group.setId(kafkaJobTaskConfig.getGroupId());
         KafkaJob kafkaJob = new KafkaJob();
         kafkaJob.setTopic(kafkaJobTaskConfig.getTopic());
-        kafkaJob.setKeyDeserializer(kafkaJobTaskConfig.getValueDeserializer());
-        kafkaJob.setValueDeserializer(kafkaJobTaskConfig.getKeyDeserializer());
-        kafkaJob.setBootstrapServers(kafkaJobTaskConfig.getBootstrapServers());
-        kafkaJob.setGroupId(kafkaJobTaskConfig.getGroupId());
-        kafkaJob.setRecordSpeed(kafkaJobTaskConfig.getRecordSpeed());
-        kafkaJob.setByteSpeedLimit(kafkaJobTaskConfig.getByteSpeedLimit());
-        kafkaJob.setMinInterval(kafkaJobTaskConfig.getMinInterval());
-        kafkaJob.setOffset(kafkaJobTaskConfig.getOffset());
-
         kafkaJob.setChannel(DEFAULT_CHANNEL);
         kafkaJob.setName(MANAGER_JOB);
         kafkaJob.setSource(KAFKA_SOURCE);

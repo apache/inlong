@@ -26,11 +26,27 @@ public class KafkaJob extends Job {
     private  String keyDeserializer;
     private  String valueDeserializer;
     private  String bootstrapServers;
-    private  String groupId;
     private  String recordSpeed;
     private  String byteSpeedLimit;
     private  String minInterval;
-    private  String offset;
+    private Group group;
+    private Bootstrap bootstrap;
+    private Partition partition;
+
+    @Data
+    public static class Group {
+        private String id;
+    }
+
+    @Data
+    public static class Bootstrap {
+        private String servers;
+    }
+
+    @Data
+    public static class Partition {
+        private String offset;
+    }
 
     @Data
     public static class KafkaJobTaskConfig {
