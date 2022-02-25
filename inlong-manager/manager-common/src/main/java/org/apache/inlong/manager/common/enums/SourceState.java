@@ -24,10 +24,10 @@ import java.util.Set;
 
 public enum SourceState {
 
-    SOURCE_ADD(0, "start source collecting"),
-    SOURCE_DEL(100, "delete source collecting"),
-    SOURCE_FROZEN(400, "stop source collecting"),
-    SOURCE_ACTIVE(500, "active source collecting");
+    SOURCE_ADD(100, "start source collecting"),
+    SOURCE_DEL(101, "delete source collecting"),
+    SOURCE_FROZEN(104, "stop source collecting"),
+    SOURCE_ACTIVE(105, "active source collecting");
 
     private static final Map<SourceState, Set<SourceState>> SOURCE_FINITE_STATE_AUTOMATON = Maps.newHashMap();
 
