@@ -27,6 +27,7 @@ import org.apache.inlong.manager.client.api.MqBaseConf.MqType;
 import org.apache.inlong.manager.client.api.PulsarBaseConf;
 import org.apache.inlong.manager.client.api.SortBaseConf;
 import org.apache.inlong.manager.client.api.SortBaseConf.SortType;
+import org.apache.inlong.manager.client.api.TubeBaseConf;
 import org.apache.inlong.manager.client.api.auth.Authentication;
 import org.apache.inlong.manager.client.api.auth.Authentication.AuthType;
 import org.apache.inlong.manager.client.api.auth.SecretTokenAuthentication;
@@ -66,8 +67,12 @@ public class InlongGroupTransfer {
             List<InlongGroupExtInfo> extInfos = createPulsarExtInfo(pulsarBaseConf);
             groupInfo.getExtList().addAll(extInfos);
             groupInfo.setTopicPartitionNum(pulsarBaseConf.getTopicPartitionNum());
-        } else {
-            // todo tubemq
+        } else if (mqType == MqType.TUBE) {
+            TubeBaseConf tubeBaseConf = (TubeBaseConf) mqConf;
+            List<InlongGroupExtInfo> extInfos = createTubeExtInfo(tubeBaseConf);
+            groupInfo.setMqResourceObj(tubeBaseConf.getGroupName());
+            groupInfo.getExtList().addAll(extInfos);
+            groupInfo.setTopicPartitionNum(tubeBaseConf.getTopicPartitionNum());
         }
         SortBaseConf sortBaseConf = groupConf.getSortBaseConf();
         SortType sortType = sortBaseConf.getType();
@@ -124,6 +129,29 @@ public class InlongGroupTransfer {
             pulsarServiceUrl.setKeyName(InlongGroupSettings.PULSAR_SERVICE_URL);
             pulsarServiceUrl.setKeyValue(pulsarBaseConf.getPulsarServiceUrl());
             extInfos.add(pulsarServiceUrl);
+        }
+        return extInfos;
+    }
+
+    public static List<InlongGroupExtInfo> createTubeExtInfo(TubeBaseConf tubeBaseConf) {
+        List<InlongGroupExtInfo> extInfos = new ArrayList<>();
+        if (StringUtils.isNotEmpty(tubeBaseConf.getTubeMasterUrl())) {
+            InlongGroupExtInfo tubeManagerUrl = new InlongGroupExtInfo();
+            tubeManagerUrl.setKeyName(InlongGroupSettings.TUBE_MANAGER_URL);
+            tubeManagerUrl.setKeyValue(tubeBaseConf.getTubeManagerUrl());
+            extInfos.add(tubeManagerUrl);
+        }
+        if (StringUtils.isNotEmpty(tubeBaseConf.getTubeMasterUrl())) {
+            InlongGroupExtInfo tubeMasterUrl = new InlongGroupExtInfo();
+            tubeMasterUrl.setKeyName(InlongGroupSettings.TUBE_MASTER_URL);
+            tubeMasterUrl.setKeyValue(tubeBaseConf.getTubeMasterUrl());
+            extInfos.add(tubeMasterUrl);
+        }
+        if (tubeBaseConf.getTubeClusterId() > 0) {
+            InlongGroupExtInfo tubeClusterId = new InlongGroupExtInfo();
+            tubeClusterId.setKeyName(InlongGroupSettings.TUBE_CLUSTER_ID);
+            tubeClusterId.setKeyValue(String.valueOf(tubeBaseConf.getTubeClusterId()));
+            extInfos.add(tubeClusterId);
         }
         return extInfos;
     }

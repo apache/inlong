@@ -19,21 +19,28 @@ package org.apache.inlong.manager.client.api;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.io.Serializable;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@ApiModel("Base configuration for message queue")
-public abstract class MqBaseConf implements Serializable {
+@AllArgsConstructor
+@NoArgsConstructor
+@ApiModel("Base configuration for Tube")
+public class TubeBaseConf extends MqBaseConf {
 
-    public enum MqType {
-        PULSAR,
-        TUBE,
-        NONE;
-    }
+    @ApiModelProperty("Message queue type")
+    private MqType type = MqType.TUBE;
 
-    @ApiModelProperty("The number of partitions of Topic, 1-20")
-    private int topicPartitionNum = 3;
+    @ApiModelProperty("Tube manager URL")
+    private String tubeManagerUrl;
 
-    public abstract MqType getType();
+    @ApiModelProperty("Tube master URL")
+    private String tubeMasterUrl;
+
+    @ApiModelProperty("Tube Cluster Id")
+    private int tubeClusterId = 1;
+
+    @ApiModelProperty("GroupName for tube producer")
+    private String groupName;
 }

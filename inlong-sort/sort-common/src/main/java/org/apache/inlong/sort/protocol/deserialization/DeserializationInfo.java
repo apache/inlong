@@ -36,11 +36,11 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
         @Type(value = JsonDeserializationInfo.class, name = "json"),
         @Type(value = CanalDeserializationInfo.class, name = "canal"),
         @Type(value = DebeziumDeserializationInfo.class, name = "debezium_json"),
-        @Type(value = InLongMsgCsvDeserializationInfo.class, name = "inlongmsg_csv"),
-        @Type(value = InLongMsgCsv2DeserializationInfo.class, name = "inlongmsg_csv2"),
-        @Type(value = InLongMsgKvDeserializationInfo.class, name = "inlongmsg_kv"),
-        @Type(value = InLongMsgTlogCsvDeserializationInfo.class, name = "inlongmsg_tlog_csv"),
-        @Type(value = InLongMsgTlogKvDeserializationInfo.class, name = "inlongmsg_tlog_kv")
+        @Type(value = InLongMsgCsvDeserializationInfo.class, name = "inlong_msg_csv"),
+        @Type(value = InLongMsgCsv2DeserializationInfo.class, name = "inlong_msg_csv2"),
+        @Type(value = InLongMsgKvDeserializationInfo.class, name = "inlong_msg_kv"),
+        @Type(value = InLongMsgTlogCsvDeserializationInfo.class, name = "inlong_msg_tlog_csv"),
+        @Type(value = InLongMsgTlogKvDeserializationInfo.class, name = "inlong_msg_tlog_kv")
 })
 public interface DeserializationInfo extends Serializable {
 

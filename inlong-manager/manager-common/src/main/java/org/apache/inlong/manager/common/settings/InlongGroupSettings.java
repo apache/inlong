@@ -29,6 +29,12 @@ public class InlongGroupSettings {
 
     public static String DEFAULT_PULSAR_AUTHENTICATION_TYPE = "token";
 
+    public static String TUBE_MANAGER_URL = "tube.manager.url";
+
+    public static String TUBE_MASTER_URL = "tube.master.url";
+
+    public static String TUBE_CLUSTER_ID = "tube.cluster.id";
+
     /**
      * oceanus need param start
      */
