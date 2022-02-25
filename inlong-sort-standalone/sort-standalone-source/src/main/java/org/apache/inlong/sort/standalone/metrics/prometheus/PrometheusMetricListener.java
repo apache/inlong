@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sort.standalone.metrics.prometheus;
 
-import static org.apache.inlong.commons.metrics.metric.MetricItemMBean.DOMAIN_SEPARATOR;
-import static org.apache.inlong.commons.metrics.metric.MetricRegister.JMX_DOMAIN;
+import static org.apache.inlong.common.metric.MetricItemMBean.DOMAIN_SEPARATOR;
+import static org.apache.inlong.common.metric.MetricRegister.JMX_DOMAIN;
 import static org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder.KEY_CLUSTER_ID;
 import static org.apache.inlong.sort.standalone.metrics.SortMetricItem.M_NODE_DURATION;
 import static org.apache.inlong.sort.standalone.metrics.SortMetricItem.M_READ_FAIL_COUNT;
@@ -47,7 +47,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.inlong.commons.metrics.metric.MetricValue;
+import org.apache.inlong.common.metric.MetricValue;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.metrics.MetricItemValue;
 import org.apache.inlong.sort.standalone.metrics.MetricListener;

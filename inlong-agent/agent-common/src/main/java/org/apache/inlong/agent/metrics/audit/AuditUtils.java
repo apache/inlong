@@ -24,10 +24,10 @@ import org.apache.inlong.audit.util.AuditConfig;
 
 import java.util.HashSet;
 
-import static org.apache.inlong.agent.constants.AgentConstants.AUDIT_ENABLE;
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AUDIT_ENABLE;
-import static org.apache.inlong.agent.constants.AgentConstants.AUDIT_KEY_PROXYS;
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AUDIT_PROXYS;
+import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_ENABLE;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AUDIT_ENABLE;
+import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_KEY_PROXYS;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AUDIT_PROXYS;
 
 /**
  * AuditUtils

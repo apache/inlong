@@ -19,7 +19,7 @@ package org.apache.inlong.agent.db;
 
 import java.util.List;
 import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.commons.db.CommandEntity;
+import org.apache.inlong.common.db.CommandEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +57,7 @@ public class CommandDb {
      */
     public void saveNormalCmds(TriggerProfile profile, boolean success) {
         CommandEntity entity = new CommandEntity();
-        entity.setId(CommandEntity.generateCommanid(profile.getTriggerId(), profile.getOpType()));
+        entity.setId(CommandEntity.generateCommandId(profile.getTriggerId(), profile.getOpType()));
         entity.setTaskId(profile.getTriggerId());
         entity.setDeliveryTime(profile.getDeliveryTime());
         entity.setCommandResult(success ? MANAGER_SUCCESS_CODE : MANAGER_FAIL_CODE);

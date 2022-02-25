@@ -20,7 +20,7 @@ package org.apache.inlong.agent.db;
 import java.util.List;
 
 import org.apache.inlong.agent.AgentBaseTestsHelper;
-import org.apache.inlong.commons.db.CommandEntity;
+import org.apache.inlong.common.db.CommandEntity;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;

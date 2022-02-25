@@ -18,10 +18,10 @@
 package org.apache.inlong.sdk.sort.metrics;
 
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.inlong.commons.metrics.metric.CountMetric;
-import org.apache.inlong.commons.metrics.metric.Dimension;
-import org.apache.inlong.commons.metrics.metric.MetricDomain;
-import org.apache.inlong.commons.metrics.metric.MetricItem;
+import org.apache.inlong.common.metric.CountMetric;
+import org.apache.inlong.common.metric.Dimension;
+import org.apache.inlong.common.metric.MetricDomain;
+import org.apache.inlong.common.metric.MetricItem;
 
 @MetricDomain(name = "SortSdk")
 public class SortSdkMetricItem extends MetricItem {

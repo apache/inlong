@@ -22,17 +22,16 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceHeartbeatRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
@@ -61,6 +60,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
     private CommonOperateService commonOperateService;
+    @Autowired
+    private SourceSnapshotOperation heartbeatOperation;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -72,7 +73,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         // Check if it can be added
         String groupId = request.getInlongGroupId();
-        InlongGroupEntity inlongGroupEntity = commonOperateService.checkGroupStatus(groupId, operator);
+        commonOperateService.checkGroupStatus(groupId, operator);
 
         // Make sure that there is no source info with the current groupId and streamId
         String streamId = request.getInlongStreamId();
@@ -92,7 +93,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     public SourceResponse get(Integer id, String sourceType) {
         LOGGER.debug("begin to get source by id={}, sourceType={}", id, sourceType);
         StreamSourceOperation operation = operationFactory.getInstance(SourceType.getType(sourceType));
-        SourceResponse sourceResponse = operation.getById(sourceType, id);
+        SourceResponse sourceResponse = operation.getById(id);
         LOGGER.debug("success to get source info");
         return sourceResponse;
     }
@@ -253,11 +254,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    public Boolean reportHeartbeat(SourceHeartbeatRequest request) {
-        if (request == null || request.getId() == null || request.getHeartbeat() == null) {
-            return true;
-        }
-        return sourceMapper.updateHeartbeat(request) > 0;
+    public Boolean reportSnapshot(TaskSnapshotRequest request) {
+        return heartbeatOperation.putData(request);
     }
 
     private void checkParams(SourceRequest request) {

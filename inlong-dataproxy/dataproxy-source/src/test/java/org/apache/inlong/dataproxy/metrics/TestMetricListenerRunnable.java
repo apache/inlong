@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.inlong.commons.metrics.metric.MetricRegister;
-import org.apache.inlong.commons.metrics.metric.MetricUtils;
-import org.apache.inlong.commons.metrics.metric.MetricValue;
-import org.apache.inlong.commons.metrics.MetricItemValue;
-import org.apache.inlong.commons.metrics.MetricListener;
-import org.apache.inlong.commons.metrics.MetricListenerRunnable;
+import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.metric.MetricUtils;
+import org.apache.inlong.common.metric.MetricValue;
+import org.apache.inlong.common.metric.MetricItemValue;
+import org.apache.inlong.common.metric.MetricListener;
+import org.apache.inlong.common.metric.MetricListenerRunnable;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

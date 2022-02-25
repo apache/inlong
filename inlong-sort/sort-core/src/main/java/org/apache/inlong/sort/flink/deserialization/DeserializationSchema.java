@@ -83,7 +83,7 @@ public class DeserializationSchema extends ProcessFunction<SerializedRecord, Ser
         schemaLock = new Object();
         multiTenancyInLongMsgMixedDeserializer = new MultiTenancyInLongMsgMixedDeserializer();
         multiTenancyDeserializer = new MultiTenancyDeserializer();
-        fieldMappingTransformer = new FieldMappingTransformer();
+        fieldMappingTransformer = new FieldMappingTransformer(config);
         inLongGroupIdAndStreamIdMap = new HashMap<>();
 
         recordTransformer = new RecordTransformer(config.getInteger(Constants.ETL_RECORD_SERIALIZATION_BUFFER_SIZE));

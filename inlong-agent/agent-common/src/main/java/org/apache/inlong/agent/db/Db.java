@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.db;
 
-import org.apache.inlong.commons.db.CommandEntity;
+import org.apache.inlong.common.db.CommandEntity;
 
 import java.io.Closeable;
 import java.util.List;

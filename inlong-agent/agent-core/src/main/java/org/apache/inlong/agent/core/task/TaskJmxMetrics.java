@@ -22,12 +22,12 @@ package org.apache.inlong.agent.core.task;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.inlong.commons.metrics.metric.CountMetric;
-import org.apache.inlong.commons.metrics.metric.Dimension;
-import org.apache.inlong.commons.metrics.metric.GaugeMetric;
-import org.apache.inlong.commons.metrics.metric.MetricDomain;
-import org.apache.inlong.commons.metrics.metric.MetricItem;
-import org.apache.inlong.commons.metrics.metric.MetricRegister;
+import org.apache.inlong.common.metric.CountMetric;
+import org.apache.inlong.common.metric.Dimension;
+import org.apache.inlong.common.metric.GaugeMetric;
+import org.apache.inlong.common.metric.MetricDomain;
+import org.apache.inlong.common.metric.MetricItem;
+import org.apache.inlong.common.metric.MetricRegister;
 
 /**
  * metrics for agent task

@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.workflow.group.listener;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
@@ -49,6 +50,9 @@ public class InitGroupListener implements ProcessEventListener {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         InlongGroupRequest groupInfo = groupService.get(context.getProcessForm().getInlongGroupId());
         if (groupInfo != null) {
+            final int status = GroupState.GROUP_CONFIG_ING.getCode();
+            final String username = context.getApplicant();
+            groupService.updateStatus(groupInfo.getInlongGroupId(), status, username);
             form.setGroupInfo(groupInfo);
         } else {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);

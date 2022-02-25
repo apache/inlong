@@ -21,7 +21,7 @@ import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.commons.msg.InLongMsg;
+import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sort.singletenant.flink.SerializedRecord;
 
 import java.util.Iterator;
@@ -32,9 +32,14 @@ public class DeserializationFunction extends ProcessFunction<SerializedRecord, R
 
     private final DeserializationSchema<Row> deserializationSchema;
 
+    private final FieldMappingTransformer fieldMappingTransformer;
+
     public DeserializationFunction(
-            DeserializationSchema<Row> deserializationSchema) {
+            DeserializationSchema<Row> deserializationSchema,
+            FieldMappingTransformer fieldMappingTransformer
+    ) {
         this.deserializationSchema = deserializationSchema;
+        this.fieldMappingTransformer = fieldMappingTransformer;
     }
 
     @Override
@@ -58,7 +63,9 @@ public class DeserializationFunction extends ProcessFunction<SerializedRecord, R
                     continue;
                 }
 
-                deserializationSchema.deserialize(bodyBytes, out);
+                deserializationSchema.deserialize(bodyBytes, new CallbackCollector<>(inputRow -> {
+                    out.collect(fieldMappingTransformer.transform(inputRow, value.getTimestampMillis()));
+                }));
             }
         }
     }
