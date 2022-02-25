@@ -95,4 +95,15 @@ public class StringUtil {
         return sdf.format(date);
     }
 
+    /**
+     * use default time foramt
+     *
+     * @param date {@link Date}
+     * @return String
+     */
+    public static String formatDate(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        return sdf.format(date);
+    }
+
 }

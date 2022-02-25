@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.sort.impl;
+package org.apache.inlong.sdk.sort.impl.pulsar;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -30,7 +30,7 @@ import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
-import org.apache.inlong.sdk.sort.impl.pulsar.InLongPulsarFetcherImpl;
+import org.apache.inlong.sdk.sort.impl.ClientContextImpl;
 import org.apache.inlong.sdk.sort.stat.SortClientStateCounter;
 import org.apache.inlong.sdk.sort.stat.StatManager;
 import org.apache.pulsar.client.api.Consumer;
