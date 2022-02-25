@@ -25,14 +25,12 @@ import org.apache.inlong.manager.service.core.AuditService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestComponent;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@TestComponent
 public class AuditServiceTest extends ServiceBaseTest {
 
     @Autowired
