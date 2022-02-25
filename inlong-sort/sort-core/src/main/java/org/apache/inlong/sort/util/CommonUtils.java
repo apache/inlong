@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
@@ -25,10 +26,12 @@ import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.api.java.typeutils.runtime.RowSerializer;
+import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
@@ -65,6 +68,11 @@ public class CommonUtils {
             addresses.add(Pair.of(addressItems[0], port));
         }
         return addresses;
+    }
+
+    public static RowFormatInfo generateDeserializationRowFormatInfo(FieldInfo[] fieldInfos) {
+        return generateRowFormatInfo(Arrays.stream(fieldInfos)
+                .filter(fieldInfo -> !(fieldInfo instanceof BuiltInFieldInfo)).toArray(FieldInfo[]::new));
     }
 
     public static RowFormatInfo generateRowFormatInfo(FieldInfo[] fieldInfos) {
@@ -109,5 +117,12 @@ public class CommonUtils {
         }
 
         return Pair.of(groupId, streamId);
+    }
+
+    public static Configuration mergeConfAndProp(Configuration conf, Map<String, Object> props) {
+        final Configuration newConf = new Configuration(conf);
+        newConf.addAll(props);
+
+        return newConf;
     }
 }
