@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.flink.transformation;
 
+import java.io.Serializable;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -40,7 +41,9 @@ import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditio
 /**
  * TODO, replace it with operator when it supports complex transformation.
  */
-public class FieldMappingTransformer implements DataFlowInfoListener {
+public class FieldMappingTransformer implements DataFlowInfoListener, Serializable {
+
+    private static final long serialVersionUID = 2275768454575335199L;
 
     /**
      * Skips time and attribute fields of source record.
