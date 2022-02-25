@@ -21,6 +21,7 @@ public interface AttributeConstants {
 
     String SEPARATOR = "&";
     String KEY_VALUE_SEPARATOR = "=";
+    String COMMA_SEPARATOR = ",";
 
     String REQUEST_TYPE = "requestType";
 

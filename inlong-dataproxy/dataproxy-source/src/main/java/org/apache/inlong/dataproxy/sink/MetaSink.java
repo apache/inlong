@@ -83,7 +83,7 @@ public class MetaSink extends AbstractSink implements Configurable {
     private static final String slaTopicFilePath = "slaTopics.properties";
 
     private ConfigManager configManager;
-    private Map<String, String> topicProperties;
+    private Set<String> topicProperties;
 
     private ThirdPartyClusterConfig tubeConfig;
     private Set<String> masterHostAndPortLists;
@@ -163,7 +163,7 @@ public class MetaSink extends AbstractSink implements Configurable {
             }
 
             logger.info("topics.properties has changed, trigger diff publish for {}", getName());
-            topicProperties = configManager.getTopicProperties();
+            topicProperties = configManager.getTopicSet();
         }
     }
 
@@ -221,7 +221,7 @@ public class MetaSink extends AbstractSink implements Configurable {
                 TubeMultiSessionFactory sessionFactory = createConnection(masterUrl);
 
                 if (sessionFactory != null) {
-                    List<Set<String>> topicGroups = partitionTopicSet(new HashSet<>(topicProperties.values()));
+                    List<Set<String>> topicGroups = partitionTopicSet(topicProperties);
                     for (Set<String> topicSet : topicGroups) {
                         createTopicProducers(masterUrl, sessionFactory, topicSet);
                     }
@@ -463,7 +463,7 @@ public class MetaSink extends AbstractSink implements Configurable {
         this.canTake = true;
 
         try {
-            initTopicSet(new HashSet<String>(topicProperties.values()));
+            initTopicSet(topicProperties);
         } catch (Exception e) {
             logger.info("meta sink start publish topic fail.", e);
         }
@@ -813,7 +813,7 @@ public class MetaSink extends AbstractSink implements Configurable {
 //        logger.info("sinktest:"+getName()+getChannel());//sinktest:meta-sink-msg2null
 
         configManager = ConfigManager.getInstance();
-        topicProperties = configManager.getTopicProperties();
+        topicProperties = configManager.getTopicSet();
         masterHostAndPortLists = configManager.getThirdPartyClusterUrl2Token().keySet();
         Preconditions.checkState(masterHostAndPortLists != null || masterHostAndPortLists.isEmpty(),
                 "No master and port list specified");
@@ -822,8 +822,7 @@ public class MetaSink extends AbstractSink implements Configurable {
             @Override
             public void update() {
 
-                diffSetPublish(new HashSet<String>(topicProperties.values()),
-                        new HashSet<String>(configManager.getTopicProperties().values()));
+                diffSetPublish(topicProperties, configManager.getTopicSet());
             }
         });
         configManager.getThirdPartyClusterHolder().addUpdateCallback(new ConfigUpdateCallback() {

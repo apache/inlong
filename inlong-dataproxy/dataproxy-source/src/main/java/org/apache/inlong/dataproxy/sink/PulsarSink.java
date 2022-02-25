@@ -58,7 +58,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -172,7 +171,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
     private DataProxyMetricItemSet metricItemSet;
 
     private ConfigManager configManager;
-    private Map<String, String> topicProperties;
+    private Set<String> topicProperties;
 
     private Map<String, String> pulsarCluster;
     private ThirdPartyClusterConfig pulsarConfig;
@@ -184,7 +183,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
     private static ScheduledExecutorService scheduledExecutorService = Executors
             .newScheduledThreadPool(1, new HighPriorityThreadFactory("pulsarPerformance-Printer-thread"));
 
-    private static final  LoadingCache<String, Long> agentIdCache = CacheBuilder.newBuilder()
+    private static final LoadingCache<String, Long> agentIdCache = CacheBuilder.newBuilder()
             .concurrencyLevel(4 * 8).initialCapacity(500).expireAfterAccess(30, TimeUnit.SECONDS)
             .build(new CacheLoader<String, Long>() {
                 @Override
@@ -218,7 +217,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
         maxMonitorCnt = context.getInteger("max-monitor-cnt", 300000);
 
         configManager = ConfigManager.getInstance();
-        topicProperties = configManager.getTopicProperties();
+        topicProperties = configManager.getTopicSet();
         pulsarCluster = configManager.getThirdPartyClusterUrl2Token();
         pulsarConfig = configManager.getThirdPartyClusterConfig(); //pulsar common config
         pulsarClientService = new PulsarClientService(pulsarConfig);
@@ -226,9 +225,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
             @Override
             public void update() {
                 if (pulsarClientService != null) {
-                    diffSetPublish(pulsarClientService,
-                            new HashSet<String>(topicProperties.values()),
-                            new HashSet<String>(configManager.getTopicProperties().values()));
+                    diffSetPublish(pulsarClientService, topicProperties, configManager.getTopicSet());
                 }
             }
         });
@@ -291,7 +288,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
         }
         if (changed) {
             logger.info("topics.properties has changed, trigger diff publish for {}", getName());
-            topicProperties = configManager.getTopicProperties();
+            topicProperties = configManager.getTopicSet();
         }
     }
 
@@ -319,8 +316,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
             needToStart.put(url, endCluster.get(url));//token changed
         }
 
-        pulsarClientService.updatePulsarClients(this, needToClose, needToStart,
-                new HashSet<>(topicProperties.values()));
+        pulsarClientService.updatePulsarClients(this, needToClose, needToStart, topicProperties);
 
         pulsarCluster = configManager.getThirdPartyClusterUrl2Token();
     }
@@ -356,8 +352,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
 
         for (int i = 0; i < sinkThreadPool.length; i++) {
             try {
-                initTopicSet(pulsarClientService,
-                        new HashSet<String>(topicProperties.values()));
+                initTopicSet(pulsarClientService, topicProperties);
             } catch (Exception e) {
                 logger.info("pulsar sink start publish topic fail.", e);
             }

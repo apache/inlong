@@ -39,9 +39,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class ConfigManager {
@@ -105,6 +108,21 @@ public class ConfigManager {
 
     public Map<String, String> getTopicProperties() {
         return topicConfig.getHolder();
+    }
+
+    /**
+     * support pulsar multi topics for a same groupId
+     * @return
+     */
+    public Set<String> getTopicSet() {
+        Set<String> alltopic = new HashSet<>();
+        Map<String, String> groupId2topics = topicConfig.getHolder();
+        for (String topicStr : groupId2topics.values()) {
+            String[] topiclist = topicStr.split(AttributeConstants.COMMA_SEPARATOR);
+            alltopic.addAll(Arrays.asList(topiclist));
+        }
+        return alltopic;
+
     }
 
     /**
@@ -307,7 +325,14 @@ public class ConfigManager {
 
                     for (DataProxyConfig topic : configJson.getTopicList()) {
                         groupIdToMValue.put(topic.getInlongGroupId(), topic.getM());
-                        groupIdToTopic.put(topic.getInlongGroupId(), topic.getTopic());
+                        if (groupIdToTopic.containsKey(topic.getInlongGroupId())) {
+                            //multi topics separated by comma
+                            String topicList = groupIdToTopic.get(topic.getInlongGroupId())
+                                    + AttributeConstants.COMMA_SEPARATOR + topic.getTopic();
+                            groupIdToTopic.put(topic.getInlongGroupId(), topicList);
+                        } else {
+                            groupIdToTopic.put(topic.getInlongGroupId(), topic.getTopic());
+                        }
                     }
                     configManager.addMxProperties(groupIdToMValue);
                     configManager.addTopicProperties(groupIdToTopic);

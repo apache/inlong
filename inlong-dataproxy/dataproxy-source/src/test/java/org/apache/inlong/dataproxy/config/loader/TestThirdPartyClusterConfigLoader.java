@@ -23,10 +23,20 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.testng.AssertJUnit.assertEquals;
 
 public class TestThirdPartyClusterConfigLoader {
+
+    @Test
+    public void testMultiTopics() {
+        Set<String> topics = ConfigManager.getInstance().getTopicSet();
+        assertEquals(topics.size(), 4);
+        Map<String, String> id2topics = ConfigManager.getInstance().getTopicProperties();
+        assertEquals(id2topics.size(), 3);
+        assertEquals(id2topics.get("groupId1"), "topic-1,topic2,topic2");
+    }
 
     @Test
     public void testUpdateUrl() {
