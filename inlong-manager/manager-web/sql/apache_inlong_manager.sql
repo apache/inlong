@@ -599,7 +599,7 @@ CREATE TABLE `stream_source`
     `cluster_id`       int(11)           DEFAULT NULL COMMENT 'Id of the cluster that collected this source',
     `cluster_name`     varchar(50)       DEFAULT '' COMMENT 'Name of the cluster that collected this source',
     `snapshot`         text              DEFAULT NULL COMMENT 'Snapshot of this source task',
-    `report_time`      timestamp         DEFAULT NULL COMMENT 'Snapshot time',
+    `report_time`      timestamp    NULL COMMENT 'Snapshot time',
     `ext_params`       text              DEFAULT NULL COMMENT 'Another fields will saved as JSON string, such as filePath, dbName, tableName, etc',
     `status`           int(4)            DEFAULT '0' COMMENT 'Data source status',
     `previous_status`  int(4)            DEFAULT '0' COMMENT 'Previous status',
@@ -1129,17 +1129,17 @@ CREATE TABLE `sort_task_sink_param`
 DROP TABLE IF EXISTS `stream_config_log`;
 CREATE TABLE `stream_config_log`
 (
-    `id`               int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `ip`               varchar(64)   NOT NULL COMMENT 'client host ip',
-    `version`          varchar(128)  DEFAULT NULL COMMENT 'client version',
-    `inlong_stream_id` varchar(256)  DEFAULT NULL COMMENT 'Inlong stream ID for consumption',
-    `inlong_group_id`  varchar(256)  NOT NULL COMMENT 'Inlong group id',
-    `component_name`   varchar(64)   NOT NULL COMMENT 'current report info component name',
-    `config_name`      varchar(64)   DEFAULT NULL COMMENT 'massage in heartbeat request',
-    `log_type`         int(1)        DEFAULT NULL COMMENT '0 normal, 1 error',
-    `log_info`         text          DEFAULT NULL COMMENT 'massage in heartbeat request',
-    `report_time`      timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'report time',
-    `modify_time`      timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `ip`               varchar(64)  NOT NULL COMMENT 'client host ip',
+    `version`          varchar(128)          DEFAULT NULL COMMENT 'client version',
+    `inlong_stream_id` varchar(256)          DEFAULT NULL COMMENT 'Inlong stream ID for consumption',
+    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Inlong group id',
+    `component_name`   varchar(64)  NOT NULL COMMENT 'current report info component name',
+    `config_name`      varchar(64)           DEFAULT NULL COMMENT 'massage in heartbeat request',
+    `log_type`         int(1)                DEFAULT NULL COMMENT '0 normal, 1 error',
+    `log_info`         text                  DEFAULT NULL COMMENT 'massage in heartbeat request',
+    `report_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'report time',
+    `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     KEY `index_config_log_report` (`component_name`, `config_name`, `report_time`)
 ) ENGINE = InnoDB
@@ -1152,16 +1152,16 @@ CREATE TABLE `stream_config_log`
 DROP TABLE IF EXISTS `stream_metric`;
 CREATE TABLE `stream_metric`
 (
-    `id`                 int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `ip`                 varchar(64)  NOT NULL COMMENT 'agent host ip',
-    `version`            varchar(128) DEFAULT NULL COMMENT 'client version',
-    `inlong_stream_id`   varchar(256) DEFAULT NULL COMMENT 'Inlong stream ID for consumption',
-    `inlong_group_id`    varchar(256) NOT NULL COMMENT 'Inlong group id',
-    `component_name`     varchar(64)  NOT NULL COMMENT 'current report info component name',
-    `metric_name`        varchar(64)  NOT NULL COMMENT 'current report info component name',
-    `metric_info`        text         DEFAULT NULL COMMENT 'massage in heartbeat request',
-    `report_time`        timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'report time',
-    `modify_time`        timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `ip`               varchar(64)  NOT NULL COMMENT 'agent host ip',
+    `version`          varchar(128)          DEFAULT NULL COMMENT 'client version',
+    `inlong_stream_id` varchar(256)          DEFAULT NULL COMMENT 'Inlong stream ID for consumption',
+    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Inlong group id',
+    `component_name`   varchar(64)  NOT NULL COMMENT 'current report info component name',
+    `metric_name`      varchar(64)  NOT NULL COMMENT 'current report info component name',
+    `metric_info`      text                  DEFAULT NULL COMMENT 'massage in heartbeat request',
+    `report_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'report time',
+    `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     KEY `index_metric_report` (`component_name`, `metric_name`, `report_time`)
 ) ENGINE = InnoDB
