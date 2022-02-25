@@ -17,30 +17,22 @@
 
 package org.apache.inlong.manager.client.api;
 
+import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.io.Serializable;
+import java.util.Map;
 import lombok.Data;
 
 @Data
-@ApiModel("Base configuration for message queue")
-public abstract class MqBaseConf implements Serializable {
+@ApiModel("Base configuration for user defined sort functions")
+public class UserDefinedSortConf extends SortBaseConf {
 
-    public static final MqBaseConf BLANK_MQ_CONF = new MqBaseConf() {
-        @Override
-        public MqType getType() {
-            return MqType.NONE;
-        }
-    };
+    @ApiModelProperty(value = "Sort type")
+    private SortType type = SortType.USER_DEFINED;
 
-    public enum MqType {
-        PULSAR,
-        TUBE,
-        NONE;
-    }
+    @ApiModelProperty("Name for user defined sort functions")
+    private String sortName;
 
-    @ApiModelProperty("The number of partitions of Topic, 1-20")
-    private int topicPartitionNum = 3;
-
-    public abstract MqType getType();
+    @ApiModelProperty("Properties for user defined sort functions if needed")
+    private Map<String, String> properties = Maps.newHashMap();
 }

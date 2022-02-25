@@ -15,32 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.common.enums;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import java.io.Serializable;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
-@ApiModel("Base configuration for message queue")
-public abstract class MqBaseConf implements Serializable {
+public enum DataTypeEnum {
+    CSV("csv"),
+    AVRO("avro"),
+    JSON("json"),
+    CANAL("canal"),
+    DEBEZIUM_JSON("debezium_json");
 
-    public static final MqBaseConf BLANK_MQ_CONF = new MqBaseConf() {
-        @Override
-        public MqType getType() {
-            return MqType.NONE;
-        }
-    };
+    @Getter
+    private String name;
 
-    public enum MqType {
-        PULSAR,
-        TUBE,
-        NONE;
+    DataTypeEnum(String name) {
+        this.name = name;
     }
 
-    @ApiModelProperty("The number of partitions of Topic, 1-20")
-    private int topicPartitionNum = 3;
-
-    public abstract MqType getType();
+    public static DataTypeEnum forName(String name) {
+        for (DataTypeEnum dataType : values()) {
+            if (dataType.getName().equals(name)) {
+                return dataType;
+            }
+        }
+        throw new IllegalArgumentException(String.format("Unsupport dataType for Inlong:%s", name));
+    }
 }

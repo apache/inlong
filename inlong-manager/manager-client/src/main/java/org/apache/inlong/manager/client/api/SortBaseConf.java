@@ -26,7 +26,8 @@ public abstract class SortBaseConf {
 
     public enum SortType {
         FLINK,
-        LOCAL;
+        LOCAL,
+        USER_DEFINED;
     }
 
     public abstract SortType getType();
