@@ -128,13 +128,26 @@ public class JobManager extends AbstractDaemon {
      * @param profile - job profile.
      */
     public boolean submitFileJobProfile(JobProfile profile) {
+        return submitJobProfile(profile, false);
+    }
+
+    /**
+     * add file job profile
+     *
+     * @param profile - job profile.
+     */
+    public boolean submitJobProfile(JobProfile profile, boolean singleJob) {
         if (profile == null || !profile.allRequiredKeyExist()) {
             LOGGER.error("profile is null or not all required key exists {}", profile == null ? null
                     : profile.toJsonStr());
             return false;
         }
         String jobId = profile.get(JOB_ID);
-        profile.set(JOB_INSTANCE_ID, AgentUtils.getUniqId(JOB_ID_PREFIX, jobId, index.incrementAndGet()));
+        if (singleJob) {
+            profile.set(JOB_INSTANCE_ID, jobId);
+        } else {
+            profile.set(JOB_INSTANCE_ID, AgentUtils.getUniqId(JOB_ID_PREFIX, jobId, index.incrementAndGet()));
+        }
         LOGGER.info("submit job profile {}", profile.toJsonStr());
         getJobConfDb().storeJobFirstTime(profile);
         addJob(new Job(profile));
@@ -164,13 +177,15 @@ public class JobManager extends AbstractDaemon {
      *
      * @param jobInstancId
      */
-    public void deleteJob(String jobInstancId) {
+    public boolean deleteJob(String jobInstancId) {
         JobWrapper jobWrapper = jobs.remove(jobInstancId);
         if (jobWrapper != null) {
             LOGGER.info("delete job instance with job id {}", jobInstancId);
             jobWrapper.cleanup();
             getJobConfDb().deleteJob(jobInstancId);
+            return true;
         }
+        return false;
     }
 
     /**
