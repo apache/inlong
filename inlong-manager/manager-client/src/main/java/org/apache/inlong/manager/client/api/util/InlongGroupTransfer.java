@@ -28,6 +28,7 @@ import org.apache.inlong.manager.client.api.PulsarBaseConf;
 import org.apache.inlong.manager.client.api.SortBaseConf;
 import org.apache.inlong.manager.client.api.SortBaseConf.SortType;
 import org.apache.inlong.manager.client.api.TubeBaseConf;
+import org.apache.inlong.manager.client.api.UserDefinedSortConf;
 import org.apache.inlong.manager.client.api.auth.Authentication;
 import org.apache.inlong.manager.client.api.auth.Authentication.AuthType;
 import org.apache.inlong.manager.client.api.auth.SecretTokenAuthentication;
@@ -79,6 +80,10 @@ public class InlongGroupTransfer {
         if (sortType == SortType.FLINK) {
             FlinkSortBaseConf flinkSortBaseConf = (FlinkSortBaseConf) sortBaseConf;
             List<InlongGroupExtInfo> sortExtInfos = createFlinkExtInfo(flinkSortBaseConf);
+            groupInfo.getExtList().addAll(sortExtInfos);
+        } else if (sortType == SortType.USER_DEFINED) {
+            UserDefinedSortConf udf = (UserDefinedSortConf) sortBaseConf;
+            List<InlongGroupExtInfo> sortExtInfos = createUserDefinedSortExtInfo(udf);
             groupInfo.getExtList().addAll(sortExtInfos);
         } else {
             //todo local
@@ -158,6 +163,10 @@ public class InlongGroupTransfer {
 
     public static List<InlongGroupExtInfo> createFlinkExtInfo(FlinkSortBaseConf flinkSortBaseConf) {
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
+        InlongGroupExtInfo sortType = new InlongGroupExtInfo();
+        sortType.setKeyName(InlongGroupSettings.SORT_TYPE);
+        sortType.setKeyValue(InlongGroupSettings.DEFAULT_SORT_TYPE);
+        extInfos.add(sortType);
         if (flinkSortBaseConf.getAuthentication() != null) {
             Authentication authentication = flinkSortBaseConf.getAuthentication();
             AuthType authType = authentication.getAuthType();
@@ -183,6 +192,21 @@ public class InlongGroupTransfer {
             InlongGroupExtInfo flinkProperties = new InlongGroupExtInfo();
             flinkProperties.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
             flinkProperties.setKeyValue(JsonUtils.toJson(flinkSortBaseConf.getProperties()));
+            extInfos.add(flinkProperties);
+        }
+        return extInfos;
+    }
+
+    public static List<InlongGroupExtInfo> createUserDefinedSortExtInfo(UserDefinedSortConf userDefinedSortConf) {
+        List<InlongGroupExtInfo> extInfos = new ArrayList<>();
+        InlongGroupExtInfo sortType = new InlongGroupExtInfo();
+        sortType.setKeyName(InlongGroupSettings.SORT_TYPE);
+        sortType.setKeyValue(userDefinedSortConf.getSortName());
+        extInfos.add(sortType);
+        if (MapUtils.isNotEmpty(userDefinedSortConf.getProperties())) {
+            InlongGroupExtInfo flinkProperties = new InlongGroupExtInfo();
+            flinkProperties.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
+            flinkProperties.setKeyValue(JsonUtils.toJson(userDefinedSortConf.getProperties()));
             extInfos.add(flinkProperties);
         }
         return extInfos;

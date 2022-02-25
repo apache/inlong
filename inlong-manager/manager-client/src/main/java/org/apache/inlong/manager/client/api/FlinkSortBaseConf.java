@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api;
 
+import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.Map;
@@ -39,6 +40,6 @@ public class FlinkSortBaseConf extends SortBaseConf {
     @ApiModelProperty("Region for flink cluster, for example:ap-beijing|ap-chengdu|ap-chongqing or null if not exists")
     private String region;
 
-    @ApiModelProperty("Other properties if need")
-    private Map<String, String> properties;
+    @ApiModelProperty("Other properties if needed")
+    private Map<String, String> properties = Maps.newHashMap();
 }

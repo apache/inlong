@@ -17,18 +17,22 @@
 
 package org.apache.inlong.manager.client.api;
 
+import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
 import lombok.Data;
 
 @Data
-@ApiModel("Sort configuration for inlong group")
-public abstract class SortBaseConf {
+@ApiModel("Base configuration for user defined sort functions")
+public class UserDefinedSortConf extends SortBaseConf {
 
-    public enum SortType {
-        FLINK,
-        LOCAL,
-        USER_DEFINED;
-    }
+    @ApiModelProperty(value = "Sort type")
+    private SortType type = SortType.USER_DEFINED;
 
-    public abstract SortType getType();
+    @ApiModelProperty("Name for user defined sort functions")
+    private String sortName;
+
+    @ApiModelProperty("Properties for user defined sort functions if needed")
+    private Map<String, String> properties = Maps.newHashMap();
 }
