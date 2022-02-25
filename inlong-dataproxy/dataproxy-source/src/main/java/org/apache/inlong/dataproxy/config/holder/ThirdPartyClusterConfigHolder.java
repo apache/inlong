@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.config.holder;
 
 import com.google.common.base.Splitter;
+import org.apache.inlong.dataproxy.config.pojo.ThirdPartyClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,41 +30,49 @@ import java.util.Map;
 /**
  * value is map
  */
-public class PulsarConfigHolder extends PropertiesConfigHolder {
+public class ThirdPartyClusterConfigHolder extends PropertiesConfigHolder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PulsarConfigHolder.class);
-    private final Map<String, Map<String, String>> pulsarConfigMaps =
-            new HashMap<String, Map<String, String>>();
-    private final Map<String, String> valueMaps = new HashMap<>();
+    private static final Logger LOG = LoggerFactory.getLogger(ThirdPartyClusterConfigHolder.class);
+    private final ThirdPartyClusterConfig clusterConfig = new ThirdPartyClusterConfig();
 
-    public PulsarConfigHolder(String fileName) {
+
+    public static final String URL_STORE_PREFIX = "third-party-cluster.index";
+
+    public ThirdPartyClusterConfigHolder(String fileName) {
         super(fileName);
     }
 
     /**
-     * load m from file
+     * load from file
      */
     @Override
     public void loadFromFileToHolder() {
         super.loadFromFileToHolder();
-        try {
-            for (Map.Entry<String, String> entry : getHolder().entrySet()) {
-                pulsarConfigMaps.put(entry.getKey(), MAP_SPLITTER.split(entry.getValue()));
-
+        Map<String, String> tmpUrl2token = new HashMap<>();
+        Map<String, String> tmpConfig = new HashMap<>();
+        for (Map.Entry<String, String> entry : getHolder().entrySet()) {
+            if (entry.getKey().startsWith(URL_STORE_PREFIX)) {
                 List<String> kv = Splitter.on(AttributeConstants.KEY_VALUE_SEPARATOR)
                         .trimResults().splitToList(entry.getValue());
-                valueMaps.put(kv.get(0), kv.get(1));
+                tmpUrl2token.put(kv.get(0), kv.get(1));
             }
-        } catch (Exception e) {
-            LOG.error("loadConfig error :", e);
         }
+        if (!tmpUrl2token.isEmpty()) {
+            clusterConfig.setUrl2token(tmpUrl2token);
+        }
+        // for disaster
+        clusterConfig.putAll(getHolder());
     }
 
-    public Map<String, Map<String, String>> getPulsarConfigMaps() {
-        return pulsarConfigMaps;
+    public void setUrl2token(Map<String, String> newUrl2Token) {
+        clusterConfig.setUrl2token(newUrl2Token);
     }
 
-    public Map<String, String> getValueMaps() {
-        return valueMaps;
+    public Map<String, String> getUrl2token() {
+        return clusterConfig.getUrl2token();
+    }
+
+    public ThirdPartyClusterConfig getClusterConfig() {
+        return clusterConfig;
     }
 }

@@ -20,30 +20,34 @@ package org.apache.inlong.common.pojo.agent;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import javax.annotation.Nonnull;
 import java.util.Date;
+import java.util.List;
 
 /**
- * Request of the agent task heartbeat
+ * Request of the agent task snapshot
  */
 @Data
-public class TaskHeartbeatRequest {
+public class TaskSnapshotRequest {
 
     /**
-     * The source id
+     * The ip of agent
      */
-    @Nonnull
-    private Integer id;
+    private String agentIp;
 
     /**
-     * Heartbeat of this source task
+     * The mac UUID of agent
      */
-    private String heartbeat;
+    private String uuid;
 
     /**
      * Report time
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date reportTime;
+
+    /**
+     * The snapshot message list
+     */
+    private List<TaskSnapshotMessage> snapshotList;
 
 }

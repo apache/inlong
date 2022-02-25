@@ -17,11 +17,13 @@
 
 package org.apache.inlong.common.pojo.agent;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@Builder
 public class TaskResult {
 
     private List<CmdConfig> cmdConfigs;
