@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.plugin.filter;
 
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;

@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * File-based data source control layer
  */
+@Deprecated
 @RestController
 @RequestMapping("/datasource/file")
 @Api(tags = "DataSource - File")

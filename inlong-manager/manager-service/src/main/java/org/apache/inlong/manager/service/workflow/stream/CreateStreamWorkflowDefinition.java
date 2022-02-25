@@ -25,7 +25,7 @@ import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveTableForStreamListener;
 import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarGroupForStreamTaskListener;
 import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarTopicForStreamTaskListener;
-import org.apache.inlong.manager.service.thirdparty.sort.PushHiveConfigTaskListener;
+import org.apache.inlong.manager.service.thirdparty.sort.PushSortConfigListener;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.group.listener.InitGroupListener;
@@ -57,7 +57,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
     @Autowired
     private CreateHiveTableForStreamListener createHiveTableListener;
     @Autowired
-    private PushHiveConfigTaskListener pushHiveConfigTaskListener;
+    private PushSortConfigListener pushSortConfigListener;
     @Autowired
     private CreatePulsarTopicForStreamTaskListener createPulsarTopicTaskListener;
     @Autowired
@@ -141,7 +141,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask pushSortConfig = new ServiceTask();
         pushSortConfig.setName("pushSortConfig");
         pushSortConfig.setDisplayName("Stream-PushSortConfig");
-        pushSortConfig.addListener(pushHiveConfigTaskListener);
+        pushSortConfig.addListener(pushSortConfigListener);
         process.addTask(pushSortConfig);
 
         startEvent.addNext(createPulsarTopicTask);

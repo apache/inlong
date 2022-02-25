@@ -52,6 +52,7 @@ import java.util.List;
 /**
  * DB data source service layer implementation
  */
+@Deprecated
 @Service
 public class SourceDbServiceImpl implements SourceDbService {
 

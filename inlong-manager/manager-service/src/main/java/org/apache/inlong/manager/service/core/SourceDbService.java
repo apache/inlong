@@ -18,15 +18,17 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import java.util.List;
 import org.apache.inlong.manager.common.pojo.source.SourceDbBasicInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceDbDetailInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceDbDetailListVO;
 import org.apache.inlong.manager.common.pojo.source.SourceDbDetailPageRequest;
 
+import java.util.List;
+
 /**
  * DB data source service layer interface
  */
+@Deprecated
 public interface SourceDbService {
 
     /**

@@ -66,7 +66,7 @@ spec:
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-$i"
                 host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-                port={{ .Values.tubemqMaster.ports.webNodePort }}
+                port={{ .Values.tubemqMaster.ports.webPort }}
                 until curl $host:$port/index.htm
                 do
                   echo "waiting for $replica to be ready"
@@ -77,6 +77,10 @@ spec:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqManager.component }}
           image: {{ .Values.images.tubemqManager.repository }}:{{ .Values.images.tubemqManager.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
+          {{- if .Values.tubemqManager.resources }}
+          resources:
+{{ toYaml .Values.tubemqManager.resources | indent 12 }}
+          {{- end }}
           env:
             - name: MYSQL_HOST
               value: {{ include "inlong.mysql.hostname" . | quote }}
@@ -88,7 +92,7 @@ spec:
                   name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
                   key: mysql-password
             - name: TUBE_MASTER_IP
-              value: {{ include "inlong.mq.url" . | quote }}
+              value: {{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}
           ports:
             - name: {{ .Values.tubemqManager.component }}-port
               containerPort: 8089

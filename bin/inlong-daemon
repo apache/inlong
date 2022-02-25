@@ -199,7 +199,7 @@ start_inlong_sort() {
   flagfile=$(find / -name find-flink-home.sh)
   flink_bin=$(dirname $flagfile)
   cd $INLONG_HOME
-  $flink_bin/flink run -c org.apache.inlong.sort.flink.Entrance inlong-sort/sort-core*.jar \
+  $flink_bin/flink run -c org.apache.inlong.sort.flink.Entrance inlong-sort/sort-dist*.jar \
   --cluster-id $sort_app_name --zookeeper.quorum $zkserver_addr --zookeeper.path.root $cluster_zk_root \
   --source.type $source_type --sink.type $sink_type &
 }
@@ -213,7 +213,7 @@ start_inlong_all() {
   echo "Judge the choice of message middleware tubemq or pulsar"
   if [ $source_type == "pulsar" ]; then
     # Judge whether the pulsar cluster is started in the current system
-    pulsar_thread=$($JAVA_HOME/bin/jps | grep PulsarBrokerStarter)
+    pulsar_thread=$($JAVA_HOME/bin/jps | egrep 'PulsarBrokerStarter | PulsarStandaloneStarter')
     if [ ! -n "$pulsar_thread" ]; then
       echo "The system does not start the pulsar. Please start the pulsar manually first"
       exit 1

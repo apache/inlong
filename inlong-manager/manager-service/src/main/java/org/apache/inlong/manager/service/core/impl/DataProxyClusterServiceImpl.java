@@ -22,11 +22,10 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
-import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfigResponse;
-import org.apache.inlong.commons.pojo.dataproxy.ProxyPulsarDTO;
-import org.apache.inlong.commons.pojo.dataproxy.PulsarClusterInfo;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
@@ -181,36 +180,18 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     @Override
     public List<DataProxyIpResponse> getIpList(DataProxyIpRequest request) {
         LOGGER.debug("begin to get data proxy ip list, request: {}", request);
-
         List<DataProxyClusterEntity> entityList = dataProxyClusterMapper.selectAll();
         if (entityList == null || entityList.isEmpty()) {
             LOGGER.info("success to get data proxy ip list, but result is empty, request ip={}", request.getIp());
             return null;
         }
 
-        final String requestNetTag = request.getNetTag();
         List<DataProxyIpResponse> responseList = new ArrayList<>();
         for (DataProxyClusterEntity entity : entityList) {
-            // Subject to the net tag of any entity
-            String netTag = requestNetTag;
-            if (StringUtils.isEmpty(netTag)) {
-                int innerIp = entity.getIsInnerIp();
-                if (innerIp == 1) {
-                    netTag = "auto";
-                } else {
-                    netTag = entity.getNetType();
-                }
-
-                if (StringUtils.isEmpty(netTag)) {
-                    netTag = "all";
-                }
-            }
-
             DataProxyIpResponse response = new DataProxyIpResponse();
             response.setId(entity.getId());
             response.setPort(entity.getPort());
             response.setIp(entity.getAddress());
-            response.setNetTag(netTag);
 
             responseList.add(response);
         }
@@ -250,12 +231,12 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     }
 
     /**
-     * query data proxy config by cluster id, result includes pulsar cluster configs and topic etc
+     * query data proxy config by cluster name, result includes pulsar/tube cluster configs and topic etc
      */
     @Override
-    public ProxyPulsarDTO getConfigV2(String dataproxyClusterName) {
-        ProxyPulsarDTO object = new ProxyPulsarDTO();
-        List<PulsarClusterInfo> pulsarSet = new ArrayList<>();
+    public ThirdPartyClusterDTO getConfigV2(String dataproxyClusterName) {
+
+        List<ThirdPartyClusterInfo> mqSet = new ArrayList<>();
         List<DataProxyConfig> topicList = new ArrayList<>();
 
         DataProxyClusterEntity dataProxyClusterEntity = dataProxyClusterMapper.selectByName(dataproxyClusterName);
@@ -263,36 +244,49 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         ClusterRequest request = ClusterRequest.builder().mqSetName(dataProxyClusterEntity.getMqSetName()).build();
         List<ThirdPartyClusterEntity> clusterInfoEntities = thirdPartyClusterEntityMapper
                 .selectByCondition(request);
+
+        // third-party-cluster type
+        String middlewareType = "";
+        if (!groupIdList.isEmpty()) {
+            middlewareType = groupMapper.selectByGroupId(groupIdList.get(0)).getMiddlewareType();
+        }
         String tenant = clusterBean.getDefaultTenant();
-        /*
-         * based on group id, get topic list
-         */
+
+        // based on group id, get topic list
         for (String groupId : groupIdList) {
-            List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
-            for (InlongStreamEntity stream : streamList) {
+            if (Constant.MIDDLEWARE_PULSAR.equals(middlewareType)) {
+                List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
+
+                for (InlongStreamEntity stream : streamList) {
+                    DataProxyConfig topicConfig = new DataProxyConfig();
+                    String streamId = stream.getInlongStreamId();
+                    topicConfig.setInlongGroupId(groupId + "/" + streamId);
+                    topicConfig.setTopic("persistent://" + tenant + "/" + groupId + "/" + streamId);
+                    topicList.add(topicConfig);
+
+                }
+            } else if (Constant.MIDDLEWARE_TUBE.equals(middlewareType)) {
                 DataProxyConfig topicConfig = new DataProxyConfig();
-                String streamId = stream.getInlongStreamId();
-                topicConfig.setInlongGroupId(groupId + "/" + streamId);
-                topicConfig.setTopic("persistent://" + tenant + "/" + groupId + "/" + streamId);
+                topicConfig.setInlongGroupId(groupId);
+                topicConfig.setTopic(groupId);
                 topicList.add(topicConfig);
 
             }
         }
-        /*
-         * construct pulsarSet info
-         */
+        // construct pulsarSet info
         Gson gson = new Gson();
         for (ThirdPartyClusterEntity cluster : clusterInfoEntities) {
-            PulsarClusterInfo pulsarCluster = new PulsarClusterInfo();
-            pulsarCluster.setUrl(cluster.getUrl());
-            pulsarCluster.setToken(cluster.getToken());
-            Map<String, String> configParams = gson.fromJson(cluster.getExtProps(), Map.class);
-            pulsarCluster.setParams(configParams);
+            ThirdPartyClusterInfo clusterInfo = new ThirdPartyClusterInfo();
+            clusterInfo.setUrl(cluster.getUrl());
+            clusterInfo.setToken(cluster.getToken());
+            Map<String, String> configParams = gson.fromJson(cluster.getExtParams(), Map.class);
+            clusterInfo.setParams(configParams);
 
-            pulsarSet.add(pulsarCluster);
+            mqSet.add(clusterInfo);
         }
 
-        object.setPulsarSet(pulsarSet);
+        ThirdPartyClusterDTO object = new ThirdPartyClusterDTO();
+        object.setMqSet(mqSet);
         object.setTopicList(topicList);
 
         return object;

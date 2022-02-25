@@ -170,6 +170,13 @@
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
+        <table tableName="stream_source" domainObjectName="StreamSourceEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
         <table tableName="stream_sink" domainObjectName="StreamSinkEntity"
                 enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
@@ -192,11 +199,11 @@
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
         <table tableName="common_file_server" domainObjectName="CommonFileServerEntity"
-                        enableSelectByPrimaryKey="true"
-                        enableUpdateByPrimaryKey="true"
-                        enableDeleteByPrimaryKey="true" enableInsert="true"
-                        enableCountByExample="false" enableDeleteByExample="false"
-                        enableSelectByExample="false" enableUpdateByExample="false"/>
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
 
         <table tableName="common_db_server" domainObjectName="CommonDbServerEntity"
                 enableSelectByPrimaryKey="true"
@@ -212,33 +219,33 @@
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
-        <table tableName="sort_cluster_config" domainObjectName="SortClusterConfgiEntity"
-               enableSelectByPrimaryKey="true"
-               enableUpdateByPrimaryKey="true"
-               enableDeleteByPrimaryKey="true" enableInsert="true"
-               enableCountByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" enableUpdateByExample="false"/>
+        <table tableName="sort_cluster_config" domainObjectName="SortClusterConfigEntity"
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
 
         <table tableName="sort_id_params" domainObjectName="SortIdParamsEntity"
-               enableSelectByPrimaryKey="true"
-               enableUpdateByPrimaryKey="true"
-               enableDeleteByPrimaryKey="true" enableInsert="true"
-               enableCountByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" enableUpdateByExample="false"/>
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
 
         <table tableName="sort_task_id_param" domainObjectName="SortTaskIdParamEntity"
-               enableSelectByPrimaryKey="true"
-               enableUpdateByPrimaryKey="true"
-               enableDeleteByPrimaryKey="true" enableInsert="true"
-               enableCountByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" enableUpdateByExample="false"/>
-               
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>
+
         <table tableName="sort_task_sink_param" domainObjectName="SortTaskSinkParamEntity"
-               enableSelectByPrimaryKey="true"
-               enableUpdateByPrimaryKey="true"
-               enableDeleteByPrimaryKey="true" enableInsert="true"
-               enableCountByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" enableUpdateByExample="false"/>-->
+                enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true"
+                enableDeleteByPrimaryKey="true" enableInsert="true"
+                enableCountByExample="false" enableDeleteByExample="false"
+                enableSelectByExample="false" enableUpdateByExample="false"/>-->
 
     </context>
 </generatorConfiguration>

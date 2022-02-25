@@ -17,10 +17,10 @@
 
 package org.apache.inlong.agent.core;
 
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_CONF_PARENT;
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_ENABLE_HTTP;
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_HTTP_PORT;
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AGENT_HTTP_PORT;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CONF_PARENT;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_ENABLE_HTTP;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HTTP_PORT;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_HTTP_PORT;
 
 import com.google.gson.Gson;
 import org.apache.http.client.config.RequestConfig;

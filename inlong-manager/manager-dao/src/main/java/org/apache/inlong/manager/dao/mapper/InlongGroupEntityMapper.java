@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.springframework.stereotype.Repository;

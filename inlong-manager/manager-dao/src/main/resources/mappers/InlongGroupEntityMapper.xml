@@ -112,7 +112,7 @@
         </where>
         order by modify_time desc
     </select>
-    <select id="selectDataProxyConfig" resultType="org.apache.inlong.commons.pojo.dataproxy.DataProxyConfig">
+    <select id="selectDataProxyConfig" resultType="org.apache.inlong.common.pojo.dataproxy.DataProxyConfig">
         select biz.inlong_group_id as inlongGroupId, biz.mq_resource_obj as topic, d.sort_type as m
         from inlong_group biz,
              data_schema d

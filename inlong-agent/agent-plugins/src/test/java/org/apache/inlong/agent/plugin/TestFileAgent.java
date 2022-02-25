@@ -17,14 +17,14 @@
 
 package org.apache.inlong.agent.plugin;
 
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_CYCLE_UNIT;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_DIR_FILTER_PATTERN;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_FILE_MAX_WAIT;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_FILE_TIME_OFFSET;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_READ_WAIT_TIMEOUT;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
 import static org.awaitility.Awaitility.await;
 
 import java.io.FileWriter;
@@ -120,7 +120,8 @@ public class TestFileAgent {
 
     @Test
     public void testOneJobOnly() throws Exception {
-        TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(TestUtils.getTestTriggerProfile());
+        String jsonString = TestUtils.getTestTriggerProfile();
+        TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(jsonString);
         triggerProfile.set(JOB_DIR_FILTER_PATTERN, helper.getParentPath() + triggerProfile.get(JOB_DIR_FILTER_PATTERN));
         triggerProfile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testRootDir.toString(),
             "test[0-9].dat").toString());

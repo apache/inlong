@@ -38,6 +38,7 @@ public class DBCollectorController {
     @Autowired
     private DBCollectorTaskService taskService;
 
+    @Deprecated
     @PostMapping("/getTask")
     @ApiOperation(value = "fetch db collector task")
     public Response<DBCollectorTaskInfo> getTask(@RequestBody DBCollectorTaskRequest req) {

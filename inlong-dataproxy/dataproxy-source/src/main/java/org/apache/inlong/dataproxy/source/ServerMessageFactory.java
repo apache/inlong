@@ -28,8 +28,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.commons.monitor.MonitorIndex;
-import org.apache.inlong.commons.monitor.MonitorIndexExt;
+import org.apache.inlong.common.monitor.MonitorIndex;
+import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -36,11 +36,11 @@ public interface StreamSinkEntityMapper {
     StreamSinkEntity selectByPrimaryKey(Integer id);
 
     /**
-     * According to the inlong group id and inlong stream id, query the number of valid Hive sink
+     * According to the inlong group id and inlong stream id, query the number of valid sink
      *
      * @param groupId inlong group id
      * @param streamId inlong stream id
-     * @return Hive sink entity size
+     * @return Sink entity size
      */
     int selectCount(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
@@ -48,7 +48,7 @@ public interface StreamSinkEntityMapper {
      * Paging query sink list based on conditions
      *
      * @param request Paging query conditions
-     * @return Hive sink entity list
+     * @return Sink entity list
      */
     List<StreamSinkEntity> selectByCondition(@Param("request") SinkPageRequest request);
 
@@ -63,7 +63,7 @@ public interface StreamSinkEntityMapper {
      *
      * @param groupId inlong group id
      * @param streamId inlong stream id
-     * @return Hive sink entity list
+     * @return Sink entity list
      */
     List<StreamSinkEntity> selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
@@ -107,7 +107,7 @@ public interface StreamSinkEntityMapper {
 
     int updateByPrimaryKey(StreamSinkEntity record);
 
-    int updateSinkStatus(StreamSinkEntity entity);
+    int updateStatus(StreamSinkEntity entity);
 
     int deleteByPrimaryKey(Integer id);
 

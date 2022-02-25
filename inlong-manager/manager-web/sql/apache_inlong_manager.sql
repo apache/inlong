@@ -142,7 +142,7 @@ CREATE TABLE `inlong_group_ext`
     `id`              int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id` varchar(256) NOT NULL COMMENT 'Inlong group id',
     `key_name`        varchar(64)  NOT NULL COMMENT 'Configuration item name',
-    `key_value`       varchar(256)      DEFAULT NULL COMMENT 'The value of the configuration item',
+    `key_value`       text     DEFAULT NULL COMMENT 'The value of the configuration item',
     `is_deleted`      int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `modify_time`     timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
@@ -162,18 +162,18 @@ CREATE TABLE `third_party_cluster`
     `type`        varchar(32)  NOT NULL COMMENT 'Cluster type, including TUBE, PULSAR, etc.',
     `ip`          varchar(64)  NOT NULL COMMENT 'Cluster IP address',
     `port`        int(11)      NOT NULL COMMENT 'Cluster port',
-    `in_charges`  varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `token`       varchar(128) COMMENT 'Cluster token',
     `url`         varchar(256)      DEFAULT NULL COMMENT 'Cluster URL address',
     `is_backup`   tinyint(1)        DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
+    `mq_set_name` varchar(128) NULL COMMENT 'MQ set name of this cluster',
     `ext_props`   text              DEFAULT NULL COMMENT 'extended properties',
+    `in_charges`  varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `status`      int(4)            DEFAULT '1' COMMENT 'cluster status',
     `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `mq_set_name` varchar(128) NOT NULL COMMENT 'MQ set name of this cluster',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='MQ Cluster Information Table';
@@ -297,17 +297,15 @@ CREATE TABLE `data_proxy_cluster`
     `address`     varchar(128) NOT NULL COMMENT 'cluster address',
     `port`        varchar(256)      DEFAULT '46801' COMMENT 'Access port number, multiple ports are separated by a comma',
     `is_backup`   tinyint(1)        DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
-    `is_inner_ip` tinyint(1)        DEFAULT '0' COMMENT 'Whether it is intranet, 0: no, 1: yes',
-    `net_type`    varchar(20)       DEFAULT NULL COMMENT 'Cluster network type, internal, or public',
-    `in_charges`  varchar(512)      DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
+    `mq_set_name` varchar(128) NULL COMMENT 'MQ set name of this cluster',
     `ext_props`   text              DEFAULT NULL COMMENT 'Extended properties',
+    `in_charges`  varchar(512)      DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
     `status`      int(4)            DEFAULT '1' COMMENT 'Cluster status',
     `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `mq_set_name` varchar(128) NOT NULL COMMENT 'mq set name',
     PRIMARY KEY (`id`),
     UNIQUE KEY `cluster_name` (`name`, `is_deleted`)
 ) ENGINE = InnoDB
@@ -585,6 +583,36 @@ CREATE TABLE `source_file_detail`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Detailed table of file data source';
 
 -- ----------------------------
+-- Table structure for stream_source
+-- ----------------------------
+DROP TABLE IF EXISTS `stream_source`;
+CREATE TABLE `stream_source`
+(
+    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Inlong group id',
+    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Inlong stream id',
+    `source_type`      varchar(20)       DEFAULT '0' COMMENT 'Source type, including: FILE, DB, etc',
+    `agent_ip`         varchar(40)       DEFAULT NULL COMMENT 'Ip of the agent running the task',
+    `uuid`             varchar(30)       DEFAULT NULL COMMENT 'Mac uuid of the agent running the task',
+    `server_id`        int(11)           DEFAULT NULL COMMENT 'Id of the source server',
+    `server_name`      varchar(50)       DEFAULT '' COMMENT 'Name of the source server',
+    `cluster_id`       int(11)           DEFAULT NULL COMMENT 'Id of the cluster that collected this source',
+    `cluster_name`     varchar(50)       DEFAULT '' COMMENT 'Name of the cluster that collected this source',
+    `snapshot`         text              DEFAULT NULL COMMENT 'Snapshot of this source task',
+    `report_time`      timestamp         DEFAULT NULL COMMENT 'Snapshot time',
+    `ext_params`       text              DEFAULT NULL COMMENT 'Another fields will saved as JSON string, such as filePath, dbName, tableName, etc',
+    `status`           int(4)            DEFAULT '0' COMMENT 'Data source status',
+    `previous_status`  int(4)            DEFAULT '0' COMMENT 'Previous status',
+    `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`          varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`         varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Stream source table';
+
+-- ----------------------------
 -- Table structure for stream_sink
 -- ----------------------------
 DROP TABLE IF EXISTS `stream_sink`;
@@ -617,7 +645,7 @@ CREATE TABLE `stream_sink_ext`
 (
     `id`          int(11)     NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `sink_type`   varchar(20) NOT NULL COMMENT 'Sink type, including: HDFS, HIVE, etc.',
-    `sink_id`     int(11)     NOT NULL COMMENT 'sink id',
+    `sink_id`     int(11)     NOT NULL COMMENT 'Sink id',
     `key_name`    varchar(64) NOT NULL COMMENT 'Configuration item name',
     `key_value`   varchar(256)         DEFAULT NULL COMMENT 'The value of the configuration item',
     `is_deleted`  int(11)              DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
@@ -634,15 +662,15 @@ DROP TABLE IF EXISTS `stream_sink_field`;
 CREATE TABLE `stream_sink_field`
 (
     `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`   varchar(256) NOT NULL COMMENT 'inlong group id',
-    `inlong_stream_id`  varchar(256) NOT NULL COMMENT 'inlong stream id',
-    `sink_id`           int(11)      NOT NULL COMMENT 'sink id',
-    `sink_type`         varchar(15)  NOT NULL COMMENT 'sink type',
-    `source_field_name` varchar(50)   DEFAULT NULL COMMENT 'source field name',
-    `source_field_type` varchar(50)   DEFAULT NULL COMMENT 'source field type',
-    `field_name`        varchar(50)  NOT NULL COMMENT 'field name',
-    `field_type`        varchar(50)  NOT NULL COMMENT 'field type',
-    `field_comment`     varchar(2000) DEFAULT NULL COMMENT 'field description',
+    `inlong_group_id`   varchar(256) NOT NULL COMMENT 'Inlong group id',
+    `inlong_stream_id`  varchar(256) NOT NULL COMMENT 'Inlong stream id',
+    `sink_id`           int(11)      NOT NULL COMMENT 'Sink id',
+    `sink_type`         varchar(15)  NOT NULL COMMENT 'Sink type',
+    `source_field_name` varchar(50)   DEFAULT NULL COMMENT 'Source field name',
+    `source_field_type` varchar(50)   DEFAULT NULL COMMENT 'Source field type',
+    `field_name`        varchar(50)  NOT NULL COMMENT 'Field name',
+    `field_type`        varchar(50)  NOT NULL COMMENT 'Field type',
+    `field_comment`     varchar(2000) DEFAULT NULL COMMENT 'Field description',
     `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`        int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`)
@@ -765,7 +793,7 @@ CREATE TABLE `workflow_process`
     `inlong_group_id` varchar(256)          DEFAULT NULL COMMENT 'Inlong group id: to facilitate related inlong group',
     `applicant`       varchar(256) NOT NULL COMMENT 'applicant',
     `status`          varchar(64)  NOT NULL COMMENT 'status',
-    `form_data`       mediumtext COMMENT 'form information',
+    `form_data`       text COMMENT 'form information',
     `start_time`      datetime     NOT NULL COMMENT 'start time',
     `end_time`        datetime              DEFAULT NULL COMMENT 'End event',
     `ext_params`      text COMMENT 'Extended information-json',
@@ -792,7 +820,7 @@ CREATE TABLE `workflow_task`
     `status`               varchar(64)   NOT NULL COMMENT 'Status',
     `operator`             varchar(256)  DEFAULT NULL COMMENT 'Actual operator',
     `remark`               varchar(1024) DEFAULT NULL COMMENT 'Remark information',
-    `form_data`            mediumtext COMMENT 'Form information submitted by the current task',
+    `form_data`            text COMMENT 'Form information submitted by the current task',
     `start_time`           datetime      NOT NULL COMMENT 'Start time',
     `end_time`             datetime      DEFAULT NULL COMMENT 'End time',
     `ext_params`           text COMMENT 'Extended information-json',

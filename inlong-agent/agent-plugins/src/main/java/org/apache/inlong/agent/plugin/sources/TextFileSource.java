@@ -17,11 +17,11 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import static org.apache.inlong.agent.constants.CommonConstants.POSITION_SUFFIX;
-import static org.apache.inlong.agent.constants.JobConstants.DEFAULT_JOB_LINE_FILTER;
-import static org.apache.inlong.agent.constants.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_LINE_FILTER_PATTERN;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_READ_WAIT_TIMEOUT;
+import static org.apache.inlong.agent.constant.CommonConstants.POSITION_SUFFIX;
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
 
 import java.io.File;
 import java.util.ArrayList;

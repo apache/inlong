@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.ChannelException;
-import org.apache.inlong.commons.monitor.LogCounter;
+import org.apache.inlong.common.monitor.LogCounter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

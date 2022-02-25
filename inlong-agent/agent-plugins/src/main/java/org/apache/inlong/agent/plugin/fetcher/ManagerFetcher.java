@@ -17,43 +17,34 @@
 
 package org.apache.inlong.agent.plugin.fetcher;
 
-import static java.util.Objects.requireNonNull;
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_HOME;
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_LOCAL_CACHE;
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_LOCAL_CACHE_TIMEOUT;
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_LOCAL_IP;
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_UNIQ_ID;
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AGENT_HOME;
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AGENT_LOCAL_CACHE;
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AGENT_LOCAL_CACHE_TIMEOUT;
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_AGENT_UNIQ_ID;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_OP;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_RETRY_TIME;
-import static org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter.getResultData;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_FETCHER_INTERVAL;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_DBCOLLECT_GETTASK_HTTP_PATH;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_IP_CHECK_HTTP_PATH;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_RETURN_PARAM_DATA;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_RETURN_PARAM_IP;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_TASK_HTTP_PATH;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PATH;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.DEFAULT_AGENT_MANAGER_DBCOLLECTOR_GETTASK_HTTP_PATH;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.DEFAULT_AGENT_FETCHER_INTERVAL;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.DEFAULT_AGENT_TDM_VIP_HTTP_PATH;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.DEFAULT_LOCAL_IP;
-import static org.apache.inlong.agent.plugin.fetcher.constants.FetcherConstants.VERSION;
-import static org.apache.inlong.agent.plugin.utils.PluginUtils.copyJobProfile;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.apache.inlong.agent.cache.LocalFileCache;
+import org.apache.inlong.agent.common.AbstractDaemon;
+import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.ProfileFetcher;
+import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.agent.core.AgentManager;
+import org.apache.inlong.agent.db.CommandDb;
+import org.apache.inlong.agent.pojo.ConfirmAgentIpRequest;
+import org.apache.inlong.agent.pojo.DbCollectorTaskRequestDto;
+import org.apache.inlong.agent.pojo.DbCollectorTaskResult;
+import org.apache.inlong.agent.plugin.Trigger;
+import org.apache.inlong.agent.plugin.utils.ExcuteLinux;
+import org.apache.inlong.agent.plugin.utils.HttpManager;
+import org.apache.inlong.agent.plugin.utils.PluginUtils;
+import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.common.db.CommandEntity;
+import org.apache.inlong.common.enums.ManagerOpEnum;
+import org.apache.inlong.common.pojo.agent.CmdConfig;
+import org.apache.inlong.common.pojo.agent.DataConfig;
+import org.apache.inlong.common.pojo.agent.TaskRequest;
+import org.apache.inlong.common.pojo.agent.TaskResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -65,39 +56,49 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.apache.inlong.agent.cache.LocalFileCache;
-import org.apache.inlong.agent.common.AbstractDaemon;
-import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.conf.ProfileFetcher;
-import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.core.AgentManager;
-import org.apache.inlong.agent.db.CommandDb;
-import org.apache.inlong.agent.db.CommandEntity;
-import org.apache.inlong.agent.plugin.Trigger;
-import org.apache.inlong.agent.plugin.fetcher.dtos.CmdConfig;
-import org.apache.inlong.agent.plugin.fetcher.dtos.ConfirmAgentIpRequest;
-import org.apache.inlong.agent.plugin.fetcher.dtos.DbCollectorTaskRequestDto;
-import org.apache.inlong.agent.plugin.fetcher.dtos.DbCollectorTaskResult;
-import org.apache.inlong.agent.plugin.fetcher.dtos.TaskRequestDto;
-import org.apache.inlong.agent.plugin.fetcher.dtos.TaskResult;
-import org.apache.inlong.agent.plugin.fetcher.enums.ManagerOpEnum;
-import org.apache.inlong.agent.plugin.utils.HttpManager;
-import org.apache.inlong.agent.plugin.utils.PluginUtils;
-import org.apache.inlong.agent.utils.AgentUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.Objects.requireNonNull;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HOME;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_CACHE;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_CACHE_TIMEOUT;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_UNIQ_ID;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_HOME;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_CACHE;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_CACHE_TIMEOUT;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_UNIQ_ID;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_FETCHER_INTERVAL;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_DBCOLLECT_GETTASK_HTTP_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_IP_CHECK_HTTP_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_RETURN_PARAM_DATA;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_RETURN_PARAM_IP;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_TASK_HTTP_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_FETCHER_INTERVAL;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_DBCOLLECTOR_GETTASK_HTTP_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_TDM_VIP_HTTP_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_LOCAL_IP;
+import static org.apache.inlong.agent.constant.FetcherConstants.VERSION;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_OP;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_RETRY_TIME;
+import static org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter.getResultData;
+import static org.apache.inlong.agent.plugin.utils.PluginUtils.copyJobProfile;
 
 /**
  * fetch command from manager
  */
 public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
+    public static final String AGENT = "agent";
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagerFetcher.class);
-
     private static final Gson GSON = new Gson();
     private static final int MAX_RETRY = 2;
-    public static final String AGENT = "agent";
     private final String managerVipUrl;
     private final String baseManagerUrl;
     private final String managerTaskUrl;
@@ -106,16 +107,13 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private final AgentConfiguration conf;
     private final LocalFileCache localFileCache;
     private final String uniqId;
-    private List<String> managerList;
     private final AgentManager agentManager;
     private final HttpManager httpManager;
+    private List<String> managerList;
     private String localIp;
+    private String uuid;
 
     private CommandDb commandDb;
-
-    private boolean requiredKeys(AgentConfiguration conf) {
-        return conf.hasKey(AGENT_MANAGER_VIP_HTTP_HOST) && conf.hasKey(AGENT_MANAGER_VIP_HTTP_PORT);
-    }
 
     public ManagerFetcher(AgentManager agentManager) {
         this.agentManager = agentManager;
@@ -133,6 +131,10 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         } else {
             throw new RuntimeException("init manager error, cannot find required key");
         }
+    }
+
+    private boolean requiredKeys(AgentConfiguration conf) {
+        return conf.hasKey(AGENT_MANAGER_VIP_HTTP_HOST) && conf.hasKey(AGENT_MANAGER_VIP_HTTP_PORT);
     }
 
     /**
@@ -220,12 +222,12 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * request manager to get commands, make sure it not throwing exceptions
+     * request manager to get commands, make sure it is not throwing exceptions
      */
     public void fetchCommand() {
         List<CommandEntity> unackedCommands = commandDb.getUnackedCommands();
         JsonObject resultData = getResultData(
-                httpManager.doSentPost(managerTaskUrl, getFileCommdFetchRequest(unackedCommands)));
+                httpManager.doSentPost(managerTaskUrl, getFileCmdFetchRequest(unackedCommands)));
         dealWithFileTaskResult(GSON.fromJson(resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA).getAsJsonObject(),
                 TaskResult.class));
         ackCommands(unackedCommands);
@@ -239,7 +241,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * request manager to get db collect task, make sure it not throwing exceptions
+     * request manager to get db collect task, make sure it is not throwing exceptions
      */
     public void fetchDbCollectTask() {
         if (agentManager.getJobManager().sqlJobExsit()) {
@@ -266,14 +268,15 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     /**
      * the fetch file command can be normal or special
-     *
-     * @param taskResult
      */
     private void dealWithFileTaskResult(TaskResult taskResult) {
         LOGGER.info("deal with fetch result {}", taskResult);
-        for (TriggerProfile profile : taskResult.getTriggerProfiles()) {
+
+        for (DataConfig dataConfig : taskResult.getDataConfigs()) {
+            TriggerProfile profile = TriggerProfile.getTriggerProfiles(dataConfig);
             dealWithTdmTriggerProfile(profile);
         }
+
         for (CmdConfig cmdConfig : taskResult.getCmdConfigs()) {
             dealWithTdmCmd(cmdConfig);
         }
@@ -281,22 +284,17 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     /**
      * form file command fetch request
-     *
-     * @param unackedCommands
-     * @return
      */
-    public TaskRequestDto getFileCommdFetchRequest(
-            List<CommandEntity> unackedCommands) {
-        TaskRequestDto requset = new TaskRequestDto();
-        requset.setAgentIp(localIp);
-        requset.setCommandInfo(unackedCommands);
-        return requset;
+    public TaskRequest getFileCmdFetchRequest(List<CommandEntity> unackedCommands) {
+        TaskRequest request = new TaskRequest();
+        request.setAgentIp(localIp);
+        request.setUuid(uuid);
+        request.setCommandInfo(unackedCommands);
+        return request;
     }
 
     /**
      * form db collector task fetch request
-     *
-     * @return
      */
     public DbCollectorTaskRequestDto getSqlTaskRequest() {
         DbCollectorTaskRequestDto request = new DbCollectorTaskRequestDto();
@@ -307,8 +305,6 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     /**
      * get command db
-     *
-     * @return
      */
     public CommandDb getCommandDb() {
         return commandDb;
@@ -316,8 +312,6 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     /**
      * deal with special command retry\backtrack
-     *
-     * @param cmdConfig
      */
     public void dealWithTdmCmd(CmdConfig cmdConfig) {
         Trigger trigger = agentManager.getTriggerManager().getTrigger(
@@ -342,14 +336,9 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     /**
      * execute commands
-     *
-     * @param triggerProfile
-     * @param opType
-     * @param dataTime
-     * @return
      */
     private boolean executeCmd(TriggerProfile triggerProfile,
-                               ManagerOpEnum opType, String dataTime) {
+            ManagerOpEnum opType, String dataTime) {
         switch (opType) {
             case RETRY:
             case BACKTRACK:
@@ -366,10 +355,6 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     /**
      * when execute make up command, files scanned before should not be executed.
-     *
-     * @param triggerProfile
-     * @param dataTime
-     * @return
      */
     private boolean makeUpFiles(TriggerProfile triggerProfile, String dataTime) {
         LOGGER.info("start to make up files with trigger {}, dataTime {}",
@@ -377,7 +362,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         Collection<File> suitFiles = PluginUtils.findSuitFiles(triggerProfile);
         // filter files exited before
         List<File> pendingFiles = suitFiles.stream().filter(file ->
-                !agentManager.getJobManager().checkJobExsit(file.getAbsolutePath()))
+                        !agentManager.getJobManager().checkJobExsit(file.getAbsolutePath()))
                 .collect(Collectors.toList());
         for (File pendingFile : pendingFiles) {
             JobProfile copiedProfile = copyJobProfile(triggerProfile, dataTime,
@@ -390,8 +375,6 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     /**
      * the trigger profile returned from manager should be parsed
-     *
-     * @param triggerProfile
      */
     public void dealWithTdmTriggerProfile(TriggerProfile triggerProfile) {
         ManagerOpEnum opType = ManagerOpEnum.getOpType(triggerProfile.getInt(JOB_OP));
@@ -418,10 +401,15 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
+     * check agent uuid from manager
+     */
+    private void fetchLocalUuid() {
+        String result = ExcuteLinux.exeCmd("dmidecode | grep UUID");
+        localIp = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_UUID, result);
+    }
+
+    /**
      * confirm local ips from manager
-     *
-     * @param localIps
-     * @return
      */
     private String confirmLocalIps(List<String> localIps) {
         ConfirmAgentIpRequest request = new ConfirmAgentIpRequest(AGENT, localIps);
@@ -434,7 +422,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * fetch manager list, make sure it not throwing exceptions
+     * fetch manager list, make sure it's not throwing exceptions
      *
      * @param isInitial - is initial
      * @param retryTime - retry time
@@ -499,6 +487,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     public void start() throws Exception {
         // when agent start, check local ip and fetch manager ip list;
         fetchLocalIp();
+        fetchLocalUuid();
         fetchTdmList(true, 0);
         submitWorker(profileFetchThread());
     }

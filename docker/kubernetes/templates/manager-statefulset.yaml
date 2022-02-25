@@ -36,29 +36,14 @@ spec:
         {{- include "inlong.template.labels" . | nindent 8 }}
         component: {{ .Values.manager.component }}
     spec:
-      initContainers:
-        - name: wait-{{ .Values.tubemqManager.component }}-ready
-          image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
-          imagePullPolicy: {{ .Values.images.pullPolicy }}
-          command: [ "/bin/sh", "-c" ]
-          args:
-            - |
-              count={{ .Values.tubemqManager.replicaCount }}
-              for i in $(seq 0 $(expr $count - 1))
-              do
-                replica="{{ template "inlong.fullname" . }}-{{ .Values.tubemqManager.component }}-$i"
-                host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.tubemqManager.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-                port={{ .Values.tubemqManager.containerPort }}
-                until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
-                do
-                  echo "waiting for $replica to be ready"
-                  sleep 3
-                done
-              done
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.manager.component }}
           image: {{ .Values.images.manager.repository }}:{{ .Values.images.manager.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
+          {{- if .Values.manager.resources }}
+          resources:
+{{ toYaml .Values.manager.resources | indent 12 }}
+          {{- end }}
           env:
             - name: ACTIVE_PROFILE
               value: {{ .Values.manager.activeProfile }}
@@ -74,7 +59,7 @@ spec:
             - name: TUBE_MANAGER
               value: "http://{{ template "inlong.tubemqManager.hostname" . }}:{{ .Values.tubemqManager.containerPort }}"
             - name: TUBE_MASTER
-              value: {{ include "inlong.mq.url" . | quote }}
+              value: {{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}
             - name: ZK_URL
               value: "{{ template "inlong.zookeeper.hostname" . }}:{{ .Values.zookeeper.ports.client }}"
             - name: SORT_APP_NAME

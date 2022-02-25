@@ -26,6 +26,7 @@ import lombok.Data;
 /**
  * Basic information of DB source
  */
+@Deprecated
 @Data
 @ApiModel("DB source basic information")
 public class SourceDbBasicInfo {

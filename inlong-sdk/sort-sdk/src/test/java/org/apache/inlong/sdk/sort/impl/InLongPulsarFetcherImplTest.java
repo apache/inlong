@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,23 +42,28 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+@PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)
+@PrepareForTest({ClientContext.class})
 public class InLongPulsarFetcherImplTest {
 
     private ClientContext clientContext;
-    private SortClientConfig sortClientConfig;
     private InLongTopic inLongTopic;
+    private SortClientConfig sortClientConfig;
     private StatManager statManager;
-    private SortClientStateCounter sortClientStateCounter;
 
     /**
      * setUp
      */
     @Before
     public void setUp() throws Exception {
+        System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
+
         inLongTopic = new InLongTopic();
         inLongTopic.setTopic("testTopic");
         inLongTopic.setPartitionId(0);
@@ -65,16 +71,19 @@ public class InLongPulsarFetcherImplTest {
 
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
-        clientContext = PowerMockito.mock(ClientContext.class);
+        clientContext = PowerMockito.mock(ClientContextImpl.class);
+
         sortClientConfig = PowerMockito.mock(SortClientConfig.class);
         statManager = PowerMockito.mock(StatManager.class);
 
         when(clientContext.getConfig()).thenReturn(sortClientConfig);
         when(clientContext.getStatManager()).thenReturn(statManager);
-        sortClientStateCounter = new SortClientStateCounter("sortTaskId", cacheZoneCluster.getClusterId(),
+        SortClientStateCounter sortClientStateCounter = new SortClientStateCounter("sortTaskId",
+                cacheZoneCluster.getClusterId(),
                 inLongTopic.getTopic(), 0);
         when(statManager.getStatistics(anyString(), anyString(), anyString())).thenReturn(sortClientStateCounter);
         when(sortClientConfig.getSortTaskId()).thenReturn("sortTaskId");
+
     }
 
     @Test
@@ -106,7 +115,6 @@ public class InLongPulsarFetcherImplTest {
         InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
         long ackedOffset = inLongTopicFetcher.getAckedOffset();
         Assert.assertEquals(0L, ackedOffset);
-
     }
 
     @Test
@@ -144,7 +152,9 @@ public class InLongPulsarFetcherImplTest {
 
             Consumer consumer = PowerMockito.mock(Consumer.class);
             when(consumerBuilder.subscribe()).thenReturn(consumer);
+            doNothing().when(consumer).close();
             boolean init = inLongTopicFetcher.init(pulsarClient);
+            inLongTopicFetcher.close();
             Assert.assertTrue(init);
         } catch (Exception e) {
             e.printStackTrace();

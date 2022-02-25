@@ -17,9 +17,9 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
-import static org.apache.inlong.agent.constants.JobConstants.JOB_CYCLE_UNIT;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_DATA_TIME;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_INSTANCE_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DATA_TIME;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.conf.JobProfile;

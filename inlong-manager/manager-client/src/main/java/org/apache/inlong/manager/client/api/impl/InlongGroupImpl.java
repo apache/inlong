@@ -25,7 +25,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.InlongGroupInfo;
-import org.apache.inlong.manager.client.api.InlongGroupInfo.GroupState;
+import org.apache.inlong.manager.client.api.InlongGroupInfo.InlongGroupState;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
@@ -35,7 +35,7 @@ import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
 import org.apache.inlong.manager.client.api.util.InlongParser;
-import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
@@ -73,8 +73,7 @@ public class InlongGroupImpl implements InlongGroup {
 
     @Override
     public InlongStreamBuilder createStream(InlongStreamConf dataStreamConf) throws Exception {
-        return new DefaultInlongStreamBuilder(dataStreamConf, this.groupContext, this.managerClient) {
-        };
+        return new DefaultInlongStreamBuilder(dataStreamConf, this.groupContext, this.managerClient);
     }
 
     @Override
@@ -106,7 +105,7 @@ public class InlongGroupImpl implements InlongGroup {
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
-        managerClient.operateInlongGroup(groupId, GroupState.SUSPEND);
+        managerClient.operateInlongGroup(groupId, InlongGroupState.SUSPEND);
         return generateSnapshot(null);
     }
 
@@ -116,7 +115,7 @@ public class InlongGroupImpl implements InlongGroup {
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
-        managerClient.operateInlongGroup(groupId, GroupState.RESTART);
+        managerClient.operateInlongGroup(groupId, InlongGroupState.RESTART);
         return generateSnapshot(null);
     }
 
@@ -126,7 +125,7 @@ public class InlongGroupImpl implements InlongGroup {
                 groupContext.getGroupRequest().getInlongGroupId());
         boolean isDeleted = managerClient.deleteInlongGroup(curGroupRequest.getInlongGroupId());
         if (isDeleted) {
-            curGroupRequest.setStatus(EntityStatus.DELETED.getCode());
+            curGroupRequest.setStatus(GroupState.GROUP_DELETE.getCode());
         }
         return generateSnapshot(curGroupRequest);
     }

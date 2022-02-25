@@ -18,12 +18,12 @@
 package org.apache.inlong.manager.common.enums;
 
 import com.google.common.collect.ImmutableSet;
-
 import java.util.Set;
 
 /**
  * Entity status enum
  */
+@Deprecated
 public enum EntityStatus {
 
     UN_DELETED(0, "not deleted"),
@@ -53,6 +53,12 @@ public enum EntityStatus {
     STREAM_CONFIG_FAILED(120, "configuration failed"),
     STREAM_CONFIG_SUCCESSFUL(130, "configuration successful"),
 
+    // Stream source related status
+    SOURCE_NEW(100, "new"),
+    SOURCE_CONFIG_ING(110, "in configure"),
+    SOURCE_CONFIG_FAILED(120, "configuration failed"),
+    SOURCE_CONFIG_SUCCESSFUL(130, "configuration successful"),
+
     // Stream sink related status
     SINK_NEW(100, "new"),
     SINK_CONFIG_ING(110, "in configure"),
@@ -67,9 +73,7 @@ public enum EntityStatus {
 
     // ADD(0), DEL(1), RETRY(2), BACKTRACK(3), FROZEN(4), ACTIVE(5), CHECK(6), REDOMETRIC(7), MAKEUP(8);
     AGENT_ADD(200, "wait add"),
-    AGENT_DELETE(201, "wait delete"),
-
-    ;
+    AGENT_DELETE(201, "wait delete");
 
     /**
      * The status of the inlong group that can initiate the approval process:
@@ -108,12 +112,6 @@ public enum EntityStatus {
      */
     public static final Set<Integer> ALLOW_DELETE_GROUP_CASCADE_STATUS = ImmutableSet.of(
             DRAFT.getCode(), GROUP_WAIT_SUBMIT.getCode());
-
-    /**
-     * Status of inlong group approval
-     */
-    public static final Set<Integer> GROUP_APPROVE_PASS_STATUS = ImmutableSet.of(
-            GROUP_CONFIG_FAILED.getCode(), GROUP_CONFIG_SUCCESSFUL.getCode());
 
     /**
      * Temporary inlong group status, adding, deleting and modifying operations are not allowed
