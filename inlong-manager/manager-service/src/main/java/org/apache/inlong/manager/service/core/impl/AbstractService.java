@@ -24,6 +24,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -58,14 +59,14 @@ public abstract class AbstractService<T> implements AutoCloseable, InitializingB
     /**
      * batch insert entities
      * @param entryList entryList
-     * @return
+     * @return boolean true/false
      */
     abstract boolean batchInsertEntities(List<T> entryList);
 
     /**
      * put Data
      * @param data data
-     * @return
+     * @return boolean true/false
      */
     public boolean putData(T data) {
         if (dataQueue == null) {
@@ -75,11 +76,11 @@ public abstract class AbstractService<T> implements AutoCloseable, InitializingB
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         isClose = true;
     }
 
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         dataQueue = new LinkedBlockingQueue(queueSize);
         pool = new ThreadPoolExecutor(corePoolSize, maximumPoolSize,
                 60, TimeUnit.SECONDS, new LinkedBlockingDeque<>(syncSendQueueSize),
@@ -102,7 +103,9 @@ public abstract class AbstractService<T> implements AutoCloseable, InitializingB
                         }
                         count++;
                     }
-                    batchInsertEntities(entryList);
+                    if (CollectionUtils.isNotEmpty(entryList)) {
+                        batchInsertEntities(entryList);
+                    }
                 } catch (Exception e) {
                     LOGGER.error("batchInsertEntities has exception = {}", e);
                 }
