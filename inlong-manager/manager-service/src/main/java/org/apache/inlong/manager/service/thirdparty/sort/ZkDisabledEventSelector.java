@@ -37,13 +37,13 @@ public class ZkDisabledEventSelector implements EventSelector {
         if (processForm instanceof GroupResourceProcessForm) {
             GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
             InlongGroupRequest groupInfo = groupResourceForm.getGroupInfo();
-            return groupInfo.getZookeeperEnabled() == 0 &&
-                    !groupInfo.getMiddlewareType().equals(Constant.MIDDLEWARE_NONE);
+            return groupInfo.getZookeeperEnabled() == 0
+                    && !groupInfo.getMiddlewareType().equals(Constant.MIDDLEWARE_NONE);
         } else if (processForm instanceof UpdateGroupProcessForm) {
             UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
             InlongGroupRequest groupInfo = updateGroupProcessForm.getGroupInfo();
-            return groupInfo.getZookeeperEnabled() == 0 &&
-                    !groupInfo.getMiddlewareType().equals(Constant.MIDDLEWARE_NONE);
+            return groupInfo.getZookeeperEnabled() == 0
+                    && !groupInfo.getMiddlewareType().equals(Constant.MIDDLEWARE_NONE);
         } else {
             return false;
         }
