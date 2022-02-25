@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.corebase.metric;
 
 import org.apache.inlong.tubemq.corebase.metric.impl.LongStatsCounter;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
 /**
  * TrafficStatsUnit, Metric Statistics item Unit
@@ -26,6 +27,8 @@ import org.apache.inlong.tubemq.corebase.metric.impl.LongStatsCounter;
  * according to the statistics dimension, which can be expanded later as needed
  */
 public class TrafficStatsUnit {
+    // the traffic name
+    private String trafficName;
     // the message count
     public LongStatsCounter msgCnt;
     // the message size
@@ -39,6 +42,7 @@ public class TrafficStatsUnit {
      * @param prefix        the prefix of statistics items
      */
     public TrafficStatsUnit(String msgCntName, String msgSizeName, String prefix) {
+        this.trafficName = prefix;
         this.msgCnt = new LongStatsCounter(msgCntName, prefix);
         this.msgSize = new LongStatsCounter(msgSizeName, prefix);
     }
@@ -52,5 +56,24 @@ public class TrafficStatsUnit {
     public void addMsgCntAndSize(long msgCount, long msgSize) {
         this.msgCnt.addValue(msgCount);
         this.msgSize.addValue(msgSize);
+    }
+
+    public void getValue(StringBuilder strBuff, boolean resetValue) {
+        if (!TStringUtils.isEmpty(this.trafficName)) {
+            strBuff.append("\"").append(this.trafficName).append("\":");
+        }
+        if (resetValue) {
+            strBuff.append("{\"")
+                    .append(msgCnt.getShortName()).append("\":")
+                    .append(msgCnt.getAndResetValue()).append(",\"")
+                    .append(msgSize.getShortName()).append("\":")
+                    .append(msgSize.getAndResetValue()).append("}");
+        } else {
+            strBuff.append("{\"")
+                    .append(msgCnt.getShortName()).append("\":")
+                    .append(msgCnt.getValue()).append(",\"")
+                    .append(msgSize.getShortName()).append("\":")
+                    .append(msgSize.getValue()).append("}");
+        }
     }
 }

@@ -142,12 +142,12 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
             if (selectResult.isSuccess()) {
                 break;
             }
-            if ((baseConsumer.getConsumerConfig().getPullConsumeReadyWaitPeriodMs() >= 0)
+            if ((baseConsumer.getConsumerConfig().getPullConsumeReadyWaitPeriodMs() >= 0L)
                 && (System.currentTimeMillis() - startTime
                     >= baseConsumer.getConsumerConfig().getPullConsumeReadyWaitPeriodMs())) {
                 return new ConsumerResult(selectResult.getErrCode(), selectResult.getErrMsg());
             }
-            if (baseConsumer.getConsumerConfig().getPullConsumeReadyChkSliceMs() > 10) {
+            if (baseConsumer.getConsumerConfig().getPullConsumeReadyChkSliceMs() > 0L) {
                 ThreadUtils.sleep(baseConsumer.getConsumerConfig().getPullConsumeReadyChkSliceMs());
             }
         }
@@ -205,8 +205,8 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
                     .append("Not found the partition by confirmContext:")
                     .append(confirmContext).toString());
         }
-        baseConsumer.clientStatsInfo.bookConfirmDuration(
-                System.currentTimeMillis() - timeStamp);
+        long midTime = System.currentTimeMillis();
+        baseConsumer.clientStatsInfo.bookReturnDuration(keyId, midTime - timeStamp);
         if (this.baseConsumer.consumerConfig.isPullConfirmInLocal()) {
             baseConsumer.rmtDataCache.succRspRelease(keyId, topicName,
                 timeStamp, isConsumed, isFilterConsume(topicName), currOffset, maxOffset);
@@ -240,6 +240,8 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
             } finally {
                 baseConsumer.rmtDataCache.succRspRelease(keyId, topicName,
                     timeStamp, isConsumed, isFilterConsume(topicName), currOffset, maxOffset);
+                baseConsumer.clientStatsInfo.bookConfirmDuration(keyId,
+                        System.currentTimeMillis() - midTime);
             }
         }
     }
