@@ -172,9 +172,8 @@ public class ServiceDiscoveryUtils {
                         SSLConnectionSocketFactory.getDefaultHostnameVerifier());
                 httpClient = HttpClients.custom().setDefaultHeaders(headers)
                         .setDefaultRequestConfig(requestConfig).setSSLSocketFactory(sslsf).build();
-            } catch (Throwable eHttps) {
-                log.error("Create Https client failure, error 1 is ", eHttps);
-                eHttps.printStackTrace();
+            } catch (Throwable t) {
+                log.error("Create Https client failed: ", t);
                 return null;
             }
         }
@@ -202,8 +201,8 @@ public class ServiceDiscoveryUtils {
                 return ip;
             }
             return null;
-        } catch (Throwable e) {
-            log.error("Connect Manager error, {}", e.getMessage());
+        } catch (Throwable t) {
+            log.error("Connect Manager error: ", t);
             return null;
         } finally {
             if (httpPost != null) {
@@ -232,7 +231,7 @@ public class ServiceDiscoveryUtils {
                 return null;
             }
             newestIp = new String(serialized, StandardCharsets.UTF_8);
-            log.info("ServiceDiscovery get manager ip list from local success, result is : {}", newestIp);
+            log.info("ServiceDiscovery get manager ip list from local success, result is: {}", newestIp);
         } catch (IOException e) {
             log.error("ServiceDiscovery load manager config error: ", e);
         }
@@ -245,7 +244,7 @@ public class ServiceDiscoveryUtils {
      */
     public static void updateManagerInfo2Local(String storeString, String path) {
         if (StringUtils.isBlank(storeString)) {
-            log.warn("ServiceDiscovery updateTdmInfo2Local error, configMap is empty or managerIpList is blank.");
+            log.warn("ServiceDiscovery updateTdmInfo2Local error, configMap is empty or managerIpList is blank");
             return;
         }
         File localPath = new File(path);
@@ -258,7 +257,7 @@ public class ServiceDiscoveryUtils {
             writer.write(storeString);
             writer.flush();
         } catch (IOException e) {
-            log.error("ServiceDiscovery save manager config error.", e);
+            log.error("ServiceDiscovery save manager config error: ", e);
         }
     }
 
