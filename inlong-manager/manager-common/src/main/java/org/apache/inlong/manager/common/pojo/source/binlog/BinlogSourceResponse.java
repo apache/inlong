@@ -36,47 +36,31 @@ public class BinlogSourceResponse extends SourceResponse {
 
     private String sourceType = Constant.SOURCE_DB_BINLOG;
 
-    @ApiModelProperty("Source database name")
-    private String dbName;
+    @ApiModelProperty("Username of the DB server")
+    private String user;
 
-    @ApiModelProperty("Source table name")
-    private String tableName;
+    @ApiModelProperty("Password of the DB server")
+    private String password;
 
-    @ApiModelProperty("Data charset")
-    private String charset;
+    @ApiModelProperty("Hostname of the DB server")
+    private String hostname;
 
-    @ApiModelProperty(value = "Table fields, separated by commas")
-    private String tableFields;
+    @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions")
+    private String whitelist;
 
-    @ApiModelProperty(value = "Data separator, default is 0x01")
-    private String dataSeparator = "0x01";
+    @ApiModelProperty("Database time zone, Default is UTC")
+    private String timeZone;
 
-    @ApiModelProperty(value = "Middleware type, such as: TUBE, PULSAR")
-    private String middlewareType;
+    @ApiModelProperty("The file path to store history info")
+    private String storeHistoryFilename;
 
-    @ApiModelProperty(value = "Topic of Tube")
-    private String tubeTopic;
+    @ApiModelProperty("Offset of the task")
+    private String offset;
 
-    @ApiModelProperty(value = "Cluster address of Tube")
-    private String tubeCluster;
+    @ApiModelProperty("The interval for recording an offset")
+    private String intervalMs;
 
-    @ApiModelProperty(value = "Namespace of Pulsar")
-    private String pulsarNamespace;
-
-    @ApiModelProperty(value = "Topic of Pulsar")
-    private String pulsarTopic;
-
-    @ApiModelProperty(value = "Cluster address of Pulsar")
-    private String pulsarCluster;
-
-    @ApiModelProperty(value = "Whether to skip delete events in binlog, default: 1, that is skip")
-    private Integer skipDelete;
-
-    @ApiModelProperty(value = "Collect starts from the specified binlog location, and it is modified after delivery."
-            + "If it is empty, an empty string is returned")
-    private String startPosition;
-
-    @ApiModelProperty(value = "When the field value is null, the replaced field defaults to 'null'")
-    private String nullFieldChar;
+    @ApiModelProperty("Snapshot mode, supports: initial, when_needed, never, schema_only, schema_only_recovery")
+    private String snapshotMode;
 
 }

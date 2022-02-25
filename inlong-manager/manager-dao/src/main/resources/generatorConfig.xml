@@ -241,11 +241,25 @@
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
         <table tableName="sort_task_sink_param" domainObjectName="SortTaskSinkParamEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>-->
+               enableSelectByPrimaryKey="true"
+               enableUpdateByPrimaryKey="true"
+               enableDeleteByPrimaryKey="true" enableInsert="true"
+               enableCountByExample="false" enableDeleteByExample="false"
+               enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="stream_config_log" domainObjectName="StreamConfigLogEntity"
+            enableSelectByPrimaryKey="true"
+            enableUpdateByPrimaryKey="true"
+            enableDeleteByPrimaryKey="true" enableInsert="true"
+            enableCountByExample="false" enableDeleteByExample="false"
+            enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="stream_metric" domainObjectName="StreamMetricEntity"
+            enableSelectByPrimaryKey="true"
+            enableUpdateByPrimaryKey="true"
+            enableDeleteByPrimaryKey="true" enableInsert="true"
+            enableCountByExample="false" enableDeleteByExample="false"
+            enableSelectByExample="false" enableUpdateByExample="false"/>-->
 
         <table tableName="sort_source_config" domainObjectName="SortSourceConfigEntity"
                enableSelectByPrimaryKey="true"

@@ -125,8 +125,7 @@ public class MultiTenancyInLongMsgMixedDeserializer implements DataFlowInfoListe
             FieldInfo[] fields,
             InLongMsgDeserializationInfo inLongMsgDeserializationInfo) {
 
-        final RowFormatInfo rowFormatInfo =
-                CommonUtils.generateRowFormatInfo(fields);
+        final RowFormatInfo rowFormatInfo = CommonUtils.generateDeserializationRowFormatInfo(fields);
 
         final AbstractInLongMsgMixedFormatDeserializer preDeserializer;
         final InLongMsgMixedFormatConverter deserializer;

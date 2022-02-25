@@ -20,7 +20,8 @@ package org.apache.inlong.common.enums;
 import static java.util.Objects.requireNonNull;
 
 public enum ManagerOpEnum {
-    ADD(0), DEL(1), RETRY(2), BACKTRACK(3), FROZEN(4), ACTIVE(5), CHECK(6), REDOMETRIC(7), MAKEUP(8);
+    ADD(0), DEL(1), RETRY(2), BACKTRACK(3), FROZEN(4),
+    ACTIVE(5), CHECK(6), REDOMETRIC(7), MAKEUP(8);
 
     private int type;
 
