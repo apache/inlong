@@ -62,7 +62,7 @@ public class WebCallStatsHolder {
         if (switchWritingStatsUnit()) {
             getStatsValue(switchableSets[getIndex(writableIndex.get() - 1)], true, statsMap);
         } else {
-            getValue(statsMap);
+            getStatsValue(switchableSets[getIndex()], false, statsMap);
         }
     }
 
@@ -70,7 +70,7 @@ public class WebCallStatsHolder {
         if (switchWritingStatsUnit()) {
             getStatsValue(switchableSets[getIndex(writableIndex.get() - 1)], true, strBuff);
         } else {
-            getValue(strBuff);
+            getStatsValue(switchableSets[getIndex()], false, strBuff);
         }
     }
 
@@ -135,15 +135,10 @@ public class WebCallStatsHolder {
         statsMap.put("isClosed", (isManualClosed ? 1L : 0L));
         if (resetValue) {
             statsSet.totalCallStats.snapShort(statsMap, false);
-            for (SimpleHistogram itemStats : statsSet.methodStatsMap.values()) {
-                itemStats.snapShort(statsMap, false);
-            }
         } else {
             statsSet.totalCallStats.getValue(statsMap, false);
-            for (SimpleHistogram itemStats : statsSet.methodStatsMap.values()) {
-                itemStats.getValue(statsMap, false);
-            }
         }
+        statsSet.getMethodStatsInfo(statsMap, resetValue);
     }
 
     private static void getStatsValue(WebCallStatsItemSet statsSet,
@@ -152,28 +147,14 @@ public class WebCallStatsHolder {
         strBuff.append("{\"").append(statsSet.lstResetTime.getFullName())
                 .append("\":\"").append(statsSet.lstResetTime.getStrSinceTime())
                 .append("\",\"isClosed\":").append(isManualClosed).append(",");
-        int totalcnt = 0;
         if (resetValue) {
             statsSet.totalCallStats.snapShort(strBuff, false);
-            strBuff.append(",\"").append("methods\":{");
-            for (SimpleHistogram itemStats : statsSet.methodStatsMap.values()) {
-                if (totalcnt++ > 0) {
-                    strBuff.append(",");
-                }
-                itemStats.snapShort(strBuff, false);
-            }
-            strBuff.append("}}");
         } else {
             statsSet.totalCallStats.getValue(strBuff, false);
-            strBuff.append(",\"").append("methods\":{");
-            for (SimpleHistogram itemStats : statsSet.methodStatsMap.values()) {
-                if (totalcnt++ > 0) {
-                    strBuff.append(",");
-                }
-                itemStats.getValue(strBuff, false);
-            }
-            strBuff.append("}}");
         }
+        strBuff.append(",");
+        statsSet.getMethodStatsInfo(strBuff, resetValue);
+        strBuff.append("}");
     }
 
     /**
@@ -216,6 +197,45 @@ public class WebCallStatsHolder {
 
         public void resetSinceTime() {
             this.lstResetTime.reset();
+        }
+
+        /**
+         * Gets the method statistics information
+         *
+         * @param statsMap    the statistics content contain
+         * @param resetValue  whether reset value
+         */
+        public void getMethodStatsInfo(Map<String, Long> statsMap, boolean resetValue) {
+            for (SimpleHistogram itemStats : methodStatsMap.values()) {
+                itemStats.getValue(statsMap, false);
+            }
+            if (resetValue) {
+                methodStatsMap.clear();
+            }
+        }
+
+        /**
+         * Gets the method statistics information
+         *
+         * @param strBuff     the statistics content contain
+         * @param resetValue  whether reset value
+         */
+        public void getMethodStatsInfo(StringBuilder strBuff, boolean resetValue) {
+            int totalCnt = 0;
+            strBuff.append("\"").append("methods\":{");
+            for (SimpleHistogram itemStats : methodStatsMap.values()) {
+                if (itemStats == null) {
+                    continue;
+                }
+                if (totalCnt++ > 0) {
+                    strBuff.append(",");
+                }
+                itemStats.getValue(strBuff, false);
+            }
+            strBuff.append("}");
+            if (resetValue) {
+                methodStatsMap.clear();
+            }
         }
     }
 }

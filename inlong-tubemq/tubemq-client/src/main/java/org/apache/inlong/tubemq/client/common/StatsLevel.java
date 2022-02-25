@@ -17,12 +17,13 @@
 
 package org.apache.inlong.tubemq.client.common;
 
-public enum StatsOutputLevel {
-    SIMPLEST(0, "simplest", "Simplest statistics output"),
-    MEDIUM(1, "medium", "Medium statistics output"),
-    FULL(2, "full", "Full statistics output");
+public enum StatsLevel {
+    ZERO(0, "closed", "Statistics are turned off"),
+    SIMPLEST(1, "simplest", "Simplest statistics"),
+    MEDIUM(2, "medium", "Medium statistics"),
+    FULL(3, "full", "Full statistics");
 
-    StatsOutputLevel(int id, String name, String desc) {
+    StatsLevel(int id, String name, String desc) {
         this.id = id;
         this.name = name;
         this.desc = desc;
@@ -40,8 +41,8 @@ public enum StatsOutputLevel {
         return desc;
     }
 
-    public static StatsOutputLevel valueOf(int value) {
-        for (StatsOutputLevel outputLevel : StatsOutputLevel.values()) {
+    public static StatsLevel valueOf(int value) {
+        for (StatsLevel outputLevel : StatsLevel.values()) {
             if (outputLevel.getId() == value) {
                 return outputLevel;
             }

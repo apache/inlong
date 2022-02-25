@@ -143,9 +143,7 @@ public class ProducerManager {
         // initial client statistics configure
         this.clientStatsInfo =
                 new ClientStatsInfo(true, this.producerId,
-                        this.tubeClientConfig.enableStatsSelfPrint(),
-                        this.tubeClientConfig.getStatsSelfPrintPeriodMs(),
-                        this.tubeClientConfig.getStatsForcedResetPeriodMs());
+                        this.tubeClientConfig.getStatsConfig());
         heartBeatStatus.set(0);
         this.masterService =
                 this.rpcServiceFactory.getFailoverService(MasterService.class,
@@ -303,7 +301,7 @@ public class ProducerManager {
             }
             return;
         }
-        clientStatsInfo.selfPrintStatsInfo(true, strBuff);
+        clientStatsInfo.selfPrintStatsInfo(true, true, strBuff);
         if (this.nodeStatus.compareAndSet(0, 1)) {
             this.heartbeatService.shutdownNow();
             this.topicPartitionMap.clear();
@@ -676,7 +674,7 @@ public class ProducerManager {
                 ThreadUtils.sleep(100);
             }
             // print metrics information
-            clientStatsInfo.selfPrintStatsInfo(false, sBuilder);
+            clientStatsInfo.selfPrintStatsInfo(false, true, sBuilder);
             // check whether public topics
             if (publishTopics.isEmpty()) {
                 return;
