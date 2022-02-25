@@ -42,6 +42,4 @@ public class KafkaSourceRequest extends SourceRequest {
     @ApiModelProperty("Kafka topicName")
     private String topicName;
 
-    @ApiModelProperty("Data Serialization, support: Json, Canal, Avro")
-    private String serializationType;
 }

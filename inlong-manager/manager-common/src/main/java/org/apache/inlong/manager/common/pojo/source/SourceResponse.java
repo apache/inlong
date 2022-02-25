@@ -60,8 +60,8 @@ public class SourceResponse {
     @ApiModelProperty("Name of the cluster that collected this source")
     private String clusterName;
 
-    @ApiModelProperty("Heartbeat of this source task")
-    private String heartbeat;
+    @ApiModelProperty("Snapshot of this source task")
+    private String snapshot;
 
     @ApiModelProperty("Status")
     private Integer status;
