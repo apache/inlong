@@ -65,7 +65,10 @@ public class SourceRequest {
     @ApiModelProperty("Name of the cluster that collected this source")
     private String clusterName;
 
-    @ApiModelProperty("Heartbeat of the source task")
-    private String heartbeat;
+    @ApiModelProperty("Snapshot of the source task")
+    private String snapshot;
+
+    @ApiModelProperty("Data Serialization, support: Json, Canal, Avro, etc")
+    private String serializationType;
 
 }

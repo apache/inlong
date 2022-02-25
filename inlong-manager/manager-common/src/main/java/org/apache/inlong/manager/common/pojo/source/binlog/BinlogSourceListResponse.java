@@ -31,28 +31,26 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 @ApiModel("Response of binlog source paging list")
 public class BinlogSourceListResponse extends SourceListResponse {
 
-    @ApiModelProperty("Source database name")
-    private String dbName;
+    @ApiModelProperty("Username of the DB server")
+    private String user;
 
-    @ApiModelProperty("Source table name")
-    private String tableName;
+    @ApiModelProperty("Hostname of the DB server")
+    private String hostname;
 
-    @ApiModelProperty(value = "Middleware type, such as: TUBE, PULSAR")
-    private String middlewareType;
+    @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions")
+    private String whitelist;
 
-    @ApiModelProperty(value = "Topic of Tube")
-    private String tubeTopic;
+    @ApiModelProperty("Database time zone, Default is UTC")
+    private String timeZone;
 
-    @ApiModelProperty(value = "Cluster address of Tube")
-    private String tubeCluster;
+    @ApiModelProperty("The file path to store history info")
+    private String storeHistoryFilename;
 
-    @ApiModelProperty(value = "Namespace of Pulsar")
-    private String pulsarNamespace;
+    @ApiModelProperty("The interval for recording an offset")
+    private String intervalMs;
 
-    @ApiModelProperty(value = "Topic of Pulsar")
-    private String pulsarTopic;
+    @ApiModelProperty("Snapshot mode, supports: initial, when_needed, never, schema_only, schema_only_recovery")
+    private String snapshotMode;
 
-    @ApiModelProperty(value = "Cluster address of Pulsar")
-    private String pulsarCluster;
 
 }
