@@ -43,7 +43,9 @@ public class BinlogReader implements Reader {
     private static final String JOB_DATABASE_USER = "job.binlogJob.user";
     private static final String JOB_DATABASE_PASSWORD = "job.binlogJob.password";
     private static final String JOB_DATABASE_HOSTNAME = "job.binlogJob.hostname";
-    private static final String JOB_DATABASE_WHITELIST = "job.binlogJob.tableWhiteList";
+    private static final String JOB_TABLE_WHITELIST = "job.binlogJob.tableWhiteList";
+    private static final String JOB_DATABASE_WHITELIST = "job.binlogJob.databaseWhiteList";
+
     private static final String JOB_DATABASE_SNAPSHOT = "job.binlogJob.snapshot";
     private static final String JOB_DATABASE_OFFSET_FILENAME = "job.binlogJob.offset.filename";
 
@@ -98,7 +100,7 @@ public class BinlogReader implements Reader {
         password = jobConf.get(JOB_DATABASE_PASSWORD);
         hostName = jobConf.get(JOB_DATABASE_HOSTNAME);
         port = jobConf.get(JOB_DATABASE_PORT);
-        tableWhiteList = jobConf.get(JOB_DATABASE_WHITELIST, "");
+        tableWhiteList = jobConf.get(JOB_TABLE_WHITELIST, "");
         databaseWhiteList = jobConf.get(JOB_DATABASE_WHITELIST, "");
         serverTimeZone = jobConf.get(JOB_DATABASE_SERVER_TIME_ZONE, "");
         offsetFlushIntervalMs = jobConf.get(JOB_DATABASE_STORE_OFFSET_INTERVAL_MS, "1000");
