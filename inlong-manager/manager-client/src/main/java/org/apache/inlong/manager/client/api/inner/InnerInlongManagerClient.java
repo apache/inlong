@@ -77,10 +77,12 @@ public class InnerInlongManagerClient {
         DefaultAuthentication defaultAuthentication = (DefaultAuthentication) authentication;
         this.uname = defaultAuthentication.getUserName();
         this.passwd = defaultAuthentication.getPassword();
-        this.httpClient = new OkHttpClient.Builder().connectTimeout(configuration.getConnectTimeout(),
-                        configuration.getTimeUnit()).readTimeout(configuration.getReadTimeout(), configuration.getTimeUnit())
+        this.httpClient = new OkHttpClient.Builder()
+                .connectTimeout(configuration.getConnectTimeout(), configuration.getTimeUnit())
+                .readTimeout(configuration.getReadTimeout(), configuration.getTimeUnit())
                 .writeTimeout(configuration.getWriteTimeout(), configuration.getTimeUnit())
-                .retryOnConnectionFailure(true).build();
+                .retryOnConnectionFailure(true)
+                .build();
     }
 
     public Pair<Boolean, InlongGroupRequest> isGroupExists(InlongGroupRequest groupInfo) {
@@ -102,7 +104,9 @@ public class InnerInlongManagerClient {
         }
         String path = HTTP_PATH + "/group/get/" + inlongGroupId;
         final String url = formatUrl(path);
-        Request request = new Request.Builder().get().url(url).build();
+        Request request = new Request.Builder().get()
+                .url(url)
+                .build();
 
         Call call = httpClient.newCall(request);
         try {
@@ -133,7 +137,10 @@ public class InnerInlongManagerClient {
         final String biz = GsonUtil.toJson(groupInfo);
         final RequestBody bizBody = RequestBody.create(MediaType.parse("application/json"), biz);
         final String url = formatUrl(path);
-        Request request = new Request.Builder().url(url).method("POST", bizBody).build();
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", bizBody)
+                .build();
 
         Call call = httpClient.newCall(request);
         try {
@@ -160,7 +167,10 @@ public class InnerInlongManagerClient {
         final String biz = GsonUtil.toJson(groupInfo);
         final RequestBody bizBody = RequestBody.create(MediaType.parse("application/json"), biz);
         final String url = formatUrl(path);
-        Request request = new Request.Builder().url(url).method("POST", bizBody).build();
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", bizBody)
+                .build();
 
         Call call = httpClient.newCall(request);
         try {
@@ -180,7 +190,10 @@ public class InnerInlongManagerClient {
         final String stream = GsonUtil.toJson(streamInfo);
         final RequestBody streamBody = RequestBody.create(MediaType.parse("application/json"), stream);
         final String url = formatUrl(path);
-        Request request = new Request.Builder().url(url).method("POST", streamBody).build();
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", streamBody)
+                .build();
 
         Call call = httpClient.newCall(request);
         try {
@@ -211,7 +224,10 @@ public class InnerInlongManagerClient {
         final String url = formatUrl(path);
         final String stream = GsonUtil.toJson(streamInfo);
         RequestBody bizBody = RequestBody.create(MediaType.parse("application/json"), stream);
-        Request request = new Request.Builder().method("POST", bizBody).url(url).build();
+        Request request = new Request.Builder()
+                .method("POST", bizBody)
+                .url(url)
+                .build();
 
         Call call = httpClient.newCall(request);
         try {
@@ -233,7 +249,9 @@ public class InnerInlongManagerClient {
         String path = HTTP_PATH + "/stream/get";
         String url = formatUrl(path);
         url += String.format("&groupId=%s&streamId=%s", streamInfo.getInlongGroupId(), streamInfo.getInlongStreamId());
-        Request request = new Request.Builder().get().url(url).build();
+        Request request = new Request.Builder().get()
+                .url(url)
+                .build();
 
         Call call = httpClient.newCall(request);
         try {
@@ -259,7 +277,9 @@ public class InnerInlongManagerClient {
         final String path = HTTP_PATH + "/stream/listAll";
         String url = formatUrl(path);
         url = url + "&inlongGroupId=" + inlongGroupId;
-        Request request = new Request.Builder().get().url(url).build();
+        Request request = new Request.Builder().get()
+                .url(url)
+                .build();
 
         Call call = httpClient.newCall(request);
         try {
@@ -282,7 +302,10 @@ public class InnerInlongManagerClient {
         final String sink = GsonUtil.toJson(sinkRequest);
         final RequestBody sinkBody = RequestBody.create(MediaType.parse("application/json"), sink);
         final String url = formatUrl(path);
-        Request request = new Request.Builder().url(url).method("POST", sinkBody).build();
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", sinkBody)
+                .build();
 
         Call call = httpClient.newCall(request);
         try {
@@ -303,7 +326,9 @@ public class InnerInlongManagerClient {
         final String path = HTTP_PATH + "/sink/list";
         String url = formatUrl(path);
         url = String.format("%s&inlongGroupId=%s&inlongStreamId=%s&sinkType=HIVE", url, groupId, streamId);
-        Request request = new Request.Builder().get().url(url).build();
+        Request request = new Request.Builder().get()
+                .url(url)
+                .build();
 
         Call call = httpClient.newCall(request);
         try {
@@ -313,7 +338,8 @@ public class InnerInlongManagerClient {
             org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed:%s", responseBody.getErrMsg()));
-            PageInfo<SinkListResponse> hiveStorageListResponsePageInfo = InlongParser.parseHiveSinkList(responseBody);
+            PageInfo<SinkListResponse> hiveStorageListResponsePageInfo = InlongParser.parseHiveSinkList(
+                    responseBody);
             return hiveStorageListResponsePageInfo.getList();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong storage list failed with ex:%s", e.getMessage()), e);
@@ -325,7 +351,10 @@ public class InnerInlongManagerClient {
         final String url = formatUrl(path);
         final String storage = GsonUtil.toJson(sinkRequest);
         final RequestBody storageBody = RequestBody.create(MediaType.parse("application/json"), storage);
-        Request request = new Request.Builder().method("POST", storageBody).url(url).build();
+        Request request = new Request.Builder()
+                .method("POST", storageBody)
+                .url(url)
+                .build();
 
         Call call = httpClient.newCall(request);
         try {
@@ -349,7 +378,10 @@ public class InnerInlongManagerClient {
         final String url = formatUrl(path);
 
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
-        Request request = new Request.Builder().url(url).method("POST", requestBody).build();
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", requestBody)
+                .build();
 
         Call call = httpClient.newCall(request);
         try {
@@ -362,7 +394,8 @@ public class InnerInlongManagerClient {
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return InlongParser.parseWorkflowResult(responseBody);
         } catch (Exception e) {
-            throw new RuntimeException(String.format("Inlong group init failed: %s", e.getMessage()), e);
+            throw new RuntimeException(String.format("Inlong group init failed: %s", e.getMessage()),
+                    e);
         }
     }
 
@@ -381,7 +414,10 @@ public class InnerInlongManagerClient {
         final String path = HTTP_PATH + "/workflow/approve/" + taskId;
         final String url = formatUrl(path);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), operationData);
-        Request request = new Request.Builder().url(url).method("POST", requestBody).build();
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", requestBody)
+                .build();
 
         Call call = httpClient.newCall(request);
         try {
@@ -394,7 +430,8 @@ public class InnerInlongManagerClient {
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return InlongParser.parseWorkflowResult(responseBody);
         } catch (Exception e) {
-            throw new RuntimeException(String.format("Inlong group start failed: %s", e.getMessage()), e);
+            throw new RuntimeException(String.format("Inlong group start failed: %s", e.getMessage()),
+                    e);
         }
     }
 
@@ -410,7 +447,10 @@ public class InnerInlongManagerClient {
         path += groupId;
         final String url = formatUrl(path);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
-        Request request = new Request.Builder().url(url).method("POST", requestBody).build();
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", requestBody)
+                .build();
 
         Call call = httpClient.newCall(request);
         try {
@@ -431,7 +471,10 @@ public class InnerInlongManagerClient {
         final String path = HTTP_PATH + "/group/delete/" + groupId;
         final String url = formatUrl(path);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
-        Request request = new Request.Builder().url(url).method("DELETE", requestBody).build();
+        Request request = new Request.Builder()
+                .url(url)
+                .method("DELETE", requestBody)
+                .build();
 
         Call call = httpClient.newCall(request);
         try {
@@ -444,7 +487,8 @@ public class InnerInlongManagerClient {
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return Boolean.parseBoolean(responseBody.getData().toString());
         } catch (Exception e) {
-            throw new RuntimeException(String.format("Inlong group delete failed: %s", e.getMessage()), e);
+            throw new RuntimeException(
+                    String.format("Inlong group delete failed: %s", e.getMessage()), e);
         }
     }
 
@@ -457,9 +501,11 @@ public class InnerInlongManagerClient {
     public List<EventLogView> getInlongGroupError(String inlongGroupId) {
         final String path = HTTP_PATH + "/workflow/event/list";
         String url = formatUrl(path);
-
         url = url + "&inlongGroupId=" + inlongGroupId + "&status=-1";
-        Request request = new Request.Builder().get().url(url).build();
+        Request request = new Request.Builder()
+                .get()
+                .url(url)
+                .build();
 
         Call call = httpClient.newCall(request);
         try {
