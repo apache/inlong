@@ -19,12 +19,14 @@ package org.apache.inlong.manager.service.thirdparty.mq;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
+import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.thirdparty.mq.util.PulsarUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -44,6 +46,8 @@ import java.util.List;
 @Component
 public class CreatePulsarTopicForStreamTaskListener implements QueueOperateListener {
 
+    @Autowired
+    private CommonOperateService commonOperateService;
     @Autowired
     private ClusterBean clusterBean;
     @Autowired
@@ -73,7 +77,7 @@ public class CreatePulsarTopicForStreamTaskListener implements QueueOperateListe
 
         log.info("begin to create pulsar topic for groupId={}, streamId={}", groupId, streamId);
         try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(groupInfo,
-                clusterBean.getPulsarAdminUrl())) {
+                commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL))) {
             List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
             for (String cluster : pulsarClusters) {
                 String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
