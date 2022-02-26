@@ -449,7 +449,7 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * 返回inlong group的错误信息
+     * get inlong group error messages
      *
      * @param inlongGroupId
      * @return
