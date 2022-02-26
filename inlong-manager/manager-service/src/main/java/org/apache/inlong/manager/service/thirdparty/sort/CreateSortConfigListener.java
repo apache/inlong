@@ -32,6 +32,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
@@ -41,6 +42,11 @@ import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
+import org.apache.inlong.manager.service.source.StreamSourceService;
+import org.apache.inlong.manager.service.thirdparty.sort.utils.SerializationUtils;
+import org.apache.inlong.manager.service.thirdparty.sort.utils.SinkInfoUtils;
+import org.apache.inlong.manager.service.thirdparty.sort.utils.SortFieldFormatUtils;
+import org.apache.inlong.manager.service.thirdparty.sort.utils.SourceInfoUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
@@ -49,7 +55,6 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
-import org.apache.inlong.sort.protocol.deserialization.InLongMsgCsvDeserializationInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
@@ -67,6 +72,8 @@ public class CreateSortConfigListener implements SortOperateListener {
     private InlongStreamService inlongStreamService;
     @Autowired
     private StreamSinkService streamSinkService;
+    @Autowired
+    private StreamSourceService streamSourceService;
 
     @Override
     public TaskEvent event() {
@@ -115,29 +122,32 @@ public class CreateSortConfigListener implements SortOperateListener {
 
     private DataFlowInfo createDataFlow(StreamBriefResponse streamBriefResponse,
             InlongGroupRequest inlongGroupRequest) {
+        //TODO only support one source and one sink
+        final String groupId = streamBriefResponse.getInlongGroupId();
+        final String streamId = streamBriefResponse.getInlongStreamId();
+        final InlongStreamInfo streamInfo = inlongStreamService.get(groupId, streamId);
+        List<SourceResponse> sourceResponses = streamSourceService.listSource(groupId, streamId);
+        if (CollectionUtils.isEmpty(sourceResponses)) {
+            throw new RuntimeException(String.format("No source found by stream=%s", streamBriefResponse));
+        }
+        final SourceResponse sourceResponse = sourceResponses.get(0);
         List<SinkBriefResponse> sinkBriefResponses = streamBriefResponse.getSinkList();
         if (CollectionUtils.isEmpty(sinkBriefResponses)) {
             throw new RuntimeException(String.format("No sink found by stream=%s", streamBriefResponse));
         }
-        SinkBriefResponse sinkBriefResponse = sinkBriefResponses.get(0);
+        final SinkBriefResponse sinkBriefResponse = sinkBriefResponses.get(0);
         String sinkType = sinkBriefResponse.getSinkType();
         int sinkId = sinkBriefResponse.getId();
-        SinkResponse sinkResponse = streamSinkService.get(sinkId, sinkType);
-        SourceInfo sourceInfo = createSourceInfo(inlongGroupRequest, sinkResponse);
-        SinkInfo sinkInfo = SinkInfoUtils.createSinkInfo(sinkResponse);
+        final SinkResponse sinkResponse = streamSinkService.get(sinkId, sinkType);
+        SourceInfo sourceInfo = createSourceInfo(inlongGroupRequest, streamInfo, sourceResponse);
+        SinkInfo sinkInfo = SinkInfoUtils.createSinkInfo(streamInfo, sourceResponse, sinkResponse);
         return new DataFlowInfo(sinkId, sourceInfo, sinkInfo);
     }
 
-    private SourceInfo createSourceInfo(InlongGroupRequest groupRequest, SinkResponse sinkResponse) {
+    private SourceInfo createSourceInfo(InlongGroupRequest groupRequest, InlongStreamInfo streamInfo,
+            SourceResponse sourceResponse) {
         String middleWareType = groupRequest.getMiddlewareType();
-        String groupId = sinkResponse.getInlongGroupId();
-        String streamId = sinkResponse.getInlongStreamId();
-        InlongStreamInfo streamInfo = inlongStreamService.get(groupId, streamId);
-        DeserializationInfo deserializationInfo = null;
-        if (StringUtils.isNotEmpty(streamInfo.getDataSeparator())) {
-            char separator = (char) Integer.parseInt(streamInfo.getDataSeparator());
-            deserializationInfo = new InLongMsgCsvDeserializationInfo(streamId, separator);
-        }
+
         List<FieldInfo> fieldInfos = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(streamInfo.getFieldList())) {
             fieldInfos = streamInfo.getFieldList().stream().map(inlongStreamFieldInfo -> {
@@ -146,6 +156,8 @@ public class CreateSortConfigListener implements SortOperateListener {
                 return new FieldInfo(inlongStreamFieldInfo.getFieldName(), formatInfo);
             }).collect(Collectors.toList());
         }
+        DeserializationInfo deserializationInfo = SerializationUtils.createDeserializationInfo(sourceResponse,
+                streamInfo);
         if (Constant.MIDDLEWARE_PULSAR.equals(middleWareType)) {
             return createPulsarSourceInfo(groupRequest, streamInfo, deserializationInfo, fieldInfos);
         } else if (Constant.MIDDLEWARE_TUBE.equals(middleWareType)) {

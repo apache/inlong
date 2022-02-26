@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.thirdparty.sort;
+package org.apache.inlong.manager.service.thirdparty.sort.utils;
 
 import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
