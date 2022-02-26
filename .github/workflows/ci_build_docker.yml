@@ -57,7 +57,7 @@ jobs:
           CI: false
 
       - name: Push docker image to Docker Hub
-        if: ${{ success() && github.event_name == 'push' && github.event.repository.owner.id == github.event.sender.id }}
+        if: ${{ success() && github.event_name == 'push' && github.repository == 'apache/incubator-inlong' }}
         run: sh docker/publish.sh
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
