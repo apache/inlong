@@ -50,3 +50,16 @@ jobs:
         run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests
         env:
           CI: false
+
+      - name: Get inlong version
+        if: ${{ success() }}
+        run: |
+          version=`mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q`
+          echo "VERSION=${version}" >> $GITHUB_ENV
+
+      - name: Upload binary package
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: apache-inlong-${VERSION}-bin.tar.gz
+          path: ./inlong-distribution/target/apache-inlong-${VERSION}-bin.tar.gz
