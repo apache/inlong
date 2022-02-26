@@ -31,13 +31,19 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 @ApiModel("Response of kafka source paging list")
 public class KafkaSourceListResponse extends SourceListResponse {
 
-    @ApiModelProperty("Kafka bootstrap servers")
-    private String address;
+    @ApiModelProperty("Kafka topic")
+    private String topic;
 
-    @ApiModelProperty("Kafka topicName")
-    private String topicName;
+    @ApiModelProperty("Kafka consumer group")
+    private String groupId;
 
-    @ApiModelProperty("Data Serialization, support: Json, Canal, Avro")
-    private String serializationType;
+    @ApiModelProperty("Kafka servers address")
+    private String bootstrapServers;
+
+    @ApiModelProperty("Limit the amount of data read per second")
+    private String recordSpeedLimit;
+
+    @ApiModelProperty("Limit the number of bytes read per second")
+    private String byteSpeedLimit;
 
 }

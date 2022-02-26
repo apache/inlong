@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.workflow.core.impl;
 
 import com.google.common.collect.Lists;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -55,9 +56,10 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
         this.taskEntityMapper = taskEntityMapper;
     }
 
+    @SneakyThrows
     @Override
     public WorkflowContext buildContextForProcess(String name, String applicant, ProcessForm form) {
-        WorkflowProcess process = definitionRepository.get(name);
+        WorkflowProcess process = definitionRepository.get(name).clone();
         WorkflowContext context = new WorkflowContext();
         context.setProcess(process);
         context.setProcessForm(form);
@@ -66,11 +68,12 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
         return context;
     }
 
+    @SneakyThrows
     @Override
     public WorkflowContext buildContextForProcess(Integer processId) {
         WorkflowProcessEntity processEntity = processEntityMapper.selectById(processId);
         Preconditions.checkNotNull(processEntity, "process not exist with id: " + processId);
-        WorkflowProcess process = definitionRepository.get(processEntity.getName());
+        WorkflowProcess process = definitionRepository.get(processEntity.getName()).clone();
 
         return new WorkflowContext()
                 .setApplicant(processEntity.getApplicant())
@@ -96,23 +99,25 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
         return buildContextForTask(taskId, action, null, transferToUsers, remark, operator);
     }
 
+    @SneakyThrows
     @Override
     public WorkflowContext buildContextForTask(Integer taskId, WorkflowAction action) {
         WorkflowTaskEntity taskEntity = taskEntityMapper.selectById(taskId);
-        WorkflowProcess process = definitionRepository.get(taskEntity.getProcessName());
+        WorkflowProcess process = definitionRepository.get(taskEntity.getProcessName()).clone();
         TaskForm taskForm = WorkflowFormParserUtils.parseTaskForm(taskEntity, process);
         List<String> transferToUsers = getTransferToUsers(taskEntity.getExtParams());
         return buildContextForTask(taskId, action, taskForm, transferToUsers, taskEntity.getRemark(),
                 taskEntity.getOperator());
     }
 
+    @SneakyThrows
     private WorkflowContext buildContextForTask(Integer taskId, WorkflowAction action, TaskForm taskForm,
             List<String> transferToUsers, String remark, String operator) {
         WorkflowTaskEntity taskEntity = taskEntityMapper.selectById(taskId);
         Preconditions.checkNotNull(taskEntity, "task not exist with id: " + taskId);
 
         WorkflowProcessEntity processEntity = processEntityMapper.selectById(taskEntity.getProcessId());
-        WorkflowProcess process = definitionRepository.get(processEntity.getName());
+        WorkflowProcess process = definitionRepository.get(processEntity.getName()).clone();
         ProcessForm processForm = WorkflowFormParserUtils.parseProcessForm(processEntity.getFormData(), process);
         WorkflowTask task = process.getTaskByName(taskEntity.getName());
 

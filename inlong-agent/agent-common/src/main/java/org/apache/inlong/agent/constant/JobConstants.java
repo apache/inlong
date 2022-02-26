@@ -111,4 +111,9 @@ public class JobConstants extends CommonConstants {
      */
     public static final String JOB_RETRY_TIME = "job.retryTime";
 
+    /**
+     * delimiter to split offset for different task
+     */
+    public static final String JOB_OFFSET_DELIMITER = "_";
+
 }

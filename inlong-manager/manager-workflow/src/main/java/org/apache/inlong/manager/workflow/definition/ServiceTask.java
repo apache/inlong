@@ -20,6 +20,7 @@ package org.apache.inlong.manager.workflow.definition;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -82,6 +83,15 @@ public class ServiceTask extends WorkflowTask {
             }
             addListener(listener);
         }
+    }
+
+    @SneakyThrows
+    @Override
+    public ServiceTask clone() {
+        ServiceTask serviceTask = (ServiceTask) super.clone();
+        serviceTask.addServiceTaskType(this.serviceTaskType);
+        serviceTask.addListenerProvider(this.listenerProvider);
+        return serviceTask;
     }
 
     public WorkflowTask addListenerProvider(ServiceTaskListenerProvider provider) {

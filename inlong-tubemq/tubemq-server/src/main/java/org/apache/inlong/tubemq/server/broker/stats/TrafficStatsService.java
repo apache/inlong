@@ -99,11 +99,12 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
         TrafficStatsUnit tmpStatsSet;
         TrafficStatsUnit trafficStatsSet;
         // Increment write reference count
-        switchableUnits[getIndex()].refCnt.incValue();
+        WritableUnit selectedUnit = switchableUnits[getIndex()];
+        selectedUnit.refCnt.incValue();
         try {
             // Accumulate statistics information
             ConcurrentHashMap<String, TrafficStatsUnit> tmpStatsSetMap =
-                    switchableUnits[getIndex()].statsUnitMap;
+                    selectedUnit.statsUnitMap;
             for (Entry<String, TrafficInfo> entry : trafficInfos.entrySet()) {
                 trafficStatsSet = tmpStatsSetMap.get(entry.getKey());
                 if (trafficStatsSet == null) {
@@ -118,18 +119,19 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
             }
         } finally {
             // Decrement write reference count
-            switchableUnits[getIndex()].refCnt.decValue();
+            selectedUnit.refCnt.decValue();
         }
     }
 
     @Override
     public void add(String statsKey, long msgCnt, long msgSize) {
         // Increment write reference count
-        switchableUnits[getIndex()].refCnt.incValue();
+        WritableUnit selectedUnit = switchableUnits[getIndex()];
+        selectedUnit.refCnt.incValue();
         try {
             // Accumulate statistics information
             ConcurrentHashMap<String, TrafficStatsUnit> tmpStatsSetMap =
-                    switchableUnits[getIndex()].statsUnitMap;
+                    selectedUnit.statsUnitMap;
             TrafficStatsUnit trafficStatsSet = tmpStatsSetMap.get(statsKey);
             if (trafficStatsSet == null) {
                 TrafficStatsUnit tmpStatsSet = new TrafficStatsUnit("msg_cnt", "msg_size", null);
@@ -141,7 +143,7 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
             trafficStatsSet.addMsgCntAndSize(msgCnt, msgSize);
         } finally {
             // Decrement write reference count
-            switchableUnits[getIndex()].refCnt.decValue();
+            selectedUnit.refCnt.decValue();
         }
     }
 
@@ -163,7 +165,7 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
                 break;
             }
             try {
-                Thread.sleep(20);
+                Thread.sleep(2);
             } catch (InterruptedException e) {
                 break;
             }
@@ -172,8 +174,8 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
         Map<String, TrafficStatsUnit> statsMap = selectedUnit.statsUnitMap;
         for (Entry<String, TrafficStatsUnit> entry : statsMap.entrySet()) {
             logger.info("{}#{}#{}#{}", statsCat, entry.getKey(),
-                    entry.getValue().msgCnt.getAndResetValue(),
-                    entry.getValue().msgSize.getAndResetValue());
+                    entry.getValue().msgCnt.getValue(),
+                    entry.getValue().msgSize.getValue());
         }
         statsMap.clear();
     }

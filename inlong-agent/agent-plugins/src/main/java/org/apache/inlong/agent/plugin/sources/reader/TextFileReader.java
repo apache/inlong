@@ -152,6 +152,11 @@ public class TextFileReader implements Reader {
         waitTimeout = millis;
     }
 
+    @Override
+    public String getSnapshot() {
+        return StringUtils.EMPTY;
+    }
+
     public void addPatternValidator(String pattern) {
         if (pattern.isEmpty()) {
             return;

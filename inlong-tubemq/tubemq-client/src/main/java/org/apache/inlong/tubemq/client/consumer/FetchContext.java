@@ -70,6 +70,10 @@ public class FetchContext {
         return partition;
     }
 
+    public String getPartitionKey() {
+        return partition.getPartitionKey();
+    }
+
     public long getUsedToken() {
         return usedToken;
     }

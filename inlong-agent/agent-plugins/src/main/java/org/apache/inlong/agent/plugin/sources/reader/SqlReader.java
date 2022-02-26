@@ -175,6 +175,11 @@ public class SqlReader implements Reader {
 
     }
 
+    @Override
+    public String getSnapshot() {
+        return StringUtils.EMPTY;
+    }
+
     /**
      * Init column meta data.
      *
