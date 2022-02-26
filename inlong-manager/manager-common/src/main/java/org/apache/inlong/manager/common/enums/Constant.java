@@ -96,4 +96,14 @@ public class Constant {
 
     public static final Integer DISABLE_CREATE_RESOURCE = 0; // Disable create resource
 
+    public static final String CLUSTER_TUBE_MANAGER = "cluster_tube_manager";
+
+    public static final String CLUSTER_TUBE_CLUSTER_ID = "cluster_tube_clusterId";
+
+    public static final String PULSAR_ADMINURL = "pulsar_adminUrl";
+
+    public static final String PULSAR_SERVICEURL = "pulsar_serviceUrl";
+
+    public static final String TUBE_MASTER_URL = "tube_masterUrl";
+
 }
