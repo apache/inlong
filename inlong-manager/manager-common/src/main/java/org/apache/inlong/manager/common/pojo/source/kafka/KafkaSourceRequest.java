@@ -36,10 +36,25 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = Constant.SOURCE_KAFKA)
 public class KafkaSourceRequest extends SourceRequest {
 
-    @ApiModelProperty("Kafka bootstrap servers")
-    private String address;
+    @ApiModelProperty("Kafka topic")
+    private String topic;
 
-    @ApiModelProperty("Kafka topicName")
-    private String topicName;
+    @ApiModelProperty("Kafka consumer group")
+    private String groupId;
+
+    @ApiModelProperty("Kafka servers address, such as: 127.0.0.1:9092")
+    private String bootstrapServers;
+
+    @ApiModelProperty(value = "Limit the amount of data read per second",
+            notes = "Greater than or equal to 0, equal to zero means no limit")
+    private String recordSpeedLimit;
+
+    @ApiModelProperty(value = "Limit the number of bytes read per second",
+            notes = "Greater than or equal to 0, equal to zero means no limit")
+    private String byteSpeedLimit;
+
+    @ApiModelProperty(value = "Topic partition offset",
+            notes = "For example, '0#100_1#10' means the offset of partition 0 is 100, the offset of partition 1 is 10")
+    private String topicPartitionOffset;
 
 }
