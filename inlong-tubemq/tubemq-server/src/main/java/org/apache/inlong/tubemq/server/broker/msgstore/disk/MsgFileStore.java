@@ -53,34 +53,65 @@ public class MsgFileStore implements Closeable {
     private static final int MAX_META_REFRESH_DUR = 1000 * 60 * 60;
     private static final DiskSamplePrint samplePrintCtrl =
         new DiskSamplePrint(logger);
-    // storage ID
+    /**
+     *  storage ID
+      */
     private final String storeKey;
-    // data file storage directory
+    /**
+     * data file storage directory
+      */
     private final File dataDir;
-    // index file storage directory
+    /**
+     * index file storage directory
+     */
     private final File indexDir;
-    // disk flush parameters: current unflushed message count
+    /**
+     *  disk flush parameters: current unflushed message count
+     */
     private final AtomicInteger curUnflushed = new AtomicInteger(0);
-    // current unflushed message size
+    /**
+     *  current unflushed message size
+     */
     private final AtomicLong curUnflushSize = new AtomicLong(0);
-    // time of data's last flush operation
+    /**
+     * time of data's last flush operation
+     */
     private final AtomicLong lastFlushTime = new AtomicLong(System.currentTimeMillis());
-    // time of meta's last flush operation
+    /**
+     * time of meta's last flush operation
+     */
     private final AtomicLong lastMetaFlushTime = new AtomicLong(0);
+    /**
+     * config of broker
+     */
     private final BrokerConfig tubeConfig;
-    // file store stats holder
+    /**
+     *  file store stats holder
+     */
     private final MsgStoreStatsHolder msgStoreStatsHolder;
-    // lock used for append message to storage
+    /**
+     * lock used for append message to storage
+     */
     private final ReentrantLock writeLock = new ReentrantLock();
     private final ByteBuffer byteBufferIndex =
             ByteBuffer.allocate(DataStoreUtils.STORE_INDEX_HEAD_LEN);
-    // message storage
+    /**
+     * message storage
+     */
     private final MessageStore messageStore;
-    // data file segment list
+
+    /**
+     * data file segment list
+     */
     private SegmentList dataSegments;
-    // index file segment list
+    /**
+     * index file segment list
+     */
     private SegmentList indexSegments;
-    // close status
+    //
+    /**
+     * close status
+     */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**

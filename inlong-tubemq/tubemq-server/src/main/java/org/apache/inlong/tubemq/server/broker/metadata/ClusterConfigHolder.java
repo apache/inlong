@@ -37,7 +37,10 @@ public class ClusterConfigHolder {
 
     }
 
-    // set master returned configure
+    /**
+     *  set master returned configure
+     * @param clusterConfig cluster config
+      */
     public static void updClusterSetting(ClientMaster.ClusterConfig clusterConfig) {
         if (clusterConfig == null) {
             return;

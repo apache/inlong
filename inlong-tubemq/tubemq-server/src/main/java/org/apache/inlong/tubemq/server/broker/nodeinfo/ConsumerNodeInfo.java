@@ -31,20 +31,34 @@ import org.apache.inlong.tubemq.server.common.TServerConstants;
  */
 public class ConsumerNodeInfo {
 
-    // partition string format
+    /**
+     * partition string format
+      */
     private final String partStr;
     private final MessageStoreManager storeManager;
-    // consumer id
+    /**
+     * consumer id
+     */
     private String consumerId;
     private final String sessionKey;
     private final long sessionTime;
-    // is filter consumer or not
+    /**
+     *is filter consumer or not
+     */
     private boolean isFilterConsume = false;
-    // filter conditions in string format
+    /**
+     *filter conditions in string format
+     */
     private final Set<String> filterCondStrs = new HashSet<>(10);
-    // filter conditions in int format
+
+    /**
+     * filter conditions in int format
+     */
     private final Set<Integer> filterCondCode = new HashSet<>(10);
-    // consumer's address
+
+    /**
+     * consumer's address
+     */
     private String rmtAddrInfo;
     private boolean isSupportLimit = false;
     private long nextStatTime = 0L;

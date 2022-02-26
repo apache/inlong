@@ -46,18 +46,26 @@ import sun.nio.ch.DirectBuffer;
  */
 public class MsgMemStore implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(MsgMemStore.class);
-    // statistics of memory store
+    /**
+     * statistics of memory store
+      */
     private final AtomicInteger cacheDataOffset = new AtomicInteger(0);
     private final AtomicInteger cacheIndexOffset = new AtomicInteger(0);
     private final AtomicInteger curMessageCount = new AtomicInteger(0);
     private final ReentrantLock writeLock = new ReentrantLock();
-    // partitionId to index position, accelerate query
+    /**
+     *  partitionId to index position, accelerate query
+     */
     private final Map<Integer, Integer> queuesMap =
             new HashMap<>(20);
-    // key to index position, used for filter consume
+    /**
+     * key to index position, used for filter consume
+     */
     private final Map<Integer, Integer> keysMap =
             new HashMap<>(100);
-    // where messages in memory will sink to disk
+    /**
+     * where messages in memory will sink to disk
+     */
     private final int maxDataCacheSize;
     private long writeDataStartPos = -1;
     private final ByteBuffer cacheDataSegment;

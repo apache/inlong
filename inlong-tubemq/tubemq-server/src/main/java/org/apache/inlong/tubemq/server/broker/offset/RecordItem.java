@@ -25,19 +25,33 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 public class RecordItem {
     protected int storeId;
     protected int partitionId;
-    // consume group confirmed offset
+    /**
+     * consume group confirmed offset
+     */
     protected long offsetCfm = 0L;
-    // partition min index offset
+    /**
+     *  partition min index offset
+     */
     protected long offsetMin = 0L;
-    // partition max index offset
+    /**
+     * partition max index offset
+     */
     protected long offsetMax = 0L;
-    // consume lag
+    /**
+     * consume lag
+     */
     protected long offsetLag = 0L;
-    // partition min data offset
+    /**
+     * partition min data offset
+     */
     protected long dataMin = 0L;
-    // partition max data offset
+    /**
+     *  partition max data offset
+     */
     protected long dataMax = 0L;
-    // consume data offset
+    /**
+     * consume data offset
+     */
     protected long dataLag = -1L;
 
     public RecordItem(int partitionId, long offsetCfm) {

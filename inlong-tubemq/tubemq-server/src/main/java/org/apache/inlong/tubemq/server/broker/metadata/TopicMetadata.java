@@ -32,39 +32,71 @@ import org.apache.inlong.tubemq.server.common.TStatusConstants;
  * Topic's metadata. Contains topic name, partitions count, etc.
  */
 public class TopicMetadata {
-    // topic name.
+    /**
+     *topic name.
+     */
     private String topic;
-    // metadata status.
+    /**
+     *metadata status.
+     */
     private int statusId = TStatusConstants.STATUS_TOPIC_OK;
-    // topic store count.
+    /**
+     * topic store count.
+     */
     private int numTopicStores = 1;
-    // topic partition count.
+    /**
+     *topic partition count.
+     */
     private int numPartitions = 1;
-    // data will be flushed to disk when elapse unflushInterval milliseconds since last flush operation.
+    /**
+     *data will be flushed to disk when elapse unflushInterval milliseconds since last flush operation.
+     */
     private int unflushThreshold = 1000;
-    // data will be flushed to disk when unflushed message count exceed this.
+    /**
+     *data will be flushed to disk when unflushed message count exceed this.
+     */
     private int unflushInterval = 10000;
-    // data will be flushed to disk when unflushed data size reach this threshold, 0=disabled.
+    /**
+     *data will be flushed to disk when unflushed data size reach this threshold, 0=disabled.
+     */
     private int unflushDataHold = 0;
-    // enable produce data to topic.
+    /**
+     *enable produce data to topic.
+     */
     private boolean acceptPublish = true;
-    // enable consume data from topic.
+    /**
+     *enable consume data from topic.
+     */
     private boolean acceptSubscribe = true;
-    // path to store topic's data in disk.
+    /**
+     * path to store topic's data in disk.
+     */
     private String dataPath;
     @Deprecated
     private String deleteWhen = "0 0 6,18 * * ?";
-    // expire policy.
+    /**
+     *expire policy.
+     */
     private String deletePolicy = "delete,168h";
-    // the max cache size for topic.
+    /**
+     * the max cache size for topic.
+     */
     private int memCacheMsgSize = 1024 * 1024;
-    // the max cache message count for topic.
+    /**
+     *the max cache message count for topic.
+     */
     private int memCacheMsgCnt = 5 * 1024;
-    // the max interval(milliseconds) that topic's memory cache will flush to disk.
+    /**
+     *the max interval(milliseconds) that topic's memory cache will flush to disk.
+     */
     private int memCacheFlushIntvl = 20000;
-    // the allowed max message size
+    /**
+     *the allowed max message size
+     */
     private int maxMsgSize = TBaseConstants.META_VALUE_UNDEFINED;
-    // the allowed min memory cache size
+    /**
+     *the allowed min memory cache size
+     */
     private int minMemCacheSize = TBaseConstants.META_VALUE_UNDEFINED;
 
     /**

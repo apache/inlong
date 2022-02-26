@@ -33,11 +33,17 @@ public class OffsetRecordService extends AbstractDaemonService {
     private static final Logger logger =
             LoggerFactory.getLogger(OffsetRecordService.class);
     private final TubeBroker broker;
-    // tube broker's store manager
+    /**
+     * tube broker's store manager
+     */
     private final MessageStoreManager storeManager;
-    // tube broker's offset manager
+    /**
+     *  tube broker's offset manager
+     */
     private final OffsetService offsetManager;
-    // tube broker addressId
+    /**
+     *  tube broker addressId
+     */
     private final int brokerAddrId;
 
     public OffsetRecordService(TubeBroker broker, long scanIntervalMs) {

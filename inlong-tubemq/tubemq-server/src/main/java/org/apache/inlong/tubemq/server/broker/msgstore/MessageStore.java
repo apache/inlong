@@ -62,7 +62,9 @@ public class MessageStore implements Closeable {
     private final ReentrantLock flushMutex = new ReentrantLock();
     private final AtomicBoolean hasFlushBeenTriggered = new AtomicBoolean(false);
     private final TopicMetadata topicMetadata;
-    // sequencer id generator.
+    /**
+     * sequencer id generator.
+      */
     private final IdWorker idWorker;
     private final int storeId;
     private final String storeKey;

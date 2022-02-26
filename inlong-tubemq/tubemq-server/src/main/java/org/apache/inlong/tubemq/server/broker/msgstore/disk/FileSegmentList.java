@@ -28,7 +28,9 @@ import org.slf4j.LoggerFactory;
 public class FileSegmentList implements SegmentList {
     private static final Logger logger =
             LoggerFactory.getLogger(FileSegmentList.class);
-    // list of segments.
+    /**
+     list of segments.
+     */
     private final AtomicReference<Segment[]> segmentList =
             new AtomicReference<>();
 

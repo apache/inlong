@@ -50,10 +50,14 @@ public class FileSegment implements Segment {
     private long expiredTime = 0;
     private final AtomicBoolean expired = new AtomicBoolean(false);
     private final AtomicBoolean closed = new AtomicBoolean(false);
-    // the first record append time
+    /**
+     * the first record append time
+     */
     private final AtomicLong leftAppendTime =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    // the latest record append time
+    /**
+     * the latest record append time
+     */
     private final AtomicLong rightAppendTime =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
 

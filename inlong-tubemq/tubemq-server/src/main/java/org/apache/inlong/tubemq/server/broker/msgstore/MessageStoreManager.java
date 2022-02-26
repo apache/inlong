@@ -66,23 +66,39 @@ public class MessageStoreManager implements StoreService {
     private static final Logger logger = LoggerFactory.getLogger(MessageStoreManager.class);
     private final BrokerConfig tubeConfig;
     private final TubeBroker tubeBroker;
-    // metadata manager, get metadata from master.
+    /**
+     *  metadata manager, get metadata from master.
+     */
     private final MetadataManager metadataManager;
-    // storeId to store on each topic.
+    /**
+     *  storeId to store on each topic.
+     */
     private final ConcurrentHashMap<String/* topic */,
             ConcurrentHashMap<Integer/* storeId */, MessageStore>> dataStores =
             new ConcurrentHashMap<>();
-    // store service status
+    /**
+     * store service status
+     */
     private final AtomicBoolean stopped = new AtomicBoolean(false);
-    // data expire operation scheduler.
+    /**
+     *  data expire operation scheduler.
+     */
     private final ScheduledExecutorService logClearScheduler;
-    // flush operation scheduler.
+    /**
+     * flush operation scheduler.
+     */
     private final ScheduledExecutorService unFlushDiskScheduler;
-    // message on memory sink to disk operation scheduler.
+    /**
+     *  message on memory sink to disk operation scheduler.
+     */
     private final ScheduledExecutorService unFlushMemScheduler;
-    // max transfer size.
+    /**
+     *  max transfer size.
+     */
     private final int maxMsgTransferSize;
-    // the status that is deleting topic.
+    /**
+     *  the status that is deleting topic.
+     */
     private final AtomicBoolean isRemovingTopic = new AtomicBoolean(false);
 
     /**

@@ -41,28 +41,49 @@ public class BrokerMetadataManager implements MetadataManager {
 
     protected final PropertyChangeSupport propertyChangeSupport =
             new PropertyChangeSupport(this);
-    // the rule handler of flow control.
+    /**
+     * the rule handler of flow control.
+      */
     private final FlowCtrlRuleHandler flowCtrlRuleHandler =
             new FlowCtrlRuleHandler(true);
-    // broker's config check sum.
+    /**
+     * broker's config check sum.
+     */
     private int brokerConfCheckSumId = 0;
-    // broker's metadata Id.
+    /**
+     * broker's metadata Id.
+     */
     private long brokerMetadataConfId = 0;
-    // broker's metadata in String format.
+    /**
+     *broker's metadata in String format.
+     */
     private String brokerDefMetaConfInfo = "";
-    // broker's topic's config list.
+    /**
+     * broker's topic's config list.
+     */
     private List<String> topicMetaConfInfoLst = new ArrayList<>();
-    // topic in this broker.
+
+    /**
+     *topic in this broker.
+     */
     private List<String> topics = new ArrayList<>();
-    // broker's default metadata.
+    /**
+     *broker's default metadata.
+     */
     private BrokerDefMetadata brokerDefMetadata = new BrokerDefMetadata();
-    // topic with custom config.
+    /**
+     *topic with custom config.
+     */
     private ConcurrentHashMap<String/* topic */, TopicMetadata> topicConfigMap =
             new ConcurrentHashMap<>();
-    // topics will be closed.
+    /**
+     *topics will be closed.
+     */
     private Map<String/* topic */, Integer> closedTopicMap =
             new ConcurrentHashMap<>();
-    // topics will be removed.
+    /**
+     *topics will be removed.
+     */
     private final Map<String/* topic */, TopicMetadata> removedTopicConfigMap =
             new ConcurrentHashMap<>();
     private long lastRptBrokerMetaConfId = 0;

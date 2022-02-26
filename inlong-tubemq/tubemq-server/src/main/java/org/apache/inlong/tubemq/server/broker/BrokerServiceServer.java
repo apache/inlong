@@ -98,6 +98,9 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     // metadata manager.
     private final MetadataManager metadataManager;
     // offset storage manager.
+    /**
+     *
+     */
     private final OffsetService offsetManager;
     // message storage manager.
     private final MessageStoreManager storeManager;
