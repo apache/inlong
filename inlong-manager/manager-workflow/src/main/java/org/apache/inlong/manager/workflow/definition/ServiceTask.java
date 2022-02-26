@@ -87,7 +87,7 @@ public class ServiceTask extends WorkflowTask {
 
     @SneakyThrows
     @Override
-    public ServiceTask clone(){
+    public ServiceTask clone() {
         ServiceTask serviceTask = (ServiceTask) super.clone();
         serviceTask.addServiceTaskType(this.serviceTaskType);
         serviceTask.addListenerProvider(this.listenerProvider);

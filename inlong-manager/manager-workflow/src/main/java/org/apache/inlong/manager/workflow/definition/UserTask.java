@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableSet;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -75,4 +76,12 @@ public class UserTask extends WorkflowTask {
         }
     }
 
+    @SneakyThrows
+    @Override
+    public UserTask clone() {
+        UserTask userTask = (UserTask) super.clone();
+        userTask.setApproverAssign(this.approverAssign);
+        userTask.setFormClass(this.formClass);
+        return userTask;
+    }
 }
