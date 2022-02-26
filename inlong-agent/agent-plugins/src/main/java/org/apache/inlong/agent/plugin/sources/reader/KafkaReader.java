@@ -64,22 +64,22 @@ public class KafkaReader<K, V> implements Reader {
     private long timeout;
     private long waitTimeout = 1000;
     private long lastTime = 0;
-    // metric
+    /* metric */
     private static final String KAFKA_READER_TAG_NAME = "AgentKafkaMetric";
     private final PluginMetric kafkaMetric;
-    //total readRecords
+    /* total readRecords */
     private static AtomicLong currentTotalReadRecords = new AtomicLong(0);
 
     private static AtomicLong lastTotalReadRecords = new AtomicLong(0);
-    // total readBytes
+    /* total readBytes */
     private static AtomicLong currentTotalReadBytes = new AtomicLong(0);
     private static AtomicLong lastTotalReadBytes = new AtomicLong(0);
     long lastTimestamp;
-    // bps: records/s
+    /* bps: records/s */
     long recordSpeed;
-    // tps: bytes/s
+    /* tps: bytes/s */
     long byteSpeed;
-    // sleepTime
+    /* sleepTime */
     long flowControlInterval;
     private String inlongGroupId;
     private String inlongStreamId;

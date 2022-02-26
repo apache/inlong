@@ -65,11 +65,11 @@ public class JobConstants extends CommonConstants {
     public static final  String JOB_KAFKA_TOPIC = "job.kafkajob.topic";
     public static final  String JOB_KAFKA_BOOTSTRAP_SERVERS = "job.kafkajob.bootstrap.servers";
     public static final  String JOB_KAFKA_GROUP_ID = "job.kafkajob.group.id";
-    public static final  String JOB_KAFKA_RECORD_SPEED_LIMIT = "job.kafkajob.recordspeed.limit";
-    public static final  String JOB_KAFKA_BYTE_SPEED_LIMIT = "job.kafkajob.bytespeed.limit";
+    public static final  String JOB_KAFKA_RECORD_SPEED_LIMIT = "job.kafkajob.recordSpeed.limit";
+    public static final  String JOB_KAFKA_BYTE_SPEED_LIMIT = "job.kafkajob.byteSpeed.limit";
     public static final  String JOB_KAFKA_OFFSET = "job.kafkajob.partition.offset";
     public static final  String JOB_KAFKA_READ_TIMEOUT = "job.kafkajob.read.timeout";
-    public static final String JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET = "job.kafkajob.auto.offsetReset";
+    public static final String JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET = "job.kafkajob.autoOffsetReset";
 
     public static final Long JOB_KAFKA_DEFAULT_OFFSET = 0L;
 

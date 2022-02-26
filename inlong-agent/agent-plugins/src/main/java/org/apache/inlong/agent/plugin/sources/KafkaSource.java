@@ -27,6 +27,7 @@ import org.apache.inlong.agent.plugin.metrics.SourceJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.SourceMetrics;
 import org.apache.inlong.agent.plugin.metrics.SourcePrometheusMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.KafkaReader;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ConfigUtil;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
@@ -39,6 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BOOTSTRAP_SERVERS;
@@ -63,15 +65,17 @@ public class KafkaSource implements Source {
     private static final String KAFKA_VALUE_DESERIALIZER = "value.deserializer";
     public static final String JOB_KAFKA_AUTO_RESETE = "auto.offset.reset";
 
-
     private final SourceMetrics sourceMetrics;
+    private static AtomicLong metricsIndex = new AtomicLong(0);
     private static final Gson gson = new Gson();
 
     public KafkaSource() {
         if (ConfigUtil.isPrometheusEnabled()) {
-            this.sourceMetrics = new SourcePrometheusMetrics(KAFKA_SOURCE_TAG_NAME);
+            this.sourceMetrics = new SourcePrometheusMetrics(AgentUtils.getUniqId(
+                    KAFKA_SOURCE_TAG_NAME, metricsIndex.incrementAndGet()));
         } else {
-            this.sourceMetrics = new SourceJmxMetric(KAFKA_SOURCE_TAG_NAME);
+            this.sourceMetrics = new SourceJmxMetric(AgentUtils.getUniqId(
+                    KAFKA_SOURCE_TAG_NAME, metricsIndex.incrementAndGet()));
         }
 
     }
@@ -114,7 +118,7 @@ public class KafkaSource implements Source {
                 KafkaConsumer<String,String> partitonConsumer = new KafkaConsumer<>(props);
                 partitonConsumer.assign(Collections.singletonList(
                         new TopicPartition(partitionInfo.topic(), partitionInfo.partition())));
-                //if get offset,consume from offset; if not,consume from 0
+                // if get offset,consume from offset; if not,consume from 0
                 if (partitionOffsets != null && partitionOffsets.length > 0) {
                     for (String partitionOffset : partitionOffsets) {
                         if (partitionOffset.contains(JOB_KAFKA_PARTITION_OFFSET_DELIMITER)

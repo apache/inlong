@@ -125,13 +125,11 @@ public class JobProfileDto {
         kafkaJob.setGroup(group);
         KafkaJob.RecordSpeed recordSpeed = new KafkaJob.RecordSpeed();
         recordSpeed.setLimit(kafkaJobTaskConfig.getRecordSpeedLimit());
-        kafkaJob.setRecordspeed(recordSpeed);
+        kafkaJob.setRecordSpeed(recordSpeed);
         KafkaJob.ByteSpeed byteSpeed = new KafkaJob.ByteSpeed();
         byteSpeed.setLimit(kafkaJobTaskConfig.getByteSpeedLimit());
-        kafkaJob.setBytespeed(byteSpeed);
-        KafkaJob.AutoOffsetReset auto = new KafkaJob.AutoOffsetReset();
-        auto.setOffsetReset(kafkaJobTaskConfig.getAutoOffsetReset());
-        kafkaJob.setAuto(auto);
+        kafkaJob.setByteSpeed(byteSpeed);
+        kafkaJob.setAutoOffsetReset(kafkaJobTaskConfig.getAutoOffsetReset());
         kafkaJob.setTopic(kafkaJobTaskConfig.getTopic());
         kafkaJob.setChannel(DEFAULT_CHANNEL);
         kafkaJob.setName(MANAGER_JOB);

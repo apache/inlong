@@ -27,9 +27,9 @@ public class KafkaJob extends Job {
     private Group group;
     private Bootstrap bootstrap;
     private Partition partition;
-    private RecordSpeed recordspeed;
-    private ByteSpeed bytespeed;
-    private AutoOffsetReset auto;
+    private RecordSpeed recordSpeed;
+    private ByteSpeed byteSpeed;
+    private String autoOffsetReset;
 
     @Data
     public static class Group {
@@ -54,11 +54,6 @@ public class KafkaJob extends Job {
     @Data
     public static class ByteSpeed {
         private String limit;
-    }
-
-    @Data
-    public static class AutoOffsetReset {
-        String offsetReset;
     }
 
     @Data
