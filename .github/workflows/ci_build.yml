@@ -61,5 +61,5 @@ jobs:
         if: ${{ success() }}
         uses: actions/upload-artifact@v2
         with:
-          name: apache-inlong-${VERSION}-bin.tar.gz
-          path: ./inlong-distribution/target/apache-inlong-${VERSION}-bin.tar.gz
+          name: apache-inlong-${{ env.VERSION }}-bin.tar.gz
+          path: ./inlong-distribution/target/apache-inlong-${{ env.VERSION }}-bin.tar.gz
