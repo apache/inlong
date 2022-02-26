@@ -17,18 +17,28 @@
 
 package org.apache.inlong.manager.service;
 
-import java.util.Arrays;
-import java.util.List;
+import com.google.gson.Gson;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
+import org.apache.inlong.manager.dao.mapper.DataProxyClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterEntityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Common operation service
@@ -40,6 +50,77 @@ public class CommonOperateService {
 
     @Autowired
     private InlongGroupEntityMapper groupMapper;
+
+    @Autowired
+    private DataProxyClusterEntityMapper dataProxyClusterMapper;
+
+    @Autowired
+    private ThirdPartyClusterEntityMapper thirdPartyClusterMapper;
+
+    /**
+     * query some third-party-cluster info according key, such as "pulsar_adminUrl", "cluster_tube_manager", etc.
+     *
+     * @param key
+     * @return the value of key in database
+     */
+    public String getSpecifiedParam(String key) {
+        String result = "";
+        ThirdPartyClusterEntity clusterEntity;
+        Gson gson = new Gson();
+        Map<String, String> params;
+
+        switch (key) {
+            case Constant.PULSAR_ADMINURL:
+            case Constant.PULSAR_SERVICEURL: {
+                clusterEntity = getThirdPartyCluster(Constant.MIDDLEWARE_PULSAR);
+                if (clusterEntity != null) {
+                    params = gson.fromJson(clusterEntity.getExtParams(), Map.class);
+                    result = params.get(key);
+                }
+                break;
+            }
+            case Constant.CLUSTER_TUBE_MANAGER:
+            case Constant.CLUSTER_TUBE_CLUSTER_ID:
+            case Constant.TUBE_MASTER_URL: {
+                clusterEntity = getThirdPartyCluster(Constant.MIDDLEWARE_TUBE);
+                if (clusterEntity != null) {
+                    if (key.equals(Constant.TUBE_MASTER_URL)) {
+                        result = clusterEntity.getUrl();
+                    } else {
+                        params = gson.fromJson(clusterEntity.getExtParams(), Map.class);
+                        result = params.get(key);
+                    }
+                }
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * @param type third-party-cluster type, such as TUBE, PULSAR, ZOOKEEPER, SORT
+     * @return
+     */
+    private ThirdPartyClusterEntity getThirdPartyCluster(String type) {
+        InlongGroupPageRequest request = new InlongGroupPageRequest();
+        request.setMiddlewareType(type);
+        List<InlongGroupEntity> groupEntities = groupMapper.selectByCondition(request);
+        if (groupEntities.isEmpty()) {
+            LOGGER.warn("no inlongGroup item of type {}", type);
+            return null;
+        }
+        DataProxyClusterEntity dataProxyCluster = dataProxyClusterMapper
+                .selectByPrimaryKey(groupEntities.get(0).getProxyClusterId());
+        ClusterRequest mqNameRequest = ClusterRequest.builder().mqSetName(dataProxyCluster.getMqSetName()).build();
+        List<ThirdPartyClusterEntity> thirdPartyClusters = thirdPartyClusterMapper.selectByCondition(mqNameRequest);
+        if (thirdPartyClusters.isEmpty()) {
+            LOGGER.warn("no related third-party-cluster of type {}", type);
+            return null;
+        }
+        return thirdPartyClusters.get(0);
+
+    }
 
     /**
      * Check whether the inlong group status is temporary

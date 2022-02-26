@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.thirdparty.mq;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.beans.ClusterBean;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest;
@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.pojo.tubemq.AddTubeMqTopicRequest;
 import org.apache.inlong.manager.common.pojo.tubemq.QueryTubeTopicRequest;
 import org.apache.inlong.manager.common.pojo.tubemq.TubeManagerResponse;
 import org.apache.inlong.manager.common.util.HttpUtils;
+import org.apache.inlong.manager.service.CommonOperateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -41,7 +42,7 @@ public class TubeMqOptService {
     private static final Gson GSON = new GsonBuilder().create(); // thread safe
 
     @Autowired
-    private ClusterBean clusterBean;
+    private CommonOperateService commonOperateService;
     @Autowired
     private HttpUtils httpUtils;
 
@@ -56,11 +57,13 @@ public class TubeMqOptService {
                 throw new Exception("topic cannot be empty");
             }
             AddTubeMqTopicRequest.AddTopicTasksBean addTopicTasksBean = request.getAddTopicTasks().get(0);
+            String clusterIdStr = commonOperateService.getSpecifiedParam(Constant.CLUSTER_TUBE_CLUSTER_ID);
+            int clusterId = Integer.valueOf(clusterIdStr);
             QueryTubeTopicRequest topicRequest = QueryTubeTopicRequest.builder()
-                    .topicName(addTopicTasksBean.getTopicName()).clusterId(clusterBean.getClusterId())
+                    .topicName(addTopicTasksBean.getTopicName()).clusterId(clusterId)
                     .user(request.getUser()).build();
 
-            String tubeManager = clusterBean.getTubeManager();
+            String tubeManager = commonOperateService.getSpecifiedParam(Constant.CLUSTER_TUBE_MANAGER);
             TubeManagerResponse response = httpUtils
                     .request(tubeManager + "/v1/topic?method=queryCanWrite", HttpMethod.POST,
                             GSON.toJson(topicRequest), httpHeaders, TubeManagerResponse.class);
@@ -68,7 +71,7 @@ public class TubeMqOptService {
                 log.info(" create tube topic  {}  on {} ", GSON.toJson(request),
                         tubeManager + "/v1/task?method=addTopicTask");
 
-                request.setClusterId(clusterBean.getClusterId());
+                request.setClusterId(clusterId);
                 TubeManagerResponse createRsp = httpUtils
                         .request(tubeManager + "/v1/task?method=addTopicTask", HttpMethod.POST,
                                 GSON.toJson(request), httpHeaders, TubeManagerResponse.class);
@@ -88,9 +91,10 @@ public class TubeMqOptService {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Type", "application/json");
         try {
+            String tubeManager = commonOperateService.getSpecifiedParam(Constant.CLUSTER_TUBE_MANAGER);
             log.info("create tube consumer group {}  on {} ", GSON.toJson(request),
-                    clusterBean.getTubeManager() + "/v1/task?method=addTopicTask");
-            TubeManagerResponse rsp = httpUtils.request(clusterBean.getTubeManager() + "/v1/group?method=add",
+                    tubeManager + "/v1/task?method=addTopicTask");
+            TubeManagerResponse rsp = httpUtils.request(tubeManager + "/v1/group?method=add",
                     HttpMethod.POST, GSON.toJson(request), httpHeaders, TubeManagerResponse.class);
             if (rsp.getErrCode() == -1) { // Creation failed
                 throw new BusinessException(ErrorCodeEnum.CONSUMER_GROUP_CREATE_FAILED, rsp.getErrMsg());
@@ -109,7 +113,7 @@ public class TubeMqOptService {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Type", "application/json");
         try {
-            String tubeManager = clusterBean.getTubeManager();
+            String tubeManager = commonOperateService.getSpecifiedParam(Constant.CLUSTER_TUBE_MANAGER);
             TubeManagerResponse response = httpUtils.request(tubeManager + "/v1/topic?method=queryCanWrite",
                     HttpMethod.POST, GSON.toJson(queryTubeTopicRequest), httpHeaders, TubeManagerResponse.class);
             if (response.getErrCode() == 0) { // topic already exists

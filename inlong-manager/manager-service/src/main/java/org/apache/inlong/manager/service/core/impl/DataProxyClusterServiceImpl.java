@@ -39,14 +39,14 @@ import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
 import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
-import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterEntityMapper;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
+import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
 import org.apache.inlong.manager.dao.mapper.DataProxyClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
+import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterEntityMapper;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.slf4j.Logger;
@@ -240,20 +240,28 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         List<DataProxyConfig> topicList = new ArrayList<>();
 
         DataProxyClusterEntity dataProxyClusterEntity = dataProxyClusterMapper.selectByName(dataproxyClusterName);
-        List<String> groupIdList = groupMapper.selectGroupIdByProxyId(dataProxyClusterEntity.getId());
+
+        // TODO Optimize query conditions use dataProxyClusterId
+        List<InlongGroupEntity> groupEntities = groupMapper.selectAll(EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode());
+//        List<String> groupIdList = groupMapper.selectGroupIdByProxyId(dataProxyClusterEntity.getId());
         ClusterRequest request = ClusterRequest.builder().mqSetName(dataProxyClusterEntity.getMqSetName()).build();
         List<ThirdPartyClusterEntity> clusterInfoEntities = thirdPartyClusterEntityMapper
                 .selectByCondition(request);
 
         // third-party-cluster type
         String middlewareType = "";
-        if (!groupIdList.isEmpty()) {
-            middlewareType = groupMapper.selectByGroupId(groupIdList.get(0)).getMiddlewareType();
+        if (!groupEntities.isEmpty()) {
+            middlewareType = groupEntities.get(0).getMiddlewareType();
         }
+//        if (!groupIdList.isEmpty()) {
+//            middlewareType = groupMapper.selectByGroupId(groupIdList.get(0)).getMiddlewareType();
+//        }
         String tenant = clusterBean.getDefaultTenant();
 
         // based on group id, get topic list
-        for (String groupId : groupIdList) {
+        for (InlongGroupEntity inlongGroupEntity : groupEntities) {
+//        for (String groupId : groupIdList) {
+            String groupId = inlongGroupEntity.getInlongGroupId();
             if (Constant.MIDDLEWARE_PULSAR.equals(middlewareType)) {
                 List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
 

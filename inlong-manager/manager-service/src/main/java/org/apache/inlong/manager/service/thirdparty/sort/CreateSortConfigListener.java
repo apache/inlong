@@ -18,9 +18,6 @@
 package org.apache.inlong.manager.service.thirdparty.sort;
 
 import com.google.common.collect.Lists;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +36,7 @@ import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -57,10 +55,16 @@ import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Component
 public class CreateSortConfigListener implements SortOperateListener {
 
+    @Autowired
+    private CommonOperateService commonOperateService;
     @Autowired
     private ClusterBean clusterBean;
     @Autowired
@@ -90,14 +94,14 @@ public class CreateSortConfigListener implements SortOperateListener {
         }
 
         Map<String, DataFlowInfo> dataFlowInfoMap = streamBriefResponses.stream().map(streamBriefResponse -> {
-                            DataFlowInfo flowInfo = createDataFlow(streamBriefResponse, groupRequest);
-                            if (flowInfo != null) {
-                                return Pair.of(streamBriefResponse.getInlongStreamId(), flowInfo);
-                            } else {
-                                return null;
-                            }
-                        }
-                ).filter(pair -> pair != null)
+                    DataFlowInfo flowInfo = createDataFlow(streamBriefResponse, groupRequest);
+                    if (flowInfo != null) {
+                        return Pair.of(streamBriefResponse.getInlongStreamId(), flowInfo);
+                    } else {
+                        return null;
+                    }
+                }
+        ).filter(pair -> pair != null)
                 .collect(Collectors.toMap(pair -> pair.getKey(),
                         pair -> pair.getValue()));
         final ObjectMapper objectMapper = new ObjectMapper();
@@ -114,7 +118,7 @@ public class CreateSortConfigListener implements SortOperateListener {
     }
 
     private DataFlowInfo createDataFlow(StreamBriefResponse streamBriefResponse,
-            InlongGroupRequest inlongGroupRequest) {
+                                        InlongGroupRequest inlongGroupRequest) {
         List<SinkBriefResponse> sinkBriefResponses = streamBriefResponse.getSinkList();
         if (CollectionUtils.isEmpty(sinkBriefResponses)) {
             throw new RuntimeException(String.format("No sink found by stream=%s", streamBriefResponse));
@@ -157,18 +161,20 @@ public class CreateSortConfigListener implements SortOperateListener {
     }
 
     private PulsarSourceInfo createPulsarSourceInfo(InlongGroupRequest groupRequest,
-            InlongStreamInfo streamInfo,
-            DeserializationInfo deserializationInfo,
-            List<FieldInfo> fieldInfos) {
+                                                    InlongStreamInfo streamInfo,
+                                                    DeserializationInfo deserializationInfo,
+                                                    List<FieldInfo> fieldInfos) {
         String topicName = streamInfo.getMqResourceObj();
-        return SourceInfoUtils.createPulsarSourceInfo(groupRequest, topicName, deserializationInfo, fieldInfos,
-                clusterBean);
+        String pulsarAdminUrl = commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL);
+        String pulsarServiceUrl = commonOperateService.getSpecifiedParam(Constant.PULSAR_SERVICEURL);
+        return SourceInfoUtils.createPulsarSourceInfo(groupRequest, topicName, deserializationInfo,
+                fieldInfos, clusterBean.getAppName(),clusterBean.getDefaultTenant(), pulsarAdminUrl, pulsarServiceUrl);
     }
 
     private TubeSourceInfo createTubeSourceInfo(InlongGroupRequest groupRequest,
-            DeserializationInfo deserializationInfo,
-            List<FieldInfo> fieldInfos) {
-        String masterAddress = clusterBean.getTubeMaster();
+                                                DeserializationInfo deserializationInfo,
+                                                List<FieldInfo> fieldInfos) {
+        String masterAddress = commonOperateService.getSpecifiedParam(Constant.TUBE_MASTER_URL);
         Preconditions.checkNotNull(masterAddress, "tube cluster address cannot be empty");
         String topic = groupRequest.getMqResourceObj();
         // The consumer group name is: taskName_topicName_consumer_group
