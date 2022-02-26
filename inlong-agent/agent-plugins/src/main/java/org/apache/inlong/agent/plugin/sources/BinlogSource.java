@@ -19,6 +19,7 @@ package org.apache.inlong.agent.plugin.sources;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
@@ -26,6 +27,7 @@ import org.apache.inlong.agent.plugin.metrics.SourceJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.SourceMetrics;
 import org.apache.inlong.agent.plugin.metrics.SourcePrometheusMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.BinlogReader;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +40,15 @@ public class BinlogSource implements Source {
 
     private static final String BINLOG_SOURCE_TAG_NAME = "BinlogSourceMetric";
 
+    private static AtomicLong metricsIndex = new AtomicLong(0);
+
     public BinlogSource() {
         if (ConfigUtil.isPrometheusEnabled()) {
-            this.sourceMetrics = new SourcePrometheusMetrics(BINLOG_SOURCE_TAG_NAME);
+            this.sourceMetrics = new SourcePrometheusMetrics(AgentUtils.getUniqId(
+                BINLOG_SOURCE_TAG_NAME, metricsIndex.incrementAndGet()));
         } else {
-            this.sourceMetrics = new SourceJmxMetric(BINLOG_SOURCE_TAG_NAME);
+            this.sourceMetrics = new SourceJmxMetric(AgentUtils.getUniqId(
+                BINLOG_SOURCE_TAG_NAME, metricsIndex.incrementAndGet()));
         }
     }
 
