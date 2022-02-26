@@ -64,6 +64,7 @@ public class BinlogReader implements Reader {
     private String hostName;
     private String port;
     private String tableWhiteList;
+    private String databaseWhiteList;
     private String serverTimeZone;
     private String offsetStoreFileName;
     private String offsetFlushIntervalMs;
@@ -98,6 +99,7 @@ public class BinlogReader implements Reader {
         hostName = jobConf.get(JOB_DATABASE_HOSTNAME);
         port = jobConf.get(JOB_DATABASE_PORT);
         tableWhiteList = jobConf.get(JOB_DATABASE_WHITELIST, "");
+        databaseWhiteList = jobConf.get(JOB_DATABASE_WHITELIST, "");
         serverTimeZone = jobConf.get(JOB_DATABASE_SERVER_TIME_ZONE, "");
         offsetFlushIntervalMs = jobConf.get(JOB_DATABASE_STORE_OFFSET_INTERVAL_MS, "1000");
         databaseStoreHistoryName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME)
@@ -146,6 +148,7 @@ public class BinlogReader implements Reader {
         props.setProperty("database.password", password);
         props.setProperty("database.serverTimezone", serverTimeZone);
         props.setProperty("table.whitelist", tableWhiteList);
+        props.setProperty("database.whitelist", databaseWhiteList);
 
         props.setProperty("offset.storage", FileOffsetBackingStore.class.getCanonicalName());
         props.setProperty("offset.storage.file.filename", offsetStoreFileName);
