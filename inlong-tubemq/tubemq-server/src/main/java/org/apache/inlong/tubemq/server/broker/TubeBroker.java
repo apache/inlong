@@ -69,29 +69,47 @@ import org.slf4j.LoggerFactory;
 public class TubeBroker implements Stoppable {
     private static final Logger logger =
             LoggerFactory.getLogger(TubeBroker.class);
-    // tube broker config
+    /**
+     * tube broker config
+     */
     private final BrokerConfig tubeConfig;
-    // broker id
+    /**
+     * broker id
+     */
     private final String brokerId;
     private final NettyClientFactory clientFactory = new NettyClientFactory();
     private final RpcServiceFactory rpcServiceFactory;
-    // tube web server
+    /**
+     * tube web server
+     */
     private final WebServer webServer;
-    // tube broker's metadata manager
+    /**
+     *  tube broker's metadata manager
+     */
     private final MetadataManager metadataManager;
-    // tube broker's store manager
+    /**
+     * tube broker's store manager
+     */
     private final MessageStoreManager storeManager;
-    // tube broker's offset manager
+    /**
+     *tube broker's offset manager
+     */
     private final OffsetService offsetManager;
-    // offset record service
+    /**
+     *offset record service
+     */
     private final OffsetRecordService offsetRecordService;
     private final BrokerServiceServer brokerServiceServer;
     private final BrokerSamplePrint samplePrintCtrl =
             new BrokerSamplePrint(logger);
     private final ScheduledExecutorService scheduledExecutorService;
-    // shutdown hook.
+    /**
+     *shutdown hook.
+     */
     private final ShutdownHook shutdownHook = new ShutdownHook();
-    // certificate handler.
+    /**
+     *certificate handler.
+     */
     private final SimpleCertificateBrokerHandler serverAuthHandler;
     private final ClientAuthenticateHandler clientAuthHandler =
             new SimpleClientAuthenticateHandler();

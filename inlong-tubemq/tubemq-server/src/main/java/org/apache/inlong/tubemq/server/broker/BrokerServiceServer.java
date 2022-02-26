@@ -92,32 +92,52 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             LoggerFactory.getLogger(BrokerServiceServer.class);
     private final TubeBroker tubeBroker;
     private final BrokerConfig tubeConfig;
-    // registered consumers. format : consumer group - topic - partition id  --> consumer info
+    /**
+     * registered consumers. format : consumer group - topic - partition id  --> consumer info
+     */
     private final ConcurrentHashMap<String/* group:topic-partitionId */, ConsumerNodeInfo> consumerRegisterMap =
             new ConcurrentHashMap<>();
-    // metadata manager.
-    private final MetadataManager metadataManager;
-    // offset storage manager.
+    //
     /**
-     *
+     *  metadata manager.
+     */
+    private final MetadataManager metadataManager;
+    /**
+     *offset storage manager.
      */
     private final OffsetService offsetManager;
-    // message storage manager.
+    /**
+     *message storage manager.
+     */
     private final MessageStoreManager storeManager;
-    // heartbeat manager.
+    /**
+     * heartbeat manager.
+     */
     private final HeartbeatManager heartbeatManager;
-    // row lock.
+    /**
+     * row lock.
+     */
     private final RowLock brokerRowLock;
-    // statistics of produce.
+    /**
+     *statistics of produce.
+     */
     private final TrafficStatsService putCounterGroup;
-    // statistics of consume.
+    /**
+     * statistics of consume.
+     */
     private final TrafficStatsService getCounterGroup;
-    // certificate handler.
+    /**
+     * certificate handler.
+     */
     private final CertificateBrokerHandler serverAuthHandler;
-    // consumer timeout listener.
+    /**
+     *consumer timeout listener.
+     */
     private final ConsumerTimeoutListener consumerListener =
             new ConsumerTimeoutListener();
-    // status of broker service.
+    /**
+     *status of broker service.
+     */
     private AtomicBoolean started = new AtomicBoolean(false);
 
     public BrokerServiceServer(final TubeBroker tubeBroker,
