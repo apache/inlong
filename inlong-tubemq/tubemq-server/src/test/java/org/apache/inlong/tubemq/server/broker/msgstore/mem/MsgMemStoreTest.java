@@ -60,8 +60,7 @@ public class MsgMemStoreTest {
         // append data
         int maxCacheSize = 2 * 1024 * 1024;
         int maxMsgCount = 10000;
-        MsgMemStore msgMemStore = new MsgMemStore(maxCacheSize, maxMsgCount, null);
-        msgMemStore.resetStartPos(0, 0);
+        MsgMemStore msgMemStore = new MsgMemStore(maxCacheSize, maxMsgCount, 0, 0);
         MsgStoreStatsHolder memStatsHolder = new MsgStoreStatsHolder();
         msgMemStore.appendMsg(memStatsHolder, 0, 0,
                 System.currentTimeMillis(), indexBuffer, 3, dataBuffer, appendResult);
@@ -97,8 +96,7 @@ public class MsgMemStoreTest {
         AppendResult appendResult = new AppendResult();
         int maxCacheSize = 2 * 1024 * 1024;
         int maxMsgCount = 10000;
-        MsgMemStore msgMemStore = new MsgMemStore(maxCacheSize, maxMsgCount, null);
-        msgMemStore.resetStartPos(0, 0);
+        MsgMemStore msgMemStore = new MsgMemStore(maxCacheSize, maxMsgCount, 0, 0);
         MsgStoreStatsHolder memStatsHolder = new MsgStoreStatsHolder();
         msgMemStore.appendMsg(memStatsHolder, 0, 0,
                 System.currentTimeMillis(), indexBuffer, 3, dataBuffer, appendResult);
