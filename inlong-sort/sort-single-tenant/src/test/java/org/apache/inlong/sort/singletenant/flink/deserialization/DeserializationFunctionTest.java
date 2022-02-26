@@ -19,6 +19,7 @@ package org.apache.inlong.sort.singletenant.flink.deserialization;
 
 import org.apache.flink.types.Row;
 import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.singletenant.flink.SerializedRecord;
@@ -37,10 +38,10 @@ public class DeserializationFunctionTest {
         inLongMsg.addMsg("m=12&iname=tid", testData.getBytes(StandardCharsets.UTF_8));
         SerializedRecord serializedRecord = new SerializedRecord(1, inLongMsg.buildArray());
 
+        FieldInfo[] fieldInfos = {new FieldInfo("content", StringFormatInfo.INSTANCE)};
         DeserializationFunction function = new DeserializationFunction(
-                DeserializationSchemaFactory.build(
-                        new FieldInfo[]{new FieldInfo("content", StringFormatInfo.INSTANCE)}, null
-                )
+                DeserializationSchemaFactory.build(fieldInfos, null),
+                new FieldMappingTransformer(new Configuration(), fieldInfos)
         );
 
         ListCollector<Row> collector = new ListCollector<>();

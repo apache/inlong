@@ -17,6 +17,8 @@
 
 package org.apache.inlong.agent.core.job;
 
+import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -86,6 +88,18 @@ public class JobWrapper extends AbstractStateWrapper {
             allTasks.add(task);
             taskManager.submitTask(task);
         });
+    }
+
+    /**
+     * get snapshot of each task
+     * @return
+     */
+    public String getSnapshot() {
+        List<String> snapshot = new ArrayList<>();
+        for (Task task : allTasks) {
+            snapshot.add(task.getReader().getSnapshot());
+        }
+        return String.join(JOB_OFFSET_DELIMITER, snapshot);
     }
 
     /**

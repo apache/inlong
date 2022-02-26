@@ -118,14 +118,15 @@ public class MsgStoreStatsHolder {
         if (isClosed) {
             return;
         }
+        MsgStoreStatsItemSet tmStatsSet = msgStoreStatsSets[getIndex()];
         if (isDataSizeFull) {
-            msgStoreStatsSets[getIndex()].cacheDataSizeFullCnt.incValue();
+            tmStatsSet.cacheDataSizeFullCnt.incValue();
         }
         if (isIndexSizeFull) {
-            msgStoreStatsSets[getIndex()].cacheIndexSizeFullCnt.incValue();
+            tmStatsSet.cacheIndexSizeFullCnt.incValue();
         }
         if (isMsgCntFull) {
-            msgStoreStatsSets[getIndex()].cacheMsgCountFullCnt.incValue();
+            tmStatsSet.cacheMsgCountFullCnt.incValue();
         }
     }
 
@@ -139,9 +140,10 @@ public class MsgStoreStatsHolder {
         if (isClosed) {
             return;
         }
-        msgStoreStatsSets[getIndex()].cacheSyncStats.update(flushTime);
+        MsgStoreStatsItemSet tmStatsSet = msgStoreStatsSets[getIndex()];
+        tmStatsSet.cacheSyncStats.update(flushTime);
         if (isTimeoutFlush) {
-            msgStoreStatsSets[getIndex()].cacheTimeFullCnt.incValue();
+            tmStatsSet.cacheTimeFullCnt.incValue();
         }
     }
 

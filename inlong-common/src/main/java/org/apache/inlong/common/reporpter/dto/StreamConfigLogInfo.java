@@ -15,26 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source;
+package org.apache.inlong.common.reporpter.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
 
-import javax.validation.constraints.NotNull;
+@Setter
+@Getter
+public class StreamConfigLogInfo {
 
-/**
- * Request of the source heartbeat
- */
-@Data
-@ApiModel("Request of the source heartbeat")
-public class SourceSnapshotRequest {
+    private String ip;
 
-    @NotNull
-    @ApiModelProperty("Id of the source")
-    private Integer id;
+    private String version;
 
-    @ApiModelProperty("snapshot of this source task")
-    private String snapshot;
+    private String componentName;
+
+    private String configName;
+
+    private Integer logType;
+
+    private Date reportTime;
+
+    private String logInfo;
+
+    private String inlongGroupId;
+
+    private String inlongStreamId;
 
 }

@@ -58,7 +58,8 @@
         <log4j.version>2.17.1</log4j.version>
         <mockito.version>2.23.0</mockito.version>
         <jakarta.validation.version>2.0.2</jakarta.validation.version>
-        <elasticsearch-version>6.8.13</elasticsearch-version>
+        <elasticsearch.version>6.8.13</elasticsearch.version>
+        <cls.version>1.0.5</cls.version>
     </properties>
 
     <dependencies>
@@ -248,12 +249,12 @@
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-client</artifactId>
-            <version>${elasticsearch-version}</version>
+            <version>${elasticsearch.version}</version>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>${elasticsearch-version}</version>
+            <version>${elasticsearch.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -268,8 +269,13 @@
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
-            <version>${elasticsearch-version}</version>
-        </dependency>    
+            <version>${elasticsearch.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.tencentcloudapi.cls</groupId>
+            <artifactId>tencentcloud-cls-sdk-java</artifactId>
+            <version>${cls.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

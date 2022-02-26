@@ -65,7 +65,7 @@ public class BrokerSrvStatsHolder {
         if (switchWritingStatsUnit()) {
             getStatsValue(switchableSets[getIndex(writableIndex.get() - 1)], true, statsMap);
         } else {
-            getValue(statsMap);
+            getStatsValue(switchableSets[getIndex()], false, statsMap);
         }
     }
 
@@ -73,7 +73,7 @@ public class BrokerSrvStatsHolder {
         if (switchWritingStatsUnit()) {
             getStatsValue(switchableSets[getIndex(writableIndex.get() - 1)], true, strBuff);
         } else {
-            getValue(strBuff);
+            getStatsValue(switchableSets[getIndex()], false, strBuff);
         }
     }
 

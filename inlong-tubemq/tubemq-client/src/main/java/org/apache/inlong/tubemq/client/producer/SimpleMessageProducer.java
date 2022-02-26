@@ -371,7 +371,7 @@ public class SimpleMessageProducer implements MessageProducer {
         final String resultStr = response.getErrMsg();
         if (response.getErrCode() == TErrCodeConstants.SUCCESS) {
             producerManager.getClientMetrics().bookSuccSendMsg(dltTime,
-                    message.getTopic(), message.getData().length);
+                    message.getTopic(), partition.getPartitionKey(), message.getData().length);
             if (response.hasMessageId()) {
                 return new MessageSentResult(true,
                         response.getErrCode(), "Ok!",

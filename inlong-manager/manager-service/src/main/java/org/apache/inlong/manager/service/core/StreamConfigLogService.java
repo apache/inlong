@@ -15,35 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent;
+package org.apache.inlong.manager.service.core;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogRequest;
 
-import javax.annotation.Nonnull;
-import java.util.Date;
+public interface StreamConfigLogService {
 
-/**
- * Request of the agent task heartbeat
- */
-@Data
-public class TaskHeartbeatRequest {
-
-    /**
-     * The source id
-     */
-    @Nonnull
-    private Integer id;
-
-    /**
-     * Heartbeat of this source task
-     */
-    private String heartbeat;
-
-    /**
-     * Report time
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date reportTime;
+    String reportConfigLog(InlongStreamConfigLogRequest request);
 
 }

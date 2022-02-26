@@ -20,14 +20,8 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -49,6 +43,7 @@ import org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupPulsarEntityMapper;
+import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.slf4j.Logger;
@@ -56,6 +51,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Inlong group service layer implementation
@@ -71,7 +72,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Autowired
     private InlongGroupExtEntityMapper groupExtMapper;
     @Autowired
-    private ClusterBean clusterBean;
+    private CommonOperateService commonOperateService;
     @Autowired
     private InlongStreamService streamService;
 
@@ -180,10 +181,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // For approved inlong group, encapsulate the cluster address of the middleware
         if (GroupState.GROUP_CONFIG_SUCCESSFUL == GroupState.forCode(groupInfo.getStatus())) {
             if (Constant.MIDDLEWARE_TUBE.equalsIgnoreCase(middlewareType)) {
-                groupInfo.setTubeMaster(clusterBean.getTubeMaster());
+                groupInfo.setTubeMaster(commonOperateService.getSpecifiedParam(Constant.TUBE_MASTER_URL));
             } else if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
-                groupInfo.setPulsarAdminUrl(clusterBean.getPulsarAdminUrl());
-                groupInfo.setPulsarServiceUrl(clusterBean.getPulsarServiceUrl());
+                groupInfo.setPulsarAdminUrl(commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL));
+                groupInfo.setPulsarServiceUrl(commonOperateService.getSpecifiedParam(Constant.PULSAR_SERVICEURL));
             }
         }
 
@@ -405,12 +406,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         if (Constant.MIDDLEWARE_TUBE.equalsIgnoreCase(middlewareType)) {
             // Tube Topic corresponds to inlong group one-to-one
             topicVO.setMqResourceObj(groupInfo.getMqResourceObj());
-            topicVO.setTubeMasterUrl(clusterBean.getTubeMaster());
+            topicVO.setTubeMasterUrl(commonOperateService.getSpecifiedParam(Constant.TUBE_MASTER_URL));
         } else if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
             // Pulsar's topic corresponds to the inlong stream one-to-one
             topicVO.setDsTopicList(streamService.getTopicList(groupId));
-            topicVO.setPulsarAdminUrl(clusterBean.getPulsarAdminUrl());
-            topicVO.setPulsarServiceUrl(clusterBean.getPulsarServiceUrl());
+            topicVO.setPulsarAdminUrl(commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL));
+            topicVO.setPulsarServiceUrl(commonOperateService.getSpecifiedParam(Constant.PULSAR_SERVICEURL));
         } else {
             LOGGER.error("middleware type={} not supported", middlewareType);
             throw new BusinessException(ErrorCodeEnum.MIDDLEWARE_TYPE_NOT_SUPPORTED);
@@ -433,9 +434,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         String middlewareType = approveInfo.getMiddlewareType();
         Preconditions.checkNotNull(middlewareType, "Middleware type is empty");
 
-        // Update status to [GROUP_CONFIG_ING]
+        // Update status to [GROUP_APPROVE_PASSED]
         // If you need to change inlong group info after approve, just do in here
-        this.updateStatus(groupId, GroupState.GROUP_CONFIG_ING.getCode(), operator);
+        this.updateStatus(groupId, GroupState.GROUP_APPROVE_PASSED.getCode(), operator);
 
         LOGGER.info("success to update inlong group status after approve for groupId={}", groupId);
         return true;

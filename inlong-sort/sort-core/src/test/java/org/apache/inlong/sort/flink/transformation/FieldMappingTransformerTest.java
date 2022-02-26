@@ -20,11 +20,15 @@ package org.apache.inlong.sort.flink.transformation;
 import static org.apache.inlong.sort.flink.transformation.FieldMappingTransformer.SOURCE_FIELD_SKIP_STEP;
 import static org.junit.Assert.assertEquals;
 
+import java.sql.Timestamp;
 import org.apache.flink.types.Row;
+import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.flink.Record;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
@@ -43,12 +47,12 @@ public class FieldMappingTransformerTest extends TestLogger {
         final FieldInfo fieldInfo = new FieldInfo("id", new LongFormatInfo());
         final FieldInfo extraFieldInfo = new FieldInfo("not_important", new StringFormatInfo());
 
-        final SourceInfo sourceInfo = new TestingSourceInfo(new FieldInfo[]{extraFieldInfo, fieldInfo});
-        final SinkInfo sinkInfo = new TestingSinkInfo(new FieldInfo[]{fieldInfo});
+        final SourceInfo sourceInfo = new TestingSourceInfo(new FieldInfo[] {extraFieldInfo, fieldInfo});
+        final SinkInfo sinkInfo = new TestingSinkInfo(new FieldInfo[] {extraFieldInfo, fieldInfo});
         final long dataFlowId = 1L;
         final DataFlowInfo dataFlowInfo = new DataFlowInfo(dataFlowId, sourceInfo, sinkInfo);
 
-        final FieldMappingTransformer transformer = new FieldMappingTransformer();
+        final FieldMappingTransformer transformer = new FieldMappingTransformer(new Configuration());
         transformer.addDataFlow(dataFlowInfo);
         // should be 4 fields (2 origin fields + time + attr)
         final Row sourceRow = new Row(2 + SOURCE_FIELD_SKIP_STEP);
@@ -59,21 +63,22 @@ public class FieldMappingTransformerTest extends TestLogger {
         final Record sourceRecord = new Record(dataFlowId, System.currentTimeMillis(), sourceRow);
         final Record sinkRecord = transformer.transform(sourceRecord);
         assertEquals(dataFlowId, sinkRecord.getDataflowId());
-        assertEquals(1, sinkRecord.getRow().getArity());
-        assertEquals(9527L, sinkRecord.getRow().getField(0));
+        assertEquals(2, sinkRecord.getRow().getArity());
+        assertEquals("not important", sinkRecord.getRow().getField(0));
+        assertEquals(9527L, sinkRecord.getRow().getField(1));
     }
 
     @Test
     public void testTransformWithDt() throws Exception {
         final FieldInfo fieldInfo = new FieldInfo("id", new LongFormatInfo());
-        final FieldInfo dtFieldInfo = new FieldInfo("dt", new TimestampFormatInfo("MILLIS"));
+        final FieldInfo dtFieldInfo = new BuiltInFieldInfo("dt", new TimestampFormatInfo(), BuiltInField.DATA_TIME);
 
-        final SourceInfo sourceInfo = new TestingSourceInfo(new FieldInfo[]{fieldInfo});
+        final SourceInfo sourceInfo = new TestingSourceInfo(new FieldInfo[] {fieldInfo, dtFieldInfo});
         final SinkInfo sinkInfo = new TestingSinkInfo(new FieldInfo[]{fieldInfo, dtFieldInfo});
         final long dataFlowId = 1L;
         final DataFlowInfo dataFlowInfo = new DataFlowInfo(dataFlowId, sourceInfo, sinkInfo);
 
-        final FieldMappingTransformer transformer = new FieldMappingTransformer();
+        final FieldMappingTransformer transformer = new FieldMappingTransformer(new Configuration());
         transformer.addDataFlow(dataFlowInfo);
         // should be 3 fields (1 origin fields + time + attr)
         final Row sourceRow = new Row(1 + SOURCE_FIELD_SKIP_STEP);
@@ -81,11 +86,11 @@ public class FieldMappingTransformerTest extends TestLogger {
         sourceRow.setField(0, dt);
         sourceRow.setField(1, "attr");
         sourceRow.setField(2, 9527L);
-        final Record sourceRecord = new Record(dataFlowId, System.currentTimeMillis(), sourceRow);
+        final Record sourceRecord = new Record(dataFlowId, dt, sourceRow);
         final Record sinkRecord = transformer.transform(sourceRecord);
         assertEquals(dataFlowId, sinkRecord.getDataflowId());
         assertEquals(2, sinkRecord.getRow().getArity());
         assertEquals(9527L, sinkRecord.getRow().getField(0));
-        assertEquals(dt, sinkRecord.getRow().getField(1));
+        assertEquals(new Timestamp(dt), sinkRecord.getRow().getField(1));
     }
 }

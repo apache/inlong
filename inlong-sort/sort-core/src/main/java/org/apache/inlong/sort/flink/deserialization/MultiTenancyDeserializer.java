@@ -76,7 +76,7 @@ public class MultiTenancyDeserializer implements DataFlowInfoListener, Deseriali
             FieldInfo[] fields,
             DeserializationInfo deserializationInfo) {
 
-        final RowFormatInfo rowFormatInfo = CommonUtils.generateRowFormatInfo(fields);
+        final RowFormatInfo rowFormatInfo = CommonUtils.generateDeserializationRowFormatInfo(fields);
 
         final Deserializer<SerializedRecord, Record> deserializer;
         if (deserializationInfo instanceof InLongMsgCsvDeserializationInfo) {

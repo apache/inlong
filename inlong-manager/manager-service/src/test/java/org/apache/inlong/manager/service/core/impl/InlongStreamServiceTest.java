@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,7 +28,7 @@ import org.springframework.boot.test.context.TestComponent;
  * Inlong stream service test
  */
 @TestComponent
-public class InlongStreamServiceTest extends ServiceBaseTest {
+public class InlongStreamServiceTest {
 
     private final String globalGroupId = "b_group1";
     private final String globalGroupName = "group1";

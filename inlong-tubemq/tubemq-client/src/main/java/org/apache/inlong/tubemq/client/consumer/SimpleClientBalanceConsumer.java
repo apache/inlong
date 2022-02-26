@@ -141,9 +141,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                 new RmtDataCache(this.consumerConfig, null);
         this.clientStatsInfo =
                 new ClientStatsInfo(false, this.consumerId,
-                        this.consumerConfig.enableStatsSelfPrint(),
-                        this.consumerConfig.getStatsSelfPrintPeriodMs(),
-                        this.consumerConfig.getStatsForcedResetPeriodMs());
+                        this.consumerConfig.getStatsConfig());
         this.rpcServiceFactory =
                 this.sessionFactory.getRpcServiceFactory();
         this.rpcConfig.put(RpcConstants.CONNECT_TIMEOUT, 3000);
@@ -327,7 +325,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
             }
         }
         // print metric information
-        clientStatsInfo.selfPrintStatsInfo(true, strBuffer);
+        clientStatsInfo.selfPrintStatsInfo(true, true, strBuffer);
         logger.info(strBuffer
                 .append("[SHUTDOWN_CONSUMER] Partitions unregistered,  consumer :")
                 .append(this.consumerId).toString());
@@ -531,13 +529,13 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
             if (selectResult.isSuccess()) {
                 break;
             }
-            if ((consumerConfig.getPullConsumeReadyWaitPeriodMs() >= 0)
+            if ((consumerConfig.getPullConsumeReadyWaitPeriodMs() >= 0L)
                     && ((System.currentTimeMillis() - startTime)
                     >= consumerConfig.getPullConsumeReadyWaitPeriodMs())) {
                 result.setFailResult(selectResult.getErrCode(), selectResult.getErrMsg());
                 return result.isSuccess();
             }
-            if (consumerConfig.getPullConsumeReadyChkSliceMs() > 10) {
+            if (consumerConfig.getPullConsumeReadyChkSliceMs() > 0L) {
                 ThreadUtils.sleep(consumerConfig.getPullConsumeReadyChkSliceMs());
             }
         }
@@ -595,6 +593,9 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
         sBuilder.delete(0, sBuilder.length());
         String topicName = strConfirmContextItems[1].trim();
         long timeStamp = Long.parseLong(strConfirmContextItems[3]);
+        long midTime = System.currentTimeMillis();
+        // book statistics information
+        clientStatsInfo.bookReturnDuration(keyId, midTime - timeStamp);
         if (!clientRmtDataCache.isPartitionInUse(keyId, timeStamp)) {
             result.setFailResult(TErrCodeConstants.BAD_REQUEST,
                     "The confirmContext's value invalid!");
@@ -649,6 +650,8 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
             } finally {
                 clientRmtDataCache.succRspRelease(keyId, topicName, timeStamp,
                         isConsumed, isFilterConsume(topicName), currOffset, maxOffset);
+                clientStatsInfo.bookConfirmDuration(keyId,
+                        System.currentTimeMillis() - midTime);
             }
         }
     }
@@ -776,7 +779,8 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                             sBuffer.append(partitionKey).append(TokenConstants.ATTR_SEP)
                                     .append(taskContext.getUsedToken()).toString(), messageList, maxOffset);
                     sBuffer.delete(0, sBuffer.length());
-                    clientStatsInfo.bookSuccGetMsg(dltTime, topic, msgCount, msgSize);
+                    clientStatsInfo.bookSuccGetMsg(dltTime,
+                            topic, partitionKey, msgCount, msgSize);
                     break;
                 }
                 case TErrCodeConstants.HB_NO_NODE:
@@ -981,7 +985,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                 clientRmtDataCache.resumeTimeoutConsumePartitions(false,
                         consumerConfig.getPullProtectConfirmTimeoutMs());
                 // print metric information
-                clientStatsInfo.selfPrintStatsInfo(false, strBuffer);
+                clientStatsInfo.selfPrintStatsInfo(false, true, strBuffer);
                 // Send heartbeat request to master
                 ClientMaster.HeartResponseM2CV2 response =
                         masterService.consumerHeartbeatC2MV2(createMasterHeartBeatRequest(),

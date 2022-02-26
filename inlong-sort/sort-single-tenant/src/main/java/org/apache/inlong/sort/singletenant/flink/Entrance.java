@@ -24,6 +24,7 @@ import static org.apache.inlong.sort.singletenant.flink.pulsar.PulsarSourceBuild
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -38,7 +39,9 @@ import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.flink.hive.HiveCommitter;
 import org.apache.inlong.sort.flink.hive.HiveWriter;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
+import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.apache.inlong.sort.protocol.sink.IcebergSinkInfo;
@@ -49,6 +52,7 @@ import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.singletenant.flink.clickhouse.ClickhouseRowSinkFunction;
 import org.apache.inlong.sort.singletenant.flink.deserialization.DeserializationFunction;
 import org.apache.inlong.sort.singletenant.flink.deserialization.DeserializationSchemaFactory;
+import org.apache.inlong.sort.singletenant.flink.deserialization.FieldMappingTransformer;
 import org.apache.inlong.sort.singletenant.flink.serialization.SerializationSchemaFactory;
 import org.apache.inlong.sort.singletenant.flink.utils.CommonUtils;
 import org.apache.inlong.sort.util.ParameterTool;
@@ -121,13 +125,20 @@ public class Entrance {
             SourceInfo sourceInfo,
             Configuration config
     ) throws IOException, ClassNotFoundException {
-        DeserializationSchema<Row> schema =
-                DeserializationSchemaFactory.build(sourceInfo.getFields(), sourceInfo.getDeserializationInfo());
-        DeserializationFunction function = new DeserializationFunction(schema);
+        FieldInfo[] sourceFields = sourceInfo.getFields();
+        DeserializationSchema<Row> schema = DeserializationSchemaFactory.build(
+                extractNonBuiltInFieldInfo(sourceFields), sourceInfo.getDeserializationInfo());
+        FieldMappingTransformer fieldMappingTransformer = new FieldMappingTransformer(config, sourceFields);
+        DeserializationFunction function = new DeserializationFunction(schema, fieldMappingTransformer);
         return sourceStream.process(function)
                 .uid(Constants.DESERIALIZATION_SCHEMA_UID)
                 .name("Deserialization")
                 .setParallelism(config.getInteger(Constants.DESERIALIZATION_PARALLELISM));
+    }
+
+    private static FieldInfo[] extractNonBuiltInFieldInfo(FieldInfo[] fieldInfos) {
+        return Arrays.stream(fieldInfos).filter(fieldInfo -> !(fieldInfo instanceof BuiltInFieldInfo)).toArray(
+                FieldInfo[]::new);
     }
 
     private static void buildSinkStream(
@@ -139,7 +150,6 @@ public class Entrance {
         final String sinkType = checkNotNull(config.getString(Constants.SINK_TYPE));
         final int sinkParallelism = config.getInteger(Constants.SINK_PARALLELISM);
 
-        // TODO : implement sink functions below
         switch (sinkType) {
             case Constants.SINK_TYPE_CLICKHOUSE:
                 checkState(sinkInfo instanceof ClickHouseSinkInfo);

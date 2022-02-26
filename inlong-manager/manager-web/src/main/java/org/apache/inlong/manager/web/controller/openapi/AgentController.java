@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web.controller.openapi;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.manager.common.beans.Response;
@@ -35,6 +36,7 @@ import org.apache.inlong.manager.service.core.AgentHeartbeatService;
 import org.apache.inlong.manager.service.core.AgentSysConfigService;
 import org.apache.inlong.manager.service.core.AgentTaskService;
 import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
+import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,10 +47,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/openapi")
+@RequestMapping("/openapi/agent")
 @Api(tags = "Agent Config")
 public class AgentController {
 
+    @Autowired
+    private StreamSourceService sourceService;
     @Autowired
     private AgentTaskService agentTaskService;
     @Autowired
@@ -58,51 +62,57 @@ public class AgentController {
     @Autowired
     private ThirdPartyClusterService thirdPartyClusterService;
 
-    @GetMapping("/getInLongManagerIp")
-    @ApiOperation(value = "get inlong manager ip list")
+    @GetMapping("/getManagerIpList")
+    @ApiOperation(value = "Get inlong manager ip list")
     public Response<List<String>> getInLongManagerIp() {
         return Response.success(thirdPartyClusterService.listClusterIpByType("inlong-openapi"));
     }
 
     @PostMapping("/getTask")
-    @ApiOperation(value = "general fetch task")
+    @ApiOperation(value = "Get source task config")
     public Response<TaskResult> getTask(@RequestBody TaskRequest taskRequest) {
         return Response.success(agentTaskService.getAgentTask(taskRequest));
     }
 
+    @PostMapping("/reportSnapshot")
+    @ApiOperation(value = "Report source task snapshot")
+    public Response<Boolean> reportSnapshot(TaskSnapshotRequest request) {
+        return Response.success(sourceService.reportSnapshot(request));
+    }
+
     @Deprecated
     @PostMapping("/fileAgent/getTaskConf")
-    @ApiOperation(value = "fetch file access task")
+    @ApiOperation(value = "Get file task")
     public Response<FileAgentTaskInfo> getFileAgentTask(@RequestBody FileAgentCommandInfo info) {
         return Response.success(agentTaskService.getFileAgentTask(info));
     }
 
     @PostMapping("/fileAgent/confirmAgentIp")
-    @ApiOperation(value = "confirm current agent ip")
+    @ApiOperation(value = "Confirm current agent ip")
     public Response<String> confirmAgentIp(@RequestBody ConfirmAgentIpRequest info) {
         return Response.success(agentTaskService.confirmAgentIp(info));
     }
 
     @PostMapping("/fileAgent/getAgentSysConf")
-    @ApiOperation(value = "get agent system config")
+    @ApiOperation(value = "Get agent system config")
     public Response<AgentSysConfig> getAgentSysConf(@RequestBody AgentSysconfRequest info) {
         return Response.success(agentSysConfigService.getAgentSysConfig(info));
     }
 
     @PostMapping("/fileAgent/heartbeat")
-    @ApiOperation(value = "agent heartbeat report")
+    @ApiOperation(value = "Report agent heartbeat")
     public Response<String> heartbeat(@RequestBody AgentHeartbeatRequest info) {
         return Response.success(heartbeatService.heartbeat(info));
     }
 
     @PostMapping("/fileAgent/checkAgentTaskConf")
-    @ApiOperation(value = "agent data source comparison")
+    @ApiOperation(value = "Check agent source config")
     public Response<List<FileAgentTaskConfig>> checkAgentTaskConf(@RequestBody CheckAgentTaskConfRequest info) {
         return Response.success(agentTaskService.checkAgentTaskConf(info));
     }
 
     @PostMapping("/fileAgent/reportAgentStatus")
-    @ApiOperation(value = "agent status report")
+    @ApiOperation(value = "Report agent status")
     public Response<String> reportAgentStatus(@RequestBody AgentStatusReportRequest info) {
         return Response.success(agentTaskService.reportAgentStatus(info));
     }

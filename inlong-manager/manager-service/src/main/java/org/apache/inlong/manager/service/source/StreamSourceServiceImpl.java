@@ -26,17 +26,16 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceSnapshotRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
@@ -60,6 +59,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
     private CommonOperateService commonOperateService;
+    @Autowired
+    private SourceSnapshotOperation heartbeatOperation;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -71,7 +72,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         // Check if it can be added
         String groupId = request.getInlongGroupId();
-        InlongGroupEntity inlongGroupEntity = commonOperateService.checkGroupStatus(groupId, operator);
+        commonOperateService.checkGroupStatus(groupId, operator);
 
         // Make sure that there is no source info with the current groupId and streamId
         String streamId = request.getInlongStreamId();
@@ -252,11 +253,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    public Boolean reportSnapshot(SourceSnapshotRequest request) {
-        if (request == null || request.getId() == null || request.getSnapshot() == null) {
-            return true;
-        }
-        return sourceMapper.updateSnapshot(request) > 0;
+    public Boolean reportSnapshot(TaskSnapshotRequest request) {
+        return heartbeatOperation.putData(request);
     }
 
     private void checkParams(SourceRequest request) {

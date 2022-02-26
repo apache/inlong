@@ -17,10 +17,8 @@
 
 package org.apache.inlong.manager.service.thirdparty.sort.util;
 
-import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
@@ -28,15 +26,18 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
 import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 
+import java.util.List;
+
 public class SourceInfoUtils {
 
     public static PulsarSourceInfo createPulsarSourceInfo(InlongGroupRequest groupRequest, String pulsarTopic,
-            DeserializationInfo deserializationInfo, List<FieldInfo> fieldInfos, ClusterBean clusterBean) {
-        final String tenant = clusterBean.getDefaultTenant();
+                                                          DeserializationInfo deserializationInfo,
+                                                          List<FieldInfo> fieldInfos, String appName,String tenant,
+                                                          String pulsarAdminUrl, String pulsarServiceUrl) {
         final String namespace = groupRequest.getMqResourceObj();
         // Full name of Topic in Pulsar
         final String fullTopicName = "persistent://" + tenant + "/" + namespace + "/" + pulsarTopic;
-        final String consumerGroup = clusterBean.getAppName() + "_" + pulsarTopic + "_consumer_group";
+        final String consumerGroup = appName + "_" + pulsarTopic + "_consumer_group";
         String adminUrl = null;
         String serviceUrl = null;
         String authentication = null;
@@ -57,10 +58,10 @@ public class SourceInfoUtils {
             }
         }
         if (StringUtils.isEmpty(adminUrl)) {
-            adminUrl = clusterBean.getPulsarAdminUrl();
+            adminUrl = pulsarAdminUrl;
         }
         if (StringUtils.isEmpty(serviceUrl)) {
-            serviceUrl = clusterBean.getPulsarServiceUrl();
+            serviceUrl = pulsarServiceUrl;
         }
         return new PulsarSourceInfo(adminUrl, serviceUrl, fullTopicName, consumerGroup,
                 deserializationInfo, fieldInfos.toArray(new FieldInfo[0]), authentication);

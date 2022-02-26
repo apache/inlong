@@ -49,6 +49,9 @@ public class DataProxyClusterInfo {
     @ApiModelProperty(value = "Whether it is a backup cluster, 0: no, 1: yes")
     private Integer isBackup;
 
+    @ApiModelProperty(value = "Name of its mqSetName")
+    private String mqSetName;
+
     @ApiModelProperty(value = "Extended params, string in JSON format")
     private String extParams;
 

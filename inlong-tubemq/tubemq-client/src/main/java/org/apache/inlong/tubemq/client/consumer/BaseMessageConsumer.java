@@ -145,10 +145,8 @@ public class BaseMessageConsumer implements MessageConsumer {
             throw new TubeClientException("Get consumer id failed!", e);
         }
         this.clientStatsInfo =
-                new ClientStatsInfo(false, this.consumerId,
-                        this.consumerConfig.enableStatsSelfPrint(),
-                        this.consumerConfig.getStatsSelfPrintPeriodMs(),
-                        this.consumerConfig.getStatsForcedResetPeriodMs());
+                new ClientStatsInfo(false,
+                        this.consumerId, this.consumerConfig.getStatsConfig());
         this.rmtDataCache =
                 new RmtDataCache(this.consumerConfig, null);
         this.rpcServiceFactory =
@@ -458,7 +456,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                 //
             }
         }
-        clientStatsInfo.selfPrintStatsInfo(true, strBuffer);
+        clientStatsInfo.selfPrintStatsInfo(true, true, strBuffer);
         logger.info(strBuffer
                 .append("[SHUTDOWN_CONSUMER] Partitions unregistered,  consumer :")
                 .append(this.consumerId).toString());
@@ -1280,7 +1278,8 @@ public class BaseMessageConsumer implements MessageConsumer {
                         strBuffer.append(partitionKey).append(TokenConstants.ATTR_SEP)
                             .append(taskContext.getUsedToken()).toString(), messageList, maxOffset);
                     strBuffer.delete(0, strBuffer.length());
-                    clientStatsInfo.bookSuccGetMsg(dltTime, topic, msgCount, msgSize);
+                    clientStatsInfo.bookSuccGetMsg(dltTime,
+                            topic, partitionKey, msgCount, msgSize);
                     break;
                 }
                 case TErrCodeConstants.HB_NO_NODE:
@@ -1422,7 +1421,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                 rmtDataCache.resumeTimeoutConsumePartitions(isPullConsume,
                         consumerConfig.getPullProtectConfirmTimeoutMs());
                 // print metric information
-                clientStatsInfo.selfPrintStatsInfo(false, strBuffer);
+                clientStatsInfo.selfPrintStatsInfo(false, true, strBuffer);
                 // Fetch the rebalance result, construct message adn return it.
                 ConsumerEvent event = rebalanceResults.poll();
                 List<SubscribeInfo> subInfoList = null;

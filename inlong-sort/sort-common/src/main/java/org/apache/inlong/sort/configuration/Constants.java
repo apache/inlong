@@ -204,6 +204,26 @@ public class Constants {
                     .defaultValue(false);
 
     // ------------------------------------------------------------------------
+    //  Sink field nullable related
+    // ------------------------------------------------------------------------
+    public static final ConfigOption<Boolean> SINK_FIELD_TYPE_STRING_NULLABLE =
+            key("sink.field.type.string.nullable")
+                    .defaultValue(false)
+                    .withDescription("The default value of string is empty string.");
+
+    public static final ConfigOption<Boolean> SINK_FIELD_TYPE_INT_NULLABLE =
+            key("sink.field.type.int.nullable")
+                    .defaultValue(true);
+
+    public static final ConfigOption<Boolean> SINK_FIELD_TYPE_SHORT_NULLABLE =
+            key("sink.field.type.short.nullable")
+                    .defaultValue(true);
+
+    public static final ConfigOption<Boolean> SINK_FIELD_TYPE_LONG_NULLABLE =
+            key("sink.field.type.long.nullable")
+                    .defaultValue(true);
+
+    // ------------------------------------------------------------------------
     //  Kafka sink related configs
     // ------------------------------------------------------------------------
     public static final ConfigOption<Integer> SINK_KAFKA_PRODUCER_POOL_SIZE =

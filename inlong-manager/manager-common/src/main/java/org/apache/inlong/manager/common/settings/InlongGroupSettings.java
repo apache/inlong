@@ -29,6 +29,12 @@ public class InlongGroupSettings {
 
     public static String DEFAULT_PULSAR_AUTHENTICATION_TYPE = "token";
 
+    public static String TUBE_MANAGER_URL = "tube.manager.url";
+
+    public static String TUBE_MASTER_URL = "tube.master.url";
+
+    public static String TUBE_CLUSTER_ID = "tube.cluster.id";
+
     /**
      * oceanus need param start
      */
@@ -65,6 +71,10 @@ public class InlongGroupSettings {
     public static String FS_OFS_TMP_CACHE_DIR = "fs.ofs.tmp.cache.dir";
 
     public static String FS_OFS_USER_APPID = "fs.ofs.user.appid";
+
+    public static String SORT_TYPE = "sort.type";
+
+    public static String DEFAULT_SORT_TYPE = "flink";
 
     public static String SORT_URL = "sort.url";
 

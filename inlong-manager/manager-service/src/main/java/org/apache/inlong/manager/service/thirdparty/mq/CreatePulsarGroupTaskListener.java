@@ -19,12 +19,14 @@ package org.apache.inlong.manager.service.thirdparty.mq;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
+import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.thirdparty.mq.util.PulsarUtils;
@@ -45,6 +47,8 @@ import java.util.List;
 @Slf4j
 public class CreatePulsarGroupTaskListener implements QueueOperateListener {
 
+    @Autowired
+    private CommonOperateService commonOperateService;
     @Autowired
     private ClusterBean clusterBean;
     @Autowired
@@ -79,7 +83,8 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
             return ListenerResult.success();
         }
 
-        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(bizInfo, clusterBean.getPulsarAdminUrl())) {
+        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(bizInfo,
+                commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL))) {
             String tenant = clusterBean.getDefaultTenant();
             String namespace = bizInfo.getMqResourceObj();
 

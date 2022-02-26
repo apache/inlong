@@ -55,4 +55,10 @@ public class ClusterInfo {
     @ApiModelProperty(value = "Cluster status")
     private Integer status;
 
+    @ApiModelProperty(value = "MQ set name")
+    private String mqSetName;
+
+    @ApiModelProperty(value = "MQ config info")
+    private String extParams;
+
 }
