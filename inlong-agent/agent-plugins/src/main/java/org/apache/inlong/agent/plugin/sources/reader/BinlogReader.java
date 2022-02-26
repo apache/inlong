@@ -40,21 +40,21 @@ public class BinlogReader implements Reader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BinlogReader.class);
 
-    private static final String JOB_DATABASE_USER = "job.database.user";
-    private static final String JOB_DATABASE_PASSWORD = "job.database.password";
-    private static final String JOB_DATABASE_HOSTNAME = "job.database.hostname";
-    private static final String JOB_DATABASE_WHITELIST = "job.database.tableWhiteList";
-    private static final String JOB_DATABASE_OFFSET = "job.database.offset";
-    private static final String JOB_DATABASE_OFFSET_FILENAME = "job.database.offset.filename";
+    private static final String JOB_DATABASE_USER = "job.binlogJob.user";
+    private static final String JOB_DATABASE_PASSWORD = "job.binlogJob.password";
+    private static final String JOB_DATABASE_HOSTNAME = "job.binlogJob.hostname";
+    private static final String JOB_DATABASE_WHITELIST = "job.binlogJob.tableWhiteList";
+    private static final String JOB_DATABASE_SNAPSHOT = "job.binlogJob.snapshot";
+    private static final String JOB_DATABASE_OFFSET_FILENAME = "job.binlogJob.offset.filename";
 
-    private static final String JOB_DATABASE_SERVER_TIME_ZONE = "job.database.serverTimezone";
-    private static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "offset.flush.interval.ms";
+    private static final String JOB_DATABASE_SERVER_TIME_ZONE = "job.binlogJob.serverTimezone";
+    private static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "job.binlogJob.offset.intervalMs";
 
-    private static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.database.history.filename";
-    private static final String JOB_DATABASE_INCLUDE_SCHEMA_CHANGES = "job.database.schema";
-    private static final String JOB_DATABASE_SNAPSHOT_MODE = "job.database.snapshot.mode";
-    private static final String JOB_DATABASE_HISTORY_MONITOR_DDL = "job.database.ddl";
-    private static final String JOB_DATABASE_PORT = "job.database.port";
+    private static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.binlogJob.history.filename";
+    private static final String JOB_DATABASE_INCLUDE_SCHEMA_CHANGES = "job.binlogJob.schema";
+    private static final String JOB_DATABASE_SNAPSHOT_MODE = "job.binlogJob.snapshot.mode";
+    private static final String JOB_DATABASE_HISTORY_MONITOR_DDL = "job.binlogJob.ddl";
+    private static final String JOB_DATABASE_PORT = "job.binlogJob.port";
 
     private static LinkedBlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
 
@@ -110,7 +110,7 @@ public class BinlogReader implements Reader {
         instanceId = jobConf.getInstanceId();
         finished = false;
 
-        offset = jobConf.get(JOB_DATABASE_OFFSET, "");
+        offset = jobConf.get(JOB_DATABASE_SNAPSHOT, "");
         binlogSnapshot = new BinlogSnapshotBase(offsetStoreFileName);
         binlogSnapshot.save(offset);
 
