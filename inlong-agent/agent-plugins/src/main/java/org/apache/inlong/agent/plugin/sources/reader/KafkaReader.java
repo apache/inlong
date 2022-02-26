@@ -50,7 +50,9 @@ import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INL
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BYTE_SPEED_LIMIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_RECORD_SPEED_LIMIT;
 
 public class KafkaReader<K, V> implements Reader {
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaReader.class);
@@ -103,8 +105,8 @@ public class KafkaReader<K, V> implements Reader {
                     KAFKA_READER_TAG_NAME, currentTotalReadRecords.incrementAndGet()));
         }
 
-        this.recordSpeed = Long.valueOf(paraMap.getOrDefault(KAFKA_SOURCE_READ_RECORD_SPEED,"10000"));
-        this.byteSpeed = Long.valueOf(paraMap.getOrDefault(KAFKA_SOURCE_READ_BYTE_SPEED,String.valueOf(1024 * 1024)));
+        this.recordSpeed = Long.valueOf(paraMap.getOrDefault(JOB_KAFKA_RECORD_SPEED_LIMIT,"10000"));
+        this.byteSpeed = Long.valueOf(paraMap.getOrDefault(JOB_KAFKA_BYTE_SPEED_LIMIT,String.valueOf(1024 * 1024)));
         this.flowControlInterval = Long.valueOf(paraMap.getOrDefault(KAFKA_SOURCE_READ_MIN_INTERVAL,"1000"));
         this.lastTimestamp = System.currentTimeMillis();
 
@@ -128,9 +130,9 @@ public class KafkaReader<K, V> implements Reader {
                 headerMap.put("record.key", String.valueOf(record.key()));
                 // control speed
                 kafkaMetric.incReadNum();
-                //commit offset
+                // commit offset
                 consumer.commitAsync();
-                //commit succeed,then record current offset
+                // commit succeed,then record current offset
                 snapshot = String.valueOf(record.offset());
                 DefaultMessage message = new DefaultMessage(recordValue.getBytes(StandardCharsets.UTF_8), headerMap);
                 recordReadLimit(1L, message.getBody().length);
@@ -145,7 +147,7 @@ public class KafkaReader<K, V> implements Reader {
     @Override
     public boolean isFinished() {
         if (iterator == null) {
-            //fetch data
+            // fetch data
             fetchData(5000);
             return false;
         }
@@ -153,7 +155,7 @@ public class KafkaReader<K, V> implements Reader {
             lastTime = 0;
             return false;
         }
-        //fetch data
+        // fetch data
         boolean fetchDataSuccess = fetchData(5000);
         if (fetchDataSuccess && iterator.hasNext()) {
             lastTime = 0;
@@ -172,7 +174,7 @@ public class KafkaReader<K, V> implements Reader {
     @Override
     public String getReadSource() {
         Set<TopicPartition> assignment = consumer.assignment();
-        //consumer.
+        // cousumer->topic->one partition
         Iterator<TopicPartition> iterator = assignment.iterator();
         while (iterator.hasNext()) {
             TopicPartition topicPartition = iterator.next();
@@ -193,7 +195,7 @@ public class KafkaReader<K, V> implements Reader {
 
     @Override
     public void init(JobProfile jobConf) {
-        //
+        // get offset from jobConf
         snapshot = jobConf.get(JOB_KAFKA_OFFSET);
         initReadTimeout(jobConf);
         // fetch data
@@ -209,8 +211,6 @@ public class KafkaReader<K, V> implements Reader {
     }
 
     private void initReadTimeout(JobProfile jobConf) {
-        //todo
-//        int waitTime = jobConf.getInt(JOB_KAFKAJOB_READ_TIMEOUT, DEFAULT_JOB_FILE_MAX_WAIT);
         int waitTime = jobConf.getInt(JOB_KAFKAJOB_READ_TIMEOUT, NEVER_STOP_SIGN);
         if (waitTime == NEVER_STOP_SIGN) {
             timeout = NEVER_STOP_SIGN;
@@ -239,7 +239,7 @@ public class KafkaReader<K, V> implements Reader {
     }
 
     private boolean fetchData(long fetchDataTimeout) {
-        //cosume data
+        // cosume data
         ConsumerRecords<K, V> records = consumer.poll(Duration.ofMillis(fetchDataTimeout));
         iterator = records.iterator();
         return iterator != null ? true : false;

@@ -33,12 +33,13 @@ public class TestKafkaReader {
         KafkaSource kafkaSource = new KafkaSource();
         JobProfile conf = JobProfile.parseJsonStr("{}");
         conf.set("job.kafkajob.topic","test2");
-        conf.set("job.kafkajob.bootstrap.servers","10.91.78.107:9092");
+        conf.set("job.kafkajob.bootstrap.servers","192.168.0.103:9092");
         conf.set("job.kafkajob.group.id","test_group1");
-//        conf.set("job.kafkajob.record.speed.limit","1");
-//        conf.set("job.kafkajob.byte.speed.limit","1");
-//        conf.set("job.kafkajob.read.timeout", "-1");
+        conf.set("job.kafkajob.recordspeed.limit","1");
+        conf.set("job.kafkajob.bytespeed.limit","1");
         conf.set("job.kafkajob.partition.offset", "0#5");
+        conf.set("job.kafkajob.auto.offsetReset", "earliest");
+
         conf.set("proxy.inlongGroupId", "");
         conf.set("proxy.inlongStreamId", "");
 
@@ -47,8 +48,6 @@ public class TestKafkaReader {
 
         readers.forEach(reader -> {
             reader.init(conf);
-            String readSource = reader.getReadSource();
-            System.out.println(readSource);
             Runnable runnable = () -> {
                 while (!reader.isFinished()) {
                     Message msg = reader.read();

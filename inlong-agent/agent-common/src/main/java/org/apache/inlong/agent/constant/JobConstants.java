@@ -63,15 +63,15 @@ public class JobConstants extends CommonConstants {
 
     //Kafka job
     public static final  String JOB_KAFKA_TOPIC = "job.kafkajob.topic";
-    public static final  String JOB_KAFKA_KEY_DESERIALIZER = "job.kafkajob.key.deserializer";
-    public static final  String JOB_KAFKA_VALUE_DESERIALIZER = "job.kafkajob.value.Deserializer";
     public static final  String JOB_KAFKA_BOOTSTRAP_SERVERS = "job.kafkajob.bootstrap.servers";
-    public static final  String JOB_KAFKA_GROUP_ID = "job.kafkajob.group.Id";
-    public static final  String JOB_KAFKA_RECORD_SPEED = "job.kafkajob.record.Speed";
-    public static final  String JOB_KAFKA_BYTE_SPEED_LIMIT = "job.kafkajob.byte.speed.limit";
-    public static final  String JOB_KAFKA_MIN_INTERVAL = "job.kafkajob.min.interval";
+    public static final  String JOB_KAFKA_GROUP_ID = "job.kafkajob.group.id";
+    public static final  String JOB_KAFKA_RECORD_SPEED_LIMIT = "job.kafkajob.recordspeed.limit";
+    public static final  String JOB_KAFKA_BYTE_SPEED_LIMIT = "job.kafkajob.bytespeed.limit";
     public static final  String JOB_KAFKA_OFFSET = "job.kafkajob.partition.offset";
     public static final  String JOB_KAFKA_READ_TIMEOUT = "job.kafkajob.read.timeout";
+    public static final String JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET = "job.kafkajob.auto.offsetReset";
+
+    public static final Long JOB_KAFKA_DEFAULT_OFFSET = 0L;
 
     // job type, delete/add
     public static final String JOB_TYPE = "job.type";

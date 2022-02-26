@@ -148,11 +148,5 @@
             <artifactId>kafka_${flink.scala.binary.version}</artifactId>
             <version>${kafka.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>${fastjson.version}</version>
-        </dependency>
     </dependencies>
 </project>

@@ -23,15 +23,13 @@ import lombok.Data;
 public class KafkaJob extends Job {
 
     private  String topic;
-    private  String keyDeserializer;
-    private  String valueDeserializer;
     private  String bootstrapServers;
-    private  String recordSpeed;
-    private  String byteSpeedLimit;
-    private  String minInterval;
     private Group group;
     private Bootstrap bootstrap;
     private Partition partition;
+    private RecordSpeed recordspeed;
+    private ByteSpeed bytespeed;
+    private AutoOffsetReset auto;
 
     @Data
     public static class Group {
@@ -49,16 +47,29 @@ public class KafkaJob extends Job {
     }
 
     @Data
+    public static class RecordSpeed {
+        private String limit;
+    }
+
+    @Data
+    public static class ByteSpeed {
+        private String limit;
+    }
+
+    @Data
+    public static class AutoOffsetReset {
+        String offsetReset;
+    }
+
+    @Data
     public static class KafkaJobTaskConfig {
 
         private  String topic;
-        private  String keyDeserializer;
-        private  String valueDeserializer;
         private  String bootstrapServers;
         private  String groupId;
-        private  String recordSpeed;
+        private  String recordSpeedLimit;
         private  String byteSpeedLimit;
-        private  String minInterval;
         private  String offset;
+        private  String autoOffsetReset;
     }
 }

@@ -17,7 +17,8 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
@@ -39,8 +40,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BOOTSTRAP_SERVERS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_DEFAULT_OFFSET;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_GROUP_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_TOPIC;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
 
@@ -50,17 +56,16 @@ public class KafkaSource implements Source {
 
     private static final String KAFKA_SOURCE_TAG_NAME = "AgentKafkaSourceMetric";
     private static final String JOB_KAFKAJOB_PARAM_PREFIX = "job.kafkajob.";
-    private static final String JOB_KAFKAJOB_TOPIC = "job.kafkajob.topic";
-    private static final String JOB_KAFKAJOB_BOOTSTRAP_SERVERS = "job.kafkajob.bootstrap.servers";
-    private static final String JOB_KAFKAJOB_GROUP_ID = "job.kafkajob.group.id";
     private static final String JOB_KAFKAJOB_WAIT_TIMEOUT = "job.kafkajob.wait.timeout";
-    //private static final String JOB_KAFKAJOB_PARTITION_OFFSET = "job.kafkajob.topic.partition.offset";
     private static final String KAFKA_COMMIT_AUTO = "enable.auto.commit";
     private static final String KAFKA_DESERIALIZER_METHOD = "org.apache.kafka.common.serialization.StringDeserializer";
     private static final String KAFKA_KEY_DESERIALIZER = "key.deserializer";
     private static final String KAFKA_VALUE_DESERIALIZER = "value.deserializer";
+    public static final String JOB_KAFKA_AUTO_RESETE = "auto.offset.reset";
+
 
     private final SourceMetrics sourceMetrics;
+    private static final Gson gson = new Gson();
 
     public KafkaSource() {
         if (ConfigUtil.isPrometheusEnabled()) {
@@ -77,27 +82,30 @@ public class KafkaSource implements Source {
         String filterPattern = conf.get(JOB_LINE_FILTER_PATTERN, DEFAULT_JOB_LINE_FILTER);
 
         Properties props = new Properties();
-        Map<String,String> map = (Map)JSON.parse(conf.toJsonStr());
+        Map<String,String> map = gson.fromJson(conf.toJsonStr(), Map.class);
         Iterator<Map.Entry<String,String>> iterator = map.entrySet().iterator();
-        //begin build kafkaConsumer
+        // begin build kafkaConsumer
         while (iterator.hasNext()) {
             Map.Entry<String,String> entry = iterator.next();
-            if (entry.getKey() != null && (entry.getKey().equals(JOB_KAFKAJOB_BOOTSTRAP_SERVERS)
-                    || entry.getKey().equals(JOB_KAFKAJOB_GROUP_ID))) {
+            if (entry.getKey() != null && (entry.getKey().equals(JOB_KAFKA_BOOTSTRAP_SERVERS)
+                    || entry.getKey().equals(JOB_KAFKA_GROUP_ID))) {
                 props.put(entry.getKey().replace(JOB_KAFKAJOB_PARAM_PREFIX,""), entry.getValue());
             }
         }
         props.put(KAFKA_KEY_DESERIALIZER, KAFKA_DESERIALIZER_METHOD);
         props.put(KAFKA_VALUE_DESERIALIZER, KAFKA_DESERIALIZER_METHOD);
-        //set offset
+        // set offset
         props.put(KAFKA_COMMIT_AUTO, false);
+        if (ObjectUtils.isNotEmpty(map.get(JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET))) {
+            props.put(JOB_KAFKA_AUTO_RESETE, map.get(JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET));
+        }
         KafkaConsumer<String,String> consumer = new KafkaConsumer<>(props);
-        List<PartitionInfo> partitionInfoList = consumer.partitionsFor(conf.get(JOB_KAFKAJOB_TOPIC));
+        List<PartitionInfo> partitionInfoList = consumer.partitionsFor(conf.get(JOB_KAFKA_TOPIC));
         String allPartitionOffsets = map.get(JOB_KAFKA_OFFSET);
-        Long offset = 0L;
+        Long offset = JOB_KAFKA_DEFAULT_OFFSET;
         String[] partitionOffsets = null;
         if (StringUtils.isNotBlank(allPartitionOffsets)) {
-            //example:0#110_1#666_2#222
+            // example:0#110_1#666_2#222
             partitionOffsets = allPartitionOffsets.split(JOB_OFFSET_DELIMITER);
         }
         // spilt reader reduce to partition
@@ -119,8 +127,6 @@ public class KafkaSource implements Source {
                 LOGGER.info("kafka topic partition offset:{}", offset);
                 partitonConsumer.seek(new TopicPartition(partitionInfo.topic(), partitionInfo.partition()), offset);
                 KafkaReader<String,String> kafkaReader = new KafkaReader<>(partitonConsumer, map);
-                //kafkaReader.setReadTimeout(conf.getInt(JOB_KAFKAJOB_READ_TIMEOUT, -1));
-                kafkaReader.setWaitMillisecs(conf.getInt(JOB_KAFKAJOB_WAIT_TIMEOUT,100));
                 addValidator(filterPattern, kafkaReader);
                 result.add(kafkaReader);
             }
