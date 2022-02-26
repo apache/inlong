@@ -118,7 +118,7 @@ public class CreateSortConfigListener implements SortOperateListener {
     }
 
     private DataFlowInfo createDataFlow(StreamBriefResponse streamBriefResponse,
-                                        InlongGroupRequest inlongGroupRequest) {
+            InlongGroupRequest inlongGroupRequest) {
         List<SinkBriefResponse> sinkBriefResponses = streamBriefResponse.getSinkList();
         if (CollectionUtils.isEmpty(sinkBriefResponses)) {
             throw new RuntimeException(String.format("No sink found by stream=%s", streamBriefResponse));
@@ -161,19 +161,19 @@ public class CreateSortConfigListener implements SortOperateListener {
     }
 
     private PulsarSourceInfo createPulsarSourceInfo(InlongGroupRequest groupRequest,
-                                                    InlongStreamInfo streamInfo,
-                                                    DeserializationInfo deserializationInfo,
-                                                    List<FieldInfo> fieldInfos) {
+            InlongStreamInfo streamInfo,
+            DeserializationInfo deserializationInfo,
+            List<FieldInfo> fieldInfos) {
         String topicName = streamInfo.getMqResourceObj();
         String pulsarAdminUrl = commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL);
         String pulsarServiceUrl = commonOperateService.getSpecifiedParam(Constant.PULSAR_SERVICEURL);
         return SourceInfoUtils.createPulsarSourceInfo(groupRequest, topicName, deserializationInfo,
-                fieldInfos, clusterBean.getAppName(),clusterBean.getDefaultTenant(), pulsarAdminUrl, pulsarServiceUrl);
+                fieldInfos, clusterBean.getAppName(), clusterBean.getDefaultTenant(), pulsarAdminUrl, pulsarServiceUrl);
     }
 
     private TubeSourceInfo createTubeSourceInfo(InlongGroupRequest groupRequest,
-                                                DeserializationInfo deserializationInfo,
-                                                List<FieldInfo> fieldInfos) {
+            DeserializationInfo deserializationInfo,
+            List<FieldInfo> fieldInfos) {
         String masterAddress = commonOperateService.getSpecifiedParam(Constant.TUBE_MASTER_URL);
         Preconditions.checkNotNull(masterAddress, "tube cluster address cannot be empty");
         String topic = groupRequest.getMqResourceObj();

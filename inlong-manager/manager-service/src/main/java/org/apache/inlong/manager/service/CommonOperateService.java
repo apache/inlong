@@ -99,7 +99,7 @@ public class CommonOperateService {
     }
 
     /**
-     * @param type third-party-cluster type, such as TUBE, PULSAR, ZOOKEEPER, SORT
+     * @param type third-party-cluster type, such as TUBE, PULSAR
      * @return
      */
     private ThirdPartyClusterEntity getThirdPartyCluster(String type) {

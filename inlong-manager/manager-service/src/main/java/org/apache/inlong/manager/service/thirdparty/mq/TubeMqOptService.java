@@ -58,7 +58,7 @@ public class TubeMqOptService {
             }
             AddTubeMqTopicRequest.AddTopicTasksBean addTopicTasksBean = request.getAddTopicTasks().get(0);
             String clusterIdStr = commonOperateService.getSpecifiedParam(Constant.CLUSTER_TUBE_CLUSTER_ID);
-            int clusterId = Integer.valueOf(clusterIdStr);
+            int clusterId = Integer.parseInt(clusterIdStr);
             QueryTubeTopicRequest topicRequest = QueryTubeTopicRequest.builder()
                     .topicName(addTopicTasksBean.getTopicName()).clusterId(clusterId)
                     .user(request.getUser()).build();
