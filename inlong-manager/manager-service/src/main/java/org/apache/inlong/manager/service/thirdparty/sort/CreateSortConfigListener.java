@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.thirdparty.sort;
 
 import com.google.common.collect.Lists;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -119,8 +120,19 @@ public class CreateSortConfigListener implements SortOperateListener {
         if (groupRequest.getExtList() == null) {
             groupRequest.setExtList(Lists.newArrayList());
         }
-        groupRequest.getExtList().add(extInfo);
+        upsertDataFlow(groupRequest, extInfo);
         return ListenerResult.success();
+    }
+
+    private void upsertDataFlow(InlongGroupRequest groupRequest, InlongGroupExtInfo extInfo) {
+        Iterator<InlongGroupExtInfo> inlongGroupExtInfoIterator = groupRequest.getExtList().iterator();
+        while (inlongGroupExtInfoIterator.hasNext()) {
+            InlongGroupExtInfo inlongGroupExtInfo = inlongGroupExtInfoIterator.next();
+            if (InlongGroupSettings.DATA_FLOW.equals(inlongGroupExtInfo.getKeyName())) {
+                inlongGroupExtInfoIterator.remove();
+            }
+        }
+        groupRequest.getExtList().add(extInfo);
     }
 
     private DataFlowInfo createDataFlow(StreamBriefResponse streamBriefResponse,
