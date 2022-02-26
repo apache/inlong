@@ -45,6 +45,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 
 /**
@@ -488,6 +489,37 @@ public class InnerInlongManagerClient {
         } catch (Exception e) {
             throw new RuntimeException(
                     String.format("Inlong group delete failed: %s", e.getMessage()), e);
+        }
+    }
+
+    /**
+     * get inlong group error messages
+     *
+     * @param inlongGroupId
+     * @return
+     */
+    public List<EventLogView> getInlongGroupError(String inlongGroupId) {
+        final String path = HTTP_PATH + "/workflow/event/list";
+        String url = formatUrl(path);
+        url = url + "&inlongGroupId=" + inlongGroupId + "&status=-1";
+        Request request = new Request.Builder()
+                .get()
+                .url(url)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            Response response = call.execute();
+            assert response.body() != null;
+            String body = response.body().string();
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
+            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed: %s", responseBody.getErrMsg()));
+            PageInfo<EventLogView> pageInfo = InlongParser.parseEventLogViewList(responseBody);
+            return pageInfo.getList();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Get inlong group error messages failed: %s", e.getMessage()), e);
         }
     }
 
