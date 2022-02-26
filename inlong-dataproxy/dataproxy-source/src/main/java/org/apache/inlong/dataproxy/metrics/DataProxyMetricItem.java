@@ -159,7 +159,7 @@ public class DataProxyMetricItem extends MetricItem {
     public static String getInlongStreamId(Map<String, String> headers) {
         String inlongStreamId = headers.get(Constants.INLONG_STREAM_ID);
         if (inlongStreamId == null) {
-            inlongStreamId = headers.getOrDefault(AttributeConstants.INTERFACE_ID, "");
+            inlongStreamId = headers.getOrDefault(AttributeConstants.STREAM_ID, "");
         }
         return inlongStreamId;
     }
