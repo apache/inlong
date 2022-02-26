@@ -30,7 +30,7 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
-import org.apache.inlong.agent.plugin.sources.snapshot.BinlogSnapshotManager;
+import org.apache.inlong.agent.plugin.sources.snapshot.BinlogSnapshotBase;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.slf4j.Logger;
 
@@ -74,7 +74,7 @@ public class BinlogReader implements Reader {
     private String instanceId;
     private ExecutorService executor;
     private String offset;
-    private BinlogSnapshotManager binlogSnapshotManager;
+    private BinlogSnapshotBase binlogSnapshot;
     private JobProfile jobProfile;
 
     public BinlogReader() {
@@ -99,9 +99,11 @@ public class BinlogReader implements Reader {
         port = jobConf.get(JOB_DATABASE_PORT);
         tableWhiteList = jobConf.get(JOB_DATABASE_WHITELIST, "");
         serverTimeZone = jobConf.get(JOB_DATABASE_SERVER_TIME_ZONE, "");
-        offsetStoreFileName = jobConf.get(JOB_DATABASE_OFFSET_FILENAME, "");
         offsetFlushIntervalMs = jobConf.get(JOB_DATABASE_STORE_OFFSET_INTERVAL_MS, "1000");
-        databaseStoreHistoryName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME);
+        databaseStoreHistoryName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME)
+            + "history.dat" + jobConf.getInstanceId();
+        offsetStoreFileName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME)
+            + "offset.dat" + jobConf.getInstanceId();
         snapshotMode = jobConf.get(JOB_DATABASE_SNAPSHOT_MODE, "");
         includeSchemaChanges = jobConf.get(JOB_DATABASE_INCLUDE_SCHEMA_CHANGES, "false");
         historyMonitorDdl = jobConf.get(JOB_DATABASE_HISTORY_MONITOR_DDL, "false");
@@ -109,8 +111,8 @@ public class BinlogReader implements Reader {
         finished = false;
 
         offset = jobConf.get(JOB_DATABASE_OFFSET, "");
-        binlogSnapshotManager = new BinlogSnapshotManager(offsetStoreFileName);
-        binlogSnapshotManager.save(offset);
+        binlogSnapshot = new BinlogSnapshotBase(offsetStoreFileName);
+        binlogSnapshot.save(offset);
 
         Properties props = getEngineProps();
 
@@ -165,7 +167,7 @@ public class BinlogReader implements Reader {
     public void destroy() {
         finished = true;
         executor.shutdownNow();
-        binlogSnapshotManager.close();
+        binlogSnapshot.close();
     }
 
     @Override
@@ -190,7 +192,7 @@ public class BinlogReader implements Reader {
 
     @Override
     public String getSnapshot() {
-        return binlogSnapshotManager.getSnapshot();
+        return binlogSnapshot.getSnapshot();
     }
 
 }

@@ -27,9 +27,9 @@ import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BinlogSnapshotManager implements SnapshotManager {
+public class BinlogSnapshotBase implements SnapshotBase {
 
-    private static final Logger log = LoggerFactory.getLogger(BinlogSnapshotManager.class);
+    private static final Logger log = LoggerFactory.getLogger(BinlogSnapshotBase.class);
     public static final int BUFFER_SIZE = 1024;
     public static final int START_OFFSET = 0;
 
@@ -37,7 +37,7 @@ public class BinlogSnapshotManager implements SnapshotManager {
 
     private byte[] offset;
 
-    public BinlogSnapshotManager(String filePath) {
+    public BinlogSnapshotBase(String filePath) {
         file = new File(filePath);
     }
 

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources.snapshot;
 
-public interface SnapshotManager {
+public interface SnapshotBase {
 
     /**
      * get snapshot of the job
