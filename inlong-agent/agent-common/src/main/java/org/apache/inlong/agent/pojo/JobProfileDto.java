@@ -59,7 +59,6 @@ public class JobProfileDto {
                 BinlogJob.BinlogJobTaskConfig.class);
 
         BinlogJob binlogJob = new BinlogJob();
-
         binlogJob.setHostname(binlogJobTaskConfig.getHostname());
         binlogJob.setPassword(binlogJobTaskConfig.getPassword());
         binlogJob.setUser(binlogJobTaskConfig.getUser());
@@ -74,14 +73,17 @@ public class JobProfileDto {
         BinlogJob.Offset offset = new BinlogJob.Offset();
         offset.setIntervalMs(binlogJobTaskConfig.getIntervalMs());
         offset.setFilename(binlogJobTaskConfig.getOffsetFilename());
+
         binlogJob.setOffset(offset);
 
         BinlogJob.Snapshot snapshot = new BinlogJob.Snapshot();
         snapshot.setMode(binlogJobTaskConfig.getMode());
+
         binlogJob.setSnapshot(snapshot);
 
         BinlogJob.History history = new BinlogJob.History();
         history.setFilename(binlogJobTaskConfig.getHistoryFilename());
+
         binlogJob.setHistory(history);
 
         return binlogJob;

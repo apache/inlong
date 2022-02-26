@@ -54,7 +54,6 @@ public class BinlogJob {
 
     }
 
-
     @Data
     public static class BinlogJobTaskConfig {
 
@@ -73,11 +72,6 @@ public class BinlogJob {
         private  String historyFilename;
         private  String mode;
         private  String ddl;
-        ;
     }
-
-
-
-
 
 }
