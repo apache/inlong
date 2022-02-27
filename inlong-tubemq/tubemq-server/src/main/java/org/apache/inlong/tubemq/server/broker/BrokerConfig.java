@@ -118,9 +118,15 @@ public class BrokerConfig extends AbstractFileConfig {
     // the scan storage cycle for consume group offset
     private long groupOffsetScanDurMs =
             TServerConstants.CFG_DEFAULT_GROUP_OFFSET_SCAN_DUR;
+    // whether to enable the memory cache storage, the default is true, open the memory cache
+    private boolean enableMemStore = true;
 
     public BrokerConfig() {
         super();
+    }
+
+    public boolean isEnableMemStore() {
+        return enableMemStore;
     }
 
     public boolean isUpdateConsumerOffsets() {
@@ -355,6 +361,9 @@ public class BrokerConfig extends AbstractFileConfig {
                     MixedUtils.mid(getLong(brokerSect, "groupOffsetScanDurMs"),
                             TServerConstants.CFG_MIN_GROUP_OFFSET_SCAN_DUR,
                             TServerConstants.CFG_MAX_GROUP_OFFSET_SCAN_DUR);
+        }
+        if (TStringUtils.isNotBlank(brokerSect.get("enableMemStore"))) {
+            this.enableMemStore = this.getBoolean(brokerSect, "enableMemStore");
         }
     }
 
