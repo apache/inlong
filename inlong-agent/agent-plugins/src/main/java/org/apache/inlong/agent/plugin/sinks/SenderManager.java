@@ -199,8 +199,8 @@ public class SenderManager {
         public void onMessageAck(SendResult result) {
             // if send result is not ok, retry again.
             if (result == null || !result.equals(SendResult.OK)) {
-                LOGGER.warn("send groupId {}, streamId {}, jobId {}, dataTime {} fail with times {}",
-                    groupId, streamId, jobId, dataTime, retry);
+                LOGGER.warn("send groupId {}, streamId {}, jobId {}, dataTime {} fail with times {}, "
+                        + "error {}", groupId, streamId, jobId, dataTime, retry, result);
                 sendBatch(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
                 return;
             }
