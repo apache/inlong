@@ -30,9 +30,9 @@ fi
 
 DOCKER_ORG="${DOCKER_ORG:-inlong}"
 
-docker login ${DOCKER_REGISTRY} -u="$DOCKER_USER" -p="$DOCKER_PASSWORD"
+echo $DOCKER_PASSWORD | docker login ${DOCKER_REGISTRY} -u="$DOCKER_USER" --password-stdin
 if [ $? -ne 0 ]; then
-    echo "Failed to loging to Docker Hub"
+    echo "Failed to login to ${DOCKER_REGISTRY}"
     exit 1
 fi
 
