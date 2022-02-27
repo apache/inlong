@@ -112,6 +112,7 @@ public class InlongGroupProcessOperation {
         LOGGER.info("begin to delete process, groupId = {}, operator = {}", groupId, operator);
         InlongGroupRequest groupInfo = groupService.get(groupId);
         UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, OperateType.DELETE);
+        groupInfo.setStatus(GroupState.GROUP_DELETE.getCode());
         try {
             workflowService.start(ProcessName.DELETE_GROUP_PROCESS, operator, form);
         } catch (Exception ex) {
