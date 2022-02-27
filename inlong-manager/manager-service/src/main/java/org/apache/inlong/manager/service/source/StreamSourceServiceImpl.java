@@ -172,7 +172,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
-        StreamSourceOperation operation = operationFactory.getInstance(SourceType.getType(sourceType));
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
         SourceRequest sourceRequest = new SourceRequest();
         CommonBeanUtils.copyProperties(entity, sourceRequest, true);
         operation.deleteOpt(sourceRequest, operator);
@@ -191,7 +191,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
-        StreamSourceOperation operation = operationFactory.getInstance(SourceType.getType(sourceType));
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
         SourceRequest sourceRequest = new SourceRequest();
         CommonBeanUtils.copyProperties(entity, sourceRequest, true);
         operation.restartOpt(sourceRequest, operator);
@@ -210,7 +210,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
-        StreamSourceOperation operation = operationFactory.getInstance(SourceType.getType(sourceType));
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
         SourceRequest sourceRequest = new SourceRequest();
         CommonBeanUtils.copyProperties(entity, sourceRequest, true);
         operation.stopOpt(sourceRequest, operator);
