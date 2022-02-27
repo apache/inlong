@@ -14,6 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 DROP ALIAS IF EXISTS FIND_IN_SET;
 CREATE ALIAS IF NOT EXISTS FIND_IN_SET FOR "org.mvnsearch.h2.mysql.StringFunctions.findInSet";
