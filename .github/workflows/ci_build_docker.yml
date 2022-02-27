@@ -59,7 +59,7 @@ jobs:
       - name: Push docker image to Docker Hub
         if: ${{ success() && github.event_name == 'push' && github.ref_name == 'master' && github.repository_owner == 'apache' }}
         working-directory: docker
-        run: bash publish.sh
+        run: bash +x publish.sh
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
