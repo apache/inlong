@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
@@ -52,34 +53,59 @@ public class BinlogSnapshotBase implements SnapshotBase {
     }
 
     public void load() {
+        BufferedInputStream inputStream = null;
+        ByteArrayOutputStream outputStream = null;
         try {
             if (!file.exists()) {
                 file.createNewFile();
             }
             FileInputStream fis = new FileInputStream(file);
-            BufferedInputStream inputStream = new BufferedInputStream(fis);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            inputStream = new BufferedInputStream(fis);
+            outputStream = new ByteArrayOutputStream();
             int len;
             byte[] buf = new byte[BUFFER_SIZE];
             while ((len = inputStream.read(buf)) != -1) {
                 outputStream.write(buf, START_OFFSET, len);
             }
             offset = outputStream.toByteArray();
-            inputStream.close();
-            outputStream.close();
         } catch (Exception ex) {
             log.error("load binlog offset error", ex);
+        } finally {
+            if (null != inputStream) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    log.error("close inputstream failed", e);
+                }
+            }
+            if (null != outputStream) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    log.error("close outputstream failed", e);
+                }
+            }
         }
     }
 
     public void save(String snapshot) {
         byte[] bytes = snapshot.getBytes(StandardCharsets.ISO_8859_1);
+        OutputStream output = null;
         if (bytes.length != 0) {
             offset = bytes;
-            try (OutputStream output = new FileOutputStream(file)) {
+            try {
+                output = new FileOutputStream(file);
                 output.write(bytes);
             } catch (Exception e) {
                 log.error("save offset to file error", e);
+            } finally {
+                if (null != output) {
+                    try {
+                        output.close();
+                    } catch (IOException e) {
+                        log.error("close output failed", e);
+                    }
+                }
             }
         }
     }

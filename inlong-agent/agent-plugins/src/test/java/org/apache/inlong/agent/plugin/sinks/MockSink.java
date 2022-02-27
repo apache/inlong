@@ -48,12 +48,15 @@ public class MockSink implements Sink {
     private long dataTime;
 
     private final SinkMetrics sinkMetrics;
+    private static AtomicLong metricsIndex = new AtomicLong(0);
 
     public MockSink() {
         if (ConfigUtil.isPrometheusEnabled()) {
-            this.sinkMetrics = new SinkPrometheusMetrics(MOCK_SINK_TAG_NAME);
+            this.sinkMetrics = new SinkPrometheusMetrics(AgentUtils.getUniqId(
+                    MOCK_SINK_TAG_NAME,  metricsIndex.incrementAndGet()));
         } else {
-            this.sinkMetrics = new SinkJmxMetric(MOCK_SINK_TAG_NAME);
+            this.sinkMetrics = new SinkJmxMetric(AgentUtils.getUniqId(
+                    MOCK_SINK_TAG_NAME,  metricsIndex.incrementAndGet()));
         }
     }
 

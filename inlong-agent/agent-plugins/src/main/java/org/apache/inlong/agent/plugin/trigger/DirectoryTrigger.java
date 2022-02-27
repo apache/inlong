@@ -265,8 +265,9 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
             String timeOffset = this.profile.get(JobConstants.JOB_FILE_TIME_OFFSET, "");
             if (timeOffset.isEmpty()) {
                 register(pathPattern);
+            } else {
+                register(pathPattern, timeOffset);
             }
-            register(pathPattern, timeOffset);
         }
     }
 

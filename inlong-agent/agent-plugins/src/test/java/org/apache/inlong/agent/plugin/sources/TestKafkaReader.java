@@ -60,12 +60,5 @@ public class TestKafkaReader {
             //start thread
             readerThread.start();
         });
-
-        Thread thread = Thread.currentThread();
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 }
