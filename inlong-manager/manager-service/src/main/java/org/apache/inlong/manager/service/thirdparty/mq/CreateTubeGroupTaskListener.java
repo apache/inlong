@@ -19,19 +19,20 @@ package org.apache.inlong.manager.service.thirdparty.mq;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ReTryConfigBean;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest.GroupNameJsonSetBean;
 import org.apache.inlong.manager.common.pojo.tubemq.QueryTubeTopicRequest;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -45,12 +46,10 @@ public class CreateTubeGroupTaskListener implements QueueOperateListener {
 
     @Autowired
     TubeMqOptService tubeMqOptService;
-
-    @Value("${cluster.tube.clusterId}")
-    Integer clusterId;
-
     @Autowired
     ReTryConfigBean reTryConfigBean;
+    @Autowired
+    private CommonOperateService commonOperateService;
 
     @Override
     public TaskEvent event() {
@@ -65,6 +64,7 @@ public class CreateTubeGroupTaskListener implements QueueOperateListener {
 
         InlongGroupRequest groupInfo = groupService.get(groupId);
         String topicName = groupInfo.getMqResourceObj();
+        int clusterId = Integer.parseInt(commonOperateService.getSpecifiedParam(Constant.CLUSTER_TUBE_CLUSTER_ID));
         QueryTubeTopicRequest queryTubeTopicRequest = QueryTubeTopicRequest.builder()
                 .topicName(topicName).clusterId(clusterId)
                 .user(groupInfo.getCreator()).build();

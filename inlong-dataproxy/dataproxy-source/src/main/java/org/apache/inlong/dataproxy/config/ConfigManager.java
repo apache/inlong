@@ -110,13 +110,13 @@ public class ConfigManager {
     /**
      * update old maps, reload local files if changed.
      *
-     * @param result        - map pending to be added
-     * @param holder        - property holder
+     * @param result - map pending to be added
+     * @param holder - property holder
      * @param addElseRemove - if add(true) else remove(false)
      * @return true if changed else false.
      */
     private boolean updatePropertiesHolder(Map<String, String> result,
-                                           PropertiesConfigHolder holder, boolean addElseRemove) {
+            PropertiesConfigHolder holder, boolean addElseRemove) {
         Map<String, String> tmpHolder = holder.forkHolder();
         boolean changed = false;
         for (Map.Entry<String, String> entry : result.entrySet()) {
@@ -272,7 +272,8 @@ public class ConfigManager {
                 if (StringUtils.isEmpty(proxyClusterName)) {
                     LOG.error("proxyClusterName is null");
                 }
-                String url = "http://" + host + "/api/inlong/manager/openapi/dataproxy/getConfig_v2?clusterName=" + proxyClusterName;
+                String url = "http://" + host + "/api/inlong/manager/openapi/dataproxy/getConfig_v2?clusterName="
+                        + proxyClusterName;
                 LOG.info("start to request {} to get config info", url);
                 httpGet = new HttpGet(url);
                 httpGet.addHeader(HttpHeaders.CONNECTION, "close");
@@ -287,14 +288,15 @@ public class ConfigManager {
                 Map<String, String> groupIdToMValue = new HashMap<String, String>();
                 Map<String, String> mqConfig = new HashMap<>();// include url2token and other params
 
-                if (configJson.getErrCode() == 0) {
+                if (configJson.isSuccess() && configJson.getData() != null) { //success get config
+                    LOG.info("getConfig_v2 result: {}", returnStr);
                     /*
                      * get mqUrls <->token maps;
                      * if mq is pulsar, store format: third-party-cluster.index1=cluster1url1,cluster1url2=token
                      * if mq is tubemq, token is "", store format: third-party-cluster.index1=cluster1url1,cluster1url2=
                      */
                     int index = 1;
-                    List<ThirdPartyClusterInfo> clusterSet = configJson.getPulsarSet();
+                    List<ThirdPartyClusterInfo> clusterSet = configJson.getData().getMqSet();
                     for (ThirdPartyClusterInfo mqCluster : clusterSet) {
                         String key = ThirdPartyClusterConfigHolder.URL_STORE_PREFIX + index;
                         String value = mqCluster.getUrl() + AttributeConstants.KEY_VALUE_SEPARATOR
@@ -305,7 +307,7 @@ public class ConfigManager {
                     // mq other params
                     mqConfig.putAll(clusterSet.get(0).getParams());
 
-                    for (DataProxyConfig topic : configJson.getTopicList()) {
+                    for (DataProxyConfig topic : configJson.getData().getTopicList()) {
                         groupIdToMValue.put(topic.getInlongGroupId(), topic.getM());
                         groupIdToTopic.put(topic.getInlongGroupId(), topic.getTopic());
                     }
@@ -317,6 +319,8 @@ public class ConfigManager {
                     configManager.getThirdPartyClusterConfig().putAll(clusterSet.get(0).getParams());
                     configManager.getThirdPartyClusterHolder()
                             .setUrl2token(configManager.getThirdPartyClusterHolder().getUrl2token());
+                } else {
+                    LOG.error("getConfig from manager: {}", configJson.getErrMsg());
                 }
             } catch (Exception ex) {
                 LOG.error("exception caught", ex);

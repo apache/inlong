@@ -17,32 +17,24 @@
 
 package org.apache.inlong.dataproxy.config;
 
-import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
-import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterInfo;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
 
 public class RemoteConfigJson {
 
-    private boolean result;
-    private int errCode;
-    private List<ThirdPartyClusterInfo> pulsarSet = new ArrayList<>();
-    private List<DataProxyConfig> topicList = new ArrayList<>();
+    private boolean success;
+    private String errMsg;
+    private ThirdPartyClusterDTO data;
 
-    public boolean isResult() {
-        return result;
+    public boolean isSuccess() {
+        return success;
     }
 
-    public int getErrCode() {
-        return errCode;
+    public String getErrMsg() {
+        return errMsg;
     }
 
-    public List<ThirdPartyClusterInfo> getPulsarSet() {
-        return pulsarSet;
+    public ThirdPartyClusterDTO getData() {
+        return data;
     }
 
-    public List<DataProxyConfig> getTopicList() {
-        return topicList;
-    }
 }
