@@ -81,4 +81,6 @@ public class SourceResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
+    @ApiModelProperty("Data Serialization, support: Json, Canal, Avro, etc")
+    private String serializationType;
 }

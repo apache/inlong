@@ -35,7 +35,7 @@ public enum SourceType {
     /**
      * Get the SourceType enum via the given sourceType string
      */
-    public static SourceType getType(String sourceType) {
+    public static SourceType forType(String sourceType) {
         for (SourceType type : values()) {
             if (type.name().equals(sourceType)) {
                 return type;
@@ -44,7 +44,7 @@ public enum SourceType {
         throw new IllegalArgumentException(String.format("Illegal sink type for %s", sourceType));
     }
 
-    public String getType() {
+    public String forType() {
         return this.type;
     }
 
