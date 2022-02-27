@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.source.listener;
 
 import com.google.common.collect.Lists;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
@@ -49,6 +48,8 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
 
     public UpdateGroupProcessForm form;
 
+    public InlongGroupRequest groupRequest;
+
     @Autowired
     private StreamSourceService streamSourceService;
 
@@ -56,14 +57,12 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         BinlogSourceRequest binlogSourceRequest = new BinlogSourceRequest();
         binlogSourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         binlogSourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
-        binlogSourceRequest.setTableFields("id");
-        binlogSourceRequest.setCharset(StandardCharsets.UTF_8.name());
         return binlogSourceRequest;
     }
 
     @Test
     public void testFrozenSource() {
-        InlongGroupRequest groupRequest = initGroupForm("PULSAR");
+        groupRequest = initGroupForm("PULSAR");
         groupRequest.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
         groupService.update(groupRequest, OPERATOR);
         final InlongStreamInfo streamInfo = createStreamInfo(groupRequest);
@@ -80,41 +79,29 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("stopSource");
         Assert.assertTrue(task instanceof ServiceTask);
-        Assert.assertEquals(1, task.getNameToListenerMap().size());
-        List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
-        Assert.assertTrue(listeners.get(0) instanceof SourceStopListener);
         SourceResponse sourceResponse = streamSourceService.get(sourceId, SourceType.DB_BINLOG.toString());
         Assert.assertTrue(SourceState.forCode(sourceResponse.getStatus()) == SourceState.SOURCE_FROZEN);
     }
 
     @Test
     public void testRestartSource() {
-        InlongGroupRequest groupRequest = initGroupForm("PULSAR");
+        testFrozenSource();
         groupRequest.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
         groupService.update(groupRequest, OPERATOR);
         groupRequest.setStatus(GroupState.GROUP_SUSPEND.getCode());
         groupService.update(groupRequest, OPERATOR);
-        final InlongStreamInfo streamInfo = createStreamInfo(groupRequest);
         form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupRequest);
         form.setOperateType(OperateType.RESTART);
-        BinlogSourceRequest sourceRequest = createBinlogSourceRequest(streamInfo);
-        int sourceId = streamSourceService.save(sourceRequest, OPERATOR);
-        sourceRequest.setId(sourceId);
-        sourceRequest.setStatus(SourceState.SOURCE_FROZEN.getCode());
-        streamSourceService.update(sourceRequest, OPERATOR);
         WorkflowContext context = workflowEngine.processService()
-                .start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
+                .start(ProcessName.RESTART_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
         Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
         WorkflowProcess process = context.getProcess();
-        WorkflowTask task = process.getTaskByName("stopSource");
+        WorkflowTask task = process.getTaskByName("restartSource");
         Assert.assertTrue(task instanceof ServiceTask);
-        Assert.assertEquals(1, task.getNameToListenerMap().size());
-        List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
-        Assert.assertTrue(listeners.get(0) instanceof SourceRestartListener);
-        SourceResponse sourceResponse = streamSourceService.get(sourceId, SourceType.DB_BINLOG.toString());
+        SourceResponse sourceResponse = streamSourceService.get(1, SourceType.DB_BINLOG.toString());
         Assert.assertTrue(SourceState.forCode(sourceResponse.getStatus()) == SourceState.SOURCE_ACTIVE);
     }
 }

@@ -78,15 +78,6 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
         final SourceState curState = SourceState.forCode(entity.getStatus());
         // Setting updated parameters of stream source entity.
         setTargetEntity(request, entity);
-        final SourceState nextState = SourceState.forCode(request.getStatus());
-        if (!SourceState.isAllowedTransition(curState, nextState)) {
-            String errMsg = String.format("Current state=%s of source=%s is not supported to transfer to %s",
-                    curState, entity, nextState);
-            LOGGER.error(errMsg);
-            throw new RuntimeException(errMsg);
-        }
-        entity.setPreviousStatus(curState.getCode());
-        entity.setStatus(nextState.getCode());
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
         sourceMapper.updateByPrimaryKeySelective(entity);
@@ -107,5 +98,51 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
         setTargetEntity(request, entity);
         sourceMapper.insert(entity);
         return entity.getId();
+    }
+
+    @Override
+    public void stopOpt(SourceRequest request, String operator) {
+        StreamSourceEntity snapshot = sourceMapper.selectByPrimaryKey(request.getId());
+        SourceState curState = SourceState.forCode(snapshot.getStatus());
+        SourceState nextState = SourceState.SOURCE_FROZEN;
+        if (!SourceState.isAllowedTransition(curState, nextState)) {
+            throw new RuntimeException(String.format("Source=%s is not allowed to stop", snapshot));
+        }
+        StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
+        curEntity.setModifyTime(new Date());
+        curEntity.setPreviousStatus(curState.getCode());
+        curEntity.setStatus(nextState.getCode());
+        sourceMapper.updateByPrimaryKeySelective(curEntity);
+    }
+
+    @Override
+    public void restartOpt(SourceRequest request, String operator) {
+        StreamSourceEntity snapshot = sourceMapper.selectByPrimaryKey(request.getId());
+        SourceState curState = SourceState.forCode(snapshot.getStatus());
+        SourceState nextState = SourceState.SOURCE_ACTIVE;
+        if (!SourceState.isAllowedTransition(curState, nextState)) {
+            throw new RuntimeException(String.format("Source=%s is not allowed to restart", snapshot));
+        }
+        StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
+        curEntity.setModifyTime(new Date());
+        curEntity.setPreviousStatus(curState.getCode());
+        curEntity.setStatus(nextState.getCode());
+
+        sourceMapper.updateByPrimaryKeySelective(curEntity);
+    }
+
+    @Override
+    public void deleteOpt(SourceRequest request, String operator) {
+        StreamSourceEntity snapshot = sourceMapper.selectByPrimaryKey(request.getId());
+        SourceState curState = SourceState.forCode(snapshot.getStatus());
+        SourceState nextState = SourceState.SOURCE_DEL;
+        if (!SourceState.isAllowedTransition(curState, nextState)) {
+            throw new RuntimeException(String.format("Source=%s is not allowed to delete", snapshot));
+        }
+        StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
+        curEntity.setModifyTime(new Date());
+        curEntity.setPreviousStatus(curState.getCode());
+        curEntity.setStatus(nextState.getCode());
+        sourceMapper.updateByPrimaryKeySelective(curEntity);
     }
 }

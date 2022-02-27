@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.source.listener;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.springframework.stereotype.Component;
 
@@ -27,12 +26,12 @@ import org.springframework.stereotype.Component;
 public class SourceDeleteListener extends AbstractSourceOperateListener {
 
     @Override
-    public void updateSourceRequestStatus(SourceRequest sourceRequest) {
-        sourceRequest.setStatus(SourceState.SOURCE_DEL.getCode());
+    public String name() {
+        return getClass().getSimpleName();
     }
 
     @Override
-    public String name() {
-        return getClass().getSimpleName();
+    public void operateStreamSource(SourceRequest sourceRequest, String operator) {
+        streamSourceService.delete(sourceRequest.getId(), sourceRequest.getSourceType(), operator);
     }
 }

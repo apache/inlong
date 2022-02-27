@@ -46,10 +46,10 @@ import org.springframework.stereotype.Component;
 public abstract class AbstractSourceOperateListener implements DataSourceOperateListener {
 
     @Autowired
-    private InlongStreamService streamService;
+    protected InlongStreamService streamService;
 
     @Autowired
-    private StreamSourceService streamSourceService;
+    protected StreamSourceService streamSourceService;
 
     @Override
     public TaskEvent event() {
@@ -63,17 +63,16 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         final String groupId = groupRequest.getInlongGroupId();
         List<StreamBriefResponse> streamBriefResponses = streamService.getBriefList(groupId);
         streamBriefResponses.stream().forEach(streamBriefResponse -> {
-            operateStreamSource(groupId, streamBriefResponse.getInlongStreamId(), context.getApplicant());
+            operateStreamSources(groupId, streamBriefResponse.getInlongStreamId(), context.getApplicant());
         });
         return ListenerResult.success();
     }
 
-    protected void operateStreamSource(String groupId, String streamId, String operator) {
+    protected void operateStreamSources(String groupId, String streamId, String operator) {
         List<SourceResponse> sourceResponses = streamSourceService.listSource(groupId, streamId);
         sourceResponses.stream().forEach(sourceResponse -> {
             SourceRequest sourceRequest = createSourceRequest(sourceResponse);
-            updateSourceRequestStatus(sourceRequest);
-            streamSourceService.update(sourceRequest, operator);
+            operateStreamSource(sourceRequest, operator);
         });
     }
 
@@ -91,7 +90,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         }
     }
 
-    public abstract void updateSourceRequestStatus(SourceRequest sourceRequest);
+    public abstract void operateStreamSource(SourceRequest sourceRequest, String operator);
 
     private InlongGroupRequest getGroupRequest(ProcessForm processForm) {
         if (processForm instanceof GroupResourceProcessForm) {

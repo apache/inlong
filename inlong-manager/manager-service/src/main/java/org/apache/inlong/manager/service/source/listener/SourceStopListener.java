@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.source.listener;
 
-import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.springframework.stereotype.Component;
 
@@ -25,12 +24,12 @@ import org.springframework.stereotype.Component;
 public class SourceStopListener extends AbstractSourceOperateListener {
 
     @Override
-    public void updateSourceRequestStatus(SourceRequest sourceRequest) {
-        sourceRequest.setStatus(SourceState.SOURCE_FROZEN.getCode());
+    public String name() {
+        return getClass().getSimpleName();
     }
 
     @Override
-    public String name() {
-        return getClass().getSimpleName();
+    public void operateStreamSource(SourceRequest sourceRequest, String operator) {
+        streamSourceService.stop(sourceRequest.getId(), sourceRequest.getSourceType(), operator);
     }
 }
