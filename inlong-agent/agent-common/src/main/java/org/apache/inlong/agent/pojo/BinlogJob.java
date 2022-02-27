@@ -61,7 +61,6 @@ public class BinlogJob {
         private  String password;
         private  String hostname;
         private  String port;
-        private  String offsets;
         private  String schema;
 
         private  String databaseWhiteList;
