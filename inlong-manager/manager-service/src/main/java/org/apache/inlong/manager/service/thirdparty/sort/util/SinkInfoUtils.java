@@ -29,13 +29,18 @@ import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFileFormat;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HivePartitionInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveTimePartitionInfo;
+import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 
 public class SinkInfoUtils {
@@ -55,14 +60,35 @@ public class SinkInfoUtils {
     }
 
     public static SinkInfo createSinkInfo(SinkResponse sinkResponse) {
+        return createSinkInfo(null, null, sinkResponse);
+    }
+
+    public static SinkInfo createSinkInfo(SourceResponse sourceResponse, SinkResponse sinkResponse) {
+        return createSinkInfo(null, sourceResponse, sinkResponse);
+    }
+
+    public static SinkInfo createSinkInfo(InlongStreamInfo inlongStreamInfo, SourceResponse sourceResponse,
+            SinkResponse sinkResponse) {
         String sinkType = sinkResponse.getSinkType();
-        if (SinkType.getType(sinkType) == SinkType.HIVE) {
+        if (SinkType.forType(sinkType) == SinkType.HIVE) {
             return createHiveSinkInfo((HiveSinkResponse) sinkResponse);
+        } else if (SinkType.forType(sinkType) == SinkType.KAFKA) {
+            return createKafkaSinkInfo(inlongStreamInfo, sourceResponse, (KafkaSinkResponse) sinkResponse);
         } else {
             //todo clickhouse and iceberg is wait to support
             throw new RuntimeException(
                     String.format("SinkType:{} not support in CreateSortConfigListener", sinkType));
         }
+    }
+
+    private static KafkaSinkInfo createKafkaSinkInfo(InlongStreamInfo inlongStreamInfo, SourceResponse sourceResponse,
+            KafkaSinkResponse kafkaSinkResponse) {
+        List<FieldInfo> fieldInfoList = getSinkFields(kafkaSinkResponse.getFieldList(), null);
+        String addressUrl = kafkaSinkResponse.getAddress();
+        String topicName = kafkaSinkResponse.getTopicName();
+        SerializationInfo serializationInfo = SerializationUtils.createSerializationInfo(sourceResponse,
+                kafkaSinkResponse, inlongStreamInfo);
+        return new KafkaSinkInfo(fieldInfoList.toArray(new FieldInfo[0]), addressUrl, topicName, serializationInfo);
     }
 
     private static HiveSinkInfo createHiveSinkInfo(HiveSinkResponse hiveInfo) {

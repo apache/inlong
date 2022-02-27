@@ -107,7 +107,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.checkEmpty(sinkExist, ErrorCodeEnum.SINK_ALREADY_EXISTS.getMessage());
 
         // According to the sink type, save sink information
-        StreamSinkOperation operation = operationFactory.getInstance(SinkType.getType(sinkType));
+        StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
         int id = operation.saveOpt(request, operator);
 
         // If the inlong group status is [Configuration Successful], then asynchronously initiate
@@ -123,7 +123,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     public SinkResponse get(Integer id, String sinkType) {
         LOGGER.debug("begin to get sink by id={}, sinkType={}", id, sinkType);
-        StreamSinkOperation operation = operationFactory.getInstance(SinkType.getType(sinkType));
+        StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
         SinkResponse sinkResponse = operation.getById(sinkType, id);
         LOGGER.debug("success to get sink info");
         return sinkResponse;
@@ -178,7 +178,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Page<StreamSinkEntity> entityPage = (Page<StreamSinkEntity>) sinkMapper.selectByCondition(request);
 
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
-        StreamSinkOperation operation = operationFactory.getInstance(SinkType.getType(sinkType));
+        StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
         PageInfo<? extends SinkListResponse> pageInfo = operation.getPageInfo(entityPage);
         pageInfo.setTotal(entityPage.getTotal());
 
@@ -200,7 +200,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         String streamId = request.getInlongStreamId();
         String sinkType = request.getSinkType();
 
-        StreamSinkOperation operation = operationFactory.getInstance(SinkType.getType(sinkType));
+        StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
         operation.updateOpt(request, operator);
 
         // The inlong group status is [Configuration successful], then asynchronously initiate

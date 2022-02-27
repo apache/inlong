@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
-import org.apache.inlong.tubemq.server.broker.BrokerConfig;
 import org.apache.inlong.tubemq.server.broker.metadata.ClusterConfigHolder;
 import org.apache.inlong.tubemq.server.broker.msgstore.disk.MsgFileStore;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
@@ -75,9 +74,11 @@ public class MsgMemStore implements Closeable {
      *
      * @param maxCacheSize     the allowed max cache data size
      * @param maxMsgCount      the allowed max cache data size
-     * @param tubeConfig              the broker configure
+     * @param writeDataStartPos     the data start position
+     * @param writeIndexStartPos    the data start position
      */
-    public MsgMemStore(int maxCacheSize, int maxMsgCount, final BrokerConfig tubeConfig) {
+    public MsgMemStore(int maxCacheSize, int maxMsgCount,
+                       long writeDataStartPos, long writeIndexStartPos) {
         this.maxDataCacheSize = maxCacheSize;
         this.maxAllowedMsgCount = maxMsgCount;
         this.maxIndexCacheSize = this.maxAllowedMsgCount * DataStoreUtils.STORE_INDEX_HEAD_LEN;
@@ -85,18 +86,28 @@ public class MsgMemStore implements Closeable {
         this.cachedIndexSegment = ByteBuffer.allocateDirect(this.maxIndexCacheSize);
         this.leftAppendTime.set(System.currentTimeMillis());
         this.rightAppendTime.set(System.currentTimeMillis());
+        this.writeDataStartPos = writeDataStartPos;
+        this.writeIndexStartPos = writeIndexStartPos;
     }
 
     /**
-     * Reset the data start position and index start position of memory cache.
+     * Reset the memory store status values.
      *
      * @param writeDataStartPos     the data start position
      * @param writeIndexStartPos    the data start position
      */
-    public void resetStartPos(long writeDataStartPos, long writeIndexStartPos) {
-        this.clear();
+    public void resetMemStoreStatus(long writeDataStartPos, long writeIndexStartPos) {
+        this.keysMap.clear();
+        this.queuesMap.clear();
+        this.cacheDataOffset.set(0);
+        this.cacheIndexOffset.set(0);
+        this.curMessageCount.set(0);
+        this.cacheDataSegment.rewind();
+        this.cachedIndexSegment.rewind();
         this.writeDataStartPos = writeDataStartPos;
         this.writeIndexStartPos = writeIndexStartPos;
+        this.leftAppendTime.set(System.currentTimeMillis());
+        this.rightAppendTime.set(System.currentTimeMillis());
     }
 
     /**
@@ -145,7 +156,7 @@ public class MsgMemStore implements Closeable {
             indexSizePos = cacheIndexOffset.getAndAdd(DataStoreUtils.STORE_INDEX_HEAD_LEN);
             this.queuesMap.put(partitionId, indexSizePos);
             this.keysMap.put(keyCode, indexSizePos);
-            this.curMessageCount.getAndAdd(1);
+            this.curMessageCount.getAndIncrement();
             this.rightAppendTime.set(timeRecv);
             if (indexSizePos == 0) {
                 this.leftAppendTime.set(timeRecv);
@@ -318,7 +329,7 @@ public class MsgMemStore implements Closeable {
         tmpIndexBuffer.flip();
         tmpDataReadBuf.flip();
         long startTime = System.currentTimeMillis();
-        msgFileStore.batchAppendMsg(strBuffer, curMessageCount.get(),
+        msgFileStore.appendMsg(strBuffer, curMessageCount.get(),
             cacheIndexOffset.get(), tmpIndexBuffer, cacheDataOffset.get(),
                 tmpDataReadBuf, leftAppendTime.get(), rightAppendTime.get());
         BrokerSrvStatsHolder.updDiskSyncDataDlt(System.currentTimeMillis() - startTime);

@@ -82,7 +82,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Preconditions.checkEmpty(sourceExist, ErrorCodeEnum.SOURCE_ALREADY_EXISTS.getMessage());
 
         // According to the source type, save source information
-        StreamSourceOperation operation = operationFactory.getInstance(SourceType.getType(sourceType));
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
         int id = operation.saveOpt(request, operator);
 
         LOGGER.info("success to save source info");
@@ -92,7 +92,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     public SourceResponse get(Integer id, String sourceType) {
         LOGGER.debug("begin to get source by id={}, sourceType={}", id, sourceType);
-        StreamSourceOperation operation = operationFactory.getInstance(SourceType.getType(sourceType));
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
         SourceResponse sourceResponse = operation.getById(id);
         LOGGER.debug("success to get source info");
         return sourceResponse;
@@ -134,7 +134,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Page<StreamSourceEntity> entityPage = (Page<StreamSourceEntity>) sourceMapper.selectByCondition(request);
 
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
-        StreamSourceOperation operation = operationFactory.getInstance(SourceType.getType(sourceType));
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
         PageInfo<? extends SourceListResponse> pageInfo = operation.getPageInfo(entityPage);
         pageInfo.setTotal(entityPage.getTotal());
 
@@ -154,7 +154,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         commonOperateService.checkGroupStatus(groupId, operator);
 
         String sourceType = request.getSourceType();
-        StreamSourceOperation operation = operationFactory.getInstance(SourceType.getType(sourceType));
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
         operation.updateOpt(request, operator);
 
         LOGGER.info("success to update source info");

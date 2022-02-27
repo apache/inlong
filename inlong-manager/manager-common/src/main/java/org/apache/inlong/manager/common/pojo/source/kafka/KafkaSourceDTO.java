@@ -61,6 +61,9 @@ public class KafkaSourceDTO {
             notes = "For example, '0#100_1#10' means the offset of partition 0 is 100, the offset of partition 1 is 10")
     private String topicPartitionOffset;
 
+    @ApiModelProperty("Data Serialization, support: Json, Canal, Avro, etc")
+    private String serializationType;
+
     /**
      * Get the dto instance from the request
      */
@@ -72,6 +75,7 @@ public class KafkaSourceDTO {
                 .recordSpeedLimit(request.getRecordSpeedLimit())
                 .byteSpeedLimit(request.getByteSpeedLimit())
                 .topicPartitionOffset(request.getTopicPartitionOffset())
+                .serializationType(request.getSerializationType())
                 .build();
     }
 
