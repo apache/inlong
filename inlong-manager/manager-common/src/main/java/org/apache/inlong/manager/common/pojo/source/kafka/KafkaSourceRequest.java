@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
@@ -35,6 +36,10 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ApiModel(value = "Request of the kafka source info")
 @JsonTypeDefine(value = Constant.SOURCE_KAFKA)
 public class KafkaSourceRequest extends SourceRequest {
+
+    public KafkaSourceRequest() {
+        this.setSourceType(SourceType.KAFKA.toString());
+    }
 
     @ApiModelProperty("Kafka topic")
     private String topic;

@@ -43,6 +43,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-test</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.mvnsearch</groupId>
+            <artifactId>h2-functions-4-mysql</artifactId>
+            <version>${h2_mysql.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>

@@ -19,14 +19,13 @@ package org.apache.inlong.manager.service.thirdparty.sort;
 
 import com.google.common.collect.Lists;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
@@ -51,27 +50,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class DisableZkForSortTest extends WorkflowServiceImplTest {
 
-    public static final String DATA_ENCODING = "UTF-8";
 
     @Autowired
     protected InlongStreamService streamService;
 
     @Autowired
     protected StreamSinkService streamSinkService;
-
-    public InlongStreamInfo createStreamInfo(InlongGroupRequest inlongGroupRequest) {
-        InlongStreamInfo streamInfo = new InlongStreamInfo();
-        streamInfo.setInlongGroupId(inlongGroupRequest.getInlongGroupId());
-        streamInfo.setInlongStreamId(STREAM_ID);
-        streamInfo.setMqResourceObj(STREAM_ID);
-        streamInfo.setDataSeparator("124");
-        streamInfo.setDataEncoding(DATA_ENCODING);
-        streamInfo.setInCharges(OPERATOR);
-        streamInfo.setCreator(OPERATOR);
-        streamInfo.setFieldList(createStreamFields(inlongGroupRequest.getInlongGroupId(), STREAM_ID));
-        streamService.save(streamInfo, OPERATOR);
-        return streamInfo;
-    }
 
     public HiveSinkRequest createHiveSink(InlongStreamInfo streamInfo) {
         HiveSinkRequest hiveSinkRequest = new HiveSinkRequest();
@@ -105,19 +89,10 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         return hiveSinkRequest;
     }
 
-    public List<InlongStreamFieldInfo> createStreamFields(String inlongGroupId, String inlongStreamId) {
-        final List<InlongStreamFieldInfo> streamFieldInfos = new ArrayList<>();
-        InlongStreamFieldInfo fieldInfo = new InlongStreamFieldInfo();
-        fieldInfo.setFieldName("id");
-        fieldInfo.setFieldType("int");
-        fieldInfo.setFieldComment("idx");
-        streamFieldInfos.add(fieldInfo);
-        return streamFieldInfos;
-    }
-
     @Test
     public void testCreateSortConfigInCreateWorkflow() {
         InlongGroupRequest groupRequest = initGroupForm("PULSAR");
+        groupRequest.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
         groupRequest.setZookeeperEnabled(0);
         groupService.update(groupRequest, OPERATOR);
         InlongStreamInfo streamInfo = createStreamInfo(groupRequest);
@@ -144,6 +119,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
     public void testCreateSortConfigInUpdateWorkflow() {
         InlongGroupRequest groupRequest = initGroupForm("PULSAR");
         groupRequest.setZookeeperEnabled(0);
+        groupRequest.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
         groupService.update(groupRequest, OPERATOR);
         InlongStreamInfo streamInfo = createStreamInfo(groupRequest);
         createHiveSink(streamInfo);

@@ -18,6 +18,9 @@
 package org.apache.inlong.manager.service.thirdparty.sort;
 
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -41,10 +44,10 @@ import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
-import org.apache.inlong.manager.service.thirdparty.sort.utils.SerializationUtils;
-import org.apache.inlong.manager.service.thirdparty.sort.utils.SinkInfoUtils;
-import org.apache.inlong.manager.service.thirdparty.sort.utils.SortFieldFormatUtils;
-import org.apache.inlong.manager.service.thirdparty.sort.utils.SourceInfoUtils;
+import org.apache.inlong.manager.service.thirdparty.sort.util.SerializationUtils;
+import org.apache.inlong.manager.service.thirdparty.sort.util.SinkInfoUtils;
+import org.apache.inlong.manager.service.thirdparty.sort.util.SortFieldFormatUtils;
+import org.apache.inlong.manager.service.thirdparty.sort.util.SourceInfoUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
@@ -59,10 +62,6 @@ import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component

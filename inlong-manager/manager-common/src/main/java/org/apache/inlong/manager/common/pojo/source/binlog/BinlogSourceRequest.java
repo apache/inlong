@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
@@ -35,6 +36,10 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ApiModel(value = "Request of the binlog source info")
 @JsonTypeDefine(value = Constant.SOURCE_DB_BINLOG)
 public class BinlogSourceRequest extends SourceRequest {
+
+    public BinlogSourceRequest() {
+        this.setSourceType(SourceType.DB_BINLOG.toString());
+    }
 
     @ApiModelProperty("Username of the DB server")
     private String user;

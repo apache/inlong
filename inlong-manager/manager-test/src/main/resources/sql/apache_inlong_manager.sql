@@ -85,7 +85,7 @@ CREATE TABLE `inlong_group`
     `peak_records`        int(11)               DEFAULT '1000' COMMENT 'Access peak per second, unit: records per second',
     `max_length`          int(11)               DEFAULT '10240' COMMENT 'The maximum length of a single piece of data, unit: Byte',
     `schema_name`         varchar(128)          DEFAULT NULL COMMENT 'Data type, associated data_schema table',
-    `in_charges`          varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
+    `in_charges`          varchar(512) DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
     `followers`           varchar(512)          DEFAULT NULL COMMENT 'Name of followers, separated by commas',
     `status`              int(4)                DEFAULT '21' COMMENT 'Inlong group status',
     `is_deleted`          int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',

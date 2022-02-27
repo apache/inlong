@@ -82,4 +82,28 @@ public interface StreamSourceOperation {
      */
     void updateOpt(SourceRequest request, String operator);
 
+    /**
+     * Stop the source collecting.
+     *
+     * @param request Request of update.
+     * @param operator Operator's name.
+     */
+    void stopOpt(SourceRequest request, String operator);
+
+    /**
+     * Stop the source collecting.
+     *
+     * @param request Request of update.
+     * @param operator Operator's name.
+     */
+    void restartOpt(SourceRequest request, String operator);
+
+    /**
+     * Stop the source collecting.
+     *
+     * @param request Request of update.
+     * @param operator Operator's name.
+     */
+    void deleteOpt(SourceRequest request, String operator);
+
 }

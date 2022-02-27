@@ -20,17 +20,22 @@ package org.apache.inlong.manager.service.source;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
@@ -40,11 +45,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Implementation of source service interface
@@ -172,23 +172,51 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
-        entity.setPreviousStatus(entity.getStatus());
-        entity.setStatus(EntityStatus.DELETED.getCode());
-        entity.setIsDeleted(id);
-        entity.setModifier(operator);
-        entity.setModifyTime(new Date());
-        sourceMapper.updateByPrimaryKeySelective(entity);
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
+        SourceRequest sourceRequest = new SourceRequest();
+        CommonBeanUtils.copyProperties(entity, sourceRequest, true);
+        operation.deleteOpt(sourceRequest, operator);
 
-        LOGGER.info("success to delete source info");
+        LOGGER.info("success to delete source info:{}", entity);
         return true;
     }
 
     @Override
-    public void updateStatus(int id, int status, String log) {
-        StreamSourceEntity entity = new StreamSourceEntity();
-        entity.setId(id);
-        entity.setStatus(status);
-        sourceMapper.updateStatus(entity);
+    public boolean restart(Integer id, String sourceType, String operator) {
+        LOGGER.info("begin to restart source by id={}, sourceType={}", id, sourceType);
+        Preconditions.checkNotNull(id, Constant.ID_IS_EMPTY);
+        // Preconditions.checkNotNull(sourceType, Constant.SOURCE_TYPE_IS_EMPTY);
+
+        StreamSourceEntity entity = sourceMapper.selectByPrimaryKey(id);
+        Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
+        commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
+
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
+        SourceRequest sourceRequest = new SourceRequest();
+        CommonBeanUtils.copyProperties(entity, sourceRequest, true);
+        operation.restartOpt(sourceRequest, operator);
+
+        LOGGER.info("success to restart source info:{}", entity);
+        return true;
+    }
+
+    @Override
+    public boolean stop(Integer id, String sourceType, String operator) {
+        LOGGER.info("begin to stop source by id={}, sourceType={}", id, sourceType);
+        Preconditions.checkNotNull(id, Constant.ID_IS_EMPTY);
+        // Preconditions.checkNotNull(sourceType, Constant.SOURCE_TYPE_IS_EMPTY);
+
+        StreamSourceEntity entity = sourceMapper.selectByPrimaryKey(id);
+        Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
+        commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
+
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
+        SourceRequest sourceRequest = new SourceRequest();
+        CommonBeanUtils.copyProperties(entity, sourceRequest, true);
+        operation.stopOpt(sourceRequest, operator);
+
+        LOGGER.info("success to stop source info:{}", entity);
+        return true;
     }
 
     @Override
@@ -207,7 +235,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             entityList.forEach(entity -> {
                 Integer id = entity.getId();
                 entity.setPreviousStatus(entity.getStatus());
-                entity.setStatus(EntityStatus.DELETED.getCode());
+                entity.setStatus(SourceState.SOURCE_DEL.getCode());
                 entity.setIsDeleted(id);
                 entity.setModifier(operator);
                 entity.setModifyTime(now);

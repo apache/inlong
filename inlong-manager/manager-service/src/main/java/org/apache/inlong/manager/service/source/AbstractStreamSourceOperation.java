@@ -17,9 +17,12 @@
 
 package org.apache.inlong.manager.service.source;
 
+import java.util.Date;
+import javax.validation.constraints.NotNull;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -29,9 +32,6 @@ import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.validation.constraints.NotNull;
-import java.util.Date;
 
 public abstract class AbstractStreamSourceOperation implements StreamSourceOperation {
 
@@ -75,10 +75,9 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     public void updateOpt(SourceRequest request, String operator) {
         StreamSourceEntity entity = sourceMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
+        final SourceState curState = SourceState.forCode(entity.getStatus());
         // Setting updated parameters of stream source entity.
         setTargetEntity(request, entity);
-        entity.setPreviousStatus(entity.getStatus());
-        entity.setStatus(EntityStatus.GROUP_CONFIG_ING.getCode());
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
         sourceMapper.updateByPrimaryKeySelective(entity);
@@ -88,7 +87,7 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     @Override
     public Integer saveOpt(SourceRequest request, String operator) {
         StreamSourceEntity entity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        entity.setStatus(EntityStatus.SOURCE_NEW.getCode());
+        entity.setStatus(SourceState.SOURCE_ADD.getCode());
         entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
         entity.setCreator(operator);
         entity.setModifier(operator);
@@ -99,5 +98,51 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
         setTargetEntity(request, entity);
         sourceMapper.insert(entity);
         return entity.getId();
+    }
+
+    @Override
+    public void stopOpt(SourceRequest request, String operator) {
+        StreamSourceEntity snapshot = sourceMapper.selectByPrimaryKey(request.getId());
+        SourceState curState = SourceState.forCode(snapshot.getStatus());
+        SourceState nextState = SourceState.SOURCE_FROZEN;
+        if (!SourceState.isAllowedTransition(curState, nextState)) {
+            throw new RuntimeException(String.format("Source=%s is not allowed to stop", snapshot));
+        }
+        StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
+        curEntity.setModifyTime(new Date());
+        curEntity.setPreviousStatus(curState.getCode());
+        curEntity.setStatus(nextState.getCode());
+        sourceMapper.updateByPrimaryKeySelective(curEntity);
+    }
+
+    @Override
+    public void restartOpt(SourceRequest request, String operator) {
+        StreamSourceEntity snapshot = sourceMapper.selectByPrimaryKey(request.getId());
+        SourceState curState = SourceState.forCode(snapshot.getStatus());
+        SourceState nextState = SourceState.SOURCE_ACTIVE;
+        if (!SourceState.isAllowedTransition(curState, nextState)) {
+            throw new RuntimeException(String.format("Source=%s is not allowed to restart", snapshot));
+        }
+        StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
+        curEntity.setModifyTime(new Date());
+        curEntity.setPreviousStatus(curState.getCode());
+        curEntity.setStatus(nextState.getCode());
+
+        sourceMapper.updateByPrimaryKeySelective(curEntity);
+    }
+
+    @Override
+    public void deleteOpt(SourceRequest request, String operator) {
+        StreamSourceEntity snapshot = sourceMapper.selectByPrimaryKey(request.getId());
+        SourceState curState = SourceState.forCode(snapshot.getStatus());
+        SourceState nextState = SourceState.SOURCE_DEL;
+        if (!SourceState.isAllowedTransition(curState, nextState)) {
+            throw new RuntimeException(String.format("Source=%s is not allowed to delete", snapshot));
+        }
+        StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
+        curEntity.setModifyTime(new Date());
+        curEntity.setPreviousStatus(curState.getCode());
+        curEntity.setStatus(nextState.getCode());
+        sourceMapper.updateByPrimaryKeySelective(curEntity);
     }
 }

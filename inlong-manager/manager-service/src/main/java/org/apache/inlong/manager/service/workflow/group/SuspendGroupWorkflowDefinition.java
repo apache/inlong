@@ -68,7 +68,7 @@ public class SuspendGroupWorkflowDefinition implements WorkflowDefinition {
         //stop datasource
         ServiceTask stopDataSourceTask = new ServiceTask();
         stopDataSourceTask.setName("stopSource");
-        stopDataSourceTask.setDisplayName("Group-StopSink");
+        stopDataSourceTask.setDisplayName("Group-StopSource");
         stopDataSourceTask.addServiceTaskType(ServiceTaskType.STOP_SOURCE);
         stopDataSourceTask.addListenerProvider(serviceTaskListenerFactory);
         process.addTask(stopDataSourceTask);
