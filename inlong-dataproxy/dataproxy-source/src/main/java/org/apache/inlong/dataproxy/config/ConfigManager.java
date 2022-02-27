@@ -288,7 +288,7 @@ public class ConfigManager {
                 Map<String, String> groupIdToMValue = new HashMap<String, String>();
                 Map<String, String> mqConfig = new HashMap<>();// include url2token and other params
 
-                if (configJson.isSuccess()) { //success get config
+                if (configJson.isSuccess() && configJson.getData() != null) { //success get config
                     LOG.info("getConfig_v2 result: {}", returnStr);
                     /*
                      * get mqUrls <->token maps;
