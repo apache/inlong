@@ -408,8 +408,8 @@
         detail.id,
         detail.source_type,
         detail.snapshot,
-        detail.ext_params,
-        from stream_source detail,
+        detail.ext_params
+        from stream_source detail
         where detail.is_deleted = 0
         <if test="agentIp != null and agentIp != ''">
             and detail.agent_ip = #{agentIp, jdbcType=VARCHAR}

@@ -25,14 +25,15 @@ import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
+import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.thirdparty.mq.PulsarOptService;
 import org.apache.inlong.manager.service.thirdparty.mq.TubeMqOptService;
 import org.apache.inlong.manager.service.thirdparty.mq.util.PulsarUtils;
-import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -57,6 +58,8 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
     private PulsarOptService pulsarMqOptService;
     @Autowired
     private ClusterBean clusterBean;
+    @Autowired
+    private CommonOperateService commonOperateService;
     @Autowired
     private InlongGroupService groupService;
     @Autowired
@@ -116,7 +119,8 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         String mqResourceObj = groupInfo.getMqResourceObj();
         Preconditions.checkNotNull(mqResourceObj, "mq resource cannot empty for groupId=" + groupId);
 
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(groupInfo, clusterBean.getPulsarAdminUrl())) {
+        try (PulsarAdmin pulsarAdmin = PulsarUtils
+                .getPulsarAdmin(groupInfo, commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL))) {
             PulsarTopicBean topicMessage = new PulsarTopicBean();
             String tenant = clusterBean.getDefaultTenant();
             topicMessage.setTenant(tenant);

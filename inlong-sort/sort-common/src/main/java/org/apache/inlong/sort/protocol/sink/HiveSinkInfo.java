@@ -55,7 +55,7 @@ public class HiveSinkInfo extends SinkInfo {
 
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("hadoop_proxy_user")
-    private String hadoopProxyUser;
+    private final String hadoopProxyUser;
 
     @JsonProperty("data_path")
     private final String dataPath;
@@ -76,17 +76,21 @@ public class HiveSinkInfo extends SinkInfo {
             @JsonProperty("data_path") String dataPath,
             @JsonProperty("partitions") HivePartitionInfo[] partitions,
             @JsonProperty("file_format") HiveFileFormat hiveFileFormat) {
-        super(fields);
-        this.hiveServerJdbcUrl = checkNotNull(hiveServerJdbcUrl);
-        this.databaseName = checkNotNull(databaseName);
-        this.tableName = checkNotNull(tableName);
-        this.username = username;
-        this.password = password;
-        this.dataPath = checkNotNull(dataPath);
-        this.partitions = checkNotNull(partitions);
-        this.hiveFileFormat = checkNotNull(hiveFileFormat);
+        this(
+                fields,
+                hiveServerJdbcUrl,
+                databaseName,
+                tableName,
+                username,
+                password,
+                null,
+                dataPath,
+                partitions,
+                hiveFileFormat
+        );
     }
 
+    @JsonCreator
     public HiveSinkInfo(
             @JsonProperty("fields") FieldInfo[] fields,
             @JsonProperty("hive_server_jdbc_url") String hiveServerJdbcUrl,

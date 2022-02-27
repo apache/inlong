@@ -60,6 +60,8 @@ public class Constant {
 
     public static final String MIDDLEWARE_PULSAR = "PULSAR";
 
+    public static final String MIDDLEWARE_NONE = "NONE";
+
     public static final String SCHEMA_M0_DAY = "m0_day";
 
     public static final String CLUSTER_HIVE_TOPO = "HIVE_TOPO";
@@ -93,5 +95,15 @@ public class Constant {
     public static final Integer ENABLE_CREATE_RESOURCE = 1; // Enable create resource
 
     public static final Integer DISABLE_CREATE_RESOURCE = 0; // Disable create resource
+
+    public static final String CLUSTER_TUBE_MANAGER = "cluster_tube_manager";
+
+    public static final String CLUSTER_TUBE_CLUSTER_ID = "cluster_tube_clusterId";
+
+    public static final String PULSAR_ADMINURL = "pulsar_adminUrl";
+
+    public static final String PULSAR_SERVICEURL = "pulsar_serviceUrl";
+
+    public static final String TUBE_MASTER_URL = "tube_masterUrl";
 
 }

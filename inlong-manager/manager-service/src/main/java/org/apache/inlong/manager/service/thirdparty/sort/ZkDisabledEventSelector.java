@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.thirdparty.sort;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
@@ -36,11 +37,13 @@ public class ZkDisabledEventSelector implements EventSelector {
         if (processForm instanceof GroupResourceProcessForm) {
             GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
             InlongGroupRequest groupInfo = groupResourceForm.getGroupInfo();
-            return groupInfo.getZookeeperEnabled() == 0;
+            return groupInfo.getZookeeperEnabled() == 0
+                    && !groupInfo.getMiddlewareType().equals(Constant.MIDDLEWARE_NONE);
         } else if (processForm instanceof UpdateGroupProcessForm) {
             UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
             InlongGroupRequest groupInfo = updateGroupProcessForm.getGroupInfo();
-            return groupInfo.getZookeeperEnabled() == 0;
+            return groupInfo.getZookeeperEnabled() == 0
+                    && !groupInfo.getMiddlewareType().equals(Constant.MIDDLEWARE_NONE);
         } else {
             return false;
         }

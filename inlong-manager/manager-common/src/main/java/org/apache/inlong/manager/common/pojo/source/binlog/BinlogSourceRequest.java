@@ -36,47 +36,48 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = Constant.SOURCE_DB_BINLOG)
 public class BinlogSourceRequest extends SourceRequest {
 
-    @ApiModelProperty("Source database name")
-    private String dbName;
+    @ApiModelProperty("Username of the DB server")
+    private String user;
 
-    @ApiModelProperty("Source table name")
-    private String tableName;
+    @ApiModelProperty("Password of the DB server")
+    private String password;
 
-    @ApiModelProperty("Data charset")
-    private String charset;
+    @ApiModelProperty("Hostname of the DB server")
+    private String hostname;
 
-    @ApiModelProperty(value = "Table fields, separated by commas")
-    private String tableFields;
+    @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions, "
+            + "separate them with commas, for example: db1.tb1,db2.tb2",
+            notes = "DBs not in this list are excluded. By default, all DBs are monitored")
+    private String whitelist;
 
-    @ApiModelProperty(value = "Data separator, default is 0x01")
-    private String dataSeparator = "0x01";
+    @ApiModelProperty("Database time zone, Default is UTC")
+    private String timeZone;
 
-    @ApiModelProperty(value = "Middleware type, such as: TUBE, PULSAR")
-    private String middlewareType;
+    @ApiModelProperty("The file path to store history info")
+    private String storeHistoryFilename;
 
-    @ApiModelProperty(value = "Topic of Tube")
-    private String tubeTopic;
+    @ApiModelProperty("The interval for recording an offset")
+    private String intervalMs;
 
-    @ApiModelProperty(value = "Cluster address of Tube")
-    private String tubeCluster;
+    /**
+     * <code>initial</code>: Default mode, do a snapshot when no offset is found.
+     * <p/>
+     * <code>when_needed</code>: Similar to initial, do a snapshot when the binlog position
+     * has been purged on the DB server.
+     * <p/>
+     * <code>never</code>: Do not snapshot.
+     * <p/>
+     * <code>schema_only</code>: All tables' column name will be taken, but the table data will not be exported,
+     * and it will only be consumed from the end of the binlog at the task is started.
+     * So it is very suitable for not caring about historical data, but only about recent changes. the
+     * <p/>
+     * <code>schema_only_recovery</code>: When <code>schema_only</code> mode fails, use this mode to recover, which is
+     * generally not used.
+     */
+    @ApiModelProperty("Snapshot mode, supports: initial, when_needed, never, schema_only, schema_only_recovery")
+    private String snapshotMode;
 
-    @ApiModelProperty(value = "Namespace of Pulsar")
-    private String pulsarNamespace;
-
-    @ApiModelProperty(value = "Topic of Pulsar")
-    private String pulsarTopic;
-
-    @ApiModelProperty(value = "Cluster address of Pulsar")
-    private String pulsarCluster;
-
-    @ApiModelProperty(value = "Whether to skip delete events in binlog, default: 1, that is skip")
-    private Integer skipDelete;
-
-    @ApiModelProperty(value = "Collect starts from the specified binlog location, and it is modified after delivery."
-            + "If it is empty, an empty string is returned")
-    private String startPosition;
-
-    @ApiModelProperty(value = "When the field value is null, the replaced field defaults to 'null'")
-    private String nullFieldChar;
+    @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
+    private String timestampFormatStandard = "SQL";
 
 }

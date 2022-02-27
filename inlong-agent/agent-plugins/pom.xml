@@ -43,12 +43,28 @@
     <properties>
         <powermock.version>2.0.2</powermock.version>
         <mysql-connector-java.version>8.0.26</mysql-connector-java.version>
+        <version.debezium>1.8.1.Final</version.debezium>
     </properties>
 
     <dependencies>
         <dependency>
             <artifactId>guava</artifactId>
             <groupId>com.google.guava</groupId>
+        </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-api</artifactId>
+            <version>${version.debezium}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-embedded</artifactId>
+            <version>${version.debezium}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-connector-mysql</artifactId>
+            <version>${version.debezium}</version>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>

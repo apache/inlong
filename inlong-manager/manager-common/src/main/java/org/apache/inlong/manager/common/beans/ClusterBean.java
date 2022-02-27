@@ -25,15 +25,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClusterBean {
 
-    @Value("${cluster.tube.master}")
-    private String tubeMaster;
-
-    @Value("${cluster.tube.manager}")
-    private String tubeManager;
-
-    @Value("${cluster.tube.clusterId}")
-    private Integer clusterId;
-
     @Value("${cluster.zk.url}")
     private String zkUrl;
 
@@ -42,12 +33,6 @@ public class ClusterBean {
 
     @Value("${sort.appName}")
     private String appName;
-
-    @Value("${pulsar.adminUrl}")
-    private String pulsarAdminUrl;
-
-    @Value("${pulsar.serviceUrl}")
-    private String pulsarServiceUrl;
 
     @Value("${pulsar.defaultTenant}")
     private String defaultTenant;

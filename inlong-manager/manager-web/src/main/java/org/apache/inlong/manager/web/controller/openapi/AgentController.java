@@ -62,7 +62,7 @@ public class AgentController {
     @Autowired
     private ThirdPartyClusterService thirdPartyClusterService;
 
-    @GetMapping("/getInLongManagerIp")
+    @GetMapping("/getManagerIpList")
     @ApiOperation(value = "Get inlong manager ip list")
     public Response<List<String>> getInLongManagerIp() {
         return Response.success(thirdPartyClusterService.listClusterIpByType("inlong-openapi"));
