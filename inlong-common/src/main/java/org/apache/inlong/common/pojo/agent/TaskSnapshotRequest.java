@@ -23,6 +23,9 @@ import lombok.Data;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Request of the agent task snapshot
+ */
 @Data
 public class TaskSnapshotRequest {
 
@@ -32,18 +35,18 @@ public class TaskSnapshotRequest {
     private String agentIp;
 
     /**
-     * the mac UUID of agent
+     * The mac UUID of agent
      */
     private  String uuid;
 
     /**
-     * report Time
+     * Report Time
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date reportTime;
 
     /**
-     * the snapshot message List
+     * The snapshot message list
      */
     private List<TaskSnapshotMessage> snapshotList;
 

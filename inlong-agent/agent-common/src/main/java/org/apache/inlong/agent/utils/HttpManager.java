@@ -86,7 +86,7 @@ public class HttpManager {
         return null;
     }
 
-    public static String toJsonStr(Object obj) {
+    public static final String toJsonStr(Object obj) {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.setPrettyPrinting();
         Gson gson = gsonBuilder.create();
