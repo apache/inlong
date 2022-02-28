@@ -50,6 +50,6 @@ public interface InlongClient {
     /**
      * Create stream group by conf
      */
-    InlongGroup createGroup(InlongGroupConf groupConf) throws Exception;
+    InlongGroup forGroup(InlongGroupConf groupConf) throws Exception;
 
 }

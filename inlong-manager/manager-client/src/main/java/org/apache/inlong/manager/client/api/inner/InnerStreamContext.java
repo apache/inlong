@@ -21,6 +21,7 @@ import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
@@ -28,9 +29,9 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 @NoArgsConstructor
 public class InnerStreamContext {
 
-    //todo add SourceRequest
-
     private InlongStreamInfo streamInfo;
+
+    private SourceRequest sourceRequest;
 
     private SinkRequest sinkRequest;
 

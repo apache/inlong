@@ -35,10 +35,12 @@ import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
 import org.apache.inlong.manager.client.api.util.InlongParser;
+import org.apache.inlong.manager.client.api.util.InlongStreamSourceTransfer;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
@@ -153,9 +155,16 @@ public class InlongGroupImpl implements InlongGroup {
         List<InlongStream> streamList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(streamResponses)) {
             streamList = streamResponses.stream().map(fullStreamResponse -> {
+                List<SourceListResponse> sourceListResponses = managerClient.listSources(groupId,
+                        fullStreamResponse.getStreamInfo().getInlongStreamId());
                 String streamName = fullStreamResponse.getStreamInfo().getName();
                 InlongStream stream = groupContext.getStream(streamName);
-                return new InlongStreamImpl(fullStreamResponse, stream);
+                InlongStreamImpl inlongStream = new InlongStreamImpl(fullStreamResponse, stream);
+                if (CollectionUtils.isNotEmpty(sourceListResponses)) {
+                    inlongStream.setStreamSource(
+                            InlongStreamSourceTransfer.parseStreamSource(sourceListResponses.get(0)));
+                }
+                return inlongStream;
             }).collect(Collectors.toList());
         }
         return streamList;

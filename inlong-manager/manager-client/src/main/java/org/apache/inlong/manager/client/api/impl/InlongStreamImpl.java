@@ -17,9 +17,11 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import lombok.AllArgsConstructor;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.StreamField;
@@ -32,12 +34,9 @@ import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Data
 @EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor
+@NoArgsConstructor
 public class InlongStreamImpl extends InlongStream {
 
     private String name;

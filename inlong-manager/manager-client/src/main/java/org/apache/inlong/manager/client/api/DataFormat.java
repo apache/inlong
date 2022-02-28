@@ -15,31 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.enums;
+package org.apache.inlong.manager.client.api;
 
 import java.util.Locale;
 import lombok.Getter;
 
-public enum DataTypeEnum {
+public enum DataFormat {
     CSV("csv"),
     AVRO("avro"),
-    JSON("json"),
     CANAL("canal"),
-    DEBEZIUM_JSON("debezium_json");
+    NONE("none");
 
     @Getter
     private String name;
 
-    DataTypeEnum(String name) {
+    DataFormat(String name) {
         this.name = name;
     }
 
-    public static DataTypeEnum forName(String name) {
-        for (DataTypeEnum dataType : values()) {
-            if (dataType.getName().equals(name.toLowerCase(Locale.ROOT))) {
-                return dataType;
+    public static DataFormat forName(String name) {
+        for (DataFormat dataFormat : values()) {
+            if (dataFormat.getName().equals(name.toLowerCase(Locale.ROOT))) {
+                return dataFormat;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupport dataType for Inlong:%s", name));
+        throw new IllegalArgumentException(String.format("Unsupport dataformat=%s for Inlong", name));
     }
 }

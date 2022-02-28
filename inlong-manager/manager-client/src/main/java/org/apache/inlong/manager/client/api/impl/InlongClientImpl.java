@@ -65,7 +65,7 @@ public class InlongClientImpl implements InlongClient {
     }
 
     @Override
-    public InlongGroup createGroup(InlongGroupConf groupConf) throws Exception {
+    public InlongGroup forGroup(InlongGroupConf groupConf) throws Exception {
         return new InlongGroupImpl(groupConf, this);
     }
 

@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -71,7 +72,16 @@ public class InlongParser {
         return pageInfo;
     }
 
-    public static PageInfo<SinkListResponse> parseHiveSinkList(Response response) {
+    public static PageInfo<SourceListResponse> parseSourceList(Response response) {
+        Object data = response.getData();
+        String pageInfoJson = GsonUtil.toJson(data);
+        PageInfo<SourceListResponse> pageInfo = GsonUtil.fromJson(pageInfoJson,
+                new TypeToken<PageInfo<SourceListResponse>>() {
+                }.getType());
+        return pageInfo;
+    }
+
+    public static PageInfo<SinkListResponse> parseSinkList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);
         PageInfo<SinkListResponse> pageInfo = GsonUtil.fromJson(pageInfoJson,

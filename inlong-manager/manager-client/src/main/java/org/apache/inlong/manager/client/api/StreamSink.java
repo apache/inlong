@@ -26,11 +26,22 @@ import lombok.Data;
 public abstract class StreamSink {
 
     public enum SinkType {
-        HIVE, ES
+        HIVE, ES, KAFKA;
+
+        public static SinkType forType(String type) {
+            for (SinkType sinkType : values()) {
+                if (sinkType.name().equals(type)) {
+                    return sinkType;
+                }
+            }
+            throw new IllegalArgumentException(String.format("Illegal sink type=%s for Inlong", type));
+        }
     }
 
     public abstract SinkType getSinkType();
 
     public abstract List<StreamField> getStreamFields();
+
+    public abstract DataFormat getDataFormat();
 
 }
