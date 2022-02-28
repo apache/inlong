@@ -17,35 +17,35 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.List;
 
 public class TestKafkaReader {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TestKafkaReader.class);
 
     @Test
     public void testKafkaReader() {
         KafkaSource kafkaSource = new KafkaSource();
         JobProfile conf = JobProfile.parseJsonStr("{}");
-        conf.set("job.kafkajob.topic","test2");
-        conf.set("job.kafkajob.bootstrap.servers","127.0.0.1:9092");
-        conf.set("job.kafkajob.group.id","test_group1");
-        conf.set("job.kafkajob.recordspeed.limit","1");
-        conf.set("job.kafkajob.bytespeed.limit","1");
-        conf.set("job.kafkajob.partition.offset", "0#5");
-        conf.set("job.kafkajob.auto.offsetReset", "earliest");
+        conf.set("job.kafkaJob.topic", "test3");
+        conf.set("job.kafkaJob.bootstrap.servers", "10.91.78.118:9092");
+        conf.set("job.kafkaJob.group.id", "test_group1");
+        conf.set("job.kafkaJob.recordspeed.limit", "1");
+        conf.set("job.kafkaJob.bytespeed.limit", "1");
+        conf.set("job.kafkaJob.partition.offset", "0#0");
+        conf.set("job.kafkaJob.auto.offsetReset", "latest");
         conf.set("proxy.inlongGroupId", "");
         conf.set("proxy.inlongStreamId", "");
 
         try {
             List<Reader> readers = kafkaSource.split(conf);
-            System.out.println(readers.size());
-            LOGGER.info("total readers by split after:{}",readers.size());
+            LOGGER.info("total readers by split after:{}", readers.size());
             readers.forEach(reader -> {
                 reader.init(conf);
                 Runnable runnable = () -> {
@@ -57,10 +57,8 @@ public class TestKafkaReader {
                     }
                     LOGGER.info("reader is finished!");
                 };
-
-                Thread readerThread = new Thread(runnable);
-                //start thread
-                readerThread.start();
+                // start thread
+                new Thread(runnable).start();
             });
         } catch (Exception e) {
             LOGGER.error("get record failed:", e);

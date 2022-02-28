@@ -17,6 +17,24 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BYTE_SPEED_LIMIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_RECORD_SPEED_LIMIT;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
@@ -36,44 +54,25 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BYTE_SPEED_LIMIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_RECORD_SPEED_LIMIT;
 
 public class KafkaReader<K, V> implements Reader {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaReader.class);
 
-    KafkaConsumer<K, V> consumer;
-    private Iterator<ConsumerRecord<K, V>> iterator;
-    private List<Validator> validators = new ArrayList<>();
     public static final int NEVER_STOP_SIGN = -1;
-    private long timeout;
-    private long waitTimeout = 1000;
-    private long lastTime = 0;
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaReader.class);
     /* metric */
     private static final String KAFKA_READER_TAG_NAME = "AgentKafkaMetric";
-    private final PluginMetric kafkaMetric;
+    private static final String KAFKA_SOURCE_READ_RECORD_SPEED = "job.kafkaJob.record.speed.limit";
+    private static final String KAFKA_SOURCE_READ_BYTE_SPEED = "job.kafkaJob.byte.speed.limit";
+    private static final String KAFKA_SOURCE_READ_MIN_INTERVAL = "kafka.min.interval.limit";
+    private static final String JOB_KAFKAJOB_READ_TIMEOUT = "job.kafkaJob.read.timeout";
     /* total readRecords */
     private static AtomicLong currentTotalReadRecords = new AtomicLong(0);
-
     private static AtomicLong lastTotalReadRecords = new AtomicLong(0);
     /* total readBytes */
     private static AtomicLong currentTotalReadBytes = new AtomicLong(0);
     private static AtomicLong lastTotalReadBytes = new AtomicLong(0);
+    private final PluginMetric kafkaMetric;
+    KafkaConsumer<K, V> consumer;
     long lastTimestamp;
     /* bps: records/s */
     long recordSpeed;
@@ -81,20 +80,22 @@ public class KafkaReader<K, V> implements Reader {
     long byteSpeed;
     /* sleepTime */
     long flowControlInterval;
+    private Iterator<ConsumerRecord<K, V>> iterator;
+    private List<Validator> validators = new ArrayList<>();
+    private long timeout;
+    private long waitTimeout = 1000;
+    private long lastTime = 0;
     private String inlongGroupId;
     private String inlongStreamId;
     private String snapshot;
-    private static final String KAFKA_SOURCE_READ_RECORD_SPEED = "job.kafkajob.record.speed.limit";
-    private static final String KAFKA_SOURCE_READ_BYTE_SPEED = "job.kafkajob.byte.speed.limit";
-    private static final String KAFKA_SOURCE_READ_MIN_INTERVAL = "kafka.min.interval.limit";
-    private static final String JOB_KAFKAJOB_READ_TIMEOUT = "job.kafkajob.read.timeout";
 
     /**
      * init attribute
+     *
      * @param consumer
      * @param paraMap
      */
-    public KafkaReader(KafkaConsumer<K, V> consumer,Map<String,String> paraMap) {
+    public KafkaReader(KafkaConsumer<K, V> consumer, Map<String, String> paraMap) {
         this.consumer = consumer;
         // metrics total readRecords
         if (ConfigUtil.isPrometheusEnabled()) {
@@ -105,9 +106,9 @@ public class KafkaReader<K, V> implements Reader {
                     KAFKA_READER_TAG_NAME, currentTotalReadRecords.incrementAndGet()));
         }
 
-        this.recordSpeed = Long.valueOf(paraMap.getOrDefault(JOB_KAFKA_RECORD_SPEED_LIMIT,"10000"));
-        this.byteSpeed = Long.valueOf(paraMap.getOrDefault(JOB_KAFKA_BYTE_SPEED_LIMIT,String.valueOf(1024 * 1024)));
-        this.flowControlInterval = Long.valueOf(paraMap.getOrDefault(KAFKA_SOURCE_READ_MIN_INTERVAL,"1000"));
+        this.recordSpeed = Long.valueOf(paraMap.getOrDefault(JOB_KAFKA_RECORD_SPEED_LIMIT, "10000"));
+        this.byteSpeed = Long.valueOf(paraMap.getOrDefault(JOB_KAFKA_BYTE_SPEED_LIMIT, String.valueOf(1024 * 1024)));
+        this.flowControlInterval = Long.valueOf(paraMap.getOrDefault(KAFKA_SOURCE_READ_MIN_INTERVAL, "1000"));
         this.lastTimestamp = System.currentTimeMillis();
 
         LOGGER.info("KAFKA_SOURCE_READ_RECORD_SPEED = {}", this.recordSpeed);
@@ -125,7 +126,7 @@ public class KafkaReader<K, V> implements Reader {
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
                 // header
-                Map<String,String> headerMap = new HashMap<>();
+                Map<String, String> headerMap = new HashMap<>();
                 headerMap.put("record.offset", String.valueOf(record.offset()));
                 headerMap.put("record.key", String.valueOf(record.key()));
                 // control speed
@@ -196,7 +197,7 @@ public class KafkaReader<K, V> implements Reader {
     @Override
     public void init(JobProfile jobConf) {
         // get offset from jobConf
-        snapshot = jobConf.get(JOB_KAFKA_OFFSET);
+        snapshot = jobConf.get(JOB_KAFKA_OFFSET, null);
         initReadTimeout(jobConf);
         // fetch data
         fetchData(5000);
@@ -251,8 +252,8 @@ public class KafkaReader<K, V> implements Reader {
         if (!isChannelByteSpeedLimit && !isChannelRecordSpeedLimit) {
             return;
         }
-        currentTotalReadRecords.accumulateAndGet(recordSize, (x,y) -> x + y);
-        currentTotalReadBytes.accumulateAndGet(byteSize, (x,y) -> x + y);
+        currentTotalReadRecords.accumulateAndGet(recordSize, (x, y) -> x + y);
+        currentTotalReadBytes.accumulateAndGet(byteSize, (x, y) -> x + y);
 
         long nowTimestamp = System.currentTimeMillis();
         long interval = nowTimestamp - lastTimestamp;

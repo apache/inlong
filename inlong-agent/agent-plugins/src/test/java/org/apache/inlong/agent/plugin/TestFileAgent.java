@@ -61,7 +61,7 @@ public class TestFileAgent {
     @BeforeClass
     public static void setup() throws Exception {
         helper = new AgentBaseTestsHelper(
-            TestFileAgent.class.getName()).setupAgentHome();
+                TestFileAgent.class.getName()).setupAgentHome();
         agent = new MiniAgent();
         agent.start();
         testRootDir = helper.getTestRootDir();
@@ -104,22 +104,16 @@ public class TestFileAgent {
     }
 
     private void createJobProfile(long readWaitTimeMilliseconds) throws IOException {
-        InputStream stream = null;
-        try {
-            stream = LOADER.getResourceAsStream("fileAgentJob.json");
+        try (InputStream stream = LOADER.getResourceAsStream("fileAgentJob.json")) {
             if (stream != null) {
                 String jobJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
                 JobProfile profile = JobProfile.parseJsonStr(jobJson);
                 profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testRootDir.toString(),
-                    "hugeFile.[0-9].txt").toString());
+                        "hugeFile.[0-9].txt").toString());
                 profile.set(JOB_READ_WAIT_TIMEOUT, String.valueOf(readWaitTimeMilliseconds));
                 profile.set(PROXY_INLONG_GROUP_ID, "groupid");
                 profile.set(PROXY_INLONG_STREAM_ID, "streamid");
                 agent.submitJob(profile);
-            }
-        } finally {
-            if (stream != null) {
-                stream.close();
             }
         }
     }
@@ -130,7 +124,7 @@ public class TestFileAgent {
         TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(jsonString);
         triggerProfile.set(JOB_DIR_FILTER_PATTERN, helper.getParentPath() + triggerProfile.get(JOB_DIR_FILTER_PATTERN));
         triggerProfile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testRootDir.toString(),
-            "test[0-9].dat").toString());
+                "test[0-9].dat").toString());
         triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");
         TriggerManager triggerManager = agent.getManager().getTriggerManager();
         triggerManager.addTrigger(triggerProfile);
@@ -145,9 +139,9 @@ public class TestFileAgent {
         AtomicBoolean result = new AtomicBoolean(false);
         if (jobs.size() == 1) {
             jobs.forEach(
-                (s, jobWrapper) -> result.set(jobWrapper.getJob().getJobConf()
-                    .get(JOB_DIR_FILTER_PATTERN).equals(testRootDir
-                        + FileSystems.getDefault().getSeparator() + "test1.dat"))
+                    (s, jobWrapper) -> result.set(jobWrapper.getJob().getJobConf()
+                            .get(JOB_DIR_FILTER_PATTERN).equals(testRootDir
+                                    + FileSystems.getDefault().getSeparator() + "test1.dat"))
             );
         }
         return result.get();
@@ -157,9 +151,8 @@ public class TestFileAgent {
     public void testCycleUnit() throws Exception {
 
         String nowDate = AgentUtils.formatCurrentTimeWithoutOffset("yyyyMMdd");
-        InputStream stream = null;
-        try {
-            stream = LOADER.getResourceAsStream("fileAgentJob.json");
+
+        try (InputStream stream = LOADER.getResourceAsStream("fileAgentJob.json")) {
             if (stream != null) {
                 String jobJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
                 JobProfile profile = JobProfile.parseJsonStr(jobJson);
@@ -167,10 +160,6 @@ public class TestFileAgent {
                         "YYYYMMDD").toString());
                 profile.set(JOB_CYCLE_UNIT, "D");
                 agent.submitTriggerJob(profile);
-            }
-        } finally {
-            if (null != stream) {
-                stream.close();
             }
         }
         createFiles(nowDate);
@@ -181,24 +170,17 @@ public class TestFileAgent {
     public void testGroupIdFilter() throws Exception {
 
         String nowDate = AgentUtils.formatCurrentTimeWithoutOffset("yyyyMMdd");
-        InputStream stream = null;
-        try {
-            stream = LOADER.getResourceAsStream("fileAgentJob.json");
 
+        try (InputStream stream = LOADER.getResourceAsStream("fileAgentJob.json")) {
             if (stream != null) {
                 String jobJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
                 JobProfile profile = JobProfile.parseJsonStr(jobJson);
                 profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testRootDir.toString(),
-                    "YYYYMMDD").toString());
-                System.out.println(Paths.get(testRootDir.toString(), "YYYYMMDD").toString());
+                        "YYYYMMDD").toString());
                 profile.set(JOB_CYCLE_UNIT, "D");
                 profile.set(AGENT_MESSAGE_FILTER_CLASSNAME,
-                    "org.apache.inlong.agent.plugin.filter.DefaultMessageFilter");
+                        "org.apache.inlong.agent.plugin.filter.DefaultMessageFilter");
                 agent.submitTriggerJob(profile);
-            }
-        } finally {
-            if (null != stream) {
-                stream.close();
             }
         }
         createFiles(nowDate);
@@ -213,7 +195,7 @@ public class TestFileAgent {
                 String jobJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
                 JobProfile profile = JobProfile.parseJsonStr(jobJson);
                 profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testRootDir.toString(),
-                    "YYYYMMDD").toString());
+                        "YYYYMMDD").toString());
                 profile.set(JOB_FILE_TIME_OFFSET, "-1d");
                 profile.set(JOB_CYCLE_UNIT, "D");
                 agent.submitTriggerJob(profile);
@@ -226,11 +208,11 @@ public class TestFileAgent {
     private void assertJobSuccess() {
         await().atMost(5, TimeUnit.MINUTES).until(() -> {
             JobProfile jobConf = agent.getManager().getJobManager()
-                .getJobConfDb().getJob(StateSearchKey.SUCCESS);
+                    .getJobConfDb().getJob(StateSearchKey.SUCCESS);
             return jobConf != null;
         });
         JobProfile jobConf = agent.getManager().getJobManager()
-            .getJobConfDb().getJob(StateSearchKey.SUCCESS);
+                .getJobConfDb().getJob(StateSearchKey.SUCCESS);
         Assert.assertEquals(1, jobConf.getInt("job.id"));
     }
 
