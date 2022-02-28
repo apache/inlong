@@ -259,28 +259,15 @@
             enableUpdateByPrimaryKey="true"
             enableDeleteByPrimaryKey="true" enableInsert="true"
             enableCountByExample="false" enableDeleteByExample="false"
-            enableSelectByExample="false" enableUpdateByExample="false"/>-->
+            enableSelectByExample="false" enableUpdateByExample="false"/>
 
         <table tableName="sort_source_config" domainObjectName="SortSourceConfigEntity"
                enableSelectByPrimaryKey="true"
                enableUpdateByPrimaryKey="true"
                enableDeleteByPrimaryKey="true" enableInsert="true"
                enableCountByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" enableUpdateByExample="false"/>
-        
-        <table tableName="sort_source_cache_zone_param" domainObjectName="SortSourceCacheZoneParamEntity"
-               enableSelectByPrimaryKey="true"
-               enableUpdateByPrimaryKey="true"
-               enableDeleteByPrimaryKey="true" enableInsert="true"
-               enableCountByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" enableUpdateByExample="false"/>
+               enableSelectByExample="false" enableUpdateByExample="false"/>-->
 
-        <table tableName="sort_source_topic_param" domainObjectName="SortSourceTopicParamEntity"
-               enableSelectByPrimaryKey="true"
-               enableUpdateByPrimaryKey="true"
-               enableDeleteByPrimaryKey="true" enableInsert="true"
-               enableCountByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" enableUpdateByExample="false"/>
 
     </context>
 </generatorConfiguration>

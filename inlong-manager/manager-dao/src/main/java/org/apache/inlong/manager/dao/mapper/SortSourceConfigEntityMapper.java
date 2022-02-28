@@ -17,8 +17,11 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.SortSourceConfigEntity;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface SortSourceConfigEntityMapper {
@@ -33,4 +36,8 @@ public interface SortSourceConfigEntityMapper {
     int updateByPrimaryKeySelective(SortSourceConfigEntity record);
 
     int updateByPrimaryKey(SortSourceConfigEntity record);
+
+    List<SortSourceConfigEntity> selectByClusterAndTask(
+            @Param("clusterName") String clusterName,
+            @Param("taskName") String taskName);
 }

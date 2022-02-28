@@ -1133,41 +1133,13 @@ CREATE TABLE `sort_source_config`
     `cluster_name`  varchar(128)  NOT NULL COMMENT 'Cluster name',
     `task_name`     varchar(128)  NOT NULL COMMENT 'Task name',
     `zone_name`     varchar(128)  NOT NULL COMMENT 'Cache zone name',
-    PRIMARY KEY (`id`),
-    KEY `index_sort_source_config` (`cluster_name`, `task_name`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Sort source config table';
-
--- ----------------------------
--- Table structure for sort_source_cache_zone_param
--- ----------------------------
-DROP TABLE IF EXISTS `sort_source_cache_zone_param`;
-CREATE TABLE `sort_source_cache_zone_param`
-(
-    `id`            int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `zone_name`     varchar(128)  NOT NULL COMMENT 'Cache zone name',
-    `param_key`     varchar(128)  NOT NULL COMMENT 'Key of param',
-    `param_value`   varchar(1024) NOT NULL COMMENT 'Value of param',
-    PRIMARY KEY (`id`),
-    KEY `index_sort_source_cache_zone_param` (`zone_name`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Sort source cache zone params table';
-
--- ----------------------------
--- Table structure for sort_source_topic_param
--- ----------------------------
-DROP TABLE IF EXISTS `sort_source_topic_param`;
-CREATE TABLE `sort_source_topic_param`
-(
-    `id`            int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `zone_name`     varchar(128)  NOT NULL COMMENT 'Cache zone name',
     `topic`         varchar(128)  NOT NULL COMMENT 'Topic',
     `param_key`     varchar(128)  NOT NULL COMMENT 'Key of param',
     `param_value`   varchar(1024) NOT NULL COMMENT 'Value of param',
     PRIMARY KEY (`id`),
-    KEY `index_sort_source_topic_param` (`zone_name`, `topic`)
+    KEY `index_sort_source_config` (`cluster_name`, `task_name`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Sort source topic params table';
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Sort source config table';
 
 -- ----------------------------
 -- Table structure for config log report
