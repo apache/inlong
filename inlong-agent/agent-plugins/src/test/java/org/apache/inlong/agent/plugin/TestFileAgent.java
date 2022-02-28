@@ -49,9 +49,11 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestFileAgent {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestFileAgent.class);
     private static final ClassLoader LOADER = TestFileAgent.class.getClassLoader();
     private static final String RECORD = "This is the test line for huge file\n";
     private static Path testRootDir;
@@ -60,11 +62,16 @@ public class TestFileAgent {
 
     @BeforeClass
     public static void setup() throws Exception {
-        helper = new AgentBaseTestsHelper(
+        try{helper = new AgentBaseTestsHelper(
                 TestFileAgent.class.getName()).setupAgentHome();
-        agent = new MiniAgent();
-        agent.start();
-        testRootDir = helper.getTestRootDir();
+            agent = new MiniAgent();
+            agent.start();
+            testRootDir = helper.getTestRootDir();
+        }catch(Exception e){
+            LOGGER.error("setup failure");
+
+        }
+
     }
 
     @AfterClass
