@@ -33,7 +33,7 @@ public class TestKafkaReader {
         KafkaSource kafkaSource = new KafkaSource();
         JobProfile conf = JobProfile.parseJsonStr("{}");
         conf.set("job.kafkajob.topic","test2");
-        conf.set("job.kafkajob.bootstrap.servers","192.168.0.103:9092");
+        conf.set("job.kafkajob.bootstrap.servers","120.0.0.1:9092");
         conf.set("job.kafkajob.group.id","test_group1");
         conf.set("job.kafkajob.recordspeed.limit","1");
         conf.set("job.kafkajob.bytespeed.limit","1");
@@ -42,23 +42,28 @@ public class TestKafkaReader {
         conf.set("proxy.inlongGroupId", "");
         conf.set("proxy.inlongStreamId", "");
 
-        List<Reader> readers = kafkaSource.split(conf);
-        LOGGER.info("total readers by split after:{}",readers.size());
-
-        readers.forEach(reader -> {
-            reader.init(conf);
-            Runnable runnable = () -> {
-                while (!reader.isFinished()) {
-                    Message msg = reader.read();
-                    if (msg != null) {
-                        LOGGER.info(new String(msg.getBody()));
+        try {
+            List<Reader> readers = kafkaSource.split(conf);
+            System.out.println(readers.size());
+            LOGGER.info("total readers by split after:{}",readers.size());
+            readers.forEach(reader -> {
+                reader.init(conf);
+                Runnable runnable = () -> {
+                    while (!reader.isFinished()) {
+                        Message msg = reader.read();
+                        if (msg != null) {
+                            LOGGER.info(new String(msg.getBody()));
+                        }
                     }
-                }
-                LOGGER.info("reader is finished!");                };
+                    LOGGER.info("reader is finished!");
+                };
 
-            Thread readerThread = new Thread(runnable);
-            //start thread
-            readerThread.start();
-        });
+                Thread readerThread = new Thread(runnable);
+                //start thread
+                readerThread.start();
+            });
+        } catch (Exception e) {
+            LOGGER.error("get record failed:", e);
+        }
     }
 }
