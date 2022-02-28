@@ -89,7 +89,13 @@ public class Bucket<IN, BucketID> {
         this.fsWriter = checkNotNull(fsWriter);
         this.subtaskIndex = subtaskIndex;
         this.bucketId = checkNotNull(bucketId);
-        this.bucketPath = checkNotNull(bucketPath);
+
+        String bucketPathStr = checkNotNull(bucketPath).toString();;
+        if (!bucketPathStr.endsWith("/")) {
+            bucketPathStr += "/";
+        }
+        this.bucketPath = new Path(bucketPathStr);
+
         this.partCounter = initialPartCounter;
         this.partFileFactory = checkNotNull(partFileFactory);
         this.rollingPolicy = checkNotNull(rollingPolicy);

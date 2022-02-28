@@ -249,7 +249,7 @@ public class HiveSinkInfo extends SinkInfo {
                 @JsonProperty("splitter") Character splitter,
                 @JsonProperty("compression_type") CompressionType compressionType) {
             this.splitter = splitter;
-            this.compressionType = compressionType;
+            this.compressionType = compressionType == null ? CompressionType.NONE : compressionType;
         }
 
         public TextFileFormat(@JsonProperty("splitter") Character splitter) {
