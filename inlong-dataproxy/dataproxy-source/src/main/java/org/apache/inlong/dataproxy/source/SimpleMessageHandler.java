@@ -283,7 +283,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                     }
 
                     attrMap.put(AttributeConstants.GROUP_ID, groupId);
-                    attrMap.put(AttributeConstants.INTERFACE_ID, streamId);
+                    attrMap.put(AttributeConstants.STREAM_ID, streamId);
                     message.setGroupId(groupId);
                     message.setStreamId(streamId);
 
@@ -409,7 +409,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                 headers.put(AttributeConstants.DATA_TIME, String.valueOf(dtTime));
 
                 headers.put(ConfigConstants.TOPIC_KEY, topicEntry.getKey());
-                headers.put(AttributeConstants.INTERFACE_ID, streamIdEntry.getKey());
+                headers.put(AttributeConstants.STREAM_ID, streamIdEntry.getKey());
                 headers.put(ConfigConstants.REMOTE_IP_KEY, strRemoteIP);
                 headers.put(ConfigConstants.REMOTE_IDC_KEY, DEFAULT_REMOTE_IDC_VALUE);
                 // every message share the same msg cnt? what if msgType = 5

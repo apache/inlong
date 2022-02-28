@@ -19,7 +19,7 @@ package org.apache.inlong.dataproxy.http;
 
 import static org.apache.inlong.dataproxy.consts.AttributeConstants.GROUP_ID;
 import static org.apache.inlong.dataproxy.consts.AttributeConstants.DATA_TIME;
-import static org.apache.inlong.dataproxy.consts.AttributeConstants.INTERFACE_ID;
+import static org.apache.inlong.dataproxy.consts.AttributeConstants.STREAM_ID;
 import static org.apache.inlong.dataproxy.http.HttpSourceConstants.BODY;
 import static org.apache.inlong.dataproxy.http.HttpSourceConstants.HTTP_REQUEST;
 import static org.apache.inlong.dataproxy.http.HttpSourceConstants.HTTP_RESPONSE;
@@ -61,7 +61,7 @@ public class MessageProcessServlet
             Context context = new MappedContext();
 
             context.put(GROUP_ID, req.getParameter(GROUP_ID));
-            context.put(INTERFACE_ID, req.getParameter(INTERFACE_ID));
+            context.put(STREAM_ID, req.getParameter(STREAM_ID));
             context.put(DATA_TIME, req.getParameter(DATA_TIME));
             context.put(BODY, req.getParameter(BODY));
 

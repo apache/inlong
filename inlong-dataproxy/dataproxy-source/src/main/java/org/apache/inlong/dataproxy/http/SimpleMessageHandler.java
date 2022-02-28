@@ -104,7 +104,7 @@ public class SimpleMessageHandler
         StringBuffer newAttrBuffer = new StringBuffer(attr);
 
         String groupId = (String) context.get(HttpSourceConstants.GROUP_ID);
-        String streamId = (String) context.get(HttpSourceConstants.INTERFACE_ID);
+        String streamId = (String) context.get(HttpSourceConstants.STREAM_ID);
         String dt = (String) context.get(HttpSourceConstants.DATA_TIME);
 
         String value = getTopic(groupId, streamId);
@@ -143,7 +143,7 @@ public class SimpleMessageHandler
         Map<String, String> headers = new HashMap<String, String>();
         headers.put(HttpSourceConstants.DATA_TIME, dt);
         headers.put(ConfigConstants.TOPIC_KEY, topicValue);
-        headers.put(AttributeConstants.INTERFACE_ID, streamId);
+        headers.put(AttributeConstants.STREAM_ID, streamId);
         headers.put(ConfigConstants.REMOTE_IP_KEY, strRemoteIP);
         headers.put(ConfigConstants.REMOTE_IDC_KEY, DEFAULT_REMOTE_IDC_VALUE);
         headers.put(ConfigConstants.MSG_COUNTER_KEY, msgCount);

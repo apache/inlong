@@ -310,8 +310,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
             if (commonAttrMap.containsKey(AttributeConstants.GROUP_ID)) {
                 groupId = commonAttrMap.get(AttributeConstants.GROUP_ID);
             }
-            if (commonAttrMap.containsKey(AttributeConstants.INTERFACE_ID)) {
-                streamId = commonAttrMap.get(AttributeConstants.INTERFACE_ID);
+            if (commonAttrMap.containsKey(AttributeConstants.STREAM_ID)) {
+                streamId = commonAttrMap.get(AttributeConstants.STREAM_ID);
             }
 
             if ((groupId != null) && (streamId != null)) {
@@ -417,7 +417,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
         // fill up attr map with some keys.
         commonAttrMap.put(AttributeConstants.RCV_TIME, String.valueOf(System.currentTimeMillis()));
         String groupId = commonAttrMap.get(AttributeConstants.GROUP_ID);
-        String streamId = commonAttrMap.get(AttributeConstants.INTERFACE_ID);
+        String streamId = commonAttrMap.get(AttributeConstants.STREAM_ID);
 
         // add message count attr
         String cntStr = commonAttrMap.get(AttributeConstants.MESSAGE_COUNT);

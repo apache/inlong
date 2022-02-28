@@ -137,5 +137,4 @@ public class CommonConstants {
     public static final String AGENT_NIX_OS = "nix";
     public static final String AGENT_NUX_OS = "nux";
     public static final String AGENT_COLON = ":";
-
 }

@@ -160,8 +160,8 @@ public class PulsarClientService {
         Map<String, String> proMap = new HashMap<>();
         proMap.put("data_proxy_ip", localIp);
         String streamId = "";
-        if (event.getHeaders().containsKey(AttributeConstants.INTERFACE_ID)) {
-            streamId = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
+        if (event.getHeaders().containsKey(AttributeConstants.STREAM_ID)) {
+            streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
         } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
             streamId = event.getHeaders().get(AttributeConstants.INAME);
         }
