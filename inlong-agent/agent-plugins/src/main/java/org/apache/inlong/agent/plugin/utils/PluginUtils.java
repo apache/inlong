@@ -26,8 +26,6 @@ import static org.apache.inlong.agent.constant.CommonConstants.FILE_MAX_NUM;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_RETRY_TIME;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -69,13 +67,6 @@ public class PluginUtils {
             default:
                 return CompressionType.NONE;
         }
-    }
-
-    public static String toJsonStr(Object obj) {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.setPrettyPrinting();
-        Gson gson = gsonBuilder.create();
-        return gson.toJson(obj);
     }
 
     public static Collection<File> findSuitFiles(JobProfile jobConf) {

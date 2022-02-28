@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.utils;
+package org.apache.inlong.agent.utils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

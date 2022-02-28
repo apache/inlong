@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.utils;
+package org.apache.inlong.agent.utils;
 
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_APPLICATION_JSON;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_SUCCESS_CODE;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REQUEST_TIMEOUT;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT;
-import static org.apache.inlong.agent.plugin.utils.PluginUtils.toJsonStr;
 
 import java.util.concurrent.TimeUnit;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -82,6 +84,13 @@ public class HttpManager {
             return null;
         }
         return null;
+    }
+
+    public static String toJsonStr(Object obj) {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.setPrettyPrinting();
+        Gson gson = gsonBuilder.create();
+        return gson.toJson(obj);
     }
 
     public String doSendGet(String url) {

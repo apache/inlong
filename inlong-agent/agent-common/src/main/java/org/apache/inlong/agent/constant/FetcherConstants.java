@@ -30,6 +30,8 @@ public class FetcherConstants {
     public static final String AGENT_MANAGER_VIP_HTTP_HOST = "agent.manager.vip.http.host";
     public static final String AGENT_MANAGER_VIP_HTTP_PORT = "agent.manager.vip.http.port";
 
+    public static final String AGENT_SCHEDULED_SNAPSHOTREPORT = "agent.scheduled.snapshotreport";
+
     public static final String AGENT_MANAGER_VIP_HTTP_PATH = "agent.manager.vip.http.managerIp.path";
     public static final String DEFAULT_AGENT_TDM_VIP_HTTP_PATH = "/agent/getInLongManagerIp";
 
@@ -44,6 +46,9 @@ public class FetcherConstants {
 
     public static final String AGENT_MANAGER_DBCOLLECT_GETTASK_HTTP_PATH = "agent.manager.dbcollect.gettask.http.path";
     public static final String DEFAULT_AGENT_MANAGER_DBCOLLECTOR_GETTASK_HTTP_PATH = "/dbCollector/getTask";
+
+    public static final String AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH = "agent.manager.reportsnapshot.http.path";
+    public static final String DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH = "/agent/reportSnapshot";
 
     public static final String AGENT_HTTP_APPLICATION_JSON = "application/json";
 
