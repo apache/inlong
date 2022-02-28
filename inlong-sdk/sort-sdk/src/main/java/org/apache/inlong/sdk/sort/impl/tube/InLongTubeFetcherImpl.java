@@ -90,8 +90,9 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
     public void ack(String msgOffset) throws Exception {
         if (!StringUtils.isEmpty(msgOffset)) {
             if (messageConsumer == null) {
-                context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
-                        inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                context.getStatManager()
+                        .getStatistics(context.getConfig().getSortTaskId(),
+                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                         .addAckFailTimes(1L);
                 LOG.warn("consumer == null");
                 return;
@@ -101,11 +102,15 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
                 ConsumerResult consumerResult = messageConsumer.confirmConsume(msgOffset, true);
                 int errCode = consumerResult.getErrCode();
                 if (TErrCodeConstants.SUCCESS != errCode) {
-                    context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
-                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic()).addAckFailTimes(1L);
+                    context.getStatManager()
+                            .getStatistics(context.getConfig().getSortTaskId(),
+                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                            .addAckFailTimes(1L);
                 } else {
-                    context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
-                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic()).addAckSuccTimes(1L);
+                    context.getStatManager()
+                            .getStatistics(context.getConfig().getSortTaskId(),
+                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                            .addAckSuccTimes(1L);
                 }
             } catch (Exception e) {
                 context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
