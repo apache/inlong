@@ -20,7 +20,7 @@ package org.apache.inlong.manager.client.api.util;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.client.api.HiveSink;
+import org.apache.inlong.manager.client.api.sink.HiveSink;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.client.api.StreamField;
 import org.apache.inlong.manager.client.api.StreamField.FieldType;
@@ -80,11 +80,12 @@ public class InlongStreamTransfer {
     }
 
     public static StreamSink parseStreamSink(SinkResponse sinkResponse, StreamSink streamSink) {
-        String sinkType = sinkResponse.getSinkType();
-        if ("HIVE".equals(sinkType)) {
+        String type = sinkResponse.getSinkType();
+        SinkType sinkType = SinkType.forType(type);
+        if (sinkType == SinkType.HIVE) {
             return parseHiveSink(sinkResponse, (HiveSink) streamSink);
         } else {
-            throw new IllegalArgumentException(String.format("Unsupport storage type : %s for Inlong", sinkType));
+            throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
         }
     }
 

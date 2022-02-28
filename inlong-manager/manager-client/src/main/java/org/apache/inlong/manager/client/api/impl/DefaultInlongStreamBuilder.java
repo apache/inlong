@@ -29,13 +29,17 @@ import org.apache.inlong.manager.client.api.StreamField;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.StreamSink.SinkType;
 import org.apache.inlong.manager.client.api.StreamSource;
+import org.apache.inlong.manager.client.api.StreamSource.SourceType;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.inner.InnerStreamContext;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
+import org.apache.inlong.manager.client.api.util.InlongStreamSourceTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamTransfer;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
@@ -71,7 +75,10 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     @Override
     public InlongStreamBuilder source(StreamSource source) {
-        //todo create SourceRequest
+        inlongStream.setStreamSource(source);
+        SourceRequest sourceRequest = InlongStreamSourceTransfer.createSourceRequest(source,
+                streamContext.getStreamInfo());
+        streamContext.setSourceRequest(sourceRequest);
         return this;
     }
 
@@ -97,8 +104,11 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         InlongStreamInfo streamInfo = streamContext.getStreamInfo();
         String streamIndex = managerClient.createStreamInfo(streamInfo);
         streamInfo.setId(Double.valueOf(streamIndex).intValue());
-        //todo save source
-
+        //Create source and update index
+        SourceRequest sourceRequest = streamContext.getSourceRequest();
+        String sourceIndex = managerClient.createSource(sourceRequest);
+        sourceRequest.setId(Double.valueOf(sourceIndex).intValue());
+        //Create sink and update index
         SinkRequest sinkRequest = streamContext.getSinkRequest();
         String sinkIndex = managerClient.createSink(sinkRequest);
         sinkRequest.setId(Double.valueOf(sinkIndex).intValue());
@@ -112,10 +122,10 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         if (existMsg.getKey()) {
             Pair<Boolean, String> updateMsg = managerClient.updateStreamInfo(dataStreamInfo);
             if (updateMsg.getKey()) {
-                //todo init or update source
-
+                SourceRequest sourceRequest = streamContext.getSourceRequest();
+                sourceRequest.setId(initOrUpdateSource(sourceRequest));
                 SinkRequest sinkRequest = streamContext.getSinkRequest();
-                sinkRequest.setId(initOrUpdateStorage(sinkRequest));
+                sinkRequest.setId(initOrUpdateSink(sinkRequest));
             } else {
                 throw new RuntimeException(String.format("Update data stream failed:%s", updateMsg.getValue()));
             }
@@ -125,28 +135,53 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         }
     }
 
-    private int initOrUpdateStorage(SinkRequest sinkRequest) {
+    private int initOrUpdateSource(SourceRequest sourceRequest) {
+        String sourceType = sourceRequest.getSourceType();
+        if (SourceType.KAFKA.name().equals(sourceType) || SourceType.BINLOG.name().equals(sourceType)) {
+            List<SourceListResponse> responses = managerClient.listSources(sourceRequest.getInlongGroupId(),
+                    sourceRequest.getInlongStreamId(), sourceRequest.getSourceType());
+            if (CollectionUtils.isEmpty(responses)) {
+                String sourceIndex = managerClient.createSource(sourceRequest);
+                return Double.valueOf(sourceIndex).intValue();
+            } else {
+                SourceListResponse response = responses.get(0);
+                sourceRequest.setId(response.getId());
+                Pair<Boolean, String> updateMsg = managerClient.updateSource(sourceRequest);
+                if (updateMsg.getKey()) {
+                    return response.getId();
+                } else {
+                    throw new RuntimeException(
+                            String.format("Update source:%s failed with ex:%s", GsonUtil.toJson(sourceRequest),
+                                    updateMsg.getValue()));
+                }
+            }
+        } else {
+            throw new IllegalArgumentException(String.format("Unsupported source type:%s", sourceType));
+        }
+    }
+
+    private int initOrUpdateSink(SinkRequest sinkRequest) {
         String sinkType = sinkRequest.getSinkType();
         if (SinkType.HIVE.name().equals(sinkType)) {
-            List<SinkListResponse> responses = managerClient.listHiveStorage(sinkRequest.getInlongGroupId(),
-                    sinkRequest.getInlongStreamId());
+            List<SinkListResponse> responses = managerClient.listSinks(sinkRequest.getInlongGroupId(),
+                    sinkRequest.getInlongStreamId(), sinkRequest.getSinkType());
             if (CollectionUtils.isEmpty(responses)) {
                 String storageIndex = managerClient.createSink(sinkRequest);
                 return Double.valueOf(storageIndex).intValue();
             } else {
                 SinkListResponse response = responses.get(0);
                 sinkRequest.setId(response.getId());
-                Pair<Boolean, String> updateMsg = managerClient.updateStorage(sinkRequest);
+                Pair<Boolean, String> updateMsg = managerClient.updateSink(sinkRequest);
                 if (updateMsg.getKey()) {
                     return response.getId();
                 } else {
                     throw new RuntimeException(
-                            String.format("Update storage:%s failed with ex:%s", GsonUtil.toJson(sinkRequest),
+                            String.format("Update sink:%s failed with ex:%s", GsonUtil.toJson(sinkRequest),
                                     updateMsg.getValue()));
                 }
             }
         } else {
-            throw new IllegalArgumentException(String.format("Unsupported storage type:%s", sinkType));
+            throw new IllegalArgumentException(String.format("Unsupported sink type:%s", sinkType));
         }
     }
 }

@@ -15,13 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.manager.client.api.source;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.manager.client.api.StreamSource;
 
 @Data
 @AllArgsConstructor
@@ -56,4 +58,6 @@ public class MySQLSource extends StreamSource {
     @ApiModelProperty("SQL statement to collect source data, required for full amount")
     private String dataSql;
 
+    @ApiModelProperty("Data format type of source")
+    private DataFormat dataFormat;
 }

@@ -25,14 +25,26 @@ import lombok.Data;
 public abstract class StreamSource {
 
     public enum SourceType {
-        FILE, KAFKA, DB, BINLOG
+        FILE, KAFKA, DB, BINLOG;
+
+        public static SourceType forType(String type) {
+            for (SourceType sourceType : values()) {
+                if (sourceType.name().equals(type)) {
+                    return sourceType;
+                }
+            }
+            throw new IllegalArgumentException(
+                    String.format("Unsupport source type=%s for Inlong", type));
+        }
     }
 
     public enum SyncType {
-        FULL,INCREMENT
+        FULL, INCREMENT
     }
 
     public abstract SourceType getSourceType();
 
     public abstract SyncType getSyncType();
+
+    public abstract DataFormat getDataFormat();
 }

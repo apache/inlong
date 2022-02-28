@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.manager.client.api.sink;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,6 +27,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.manager.client.api.DataSeparator;
+import org.apache.inlong.manager.client.api.StreamField;
+import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 
 @Data
@@ -93,5 +97,8 @@ public class HiveSink extends StreamSink {
 
     @ApiModelProperty("Other properties if need")
     private Map<String, String> properties;
+
+    @ApiModelProperty("Data format type for stream sink")
+    private DataFormat dataFormat;
 }
 

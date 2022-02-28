@@ -43,6 +43,8 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -337,6 +339,88 @@ public class InnerInlongManagerClient {
         }
     }
 
+    public String createSource(SourceRequest sourceRequest) {
+        String path = HTTP_PATH + "/source/save";
+        final String source = GsonUtil.toJson(sourceRequest);
+        final RequestBody sourceBody = RequestBody.create(MediaType.parse("application/json"), source);
+        final String url = formatUrl(path);
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", sourceBody)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            Response response = call.execute();
+            assert response.body() != null;
+            String body = response.body().string();
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
+            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed: %s", responseBody.getErrMsg()));
+            return responseBody.getData().toString();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Inlong source save failed: %s", e.getMessage()), e);
+        }
+    }
+
+    public List<SourceListResponse> listSources(String groupId, String streamId) {
+        return listSources(groupId, streamId, null);
+    }
+
+    public List<SourceListResponse> listSources(String groupId, String streamId, String sourceType) {
+        final String path = HTTP_PATH + "/source/list";
+        String url = formatUrl(path);
+        url = String.format("%s&inlongGroupId=%s&inlongStreamId=%s", url, groupId, streamId);
+        if (StringUtils.isNotEmpty(sourceType)) {
+            url = String.format("%s&sourceType=%s", url, sourceType);
+        }
+        Request request = new Request.Builder().get()
+                .url(url)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            Response response = call.execute();
+            String body = response.body().string();
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed:%s", responseBody.getErrMsg()));
+            PageInfo<SourceListResponse> sourceListResponsePageInfo = InlongParser.parseSourceList(
+                    responseBody);
+            return sourceListResponsePageInfo.getList();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Inlong source list failed with ex:%s", e.getMessage()), e);
+        }
+    }
+
+    public Pair<Boolean, String> updateSource(SourceRequest sourceRequest) {
+        final String path = HTTP_PATH + "/source/update";
+        final String url = formatUrl(path);
+        final String storage = GsonUtil.toJson(sourceRequest);
+        final RequestBody storageBody = RequestBody.create(MediaType.parse("application/json"), storage);
+        Request request = new Request.Builder()
+                .method("POST", storageBody)
+                .url(url)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            Response response = call.execute();
+            String body = response.body().string();
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
+            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            if (responseBody.getData() != null) {
+                return Pair.of(Boolean.valueOf(responseBody.getData().toString()), responseBody.getErrMsg());
+            } else {
+                return Pair.of(false, responseBody.getErrMsg());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Inlong source update failed with ex:%s", e.getMessage()), e);
+        }
+    }
+
     public String createSink(SinkRequest sinkRequest) {
         String path = HTTP_PATH + "/sink/save";
         final String sink = GsonUtil.toJson(sinkRequest);
@@ -362,10 +446,17 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public List<SinkListResponse> listHiveStorage(String groupId, String streamId) {
+    public List<SinkListResponse> listSinks(String groupId, String streamId) {
+        return listSinks(groupId, streamId, null);
+    }
+
+    public List<SinkListResponse> listSinks(String groupId, String streamId, String sinkType) {
         final String path = HTTP_PATH + "/sink/list";
         String url = formatUrl(path);
-        url = String.format("%s&inlongGroupId=%s&inlongStreamId=%s&sinkType=HIVE", url, groupId, streamId);
+        url = String.format("%s&inlongGroupId=%s&inlongStreamId=%s", url, groupId, streamId);
+        if (StringUtils.isNotEmpty(sinkType)) {
+            url = String.format("%s&sinkType=%s", url, sinkType);
+        }
         Request request = new Request.Builder().get()
                 .url(url)
                 .build();
@@ -378,15 +469,15 @@ public class InnerInlongManagerClient {
             org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed:%s", responseBody.getErrMsg()));
-            PageInfo<SinkListResponse> hiveStorageListResponsePageInfo = InlongParser.parseHiveSinkList(
+            PageInfo<SinkListResponse> sinkListResponsePageInfo = InlongParser.parseSinkList(
                     responseBody);
-            return hiveStorageListResponsePageInfo.getList();
+            return sinkListResponsePageInfo.getList();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong storage list failed with ex:%s", e.getMessage()), e);
         }
     }
 
-    public Pair<Boolean, String> updateStorage(SinkRequest sinkRequest) {
+    public Pair<Boolean, String> updateSink(SinkRequest sinkRequest) {
         final String path = HTTP_PATH + "/sink/update";
         final String url = formatUrl(path);
         final String storage = GsonUtil.toJson(sinkRequest);

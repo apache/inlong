@@ -64,7 +64,7 @@ public interface InlongClient {
      * @return the inlong group
      * @throws Exception the exception
      */
-    InlongGroup createGroup(InlongGroupConf groupConf) throws Exception;
+    InlongGroup forGroup(InlongGroupConf groupConf) throws Exception;
 
 
     /**

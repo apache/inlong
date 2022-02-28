@@ -81,6 +81,9 @@ public class BinlogSourceDTO {
     @ApiModelProperty("The file path to store history info")
     private String storeHistoryFilename;
 
+    @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
+    private String timestampFormatStandard = "SQL";
+
     /**
      * Get the dto instance from the request
      */

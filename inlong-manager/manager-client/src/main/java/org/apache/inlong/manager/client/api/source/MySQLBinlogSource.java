@@ -15,47 +15,48 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source.binlog;
+package org.apache.inlong.manager.client.api.source;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.manager.client.api.StreamSource;
 
-/**
- * Response of binlog source list
- */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@ApiModel("Response of binlog source paging list")
-public class BinlogSourceListResponse extends SourceListResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+@ApiModel("Base configuration for MySQL binlog collection")
+public class MySQLBinlogSource extends StreamSource {
+
+    @ApiModelProperty(value = "DataSource type", required = true)
+    private SourceType sourceType = SourceType.BINLOG;
+
+    @ApiModelProperty("SyncType for MySQL")
+    private SyncType syncType;
+
+    @ApiModelProperty("Data format type for binlog")
+    private DataFormat dataFormat = DataFormat.NONE;
 
     @ApiModelProperty("Username of the DB server")
     private String user;
 
-    @ApiModelProperty("Hostname of the DB server")
-    private String hostname;
-
     @ApiModelProperty("Password of the DB server")
     private String password;
 
-    @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions")
-    private String whitelist;
+    @ApiModelProperty("Hostname of the DB server")
+    private String hostname;
+
+    @ApiModelProperty(value = "List of DBs to be collected, for example: db1.tb1,db2.tb2",
+            notes = "DBs not in this list are excluded. By default, all DBs are monitored")
+    private List<String> dbNames;
 
     @ApiModelProperty("Database time zone, Default is UTC")
-    private String timeZone;
-
-    @ApiModelProperty("The file path to store history info")
-    private String storeHistoryFilename;
-
-    @ApiModelProperty("The interval for recording an offset")
-    private String intervalMs;
-
-    @ApiModelProperty("Snapshot mode, supports: initial, when_needed, never, schema_only, schema_only_recovery")
-    private String snapshotMode;
+    private String timeZone = "UTF";
 
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
     private String timestampFormatStandard = "SQL";
-
 }

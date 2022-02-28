@@ -15,41 +15,50 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source.kafka;
+package org.apache.inlong.manager.client.api.source;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.manager.client.api.StreamSource;
 
-/**
- * Response of kafka source list
- */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@ApiModel("Response of kafka source paging list")
-public class KafkaSourceListResponse extends SourceListResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+@ApiModel("Base configuration for Kafka collection")
+public class KafkaSource extends StreamSource {
+
+    @ApiModelProperty(value = "DataSource type", required = true)
+    private SourceType sourceType = SourceType.KAFKA;
+
+    @ApiModelProperty("SyncType for Kafka")
+    private SyncType syncType;
+
+    @ApiModelProperty("Data format type for kafka")
+    private DataFormat dataFormat;
 
     @ApiModelProperty("Kafka topic")
     private String topic;
 
     @ApiModelProperty("Kafka consumer group")
-    private String groupId;
+    private String consumerGroup;
 
-    @ApiModelProperty("Kafka servers address")
+    @ApiModelProperty("Kafka servers address, such as: 127.0.0.1:9092")
     private String bootstrapServers;
 
-    @ApiModelProperty("Limit the amount of data read per second")
+    @ApiModelProperty(value = "Limit the amount of data read per second",
+            notes = "Greater than or equal to 0, equal to zero means no limit")
     private String recordSpeedLimit;
 
-    @ApiModelProperty("Limit the number of bytes read per second")
+    @ApiModelProperty(value = "Limit the number of bytes read per second",
+            notes = "Greater than or equal to 0, equal to zero means no limit")
     private String byteSpeedLimit;
-
-    @ApiModelProperty("Data Serialization, support: Json, Canal, Avro, etc")
-    private String serializationType = "none";
 
     @ApiModelProperty(value = "Topic partition offset",
             notes = "For example, '0#100_1#10' means the offset of partition 0 is 100, the offset of partition 1 is 10")
     private String topicPartitionOffset;
+
 }

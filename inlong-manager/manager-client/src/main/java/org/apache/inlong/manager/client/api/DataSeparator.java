@@ -39,7 +39,7 @@ public enum DataSeparator {
         return this.asciiCode;
     }
 
-    private DataSeparator(String seperator, int asciiCode) {
+    DataSeparator(String seperator, int asciiCode) {
         this.asciiCode = asciiCode;
         this.seperator = seperator;
     }
