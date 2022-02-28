@@ -24,7 +24,6 @@ import static org.apache.inlong.sort.singletenant.flink.pulsar.PulsarSourceBuild
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -39,9 +38,9 @@ import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.flink.hive.HiveCommitter;
 import org.apache.inlong.sort.flink.hive.HiveWriter;
-import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.deserialization.DebeziumDeserializationInfo;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.apache.inlong.sort.protocol.sink.IcebergSinkInfo;
@@ -127,18 +126,17 @@ public class Entrance {
     ) throws IOException, ClassNotFoundException {
         FieldInfo[] sourceFields = sourceInfo.getFields();
         DeserializationSchema<Row> schema = DeserializationSchemaFactory.build(
-                extractNonBuiltInFieldInfo(sourceFields), sourceInfo.getDeserializationInfo());
+                sourceFields, sourceInfo.getDeserializationInfo());
         FieldMappingTransformer fieldMappingTransformer = new FieldMappingTransformer(config, sourceFields);
-        DeserializationFunction function = new DeserializationFunction(schema, fieldMappingTransformer);
+
+        DeserializationFunction function = new DeserializationFunction(
+                schema,
+                fieldMappingTransformer,
+                !(sourceInfo.getDeserializationInfo() instanceof DebeziumDeserializationInfo));
         return sourceStream.process(function)
                 .uid(Constants.DESERIALIZATION_SCHEMA_UID)
                 .name("Deserialization")
                 .setParallelism(config.getInteger(Constants.DESERIALIZATION_PARALLELISM));
-    }
-
-    private static FieldInfo[] extractNonBuiltInFieldInfo(FieldInfo[] fieldInfos) {
-        return Arrays.stream(fieldInfos).filter(fieldInfo -> !(fieldInfo instanceof BuiltInFieldInfo)).toArray(
-                FieldInfo[]::new);
     }
 
     private static void buildSinkStream(

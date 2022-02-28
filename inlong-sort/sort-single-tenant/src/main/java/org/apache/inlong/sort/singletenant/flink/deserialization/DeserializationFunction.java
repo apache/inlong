@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.singletenant.flink.deserialization;
 
+import java.util.HashMap;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.types.Row;
@@ -34,12 +35,23 @@ public class DeserializationFunction extends ProcessFunction<SerializedRecord, R
 
     private final FieldMappingTransformer fieldMappingTransformer;
 
+    private final boolean appendAttributes;
+
+    public DeserializationFunction(
+            DeserializationSchema<Row> deserializationSchema,
+            FieldMappingTransformer fieldMappingTransformer,
+            boolean appendAttributes
+    ) {
+        this.deserializationSchema = deserializationSchema;
+        this.fieldMappingTransformer = fieldMappingTransformer;
+        this.appendAttributes = appendAttributes;
+    }
+
     public DeserializationFunction(
             DeserializationSchema<Row> deserializationSchema,
             FieldMappingTransformer fieldMappingTransformer
     ) {
-        this.deserializationSchema = deserializationSchema;
-        this.fieldMappingTransformer = fieldMappingTransformer;
+        this(deserializationSchema, fieldMappingTransformer, true);
     }
 
     @Override
@@ -64,6 +76,9 @@ public class DeserializationFunction extends ProcessFunction<SerializedRecord, R
                 }
 
                 deserializationSchema.deserialize(bodyBytes, new CallbackCollector<>(inputRow -> {
+                    if (appendAttributes) {
+                        inputRow = Row.join(Row.of(new HashMap<>()), inputRow);
+                    }
                     out.collect(fieldMappingTransformer.transform(inputRow, value.getTimestampMillis()));
                 }));
             }

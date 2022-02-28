@@ -18,6 +18,7 @@
 
 package org.apache.inlong.sort.singletenant.flink.utils;
 
+import java.util.Arrays;
 import org.apache.avro.Schema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.formats.common.TimestampFormat;
@@ -35,6 +36,7 @@ import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.formats.common.TypeInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 
 import java.io.ByteArrayInputStream;
@@ -191,6 +193,12 @@ public class CommonUtils {
         }
 
         return output;
+    }
+
+    public static FieldInfo[] extractNonBuiltInFieldInfos(FieldInfo[] fieldInfos) {
+        return Arrays.stream(fieldInfos)
+                .filter(fieldInfo -> !(fieldInfo instanceof BuiltInFieldInfo))
+                .toArray(FieldInfo[]::new);
     }
 
 }
