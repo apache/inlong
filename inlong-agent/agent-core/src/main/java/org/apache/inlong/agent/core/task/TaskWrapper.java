@@ -85,7 +85,6 @@ public class TaskWrapper extends AbstractStateWrapper {
                 if (message == null || task.getChannel()
                         .push(message, pushMaxWaitTime, TimeUnit.SECONDS)) {
                     message = task.getReader().read();
-                    LOGGER.info("submitReadThread message {}", message);
                 }
             }
             LOGGER.info("read end, task exception status is {}, read finish status is {}",
