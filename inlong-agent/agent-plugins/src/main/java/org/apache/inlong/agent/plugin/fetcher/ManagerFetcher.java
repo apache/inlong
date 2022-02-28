@@ -431,7 +431,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      */
     private void fetchLocalUuid() {
         String result = ExcuteLinux.exeCmd("dmidecode | grep UUID");
-        localIp = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_UUID, result);
+        uuid = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_UUID, result);
     }
 
     /**

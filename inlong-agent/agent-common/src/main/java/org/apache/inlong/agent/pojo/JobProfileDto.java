@@ -59,22 +59,30 @@ public class JobProfileDto {
                 BinlogJob.BinlogJobTaskConfig.class);
 
         BinlogJob binlogJob = new BinlogJob();
+
         binlogJob.setHostname(binlogJobTaskConfig.getHostname());
         binlogJob.setPassword(binlogJobTaskConfig.getPassword());
-        binlogJob.setTimeZone(binlogJobTaskConfig.getTimeZone());
-        binlogJob.setSnapshotMode(binlogJobTaskConfig.getSnapshotMode());
         binlogJob.setUser(binlogJobTaskConfig.getUser());
-        binlogJob.setStoreHistoryFilename(binlogJobTaskConfig.getStoreHistoryFilename());
-        binlogJob.setIntervalMs(binlogJobTaskConfig.getIntervalMs());
-        binlogJob.setSnapshotMode(binlogJobTaskConfig.getSnapshotMode());
-        binlogJob.setOffset(binlogJobTaskConfig.getOffset());
+        binlogJob.setTableWhiteList(binlogJobTaskConfig.getTableWhiteList());
+        binlogJob.setDatabaseWhiteList(binlogJobTaskConfig.getDatabaseWhiteList());
+        binlogJob.setSchema(binlogJobTaskConfig.getSchema());
+        binlogJob.setPort(binlogJobTaskConfig.getPort());
+        binlogJob.setOffsets(dataConfigs.getSnapshot());
+        binlogJob.setDdl(binlogJobTaskConfig.getDdl());
+        binlogJob.setServerTimezone(binlogJobTaskConfig.getServerTimezone());
 
-        binlogJob.setChannel(DEFAULT_CHANNEL);
-        binlogJob.setName(MANAGER_JOB);
-        binlogJob.setSource(BINLOG_SOURCE);
-        binlogJob.setSink(DEFAULT_DATAPROXY_SINK);
-        binlogJob.setDeliveryTime(dataConfigs.getDeliveryTime());
-        binlogJob.setOp(dataConfigs.getOp());
+        BinlogJob.Offset offset = new BinlogJob.Offset();
+        offset.setIntervalMs(binlogJobTaskConfig.getIntervalMs());
+        offset.setFilename(binlogJobTaskConfig.getOffsetFilename());
+        binlogJob.setOffset(offset);
+
+        BinlogJob.Snapshot snapshot = new BinlogJob.Snapshot();
+        snapshot.setMode(binlogJobTaskConfig.getMode());
+        binlogJob.setSnapshot(snapshot);
+
+        BinlogJob.History history = new BinlogJob.History();
+        history.setFilename(binlogJobTaskConfig.getHistoryFilename());
+        binlogJob.setHistory(history);
 
         return binlogJob;
     }
@@ -82,10 +90,6 @@ public class JobProfileDto {
     private static FileJob getFileJob(DataConfig dataConfigs) {
         FileJob fileJob = new FileJob();
         fileJob.setTrigger(DEFAULT_TRIGGER);
-        fileJob.setChannel(DEFAULT_CHANNEL);
-        fileJob.setName(MANAGER_JOB);
-        fileJob.setSource(DEFAULT_SOURCE);
-        fileJob.setSink(DEFAULT_DATAPROXY_SINK);
 
         FileJob.FileJobTaskConfig fileJobTaskConfig = GSON.fromJson(dataConfigs.getExtParams(),
                 FileJob.FileJobTaskConfig.class);
@@ -104,21 +108,21 @@ public class JobProfileDto {
         if (fileJobTaskConfig.getCycleUnit() != null) {
             fileJob.setCycleUnit(fileJobTaskConfig.getCycleUnit());
         }
-        fileJob.setDeliveryTime(dataConfigs.getDeliveryTime());
-        fileJob.setOp(dataConfigs.getOp());
 
         return fileJob;
     }
 
     private static KafkaJob getKafkaJob(DataConfig dataConfigs) {
+
         KafkaJob.KafkaJobTaskConfig kafkaJobTaskConfig = GSON.fromJson(dataConfigs.getExtParams(),
                 KafkaJob.KafkaJobTaskConfig.class);
         KafkaJob kafkaJob = new KafkaJob();
+
         KafkaJob.Bootstrap bootstrap = new KafkaJob.Bootstrap();
         bootstrap.setServers(kafkaJobTaskConfig.getBootstrapServers());
         kafkaJob.setBootstrap(bootstrap);
         KafkaJob.Partition partition = new KafkaJob.Partition();
-        partition.setOffset(kafkaJobTaskConfig.getOffset());
+        partition.setOffset(dataConfigs.getSnapshot());
         kafkaJob.setPartition(partition);
         KafkaJob.Group group = new KafkaJob.Group();
         group.setId(kafkaJobTaskConfig.getGroupId());
@@ -130,13 +134,8 @@ public class JobProfileDto {
         byteSpeed.setLimit(kafkaJobTaskConfig.getByteSpeedLimit());
         kafkaJob.setByteSpeed(byteSpeed);
         kafkaJob.setAutoOffsetReset(kafkaJobTaskConfig.getAutoOffsetReset());
+
         kafkaJob.setTopic(kafkaJobTaskConfig.getTopic());
-        kafkaJob.setChannel(DEFAULT_CHANNEL);
-        kafkaJob.setName(MANAGER_JOB);
-        kafkaJob.setSource(KAFKA_SOURCE);
-        kafkaJob.setSink(DEFAULT_DATAPROXY_SINK);
-        kafkaJob.setDeliveryTime(dataConfigs.getDeliveryTime());
-        kafkaJob.setOp(dataConfigs.getOp());
 
         return kafkaJob;
     }
@@ -157,26 +156,38 @@ public class JobProfileDto {
         if (!dataConfigs.isValid()) {
             throw new IllegalArgumentException("input dataConfig" + dataConfigs + "is invalid please check");
         }
-        TaskTypeEnum taskType = TaskTypeEnum.getTaskType(dataConfigs.getTaskType());
+
         JobProfileDto profileDto = new JobProfileDto();
         Proxy proxy = getProxy(dataConfigs);
         profileDto.setProxy(proxy);
         Job job = new Job();
+
+        //common Attribu
+        job.setId(String.valueOf(dataConfigs.getJobId()));
+        job.setChannel(DEFAULT_CHANNEL);
+        job.setIp(dataConfigs.getIp());
+        job.setOp(dataConfigs.getOp());
+        job.setDeliveryTime(dataConfigs.getDeliveryTime());
+        job.setUuid(dataConfigs.getUuid());
+        TaskTypeEnum taskType = TaskTypeEnum.getTaskType(dataConfigs.getTaskType());
         switch (requireNonNull(taskType)) {
             case SQL:
             case BINLOG:
                 BinlogJob binlogJob = getBinlogJob(dataConfigs);
                 job.setBinlogJob(binlogJob);
+                job.setSource(BINLOG_SOURCE);
                 profileDto.setJob(job);
                 break;
             case FILE:
                 FileJob fileJob = getFileJob(dataConfigs);
                 job.setFileJob(fileJob);
+                job.setSource(DEFAULT_SOURCE);
                 profileDto.setJob(job);
                 break;
             case KAFKA:
                 KafkaJob kafkaJob = getKafkaJob(dataConfigs);
                 job.setKafkaJob(kafkaJob);
+                job.setSource(KAFKA_SOURCE);
                 profileDto.setJob(job);
                 break;
             default:
@@ -186,6 +197,18 @@ public class JobProfileDto {
 
     @Data
     public static class Job {
+
+        private String id;
+        private String ip;
+        private String retry;
+        private String source;
+        private String sink;
+        private String channel;
+        private String name;
+        private String op;
+        private String retryTime;
+        private String deliveryTime;
+        private String uuid;
 
         private FileJob fileJob;
         private BinlogJob binlogJob;

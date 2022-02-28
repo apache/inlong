@@ -28,7 +28,7 @@ public class DataConfig {
     private String uuid;
     private String ip;
     private String op;
-    private Integer taskId;
+    private Integer jobId;
     private Integer taskType;
     private String snapshot;
     private String extParams;
