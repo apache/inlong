@@ -62,12 +62,13 @@ public class TestFileAgent {
 
     @BeforeClass
     public static void setup() throws Exception {
-        try{helper = new AgentBaseTestsHelper(
+        try {
+            helper = new AgentBaseTestsHelper(
                 TestFileAgent.class.getName()).setupAgentHome();
             agent = new MiniAgent();
             agent.start();
             testRootDir = helper.getTestRootDir();
-        }catch(Exception e){
+        } catch (Exception e) {
             LOGGER.error("setup failure");
 
         }
