@@ -1124,6 +1124,23 @@ CREATE TABLE `sort_task_sink_param`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Sort task sink params table';
 
 -- ----------------------------
+-- Table structure for sort_source_config
+-- ----------------------------
+DROP TABLE IF EXISTS `sort_source_config`;
+CREATE TABLE `sort_source_config`
+(
+    `id`            int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `cluster_name`  varchar(128)  NOT NULL COMMENT 'Cluster name',
+    `task_name`     varchar(128)  NOT NULL COMMENT 'Task name',
+    `zone_name`     varchar(128)  NOT NULL COMMENT 'Cache zone name',
+    `topic`         varchar(128)  DEFAULT NULL COMMENT 'Topic',
+    `ext_params`    text          DEFAULT NULL COMMENT 'Another fields, will saved as JSON type',
+    PRIMARY KEY (`id`),
+    KEY `index_sort_source_config` (`cluster_name`, `task_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Sort source config table';
+
+-- ----------------------------
 -- Table structure for config log report
 -- ----------------------------
 DROP TABLE IF EXISTS `stream_config_log`;

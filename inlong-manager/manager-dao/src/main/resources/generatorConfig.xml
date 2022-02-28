@@ -259,7 +259,15 @@
             enableUpdateByPrimaryKey="true"
             enableDeleteByPrimaryKey="true" enableInsert="true"
             enableCountByExample="false" enableDeleteByExample="false"
-            enableSelectByExample="false" enableUpdateByExample="false"/>-->
+            enableSelectByExample="false" enableUpdateByExample="false"/>
+
+        <table tableName="sort_source_config" domainObjectName="SortSourceConfigEntity"
+               enableSelectByPrimaryKey="false"
+               enableUpdateByPrimaryKey="false"
+               enableDeleteByPrimaryKey="false" enableInsert="true"
+               enableCountByExample="false" enableDeleteByExample="false"
+               enableSelectByExample="false" enableUpdateByExample="false"/>-->
+
 
     </context>
 </generatorConfiguration>
