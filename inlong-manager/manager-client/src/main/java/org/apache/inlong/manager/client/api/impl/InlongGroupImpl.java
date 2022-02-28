@@ -79,6 +79,11 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
+    public InlongGroupInfo snapshot() throws Exception {
+        return generateSnapshot(groupContext.getGroupRequest());
+    }
+
+    @Override
     public InlongGroupInfo init() throws Exception {
         WorkflowResult initWorkflowResult = managerClient.initInlongGroup(this.groupContext.getGroupRequest());
         List<TaskResponse> taskViews = initWorkflowResult.getNewTasks();

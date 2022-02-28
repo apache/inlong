@@ -32,6 +32,15 @@ public interface Authentication {
         public String toString() {
             return this.name().toLowerCase(Locale.ROOT);
         }
+
+        public static AuthType forType(String type) {
+            for (AuthType authType : values()) {
+                if (authType.name().equals(type.toUpperCase())) {
+                    return authType;
+                }
+            }
+            throw new IllegalArgumentException(String.format("Unsupported authType=%s for Inlong", type));
+        }
     }
 
     AuthType getAuthType();
