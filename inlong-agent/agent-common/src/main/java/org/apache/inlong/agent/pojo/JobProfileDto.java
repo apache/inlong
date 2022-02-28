@@ -111,20 +111,26 @@ public class JobProfileDto {
     }
 
     private static KafkaJob getKafkaJob(DataConfig dataConfigs) {
-
         KafkaJob.KafkaJobTaskConfig kafkaJobTaskConfig = GSON.fromJson(dataConfigs.getExtParams(),
                 KafkaJob.KafkaJobTaskConfig.class);
         KafkaJob kafkaJob = new KafkaJob();
+        KafkaJob.Bootstrap bootstrap = new KafkaJob.Bootstrap();
+        bootstrap.setServers(kafkaJobTaskConfig.getBootstrapServers());
+        kafkaJob.setBootstrap(bootstrap);
+        KafkaJob.Partition partition = new KafkaJob.Partition();
+        partition.setOffset(kafkaJobTaskConfig.getOffset());
+        kafkaJob.setPartition(partition);
+        KafkaJob.Group group = new KafkaJob.Group();
+        group.setId(kafkaJobTaskConfig.getGroupId());
+        kafkaJob.setGroup(group);
+        KafkaJob.RecordSpeed recordSpeed = new KafkaJob.RecordSpeed();
+        recordSpeed.setLimit(kafkaJobTaskConfig.getRecordSpeedLimit());
+        kafkaJob.setRecordSpeed(recordSpeed);
+        KafkaJob.ByteSpeed byteSpeed = new KafkaJob.ByteSpeed();
+        byteSpeed.setLimit(kafkaJobTaskConfig.getByteSpeedLimit());
+        kafkaJob.setByteSpeed(byteSpeed);
+        kafkaJob.setAutoOffsetReset(kafkaJobTaskConfig.getAutoOffsetReset());
         kafkaJob.setTopic(kafkaJobTaskConfig.getTopic());
-        kafkaJob.setKeyDeserializer(kafkaJobTaskConfig.getValueDeserializer());
-        kafkaJob.setValueDeserializer(kafkaJobTaskConfig.getKeyDeserializer());
-        kafkaJob.setBootstrapServers(kafkaJobTaskConfig.getBootstrapServers());
-        kafkaJob.setGroupId(kafkaJobTaskConfig.getGroupId());
-        kafkaJob.setRecordSpeed(kafkaJobTaskConfig.getRecordSpeed());
-        kafkaJob.setByteSpeedLimit(kafkaJobTaskConfig.getByteSpeedLimit());
-        kafkaJob.setMinInterval(kafkaJobTaskConfig.getMinInterval());
-        kafkaJob.setOffset(kafkaJobTaskConfig.getOffset());
-
         kafkaJob.setChannel(DEFAULT_CHANNEL);
         kafkaJob.setName(MANAGER_JOB);
         kafkaJob.setSource(KAFKA_SOURCE);

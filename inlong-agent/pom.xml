@@ -70,6 +70,8 @@
         <rocksdb.version>6.14.6</rocksdb.version>
         <codec.version>1.15</codec.version>
         <prometheus.simpleclient.version>0.9.0</prometheus.simpleclient.version>
+        <kafka.version>2.4.1</kafka.version>
+        <flink.scala.binary.version>2.11</flink.scala.binary.version>
     </properties>
 
     <repositories>
