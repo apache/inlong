@@ -19,35 +19,13 @@
 -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.SortSourceConfigEntityMapper">
-  <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.SortSourceConfigEntity">
-    <id column="id" jdbcType="INTEGER" property="id" />
-    <result column="cluster_name" jdbcType="VARCHAR" property="clusterName" />
-    <result column="task_name" jdbcType="VARCHAR" property="taskName" />
-    <result column="zone_name" jdbcType="VARCHAR" property="zoneName" />
-    <result column="topic" jdbcType="VARCHAR" property="topic" />
-    <result column="param_key" jdbcType="VARCHAR" property="paramKey" />
-    <result column="param_value" jdbcType="VARCHAR" property="paramValue" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    id, cluster_name, task_name, zone_name, topic, param_key, param_value
-  </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
-    <include refid="Base_Column_List" />
-    from sort_source_config
-    where id = #{id,jdbcType=INTEGER}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from sort_source_config
-    where id = #{id,jdbcType=INTEGER}
-  </delete>
   <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.SortSourceConfigEntity">
     insert into sort_source_config (id, cluster_name, task_name, 
-      zone_name, topic, param_key, 
-      param_value)
+      zone_name, topic, ext_params
+      )
     values (#{id,jdbcType=INTEGER}, #{clusterName,jdbcType=VARCHAR}, #{taskName,jdbcType=VARCHAR}, 
-      #{zoneName,jdbcType=VARCHAR}, #{topic,jdbcType=VARCHAR}, #{paramKey,jdbcType=VARCHAR}, 
-      #{paramValue,jdbcType=VARCHAR})
+      #{zoneName,jdbcType=VARCHAR}, #{topic,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.SortSourceConfigEntity">
     insert into sort_source_config
@@ -67,11 +45,8 @@
       <if test="topic != null">
         topic,
       </if>
-      <if test="paramKey != null">
-        param_key,
-      </if>
-      <if test="paramValue != null">
-        param_value,
+      <if test="extParams != null">
+        ext_params,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -90,54 +65,17 @@
       <if test="topic != null">
         #{topic,jdbcType=VARCHAR},
       </if>
-      <if test="paramKey != null">
-        #{paramKey,jdbcType=VARCHAR},
-      </if>
-      <if test="paramValue != null">
-        #{paramValue,jdbcType=VARCHAR},
+      <if test="extParams != null">
+        #{extParams,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.SortSourceConfigEntity">
-    update sort_source_config
-    <set>
-      <if test="clusterName != null">
-        cluster_name = #{clusterName,jdbcType=VARCHAR},
-      </if>
-      <if test="taskName != null">
-        task_name = #{taskName,jdbcType=VARCHAR},
-      </if>
-      <if test="zoneName != null">
-        zone_name = #{zoneName,jdbcType=VARCHAR},
-      </if>
-      <if test="topic != null">
-        topic = #{topic,jdbcType=VARCHAR},
-      </if>
-      <if test="paramKey != null">
-        param_key = #{paramKey,jdbcType=VARCHAR},
-      </if>
-      <if test="paramValue != null">
-        param_value = #{paramValue,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where id = #{id,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.SortSourceConfigEntity">
-    update sort_source_config
-    set cluster_name = #{clusterName,jdbcType=VARCHAR},
-      task_name = #{taskName,jdbcType=VARCHAR},
-      zone_name = #{zoneName,jdbcType=VARCHAR},
-      topic = #{topic,jdbcType=VARCHAR},
-      param_key = #{paramKey,jdbcType=VARCHAR},
-      param_value = #{paramValue,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=INTEGER}
-  </update>
 
   <select id="selectByClusterAndTask" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from sort_source_config
-    where cluster_name = #{clusterName,jdbcType=VARCHAR}
+    where cluster_name = #{clusterName,jdbcType=INTEGER}
     AND task_name = #{taskName,jdbcType=VARCHAR}
   </select>
 </mapper>

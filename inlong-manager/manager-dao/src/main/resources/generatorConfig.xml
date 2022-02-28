@@ -262,9 +262,9 @@
             enableSelectByExample="false" enableUpdateByExample="false"/>
 
         <table tableName="sort_source_config" domainObjectName="SortSourceConfigEntity"
-               enableSelectByPrimaryKey="true"
-               enableUpdateByPrimaryKey="true"
-               enableDeleteByPrimaryKey="true" enableInsert="true"
+               enableSelectByPrimaryKey="false"
+               enableUpdateByPrimaryKey="false"
+               enableDeleteByPrimaryKey="false" enableInsert="true"
                enableCountByExample="false" enableDeleteByExample="false"
                enableSelectByExample="false" enableUpdateByExample="false"/>-->
 

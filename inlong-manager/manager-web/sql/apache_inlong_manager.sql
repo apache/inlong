@@ -1133,9 +1133,8 @@ CREATE TABLE `sort_source_config`
     `cluster_name`  varchar(128)  NOT NULL COMMENT 'Cluster name',
     `task_name`     varchar(128)  NOT NULL COMMENT 'Task name',
     `zone_name`     varchar(128)  NOT NULL COMMENT 'Cache zone name',
-    `topic`         varchar(128)  NOT NULL COMMENT 'Topic',
-    `param_key`     varchar(128)  NOT NULL COMMENT 'Key of param',
-    `param_value`   varchar(1024) NOT NULL COMMENT 'Value of param',
+    `topic`         varchar(128)  DEFAULT NULL COMMENT 'Topic',
+    `ext_params`    text          DEFAULT NULL COMMENT 'Another fields, will saved as JSON type',
     PRIMARY KEY (`id`),
     KEY `index_sort_source_config` (`cluster_name`, `task_name`)
 ) ENGINE = InnoDB
