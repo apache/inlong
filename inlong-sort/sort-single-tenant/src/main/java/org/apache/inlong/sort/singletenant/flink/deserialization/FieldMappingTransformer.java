@@ -27,13 +27,16 @@ import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.util.DefaultValueStrategy;
 
+import java.io.Serializable;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
 
 import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkNotNull;
 
-public class FieldMappingTransformer {
+public class FieldMappingTransformer implements Serializable {
+
+    private static final long serialVersionUID = 7621804808272983217L;
 
     /**
      * Skips time and attribute fields of source record.
