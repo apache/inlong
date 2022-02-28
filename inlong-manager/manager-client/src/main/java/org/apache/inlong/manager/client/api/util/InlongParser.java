@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
@@ -55,6 +56,15 @@ public class InlongParser {
     public static InlongGroupRequest parseGroupInfo(Response response) {
         Object data = response.getData();
         return GsonUtil.fromJson(GsonUtil.toJson(data), InlongGroupRequest.class);
+    }
+
+    public static PageInfo<InlongGroupListResponse> parseGroupList(Response response) {
+        Object data = response.getData();
+        String pageInfoJson = GsonUtil.toJson(data);
+        PageInfo<InlongGroupListResponse> pageInfo = GsonUtil.fromJson(pageInfoJson,
+                new TypeToken<PageInfo<InlongGroupListResponse>>() {
+                }.getType());
+        return pageInfo;
     }
 
     public static InlongStreamInfo parseStreamInfo(Response response) {

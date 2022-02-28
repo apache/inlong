@@ -39,6 +39,7 @@ import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.client.api.util.InlongParser;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
@@ -125,6 +126,45 @@ public class InnerInlongManagerClient {
                 }
             } else {
                 return InlongParser.parseGroupInfo(responseBody);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Inlong group get failed: %s", e.getMessage()), e);
+        }
+    }
+
+    public PageInfo<InlongGroupListResponse> listGroupInfo(String keyword, int status, int pageNum, int pageSize) {
+        if (pageNum <= 0) {
+            pageNum = 1;
+        }
+        JSONObject groupQuery = new JSONObject();
+        groupQuery.put("keyWord", pageNum);
+        groupQuery.put("status", status);
+        groupQuery.put("pageNum", pageNum);
+        groupQuery.put("pageSize", pageSize);
+        String operationData = GsonUtil.toJson(groupQuery);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), operationData);
+        String path = HTTP_PATH + "/group/list";
+        final String url = formatUrl(path);
+        Request request = new Request.Builder().get()
+                .url(url)
+                .method("POST", requestBody)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            Response response = call.execute();
+            assert response.body() != null;
+            String body = response.body().string();
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
+            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            if (responseBody.getErrMsg() != null) {
+                if (responseBody.getErrMsg().contains("Inlong group does not exist")) {
+                    return null;
+                } else {
+                    throw new RuntimeException(responseBody.getErrMsg());
+                }
+            } else {
+                return InlongParser.parseGroupList(responseBody);
             }
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong group get failed: %s", e.getMessage()), e);

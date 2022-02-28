@@ -142,5 +142,11 @@
             <artifactId>agent-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_${flink.scala.binary.version}</artifactId>
+            <version>${kafka.version}</version>
+        </dependency>
     </dependencies>
 </project>

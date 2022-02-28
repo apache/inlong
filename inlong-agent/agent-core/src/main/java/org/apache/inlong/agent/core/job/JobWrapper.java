@@ -92,18 +92,23 @@ public class JobWrapper extends AbstractStateWrapper {
 
     /**
      * get snapshot of each task
+     *
      * @return
      */
     public String getSnapshot() {
-        List<String> snapshot = new ArrayList<>();
+        List<String> snapshotList = new ArrayList<>();
         for (Task task : allTasks) {
-            snapshot.add(task.getReader().getSnapshot());
+            String snapshot = task.getReader().getSnapshot();
+            if (snapshot != null) {
+                snapshotList.add(snapshot);
+            }
         }
-        return String.join(JOB_OFFSET_DELIMITER, snapshot);
+        return String.join(JOB_OFFSET_DELIMITER, snapshotList);
     }
 
     /**
      * get job
+     *
      * @return job
      */
     public Job getJob() {

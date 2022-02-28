@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
+import com.github.pagehelper.PageInfo;
 import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -26,9 +27,12 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
+import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
-import org.apache.inlong.manager.client.api.InlongClient;
+import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 
 @Slf4j
 public class InlongClientImpl implements InlongClient {
@@ -67,6 +71,19 @@ public class InlongClientImpl implements InlongClient {
     @Override
     public InlongGroup forGroup(InlongGroupConf groupConf) throws Exception {
         return new InlongGroupImpl(groupConf, this);
+    }
+
+    @Override
+    public PageInfo<InlongGroupListResponse> listGroup(String keyword, int status,
+            int pageNum, int pageSize) throws Exception {
+        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
+        return managerClient.listGroupInfo(keyword, status, pageNum, pageSize);
+    }
+
+    @Override
+    public InlongGroupRequest getGroup(String groupId) throws Exception {
+        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
+        return managerClient.getGroupInfo(groupId);
     }
 
     private boolean checkConnectivity(String host, int port, int connectTimeout) {

@@ -29,10 +29,9 @@ import org.slf4j.LoggerFactory;
 
 public class BinlogSnapshotBase implements SnapshotBase {
 
-    private static final Logger log = LoggerFactory.getLogger(BinlogSnapshotBase.class);
     public static final int BUFFER_SIZE = 1024;
     public static final int START_OFFSET = 0;
-
+    private static final Logger log = LoggerFactory.getLogger(BinlogSnapshotBase.class);
     private File file;
 
     private byte[] offset;

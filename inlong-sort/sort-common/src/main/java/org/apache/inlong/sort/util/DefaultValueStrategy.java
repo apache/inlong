@@ -25,11 +25,14 @@ import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.ShortFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class DefaultValueStrategy {
+public class DefaultValueStrategy implements Serializable {
+
+    private static final long serialVersionUID = 881598088059245436L;
 
     private final Map<String, Object> typeDefaultValues = new HashMap<>();
 
