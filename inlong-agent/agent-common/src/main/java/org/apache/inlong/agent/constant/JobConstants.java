@@ -27,6 +27,7 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_INSTANCE_ID = "job.instance.id";
     public static final String JOB_IP = "job.ip";
     public static final String JOB_RETRY = "job.retry";
+    public static final String JOB_UUID = "job.uuid";
 
     public static final String JOB_SOURCE = "job.source";
 
@@ -40,26 +41,32 @@ public class JobConstants extends CommonConstants {
     public static final String DEFAULT_JOB_LINE_FILTER = "";
 
     //File job
-    public static final String JOB_TRIGGER = "job.filejob.trigger";
-    public static final String JOB_LINE_FILTER_PATTERN = "job.filejob.dir.pattern";
-    public static final String JOB_DIR_FILTER_PATTERN = "job.filejob.dir.pattern";
-    public static final String JOB_FILE_TIME_OFFSET = "job.filejob.timeOffset";
-    public static final String JOB_FILE_MAX_WAIT = "job.filejob.file.max.wait";
-    public static final String JOB_ADDITION_STR = "job.filejob.additionStr";
-    public static final String JOB_CYCLE_UNIT = "job.filejob.cycleUnit";
-
-    public static final String JOB_DIR_FILTER_PATH = "job.filejob.dir.path";
+    public static final String JOB_TRIGGER = "job.fileJob.trigger";
+    public static final String JOB_LINE_FILTER_PATTERN = "job.fileJob.dir.pattern";
+    public static final String JOB_DIR_FILTER_PATTERN = "job.fileJob.dir.pattern";
+    public static final String JOB_FILE_TIME_OFFSET = "job.fileJob.timeOffset";
+    public static final String JOB_FILE_MAX_WAIT = "job.fileJob.file.max.wait";
+    public static final String JOB_ADDITION_STR = "job.fileJob.additionStr";
+    public static final String JOB_CYCLE_UNIT = "job.fileJob.cycleUnit";
+    public static final String JOB_DIR_FILTER_PATH = "job.fileJob.dir.path";
 
     //Binlog job
-    public static final String JOB_DATABASE_USER = "job.binlogjob.user";
-    public static final String JOB_DATABASE_PASSWORD = "job.binlogjob.password";
-    public static final String JOB_DATABASE_HOSTNAME = "job.binlogjob.hostname";
-    public static final String JOB_DATABASE_WHITELIST = "job.binlogjob.tableWhiteList";
-    public static final String JOB_DATABASE_SERVER_TIME_ZONE = "job.binlogjob.database.serverTimezone";
-    public static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "offset.binlogjob.offset.flush.interval.ms";
-    public static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.binlogjob.database.history.file.filename";
-    public static final String JOB_DATABASE_SNAPSHOT_MODE = "job.binlogjob.database.snapshot.mode";
-    public static final String JOB_DATABASE_OFFSET = "job.binlogjob.database.offset";
+    public static final String JOB_DATABASE_USER = "job.binlogJob.user";
+    public static final String JOB_DATABASE_PASSWORD = "job.binlogJob.password";
+    public static final String JOB_DATABASE_HOSTNAME = "job.binlogJob.hostname";
+    public static final String JOB_TABLE_WHITELIST = "job.binlogJob.tableWhiteList";
+    public static final String JOB_DATABASE_WHITELIST = "job.binlogJob.databaseWhiteList";
+    public static final String JOB_DATABASE_OFFSETS = "job.binlogJob.offsets";
+    public static final String JOB_DATABASE_OFFSET_FILENAME = "job.binlogJob.offset.filename";
+
+    public static final String JOB_DATABASE_SERVER_TIME_ZONE = "job.binlogJob.serverTimezone";
+    public static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "job.binlogJob.offset.intervalMs";
+
+    public static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.binlogJob.history.filename";
+    public static final String JOB_DATABASE_INCLUDE_SCHEMA_CHANGES = "job.binlogJob.schema";
+    public static final String JOB_DATABASE_SNAPSHOT_MODE = "job.binlogJob.snapshot.mode";
+    public static final String JOB_DATABASE_HISTORY_MONITOR_DDL = "job.binlogJob.ddl";
+    public static final String JOB_DATABASE_PORT = "job.binlogJob.port";
 
     //Kafka job
     public static final String JOB_KAFKA_TOPIC = "job.kafkaJob.topic";

@@ -20,7 +20,7 @@ package org.apache.inlong.agent.pojo;
 import lombok.Data;
 
 @Data
-public class FileJob extends Job {
+public class FileJob  {
 
     private String trigger;
 

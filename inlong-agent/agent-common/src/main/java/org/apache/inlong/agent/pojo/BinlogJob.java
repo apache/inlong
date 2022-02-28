@@ -20,17 +20,39 @@ package org.apache.inlong.agent.pojo;
 import lombok.Data;
 
 @Data
-public class BinlogJob extends Job {
+public class BinlogJob {
 
     private  String user;
     private  String password;
     private  String hostname;
-    private  String whitelist;
-    private  String timeZone;
-    private  String intervalMs;
-    private  String storeHistoryFilename;
-    private  String snapshotMode;
-    private  String offset;
+    private  String tableWhiteList;
+    private  String databaseWhiteList;
+    private  String ddl;
+    private  String port;
+    private  String schema;
+    private  String serverTimezone;
+    private  String offsets;
+
+    private  Snapshot snapshot;
+    private  Offset offset;
+    private History history;
+
+    @Data
+    public static class Offset {
+        private  String intervalMs;
+        private  String filename;
+    }
+
+    @Data
+    public static class Snapshot {
+        private  String mode;
+    }
+
+    @Data
+    public static class History {
+        private  String filename;
+
+    }
 
     @Data
     public static class BinlogJobTaskConfig {
@@ -38,12 +60,17 @@ public class BinlogJob extends Job {
         private  String user;
         private  String password;
         private  String hostname;
-        private  String whitelist;
-        private  String timeZone;
+        private  String port;
+        private  String schema;
+
+        private  String databaseWhiteList;
+        private  String tableWhiteList;
+        private  String serverTimezone;
         private  String intervalMs;
-        private  String storeHistoryFilename;
-        private  String snapshotMode;
-        private  String offset;
+        private  String offsetFilename;
+        private  String historyFilename;
+        private  String mode;
+        private  String ddl;
     }
 
 }

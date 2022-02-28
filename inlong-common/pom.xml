@@ -103,13 +103,6 @@
             <artifactId>simpleclient_httpserver</artifactId>
             <version>${simpleclient_httpserver.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${common.lang3.vserion}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>

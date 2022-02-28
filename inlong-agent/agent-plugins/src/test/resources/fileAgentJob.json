@@ -1,11 +1,11 @@
 {
   "job": {
-    "file": {
-      "max": {
-        "wait": 1
-      }
-    },
-    "filejob": {
+    "fileJob": {
+      "file": {
+        "max": {
+          "wait": 1
+        }
+      },
       "trigger": "org.apache.inlong.agent.plugin.trigger.DirectoryTrigger",
       "dir": {
         "path": "",

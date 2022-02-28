@@ -46,7 +46,7 @@ public class BinlogReader implements Reader {
     private static final String JOB_TABLE_WHITELIST = "job.binlogJob.tableWhiteList";
     private static final String JOB_DATABASE_WHITELIST = "job.binlogJob.databaseWhiteList";
 
-    private static final String JOB_DATABASE_SNAPSHOT = "job.binlogJob.offset";
+    private static final String JOB_DATABASE_OFFSETS = "job.binlogJob.offsets";
     private static final String JOB_DATABASE_OFFSET_FILENAME = "job.binlogJob.offset.filename";
 
     private static final String JOB_DATABASE_SERVER_TIME_ZONE = "job.binlogJob.serverTimezone";
@@ -114,7 +114,7 @@ public class BinlogReader implements Reader {
         instanceId = jobConf.getInstanceId();
         finished = false;
 
-        offset = jobConf.get(JOB_DATABASE_SNAPSHOT, "");
+        offset = jobConf.get(JOB_DATABASE_OFFSETS, "");
         binlogSnapshot = new BinlogSnapshotBase(offsetStoreFileName);
         binlogSnapshot.save(offset);
 

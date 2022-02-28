@@ -20,10 +20,10 @@ package org.apache.inlong.agent.pojo;
 import lombok.Data;
 
 @Data
-public class KafkaJob extends Job {
+public class KafkaJob {
 
-    private  String topic;
-    private  String bootstrapServers;
+    private String topic;
+    private String bootstrapServers;
     private Group group;
     private Bootstrap bootstrap;
     private Partition partition;
@@ -59,12 +59,11 @@ public class KafkaJob extends Job {
     @Data
     public static class KafkaJobTaskConfig {
 
-        private  String topic;
-        private  String bootstrapServers;
-        private  String groupId;
-        private  String recordSpeedLimit;
-        private  String byteSpeedLimit;
-        private  String offset;
+        private String topic;
+        private String bootstrapServers;
+        private String groupId;
+        private String recordSpeedLimit;
+        private String byteSpeedLimit;
         private  String autoOffsetReset;
     }
 }

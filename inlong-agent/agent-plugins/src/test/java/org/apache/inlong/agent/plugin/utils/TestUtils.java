@@ -30,7 +30,7 @@ public class TestUtils {
     public static String getTestTriggerProfile() {
         return "{\n"
                 + "  \"job\": {\n"
-                + "    \"filejob\": {\n"
+                + "    \"fileJob\": {\n"
                 + "      \"additionStr\": \"m=15&file=test\",\n"
                 + "      \"trigger\": \"org.apache.inlong.agent.plugin.trigger.DirectoryTrigger\",\n"
                 + "      \"dir\": {\n"
