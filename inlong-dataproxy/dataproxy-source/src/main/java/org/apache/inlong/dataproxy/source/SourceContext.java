@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.source;
 
+import io.netty.channel.group.ChannelGroup;
 import java.util.Date;
 import java.util.Map;
 import java.util.Timer;
@@ -31,7 +32,6 @@ import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.IdTopicConfigHolder;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
-import org.jboss.netty.channel.group.ChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

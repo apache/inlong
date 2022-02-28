@@ -17,6 +17,11 @@
 
 package org.apache.inlong.dataproxy.source.tcp;
 
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import java.lang.reflect.Constructor;
 import java.util.concurrent.TimeUnit;
 
@@ -25,14 +30,6 @@ import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.source.SourceContext;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.channel.SimpleChannelHandler;
-import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
-import org.jboss.netty.handler.timeout.ReadTimeoutHandler;
-import org.jboss.netty.util.HashedWheelTimer;
-import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +38,8 @@ import com.google.common.base.Preconditions;
 /**
  * InlongTcpChannelPipelineFactory
  */
-public class InlongTcpChannelPipelineFactory implements ChannelPipelineFactory, Configurable {
+public class InlongTcpChannelPipelineFactory extends ChannelInitializer<SocketChannel>
+        implements Configurable {
 
     public static final Logger LOG = LoggerFactory.getLogger(InlongTcpChannelPipelineFactory.class);
     public static final int DEFAULT_LENGTH_FIELD_OFFSET = 0;
@@ -52,54 +50,48 @@ public class InlongTcpChannelPipelineFactory implements ChannelPipelineFactory, 
     private static final int DEFAULT_READ_IDLE_TIME = 70 * 60 * 1000;
     private SourceContext sourceContext;
     private String messageHandlerName;
-    private Timer timer = new HashedWheelTimer();
+    private String protocolType;
 
     /**
      * get server factory
      *
      * @param sourceContext
      */
-    public InlongTcpChannelPipelineFactory(SourceContext sourceContext) {
+    public InlongTcpChannelPipelineFactory(SourceContext sourceContext, String protocolType) {
         this.sourceContext = sourceContext;
+        this.protocolType = protocolType;
     }
 
     @Override
-    public ChannelPipeline getPipeline() throws Exception {
-        ChannelPipeline cp = Channels.pipeline();
-        return addMessageHandlersTo(cp);
-    }
+    protected void initChannel(SocketChannel ch) {
 
-    /**
-     * get message handlers
-     * 
-     * @param  cp
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public ChannelPipeline addMessageHandlersTo(ChannelPipeline cp) {
-        cp.addLast("messageDecoder", new LengthFieldBasedFrameDecoder(
-                sourceContext.getMaxMsgLength(), DEFAULT_LENGTH_FIELD_OFFSET, DEFAULT_LENGTH_FIELD_LENGTH,
-                DEFAULT_LENGTH_ADJUSTMENT, DEFAULT_INITIAL_BYTES_TO_STRIP, DEFAULT_FAIL_FAST));
-        cp.addLast("readTimeoutHandler", new ReadTimeoutHandler(timer,
-                DEFAULT_READ_IDLE_TIME, TimeUnit.MILLISECONDS));
+        if (StringUtils.isEmpty(protocolType) || this.protocolType
+                .equalsIgnoreCase(ConfigConstants.TCP_PROTOCOL)) {
+            ch.pipeline().addLast("messageDecoder", new LengthFieldBasedFrameDecoder(
+                    sourceContext.getMaxMsgLength(), DEFAULT_LENGTH_FIELD_OFFSET,
+                    DEFAULT_LENGTH_FIELD_LENGTH,
+                    DEFAULT_LENGTH_ADJUSTMENT, DEFAULT_INITIAL_BYTES_TO_STRIP, DEFAULT_FAIL_FAST));
+            ch.pipeline().addLast("readTimeoutHandler",
+                    new ReadTimeoutHandler(DEFAULT_READ_IDLE_TIME, TimeUnit.MILLISECONDS));
+        }
 
         if (sourceContext.getSource().getChannelProcessor() != null) {
             try {
-                Class<? extends SimpleChannelHandler> clazz = (Class<? extends SimpleChannelHandler>) Class
+                Class<? extends ChannelInboundHandlerAdapter> clazz =
+                        (Class<? extends ChannelInboundHandlerAdapter>) Class
                         .forName(messageHandlerName);
 
                 Constructor<?> ctor = clazz.getConstructor(SourceContext.class);
 
-                SimpleChannelHandler messageHandler = (SimpleChannelHandler) ctor
+                ChannelInboundHandlerAdapter messageHandler = (ChannelInboundHandlerAdapter) ctor
                         .newInstance(sourceContext);
 
-                cp.addLast("messageHandler", messageHandler);
+                ch.pipeline().addLast("messageHandler", messageHandler);
             } catch (Exception e) {
-                LOG.error("SimpleChannelHandler.newInstance  has error:" + sourceContext.getSource().getName(), e);
+                LOG.error("SimpleChannelHandler.newInstance  has error:"
+                        + sourceContext.getSource().getName(), e);
             }
         }
-
-        return cp;
     }
 
     @Override
