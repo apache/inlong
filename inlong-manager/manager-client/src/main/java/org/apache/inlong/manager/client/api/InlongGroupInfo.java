@@ -53,7 +53,7 @@ public class InlongGroupInfo implements Serializable {
     }
 
     public enum InlongGroupState {
-        OPERATING, REJECTED, INIT, STARTED, FAILED, STOPPED, FINISHED, DELETED;
+        OPERATING, REJECTED, INITIALIZING, STARTED, FAILED, STOPPED, FINISHED, DELETED;
 
         // Reference to  org.apache.inlong.manager.common.enums.GroupState code
         public static InlongGroupState parseByBizStatus(int bizCode) {
@@ -67,7 +67,7 @@ public class InlongGroupInfo implements Serializable {
                 case 101:
                 case 103:
                 case 110:
-                    return INIT;
+                    return INITIALIZING;
                 case 120:
                     return FAILED;
                 case 130:
