@@ -17,7 +17,9 @@
 # under the License.
 #
 
+from __future__ import unicode_literals
 import time
+import tubemq_config
 import tubemq
 
 topic_list = {'test_topic'}  # consum all of topic
@@ -26,14 +28,30 @@ MASTER_ADDR = '127.0.0.1:8000'
 GROUP_NAME = 'test_group'
 
 # Start consumer
-consumer = tubemq.Consumer(MASTER_ADDR, GROUP_NAME, topic_list)
+consumer = tubemq.Consumer(MASTER_ADDR, GROUP_NAME, topic_list,
+                           consume_osition=tubemq_config.ConsumePosition.kConsumeFromFirstOffset)
 
 # Test consumer
 start_time = time.time()
+tubeMsgsArr = []
 while True:
-    msgs = consumer.receive()
-    if msgs:
-        print("GetMessage success, msssage count =", len(msgs))
+    messageList = consumer.receive()
+    if messageList:
+        print("GetMessage success, msssage count =", len(messageList))
+        for message in messageList:
+            attributeMap = message.getProperties()
+            attribute = ''
+            for (key, value) in attributeMap.items():
+                attribute = attribute + key + '=' + value + ','
+            attribute = attribute[:-1]
+            print("tube msg attribute ", attribute)
+            data = message.getMsgData()
+            decodeMsgs = tubemq.TubeMsg.parse_tdmsg_type_msg(message.getMsgData())
+            for msgIter in decodeMsgs:
+                tube_msg = tubemq.TubeMsg(attribute, msgIter)
+                tubeMsgsArr.append(tube_msg)
+                print("tube msg msgIter ", msgIter)
+
     consumer.acknowledge()
 
     # used for test, consume 10 minutes only
