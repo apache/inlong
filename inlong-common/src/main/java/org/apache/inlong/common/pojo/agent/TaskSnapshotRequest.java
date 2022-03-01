@@ -30,7 +30,7 @@ import java.util.List;
 public class TaskSnapshotRequest {
 
     /**
-     * the ip of agent Ip
+     * The ip of agent Ip
      */
     private String agentIp;
 

@@ -56,6 +56,9 @@ public class FetcherConstants {
 
     public static final String DEFAULT_LOCAL_IP = "127.0.0.1";
 
+    public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_HOST = "127.0.0.1";
+    public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PORT = "8083";
+
     public static final String AGENT_MANAGER_RETURN_PARAM_IP = "ip";
     public static final String AGENT_MANAGER_RETURN_PARAM_DATA = "data";
 

@@ -20,6 +20,7 @@ package org.apache.inlong.agent.core;
 import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.constant.FetcherConstants;
 import org.apache.inlong.agent.core.job.JobManager;
 import org.apache.inlong.agent.core.job.JobWrapper;
 import org.apache.inlong.agent.utils.ExcuteLinux;
@@ -141,9 +142,9 @@ public class HeartbeatManager  extends AbstractDaemon {
      * @example - http://127.0.0.1:8080/api/inlong/manager/openapi
      */
     private String buildBaseUrl() {
-        return "http://" + conf.get(AGENT_MANAGER_VIP_HTTP_HOST)
-                + ":" + conf.get(AGENT_MANAGER_VIP_HTTP_PORT) + conf.get(
-                AGENT_MANAGER_VIP_HTTP_PREFIX_PATH, DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
+        return "http://" + conf.get(AGENT_MANAGER_VIP_HTTP_HOST,FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_HOST)
+                + ":" + conf.get(AGENT_MANAGER_VIP_HTTP_PORT, FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PORT)
+                + conf.get(AGENT_MANAGER_VIP_HTTP_PREFIX_PATH, DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
     }
 
     private String builReportSnapShotUrl(String baseUrl) {
