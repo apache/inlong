@@ -223,7 +223,7 @@ public class InnerInlongManagerClient {
             org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
             return Pair.of(responseBody.getData().toString(), responseBody.getErrMsg());
         } catch (Exception e) {
-            throw new RuntimeException(String.format("Inlong group save failed: %s", e.getMessage()), e);
+            throw new RuntimeException(String.format("Inlong group update failed: %s", e.getMessage()), e);
         }
     }
 
@@ -568,9 +568,9 @@ public class InnerInlongManagerClient {
 
     public boolean operateInlongGroup(String groupId, InlongGroupState status) {
         String path = HTTP_PATH;
-        if (status == InlongGroupState.SUSPEND) {
+        if (status == InlongGroupState.STOPPED) {
             path += "/group/suspendProcess/";
-        } else if (status == InlongGroupState.RESTART) {
+        } else if (status == InlongGroupState.STARTED) {
             path += "/group/restartProcess/";
         } else {
             throw new IllegalArgumentException(String.format("Unsupported state: %s", status));

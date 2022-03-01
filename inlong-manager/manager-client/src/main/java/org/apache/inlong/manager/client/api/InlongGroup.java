@@ -45,6 +45,14 @@ public interface InlongGroup {
     InlongGroupInfo init() throws Exception;
 
     /**
+     * Init inlong group on updated conf.
+     * Must be invoked when group is rejected,failed or started
+     *
+     * @return inlong group info
+     */
+    InlongGroupInfo initOnUpdate(InlongGroupConf conf) throws Exception;
+
+    /**
      * Suspend the stream group and return group info.
      *
      * @return group info

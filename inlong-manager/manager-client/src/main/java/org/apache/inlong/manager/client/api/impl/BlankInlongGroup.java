@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api.impl;
 
 import java.util.List;
 import org.apache.inlong.manager.client.api.InlongGroup;
+import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.InlongGroupInfo;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
@@ -38,6 +39,11 @@ public class BlankInlongGroup implements InlongGroup {
 
     @Override
     public InlongGroupInfo init() throws Exception {
+        throw new UnsupportedOperationException("Inlong group is not exists");
+    }
+
+    @Override
+    public InlongGroupInfo initOnUpdate(InlongGroupConf conf) throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 
