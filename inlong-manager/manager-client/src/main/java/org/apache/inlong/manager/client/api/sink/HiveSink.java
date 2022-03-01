@@ -32,6 +32,7 @@ import org.apache.inlong.manager.client.api.DataSeparator;
 import org.apache.inlong.manager.client.api.StreamField;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.enums.SinkType;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

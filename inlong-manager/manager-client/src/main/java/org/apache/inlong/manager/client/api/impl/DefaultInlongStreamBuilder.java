@@ -27,15 +27,15 @@ import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.client.api.StreamField;
 import org.apache.inlong.manager.client.api.StreamSink;
-import org.apache.inlong.manager.client.api.StreamSink.SinkType;
 import org.apache.inlong.manager.client.api.StreamSource;
-import org.apache.inlong.manager.client.api.StreamSource.SourceType;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.inner.InnerStreamContext;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.client.api.util.InlongStreamSourceTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamTransfer;
+import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
@@ -137,7 +137,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     private int initOrUpdateSource(SourceRequest sourceRequest) {
         String sourceType = sourceRequest.getSourceType();
-        if (SourceType.KAFKA.name().equals(sourceType) || SourceType.BINLOG.name().equals(sourceType)) {
+        if (SourceType.KAFKA.name().equals(sourceType) || SourceType.DB_BINLOG.name().equals(sourceType)) {
             List<SourceListResponse> responses = managerClient.listSources(sourceRequest.getInlongGroupId(),
                     sourceRequest.getInlongStreamId(), sourceRequest.getSourceType());
             if (CollectionUtils.isEmpty(responses)) {

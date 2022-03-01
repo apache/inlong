@@ -19,24 +19,11 @@ package org.apache.inlong.manager.client.api;
 
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import org.apache.inlong.manager.common.enums.SourceType;
 
 @Data
 @ApiModel("Stream source configuration")
 public abstract class StreamSource {
-
-    public enum SourceType {
-        FILE, KAFKA, DB, BINLOG;
-
-        public static SourceType forType(String type) {
-            for (SourceType sourceType : values()) {
-                if (sourceType.name().equals(type)) {
-                    return sourceType;
-                }
-            }
-            throw new IllegalArgumentException(
-                    String.format("Unsupport source type=%s for Inlong", type));
-        }
-    }
 
     public enum SyncType {
         FULL, INCREMENT

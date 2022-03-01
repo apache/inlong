@@ -40,8 +40,7 @@ public class SourcePageRequest extends PageRequest {
     @ApiModelProperty(value = "Inlong stream id")
     private String inlongStreamId;
 
-    @NotNull
-    @ApiModelProperty(value = "Source type, such as FILE", required = true)
+    @ApiModelProperty(value = "Source type, such as FILE")
     private String sourceType;
 
     @ApiModelProperty(value = "Key word")
