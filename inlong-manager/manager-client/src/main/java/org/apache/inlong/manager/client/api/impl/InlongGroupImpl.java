@@ -102,12 +102,35 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
+    public InlongGroupInfo initOnUpdate(InlongGroupConf conf) throws Exception {
+        if (conf != null) {
+            AssertUtil.isTrue(conf.getGroupName() != null
+                            && conf.getGroupName().equals(this.groupConf.getGroupName()),
+                    "Group must have same name");
+            this.groupConf = conf;
+        } else {
+            conf = this.groupConf;
+        }
+        InlongGroupRequest groupRequest = InlongGroupTransfer.createGroupInfo(conf);
+        Pair<String, String> idAndErr = managerClient.updateGroupInfo(groupRequest);
+        String errMsg = idAndErr.getValue();
+        AssertUtil.isNull(errMsg, errMsg);
+        Pair<Boolean, InlongGroupRequest> existMsg = managerClient.isGroupExists(groupRequest);
+        if (existMsg.getKey()) {
+            this.groupContext.setGroupRequest(existMsg.getValue());
+            return init();
+        } else {
+            throw new RuntimeException(String.format("Group is not found by groupName=%s",groupRequest.getName()));
+        }
+    }
+
+    @Override
     public InlongGroupInfo suspend() throws Exception {
         Pair<String, String> idAndErr = managerClient.updateGroupInfo(groupContext.getGroupRequest());
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
-        managerClient.operateInlongGroup(groupId, InlongGroupState.SUSPEND);
+        managerClient.operateInlongGroup(groupId, InlongGroupState.STOPPED);
         return generateSnapshot(null);
     }
 
@@ -117,7 +140,7 @@ public class InlongGroupImpl implements InlongGroup {
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
-        managerClient.operateInlongGroup(groupId, InlongGroupState.RESTART);
+        managerClient.operateInlongGroup(groupId, InlongGroupState.STARTED);
         return generateSnapshot(null);
     }
 

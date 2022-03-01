@@ -35,7 +35,9 @@ public enum GroupState {
     GROUP_CONFIG_SUCCESSFUL(130, "configuration successful"),
     GROUP_SUSPEND(140, "suspend"),
     GROUP_RESTART(150, "restart"),
-    GROUP_DELETE(40, "delete");
+    GROUP_DELETE(40, "delete"),
+    //GROUP_FINISH is used for batch task.
+    GROUP_FINISH(131, "finish");
 
     private static final Map<GroupState, Set<GroupState>> GROUP_FINITE_STATE_AUTOMATON = Maps.newHashMap();
 
@@ -56,13 +58,16 @@ public enum GroupState {
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_CONFIG_ING,
                 Sets.newHashSet(GROUP_CONFIG_ING, GROUP_CONFIG_FAILED, GROUP_CONFIG_SUCCESSFUL));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_CONFIG_FAILED,
-                Sets.newHashSet(GROUP_CONFIG_FAILED, GROUP_WAIT_SUBMIT, GROUP_DELETE));
+                Sets.newHashSet(GROUP_CONFIG_FAILED, GROUP_WAIT_APPROVAL, GROUP_DELETE));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_CONFIG_SUCCESSFUL,
-                Sets.newHashSet(GROUP_CONFIG_SUCCESSFUL, GROUP_WAIT_APPROVAL, GROUP_SUSPEND, GROUP_DELETE));
+                Sets.newHashSet(GROUP_CONFIG_SUCCESSFUL, GROUP_WAIT_APPROVAL, GROUP_SUSPEND, GROUP_FINISH,
+                        GROUP_DELETE));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_SUSPEND,
                 Sets.newHashSet(GROUP_SUSPEND, GROUP_RESTART, GROUP_DELETE));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_RESTART,
-                Sets.newHashSet(GROUP_RESTART, GROUP_SUSPEND, GROUP_DELETE));
+                Sets.newHashSet(GROUP_RESTART, GROUP_SUSPEND, GROUP_WAIT_APPROVAL, GROUP_DELETE));
+        GROUP_FINITE_STATE_AUTOMATON.put(GROUP_FINISH,
+                Sets.newHashSet(GROUP_FINISH, GROUP_DELETE));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_DELETE,
                 Sets.newHashSet(GROUP_DELETE));
     }

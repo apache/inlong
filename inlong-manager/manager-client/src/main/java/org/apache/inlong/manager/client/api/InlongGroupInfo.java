@@ -54,28 +54,32 @@ public class InlongGroupInfo implements Serializable {
     }
 
     public enum InlongGroupState {
-        INIT, FAIL, START, SUSPEND, RESTART, DELETE;
+        OPERATING, REJECTED, INIT, STARTED, FAILED, STOPPED, FINISHED, DELETED;
 
-        // Reference to  org.apache.inlong.manager.common.enums.EntityStatus code
+        // Reference to  org.apache.inlong.manager.common.enums.GroupState code
         public static InlongGroupState parseByBizStatus(int bizCode) {
 
             switch (bizCode) {
+                case 0:
                 case 100:
+                    return OPERATING;
+                case 102:
+                    return REJECTED;
                 case 101:
                 case 103:
                 case 110:
                     return INIT;
-                case 102:
                 case 120:
-                    return FAIL;
+                    return FAILED;
                 case 130:
-                    return START;
                 case 150:
-                    return RESTART;
+                    return STARTED;
                 case 140:
-                    return SUSPEND;
+                    return STOPPED;
+                case 135:
+                    return FINISHED;
                 case 40:
-                    return DELETE;
+                    return DELETED;
                 default:
                     throw new IllegalArgumentException(String.format("Unsupported status %s for group", bizCode));
             }
