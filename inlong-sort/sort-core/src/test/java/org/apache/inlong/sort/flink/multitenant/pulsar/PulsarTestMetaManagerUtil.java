@@ -61,7 +61,7 @@ public class PulsarTestMetaManagerUtil extends TestMetaManagerUtil {
         };
 
         Map<String, Object> config = new HashMap<>();
-        config.put("pulsar.source.consumer.bootstrap-mode", "earliest");
+        config.put("consumer.bootstrap-mode", "earliest");
 
         return new DataFlowInfo(
                 dataFlowId,
