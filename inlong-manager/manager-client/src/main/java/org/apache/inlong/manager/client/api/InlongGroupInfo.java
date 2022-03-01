@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.api;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.Data;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
@@ -38,7 +39,8 @@ public class InlongGroupInfo implements Serializable {
 
     private Map<String, InlongStream> inlongStreamMap;
 
-    private List<String> errMsg;
+    //k->taskName v->errorMsg
+    private Map<String, String> errMsg;
 
     private InlongGroupState state;
 
@@ -49,7 +51,7 @@ public class InlongGroupInfo implements Serializable {
         this.groupName = groupInfo.getName();
         this.groupConf = streamGroupConf;
         this.inlongStreamMap = groupContext.getStreamMap();
-        this.errMsg = Lists.newArrayList();
+        this.errMsg = Maps.newHashMap();
         this.state = InlongGroupState.parseByBizStatus(groupInfo.getStatus());
     }
 
