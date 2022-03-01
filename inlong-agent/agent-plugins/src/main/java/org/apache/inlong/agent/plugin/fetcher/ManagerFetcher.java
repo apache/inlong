@@ -275,6 +275,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
         for (DataConfig dataConfig : taskResult.getDataConfigs()) {
             TriggerProfile profile = TriggerProfile.getTriggerProfiles(dataConfig);
+            LOGGER.info("the triggerProfile : {} " ,profile);
             if (profile.hasKey(JOB_TRIGGER)) {
                 dealWithTdmTriggerProfile(profile);
             } else {

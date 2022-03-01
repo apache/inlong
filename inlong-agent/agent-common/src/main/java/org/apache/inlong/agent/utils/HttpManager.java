@@ -42,6 +42,7 @@ public class HttpManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpManager.class);
     private final CloseableHttpClient httpClient;
+    private static final GsonBuilder gsonBuilder = new GsonBuilder();
 
     /**
      * construct http client
@@ -87,7 +88,6 @@ public class HttpManager {
     }
 
     public static final String toJsonStr(Object obj) {
-        GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.setPrettyPrinting();
         Gson gson = gsonBuilder.create();
         return gson.toJson(obj);

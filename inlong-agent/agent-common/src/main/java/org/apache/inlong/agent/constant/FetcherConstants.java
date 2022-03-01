@@ -33,7 +33,7 @@ public class FetcherConstants {
     public static final String AGENT_MANAGER_VIP_HTTP_PATH = "agent.manager.vip.http.managerIp.path";
     public static final String DEFAULT_AGENT_TDM_VIP_HTTP_PATH = "/agent/getInLongManagerIp";
 
-    public static final String  AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "agent.manager.vip.http.prefix.path";
+    public static final String AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "agent.manager.vip.http.prefix.path";
     public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "/api/inlong/manager/openapi";
 
     public static final String AGENT_MANAGER_TASK_HTTP_PATH = "agent.manager.task.path";
@@ -53,9 +53,6 @@ public class FetcherConstants {
     public static final int AGENT_HTTP_SUCCESS_CODE = 200;
 
     public static final String DEFAULT_LOCAL_IP = "127.0.0.1";
-
-    public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_HOST = "127.0.0.1";
-    public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PORT = "8083";
 
     public static final String AGENT_MANAGER_RETURN_PARAM_IP = "ip";
     public static final String AGENT_MANAGER_RETURN_PARAM_DATA = "data";
