@@ -95,6 +95,7 @@ public class ConfigJetty implements Closeable {
                         jobManager.submitJobProfile(jobProfile, true);
                         break;
                     default:
+                        LOGGER.error("source type not supported {}", taskType);
                 }
             }
         }
