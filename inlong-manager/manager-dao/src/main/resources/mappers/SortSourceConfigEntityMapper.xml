@@ -137,7 +137,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
-  <select id="selectByClusterAndTask" resultMap="BaseResultMap">
+  <select id="selectByClusterAndTask" resultMap="ResultMapWithBLOBs">
     select
     <include refid="Base_Column_List" />
     from sort_source_config
