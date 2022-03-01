@@ -76,6 +76,8 @@ public class InlongGroupSettings {
 
     public static String DEFAULT_SORT_TYPE = "flink";
 
+    public static String SORT_NAME = "sort.name";
+
     public static String SORT_URL = "sort.url";
 
     public static String SORT_AUTHENTICATION = "sort.authentication";

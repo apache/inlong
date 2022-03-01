@@ -29,6 +29,13 @@ public interface InlongGroup {
     InlongStreamBuilder createStream(InlongStreamConf streamConf) throws Exception;
 
     /**
+     * Create snapshot for Inlong group
+     * @return
+     * @throws Exception
+     */
+    InlongGroupInfo snapshot() throws Exception;
+
+    /**
      * Init inlong group.
      * This operation will init all physical resources needed to start a stream group
      * Must be operated after all inlong streams were created;
@@ -72,5 +79,4 @@ public interface InlongGroup {
      * @return inlong stream contained in this group
      */
     List<InlongStream> listStreams() throws Exception;
-
 }

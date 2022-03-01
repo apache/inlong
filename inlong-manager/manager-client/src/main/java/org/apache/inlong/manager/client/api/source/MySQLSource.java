@@ -24,6 +24,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.StreamSource;
+import org.apache.inlong.manager.common.enums.SourceType;
 
 @Data
 @AllArgsConstructor
@@ -32,7 +33,7 @@ import org.apache.inlong.manager.client.api.StreamSource;
 public class MySQLSource extends StreamSource {
 
     @ApiModelProperty(value = "DataSource type", required = true)
-    private SourceType sourceType = SourceType.DB;
+    private SourceType sourceType = SourceType.DB_SQL;
 
     @ApiModelProperty("SyncType for MySQL")
     private SyncType syncType;

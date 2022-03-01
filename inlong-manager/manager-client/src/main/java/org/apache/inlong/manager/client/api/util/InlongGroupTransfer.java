@@ -18,6 +18,11 @@
 package org.apache.inlong.manager.client.api.util;
 
 import com.google.common.collect.Lists;
+import com.google.gson.reflect.TypeToken;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.FlinkSortBaseConf;
@@ -34,15 +39,142 @@ import org.apache.inlong.manager.client.api.auth.Authentication.AuthType;
 import org.apache.inlong.manager.client.api.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.client.api.auth.TokenAuthentication;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupMqExtBase;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class InlongGroupTransfer {
+
+    public static InlongGroupConf parseGroupRequest(InlongGroupRequest groupRequest) {
+        InlongGroupConf inlongGroupConf = new InlongGroupConf();
+        inlongGroupConf.setGroupName(groupRequest.getName());
+        inlongGroupConf.setDescription(groupRequest.getDescription());
+        inlongGroupConf.setCnName(groupRequest.getCnName());
+        inlongGroupConf.setZookeeperEnabled(groupRequest.getZookeeperEnabled() == 1);
+        inlongGroupConf.setDailyRecords(Long.valueOf(groupRequest.getDailyRecords()));
+        inlongGroupConf.setPeakRecords(Long.valueOf(groupRequest.getPeakRecords()));
+        inlongGroupConf.setMqBaseConf(parseMqBaseConf(groupRequest));
+        inlongGroupConf.setSortBaseConf(parseSortBaseConf(groupRequest));
+        return inlongGroupConf;
+    }
+
+    public static MqBaseConf parseMqBaseConf(InlongGroupRequest inlongGroupRequest) {
+        InlongGroupMqExtBase mqExtBase = inlongGroupRequest.getMqExtInfo();
+        String middleWare = mqExtBase.getMiddlewareType();
+        MqType mqType = MqType.forType(middleWare);
+        switch (mqType) {
+            case NONE:
+                return MqBaseConf.BLANK_MQ_CONF;
+            case PULSAR:
+                return parsePulsarConf(inlongGroupRequest);
+            case TUBE:
+                return parseTubeConf(inlongGroupRequest);
+            default:
+                throw new RuntimeException(String.format("Illegal mqType=%s for Inlong", mqType));
+        }
+    }
+
+    public static SortBaseConf parseSortBaseConf(InlongGroupRequest groupRequest) {
+        List<InlongGroupExtInfo> groupExtInfos = groupRequest.getExtList();
+        if (CollectionUtils.isEmpty(groupExtInfos)) {
+            return null;
+        }
+        String type = null;
+        for (InlongGroupExtInfo extInfo : groupExtInfos) {
+            if (extInfo.getKeyName().equals(InlongGroupSettings.SORT_TYPE)) {
+                type = extInfo.getKeyValue();
+                break;
+            }
+        }
+        if (type == null) {
+            return null;
+        }
+        SortType sortType = SortType.forType(type);
+        switch (sortType) {
+            case FLINK:
+                return parseFlinkSortConf(groupExtInfos);
+            case USER_DEFINED:
+                return parseUdf(groupExtInfos);
+            default:
+                throw new IllegalArgumentException(String.format("Unsupport sort type=%s for Inlong", sortType));
+        }
+    }
+
+    private static FlinkSortBaseConf parseFlinkSortConf(List<InlongGroupExtInfo> groupExtInfos) {
+        FlinkSortBaseConf sortBaseConf = new FlinkSortBaseConf();
+        for (InlongGroupExtInfo extInfo : groupExtInfos) {
+            if (extInfo.getKeyName().equals(InlongGroupSettings.SORT_URL)) {
+                sortBaseConf.setServiceUrl(extInfo.getKeyValue());
+            }
+            if (extInfo.getKeyName().equals(InlongGroupSettings.SORT_PROPERTIES)) {
+                Map<String, String> properties = GsonUtil.fromJson(extInfo.getKeyValue(),
+                        new TypeToken<Map<String, String>>() {
+                        }.getType());
+                sortBaseConf.setProperties(properties);
+            }
+        }
+        return sortBaseConf;
+    }
+
+    private static UserDefinedSortConf parseUdf(List<InlongGroupExtInfo> groupExtInfos) {
+        UserDefinedSortConf sortConf = new UserDefinedSortConf();
+        for (InlongGroupExtInfo extInfo : groupExtInfos) {
+            if (extInfo.getKeyName().equals(InlongGroupSettings.SORT_NAME)) {
+                sortConf.setSortName(extInfo.getKeyValue());
+            }
+            if (extInfo.getKeyName().equals(InlongGroupSettings.SORT_PROPERTIES)) {
+                Map<String, String> properties = GsonUtil.fromJson(extInfo.getKeyValue(),
+                        new TypeToken<Map<String, String>>() {
+                        }.getType());
+                sortConf.setProperties(properties);
+            }
+        }
+        return sortConf;
+    }
+
+    private static PulsarBaseConf parsePulsarConf(InlongGroupRequest groupRequest) {
+        PulsarBaseConf pulsarBaseConf = new PulsarBaseConf();
+        pulsarBaseConf.setNamespace(groupRequest.getMqResourceObj());
+        InlongGroupPulsarInfo inlongGroupPulsarInfo = (InlongGroupPulsarInfo) groupRequest.getMqExtInfo();
+        pulsarBaseConf.setAckQuorum(inlongGroupPulsarInfo.getAckQuorum());
+        pulsarBaseConf.setWriteQuorum(inlongGroupPulsarInfo.getWriteQuorum());
+        pulsarBaseConf.setEnsemble(inlongGroupPulsarInfo.getEnsemble());
+        pulsarBaseConf.setTtl(inlongGroupPulsarInfo.getTtl());
+        pulsarBaseConf.setRetentionTime(inlongGroupPulsarInfo.getRetentionTime());
+        pulsarBaseConf.setRetentionSize(inlongGroupPulsarInfo.getRetentionSize());
+        pulsarBaseConf.setRetentionSizeUnit(inlongGroupPulsarInfo.getRetentionSizeUnit());
+        pulsarBaseConf.setRetentionTimeUnit(inlongGroupPulsarInfo.getRetentionTimeUnit());
+        List<InlongGroupExtInfo> groupExtInfos = groupRequest.getExtList();
+        for (InlongGroupExtInfo extInfo : groupExtInfos) {
+            if (extInfo.getKeyName().equals(InlongGroupSettings.PULSAR_ADMIN_URL)) {
+                pulsarBaseConf.setPulsarAdminUrl(extInfo.getKeyValue());
+            }
+            if (extInfo.getKeyName().equals(InlongGroupSettings.PULSAR_SERVICE_URL)) {
+                pulsarBaseConf.setPulsarServiceUrl(extInfo.getKeyValue());
+            }
+        }
+        return pulsarBaseConf;
+    }
+
+    private static TubeBaseConf parseTubeConf(InlongGroupRequest groupRequest) {
+        TubeBaseConf tubeBaseConf = new TubeBaseConf();
+        tubeBaseConf.setGroupName(groupRequest.getMqResourceObj());
+        List<InlongGroupExtInfo> groupExtInfos = groupRequest.getExtList();
+        for (InlongGroupExtInfo extInfo : groupExtInfos) {
+            if (extInfo.getKeyName().equals(InlongGroupSettings.TUBE_CLUSTER_ID)) {
+                tubeBaseConf.setTubeClusterId(Integer.parseInt(extInfo.getKeyValue()));
+            }
+            if (extInfo.getKeyName().equals(InlongGroupSettings.TUBE_MANAGER_URL)) {
+                tubeBaseConf.setTubeManagerUrl(extInfo.getKeyValue());
+            }
+            if (extInfo.getKeyName().equals(InlongGroupSettings.TUBE_MASTER_URL)) {
+                tubeBaseConf.setTubeMasterUrl(extInfo.getKeyValue());
+            }
+        }
+        return tubeBaseConf;
+    }
 
     public static InlongGroupRequest createGroupInfo(InlongGroupConf groupConf) {
         InlongGroupRequest groupInfo = new InlongGroupRequest();
@@ -165,7 +297,7 @@ public class InlongGroupTransfer {
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
         InlongGroupExtInfo sortType = new InlongGroupExtInfo();
         sortType.setKeyName(InlongGroupSettings.SORT_TYPE);
-        sortType.setKeyValue(InlongGroupSettings.DEFAULT_SORT_TYPE);
+        sortType.setKeyValue(SortType.FLINK.getType());
         extInfos.add(sortType);
         if (flinkSortBaseConf.getAuthentication() != null) {
             Authentication authentication = flinkSortBaseConf.getAuthentication();
@@ -201,8 +333,12 @@ public class InlongGroupTransfer {
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
         InlongGroupExtInfo sortType = new InlongGroupExtInfo();
         sortType.setKeyName(InlongGroupSettings.SORT_TYPE);
-        sortType.setKeyValue(userDefinedSortConf.getSortName());
+        sortType.setKeyValue(SortType.USER_DEFINED.getType());
         extInfos.add(sortType);
+        InlongGroupExtInfo sortName = new InlongGroupExtInfo();
+        sortName.setKeyName(InlongGroupSettings.SORT_NAME);
+        sortName.setKeyValue(userDefinedSortConf.getSortName());
+        extInfos.add(sortName);
         if (MapUtils.isNotEmpty(userDefinedSortConf.getProperties())) {
             InlongGroupExtInfo flinkProperties = new InlongGroupExtInfo();
             flinkProperties.setKeyName(InlongGroupSettings.SORT_PROPERTIES);

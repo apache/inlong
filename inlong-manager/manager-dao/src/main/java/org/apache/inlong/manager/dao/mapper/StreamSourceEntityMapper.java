@@ -17,14 +17,12 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface StreamSourceEntityMapper {
@@ -87,6 +85,6 @@ public interface StreamSourceEntityMapper {
 
     int deleteByPrimaryKey(Integer id);
 
-    List<DataConfig> selectAgentTaskDataConfig(TaskRequest taskRequest);
+    List<StreamSourceEntity> selectAgentTaskDataConfig(TaskRequest taskRequest);
 
 }

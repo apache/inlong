@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -43,6 +44,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
@@ -76,6 +78,11 @@ public class InlongGroupImpl implements InlongGroup {
     @Override
     public InlongStreamBuilder createStream(InlongStreamConf dataStreamConf) throws Exception {
         return new DefaultInlongStreamBuilder(dataStreamConf, this.groupContext, this.managerClient);
+    }
+
+    @Override
+    public InlongGroupInfo snapshot() throws Exception {
+        return generateSnapshot(groupContext.getGroupRequest());
     }
 
     @Override
@@ -170,7 +177,12 @@ public class InlongGroupImpl implements InlongGroup {
         String inlongGroupId = currentBizInfo.getInlongGroupId();
         List<InlongStream> dataStreams = fetchDataStreams(inlongGroupId);
         dataStreams.stream().forEach(dataStream -> groupContext.setStream(dataStream));
-        return new InlongGroupInfo(groupContext, groupConf);
+        InlongGroupInfo groupInfo = new InlongGroupInfo(groupContext, groupConf);
+        List<EventLogView> logViews = managerClient.getInlongGroupError(inlongGroupId);
+        Map<String, String> errMsgs = logViews.stream().collect(
+                Collectors.toMap(EventLogView::getEvent, EventLogView::getException));
+        groupInfo.setErrMsg(errMsgs);
+        return groupInfo;
     }
 
     private List<InlongStream> fetchDataStreams(String groupId) {

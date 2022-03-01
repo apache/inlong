@@ -37,6 +37,15 @@ public abstract class MqBaseConf implements Serializable {
         PULSAR,
         TUBE,
         NONE;
+
+        public static MqType forType(String type) {
+            for (MqType mqType : values()) {
+                if (mqType.name().equals(type)) {
+                    return mqType;
+                }
+            }
+            throw new IllegalArgumentException(String.format("Unsupport queue=%s for Inlong", type));
+        }
     }
 
     @ApiModelProperty("The number of partitions of Topic, 1-20")

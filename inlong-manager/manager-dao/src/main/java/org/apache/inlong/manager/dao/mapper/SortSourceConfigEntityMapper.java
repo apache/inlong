@@ -25,9 +25,19 @@ import java.util.List;
 
 @Repository
 public interface SortSourceConfigEntityMapper {
+    int deleteByPrimaryKey(Integer id);
+
     int insert(SortSourceConfigEntity record);
 
     int insertSelective(SortSourceConfigEntity record);
+
+    SortSourceConfigEntity selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(SortSourceConfigEntity record);
+
+    int updateByPrimaryKeyWithBLOBs(SortSourceConfigEntity record);
+
+    int updateByPrimaryKey(SortSourceConfigEntity record);
 
     List<SortSourceConfigEntity> selectByClusterAndTask(
             @Param("clusterName") String clusterName,

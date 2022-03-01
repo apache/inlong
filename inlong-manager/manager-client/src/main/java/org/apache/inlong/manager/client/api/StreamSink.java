@@ -20,23 +20,11 @@ package org.apache.inlong.manager.client.api;
 import io.swagger.annotations.ApiModel;
 import java.util.List;
 import lombok.Data;
+import org.apache.inlong.manager.common.enums.SinkType;
 
 @Data
 @ApiModel("Stream sink configuration")
 public abstract class StreamSink {
-
-    public enum SinkType {
-        HIVE, ES, KAFKA;
-
-        public static SinkType forType(String type) {
-            for (SinkType sinkType : values()) {
-                if (sinkType.name().equals(type)) {
-                    return sinkType;
-                }
-            }
-            throw new IllegalArgumentException(String.format("Illegal sink type=%s for Inlong", type));
-        }
-    }
 
     public abstract SinkType getSinkType();
 
