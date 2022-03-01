@@ -75,7 +75,7 @@ public class InlongGroupInfo implements Serializable {
                     return STARTED;
                 case 140:
                     return STOPPED;
-                case 135:
+                case 131:
                     return FINISHED;
                 case 40:
                     return DELETED;
