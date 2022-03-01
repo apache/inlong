@@ -17,10 +17,8 @@
 
 package org.apache.inlong.manager.client.api;
 
-import com.github.pagehelper.PageInfo;
+import java.util.List;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 
 /**
  * An interface to manipulate Inlong Cluster
@@ -73,15 +71,15 @@ public interface InlongClient {
      * @return the list
      * @throws Exception the exception
      */
-    PageInfo<InlongGroupListResponse> listGroup(String keyword, int status, int pageNum, int pageSize) throws Exception;
+    List<InlongGroup> listGroup(String expr, int status, int pageNum, int pageSize) throws Exception;
 
     /**
      * Gets group.
      *
-     * @param groupId the group name
+     * @param groupName the group name
      * @return the group
      * @throws Exception the exception
      */
-    InlongGroupRequest getGroup(String groupId) throws Exception;
+    InlongGroup getGroup(String groupName) throws Exception;
 
 }

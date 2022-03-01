@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.sink;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +35,10 @@ import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkListResponse;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -171,16 +176,42 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             LOGGER.debug("begin to list sink page by " + request);
         }
         Preconditions.checkNotNull(request.getInlongGroupId(), Constant.GROUP_ID_IS_EMPTY);
-        String sinkType = request.getSinkType();
-        Preconditions.checkNotNull(sinkType, Constant.SINK_TYPE_IS_EMPTY);
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<StreamSinkEntity> entityPage = (Page<StreamSinkEntity>) sinkMapper.selectByCondition(request);
+        List<SinkListResponse> sinkListResponses = Lists.newArrayList();
+        for (StreamSinkEntity entity : entityPage) {
+            SinkType sinkType = SinkType.forType(entity.getSinkType());
+            StreamSinkOperation operation = operationFactory.getInstance(sinkType);
+            switch (sinkType) {
+                case HIVE:
+                    HiveSinkListResponse hiveSinkListResponse = operation.getFromEntity(entity,
+                            HiveSinkListResponse::new);
+                    sinkListResponses.add(hiveSinkListResponse);
+                    break;
+                case CLICKHOUSE:
+                    ClickHouseSinkListResponse clickHouseSinkListResponse = operation.getFromEntity(entity,
+                            ClickHouseSinkListResponse::new);
+                    sinkListResponses.add(clickHouseSinkListResponse);
+                    break;
+                case ICEBERG:
+                    IcebergSinkListResponse icebergSinkListResponse = operation.getFromEntity(entity,
+                            IcebergSinkListResponse::new);
+                    sinkListResponses.add(icebergSinkListResponse);
+                    break;
+                case KAFKA:
+                    KafkaSinkListResponse kafkaSinkListResponse = operation.getFromEntity(entity,
+                            KafkaSinkListResponse::new);
+                    sinkListResponses.add(kafkaSinkListResponse);
+                    break;
+                default:
+                    throw new IllegalArgumentException(
+                            String.format("Unsupported sinkType=%s for Inlong", sinkType));
+            }
 
+        }
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
-        StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
-        PageInfo<? extends SinkListResponse> pageInfo = operation.getPageInfo(entityPage);
-        pageInfo.setTotal(entityPage.getTotal());
+        PageInfo<? extends SinkListResponse> pageInfo = PageInfo.of(sinkListResponses);
 
         LOGGER.debug("success to list sink page");
         return pageInfo;

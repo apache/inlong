@@ -33,6 +33,7 @@ import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.FileAgentDataGenerateRule;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.agent.AgentStatusReportRequest;
 import org.apache.inlong.manager.common.pojo.agent.CheckAgentTaskConfRequest;
 import org.apache.inlong.manager.common.pojo.agent.ConfirmAgentIpRequest;
@@ -44,6 +45,7 @@ import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
 import org.apache.inlong.manager.dao.entity.DataSourceCmdConfigEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
 import org.apache.inlong.manager.dao.entity.SourceFileDetailEntity;
+import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
@@ -89,7 +91,21 @@ public class AgentTaskServiceImpl implements AgentTaskService {
     }
 
     private List<DataConfig> getAgentDataConfigs(TaskRequest taskRequest) {
-        List<DataConfig> dataConfigs = streamSourceMapper.selectAgentTaskDataConfig(taskRequest);
+        List<StreamSourceEntity> sourceEntities = streamSourceMapper.selectAgentTaskDataConfig(taskRequest);
+        List<DataConfig> dataConfigs = sourceEntities.stream().map(sourceEntity -> {
+            DataConfig dataConfig = new DataConfig();
+            dataConfig.setOp(String.valueOf(sourceEntity.getStatus() % 100));
+            dataConfig.setJobId(sourceEntity.getId());
+            SourceType sourceType = SourceType.forType(sourceEntity.getSourceType());
+            dataConfig.setTaskType(sourceType.getTaskType().getType());
+            dataConfig.setInlongGroupId(sourceEntity.getInlongGroupId());
+            dataConfig.setInlongStreamId(sourceEntity.getInlongStreamId());
+            dataConfig.setIp(sourceEntity.getAgentIp());
+            dataConfig.setUuid(sourceEntity.getUuid());
+            dataConfig.setExtParams(sourceEntity.getExtParams());
+            dataConfig.setSnapshot(sourceEntity.getSnapshot());
+            return dataConfig;
+        }).collect(Collectors.toList());
         //Forward Compatible File task type
         return dataConfigs;
     }

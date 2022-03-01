@@ -71,7 +71,9 @@
         from stream_sink
         <where>
             is_deleted = 0
-            and sink_type = #{request.sinkType, jdbcType=VARCHAR}
+            <if test="request.sinkType != null and request.sinkType != ''">
+                and sink_type = #{request.sinkType, jdbcType=VARCHAR}
+            </if>
             and inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
             <if test="request.inlongStreamId != null and request.inlongStreamId != ''">
                 and inlong_stream_id = #{request.inlongStreamId, jdbcType=VARCHAR}

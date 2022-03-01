@@ -22,10 +22,10 @@ import com.google.common.base.Splitter;
 import java.util.List;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.StreamSource;
-import org.apache.inlong.manager.client.api.StreamSource.SourceType;
 import org.apache.inlong.manager.client.api.StreamSource.SyncType;
 import org.apache.inlong.manager.client.api.source.KafkaSource;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
@@ -41,7 +41,7 @@ public class InlongStreamSourceTransfer {
         switch (sourceType) {
             case KAFKA:
                 return createKafkaSourceRequest((KafkaSource) streamSource, streamInfo);
-            case BINLOG:
+            case DB_BINLOG:
                 return createBinlogSourceRequest((MySQLBinlogSource) streamSource, streamInfo);
             default:
                 throw new RuntimeException(String.format("Unsupport source=%s for Inlong", sourceType));
@@ -51,7 +51,7 @@ public class InlongStreamSourceTransfer {
     public static StreamSource parseStreamSource(SourceListResponse sourceListResponse) {
         String type = sourceListResponse.getSourceType();
         SourceType sourceType = SourceType.forType(type);
-        if (sourceType == SourceType.BINLOG) {
+        if (sourceType == SourceType.DB_BINLOG) {
             return parseKafkaSource((KafkaSourceListResponse) sourceListResponse);
         } else if (sourceType == SourceType.KAFKA) {
             return parseMySQLBinlogSource((BinlogSourceListResponse) sourceListResponse);

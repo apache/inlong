@@ -18,18 +18,25 @@
 package org.apache.inlong.manager.common.enums;
 
 import java.util.Locale;
+import lombok.Getter;
+import org.apache.inlong.common.enums.TaskTypeEnum;
 
 public enum SourceType {
 
-    FILE("FILE"),
-    DB_SQL("DB_SQL"),
-    DB_BINLOG("DB_BINLOG"),
-    KAFKA("KAFKA");
+    FILE("FILE", TaskTypeEnum.FILE),
+    DB_SQL("DB_SQL", TaskTypeEnum.SQL),
+    DB_BINLOG("DB_BINLOG", TaskTypeEnum.BINLOG),
+    KAFKA("KAFKA", TaskTypeEnum.KAFKA);
 
+    @Getter
     private final String type;
 
-    SourceType(String type) {
+    @Getter
+    private final TaskTypeEnum taskType;
+
+    SourceType(String type, TaskTypeEnum taskType) {
         this.type = type;
+        this.taskType = taskType;
     }
 
     /**
@@ -37,15 +44,11 @@ public enum SourceType {
      */
     public static SourceType forType(String sourceType) {
         for (SourceType type : values()) {
-            if (type.name().equals(sourceType)) {
+            if (type.getType().equals(sourceType)) {
                 return type;
             }
         }
         throw new IllegalArgumentException(String.format("Illegal sink type for %s", sourceType));
-    }
-
-    public String forType() {
-        return this.type;
     }
 
     @Override
