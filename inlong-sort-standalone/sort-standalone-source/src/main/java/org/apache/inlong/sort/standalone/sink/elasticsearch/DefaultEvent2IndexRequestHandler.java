@@ -19,7 +19,6 @@ package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -103,8 +102,6 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
         indexRequest.source(fieldMap);
         return indexRequest;
     }
-
-
 
     /**
      * getExtInfo

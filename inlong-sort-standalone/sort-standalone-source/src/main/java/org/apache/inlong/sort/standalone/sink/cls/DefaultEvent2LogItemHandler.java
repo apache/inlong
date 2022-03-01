@@ -24,12 +24,27 @@ import org.apache.inlong.sort.standalone.utils.UnescapeHelper;
 import org.slf4j.Logger;
 
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Default event to logItem handler.
+ */
 public class DefaultEvent2LogItemHandler implements IEvent2LogItemHandler {
 
     private static final Logger LOG = InlongLoggerFactory.getLogger(DefaultEvent2LogItemHandler.class);
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
+    /**
+     * Parse event to List<LogItem> format.
+     *
+     * @param context Context of CLS sink.
+     * @param event Event to be pares to List<LogItem>
+     * @return Prepared data structure to send.
+     */
     @Override
     public List<LogItem> parse(ClsSinkContext context, ProfileEvent event) {
         String uid = event.getUid();
@@ -40,17 +55,28 @@ public class DefaultEvent2LogItemHandler implements IEvent2LogItemHandler {
             return null;
         }
 
+        // prepare values
         String stringValues = this.getStringValues(event, idConfig);
-        char delimeter = idConfig.getSeparator().charAt(0);
-        List<String> listValues = UnescapeHelper.toFiledList(stringValues, delimeter);
+        char delimiter = idConfig.getSeparator().charAt(0);
+        List<String> listValues = UnescapeHelper.toFiledList(stringValues, delimiter);
         listValues.forEach(value -> this.truncateSingleValue(value, context.getKeywordMaxLength()));
+        // prepare keys
         List<String> listKeys = idConfig.getFieldList();
+        // prepare time and offset
         int time = (int) event.getRawLogTime();
         int fieldOffset = idConfig.getFieldOffset();
-        LogItem item = this.getLogItem(listKeys, listValues, time, fieldOffset);
+        // convert to LogItem format
+        LogItem item = this.parseToLogItem(listKeys, listValues, time, fieldOffset);
+        // add ftime
+        String ftime = dateFormat.format(new Date(event.getRawLogTime()));
+        item.PushBack("ftime", ftime);
+        // add extinfo
+        String extinfo = this.getExtInfo(event);
+        item.PushBack("extinfo", extinfo);
 
-        //todo add ftime and extinfo
-        return null;
+        List<LogItem> itemList = new ArrayList<>();
+        itemList.add(item);
+        return itemList;
     }
 
     private String getStringValues(ProfileEvent event, ClsIdConfig idConfig) {
@@ -64,7 +90,7 @@ public class DefaultEvent2LogItemHandler implements IEvent2LogItemHandler {
         }
     }
 
-    private LogItem getLogItem(List<String> listKeys, List<String> listValues, int time, int fieldOffset) {
+    private LogItem parseToLogItem(List<String> listKeys, List<String> listValues, int time, int fieldOffset) {
         LogItem logItem = new LogItem(time);
         for (int i = fieldOffset; i < listKeys.size(); ++i) {
             String key = listKeys.get(i);
@@ -83,5 +109,17 @@ public class DefaultEvent2LogItemHandler implements IEvent2LogItemHandler {
         return value;
     }
 
+    private String getExtInfo(ProfileEvent event) {
+        if (event.getHeaders().size() > 0) {
+            StringBuilder sBuilder = new StringBuilder();
+            for (Map.Entry<String, String> extInfo : event.getHeaders().entrySet()) {
+                String key = extInfo.getKey();
+                String value = extInfo.getValue();
+                sBuilder.append(key).append('=').append(value).append('&');
+            }
+            return sBuilder.substring(0, sBuilder.length() - 1);
+        }
+        return "";
+    }
 
 }

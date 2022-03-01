@@ -22,6 +22,7 @@ import com.tencentcloudapi.cls.producer.AsyncProducerClient;
 import com.tencentcloudapi.cls.producer.AsyncProducerConfig;
 import com.tencentcloudapi.cls.producer.errors.ProducerException;
 import com.tencentcloudapi.cls.producer.util.NetworkUtils;
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -40,6 +41,7 @@ import org.slf4j.Logger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -62,6 +64,8 @@ public class ClsSinkContext extends SinkContext {
     private static final String KEY_MAX_RESERVED_ATTEMPTS = "maxReservedAttempts";
     private static final String KEY_BASE_RETRY_BACKOFF_MS = "baseRetryBackoffMs";
     private static final String KEY_MAX_RETRY_BACKOFF_MS = "maxRetryBackoffMs";
+    private static final String KEY_MAX_KEYWORD_LENGTH = "maxKeywordLength";
+    private static final String KEY_EVENT_LOG_ITEM_HANDLER = "logItemHandler";
 
     private static final int DEFAULT_KEYWORD_MAX_LENGTH = 32 * 1024 - 1;
     private int keywordMaxLength = DEFAULT_KEYWORD_MAX_LENGTH;
@@ -73,9 +77,7 @@ public class ClsSinkContext extends SinkContext {
     private AtomicLong offerCounter = new AtomicLong(0);
     private AtomicLong takeCounter = new AtomicLong(0);
     private AtomicLong backCounter = new AtomicLong(0);
-    private IEvent2LogItemHandler iEvent2LogItemHandler;
-
-    // default sink params
+    private IEvent2LogItemHandler event2LogItemHandler;
 
     /**
      * Constructor
@@ -112,7 +114,28 @@ public class ClsSinkContext extends SinkContext {
         this.sinkContext = new Context(this.sortTaskConfig.getSinkParams());
         this.reloadIdParams();
         this.reloadClients();
-        // todo get IEvent2LogItemHandler
+        this.reloadHandler();
+        this.keywordMaxLength = sinkContext.getInteger(KEY_MAX_KEYWORD_LENGTH, DEFAULT_KEYWORD_MAX_LENGTH);
+    }
+
+    /**
+     * Reload LogItemHandler.
+     */
+    private void reloadHandler() {
+        String logItemHandlerClass = CommonPropertiesHolder.getString(KEY_EVENT_LOG_ITEM_HANDLER,
+                DefaultEvent2LogItemHandler.class.getName());
+        try {
+            Class<?> handlerClass = ClassUtils.getClass(logItemHandlerClass);
+            Object handlerObject = handlerClass.getDeclaredConstructor().newInstance();
+            if (handlerObject instanceof IEvent2LogItemHandler) {
+                this.event2LogItemHandler = (IEvent2LogItemHandler) handlerObject;
+            } else {
+                LOG.error("{} is not the instance of IEvent2LogItemHandler", logItemHandlerClass);
+            }
+        } catch (Throwable t) {
+            LOG.error("Fail to init IEvent2LogItemHandler, handlerClass:{}, error:{}",
+                    logItemHandlerClass, t.getMessage());
+        }
     }
 
     /**
@@ -179,9 +202,37 @@ public class ClsSinkContext extends SinkContext {
                 idConfig.getSecretId(),
                 idConfig.getSecretKey(),
                 NetworkUtils.getLocalMachineIP());
-        // todo set other configs
+        this.setCommonClientConfig(producerConfig);
         AsyncProducerClient client = new AsyncProducerClient(producerConfig);
         clientMap.put(secretId, client);
+    }
+
+    /**
+     * Get common client config from context and set them.
+     *
+     * @param config Config to be set.
+     */
+    private void setCommonClientConfig(AsyncProducerConfig config) {
+        Optional.ofNullable(sinkContext.getInteger(KEY_TOTAL_SIZE_IN_BYTES))
+                .ifPresent(config::setTotalSizeInBytes);
+        Optional.ofNullable(sinkContext.getInteger(KEY_MAX_SEND_THREAD_COUNT))
+                .ifPresent(config::setSendThreadCount);
+        Optional.ofNullable(sinkContext.getInteger(KEY_MAX_BLOCK_SEC))
+                .ifPresent(config::setMaxBlockMs);
+        Optional.ofNullable(sinkContext.getInteger(KEY_MAX_BATCH_SIZE))
+                .ifPresent(config::setBatchSizeThresholdInBytes);
+        Optional.ofNullable(sinkContext.getInteger(KEY_MAX_BATCH_COUNT))
+                .ifPresent(config::setBatchCountThreshold);
+        Optional.ofNullable(sinkContext.getInteger(KEY_LINGER_MS))
+                .ifPresent(config::setLingerMs);
+        Optional.ofNullable(sinkContext.getInteger(KEY_RETRIES))
+                .ifPresent(config::setRetries);
+        Optional.ofNullable(sinkContext.getInteger(KEY_MAX_RESERVED_ATTEMPTS))
+                .ifPresent(config::setMaxReservedAttempts);
+        Optional.ofNullable(sinkContext.getInteger(KEY_BASE_RETRY_BACKOFF_MS))
+                .ifPresent(config::setBaseRetryBackoffMs);
+        Optional.ofNullable(sinkContext.getInteger(KEY_MAX_RETRY_BACKOFF_MS))
+                .ifPresent(config::setMaxRetryBackoffMs);
     }
 
     /**
@@ -234,7 +285,14 @@ public class ClsSinkContext extends SinkContext {
         }
     }
 
-    private Map<String, String> getDimensions (ProfileEvent currentRecord, String bid) {
+    /**
+     * Get report dimensions.
+     *
+     * @param currentRecord Event.
+     * @param bid Topic or dest ip.
+     * @return Prepared dimensions map.
+     */
+    private Map<String, String> getDimensions(ProfileEvent currentRecord, String bid) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.getClusterId());
         dimensions.put(SortMetricItem.KEY_TASK_NAME, this.getTaskName());
@@ -248,11 +306,11 @@ public class ClsSinkContext extends SinkContext {
         return dimensions;
     }
 
-
     /**
      * Get {@link ClsIdConfig} by uid.
-     * @param uid
-     * @return
+     *
+     * @param uid Uid of event.
+     * @return Corresponding cls id config.
      */
     public ClsIdConfig getIdConfig(String uid) {
         return idConfigMap.get(uid);
@@ -260,11 +318,18 @@ public class ClsSinkContext extends SinkContext {
 
     /**
      * Get max length of single value.
-     * @return
+     * @return Max length of single value.
      */
     public int getKeywordMaxLength() {
         return keywordMaxLength;
     }
 
-
+    /**
+     * Get LogItem handler.
+     *
+     * @return Handler.
+     */
+    public IEvent2LogItemHandler getLogItemHandler() {
+        return event2LogItemHandler;
+    }
 }
