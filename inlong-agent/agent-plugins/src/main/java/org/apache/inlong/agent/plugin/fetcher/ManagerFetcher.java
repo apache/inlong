@@ -271,11 +271,11 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      * the fetch file command can be normal or special
      */
     private void dealWithFileTaskResult(TaskResult taskResult) {
-        LOGGER.info("deal with fetch result {}", taskResult);
+        LOGGER.info("deal with fetch result {} ", taskResult);
 
         for (DataConfig dataConfig : taskResult.getDataConfigs()) {
             TriggerProfile profile = TriggerProfile.getTriggerProfiles(dataConfig);
-            LOGGER.info("the triggerProfile : {} " ,profile);
+            LOGGER.info("the triggerProfile : {} ",profile);
             if (profile.hasKey(JOB_TRIGGER)) {
                 dealWithTdmTriggerProfile(profile);
             } else {
