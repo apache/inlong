@@ -20,9 +20,12 @@ package org.apache.inlong.sort.singletenant.flink.deserialization;
 
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.configuration.Configuration;
+import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
+import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
+import org.apache.inlong.sort.formats.json.MysqlBinLogData;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.util.DefaultValueStrategy;
@@ -31,6 +34,7 @@ import java.io.Serializable;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Map;
 
 import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkNotNull;
 
@@ -41,7 +45,7 @@ public class FieldMappingTransformer implements Serializable {
     /**
      * Skips time and attribute fields of source record.
      */
-    public static final int SOURCE_FIELD_SKIP_STEP = 0;
+    public static final int SOURCE_FIELD_SKIP_STEP = 1;
 
     private final FieldInfo[] outputFieldInfos;
 
@@ -58,11 +62,12 @@ public class FieldMappingTransformer implements Serializable {
     public Row transform(Row sourceRow, long dt) {
         final Row outputRow = new Row(outputFieldInfos.length);
         int sourceRowIndex = SOURCE_FIELD_SKIP_STEP;
+        Map<String, String> attributes = (Map<String, String>) sourceRow.getField(0);
         for (int i = 0; i < outputFieldInfos.length; i++) {
             Object fieldValue = null;
             if (outputFieldInfos[i] instanceof BuiltInFieldInfo) {
                 BuiltInFieldInfo builtInFieldInfo = (BuiltInFieldInfo) outputFieldInfos[i];
-                fieldValue = transformBuiltInField(builtInFieldInfo, dt);
+                fieldValue = transformBuiltInField(builtInFieldInfo, attributes, dt);
             } else if (sourceRowIndex < sourceRow.getArity()) {
                 fieldValue = sourceRow.getField(sourceRowIndex);
                 sourceRowIndex++;
@@ -76,10 +81,25 @@ public class FieldMappingTransformer implements Serializable {
         return outputRow;
     }
 
-    private static Object transformBuiltInField(BuiltInFieldInfo builtInFieldInfo, long dataTimestamp) {
-        if (builtInFieldInfo.getBuiltInField() == BuiltInFieldInfo.BuiltInField.DATA_TIME) {
-            return inferDataTimeValue(builtInFieldInfo.getFormatInfo(), dataTimestamp);
+    private static Object transformBuiltInField(
+            BuiltInFieldInfo builtInFieldInfo,
+            Map<String, String> attributes,
+            long dataTimestamp) {
+        switch (builtInFieldInfo.getBuiltInField()) {
+            case DATA_TIME:
+                return inferDataTimeValue(builtInFieldInfo.getFormatInfo(), dataTimestamp);
+            case MYSQL_METADATA_DATABASE:
+                return attributes.get(MysqlBinLogData.MYSQL_METADATA_DATABASE);
+            case MYSQL_METADATA_TABLE:
+                return attributes.get(MysqlBinLogData.MYSQL_METADATA_TABLE);
+            case MYSQL_METADATA_IS_DDL:
+                return BooleanFormatInfo.INSTANCE.deserialize(attributes.get(MysqlBinLogData.MYSQL_METADATA_IS_DDL));
+            case MYSQL_METADATA_EVENT_TIME:
+                return LongFormatInfo.INSTANCE.deserialize(attributes.get(MysqlBinLogData.MYSQL_METADATA_EVENT_TIME));
+            case MYSQL_METADATA_EVENT_TYPE:
+                return attributes.get(MysqlBinLogData.MYSQL_METADATA_EVENT_TYPE);
         }
+
         return null;
     }
 

@@ -28,6 +28,9 @@ import org.apache.inlong.sort.formats.common.MapFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
+import org.apache.inlong.sort.formats.json.MysqlBinLogData;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DebeziumDeserializationInfo;
 import org.junit.Test;
@@ -54,30 +57,42 @@ public class DebeziumDeserializationTest {
             new FieldInfo("map",
                     new MapFormatInfo(StringFormatInfo.INSTANCE, LongFormatInfo.INSTANCE)),
             new FieldInfo("map2map", new MapFormatInfo(StringFormatInfo.INSTANCE,
-                    new MapFormatInfo(StringFormatInfo.INSTANCE, IntFormatInfo.INSTANCE)))
+                    new MapFormatInfo(StringFormatInfo.INSTANCE, IntFormatInfo.INSTANCE))),
+            new BuiltInFieldInfo("db", StringFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_DATABASE),
+            new BuiltInFieldInfo("table", StringFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_TABLE),
+            new BuiltInFieldInfo("es", LongFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_EVENT_TIME)
     };
 
     private Row generateTestRow() {
-        Row testRow = new Row(8);
-        testRow.setField(0, 1238123899121L);
-        testRow.setField(1, "testName");
+        Row testRow = new Row(9);
+        testRow.setField(0, new HashMap<String, String>() {
+            {
+                put(MysqlBinLogData.MYSQL_METADATA_IS_DDL, "false");
+                put(MysqlBinLogData.MYSQL_METADATA_EVENT_TYPE, "c");
+                put(MysqlBinLogData.MYSQL_METADATA_DATABASE, "test");
+                put(MysqlBinLogData.MYSQL_METADATA_TABLE, "test");
+                put(MysqlBinLogData.MYSQL_METADATA_EVENT_TIME, "1644896917208");
+            }
+        });
+        testRow.setField(1, 1238123899121L);
+        testRow.setField(2, "testName");
 
         byte[] bytes = new byte[]{1, 2, 3, 4, 5, 6};
-        testRow.setField(2, bytes);
+        testRow.setField(3, bytes);
 
-        testRow.setField(3, Date.valueOf("1990-10-14"));
-        testRow.setField(4, Time.valueOf("12:12:43"));
-        testRow.setField(5, Timestamp.valueOf("1990-10-14 12:12:43"));
+        testRow.setField(4, Date.valueOf("1990-10-14"));
+        testRow.setField(5, Time.valueOf("12:12:43"));
+        testRow.setField(6, Timestamp.valueOf("1990-10-14 12:12:43"));
 
         Map<String, Long> map = new HashMap<>();
         map.put("flink", 123L);
-        testRow.setField(6, map);
+        testRow.setField(7, map);
 
         Map<String, Map<String, Integer>> nestedMap = new HashMap<>();
         Map<String, Integer> innerMap = new HashMap<>();
         innerMap.put("key", 234);
         nestedMap.put("inner_map", innerMap);
-        testRow.setField(7, nestedMap);
+        testRow.setField(8, nestedMap);
 
         return testRow;
     }
@@ -85,48 +100,48 @@ public class DebeziumDeserializationTest {
     @Test
     public void testDebeziumDeserializationSchema() throws IOException, ClassNotFoundException {
         String testString = "{\n"
-                + "    \"before\":null,\n"
-                + "    \"after\":{\n"
-                + "        \"id\":1238123899121,\n"
-                + "        \"name\":\"testName\",\n"
-                + "        \"bytes\":\"AQIDBAUG\",\n"
-                + "        \"date\":\"1990-10-14\",\n"
-                + "        \"time\":\"12:12:43\",\n"
-                + "        \"timestamp\":\"1990-10-14 12:12:43\",\n"
-                + "        \"map\":{\n"
-                + "            \"flink\":123\n"
-                + "        },\n"
-                + "        \"map2map\":{\n"
-                + "            \"inner_map\":{\n"
-                + "                \"key\":234\n"
-                + "            }\n"
-                + "        }\n"
-                + "    },\n"
-                + "    \"source\":{\n"
-                + "        \"version\":\"1.4.2.Final\",\n"
-                + "        \"connector\":\"mysql\",\n"
-                + "        \"name\":\"my_server_01\",\n"
-                + "        \"ts_ms\":1644896917000,\n"
-                + "        \"snapshot\":\"false\",\n"
-                + "        \"db\":\"test\",\n"
-                + "        \"table\":\"test\",\n"
-                + "        \"server_id\":1,\n"
-                + "        \"gtid\":null,\n"
-                + "        \"file\":\"mysql-bin.000067\",\n"
-                + "        \"pos\":944,\n"
-                + "        \"row\":0,\n"
-                + "        \"thread\":13,\n"
-                + "        \"query\":null\n"
-                + "    },\n"
-                + "    \"op\":\"c\",\n"
-                + "    \"ts_ms\":1644896917208,\n"
-                + "    \"transaction\":null\n"
-                + "}";
+                                    + "    \"before\":null,\n"
+                                    + "    \"after\":{\n"
+                                    + "        \"id\":1238123899121,\n"
+                                    + "        \"name\":\"testName\",\n"
+                                    + "        \"bytes\":\"AQIDBAUG\",\n"
+                                    + "        \"date\":\"1990-10-14\",\n"
+                                    + "        \"time\":\"12:12:43\",\n"
+                                    + "        \"timestamp\":\"1990-10-14 12:12:43\",\n"
+                                    + "        \"map\":{\n"
+                                    + "            \"flink\":123\n"
+                                    + "        },\n"
+                                    + "        \"map2map\":{\n"
+                                    + "            \"inner_map\":{\n"
+                                    + "                \"key\":234\n"
+                                    + "            }\n"
+                                    + "        }\n"
+                                    + "    },\n"
+                                    + "    \"source\":{\n"
+                                    + "        \"version\":\"1.4.2.Final\",\n"
+                                    + "        \"connector\":\"mysql\",\n"
+                                    + "        \"name\":\"my_server_01\",\n"
+                                    + "        \"ts_ms\":1644896917000,\n"
+                                    + "        \"snapshot\":\"false\",\n"
+                                    + "        \"db\":\"test\",\n"
+                                    + "        \"table\":\"test\",\n"
+                                    + "        \"server_id\":1,\n"
+                                    + "        \"gtid\":null,\n"
+                                    + "        \"file\":\"mysql-bin.000067\",\n"
+                                    + "        \"pos\":944,\n"
+                                    + "        \"row\":0,\n"
+                                    + "        \"thread\":13,\n"
+                                    + "        \"query\":null\n"
+                                    + "    },\n"
+                                    + "    \"op\":\"c\",\n"
+                                    + "    \"ts_ms\":1644896917208,\n"
+                                    + "    \"transaction\":null\n"
+                                    + "}";
 
         byte[] testBytes = testString.getBytes(StandardCharsets.UTF_8);
         DeserializationSchema<Row> schemaWithoutFilter = DeserializationSchemaFactory.build(
                 fieldInfos,
-                new DebeziumDeserializationInfo(true, "ISO_8601")
+                new DebeziumDeserializationInfo(false, "ISO_8601")
         );
         ListCollector<Row> collector = new ListCollector<>();
         schemaWithoutFilter.deserialize(testBytes, collector);
