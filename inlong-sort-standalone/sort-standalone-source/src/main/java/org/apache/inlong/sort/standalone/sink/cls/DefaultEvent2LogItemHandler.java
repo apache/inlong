@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import java.nio.charset.Charset;
 import java.util.List;
 
-public class DefaultEvent2LogItemHandler implements IEvent2LogItemHandler{
+public class DefaultEvent2LogItemHandler implements IEvent2LogItemHandler {
 
     private static final Logger LOG = InlongLoggerFactory.getLogger(DefaultEvent2LogItemHandler.class);
 
@@ -43,8 +43,13 @@ public class DefaultEvent2LogItemHandler implements IEvent2LogItemHandler{
         String stringValues = this.getStringValues(event, idConfig);
         char delimeter = idConfig.getSeparator().charAt(0);
         List<String> listValues = UnescapeHelper.toFiledList(stringValues, delimeter);
+        listValues.forEach(value -> this.truncateSingleValue(value, context.getKeywordMaxLength()));
+        List<String> listKeys = idConfig.getFieldList();
+        int time = (int) event.getRawLogTime();
+        int fieldOffset = idConfig.getFieldOffset();
+        LogItem item = this.getLogItem(listKeys, listValues, time, fieldOffset);
 
-
+        //todo add ftime and extinfo
         return null;
     }
 
@@ -59,7 +64,24 @@ public class DefaultEvent2LogItemHandler implements IEvent2LogItemHandler{
         }
     }
 
+    private LogItem getLogItem(List<String> listKeys, List<String> listValues, int time, int fieldOffset) {
+        LogItem logItem = new LogItem(time);
+        for (int i = fieldOffset; i < listKeys.size(); ++i) {
+            String key = listKeys.get(i);
+            int columnIndex = i - fieldOffset;
+            String value = columnIndex < listValues.size() ? listValues.get(columnIndex) : "";
+            logItem.PushBack(key, value);
+        }
+        return logItem;
+    }
 
+    private String truncateSingleValue(String value, int limit) {
+        byte[] inBytes = value.getBytes(Charset.defaultCharset());
+        if (inBytes.length > limit) {
+            value = new String(inBytes, 0, limit);
+        }
+        return value;
+    }
 
 
 }

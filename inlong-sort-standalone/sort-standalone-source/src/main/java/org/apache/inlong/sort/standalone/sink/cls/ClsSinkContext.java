@@ -63,6 +63,9 @@ public class ClsSinkContext extends SinkContext {
     private static final String KEY_BASE_RETRY_BACKOFF_MS = "baseRetryBackoffMs";
     private static final String KEY_MAX_RETRY_BACKOFF_MS = "maxRetryBackoffMs";
 
+    private static final int DEFAULT_KEYWORD_MAX_LENGTH = 32 * 1024 - 1;
+    private int keywordMaxLength = DEFAULT_KEYWORD_MAX_LENGTH;
+
     private final Map<String, AsyncProducerClient> clientMap;
     private List<AsyncProducerClient> deletingClients;
     private Context sinkContext;
@@ -255,6 +258,13 @@ public class ClsSinkContext extends SinkContext {
         return idConfigMap.get(uid);
     }
 
+    /**
+     * Get max length of single value.
+     * @return
+     */
+    public int getKeywordMaxLength() {
+        return keywordMaxLength;
+    }
 
 
 }
