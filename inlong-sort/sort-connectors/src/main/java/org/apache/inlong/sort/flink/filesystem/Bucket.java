@@ -90,7 +90,7 @@ public class Bucket<IN, BucketID> {
         this.subtaskIndex = subtaskIndex;
         this.bucketId = checkNotNull(bucketId);
 
-        String bucketPathStr = checkNotNull(bucketPath).toString();;
+        String bucketPathStr = checkNotNull(bucketPath).toString();
         if (!bucketPathStr.endsWith("/")) {
             bucketPathStr += "/";
         }
