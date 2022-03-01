@@ -22,16 +22,22 @@ import com.tencentcloudapi.cls.producer.AsyncProducerClient;
 import com.tencentcloudapi.cls.producer.AsyncProducerConfig;
 import com.tencentcloudapi.cls.producer.errors.ProducerException;
 import com.tencentcloudapi.cls.producer.util.NetworkUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
+import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
+import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -191,4 +197,64 @@ public class ClsSinkContext extends SinkContext {
         }
         deletingClients.add(clientMap.remove(secretId));
     }
+
+    /**
+     * Add send result.
+     *
+     * @param currentRecord Event to be sent.
+     * @param bid Topic or dest ip of event.
+     * @param result Result of send.
+     * @param sendTime Time of sending.
+     */
+    public void addSendResultMetric(ProfileEvent currentRecord, String bid, boolean result, long sendTime) {
+        Map<String, String> dimensions = this.getDimensions(currentRecord, bid);
+        SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
+        long count = 1;
+        long size = currentRecord.getBody().length;
+        if (result) {
+            metricItem.sendSuccessCount.addAndGet(count);
+            metricItem.sendSuccessSize.addAndGet(size);
+            AuditUtils.add(AuditUtils.AUDIT_ID_SEND_SUCCESS, currentRecord);
+            if (sendTime > 0) {
+                long currentTime = System.currentTimeMillis();
+                long sinkDuration = currentTime - sendTime;
+                long nodeDuration = currentTime
+                        - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, currentRecord.getRawLogTime());
+                long wholeDuration = currentTime - currentRecord.getRawLogTime();
+                metricItem.sinkDuration.addAndGet(sinkDuration * count);
+                metricItem.nodeDuration.addAndGet(nodeDuration * count);
+                metricItem.wholeDuration.addAndGet(wholeDuration * count);
+            }
+        } else {
+            metricItem.sendFailCount.addAndGet(count);
+            metricItem.sendFailSize.addAndGet(size);
+        }
+    }
+
+    private Map<String, String> getDimensions (ProfileEvent currentRecord, String bid) {
+        Map<String, String> dimensions = new HashMap<>();
+        dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(SortMetricItem.KEY_TASK_NAME, this.getTaskName());
+        // metric
+        fillInlongId(currentRecord, dimensions);
+        dimensions.put(SortMetricItem.KEY_SINK_ID, this.getSinkName());
+        dimensions.put(SortMetricItem.KEY_SINK_DATA_ID, bid);
+        long msgTime = currentRecord.getRawLogTime();
+        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
+        return dimensions;
+    }
+
+
+    /**
+     * Get {@link ClsIdConfig} by uid.
+     * @param uid
+     * @return
+     */
+    public ClsIdConfig getIdConfig(String uid) {
+        return idConfigMap.get(uid);
+    }
+
+
+
 }

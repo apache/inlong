@@ -226,21 +226,6 @@ public class EsSinkContext extends SinkContext {
     }
 
     /**
-     * fillInlongId
-     * 
-     * @param currentRecord
-     * @param dimensions
-     */
-    public static void fillInlongId(ProfileEvent currentRecord, Map<String, String> dimensions) {
-        String inlongGroupId = currentRecord.getInlongGroupId();
-        inlongGroupId = (StringUtils.isBlank(inlongGroupId)) ? "-" : inlongGroupId;
-        String inlongStreamId = currentRecord.getInlongStreamId();
-        inlongStreamId = (StringUtils.isBlank(inlongStreamId)) ? "-" : inlongStreamId;
-        dimensions.put(SortMetricItem.KEY_INLONG_GROUP_ID, inlongGroupId);
-        dimensions.put(SortMetricItem.KEY_INLONG_STREAM_ID, inlongStreamId);
-    }
-
-    /**
      * addSendResultMetric
      * 
      * @param currentRecord
