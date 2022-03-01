@@ -15,30 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.web.controller.openapi;
+package org.apache.inlong.manager.web.controller;
 
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamMetricRequest;
-import org.apache.inlong.manager.service.core.StreamMetricService;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogPageRequest;
+import org.apache.inlong.manager.service.core.StreamConfigLogService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/openapi")
-@Api(tags = "Stream metric")
-public class StreamMetricController {
+@RequestMapping("/stream/config/log")
+@Api(tags = "Stream Config log")
+public class StreamConfigLogWebController {
 
     @Autowired
-    private StreamMetricService streamMetricService;
+    private StreamConfigLogService streamConfigLogService;
 
-    @PostMapping("/stream/metric/reportMetricStatus")
-    @ApiOperation(value = "Stream metric status")
-    public Response<String> reportMetricStatus(@RequestBody InlongStreamMetricRequest info) {
-        return Response.success(streamMetricService.reportMetric(info));
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @ApiOperation(value = "Paging query inlong stream config log")
+    public Response<PageInfo<InlongStreamConfigLogListResponse>> listByCondition(
+            InlongStreamConfigLogPageRequest request) {
+        return Response.success(streamConfigLogService.listByCondition(request));
     }
+    
 }

@@ -15,12 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.common.reporpter;
 
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamMetricRequest;
+import static java.util.Objects.requireNonNull;
 
-public interface StreamMetricService {
+public enum ConfigLogTypeEnum {
 
-    String reportMetric(InlongStreamMetricRequest entity);
+    NORMAL(0),ERROR(1);
 
+    private int type;
+
+    ConfigLogTypeEnum(int type) {
+        this.type = type;
+    }
+
+    public static ConfigLogTypeEnum getOpType(int opType) {
+        requireNonNull(opType);
+        switch (opType) {
+            case 0:
+                return NORMAL;
+            case 1:
+                return ERROR;
+            default:
+                throw new RuntimeException("config log type doesn't exist");
+        }
+    }
+
+    public int getType() {
+        return type;
+    }
 }

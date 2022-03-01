@@ -19,14 +19,23 @@ package org.apache.inlong.manager.common.pojo.stream;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.beans.PageRequest;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Inlong stream config log")
-public class InlongStreamConfigLogRequest
-        extends InlongStreamBaseInfo {
+@ApiModel("Inlong stream config log query request")
+public class InlongStreamConfigLogPageRequest
+        extends PageRequest {
+
+    @ApiModelProperty(value = "Inlong group id")
+    private String inlongGroupId;
+
+    @ApiModelProperty(value = "Inlong stream id")
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "ip")
     private String ip;
@@ -44,7 +53,8 @@ public class InlongStreamConfigLogRequest
     private Integer logType;
 
     @ApiModelProperty(value = "report time")
-    private long reportTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date reportTime;
 
     @ApiModelProperty(value = "long info")
     private String logInfo;

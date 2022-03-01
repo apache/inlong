@@ -15,25 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.common.reporpter;
 
-import java.util.List;
-import org.apache.inlong.manager.dao.entity.StreamMetricEntity;
+import lombok.Getter;
+import lombok.Setter;
 
-public interface StreamMetricEntityMapper {
-    int deleteByPrimaryKey(Integer id);
-
-    int insertList(List<StreamMetricEntity> records);
-
-    int insert(StreamMetricEntity record);
-
-    int insertSelective(StreamMetricEntity record);
-
-    StreamMetricEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(StreamMetricEntity record);
-
-    int updateByPrimaryKeyWithBLOBs(StreamMetricEntity record);
-
-    int updateByPrimaryKey(StreamMetricEntity record);
+@Setter
+@Getter
+public class Response {
+    private boolean success;
+    private String errMsg;
+    private String data;
 }

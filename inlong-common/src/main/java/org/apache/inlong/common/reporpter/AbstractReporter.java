@@ -18,8 +18,6 @@
 package org.apache.inlong.common.reporpter;
 
 import com.google.gson.Gson;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -38,7 +36,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AbstractReporter<T, R> {
+public class AbstractReporter<T> {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(AbstractReporter.class);
 
@@ -54,7 +52,7 @@ public class AbstractReporter<T, R> {
 
     private static CloseableHttpClient httpClient;
 
-    private final Class<?> clazz = ResponseType.class;
+    private final Class<?> clazz = Response.class;
 
     private ThreadPoolExecutor pool;
 
@@ -96,25 +94,26 @@ public class AbstractReporter<T, R> {
         this.httpClient = httpClient;
     }
 
-    public R syncReportData(T data, String serverUrl) throws Exception {
+    public Response syncReportData(T data, String serverUrl) throws Exception {
+        if (StringUtils.isEmpty(serverUrl)) {
+            LOGGER.warn("Report config log server url is empty, so config log can not be "
+                    + "reported!");
+            return null;
+        }
         HttpPost httpPost = new HttpPost(serverUrl);
         try {
             StringEntity stringEntity = new StringEntity(gson.toJson(data));
             stringEntity.setContentType(AGENT_HTTP_APPLICATION_JSON);
             httpPost.setEntity(stringEntity);
             String returnStr = executeHttpPost(httpPost);
-            ResponseType<R> re = parse(returnStr);
-            if (re != null) {
-                return re.getResponse();
-            }
+            return parse(returnStr);
         } catch (Exception e) {
             LOGGER.error("syncReportData has exception e = {}", e);
             throw e;
         }
-        return null;
     }
 
-    public R syncReportData(T data) throws Exception {
+    public Response syncReportData(T data) throws Exception {
         return this.syncReportData(data, serverUrl);
     }
 
@@ -126,8 +125,8 @@ public class AbstractReporter<T, R> {
         return EntityUtils.toString(response.getEntity());
     }
 
-    public Future<R>  asyncReportData(T data, String serverUrl) {
-        CompletableFuture<R> completableFuture = new CompletableFuture<>();
+    public Future<Response>  asyncReportData(T data, String serverUrl) {
+        CompletableFuture<Response> completableFuture = new CompletableFuture<>();
 
         if (pool != null) {
             pool.execute(new RunTask(completableFuture, data, serverUrl));
@@ -138,50 +137,28 @@ public class AbstractReporter<T, R> {
         return completableFuture;
     }
 
-    public Future<R> asyncReportData(T data) {
+    public Future<Response> asyncReportData(T data) {
         return asyncReportData(data, serverUrl);
     }
 
-    public ResponseType<R> parse(String json) throws Exception {
+    public Response parse(String json) throws Exception {
 
         if (StringUtils.isEmpty(json)) {
             return null;
         }
 
-        ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
-
-        Type objectType = buildType(clazz, type.getActualTypeArguments());
-
-        return gson.fromJson(json, objectType);
-    }
-
-    private ParameterizedType buildType(final Class<?> raw, final Type... args) {
-
-        return new ParameterizedType() {
-
-            public Type getRawType() {
-                return raw;
-            }
-
-            public Type[] getActualTypeArguments() {
-                return args;
-            }
-
-            public Type getOwnerType() {
-                return null;
-            }
-        };
+        return gson.fromJson(json, Response.class);
     }
 
     class RunTask implements Runnable {
 
-        private CompletableFuture<R> completableFuture;
+        private CompletableFuture<Response> completableFuture;
 
         private T data;
 
         private String url;
 
-        public RunTask(CompletableFuture<R> completableFuture, T data, String url) {
+        public RunTask(CompletableFuture<Response> completableFuture, T data, String url) {
             this.completableFuture = completableFuture;
             this.data = data;
             this.url = url;

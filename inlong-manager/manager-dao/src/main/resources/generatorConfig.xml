@@ -254,20 +254,12 @@
             enableCountByExample="false" enableDeleteByExample="false"
             enableSelectByExample="false" enableUpdateByExample="false"/>
 
-        <table tableName="stream_metric" domainObjectName="StreamMetricEntity"
-            enableSelectByPrimaryKey="true"
-            enableUpdateByPrimaryKey="true"
-            enableDeleteByPrimaryKey="true" enableInsert="true"
-            enableCountByExample="false" enableDeleteByExample="false"
-            enableSelectByExample="false" enableUpdateByExample="false"/>
-
         <table tableName="sort_source_config" domainObjectName="SortSourceConfigEntity"
                enableSelectByPrimaryKey="true"
                enableUpdateByPrimaryKey="true"
                enableDeleteByPrimaryKey="true" enableInsert="true"
                enableCountByExample="false" enableDeleteByExample="false"
                enableSelectByExample="false" enableUpdateByExample="false"/>-->
-
 
     </context>
 </generatorConfiguration>

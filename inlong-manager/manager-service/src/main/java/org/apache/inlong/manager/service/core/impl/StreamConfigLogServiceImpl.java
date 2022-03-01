@@ -17,8 +17,19 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
+import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogRequest;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamConfigLogEntity;
 import org.apache.inlong.manager.dao.mapper.StreamConfigLogEntityMapper;
 import org.apache.inlong.manager.service.core.StreamConfigLogService;
@@ -46,8 +57,31 @@ public class StreamConfigLogServiceImpl extends AbstractService<StreamConfigLogE
         }
     }
 
+    @Override
+    public PageInfo<InlongStreamConfigLogListResponse> listByCondition(
+            InlongStreamConfigLogPageRequest request) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("begin to list source page by " + request);
+        }
+        Preconditions.checkNotNull(request.getInlongGroupId(), Constant.GROUP_ID_IS_EMPTY);
+        PageHelper.startPage(request.getPageNum(), request.getPageSize());
+
+        if (request.getReportTime() == null) {
+            Instant instant = Instant.now().minus(Duration.ofMillis(5));
+            request.setReportTime(new Date(instant.toEpochMilli()));
+        }
+        Page<StreamConfigLogEntity> entityPage = (Page<StreamConfigLogEntity>)
+                streamConfigLogEntityMapper.selectByCondition(request);
+        List<InlongStreamConfigLogListResponse> detailList = CommonBeanUtils
+                .copyListProperties(entityPage, InlongStreamConfigLogListResponse::new);
+
+        PageInfo<InlongStreamConfigLogListResponse> pageInfo = new PageInfo<>(detailList);
+        pageInfo.setTotal(entityPage.getTotal());
+        return pageInfo;
+    }
+
     public boolean batchInsertEntities(List<StreamConfigLogEntity> entryList) {
-        streamConfigLogEntityMapper.insertList(entryList);
+        streamConfigLogEntityMapper.insertOrUpdateAll(entryList);
         return true;
     }
 
@@ -57,7 +91,7 @@ public class StreamConfigLogServiceImpl extends AbstractService<StreamConfigLogE
         entity.setInlongGroupId(request.getInlongGroupId());
         entity.setInlongStreamId(request.getInlongStreamId());
         entity.setConfigName(request.getConfigName());
-        entity.setReportTime(request.getReportTime());
+        entity.setReportTime(new Date(request.getReportTime()));
         entity.setVersion(request.getVersion());
         entity.setLogInfo(request.getLogInfo());
         entity.setLogType(request.getLogType());

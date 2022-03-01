@@ -17,7 +17,6 @@
 
 package org.apache.inlong.common.reporpter.dto;
 
-import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,7 +34,7 @@ public class StreamConfigLogInfo {
 
     private Integer logType;
 
-    private Date reportTime;
+    private long reportTime;
 
     private String logInfo;
 

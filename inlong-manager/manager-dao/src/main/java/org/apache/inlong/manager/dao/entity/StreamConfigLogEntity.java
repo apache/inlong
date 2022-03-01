@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class StreamConfigLogEntity implements Serializable {
-    private Integer id;
 
     private String ip;
 
@@ -44,14 +43,6 @@ public class StreamConfigLogEntity implements Serializable {
     private String logInfo;
 
     private static final long serialVersionUID = 1L;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public String getIp() {
         return ip;
@@ -145,8 +136,7 @@ public class StreamConfigLogEntity implements Serializable {
             return false;
         }
         StreamConfigLogEntity other = (StreamConfigLogEntity) that;
-        return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getIp() == null ? other.getIp() == null : this.getIp().equals(other.getIp()))
+        return (this.getIp() == null ? other.getIp() == null : this.getIp().equals(other.getIp()))
             && (this.getVersion() == null ? other.getVersion() == null
                 : this.getVersion().equals(other.getVersion()))
             && (this.getInlongStreamId() == null ? other.getInlongStreamId() == null
@@ -171,7 +161,6 @@ public class StreamConfigLogEntity implements Serializable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
         result = prime * result + ((getIp() == null) ? 0 : getIp().hashCode());
         result = prime * result + ((getVersion() == null) ? 0 : getVersion().hashCode());
         result = prime * result + ((getInlongStreamId() == null) ? 0 : getInlongStreamId().hashCode());
@@ -191,7 +180,6 @@ public class StreamConfigLogEntity implements Serializable {
         sb.append(getClass().getSimpleName());
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
         sb.append(", ip=").append(ip);
         sb.append(", version=").append(version);
         sb.append(", inlongStreamId=").append(inlongStreamId);

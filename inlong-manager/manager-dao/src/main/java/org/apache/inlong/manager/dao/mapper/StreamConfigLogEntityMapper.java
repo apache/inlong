@@ -18,22 +18,12 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import java.util.List;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogPageRequest;
 import org.apache.inlong.manager.dao.entity.StreamConfigLogEntity;
 
 public interface StreamConfigLogEntityMapper {
-    int deleteByPrimaryKey(Integer id);
 
-    int insertList(List<StreamConfigLogEntity> records);
+    int insertOrUpdateAll(List<StreamConfigLogEntity> records);
 
-    int insert(StreamConfigLogEntity record);
-
-    int insertSelective(StreamConfigLogEntity record);
-
-    StreamConfigLogEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(StreamConfigLogEntity record);
-
-    int updateByPrimaryKeyWithBLOBs(StreamConfigLogEntity record);
-
-    int updateByPrimaryKey(StreamConfigLogEntity record);
+    List<StreamConfigLogEntity> selectByCondition(InlongStreamConfigLogPageRequest request);
 }

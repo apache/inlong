@@ -17,10 +17,16 @@
 
 package org.apache.inlong.manager.service.core;
 
+import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogRequest;
 
 public interface StreamConfigLogService {
 
     String reportConfigLog(InlongStreamConfigLogRequest request);
+
+    PageInfo<InlongStreamConfigLogListResponse> listByCondition(
+            InlongStreamConfigLogPageRequest request);
 
 }
