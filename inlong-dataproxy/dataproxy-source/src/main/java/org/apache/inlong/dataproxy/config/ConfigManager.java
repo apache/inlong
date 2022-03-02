@@ -123,7 +123,8 @@ public class ConfigManager {
             String oldValue = addElseRemove
                     ? tmpHolder.put(entry.getKey(), entry.getValue()) : tmpHolder.remove(entry.getKey());
             // if addElseRemove is false, that means removing item, changed is true.
-            if (oldValue == null || !oldValue.equals(entry.getValue()) || !addElseRemove) {
+            if ((oldValue == null && entry.getValue() != null) || !oldValue.equals(entry.getValue())
+                    || !addElseRemove) {
                 changed = true;
             }
         }
@@ -271,6 +272,7 @@ public class ConfigManager {
             try {
                 if (StringUtils.isEmpty(proxyClusterName)) {
                     LOG.error("proxyClusterName is null");
+                    return false;
                 }
                 String url = "http://" + host + "/api/inlong/manager/openapi/dataproxy/getConfig_v2?clusterName="
                         + proxyClusterName;
@@ -308,8 +310,12 @@ public class ConfigManager {
                     mqConfig.putAll(clusterSet.get(0).getParams());
 
                     for (DataProxyConfig topic : configJson.getData().getTopicList()) {
-                        groupIdToMValue.put(topic.getInlongGroupId(), topic.getM());
-                        groupIdToTopic.put(topic.getInlongGroupId(), topic.getTopic());
+                        if (!StringUtils.isEmpty(topic.getM())) {
+                            groupIdToMValue.put(topic.getInlongGroupId(), topic.getM());
+                        }
+                        if (!StringUtils.isEmpty(topic.getTopic())) {
+                            groupIdToTopic.put(topic.getInlongGroupId(), topic.getTopic());
+                        }
                     }
                     configManager.addMxProperties(groupIdToMValue);
                     configManager.addTopicProperties(groupIdToTopic);
