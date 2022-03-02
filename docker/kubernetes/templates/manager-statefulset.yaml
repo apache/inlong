@@ -45,8 +45,6 @@ spec:
 {{ toYaml .Values.manager.resources | indent 12 }}
           {{- end }}
           env:
-            - name: ACTIVE_PROFILE
-              value: {{ .Values.manager.activeProfile }}
             - name: JDBC_URL
               value: "{{ template "inlong.mysql.hostname" . }}:{{ .Values.mysql.ports.server }}"
             - name: USERNAME

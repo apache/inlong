@@ -89,12 +89,10 @@ services:
     ports:
       - "8083:8083"
     environment:
-      - ACTIVE_PROFILE=prod
       - JDBC_URL=mysql:3306
       - USERNAME=root
       - PASSWORD=inlong
       - ZK_URL=tubemq-server:2181
-      - SORT_APP_NAME=inlong_hive
 
   webisite:
     image: inlong/dashboard
