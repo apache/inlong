@@ -30,7 +30,6 @@ import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -45,9 +44,9 @@ public class InLongTopicManagerImplTest {
     private InLongTopic inLongTopic;
     private ClientContext clientContext;
     private QueryConsumeConfig queryConsumeConfig;
+    private InLongTopicManager inLongTopicManager;
 
-    @Before
-    public void setUp() throws Exception {
+    {
         System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
 
         inLongTopic = new InLongTopic();
@@ -63,7 +62,9 @@ public class InLongTopicManagerImplTest {
         SortClientConfig sortClientConfig = PowerMockito.mock(SortClientConfig.class);
         when(clientContext.getConfig()).thenReturn(sortClientConfig);
         when(sortClientConfig.getSortTaskId()).thenReturn("test");
+        when(sortClientConfig.getUpdateMetaDataIntervalSec()).thenReturn(60);
         queryConsumeConfig = PowerMockito.mock(QueryConsumeConfigImpl.class);
+        inLongTopicManager = new InLongTopicManagerImpl(clientContext, queryConsumeConfig);
     }
 
     @Test
@@ -77,7 +78,6 @@ public class InLongTopicManagerImplTest {
     @Test
     public void testRemoveFetcher() {
 
-        InLongTopicManager inLongTopicManager = new InLongTopicManagerImpl(clientContext, queryConsumeConfig);
         InLongTopicFetcher inLongTopicFetcher = inLongTopicManager.removeFetcher(inLongTopic, true);
         Assert.assertNull(inLongTopicFetcher);
 
@@ -94,7 +94,6 @@ public class InLongTopicManagerImplTest {
 
     @Test
     public void testGetFetcher() {
-        InLongTopicManager inLongTopicManager = new InLongTopicManagerImpl(clientContext, queryConsumeConfig);
         InLongTopicFetcher fetcher = inLongTopicManager.getFetcher(inLongTopic.getTopicKey());
         Assert.assertNull(fetcher);
         ConcurrentHashMap<String, InLongTopicFetcher> fetchers = new ConcurrentHashMap<>();
@@ -110,7 +109,6 @@ public class InLongTopicManagerImplTest {
 
     @Test
     public void testGetManagedInLongTopics() {
-        InLongTopicManager inLongTopicManager = new InLongTopicManagerImpl(clientContext, queryConsumeConfig);
         Set<String> managedInLongTopics = inLongTopicManager.getManagedInLongTopics();
         Assert.assertEquals(0, managedInLongTopics.size());
 
@@ -125,7 +123,6 @@ public class InLongTopicManagerImplTest {
 
     @Test
     public void testGetAllFetchers() {
-        InLongTopicManager inLongTopicManager = new InLongTopicManagerImpl(clientContext, queryConsumeConfig);
         Collection<InLongTopicFetcher> allFetchers = inLongTopicManager.getAllFetchers();
         Assert.assertEquals(0, allFetchers.size());
 
@@ -139,14 +136,17 @@ public class InLongTopicManagerImplTest {
 
     @Test
     public void testOfflineAllTp() {
-        InLongTopicManager inLongTopicManager = new InLongTopicManagerImpl(clientContext, queryConsumeConfig);
         inLongTopicManager.offlineAllTp();
     }
 
     @Test
     public void testClean() {
-        InLongTopicManager inLongTopicManager = new InLongTopicManagerImpl(clientContext, queryConsumeConfig);
         boolean clean = inLongTopicManager.clean();
         Assert.assertTrue(clean);
+    }
+
+    @Test
+    public void testClose() {
+        inLongTopicManager.close();
     }
 }
