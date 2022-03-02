@@ -28,7 +28,7 @@ import { tableColumns as dataSourcesDbColumns } from './DbConfig';
 import DataSourcesCreateModal from './CreateModal';
 import request from '@/utils/request';
 import { timestampFormat } from '@/utils';
-import { genStatusTag } from './Status';
+import { genStatusTag } from './status';
 
 const getFilterFormContent = defaultValues => [
   {
