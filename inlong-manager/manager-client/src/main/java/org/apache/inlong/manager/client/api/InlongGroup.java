@@ -30,10 +30,11 @@ public interface InlongGroup {
 
     /**
      * Create snapshot for Inlong group
+     *
      * @return
      * @throws Exception
      */
-    InlongGroupContext snapshot() throws Exception;
+    InlongGroupContext context() throws Exception;
 
     /**
      * Init inlong group.

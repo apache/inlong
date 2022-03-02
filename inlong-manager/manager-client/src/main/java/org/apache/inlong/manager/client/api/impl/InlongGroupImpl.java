@@ -86,7 +86,7 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
-    public InlongGroupContext snapshot() throws Exception {
+    public InlongGroupContext context() throws Exception {
         return generateSnapshot(groupContext.getGroupInfo());
     }
 

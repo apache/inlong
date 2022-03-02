@@ -33,7 +33,7 @@ public class BlankInlongGroup implements InlongGroup {
     }
 
     @Override
-    public InlongGroupContext snapshot() throws Exception {
+    public InlongGroupContext context() throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 
