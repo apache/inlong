@@ -29,7 +29,8 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_RETRY = "job.retry";
     public static final String JOB_UUID = "job.uuid";
 
-    public static final String JOB_SOURCE = "job.source";
+    public static final String JOB_SOURCE_CLASS = "job.source";
+    public static final String JOB_SOURCE_TYPE = "job.sourceType";
 
     public static final String JOB_SINK = "job.sink";
     public static final String JOB_CHANNEL = "job.channel";
