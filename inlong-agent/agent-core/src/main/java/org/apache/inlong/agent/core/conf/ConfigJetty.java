@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.core.conf;
 
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_SOURCE_TYPE;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
 
 import java.io.Closeable;
@@ -27,6 +27,7 @@ import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.job.JobManager;
 import org.apache.inlong.agent.core.trigger.TriggerManager;
+import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -79,10 +80,23 @@ public class ConfigJetty implements Closeable {
             if (jobProfile.hasKey(JOB_TRIGGER)) {
                 triggerManager.submitTrigger(
                     TriggerProfile.parseJsonStr(jobProfile.toJsonStr()));
-            } else if (jobProfile.hasKey(JOB_DIR_FILTER_PATTERN)) {
-                jobManager.submitFileJobProfile(jobProfile);
             } else {
-                jobManager.submitSqlJobProfile(jobProfile);
+                TaskTypeEnum taskType = TaskTypeEnum
+                    .getTaskType(jobProfile.getInt(JOB_SOURCE_TYPE));
+                switch (taskType) {
+                    case SQL:
+                        jobManager.submitSqlJobProfile(jobProfile);
+                        break;
+                    case FILE:
+                        jobManager.submitFileJobProfile(jobProfile);
+                        break;
+                    case KAFKA:
+                    case BINLOG:
+                        jobManager.submitJobProfile(jobProfile, true);
+                        break;
+                    default:
+                        LOGGER.error("source type not supported {}", taskType);
+                }
             }
         }
     }
