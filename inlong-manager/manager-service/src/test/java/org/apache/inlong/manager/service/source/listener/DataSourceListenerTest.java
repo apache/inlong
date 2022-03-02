@@ -83,10 +83,6 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
     @Test
     public void testRestartSource() {
         testFrozenSource();
-        groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
-        groupService.update(groupInfo.genRequest(), OPERATOR);
-        groupInfo.setStatus(GroupState.GROUP_SUSPEND.getCode());
-        groupService.update(groupInfo.genRequest(), OPERATOR);
         form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
         form.setOperateType(OperateType.RESTART);

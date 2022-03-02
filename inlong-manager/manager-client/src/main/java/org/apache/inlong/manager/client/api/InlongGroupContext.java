@@ -53,7 +53,7 @@ public class InlongGroupContext implements Serializable {
     }
 
     public enum InlongGroupState {
-        OPERATING, REJECTED, INITIALIZING, STARTED, FAILED, STOPPED, FINISHED, DELETED;
+        CREATE, REJECTED, INITIALIZING, OPERATING, STARTED, FAILED, STOPPED, FINISHED, DELETED;
 
         // Reference to  org.apache.inlong.manager.common.enums.GroupState code
         public static InlongGroupState parseByBizStatus(int bizCode) {
@@ -61,6 +61,10 @@ public class InlongGroupContext implements Serializable {
             switch (bizCode) {
                 case 0:
                 case 100:
+                    return CREATE;
+                case 41:
+                case 141:
+                case 151:
                     return OPERATING;
                 case 102:
                     return REJECTED;

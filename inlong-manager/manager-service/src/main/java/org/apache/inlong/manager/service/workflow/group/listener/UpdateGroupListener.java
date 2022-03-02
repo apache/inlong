@@ -18,9 +18,11 @@
 package org.apache.inlong.manager.service.workflow.group.listener;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -47,7 +49,25 @@ public class UpdateGroupListener implements ProcessEventListener {
     public ListenerResult listen(WorkflowContext context) throws Exception {
         UpdateGroupProcessForm form = (UpdateGroupProcessForm) context.getProcessForm();
         InlongGroupInfo groupInfo = groupService.get(context.getProcessForm().getInlongGroupId());
+        OperateType operateType = form.getOperateType();
+        String username = context.getApplicant();
         if (groupInfo != null) {
+            switch (operateType) {
+                case SUSPEND:
+                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupState.GROUP_SUSPEND_ING.getCode(),
+                            username);
+                    break;
+                case RESTART:
+                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupState.GROUP_RESTART_ING.getCode(),
+                            username);
+                    break;
+                case DELETE:
+                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupState.GROUP_DELETE_ING.getCode(),
+                            username);
+                    break;
+                default:
+                    break;
+            }
             form.setGroupInfo(groupInfo);
         } else {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);

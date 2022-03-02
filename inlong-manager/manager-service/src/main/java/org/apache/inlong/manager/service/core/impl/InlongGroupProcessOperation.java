@@ -81,7 +81,7 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult suspendProcess(String groupId, String operator) {
         LOGGER.info("begin to suspend process, groupId = {}, operator = {}", groupId, operator);
-        final GroupState nextState = GroupState.GROUP_SUSPEND;
+        final GroupState nextState = GroupState.GROUP_SUSPEND_ING;
         InlongGroupInfo groupInfo = validateGroup(groupId, nextState);
 
         groupInfo.setStatus(nextState.getCode());
@@ -97,7 +97,7 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult restartProcess(String groupId, String operator) {
         LOGGER.info("begin to restart process, groupId = {}, operator = {}", groupId, operator);
-        GroupState nextState = GroupState.GROUP_RESTART;
+        GroupState nextState = GroupState.GROUP_RESTART_ING;
         InlongGroupInfo groupInfo = validateGroup(groupId, nextState);
         groupInfo.setStatus(nextState.getCode());
         groupService.update(groupInfo.genRequest(), operator);

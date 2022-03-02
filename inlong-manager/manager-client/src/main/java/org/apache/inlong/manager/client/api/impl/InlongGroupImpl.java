@@ -87,7 +87,7 @@ public class InlongGroupImpl implements InlongGroup {
 
     @Override
     public InlongGroupContext context() throws Exception {
-        return generateSnapshot(groupContext.getGroupInfo());
+        return generateSnapshot();
     }
 
     @Override
@@ -111,11 +111,11 @@ public class InlongGroupImpl implements InlongGroup {
         AssertUtil.isTrue(ProcessStatus.COMPLETED == processView.getStatus(),
                 String.format("Business info state : %s is not corrected , should be COMPLETED",
                         processView.getStatus()));
-        return generateSnapshot(null);
+        return generateSnapshot();
     }
 
     @Override
-    public InlongGroupContext initOnUpdate(InlongGroupConf conf) throws Exception {
+    public void update(InlongGroupConf conf) throws Exception {
         if (conf != null) {
             AssertUtil.isTrue(conf.getGroupName() != null
                             && conf.getGroupName().equals(this.groupConf.getGroupName()),
@@ -129,6 +129,13 @@ public class InlongGroupImpl implements InlongGroup {
         Pair<String, String> idAndErr = managerClient.updateGroup(groupRequest);
         String errMsg = idAndErr.getValue();
         AssertUtil.isNull(errMsg, errMsg);
+    }
+
+    @Override
+    public InlongGroupContext initOnUpdate(InlongGroupConf conf) throws Exception {
+        update(conf);
+        InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(conf);
+        InlongGroupRequest groupRequest = groupInfo.genRequest();
         Pair<Boolean, InlongGroupResponse> existMsg = managerClient.isGroupExists(groupRequest);
         if (existMsg.getKey()) {
             groupInfo = CommonBeanUtils.copyProperties(existMsg.getValue(), InlongGroupInfo::new);
@@ -147,7 +154,7 @@ public class InlongGroupImpl implements InlongGroup {
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
         managerClient.operateInlongGroup(groupId, InlongGroupState.STOPPED);
-        return generateSnapshot(null);
+        return generateSnapshot();
     }
 
     @Override
@@ -158,7 +165,7 @@ public class InlongGroupImpl implements InlongGroup {
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
         managerClient.operateInlongGroup(groupId, InlongGroupState.STARTED);
-        return generateSnapshot(null);
+        return generateSnapshot();
     }
 
     @Override
@@ -170,7 +177,7 @@ public class InlongGroupImpl implements InlongGroup {
             groupResponse.setStatus(GroupState.GROUP_DELETE.getCode());
         }
         InlongGroupInfo groupInfo = CommonBeanUtils.copyProperties(groupResponse, InlongGroupInfo::new);
-        return generateSnapshot(groupInfo);
+        return generateSnapshot();
     }
 
     @Override
@@ -179,16 +186,17 @@ public class InlongGroupImpl implements InlongGroup {
         return fetchDataStreams(inlongGroupId);
     }
 
-    private InlongGroupContext generateSnapshot(InlongGroupInfo currentGroupInfo) {
-        if (currentGroupInfo == null) {
-            InlongGroupResponse groupResponse = managerClient.getGroupInfo(
-                    groupContext.getGroupId());
-            currentGroupInfo = CommonBeanUtils.copyProperties(groupResponse, InlongGroupInfo::new);
-            groupContext.setGroupInfo(currentGroupInfo);
-        }
+    private InlongGroupContext generateSnapshot() {
+        //Fetch current group
+        InlongGroupResponse groupResponse = managerClient.getGroupInfo(
+                groupContext.getGroupId());
+        InlongGroupInfo currentGroupInfo = CommonBeanUtils.copyProperties(groupResponse, InlongGroupInfo::new);
+        groupContext.setGroupInfo(currentGroupInfo);
         String inlongGroupId = currentGroupInfo.getInlongGroupId();
+        //Fetch stream in group
         List<InlongStream> dataStreams = fetchDataStreams(inlongGroupId);
         dataStreams.stream().forEach(dataStream -> groupContext.setStream(dataStream));
+        //Create group context
         InlongGroupContext inlongGroupContext = new InlongGroupContext(groupContext, groupConf);
         List<EventLogView> logViews = managerClient.getInlongGroupError(inlongGroupId);
         Map<String, String> errMsgs = logViews.stream().collect(

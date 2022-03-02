@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
@@ -36,6 +37,7 @@ import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessFor
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
+import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowServiceImplTest;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -56,6 +58,9 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
 
     @Autowired
     protected StreamSinkService streamSinkService;
+
+    @Autowired
+    protected StreamSourceService streamSourceService;
 
     public HiveSinkRequest createHiveSink(InlongStreamInfo streamInfo) {
         HiveSinkRequest hiveSinkRequest = new HiveSinkRequest();
@@ -89,6 +94,16 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         return hiveSinkRequest;
     }
 
+    public KafkaSourceRequest createKafkaSource(InlongStreamInfo streamInfo) {
+        KafkaSourceRequest kafkaSourceRequest = new KafkaSourceRequest();
+        kafkaSourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
+        kafkaSourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+        kafkaSourceRequest.setGroupId("default");
+        kafkaSourceRequest.setSerializationType("csv");
+        streamSourceService.save(kafkaSourceRequest, OPERATOR);
+        return kafkaSourceRequest;
+    }
+
     @Test
     public void testCreateSortConfigInCreateWorkflow() {
         InlongGroupInfo groupInfo = initGroupForm("PULSAR");
@@ -97,6 +112,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         groupService.update(groupInfo.genRequest(), OPERATOR);
         InlongStreamInfo streamInfo = createStreamInfo(groupInfo);
         createHiveSink(streamInfo);
+        createKafkaSource(streamInfo);
         mockTaskListenerFactory();
         WorkflowContext context = workflowEngine.processService().start(processName.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
@@ -123,6 +139,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         groupService.update(groupInfo.genRequest(), OPERATOR);
         InlongStreamInfo streamInfo = createStreamInfo(groupInfo);
         createHiveSink(streamInfo);
+        createKafkaSource(streamInfo);
         UpdateGroupProcessForm form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
         form.setOperateType(OperateType.SUSPEND);
