@@ -232,7 +232,9 @@
         from stream_source
         <where>
             is_deleted = 0
-            and source_type = #{request.sourceType, jdbcType=VARCHAR}
+            <if test="request.sourceType != null and request.sourceType != ''">
+                and source_type = #{request.sourceType, jdbcType=VARCHAR}
+            </if>
             and inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
             <if test="request.inlongStreamId != null and request.inlongStreamId != ''">
                 and inlong_stream_id = #{request.inlongStreamId, jdbcType=VARCHAR}
@@ -404,7 +406,7 @@
         detail.modify_time,
         detail.uuid,
         detail.agent_ip,
-        detail.status mod 100 as op,
+        detail.status,
         detail.id,
         detail.source_type,
         detail.snapshot,

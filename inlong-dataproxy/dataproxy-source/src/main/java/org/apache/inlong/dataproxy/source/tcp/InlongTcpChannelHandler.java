@@ -17,6 +17,11 @@
 
 package org.apache.inlong.dataproxy.source.tcp;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,21 +34,14 @@ import org.apache.inlong.sdk.commons.protocol.EventUtils;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResponseInfo;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResultCode;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * InlongTcpChannelHandler
  */
-public class InlongTcpChannelHandler extends SimpleChannelHandler {
+public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
 
     public static final Logger LOG = LoggerFactory.getLogger(InlongTcpChannelHandler.class);
     public static final int LENGTH_PARAM_OFFSET = 0;
@@ -66,78 +64,64 @@ public class InlongTcpChannelHandler extends SimpleChannelHandler {
     }
 
     /**
-     * channelOpen
+     * channelRead
      * 
      * @param  ctx
-     * @param  e
+     * @param  msg
      * @throws Exception
      */
     @Override
-    public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        if (sourceContext.getAllChannels().size() - 1 >= sourceContext.getMaxConnections()) {
-            LOG.warn("refuse to connect , and connections=" + (sourceContext.getAllChannels().size() - 1)
-                    + ", maxConnections="
-                    + sourceContext.getMaxConnections() + ",channel is " + e.getChannel());
-            e.getChannel().disconnect();
-            e.getChannel().close();
-        }
-    }
-
-    /**
-     * messageReceived
-     * 
-     * @param  ctx
-     * @param  e
-     * @throws Exception
-     */
-    @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         LOG.debug("message received");
-        if (e == null) {
-            LOG.error("get null messageevent, just skip");
+        if (msg == null) {
+            LOG.error("get null msg, just skip");
             this.addMetric(false, 0, null);
             return;
         }
-        ChannelBuffer cb = ((ChannelBuffer) e.getMessage());
-        int readableLength = cb.readableBytes();
-        if (readableLength == 0) {
-            LOG.warn("skip empty msg.");
-            cb.clear();
-            this.addMetric(false, 0, null);
-            return;
-        }
-        if (readableLength > LENGTH_PARAM_LENGTH + VERSION_PARAM_LENGTH + sourceContext.getMaxMsgLength()) {
-            this.addMetric(false, 0, null);
-            throw new Exception("err msg, MSG_MAX_LENGTH_BYTES "
-                    + "< readableLength, and readableLength=" + readableLength + ", and MSG_MAX_LENGTH_BYTES="
-                    + sourceContext.getMaxMsgLength());
-        }
-        // save index, reset it if buffer is not satisfied.
-        cb.markReaderIndex();
-        int totalPackLength = cb.readInt();
-        cb.resetReaderIndex();
-        if (readableLength < totalPackLength + LENGTH_PARAM_LENGTH) {
-            // reset index.
-            this.addMetric(false, 0, null);
-            throw new Exception("err msg, channel buffer is not satisfied, and  readableLength="
-                    + readableLength + ", and totalPackLength=" + totalPackLength);
-        }
-
-        // read version
-        int version = cb.readShort();
-        switch (version) {
-            case VERSION_1 :
-                // decode version 1
-                int bodyLength = totalPackLength - VERSION_PARAM_LENGTH;
-                decodeVersion1(cb, bodyLength, e);
-                break;
-            default :
+        ByteBuf cb = (ByteBuf) msg;
+        try {
+            int readableLength = cb.readableBytes();
+            if (readableLength == 0) {
+                LOG.warn("skip empty msg.");
+                cb.clear();
                 this.addMetric(false, 0, null);
-                throw new Exception("err version, unknown version:" + version);
+                return;
+            }
+            if (readableLength > LENGTH_PARAM_LENGTH + VERSION_PARAM_LENGTH + sourceContext.getMaxMsgLength()) {
+                this.addMetric(false, 0, null);
+                throw new Exception("err msg, MSG_MAX_LENGTH_BYTES "
+                        + "< readableLength, and readableLength=" + readableLength + ", and MSG_MAX_LENGTH_BYTES="
+                        + sourceContext.getMaxMsgLength());
+            }
+            // save index, reset it if buffer is not satisfied.
+            cb.markReaderIndex();
+            int totalPackLength = cb.readInt();
+            cb.resetReaderIndex();
+            if (readableLength < totalPackLength + LENGTH_PARAM_LENGTH) {
+                // reset index.
+                this.addMetric(false, 0, null);
+                throw new Exception("err msg, channel buffer is not satisfied, and  readableLength="
+                        + readableLength + ", and totalPackLength=" + totalPackLength);
+            }
+
+            // read version
+            int version = cb.readShort();
+            switch (version) {
+                case VERSION_1 :
+                    // decode version 1
+                    int bodyLength = totalPackLength - VERSION_PARAM_LENGTH;
+                    decodeVersion1(ctx, cb, bodyLength);
+                    break;
+                default :
+                    this.addMetric(false, 0, null);
+                    throw new Exception("err version, unknown version:" + version);
+            }
+        } finally {
+            cb.release();
         }
     }
 
-    private void decodeVersion1(ChannelBuffer cb, int bodyLength, MessageEvent e) throws Exception {
+    private void decodeVersion1(ChannelHandlerContext ctx, ByteBuf cb, int bodyLength) throws Exception {
         // read bytes
         byte[] msgBytes = new byte[bodyLength];
         cb.readBytes(msgBytes);
@@ -157,11 +141,11 @@ public class InlongTcpChannelHandler extends SimpleChannelHandler {
             } catch (Throwable ex) {
                 LOG.error("Process Controller Event error can't write event to channel.", ex);
                 this.addMetric(false, event.getBody().length, event);
-                this.responsePackage(ResultCode.ERR_REJECT, e);
+                this.responsePackage(ctx, ResultCode.ERR_REJECT);
                 return;
             }
         }
-        this.responsePackage(ResultCode.SUCCUSS, e);
+        this.responsePackage(ctx, ResultCode.SUCCUSS);
     }
 
     /**
@@ -191,12 +175,12 @@ public class InlongTcpChannelHandler extends SimpleChannelHandler {
 
     /**
      * responsePackage
-     * 
+     *
+     * @param ctx
      * @param  code
-     * @param  e
      * @throws Exception
      */
-    private void responsePackage(ResultCode code, MessageEvent e)
+    private void responsePackage(ChannelHandlerContext ctx, ResultCode code)
             throws Exception {
         ResponseInfo.Builder builder = ResponseInfo.newBuilder();
         builder.setResult(code);
@@ -204,15 +188,15 @@ public class InlongTcpChannelHandler extends SimpleChannelHandler {
         // encode
         byte[] responseBytes = builder.build().toByteArray();
         //
-        ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(responseBytes);
-
-        Channel remoteChannel = e.getChannel();
+        ByteBuf buffer = Unpooled.wrappedBuffer(responseBytes);
+        Channel remoteChannel = ctx.channel();
         if (remoteChannel.isWritable()) {
-            remoteChannel.write(buffer, e.getRemoteAddress());
+            remoteChannel.write(buffer);
         } else {
             LOG.warn(
                     "the send buffer2 is full, so disconnect it!please check remote client"
                             + "; Connection info:" + remoteChannel);
+            buffer.release();
             throw new Exception(
                     "the send buffer2 is full,so disconnect it!please check remote client, Connection info:"
                             + remoteChannel);
@@ -223,41 +207,59 @@ public class InlongTcpChannelHandler extends SimpleChannelHandler {
      * exceptionCaught
      * 
      * @param  ctx
-     * @param  e
+     * @param  cause
      * @throws Exception
      */
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-        LOG.error("exception caught", e.getCause());
-        super.exceptionCaught(ctx, e);
-        if (e.getChannel() != null) {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        LOG.error("exception caught cause = {}", cause);
+        ctx.fireExceptionCaught(cause);
+        if (ctx.channel() != null) {
             try {
-                e.getChannel().disconnect();
-                e.getChannel().close();
+                ctx.channel().disconnect();
+                ctx.channel().close();
             } catch (Exception ex) {
                 LOG.error("Close connection error!", ex);
             }
-            sourceContext.getAllChannels().remove(e.getChannel());
+            sourceContext.getAllChannels().remove(ctx.channel());
         }
     }
 
     /**
-     * channelClosed
-     * 
-     * @param  ctx
-     * @param  e
+     * channelInactive
+     *
+     * @param ctx
      * @throws Exception
      */
     @Override
-    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        LOG.debug("Connection to {} disconnected.", e.getChannel());
-        super.channelClosed(ctx, e);
+    public void channelInactive(ChannelHandlerContext ctx) {
+        LOG.debug("Connection to {} disconnected.", ctx.channel());
+        ctx.fireChannelInactive();
         try {
-            e.getChannel().disconnect();
-            e.getChannel().close();
+            ctx.channel().disconnect();
+            ctx.channel().close();
         } catch (Exception ex) {
-            //
+            LOG.error("channelInactive has exception e = {}", ex);
         }
-        sourceContext.getAllChannels().remove(e.getChannel());
+        sourceContext.getAllChannels().remove(ctx.channel());
+
+    }
+
+    /**
+     * channelActive
+     *
+     * @param ctx
+     * @throws Exception
+     */
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) {
+        if (sourceContext.getAllChannels().size() - 1 >= sourceContext.getMaxConnections()) {
+            LOG.warn("refuse to connect , and connections="
+                    + (sourceContext.getAllChannels().size() - 1)
+                    + ", maxConnections="
+                    + sourceContext.getMaxConnections() + ",channel is " + ctx.channel());
+            ctx.channel().disconnect();
+            ctx.channel().close();
+        }
     }
 }

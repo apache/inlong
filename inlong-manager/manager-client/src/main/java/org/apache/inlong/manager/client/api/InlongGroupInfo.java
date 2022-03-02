@@ -17,15 +17,13 @@
 
 package org.apache.inlong.manager.client.api;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import java.io.Serializable;
+import java.util.Map;
 import lombok.Data;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
-
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 
 @Data
 public class InlongGroupInfo implements Serializable {
@@ -38,7 +36,8 @@ public class InlongGroupInfo implements Serializable {
 
     private Map<String, InlongStream> inlongStreamMap;
 
-    private List<String> errMsg;
+    //k->taskName v->errorMsg
+    private Map<String, String> errMsg;
 
     private InlongGroupState state;
 
@@ -49,33 +48,37 @@ public class InlongGroupInfo implements Serializable {
         this.groupName = groupInfo.getName();
         this.groupConf = streamGroupConf;
         this.inlongStreamMap = groupContext.getStreamMap();
-        this.errMsg = Lists.newArrayList();
+        this.errMsg = Maps.newHashMap();
         this.state = InlongGroupState.parseByBizStatus(groupInfo.getStatus());
     }
 
     public enum InlongGroupState {
-        INIT, FAIL, START, SUSPEND, RESTART, DELETE;
+        OPERATING, REJECTED, INITIALIZING, STARTED, FAILED, STOPPED, FINISHED, DELETED;
 
-        // Reference to  org.apache.inlong.manager.common.enums.EntityStatus code
+        // Reference to  org.apache.inlong.manager.common.enums.GroupState code
         public static InlongGroupState parseByBizStatus(int bizCode) {
 
             switch (bizCode) {
+                case 0:
                 case 100:
+                    return OPERATING;
+                case 102:
+                    return REJECTED;
                 case 101:
                 case 103:
                 case 110:
-                    return INIT;
-                case 102:
+                    return INITIALIZING;
                 case 120:
-                    return FAIL;
+                    return FAILED;
                 case 130:
-                    return START;
                 case 150:
-                    return RESTART;
+                    return STARTED;
                 case 140:
-                    return SUSPEND;
+                    return STOPPED;
+                case 131:
+                    return FINISHED;
                 case 40:
-                    return DELETE;
+                    return DELETED;
                 default:
                     throw new IllegalArgumentException(String.format("Unsupported status %s for group", bizCode));
             }

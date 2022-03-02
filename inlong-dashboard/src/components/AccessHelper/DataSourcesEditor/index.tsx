@@ -141,7 +141,7 @@ const Comp = ({
     setCreateModal({
       visible: true,
       id: useActionRequest ? record?.id : true,
-      _etid: record._etid,
+      _etid: record?._etid,
       record,
     });
   };

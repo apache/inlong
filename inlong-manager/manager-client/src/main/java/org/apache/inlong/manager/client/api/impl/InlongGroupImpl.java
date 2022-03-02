@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -43,6 +44,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
@@ -79,6 +81,11 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
+    public InlongGroupInfo snapshot() throws Exception {
+        return generateSnapshot(groupContext.getGroupRequest());
+    }
+
+    @Override
     public InlongGroupInfo init() throws Exception {
         WorkflowResult initWorkflowResult = managerClient.initInlongGroup(this.groupContext.getGroupRequest());
         List<TaskResponse> taskViews = initWorkflowResult.getNewTasks();
@@ -102,12 +109,35 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
+    public InlongGroupInfo initOnUpdate(InlongGroupConf conf) throws Exception {
+        if (conf != null) {
+            AssertUtil.isTrue(conf.getGroupName() != null
+                            && conf.getGroupName().equals(this.groupConf.getGroupName()),
+                    "Group must have same name");
+            this.groupConf = conf;
+        } else {
+            conf = this.groupConf;
+        }
+        InlongGroupRequest groupRequest = InlongGroupTransfer.createGroupInfo(conf);
+        Pair<String, String> idAndErr = managerClient.updateGroupInfo(groupRequest);
+        String errMsg = idAndErr.getValue();
+        AssertUtil.isNull(errMsg, errMsg);
+        Pair<Boolean, InlongGroupRequest> existMsg = managerClient.isGroupExists(groupRequest);
+        if (existMsg.getKey()) {
+            this.groupContext.setGroupRequest(existMsg.getValue());
+            return init();
+        } else {
+            throw new RuntimeException(String.format("Group is not found by groupName=%s",groupRequest.getName()));
+        }
+    }
+
+    @Override
     public InlongGroupInfo suspend() throws Exception {
         Pair<String, String> idAndErr = managerClient.updateGroupInfo(groupContext.getGroupRequest());
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
-        managerClient.operateInlongGroup(groupId, InlongGroupState.SUSPEND);
+        managerClient.operateInlongGroup(groupId, InlongGroupState.STOPPED);
         return generateSnapshot(null);
     }
 
@@ -117,7 +147,7 @@ public class InlongGroupImpl implements InlongGroup {
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
-        managerClient.operateInlongGroup(groupId, InlongGroupState.RESTART);
+        managerClient.operateInlongGroup(groupId, InlongGroupState.STARTED);
         return generateSnapshot(null);
     }
 
@@ -147,7 +177,12 @@ public class InlongGroupImpl implements InlongGroup {
         String inlongGroupId = currentBizInfo.getInlongGroupId();
         List<InlongStream> dataStreams = fetchDataStreams(inlongGroupId);
         dataStreams.stream().forEach(dataStream -> groupContext.setStream(dataStream));
-        return new InlongGroupInfo(groupContext, groupConf);
+        InlongGroupInfo groupInfo = new InlongGroupInfo(groupContext, groupConf);
+        List<EventLogView> logViews = managerClient.getInlongGroupError(inlongGroupId);
+        Map<String, String> errMsgs = logViews.stream().collect(
+                Collectors.toMap(EventLogView::getEvent, EventLogView::getException));
+        groupInfo.setErrMsg(errMsgs);
+        return groupInfo;
     }
 
     private List<InlongStream> fetchDataStreams(String groupId) {

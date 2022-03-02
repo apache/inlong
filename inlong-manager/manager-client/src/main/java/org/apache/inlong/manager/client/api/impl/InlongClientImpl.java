@@ -19,18 +19,23 @@ package org.apache.inlong.manager.client.api.impl;
 
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
+import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 
@@ -74,16 +79,33 @@ public class InlongClientImpl implements InlongClient {
     }
 
     @Override
-    public PageInfo<InlongGroupListResponse> listGroup(String keyword, int status,
+    public List<InlongGroup> listGroup(String expr, int status,
             int pageNum, int pageSize) throws Exception {
         InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
-        return managerClient.listGroupInfo(keyword, status, pageNum, pageSize);
+        PageInfo<InlongGroupListResponse> responsePageInfo = managerClient.listGroupInfo(expr, status, pageNum,
+                pageSize);
+        if (CollectionUtils.isEmpty(responsePageInfo.getList())) {
+            return Lists.newArrayList();
+        } else {
+            return responsePageInfo.getList().stream().map(response -> {
+                String groupId = response.getInlongGroupId();
+                InlongGroupRequest request = managerClient.getGroupInfo(groupId);
+                InlongGroupConf groupConf = InlongGroupTransfer.parseGroupRequest(request);
+                return new InlongGroupImpl(groupConf, this);
+            }).collect(Collectors.toList());
+        }
     }
 
     @Override
-    public InlongGroupRequest getGroup(String groupId) throws Exception {
+    public InlongGroup getGroup(String groupName) throws Exception {
         InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
-        return managerClient.getGroupInfo(groupId);
+        final String groupId = "b_" + groupName;
+        InlongGroupRequest groupRequest = managerClient.getGroupInfo(groupId);
+        if (groupRequest == null) {
+            return new BlankInlongGroup();
+        }
+        InlongGroupConf groupConf = InlongGroupTransfer.parseGroupRequest(groupRequest);
+        return new InlongGroupImpl(groupConf, this);
     }
 
     private boolean checkConnectivity(String host, int port, int connectTimeout) {

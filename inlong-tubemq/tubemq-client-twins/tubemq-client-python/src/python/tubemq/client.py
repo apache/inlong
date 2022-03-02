@@ -23,21 +23,23 @@ import tubemq_client
 import tubemq_config
 import tubemq_errcode
 import tubemq_return
+import tubemq_tdmsg  # pylint: disable=unused-import
+import tubemq_message  # pylint: disable=unused-import
 
 
-class consumer(tubemq_client.TubeMQConsumer):
+class Consumer(tubemq_client.TubeMQConsumer):
     def __init__(self,
                  master_addr,
                  group_name,
                  topic_list,
-                 RpcReadTimeoutMs=20000,
+                 rpc_read_timeout_ms=20000,
                  consume_osition=tubemq_config.ConsumePosition.kConsumeFromLatestOffset,
                  conf_file=os.path.join(os.path.dirname(__file__), 'client.conf')):
 
-        super(consumer, self).__init__()
+        super(Consumer, self).__init__()
 
         consumer_config = tubemq_config.ConsumerConfig()
-        consumer_config.setRpcReadTimeoutMs(RpcReadTimeoutMs)
+        consumer_config.setRpcReadTimeoutMs(rpc_read_timeout_ms)
         consumer_config.setConsumePosition(consume_osition)
 
         err_info = ''
@@ -46,7 +48,7 @@ class consumer(tubemq_client.TubeMQConsumer):
             print("Set Master AddrInfo failure:", err_info)
             exit(1)
 
-        result = consumer_config.setGroupConsumeTarget(err_info, group_name, set(topic_list))
+        result = consumer_config.setGroupConsumeTarget(err_info, group_name, topic_list)
         if not result:
             print("Set GroupConsume Target failure:", err_info)
             exit(1)
@@ -77,7 +79,7 @@ class consumer(tubemq_client.TubeMQConsumer):
                     or not self.getRet.getErrCode() == tubemq_errcode.Result.kErrNoPartAssigned \
                     or not self.getRet.getErrCode() == tubemq_errcode.Result.kErrAllPartInUse \
                     or not self.getRet.getErrCode() == tubemq_errcode.Result.kErrAllPartWaiting:
-                print('GetMessage failure, err_code=%d, err_msg is:%s', \
+                print('GetMessage failure, err_code=%d, err_msg is:%s',
                       self.getRet.getErrCode(), self.getRet.getErrMessage())
 
     def acknowledge(self):

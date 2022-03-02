@@ -17,29 +17,28 @@
 # under the License.
 #
 
-import time
-import tubemq
+from __future__ import print_function
+import tubemq_tdmsg
 
-topic_list = {'test_topic'}  # consum all of topic
-# topic_list = {'test_topic': {'test_tid1', 'test_tid2'}}  # filter by tids
-MASTER_ADDR = '127.0.0.1:8000'
-GROUP_NAME = 'test_group'
 
-# Start consumer
-consumer = tubemq.Consumer(MASTER_ADDR, GROUP_NAME, topic_list)
+class TubeMsg:
+    def __init__(self, header, data):
+        self.header = header
+        self.data = data
 
-# Test consumer
-start_time = time.time()
-while True:
-    msgs = consumer.receive()
-    if msgs:
-        print("GetMessage success, msssage count =", len(msgs))
-    consumer.acknowledge()
+    def __str__(self):
+        return 'TubeMsg (%d, %d)' % (self.header, self.data)
 
-    # used for test, consume 10 minutes only
-    stop_time = time.time()
-    if stop_time - start_time > 10 * 60:
-        break
-
-# Stop consumer
-consumer.stop()
+    @staticmethod
+    def parse_tdmsg_type_msg(data):
+        err_info = ''
+        tube_tdmsg = tubemq_tdmsg.TubeMQTDMsg()
+        parsedMsgs = []
+        if tube_tdmsg.parseTDMsg(data, err_info):
+            tube_datamap = tube_tdmsg.getAttr2DataMap()
+            for parsed_data_val in tube_datamap.values():
+                for data_it in parsed_data_val:
+                    parsedMsgs.append(data_it.getData())
+        else:
+            print(err_info)
+        return parsedMsgs

@@ -25,9 +25,29 @@ import lombok.Data;
 public abstract class SortBaseConf {
 
     public enum SortType {
-        FLINK,
-        LOCAL,
-        USER_DEFINED;
+        FLINK("flink"),
+        LOCAL("local"),
+        USER_DEFINED("user_defined");
+
+        private String type;
+
+        public String getType() {
+            return this.type;
+        }
+
+        SortType(String type) {
+            this.type = type;
+        }
+
+        public static SortType forType(String type) {
+            for (SortType sortType : values()) {
+                if (sortType.getType().equals(type)) {
+                    return sortType;
+                }
+            }
+            throw new IllegalArgumentException(String.format("Unsupport type=%s for Inlong", type));
+        }
+
     }
 
     public abstract SortType getType();

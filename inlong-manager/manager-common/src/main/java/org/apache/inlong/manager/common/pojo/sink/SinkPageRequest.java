@@ -40,8 +40,7 @@ public class SinkPageRequest extends PageRequest {
     @ApiModelProperty(value = "Inlong stream id")
     private String inlongStreamId;
 
-    @ApiModelProperty(value = "Sink type, such as HIVE", required = true)
-    @NotNull
+    @ApiModelProperty(value = "Sink type, such as HIVE")
     private String sinkType;
 
     @ApiModelProperty(value = "Key word")

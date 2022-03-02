@@ -207,7 +207,7 @@ export default (
             if (val) {
               const writeQuorum = getFieldValue(['mqExtInfo', 'writeQuorum']) || 0;
               const ackQuorum = getFieldValue(['mqExtInfo', 'ackQuorum']) || 0;
-              const ensemble = val || 0;
+              const ensemble = val;
               return ackQuorum <= writeQuorum && writeQuorum <= ensemble
                 ? Promise.resolve()
                 : Promise.reject(new Error('Max match: ensemble ≥ write quorum ≥ ack quorum'));

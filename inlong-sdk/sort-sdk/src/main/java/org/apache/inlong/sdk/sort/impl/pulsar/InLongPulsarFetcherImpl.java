@@ -152,7 +152,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                     .receiverQueueSize(context.getConfig().getPulsarReceiveQueueSize())
                     .subscribe();
 
-            String threadName = "sort_sdk_fetch_thread_" + StringUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss.SSS");
+            String threadName = "sort_sdk_fetch_thread_" + StringUtil.formatDate(new Date());
             this.fetchThread = new Thread(new Fetcher(), threadName);
             this.fetchThread.start();
         } catch (Exception e) {

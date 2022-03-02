@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.source;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -35,6 +36,8 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
@@ -127,17 +130,32 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             LOGGER.debug("begin to list source page by " + request);
         }
         Preconditions.checkNotNull(request.getInlongGroupId(), Constant.GROUP_ID_IS_EMPTY);
-        String sourceType = request.getSourceType();
-        Preconditions.checkNotNull(sourceType, Constant.SOURCE_TYPE_IS_EMPTY);
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<StreamSourceEntity> entityPage = (Page<StreamSourceEntity>) sourceMapper.selectByCondition(request);
 
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
-        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
-        PageInfo<? extends SourceListResponse> pageInfo = operation.getPageInfo(entityPage);
-        pageInfo.setTotal(entityPage.getTotal());
-
+        List<SourceListResponse> responses = Lists.newArrayList();
+        for (StreamSourceEntity entity : entityPage) {
+            SourceType sourceType = SourceType.forType(entity.getSourceType());
+            StreamSourceOperation operation = operationFactory.getInstance(sourceType);
+            switch (sourceType) {
+                case DB_BINLOG:
+                    BinlogSourceListResponse binlogSourceListResponse = operation.getFromEntity(entity,
+                            BinlogSourceListResponse::new);
+                    responses.add(binlogSourceListResponse);
+                    break;
+                case KAFKA:
+                    KafkaSourceListResponse kafkaSourceListResponse = operation.getFromEntity(entity,
+                            KafkaSourceListResponse::new);
+                    responses.add(kafkaSourceListResponse);
+                    break;
+                default:
+                    throw new IllegalArgumentException(
+                            String.format("Unsupported sourceType=%s for Inlong", sourceType));
+            }
+        }
+        PageInfo<? extends SourceListResponse> pageInfo = PageInfo.of(responses);
         LOGGER.debug("success to list source page");
         return pageInfo;
     }
