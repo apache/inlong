@@ -114,10 +114,8 @@ manager:
       memory: "512Mi"
   ports:
     webPort: 8083
-  activeProfile: "prod"
   username: "root"
   password: "inlong"
-  sortAppName: "inlong_hive"
 
 audit:
   component: "audit"

@@ -45,8 +45,6 @@ spec:
 {{ toYaml .Values.manager.resources | indent 12 }}
           {{- end }}
           env:
-            - name: ACTIVE_PROFILE
-              value: {{ .Values.manager.activeProfile }}
             - name: JDBC_URL
               value: "{{ template "inlong.mysql.hostname" . }}:{{ .Values.mysql.ports.server }}"
             - name: USERNAME
@@ -56,14 +54,8 @@ spec:
                 secretKeyRef:
                   name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
                   key: mysql-password
-            - name: TUBE_MANAGER
-              value: "http://{{ template "inlong.tubemqManager.hostname" . }}:{{ .Values.tubemqManager.containerPort }}"
-            - name: TUBE_MASTER
-              value: {{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}
             - name: ZK_URL
               value: "{{ template "inlong.zookeeper.hostname" . }}:{{ .Values.zookeeper.ports.client }}"
-            - name: SORT_APP_NAME
-              value: {{ .Values.manager.sortAppName }}
           ports:
             - name: {{ .Values.manager.component }}-port
               containerPort: 8083
