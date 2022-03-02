@@ -79,9 +79,9 @@
 
     <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity">
         insert into inlong_stream_field (id, inlong_group_id, inlong_stream_id,
-                                       is_predefined_field, field_name, field_value,
-                                       pre_expression, field_type, field_comment,
-                                       rank_num, is_deleted)
+                                         is_predefined_field, field_name, field_value,
+                                         pre_expression, field_type, field_comment,
+                                         rank_num, is_deleted)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{isPredefinedField,jdbcType=INTEGER}, #{fieldName,jdbcType=VARCHAR}, #{fieldValue,jdbcType=VARCHAR},
                 #{preExpression,jdbcType=VARCHAR}, #{fieldType,jdbcType=VARCHAR}, #{fieldComment,jdbcType=VARCHAR},

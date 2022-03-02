@@ -22,6 +22,8 @@ package org.apache.inlong.manager.common.enums;
  */
 public class Constant {
 
+    public static final Integer UN_DELETED = 0;
+
     public static final String SOURCE_FILE = "FILE";
 
     public static final String SOURCE_DB_SQL = "DB_SQL";
