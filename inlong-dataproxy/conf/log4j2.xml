@@ -27,6 +27,9 @@
         <property name="info_fileName">${basePath}/info.log</property>
         <property name="info_filePattern">${basePath}/info-%d{yyyy-MM-dd}-%i.log.gz</property>
         <property name="info_max">10</property>
+        <property name="debug_fileName">${basePath}/debug.log</property>
+        <property name="debug_filePattern">${basePath}/debug-%d{yyyy-MM-dd}-%i.log.gz</property>
+        <property name="debug_max">10</property>
         <property name="warn_fileName">${basePath}/warn.log</property>
         <property name="warn_filePattern">${basePath}/warn-%d{yyyy-MM-dd}-%i.log.gz</property>
         <property name="warn_max">10</property>
@@ -45,6 +48,17 @@
             <ThresholdFilter level="${console_print_level}" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${log_pattern}"/>
         </Console>
+
+        <RollingFile name="DebugFile" fileName="${debug_fileName}" filePattern="${debug_filePattern}">
+            <PatternLayout pattern="${log_pattern}"/>
+            <SizeBasedTriggeringPolicy size="${every_file_size}"/>
+            <DefaultRolloverStrategy max="${debug_max}" />
+            <Filters>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="INFO" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingFile>
 
         <RollingFile name="InfoFile" fileName="${info_fileName}" filePattern="${info_filePattern}">
             <PatternLayout pattern="${log_pattern}"/>
@@ -104,8 +118,12 @@
         <logger name="org.apache.inlong.common.monitor.MonitorIndex" level="info" additivity="false">
             <appender-ref ref="IndexFile"/>
         </logger>
+        <logger name="org.apache.pulsar" level="info" additivity="false">
+            <appender-ref ref="InfoFile"/>
+        </logger>
         <root level="${output_log_level}">
             <appender-ref ref="Console"/>
+            <appender-ref ref="DebugFile"/>
             <appender-ref ref="InfoFile"/>
             <appender-ref ref="WarnFile"/>
             <appender-ref ref="ErrorFile"/>
