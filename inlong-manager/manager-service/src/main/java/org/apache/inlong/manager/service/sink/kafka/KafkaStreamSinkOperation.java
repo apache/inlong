@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
+import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
@@ -141,7 +142,12 @@ public class KafkaStreamSinkOperation implements StreamSinkOperation {
         String existType = entity.getSinkType();
         Preconditions.checkTrue(Constant.SINK_KAFKA.equals(existType),
                 String.format(Constant.SINK_TYPE_NOT_SAME, Constant.SINK_KAFKA, existType));
-        return this.getFromEntity(entity, KafkaSinkResponse::new);
+        SinkResponse response = this.getFromEntity(entity, KafkaSinkResponse::new);
+        List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(id);
+        List<SinkFieldResponse> infos = CommonBeanUtils.copyListProperties(entities,
+                SinkFieldResponse::new);
+        response.setFieldList(infos);
+        return response;
     }
 
     @Override

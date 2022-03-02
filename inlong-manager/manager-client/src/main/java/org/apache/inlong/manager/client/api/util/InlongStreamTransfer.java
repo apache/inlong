@@ -26,12 +26,14 @@ import org.apache.inlong.manager.client.api.StreamField.FieldType;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.sink.HiveSink;
+import org.apache.inlong.manager.client.api.sink.KafkaSink;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
@@ -74,9 +76,11 @@ public class InlongStreamTransfer {
         SinkType sinkType = streamSink.getSinkType();
         if (sinkType == SinkType.HIVE) {
             return createHiveRequest(streamSink, streamInfo);
-        } else {
-            throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
+        } 
+        if (sinkType == SinkType.KAFKA) {
+            return createKafkaRequest(streamSink, streamInfo);
         }
+        throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
     }
 
     public static StreamSink parseStreamSink(SinkResponse sinkResponse, StreamSink streamSink) {
@@ -84,9 +88,57 @@ public class InlongStreamTransfer {
         SinkType sinkType = SinkType.forType(type);
         if (sinkType == SinkType.HIVE) {
             return parseHiveSink(sinkResponse, (HiveSink) streamSink);
-        } else {
-            throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
         }
+        if (sinkType == SinkType.KAFKA) {
+            return parseKafkaSink(sinkResponse, (KafkaSink)streamSink);
+        }
+        throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
+    }
+
+    private static SinkRequest createKafkaRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
+        KafkaSinkRequest kafkaSinkRequest = new KafkaSinkRequest();
+        KafkaSink kafkaSink = (KafkaSink) streamSink;
+        kafkaSinkRequest.setAddress(kafkaSink.getAddress());
+        kafkaSinkRequest.setTopicName(kafkaSink.getTopicName());
+        kafkaSinkRequest.setSinkType(kafkaSink.getSinkType().name());
+        kafkaSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
+        kafkaSinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+        kafkaSinkRequest.setSerializationType(kafkaSink.getDataFormat().name());
+        kafkaSinkRequest.setEnableCreateResource(kafkaSink.isNeedCreated() ? 1 : 0);
+        if (CollectionUtils.isNotEmpty(kafkaSink.getStreamFields())) {
+            List<SinkFieldRequest> fieldRequests = kafkaSink.getStreamFields()
+                    .stream()
+                    .map(streamField -> {
+                        SinkFieldRequest storageFieldRequest = new SinkFieldRequest();
+                        storageFieldRequest.setFieldName(streamField.getFieldName());
+                        storageFieldRequest.setFieldType(streamField.getFieldType().toString());
+                        storageFieldRequest.setFieldComment(streamField.getFieldComment());
+                        return storageFieldRequest;
+                    })
+                    .collect(Collectors.toList());
+            kafkaSinkRequest.setFieldList(fieldRequests);
+        }
+        return kafkaSinkRequest;
+    }
+
+    private static StreamSink parseKafkaSink(SinkResponse sinkResponse, KafkaSink snapshot) {
+        KafkaSink kafkaSink = new KafkaSink();
+        kafkaSink.setSinkType(SinkType.KAFKA);
+        kafkaSink.setAddress(snapshot.getAddress());
+        kafkaSink.setTopicName(snapshot.getTopicName());
+        kafkaSink.setDataFormat(snapshot.getDataFormat());
+        kafkaSink.setNeedCreated(sinkResponse.getEnableCreateResource() == 1);
+        List<StreamField> fieldList = sinkResponse.getFieldList()
+                .stream()
+                .map(storageFieldRequest -> {
+                    return new StreamField(storageFieldRequest.getId(),
+                            FieldType.forName(storageFieldRequest.getFieldType()),
+                            storageFieldRequest.getFieldName(),
+                            storageFieldRequest.getFieldComment(),
+                            null);
+                }).collect(Collectors.toList());
+        kafkaSink.setStreamFields(fieldList);
+        return kafkaSink;
     }
 
     private static HiveSinkRequest createHiveRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {

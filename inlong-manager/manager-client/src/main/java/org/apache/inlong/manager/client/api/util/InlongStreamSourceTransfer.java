@@ -51,13 +51,13 @@ public class InlongStreamSourceTransfer {
     public static StreamSource parseStreamSource(SourceListResponse sourceListResponse) {
         String type = sourceListResponse.getSourceType();
         SourceType sourceType = SourceType.forType(type);
-        if (sourceType == SourceType.DB_BINLOG) {
+        if (sourceType == SourceType.KAFKA && sourceListResponse instanceof KafkaSourceListResponse) {
             return parseKafkaSource((KafkaSourceListResponse) sourceListResponse);
-        } else if (sourceType == SourceType.KAFKA) {
-            return parseMySQLBinlogSource((BinlogSourceListResponse) sourceListResponse);
-        } else {
-            throw new IllegalArgumentException(String.format("Unsupport source type : %s for Inlong", sourceType));
         }
+        if (sourceType == SourceType.DB_BINLOG && sourceListResponse instanceof BinlogSourceListResponse) {
+            return parseMySQLBinlogSource((BinlogSourceListResponse) sourceListResponse);
+        }
+        throw new IllegalArgumentException(String.format("Unsupport source type : %s for Inlong", sourceType));
     }
 
     private static KafkaSource parseKafkaSource(KafkaSourceListResponse kafkaSourceResponse) {
