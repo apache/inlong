@@ -162,7 +162,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     private int initOrUpdateSink(SinkRequest sinkRequest) {
         String sinkType = sinkRequest.getSinkType();
-        if (SinkType.HIVE.name().equals(sinkType)) {
+        if (SinkType.HIVE.name().equals(sinkType) || SinkType.KAFKA.name().equals(sinkType)) {
             List<SinkListResponse> responses = managerClient.listSinks(sinkRequest.getInlongGroupId(),
                     sinkRequest.getInlongStreamId(), sinkRequest.getSinkType());
             if (CollectionUtils.isEmpty(responses)) {
