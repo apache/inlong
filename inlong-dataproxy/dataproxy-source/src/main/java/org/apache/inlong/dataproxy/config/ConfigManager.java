@@ -123,7 +123,10 @@ public class ConfigManager {
             String oldValue = addElseRemove
                     ? tmpHolder.put(entry.getKey(), entry.getValue()) : tmpHolder.remove(entry.getKey());
             // if addElseRemove is false, that means removing item, changed is true.
-            if ((oldValue == null && entry.getValue() != null) || !oldValue.equals(entry.getValue())
+            if (oldValue == null && entry.getValue() == null) {
+                continue;
+            }
+            if (oldValue == null || entry.getValue() == null || !oldValue.equals(entry.getValue())
                     || !addElseRemove) {
                 changed = true;
             }
@@ -307,7 +310,9 @@ public class ConfigManager {
                         ++index;
                     }
                     // mq other params
-                    mqConfig.putAll(clusterSet.get(0).getParams());
+                    if (!clusterSet.isEmpty()) {
+                        mqConfig.putAll(clusterSet.get(0).getParams());
+                    }
 
                     for (DataProxyConfig topic : configJson.getData().getTopicList()) {
                         if (!StringUtils.isEmpty(topic.getM())) {
@@ -322,7 +327,7 @@ public class ConfigManager {
                     configManager.updateThirdPartyClusterProperties(mqConfig);
 
                     // store mq common configs and url2token
-                    configManager.getThirdPartyClusterConfig().putAll(clusterSet.get(0).getParams());
+                    configManager.getThirdPartyClusterConfig().putAll(mqConfig);
                     configManager.getThirdPartyClusterHolder()
                             .setUrl2token(configManager.getThirdPartyClusterHolder().getUrl2token());
                 } else {
