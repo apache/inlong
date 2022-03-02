@@ -19,6 +19,7 @@
 package org.apache.inlong.sort.singletenant.flink.deserialization;
 
 import static org.apache.flink.table.types.utils.DataTypeUtils.validateInputDataType;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.checkWhetherMigrateAll;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertDateToStringFormatInfo;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertFieldInfosToDataType;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.extractFormatInfos;
@@ -56,8 +57,12 @@ public class DebeziumDeserializationSchemaBuilder {
     ) throws IOException, ClassNotFoundException {
         TimestampFormat timestampFormat = getTimestampFormatStandard(deserializationInfo.getTimestampFormatStandard());
         DebeziumJsonDecodingFormat debeziumJsonDecodingFormat = new DebeziumJsonDecodingFormat(
-                false, deserializationInfo.isIncludeUpdateBefore(), deserializationInfo.isIgnoreParseErrors(),
-                timestampFormat);
+                false,
+                deserializationInfo.isIncludeUpdateBefore(),
+                deserializationInfo.isIgnoreParseErrors(),
+                timestampFormat,
+                checkWhetherMigrateAll(fieldInfos)
+        );
 
         // Extract required metadata
         FieldInfo[] metadataFieldInfos = getMetadataFieldInfos(fieldInfos);
@@ -66,7 +71,7 @@ public class DebeziumDeserializationSchemaBuilder {
                 .collect(Collectors.toList());
         debeziumJsonDecodingFormat.applyReadableMetadata(requiredMetadataKeys);
 
-        FieldInfo[] originPhysicalFieldInfos = CommonUtils.extractNonBuiltInFieldInfos(fieldInfos);
+        FieldInfo[] originPhysicalFieldInfos = CommonUtils.extractNonBuiltInFieldInfos(fieldInfos, false);
         FieldInfo[] convertedPhysicalFieldInfos = convertDateToStringFormatInfo(originPhysicalFieldInfos);
         DeserializationSchema<RowData> debeziumSchema = debeziumJsonDecodingFormat.createRuntimeDecoder(
                 new DynamicTableSource.Context() {
@@ -114,6 +119,7 @@ public class DebeziumDeserializationSchemaBuilder {
                             break;
                         case MYSQL_METADATA_IS_DDL:
                         case MYSQL_METADATA_EVENT_TYPE:
+                        case MYSQL_METADATA_DATA:
                             break;
                         default:
                             throw new IllegalArgumentException(

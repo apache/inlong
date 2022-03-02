@@ -21,7 +21,6 @@ package org.apache.inlong.sort.protocol.deserialization;
 import java.util.Objects;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DebeziumDeserializationInfo implements DeserializationInfo {
@@ -34,9 +33,15 @@ public class DebeziumDeserializationInfo implements DeserializationInfo {
     @JsonProperty("timestamp_format_standard")
     private final String timestampFormatStandard;
 
-    @JsonInclude(Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("include_update_before")
     private final boolean includeUpdateBefore;
+
+    public DebeziumDeserializationInfo(
+            @JsonProperty("ignore_parse_errors") boolean ignoreParseErrors,
+            @JsonProperty("timestamp_format_standard") String timestampFormatStandard) {
+        this(ignoreParseErrors, timestampFormatStandard, false);
+    }
 
     @JsonCreator
     public DebeziumDeserializationInfo(
@@ -46,12 +51,6 @@ public class DebeziumDeserializationInfo implements DeserializationInfo {
         this.ignoreParseErrors = ignoreParseErrors;
         this.timestampFormatStandard = timestampFormatStandard;
         this.includeUpdateBefore = includeUpdateBefore;
-    }
-
-    public DebeziumDeserializationInfo(boolean ignoreParseErrors, String timestampFormatStandard) {
-        this.ignoreParseErrors = ignoreParseErrors;
-        this.timestampFormatStandard = timestampFormatStandard;
-        this.includeUpdateBefore = false;
     }
 
     @JsonProperty("ignore_parse_errors")
@@ -78,8 +77,9 @@ public class DebeziumDeserializationInfo implements DeserializationInfo {
             return false;
         }
         DebeziumDeserializationInfo that = (DebeziumDeserializationInfo) o;
-        return ignoreParseErrors == that.ignoreParseErrors && includeUpdateBefore == that.includeUpdateBefore
-                && Objects.equals(timestampFormatStandard, that.timestampFormatStandard);
+        return ignoreParseErrors == that.ignoreParseErrors
+                && Objects.equals(timestampFormatStandard, that.timestampFormatStandard)
+                && includeUpdateBefore == that.includeUpdateBefore;
     }
 
     @Override

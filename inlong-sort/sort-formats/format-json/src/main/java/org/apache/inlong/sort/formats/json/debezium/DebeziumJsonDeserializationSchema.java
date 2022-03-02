@@ -68,6 +68,9 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
     private static final String OP_UPDATE = "u"; // update
     private static final String OP_DELETE = "d"; // delete
 
+    private static final int BEFORE_POS = 0;
+    private static final int AFTER_POS = 1;
+
     private static final String REPLICA_IDENTITY_EXCEPTION =
             "The \"before\" field of %s message is null, "
                     + "if you are using Debezium Postgres Connector, "
@@ -102,6 +105,8 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
     /** Flag indicating whether to ignore invalid fields/rows (default: throw an exception). */
     private final boolean ignoreParseErrors;
 
+    private final boolean isMigrateAll;
+
     public DebeziumJsonDeserializationSchema(
             DataType physicalDataType,
             List<ReadableMetadata> requestedMetadata,
@@ -109,9 +114,11 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
             boolean schemaInclude,
             boolean updateBeforeInclude,
             boolean ignoreParseErrors,
-            TimestampFormat timestampFormat) {
+            TimestampFormat timestampFormat,
+            boolean isMigrateAll) {
+        this.isMigrateAll = isMigrateAll;
         final RowType jsonRowType =
-                createJsonRowType(physicalDataType, requestedMetadata, schemaInclude);
+                createJsonRowType(physicalDataType, requestedMetadata, schemaInclude, isMigrateAll);
         this.jsonDeserializer =
                 new JsonRowDataDeserializationSchema(
                         jsonRowType,
@@ -153,8 +160,16 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
                 payload = row;
             }
 
-            GenericRowData before = (GenericRowData) payload.getField(0);
-            GenericRowData after = (GenericRowData) payload.getField(1);
+            GenericRowData before;
+            GenericRowData after;
+            if (isMigrateAll) {
+                before = GenericRowData.of(payload.getField(BEFORE_POS));
+                after = GenericRowData.of(payload.getField(AFTER_POS));
+            } else {
+                before = (GenericRowData) payload.getField(BEFORE_POS);
+                after = (GenericRowData) payload.getField(AFTER_POS);
+            }
+
             String op = payload.getField(2).toString();
             if (OP_CREATE.equals(op) || OP_READ.equals(op)) {
                 after.setRowKind(RowKind.INSERT);
@@ -195,7 +210,10 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
     }
 
     private void emitRow(GenericRowData rootRow, GenericRowData physicalRow, Collector<RowData> out) {
-        final int physicalArity = physicalRow.getArity();
+        int physicalArity = physicalRow.getArity();
+        if (isMigrateAll) {
+            physicalArity -= 1;
+        }
         final int metadataArity = metadataConverters.length;
 
         final GenericRowData producedRow = new GenericRowData(physicalRow.getRowKind(), physicalArity + 1);
@@ -209,12 +227,21 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
         metadataMap.put(
                 StringData.fromString(MysqlBinLogData.MYSQL_METADATA_IS_DDL),
                 StringData.fromString("false"));
+
         for (int metadataPos = 0; metadataPos < metadataArity; metadataPos++) {
             metadataMap.put(
                     StringData.fromString(getMysqlMetadataKey(requestedMetadata.get(metadataPos))),
                     StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString())
             );
         }
+
+        if (isMigrateAll) {
+            metadataMap.put(
+                    StringData.fromString(MysqlBinLogData.MYSQL_METADATA_DATA),
+                    (StringData) physicalRow.getField(0)
+            );
+        }
+
         producedRow.setField(0, new GenericMapData(metadataMap));
 
         out.collect(producedRow);
@@ -257,12 +284,18 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
     private static RowType createJsonRowType(
             DataType physicalDataType,
             List<ReadableMetadata> readableMetadata,
-            boolean schemaInclude) {
-        DataType payload =
-                DataTypes.ROW(
-                        DataTypes.FIELD("before", physicalDataType),
-                        DataTypes.FIELD("after", physicalDataType),
-                        DataTypes.FIELD("op", DataTypes.STRING()));
+            boolean schemaInclude,
+            boolean isMigrateAll) {
+
+        DataType dataTypeForDataFields = physicalDataType;
+        if (isMigrateAll) {
+            dataTypeForDataFields = DataTypes.STRING();
+        }
+
+        DataType payload = DataTypes.ROW(
+                DataTypes.FIELD("before", dataTypeForDataFields),
+                DataTypes.FIELD("after", dataTypeForDataFields),
+                DataTypes.FIELD("op", DataTypes.STRING()));
 
         // append fields that are required for reading metadata in the payload
         final List<DataTypes.Field> payloadMetadataFields =

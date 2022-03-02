@@ -50,6 +50,7 @@ public class BuiltInFieldInfo extends FieldInfo {
         this.builtInField = builtInField;
     }
 
+    @JsonProperty("builtin_field")
     public BuiltInField getBuiltInField() {
         return builtInField;
     }

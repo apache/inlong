@@ -28,17 +28,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.formats.common.TimestampFormat;
-import org.apache.flink.formats.json.JsonOptions;
-import org.apache.flink.formats.json.JsonRowDataSerializationSchema;
+import org.apache.flink.api.java.typeutils.RowTypeInfo;
+import org.apache.flink.formats.json.JsonRowSerializationSchema;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.DataTypes.Field;
-import org.apache.flink.table.data.ArrayData;
-import org.apache.flink.table.data.GenericArrayData;
-import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.data.StringData;
-import org.apache.flink.table.data.util.DataFormatConverters;
+import org.apache.flink.table.runtime.types.TypeInfoDataTypeConverter;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
@@ -55,59 +52,62 @@ import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.Readabl
  *
  * @see <a href="https://github.com/alibaba/canal">Alibaba Canal</a>
  */
-public class CanalJsonSerializationSchema implements SerializationSchema<RowData> {
+public class CanalJsonSerializationSchema implements SerializationSchema<Row> {
 
     private static final long serialVersionUID = 1L;
 
-    private static final StringData OP_INSERT = StringData.fromString("INSERT");
-    private static final StringData OP_DELETE = StringData.fromString("DELETE");
+    private static final String OP_INSERT = "INSERT";
+    private static final String OP_DELETE = "DELETE";
 
-    private transient GenericRowData reuse;
+    private transient Row reuse;
 
-    /** The serializer to serialize Canal JSON data. */
-    private final JsonRowDataSerializationSchema jsonSerializer;
-
-    private final DataFormatConverters.RowConverter consumedRowConverter;
-
-    private final DataFormatConverters.RowConverter physicalRowConverter;
+    private final JsonRowSerializationSchema jsonSerializer;
 
     private final Map<Integer, ReadableMetadata> fieldIndexToMetadata;
+
+    private final boolean isMigrateAll;
+
+    private final ObjectMapper objectMapper;
 
     public CanalJsonSerializationSchema(
             RowType physicalRowType,
             Map<Integer, ReadableMetadata> fieldIndexToMetadata,
-            DataFormatConverters.RowConverter consumedRowConverter,
-            DataFormatConverters.RowConverter physicalRowConverter,
-            TimestampFormat timestampFormat,
-            JsonOptions.MapNullKeyMode mapNullKeyMode,
-            String mapNullKeyLiteral,
-            boolean encodeDecimalAsPlainNumber) {
-        jsonSerializer =
-                new JsonRowDataSerializationSchema(
-                        createJsonRowType(fromLogicalToDataType(physicalRowType), fieldIndexToMetadata.values()),
-                        timestampFormat,
-                        mapNullKeyMode,
-                        mapNullKeyLiteral,
-                        encodeDecimalAsPlainNumber);
+            boolean isMigrateAll
+    ) {
+        this.isMigrateAll = isMigrateAll;
+
+        if (isMigrateAll) {
+            this.objectMapper = new ObjectMapper();
+        } else {
+            this.objectMapper = null;
+        }
+
+        RowTypeInfo rowTypeInfo = createJsonRowType(fromLogicalToDataType(physicalRowType),
+                fieldIndexToMetadata.values(), isMigrateAll);
+        jsonSerializer = JsonRowSerializationSchema.builder().withTypeInfo(rowTypeInfo).build();
 
         this.fieldIndexToMetadata = fieldIndexToMetadata;
-        this.consumedRowConverter = consumedRowConverter;
-        this.physicalRowConverter = physicalRowConverter;
     }
 
     @Override
     public void open(InitializationContext context) {
-        reuse = new GenericRowData(2 + fieldIndexToMetadata.size());
+        reuse = new Row(2 + fieldIndexToMetadata.size());
     }
 
     @Override
-    public byte[] serialize(RowData row) {
+    public byte[] serialize(Row row) {
         try {
             MysqlBinLogData mysqlBinLogData = getMysqlBinLongData(row);
 
-            ArrayData arrayData = new GenericArrayData(new RowData[] {mysqlBinLogData.getPhysicalData()});
+            Object[] arrayData = new Object[1];
+            if (isMigrateAll) {
+                String mapStr = mysqlBinLogData.getPhysicalData().getFieldAs(0);
+                arrayData[0] = convertStringToMap(mapStr);
+            } else {
+                arrayData[0] = mysqlBinLogData.getPhysicalData();
+            }
             reuse.setField(0, arrayData);
-            reuse.setField(1, rowKind2String(row.getRowKind()));
+            reuse.setField(1, rowKind2String(row.getKind()));
 
             // Set metadata
             Map<String, Object> metadataMap = mysqlBinLogData.getMetadataMap();
@@ -117,13 +117,15 @@ public class CanalJsonSerializationSchema implements SerializationSchema<RowData
                 index++;
             }
 
+            reuse.setKind(row.getKind());
+
             return jsonSerializer.serialize(reuse);
         } catch (Throwable t) {
             throw new RuntimeException("Could not serialize row '" + row + "'.", t);
         }
     }
 
-    private StringData rowKind2String(RowKind rowKind) {
+    private String rowKind2String(RowKind rowKind) {
         switch (rowKind) {
             case INSERT:
             case UPDATE_AFTER:
@@ -154,11 +156,13 @@ public class CanalJsonSerializationSchema implements SerializationSchema<RowData
         return Objects.hash(jsonSerializer);
     }
 
-    private static RowType createJsonRowType(
+    private static RowTypeInfo createJsonRowType(
             DataType dataSchema,
-            Collection<ReadableMetadata> metadataSet) {
-        DataType root =  DataTypes.ROW(
-                DataTypes.FIELD("data", DataTypes.ARRAY(dataSchema)),
+            Collection<ReadableMetadata> metadataSet,
+            boolean isMigrateAll) {
+        DataType root = DataTypes.ROW(
+                DataTypes.FIELD("data", DataTypes.ARRAY(
+                        isMigrateAll ? DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING()) : dataSchema)),
                 DataTypes.FIELD("type", DataTypes.STRING())
         );
 
@@ -168,11 +172,11 @@ public class CanalJsonSerializationSchema implements SerializationSchema<RowData
                         .distinct()
                         .collect(Collectors.toList());
 
-        return (RowType) DataTypeUtils.appendRowFields(root, metadataFields).getLogicalType();
+        return (RowTypeInfo) TypeInfoDataTypeConverter.fromDataTypeToTypeInfo(
+                DataTypeUtils.appendRowFields(root, metadataFields));
     }
 
-    private MysqlBinLogData getMysqlBinLongData(RowData consumedRowData) {
-        Row consumedRow = consumedRowConverter.toExternal(consumedRowData);
+    private MysqlBinLogData getMysqlBinLongData(Row consumedRow) {
         int consumedRowArity = consumedRow.getArity();
         Set<Integer> metadataIndices = fieldIndexToMetadata.keySet();
 
@@ -184,12 +188,16 @@ public class CanalJsonSerializationSchema implements SerializationSchema<RowData
                 physicalRow.setField(physicalRowDataIndex, consumedRow.getField(i));
                 physicalRowDataIndex++;
             } else {
-                metadataMap.put(
-                        fieldIndexToMetadata.get(i).key,
-                        fieldIndexToMetadata.get(i).converter.convert(consumedRow.getField(i)));
+                metadataMap.put(fieldIndexToMetadata.get(i).key, consumedRow.getField(i));
             }
         }
 
-        return new MysqlBinLogData(physicalRowConverter.toInternal(physicalRow), metadataMap);
+        physicalRow.setKind(consumedRow.getKind());
+
+        return new MysqlBinLogData(physicalRow, metadataMap);
+    }
+
+    private Map<?, ?> convertStringToMap(String input) throws JsonProcessingException {
+        return objectMapper.readValue(input, Map.class);
     }
 }

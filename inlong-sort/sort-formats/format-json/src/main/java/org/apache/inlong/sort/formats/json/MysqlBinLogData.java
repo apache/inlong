@@ -19,9 +19,11 @@ package org.apache.inlong.sort.formats.json;
 
 import java.io.Serializable;
 import java.util.Map;
-import org.apache.flink.table.data.RowData;
+import org.apache.flink.types.Row;
 
 public class MysqlBinLogData implements Serializable {
+
+    private static final long serialVersionUID = 7819918248769501308L;
 
     public static final String MYSQL_METADATA_DATABASE = "mysql_metadata_database";
 
@@ -33,20 +35,22 @@ public class MysqlBinLogData implements Serializable {
 
     public static final String MYSQL_METADATA_EVENT_TYPE = "mysql_metadata_event_type";
 
-    private RowData physicalData;
+    public static final String MYSQL_METADATA_DATA = "mysql_metadata_data";
+
+    private Row physicalData;
 
     private Map<String, Object> metadataMap;
 
-    public MysqlBinLogData(RowData physicalData, Map<String, Object> metadataMap) {
+    public MysqlBinLogData(Row physicalData, Map<String, Object> metadataMap) {
         this.physicalData = physicalData;
         this.metadataMap = metadataMap;
     }
 
-    public RowData getPhysicalData() {
+    public Row getPhysicalData() {
         return physicalData;
     }
 
-    public void setPhysicalData(RowData physicalData) {
+    public void setPhysicalData(Row physicalData) {
         this.physicalData = physicalData;
     }
 

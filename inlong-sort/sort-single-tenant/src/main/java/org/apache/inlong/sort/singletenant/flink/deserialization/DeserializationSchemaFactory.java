@@ -33,12 +33,12 @@ import org.apache.inlong.sort.protocol.deserialization.JsonDeserializationInfo;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import org.apache.inlong.sort.singletenant.flink.utils.CommonUtils;
 
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.buildAvroRecordSchemaInJson;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertDateToStringFormatInfo;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertFieldInfosToRowTypeInfo;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.extractFormatInfos;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.extractNonBuiltInFieldInfos;
 
 public class DeserializationSchemaFactory {
 
@@ -46,19 +46,19 @@ public class DeserializationSchemaFactory {
             FieldInfo[] fieldInfos,
             DeserializationInfo deserializationInfo) throws IOException, ClassNotFoundException {
         if (deserializationInfo instanceof JsonDeserializationInfo) {
-            return buildJsonDeserializationSchema(CommonUtils.extractNonBuiltInFieldInfos(fieldInfos));
+            return buildJsonDeserializationSchema(extractNonBuiltInFieldInfos(fieldInfos, false));
         } else if (deserializationInfo instanceof AvroDeserializationInfo) {
-            return buildAvroDeserializationSchema(CommonUtils.extractNonBuiltInFieldInfos(fieldInfos));
+            return buildAvroDeserializationSchema(extractNonBuiltInFieldInfos(fieldInfos, false));
         } else if (deserializationInfo instanceof CanalDeserializationInfo) {
             return CanalDeserializationSchemaBuilder.build(
-                    CommonUtils.extractNonBuiltInFieldInfos(fieldInfos),
+                    extractNonBuiltInFieldInfos(fieldInfos, false),
                     (CanalDeserializationInfo) deserializationInfo);
         } else if (deserializationInfo instanceof DebeziumDeserializationInfo) {
             return DebeziumDeserializationSchemaBuilder.build(
                     fieldInfos,
                     (DebeziumDeserializationInfo) deserializationInfo);
         } else {
-            return buildStringDeserializationSchema(CommonUtils.extractNonBuiltInFieldInfos(fieldInfos));
+            return buildStringDeserializationSchema(extractNonBuiltInFieldInfos(fieldInfos, false));
         }
     }
 

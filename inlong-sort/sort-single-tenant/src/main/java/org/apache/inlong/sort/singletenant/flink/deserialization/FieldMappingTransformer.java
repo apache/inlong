@@ -79,6 +79,9 @@ public class FieldMappingTransformer implements Serializable {
             }
             outputRow.setField(i, fieldValue);
         }
+
+        outputRow.setKind(sourceRow.getKind());
+
         return outputRow;
     }
 
@@ -100,6 +103,8 @@ public class FieldMappingTransformer implements Serializable {
                 return LongFormatInfo.INSTANCE.deserialize(attributes.get(MysqlBinLogData.MYSQL_METADATA_EVENT_TIME));
             case MYSQL_METADATA_EVENT_TYPE:
                 return kind.shortString();
+            case MYSQL_METADATA_DATA:
+                return attributes.get(MysqlBinLogData.MYSQL_METADATA_DATA);
         }
 
         return null;
