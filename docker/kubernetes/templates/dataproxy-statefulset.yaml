@@ -68,8 +68,6 @@ spec:
               value: {{ include "inlong.manager.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
               value: {{ .Values.dataproxy.managerOpenApiPort }}
-            - name: TUBMQ_MASTER_LIST
-              value: {{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}
           ports:
             - name: {{ .Values.dataproxy.component }}-port
               containerPort: 46801
