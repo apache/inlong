@@ -91,7 +91,7 @@ public class SinkInfoUtils {
         List<FieldInfo> fieldInfoList = Lists.newArrayList();
         if (SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
             fieldInfoList.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE, BuiltInField.DATA));
-        }else {
+        } else {
             fieldInfoList = getSinkFields(kafkaSinkResponse.getFieldList(), null);
         }
         String addressUrl = kafkaSinkResponse.getAddress();
@@ -160,7 +160,7 @@ public class SinkInfoUtils {
         List<FieldInfo> fieldInfoList = Lists.newArrayList();
         if (SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
             fieldInfoList.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE, BuiltInField.DATA));
-        }else {
+        } else {
             fieldInfoList = getSinkFields(hiveInfo.getFieldList(), hiveInfo.getPrimaryPartition());
         }
 

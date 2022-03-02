@@ -172,8 +172,8 @@ public class CreateSortConfigListener implements SortOperateListener {
             fieldInfos.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE, BuiltInField.DATA));
         }
 
-        if (!SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType()) &&
-        CollectionUtils.isNotEmpty(streamInfo.getFieldList())) {
+        if (!SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())
+                && CollectionUtils.isNotEmpty(streamInfo.getFieldList())) {
             fieldInfos = streamInfo.getFieldList().stream().map(inlongStreamFieldInfo -> {
                 FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(
                         inlongStreamFieldInfo.getFieldType().toLowerCase());
