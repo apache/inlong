@@ -78,13 +78,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         String groupId = request.getInlongGroupId();
         commonOperateService.checkGroupStatus(groupId, operator);
 
-        // Make sure that there is no source info with the current groupId and streamId
-        String streamId = request.getInlongStreamId();
-        String sourceType = request.getSourceType();
-        List<StreamSourceEntity> sourceExist = sourceMapper.selectByIdAndType(groupId, streamId, sourceType);
-        Preconditions.checkEmpty(sourceExist, ErrorCodeEnum.SOURCE_ALREADY_EXISTS.getMessage());
-
         // According to the source type, save source information
+        String sourceType = request.getSourceType();
         StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
         int id = operation.saveOpt(request, operator);
 
