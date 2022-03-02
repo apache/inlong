@@ -24,17 +24,23 @@ import com.google.gson.JsonObject;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+
+import static org.apache.inlong.manager.common.enums.SourceType.DB_BINLOG;
+import static org.apache.inlong.manager.common.enums.SourceType.KAFKA;
 
 /**
  * Parser for Inlong entity
@@ -88,7 +94,24 @@ public class InlongParser {
         PageInfo<SourceListResponse> pageInfo = GsonUtil.fromJson(pageInfoJson,
                 new TypeToken<PageInfo<SourceListResponse>>() {
                 }.getType());
-        return pageInfo;
+        if (pageInfo.getList() != null && !pageInfo.getList().isEmpty()) {
+            SourceListResponse sourceListResponse = pageInfo.getList().get(0);
+            SourceType sourceType = SourceType.forType(sourceListResponse.getSourceType());
+            if (sourceType == DB_BINLOG) {
+                return GsonUtil.fromJson(pageInfoJson,
+                        new TypeToken<PageInfo<BinlogSourceListResponse>>() {
+                        }.getType());
+            }
+            if (sourceType == KAFKA) {
+                return GsonUtil.fromJson(pageInfoJson,
+                        new TypeToken<PageInfo<KafkaSourceListResponse>>() {
+                        }.getType());
+            }
+            throw new IllegalArgumentException(
+                    String.format("Unsupported sourceType=%s for Inlong", sourceType));
+
+        }
+        throw new IllegalArgumentException(String.format("pageInfo is empty for Inlong"));
     }
 
     public static PageInfo<SinkListResponse> parseSinkList(Response response) {
