@@ -22,7 +22,7 @@ import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.core.job.JobManager;
 import org.apache.inlong.agent.core.job.JobWrapper;
-import org.apache.inlong.agent.utils.ExcuteLinux;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.HttpManager;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
@@ -35,15 +35,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_LOCAL_IP;
 
 public class HeartbeatManager  extends AbstractDaemon {
 
@@ -98,26 +95,9 @@ public class HeartbeatManager  extends AbstractDaemon {
         }
         taskSnapshotRequest.setSnapshotList(taskSnapshotMessageList);
         taskSnapshotRequest.setReportTime(date);
-        taskSnapshotRequest.setAgentIp(fetchLocalIp());
-        taskSnapshotRequest.setUuid(fetchLocalUuid());
+        taskSnapshotRequest.setAgentIp(AgentUtils.fetchLocalIp());
+        taskSnapshotRequest.setUuid(AgentUtils.fetchLocalUuid());
         return taskSnapshotRequest;
-    }
-
-    /**
-     * check agent ip from manager
-     */
-    private String fetchLocalIp() {
-        String localIp = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_IP, DEFAULT_LOCAL_IP);
-        return localIp;
-    }
-
-    /**
-     * check agent uuid from manager
-     */
-    private String  fetchLocalUuid() {
-        String result = ExcuteLinux.exeCmd("dmidecode | grep UUID");
-        String  uuid = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_UUID, result);
-        return uuid;
     }
 
     /**
