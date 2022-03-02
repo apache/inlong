@@ -96,6 +96,12 @@
             <groupId>org.apache.inlong</groupId>
             <artifactId>dataproxy-sdk</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <artifactId>slf4j-log4j12</artifactId>
