@@ -70,8 +70,9 @@
         <rocksdb.version>6.14.6</rocksdb.version>
         <codec.version>1.15</codec.version>
         <prometheus.simpleclient.version>0.9.0</prometheus.simpleclient.version>
-        <kafka.version>2.4.1</kafka.version>
-        <flink.scala.binary.version>2.11</flink.scala.binary.version>
+        <kafka.version>3.0.0</kafka.version>
+        <jackson.version>2.13.1</jackson.version>
+        <flink.scala.binary.version>2.12</flink.scala.binary.version>
     </properties>
 
     <repositories>
@@ -90,6 +91,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
