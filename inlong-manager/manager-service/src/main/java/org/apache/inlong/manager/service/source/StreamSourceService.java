@@ -85,6 +85,27 @@ public interface StreamSourceService {
     boolean update(SourceRequest sourceRequest, String operator);
 
     /**
+     * Update source status.
+     *
+     * @param id The source id.
+     * @param targetStatus The target status.
+     * @param operator The operator name.
+     * @return whether succeed
+     */
+    boolean updateStatus(Integer id, Integer targetStatus, String operator);
+
+    /**
+     * Update source status by the given groupId and streamId
+     *
+     * @param groupId The belongs group id.
+     * @param streamId The belongs stream id.
+     * @param targetStatus The target status.
+     * @param operator The operator name.
+     * @return whether succeed
+     */
+    boolean updateStatus(String groupId, String streamId, Integer targetStatus, String operator);
+
+    /**
      * Delete the stream source by the given id and source type.
      *
      * @param id The primary key of the source.

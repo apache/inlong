@@ -17,17 +17,9 @@
 
 package org.apache.inlong.manager.service.workflow;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -71,10 +63,20 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 @EnableAutoConfiguration
 public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     public static final String OPERATOR = "admin";
+
+    public static final String GROUP_ID = "b_test";
 
     public static final String STREAM_ID = "test_stream";
 
@@ -101,13 +103,21 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     protected GroupResourceProcessForm form;
 
+    /**
+     * Init inlong group form
+     */
     public InlongGroupInfo initGroupForm(String middlewareType) {
         processName = ProcessName.CREATE_GROUP_RESOURCE;
         applicant = OPERATOR;
-        form = new GroupResourceProcessForm();
+
+        try {
+            streamService.logicDeleteAll(GROUP_ID, OPERATOR);
+            groupService.delete(GROUP_ID, OPERATOR);
+        } catch (Exception e) {
+            // ignore
+        }
+
         InlongGroupInfo groupInfo = new InlongGroupInfo();
-        form.setInlongStreamId(STREAM_ID);
-        form.setGroupInfo(groupInfo);
         groupInfo.setName("test");
         groupInfo.setInCharges(OPERATOR);
         groupInfo.setInlongGroupId("b_test");
@@ -121,10 +131,31 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         groupService.update(groupInfo.genRequest(), OPERATOR);
         groupInfo.setStatus(GroupState.GROUP_CONFIG_ING.getCode());
         groupService.update(groupInfo.genRequest(), OPERATOR);
+
+        form = new GroupResourceProcessForm();
+        form.setInlongStreamId(STREAM_ID);
+        form.setGroupInfo(groupInfo);
         return groupInfo;
     }
 
+    /**
+     * Delete inlong group.
+     */
+    public void deleteGroupInfo() {
+        groupService.delete(GROUP_ID, OPERATOR);
+    }
+
+    /**
+     * Create inlong stream
+     */
     public InlongStreamInfo createStreamInfo(InlongGroupInfo inlongGroupInfo) {
+        // delete first
+        try {
+            streamService.delete(GROUP_ID, OPERATOR, OPERATOR);
+        } catch (Exception e) {
+            // ignore
+        }
+
         InlongStreamInfo streamInfo = new InlongStreamInfo();
         streamInfo.setInlongGroupId(inlongGroupInfo.getInlongGroupId());
         streamInfo.setInlongStreamId(STREAM_ID);
@@ -233,7 +264,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     @Test
     public void testSuspendProcess() {
         InlongGroupInfo groupInfo = initGroupForm(Constant.MIDDLEWARE_PULSAR);
-        groupInfo.setStatus(EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode());
+        groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
         groupService.update(groupInfo.genRequest(), OPERATOR);
         UpdateGroupProcessForm form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
@@ -326,6 +357,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         process.setId(1);
         process.setInlongGroupId(groupId);
         process.setName("CREATE_GROUP_RESOURCE");
+        process.setDisplayName("Group-Resource");
         process.setHidden(1);
         process.setStatus(ProcessStatus.COMPLETED.name());
         processEntityMapper.insert(process);

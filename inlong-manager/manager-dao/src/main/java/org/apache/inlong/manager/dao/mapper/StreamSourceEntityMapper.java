@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface StreamSourceEntityMapper {
@@ -75,11 +76,26 @@ public interface StreamSourceEntityMapper {
      */
     List<String> selectSourceType(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
+    List<StreamSourceEntity> selectTempStatusSource();
+
     int updateByPrimaryKeySelective(StreamSourceEntity record);
 
     int updateByPrimaryKey(StreamSourceEntity record);
 
-    int updateStatus(StreamSourceEntity entity);
+    /**
+     * Update the status to `nextStatus` by the given id.
+     *
+     * @apiNote Should not change the modify_time
+     */
+    int updateStatus(@Param("id") Integer id, @Param("nextStatus") Integer nextStatus);
+
+    /**
+     * Update the status to `nextStatus` by the given group id and stream id.
+     *
+     * @apiNote Should not change the modify_time
+     */
+    int updateStatusByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId,
+            @Param("nextStatus") Integer nextStatus);
 
     int updateSnapshot(StreamSourceEntity entity);
 
