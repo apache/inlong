@@ -325,10 +325,10 @@ public class BaseEntity implements Serializable, Cloneable {
     public boolean isDataEquals(BaseEntity other) {
         return dataVersionId == other.dataVersionId
                 && Objects.equals(createUser, other.createUser)
-                && Objects.equals(createDate, other.createDate)
+                && Objects.equals(createDateStr, other.createDateStr)
                 && Objects.equals(modifyUser, other.modifyUser)
-                && Objects.equals(modifyDate, other.modifyDate)
-                && Objects.equals(attributes, other.attributes);
+                && Objects.equals(modifyDateStr, other.modifyDateStr);
+                // && Objects.equals(attributes, other.attributes);
     }
 
     @Override
