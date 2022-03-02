@@ -35,23 +35,23 @@ public class DebeziumDeserializationInfo implements DeserializationInfo {
     private final String timestampFormatStandard;
 
     @JsonInclude(Include.NON_NULL)
-    @JsonProperty("update_before_include")
-    private final boolean updateBeforeInclude;
+    @JsonProperty("include_update_before")
+    private final boolean includeUpdateBefore;
 
     @JsonCreator
     public DebeziumDeserializationInfo(
             @JsonProperty("ignore_parse_errors") boolean ignoreParseErrors,
             @JsonProperty("timestamp_format_standard") String timestampFormatStandard,
-            @JsonProperty("update_before_include") boolean updateBeforeInclude) {
+            @JsonProperty("include_update_before") boolean includeUpdateBefore) {
         this.ignoreParseErrors = ignoreParseErrors;
         this.timestampFormatStandard = timestampFormatStandard;
-        this.updateBeforeInclude = updateBeforeInclude;
+        this.includeUpdateBefore = includeUpdateBefore;
     }
 
     public DebeziumDeserializationInfo(boolean ignoreParseErrors, String timestampFormatStandard) {
         this.ignoreParseErrors = ignoreParseErrors;
         this.timestampFormatStandard = timestampFormatStandard;
-        this.updateBeforeInclude = false;
+        this.includeUpdateBefore = false;
     }
 
     @JsonProperty("ignore_parse_errors")
@@ -64,9 +64,9 @@ public class DebeziumDeserializationInfo implements DeserializationInfo {
         return timestampFormatStandard;
     }
 
-    @JsonProperty("update_before_include")
-    public boolean isUpdateBeforeInclude() {
-        return updateBeforeInclude;
+    @JsonProperty("include_update_before")
+    public boolean isIncludeUpdateBefore() {
+        return includeUpdateBefore;
     }
 
     @Override
@@ -78,13 +78,13 @@ public class DebeziumDeserializationInfo implements DeserializationInfo {
             return false;
         }
         DebeziumDeserializationInfo that = (DebeziumDeserializationInfo) o;
-        return ignoreParseErrors == that.ignoreParseErrors && updateBeforeInclude == that.updateBeforeInclude
+        return ignoreParseErrors == that.ignoreParseErrors && includeUpdateBefore == that.includeUpdateBefore
                 && Objects.equals(timestampFormatStandard, that.timestampFormatStandard);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ignoreParseErrors, timestampFormatStandard, updateBeforeInclude);
+        return Objects.hash(ignoreParseErrors, timestampFormatStandard, includeUpdateBefore);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class DebeziumDeserializationInfo implements DeserializationInfo {
         return "DebeziumDeserializationInfo{"
                 + "ignoreParseErrors=" + ignoreParseErrors
                 + ", timestampFormatStandard='" + timestampFormatStandard + '\''
-                + ", updateBeforeInclude=" + updateBeforeInclude
+                + ", includeUpdateBefore=" + includeUpdateBefore
                 + '}';
     }
 }

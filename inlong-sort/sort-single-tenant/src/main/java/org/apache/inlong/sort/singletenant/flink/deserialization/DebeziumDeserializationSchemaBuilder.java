@@ -56,7 +56,7 @@ public class DebeziumDeserializationSchemaBuilder {
     ) throws IOException, ClassNotFoundException {
         TimestampFormat timestampFormat = getTimestampFormatStandard(deserializationInfo.getTimestampFormatStandard());
         DebeziumJsonDecodingFormat debeziumJsonDecodingFormat = new DebeziumJsonDecodingFormat(
-                false, deserializationInfo.isUpdateBeforeInclude(), deserializationInfo.isIgnoreParseErrors(),
+                false, deserializationInfo.isIncludeUpdateBefore(), deserializationInfo.isIgnoreParseErrors(),
                 timestampFormat);
 
         // Extract required metadata
