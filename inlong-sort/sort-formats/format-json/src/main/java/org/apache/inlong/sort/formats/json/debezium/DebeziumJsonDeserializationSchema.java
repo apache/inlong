@@ -94,6 +94,11 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
      */
     private final boolean schemaInclude;
 
+    /**
+     * Flag indicating whether to emit update before row.
+     */
+    private final boolean updateBeforeInclude;
+
     /** Flag indicating whether to ignore invalid fields/rows (default: throw an exception). */
     private final boolean ignoreParseErrors;
 
@@ -102,6 +107,7 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
             List<ReadableMetadata> requestedMetadata,
             TypeInformation<RowData> producedTypeInfo,
             boolean schemaInclude,
+            boolean updateBeforeInclude,
             boolean ignoreParseErrors,
             TimestampFormat timestampFormat) {
         final RowType jsonRowType =
@@ -122,6 +128,7 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
         this.requestedMetadata = requestedMetadata;
         this.producedTypeInfo = producedTypeInfo;
         this.schemaInclude = schemaInclude;
+        this.updateBeforeInclude = updateBeforeInclude;
         this.ignoreParseErrors = ignoreParseErrors;
     }
 
@@ -159,7 +166,9 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
                 }
                 before.setRowKind(RowKind.UPDATE_BEFORE);
                 after.setRowKind(RowKind.UPDATE_AFTER);
-                emitRow(row, before, out);
+                if (updateBeforeInclude) {
+                    emitRow(row, before, out);
+                }
                 emitRow(row, after, out);
             } else if (OP_DELETE.equals(op)) {
                 if (before == null) {
@@ -200,23 +209,6 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
         metadataMap.put(
                 StringData.fromString(MysqlBinLogData.MYSQL_METADATA_IS_DDL),
                 StringData.fromString("false"));
-
-        switch (physicalRow.getRowKind()) {
-            case INSERT:
-                // fall through
-            case UPDATE_AFTER:
-                metadataMap.put(
-                        StringData.fromString(MysqlBinLogData.MYSQL_METADATA_EVENT_TYPE),
-                        StringData.fromString(OP_CREATE));
-                break;
-            case UPDATE_BEFORE:
-                // fall through
-            case DELETE:
-                metadataMap.put(
-                        StringData.fromString(MysqlBinLogData.MYSQL_METADATA_EVENT_TYPE),
-                        StringData.fromString(OP_DELETE));
-                break;
-        }
         for (int metadataPos = 0; metadataPos < metadataArity; metadataPos++) {
             metadataMap.put(
                     StringData.fromString(getMysqlMetadataKey(requestedMetadata.get(metadataPos))),

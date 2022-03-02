@@ -19,6 +19,7 @@
 package org.apache.inlong.sort.singletenant.flink.deserialization;
 
 import org.apache.flink.types.Row;
+import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
@@ -67,7 +68,7 @@ public class FieldMappingTransformer implements Serializable {
             Object fieldValue = null;
             if (outputFieldInfos[i] instanceof BuiltInFieldInfo) {
                 BuiltInFieldInfo builtInFieldInfo = (BuiltInFieldInfo) outputFieldInfos[i];
-                fieldValue = transformBuiltInField(builtInFieldInfo, attributes, dt);
+                fieldValue = transformBuiltInField(builtInFieldInfo, attributes, dt, sourceRow.getKind());
             } else if (sourceRowIndex < sourceRow.getArity()) {
                 fieldValue = sourceRow.getField(sourceRowIndex);
                 sourceRowIndex++;
@@ -84,7 +85,8 @@ public class FieldMappingTransformer implements Serializable {
     private static Object transformBuiltInField(
             BuiltInFieldInfo builtInFieldInfo,
             Map<String, String> attributes,
-            long dataTimestamp) {
+            long dataTimestamp,
+            RowKind kind) {
         switch (builtInFieldInfo.getBuiltInField()) {
             case DATA_TIME:
                 return inferDataTimeValue(builtInFieldInfo.getFormatInfo(), dataTimestamp);
@@ -97,7 +99,7 @@ public class FieldMappingTransformer implements Serializable {
             case MYSQL_METADATA_EVENT_TIME:
                 return LongFormatInfo.INSTANCE.deserialize(attributes.get(MysqlBinLogData.MYSQL_METADATA_EVENT_TIME));
             case MYSQL_METADATA_EVENT_TYPE:
-                return attributes.get(MysqlBinLogData.MYSQL_METADATA_EVENT_TYPE);
+                return kind.shortString();
         }
 
         return null;

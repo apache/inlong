@@ -68,7 +68,6 @@ public class DebeziumDeserializationTest {
         testRow.setField(0, new HashMap<String, String>() {
             {
                 put(MysqlBinLogData.MYSQL_METADATA_IS_DDL, "false");
-                put(MysqlBinLogData.MYSQL_METADATA_EVENT_TYPE, "c");
                 put(MysqlBinLogData.MYSQL_METADATA_DATABASE, "test");
                 put(MysqlBinLogData.MYSQL_METADATA_TABLE, "test");
                 put(MysqlBinLogData.MYSQL_METADATA_EVENT_TIME, "1644896917208");
