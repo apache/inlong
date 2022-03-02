@@ -68,49 +68,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MetaSink extends AbstractSink implements Configurable {
+public class TubeSink extends AbstractSink implements Configurable {
 
-    private static final Logger logger = LoggerFactory.getLogger(MetaSink.class);
+    protected static final ConcurrentHashMap<String, Long> agentIdMap = new ConcurrentHashMap<String, Long>();
 
-    private volatile boolean canTake = false;
-    private volatile boolean canSend = false;
+    private static final Logger logger = LoggerFactory.getLogger(TubeSink.class);
+
     //    private static int BATCH_SIZE = 10000; //unused
     private static final int sendNewMetricRetryCount = 3;
-
-    private static String TOPIC = "topic";
-
     private static final String topicsFilePath = "topics.properties"; //unused
     private static final String slaTopicFilePath = "slaTopics.properties";
-
-    private ConfigManager configManager;
-    private Map<String, String> topicProperties;
-
-    private ThirdPartyClusterConfig tubeConfig;
-    private Set<String> masterHostAndPortLists;
-
-    // key: masterUrl
-    public Map<String, TubeMultiSessionFactory> sessionFactories;
-    public Map<String, List<TopicProducerInfo>> masterUrl2producers;
-
-    // used for RoundRobin different cluster while send message
-    private AtomicInteger clusterIndex = new AtomicInteger(0);
-
-    // key: topic
-    public Map<String, List<TopicProducerInfo>> producerInfoMap;
-
-    private LinkedBlockingQueue<EventStat> resendQueue;
-    private LinkedBlockingQueue<Event> eventQueue;
-
-    private RateLimiter diskRateLimiter;
-
-    public AtomicInteger currentPublishTopicNum = new AtomicInteger(0);
-
-    private Thread[] sinkThreadPool;
-
-    private String metaTopicFilePath = topicsFilePath;
-
-    private Map<String, String> dimensions;
-    private DataProxyMetricItemSet metricItemSet;
 
     private static final LoadingCache<String, Long> agentIdCache = CacheBuilder
             .newBuilder().concurrencyLevel(4 * 8).initialCapacity(5000000)
@@ -122,12 +89,31 @@ public class MetaSink extends AbstractSink implements Configurable {
                     return System.currentTimeMillis();
                 }
             });
-
-    private IdCacheCleaner idCacheCleaner;
     protected static boolean idCleanerStarted = false;
-    protected static final ConcurrentHashMap<String, Long> agentIdMap = new ConcurrentHashMap<String, Long>();
+    private static String TOPIC = "topic";
     private static ConcurrentHashMap<String, Long> illegalTopicMap = new ConcurrentHashMap<String, Long>();
-
+    // key: masterUrl
+    public Map<String, TubeMultiSessionFactory> sessionFactories;
+    public Map<String, List<TopicProducerInfo>> masterUrl2producers;
+    // key: topic
+    public Map<String, List<TopicProducerInfo>> producerInfoMap;
+    public AtomicInteger currentPublishTopicNum = new AtomicInteger(0);
+    private volatile boolean canTake = false;
+    private volatile boolean canSend = false;
+    private ConfigManager configManager;
+    private Map<String, String> topicProperties;
+    private ThirdPartyClusterConfig tubeConfig;
+    private Set<String> masterHostAndPortLists;
+    // used for RoundRobin different cluster while send message
+    private AtomicInteger clusterIndex = new AtomicInteger(0);
+    private LinkedBlockingQueue<EventStat> resendQueue;
+    private LinkedBlockingQueue<Event> eventQueue;
+    private RateLimiter diskRateLimiter;
+    private Thread[] sinkThreadPool;
+    private String metaTopicFilePath = topicsFilePath;
+    private Map<String, String> dimensions;
+    private DataProxyMetricItemSet metricItemSet;
+    private IdCacheCleaner idCacheCleaner;
     private int maxSurvivedTime = 3 * 1000 * 30;
     private int maxSurvivedSize = 100000;
     private boolean clientIdCache = false;
@@ -171,7 +157,7 @@ public class MetaSink extends AbstractSink implements Configurable {
      * when masterUrlLists change, update tubeClient
      *
      * @param originalCluster, previous masterHostAndPortList set
-     * @param endCluster,      new masterHostAndPortList set
+     * @param endCluster, new masterHostAndPortList set
      */
     public void diffUpdateTubeClient(Set<String> originalCluster, Set<String> endCluster) {
         if (SetUtils.isEqualSet(originalCluster, endCluster)) {
@@ -204,7 +190,7 @@ public class MetaSink extends AbstractSink implements Configurable {
                     try {
                         sessionFactory.shutdown();
                     } catch (TubeClientException e) {
-                        logger.error("destroy sessionFactory error in metasink, MetaClientException {}",
+                        logger.error("destroy sessionFactory error in tubesink, MetaClientException {}",
                                 e.getMessage());
                     }
                     sessionFactories.remove(masterUrl);
@@ -314,12 +300,12 @@ public class MetaSink extends AbstractSink implements Configurable {
             sessionFactory = new TubeMultiSessionFactory(conf);
             sessionFactories.put(masterHostAndPortList, sessionFactory);
         } catch (TubeClientException e) {
-            logger.error("create connnection error in metasink, "
+            logger.error("create connnection error in tubesink, "
                     + "maybe tube master set error, please re-check. ex1 {}", e.getMessage());
             throw new FlumeException("connect to Tube error1, "
                     + "maybe zkstr/zkroot set error, please re-check");
         } catch (Throwable e) {
-            logger.error("create connnection error in metasink, "
+            logger.error("create connnection error in tubesink, "
                             + "maybe tube master set error/shutdown in progress, please re-check. ex2 {}",
                     e.getMessage());
             throw new FlumeException("connect to meta error2, "
@@ -341,10 +327,10 @@ public class MetaSink extends AbstractSink implements Configurable {
                 try {
                     sessionFactory.shutdown();
                 } catch (TubeClientException e) {
-                    logger.error("destroy sessionFactory error in metasink, MetaClientException {}",
+                    logger.error("destroy sessionFactory error in tubesink, MetaClientException {}",
                             e.getMessage());
                 } catch (Exception e) {
-                    logger.error("destroy sessionFactory error in metasink, ex {}", e.getMessage());
+                    logger.error("destroy sessionFactory error in tubesink, ex {}", e.getMessage());
                 }
             }
         }
@@ -398,7 +384,7 @@ public class MetaSink extends AbstractSink implements Configurable {
      * @param topicGroup
      */
     private void createTopicProducers(String masterUrl, TubeMultiSessionFactory sessionFactory,
-                                      Set<String> topicGroup) {
+            Set<String> topicGroup) {
 
         TopicProducerInfo info = new TopicProducerInfo(sessionFactory);
         info.initProducer();
@@ -473,249 +459,6 @@ public class MetaSink extends AbstractSink implements Configurable {
             sinkThreadPool[i].start();
         }
 
-    }
-
-    class SinkTask implements Runnable {
-        private void sendMessage(MessageProducer producer, Event event, String topic, AtomicBoolean flag, EventStat es)
-                throws TubeClientException, InterruptedException {
-            String clientId = event.getHeaders().get(ConfigConstants.SEQUENCE_ID);
-            if (!isNewCache) {
-                Long lastTime = 0L;
-                if (clientIdCache && clientId != null) {
-                    lastTime = agentIdMap.put(clientId, System.currentTimeMillis());
-                }
-                if (clientIdCache && clientId != null && lastTime != null && lastTime > 0) {
-                    logger.info("{} agent package {} existed,just discard.", getName(), clientId);
-                } else {
-                    Message message = new Message(topic, event.getBody());
-                    message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
-                    String streamId = "";
-                    if (event.getHeaders().containsKey(AttributeConstants.STREAM_ID)) {
-                        streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
-                    } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-                        streamId = event.getHeaders().get(AttributeConstants.INAME);
-                    }
-                    message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
-
-                    producer.sendMessage(message, new MyCallback(es));
-                    flag.set(true);
-
-                }
-            } else {
-                boolean hasKey = false;
-                if (clientIdCache && clientId != null) {
-                    hasKey = agentIdCache.asMap().containsKey(clientId);
-                }
-
-                if (clientIdCache && clientId != null && hasKey) {
-                    agentIdCache.put(clientId, System.currentTimeMillis());
-                    logger.info("{} agent package {} existed,just discard.", getName(), clientId);
-                } else {
-                    if (clientId != null) {
-                        agentIdCache.put(clientId, System.currentTimeMillis());
-                    }
-
-                    Message message = new Message(topic, event.getBody());
-                    message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
-                    String streamId = "";
-                    if (event.getHeaders().containsKey(AttributeConstants.STREAM_ID)) {
-                        streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
-                    } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-                        streamId = event.getHeaders().get(AttributeConstants.INAME);
-                    }
-                    message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
-
-                    producer.sendMessage(message, new MyCallback(es));
-                    flag.set(true);
-                }
-            }
-            illegalTopicMap.remove(topic);
-        }
-
-        private void handleException(Throwable t, String topic, boolean decrementFlag, EventStat es) {
-            if (t instanceof TubeClientException) {
-                String message = t.getMessage();
-                if (message != null && (message.contains("No available queue for topic")
-                    || message.contains("The brokers of topic are all forbidden"))) {
-                    illegalTopicMap.put(topic, System.currentTimeMillis() + 60 * 1000);
-                    logger.info("IllegalTopicMap.put " + topic);
-                    return;
-                } else {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        //ignore..
-                    }
-                }
-            }
-            logger.error("Sink task fail to send the message, decrementFlag=" + decrementFlag + ",sink.name="
-                + Thread.currentThread().getName()
-                + ",event.headers=" + es.getEvent().getHeaders(), t);
-        }
-
-        @Override
-        public void run() {
-            logger.info("Sink task {} started.", Thread.currentThread().getName());
-            while (canSend) {
-                boolean decrementFlag = false;
-                boolean resendBadEvent = false;
-                Event event = null;
-                EventStat es = null;
-                String topic = null;
-                try {
-                    if (MetaSink.this.overflow) {
-                        MetaSink.this.overflow = false;
-                        Thread.sleep(10);
-                    }
-                    if (!resendQueue.isEmpty()) {
-                        es = resendQueue.poll();
-                        if (es != null) {
-                            event = es.getEvent();
-                            // logger.warn("Resend event: {}", event.toString());
-                            if (event.getHeaders().containsKey(TOPIC)) {
-                                topic = event.getHeaders().get(TOPIC);
-                            }
-                            resendBadEvent = true;
-                        }
-                    } else {
-                        event = eventQueue.take();
-                        es = new EventStat(event);
-//                            sendCnt.incrementAndGet();
-                        if (event.getHeaders().containsKey(TOPIC)) {
-                            topic = event.getHeaders().get(TOPIC);
-                        }
-                    }
-
-                    if (event == null) {
-                        // ignore event is null, when multiple-thread SinkTask running
-                        // this null value comes from resendQueue
-                        continue;
-                    }
-
-                    if (topic == null || topic.equals("")) {
-                        logger.warn("no topic specified in event header, just skip this event");
-                        continue;
-                    }
-
-                    Long expireTime = illegalTopicMap.get(topic);
-                    if (expireTime != null) {
-                        long currentTime = System.currentTimeMillis();
-                        if (expireTime > currentTime) {
-
-                            // TODO: need to be improved.
-//                            reChannelEvent(es, topic);
-                            continue;
-                        } else {
-
-                            illegalTopicMap.remove(topic);
-                        }
-                    }
-                    MessageProducer producer = null;
-                    try {
-                        producer = getProducer(topic);
-                    } catch (Exception e) {
-                        logger.error("Get producer failed!", e);
-                    }
-
-                    if (producer == null) {
-                        illegalTopicMap.put(topic, System.currentTimeMillis() + 30 * 1000);
-                        continue;
-                    }
-
-                    AtomicBoolean flagAtomic = new AtomicBoolean(decrementFlag);
-                    sendMessage(producer, event, topic, flagAtomic, es);
-                    decrementFlag = flagAtomic.get();
-
-                } catch (InterruptedException e) {
-                    logger.info("Thread {} has been interrupted!", Thread.currentThread().getName());
-                    return;
-                } catch (Throwable t) {
-                    handleException(t, topic, decrementFlag, es);
-                    resendEvent(es, decrementFlag);
-                }
-            }
-        }
-    }
-
-    public class MyCallback implements MessageSentCallback {
-        private EventStat myEventStat;
-        private long sendTime;
-
-        public MyCallback(EventStat eventStat) {
-            this.myEventStat = eventStat;
-            this.sendTime = System.currentTimeMillis();
-        }
-
-        @Override
-        public void onMessageSent(final MessageSentResult result) {
-            if (result.isSuccess()) {
-                // TODO: add stats
-                this.addMetric(myEventStat.getEvent(), true, sendTime);
-            } else {
-                this.addMetric(myEventStat.getEvent(), false, 0);
-                if (result.getErrCode() == TErrCodeConstants.FORBIDDEN) {
-                    logger.warn("Send message failed, error message: {}, resendQueue size: {}, event:{}",
-                            result.getErrMsg(), resendQueue.size(),
-                            myEventStat.getEvent().hashCode());
-
-                    return;
-                }
-                if (result.getErrCode() != TErrCodeConstants.SERVER_RECEIVE_OVERFLOW) {
-                    logger.warn("Send message failed, error message: {}, resendQueue size: {}, event:{}",
-                            result.getErrMsg(), resendQueue.size(),
-                            myEventStat.getEvent().hashCode());
-                }
-                resendEvent(myEventStat, true);
-            }
-        }
-
-        /**
-         * addMetric
-         *
-         * @param event
-         * @param result
-         * @param sendTime
-         */
-        private void addMetric(Event event, boolean result, long sendTime) {
-            Map<String, String> dimensions = new HashMap<>();
-            dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, MetaSink.this.getName());
-            dimensions.put(DataProxyMetricItem.KEY_SINK_ID, MetaSink.this.getName());
-            dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, event.getHeaders().getOrDefault(TOPIC, ""));
-            DataProxyMetricItem.fillInlongId(event, dimensions);
-            DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
-            DataProxyMetricItem metricItem = MetaSink.this.metricItemSet.findMetricItem(dimensions);
-            if (result) {
-                metricItem.sendSuccessCount.incrementAndGet();
-                metricItem.sendSuccessSize.addAndGet(event.getBody().length);
-                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
-                if (sendTime > 0) {
-                    long currentTime = System.currentTimeMillis();
-                    long msgTime = NumberUtils.toLong(event.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
-                            sendTime);
-                    long sinkDuration = currentTime - sendTime;
-                    long nodeDuration = currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
-                    long wholeDuration = currentTime - msgTime;
-                    metricItem.sinkDuration.addAndGet(sinkDuration);
-                    metricItem.nodeDuration.addAndGet(nodeDuration);
-                    metricItem.wholeDuration.addAndGet(wholeDuration);
-                }
-            } else {
-                metricItem.sendFailCount.incrementAndGet();
-                metricItem.sendFailSize.addAndGet(event.getBody().length);
-            }
-        }
-
-        @Override
-        public void onException(final Throwable e) {
-            Throwable t = e;
-            while (t.getCause() != null) {
-                t = t.getCause();
-            }
-            if (t instanceof OverflowException) {
-                MetaSink.this.overflow = true;
-            }
-            resendEvent(myEventStat, true);
-        }
     }
 
     /**
@@ -891,6 +634,251 @@ public class MetaSink extends AbstractSink implements Configurable {
         return metricItemSet;
     }
 
+    class SinkTask implements Runnable {
+
+        private void sendMessage(MessageProducer producer, Event event, String topic, AtomicBoolean flag, EventStat es)
+                throws TubeClientException, InterruptedException {
+            String clientId = event.getHeaders().get(ConfigConstants.SEQUENCE_ID);
+            if (!isNewCache) {
+                Long lastTime = 0L;
+                if (clientIdCache && clientId != null) {
+                    lastTime = agentIdMap.put(clientId, System.currentTimeMillis());
+                }
+                if (clientIdCache && clientId != null && lastTime != null && lastTime > 0) {
+                    logger.info("{} agent package {} existed,just discard.", getName(), clientId);
+                } else {
+                    Message message = new Message(topic, event.getBody());
+                    message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
+                    String streamId = "";
+                    if (event.getHeaders().containsKey(AttributeConstants.STREAM_ID)) {
+                        streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
+                    } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
+                        streamId = event.getHeaders().get(AttributeConstants.INAME);
+                    }
+                    message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
+
+                    producer.sendMessage(message, new MyCallback(es));
+                    flag.set(true);
+
+                }
+            } else {
+                boolean hasKey = false;
+                if (clientIdCache && clientId != null) {
+                    hasKey = agentIdCache.asMap().containsKey(clientId);
+                }
+
+                if (clientIdCache && clientId != null && hasKey) {
+                    agentIdCache.put(clientId, System.currentTimeMillis());
+                    logger.info("{} agent package {} existed,just discard.", getName(), clientId);
+                } else {
+                    if (clientId != null) {
+                        agentIdCache.put(clientId, System.currentTimeMillis());
+                    }
+
+                    Message message = new Message(topic, event.getBody());
+                    message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
+                    String streamId = "";
+                    if (event.getHeaders().containsKey(AttributeConstants.STREAM_ID)) {
+                        streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
+                    } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
+                        streamId = event.getHeaders().get(AttributeConstants.INAME);
+                    }
+                    message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
+
+                    producer.sendMessage(message, new MyCallback(es));
+                    flag.set(true);
+                }
+            }
+            illegalTopicMap.remove(topic);
+        }
+
+        private void handleException(Throwable t, String topic, boolean decrementFlag, EventStat es) {
+            if (t instanceof TubeClientException) {
+                String message = t.getMessage();
+                if (message != null && (message.contains("No available queue for topic")
+                        || message.contains("The brokers of topic are all forbidden"))) {
+                    illegalTopicMap.put(topic, System.currentTimeMillis() + 60 * 1000);
+                    logger.info("IllegalTopicMap.put " + topic);
+                    return;
+                } else {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        //ignore..
+                    }
+                }
+            }
+            logger.error("Sink task fail to send the message, decrementFlag=" + decrementFlag + ",sink.name="
+                    + Thread.currentThread().getName()
+                    + ",event.headers=" + es.getEvent().getHeaders(), t);
+        }
+
+        @Override
+        public void run() {
+            logger.info("Sink task {} started.", Thread.currentThread().getName());
+            while (canSend) {
+                boolean decrementFlag = false;
+                boolean resendBadEvent = false;
+                Event event = null;
+                EventStat es = null;
+                String topic = null;
+                try {
+                    if (TubeSink.this.overflow) {
+                        TubeSink.this.overflow = false;
+                        Thread.sleep(10);
+                    }
+                    if (!resendQueue.isEmpty()) {
+                        es = resendQueue.poll();
+                        if (es != null) {
+                            event = es.getEvent();
+                            // logger.warn("Resend event: {}", event.toString());
+                            if (event.getHeaders().containsKey(TOPIC)) {
+                                topic = event.getHeaders().get(TOPIC);
+                            }
+                            resendBadEvent = true;
+                        }
+                    } else {
+                        event = eventQueue.take();
+                        es = new EventStat(event);
+//                            sendCnt.incrementAndGet();
+                        if (event.getHeaders().containsKey(TOPIC)) {
+                            topic = event.getHeaders().get(TOPIC);
+                        }
+                    }
+
+                    if (event == null) {
+                        // ignore event is null, when multiple-thread SinkTask running
+                        // this null value comes from resendQueue
+                        continue;
+                    }
+
+                    if (topic == null || topic.equals("")) {
+                        logger.warn("no topic specified in event header, just skip this event");
+                        continue;
+                    }
+
+                    Long expireTime = illegalTopicMap.get(topic);
+                    if (expireTime != null) {
+                        long currentTime = System.currentTimeMillis();
+                        if (expireTime > currentTime) {
+
+                            // TODO: need to be improved.
+//                            reChannelEvent(es, topic);
+                            continue;
+                        } else {
+
+                            illegalTopicMap.remove(topic);
+                        }
+                    }
+                    MessageProducer producer = null;
+                    try {
+                        producer = getProducer(topic);
+                    } catch (Exception e) {
+                        logger.error("Get producer failed!", e);
+                    }
+
+                    if (producer == null) {
+                        illegalTopicMap.put(topic, System.currentTimeMillis() + 30 * 1000);
+                        continue;
+                    }
+
+                    AtomicBoolean flagAtomic = new AtomicBoolean(decrementFlag);
+                    sendMessage(producer, event, topic, flagAtomic, es);
+                    decrementFlag = flagAtomic.get();
+
+                } catch (InterruptedException e) {
+                    logger.info("Thread {} has been interrupted!", Thread.currentThread().getName());
+                    return;
+                } catch (Throwable t) {
+                    handleException(t, topic, decrementFlag, es);
+                    resendEvent(es, decrementFlag);
+                }
+            }
+        }
+    }
+
+    public class MyCallback implements MessageSentCallback {
+
+        private EventStat myEventStat;
+        private long sendTime;
+
+        public MyCallback(EventStat eventStat) {
+            this.myEventStat = eventStat;
+            this.sendTime = System.currentTimeMillis();
+        }
+
+        @Override
+        public void onMessageSent(final MessageSentResult result) {
+            if (result.isSuccess()) {
+                // TODO: add stats
+                this.addMetric(myEventStat.getEvent(), true, sendTime);
+            } else {
+                this.addMetric(myEventStat.getEvent(), false, 0);
+                if (result.getErrCode() == TErrCodeConstants.FORBIDDEN) {
+                    logger.warn("Send message failed, error message: {}, resendQueue size: {}, event:{}",
+                            result.getErrMsg(), resendQueue.size(),
+                            myEventStat.getEvent().hashCode());
+
+                    return;
+                }
+                if (result.getErrCode() != TErrCodeConstants.SERVER_RECEIVE_OVERFLOW) {
+                    logger.warn("Send message failed, error message: {}, resendQueue size: {}, event:{}",
+                            result.getErrMsg(), resendQueue.size(),
+                            myEventStat.getEvent().hashCode());
+                }
+                resendEvent(myEventStat, true);
+            }
+        }
+
+        /**
+         * addMetric
+         *
+         * @param event
+         * @param result
+         * @param sendTime
+         */
+        private void addMetric(Event event, boolean result, long sendTime) {
+            Map<String, String> dimensions = new HashMap<>();
+            dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, TubeSink.this.getName());
+            dimensions.put(DataProxyMetricItem.KEY_SINK_ID, TubeSink.this.getName());
+            dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, event.getHeaders().getOrDefault(TOPIC, ""));
+            DataProxyMetricItem.fillInlongId(event, dimensions);
+            DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
+            DataProxyMetricItem metricItem = TubeSink.this.metricItemSet.findMetricItem(dimensions);
+            if (result) {
+                metricItem.sendSuccessCount.incrementAndGet();
+                metricItem.sendSuccessSize.addAndGet(event.getBody().length);
+                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
+                if (sendTime > 0) {
+                    long currentTime = System.currentTimeMillis();
+                    long msgTime = NumberUtils.toLong(event.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
+                            sendTime);
+                    long sinkDuration = currentTime - sendTime;
+                    long nodeDuration = currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
+                    long wholeDuration = currentTime - msgTime;
+                    metricItem.sinkDuration.addAndGet(sinkDuration);
+                    metricItem.nodeDuration.addAndGet(nodeDuration);
+                    metricItem.wholeDuration.addAndGet(wholeDuration);
+                }
+            } else {
+                metricItem.sendFailCount.incrementAndGet();
+                metricItem.sendFailSize.addAndGet(event.getBody().length);
+            }
+        }
+
+        @Override
+        public void onException(final Throwable e) {
+            Throwable t = e;
+            while (t.getCause() != null) {
+                t = t.getCause();
+            }
+            if (t instanceof OverflowException) {
+                TubeSink.this.overflow = true;
+            }
+            resendEvent(myEventStat, true);
+        }
+    }
+
     class TopicProducerInfo {
 
         private TubeMultiSessionFactory sessionFactory;
@@ -906,9 +894,9 @@ public class MetaSink extends AbstractSink implements Configurable {
                 try {
                     producer.shutdown();
                 } catch (TubeClientException e) {
-                    logger.error("destroy producer error in metasink, MetaClientException {}", e.getMessage());
+                    logger.error("destroy producer error in tubesink, MetaClientException {}", e.getMessage());
                 } catch (Throwable e) {
-                    logger.error("destroy producer error in metasink, ex {}", e.getMessage());
+                    logger.error("destroy producer error in tubesink, ex {}", e.getMessage());
                 }
             }
         }
@@ -921,7 +909,7 @@ public class MetaSink extends AbstractSink implements Configurable {
             try {
                 this.producer = sessionFactory.createProducer();
             } catch (TubeClientException e) {
-                logger.error("create tube messageProducer error in metasink, ex {}", e.getMessage());
+                logger.error("create tube messageProducer error in tubesink, ex {}", e.getMessage());
             }
         }
 
