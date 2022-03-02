@@ -23,6 +23,7 @@ import HighTable from '@/components/HighTable';
 import { PageContainer } from '@/components/PageContainer';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
+import i18n from '@/i18n';
 // import { tableColumns as dataSourcesFileColumns } from './FileConfig';
 import { tableColumns as dataSourcesDbColumns } from './DbConfig';
 import DataSourcesCreateModal from './CreateModal';
@@ -34,14 +35,11 @@ const getFilterFormContent = defaultValues => [
   {
     type: 'inputsearch',
     name: 'keyWord',
-    props: {
-      placeholder: '请输入关键词',
-    },
   },
   {
     type: 'radiobutton',
     name: 'type',
-    label: '类型',
+    label: i18n.t('pages.Datasources.Type'),
     initialValue: defaultValues.type,
     props: {
       buttonStyle: 'solid',
@@ -92,7 +90,7 @@ const Comp: React.FC = () => {
 
   const onDelete = ({ id }) => {
     Modal.confirm({
-      title: '确认删除吗',
+      title: i18n.t('basic.DeleteConfirm'),
       onOk: async () => {
         await request({
           url: `/commonserver/delete/${id}`,
@@ -102,7 +100,7 @@ const Comp: React.FC = () => {
           },
         });
         await getList();
-        message.success('删除成功');
+        message.success(i18n.t('basic.DeleteSuccess'));
       },
     });
   };
@@ -131,7 +129,7 @@ const Comp: React.FC = () => {
 
   const columns = (options.type === 'FILE' ? [] : dataSourcesDbColumns).concat([
     {
-      title: '最后操作',
+      title: i18n.t('pages.Datasources.LastModifier'),
       dataIndex: 'modifier',
       width: 150,
       render: (text, record: any) => (
@@ -142,22 +140,22 @@ const Comp: React.FC = () => {
       ),
     },
     {
-      title: '状态',
+      title: i18n.t('basic.Status'),
       dataIndex: 'status',
       width: 80,
       render: text => genStatusTag(text),
     },
     {
-      title: '操作',
+      title: i18n.t('basic.Operating'),
       dataIndex: 'action',
       width: 120,
       render: (text, record) => (
         <>
           <Button type="link" onClick={() => onEdit(record)}>
-            编辑
+            {i18n.t('basic.Edit')}
           </Button>
           <Button type="link" onClick={() => onDelete(record)}>
-            删除
+            {i18n.t('basic.Delete')}
           </Button>
         </>
       ),
@@ -173,7 +171,7 @@ const Comp: React.FC = () => {
         }}
         suffix={
           <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
-            新建服务器
+            {i18n.t('pages.Datasources.Create')}
           </Button>
         }
         table={{

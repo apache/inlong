@@ -18,6 +18,7 @@
  */
 
 import React from 'react';
+import i18n from '@/i18n';
 import { ColumnsType } from 'antd/es/table';
 import StaffSelect from '@/components/StaffSelect';
 import rulesPattern from '@/utils/pattern';
@@ -26,7 +27,7 @@ export const getCreateFormContent = (defaultValues = {}) => {
   const array = [
     {
       type: 'input',
-      label: 'DB连接名',
+      label: i18n.t('pages.Datasources.DbConfig.ServerName'),
       name: 'serverName',
       rules: [{ required: true }],
       props: {
@@ -35,7 +36,7 @@ export const getCreateFormContent = (defaultValues = {}) => {
     },
     {
       type: 'select',
-      label: 'DB类型',
+      label: i18n.t('pages.Datasources.DbConfig.Type'),
       name: 'dbType',
       rules: [{ required: true }],
       props: {
@@ -59,70 +60,70 @@ export const getCreateFormContent = (defaultValues = {}) => {
         { required: true },
         {
           pattern: rulesPattern.ip,
-          message: '请正确输入Ip地址',
+          message: i18n.t('pages.Datasources.DbConfig.IpPattern'),
         },
       ],
     },
     {
       type: 'inputnumber',
-      label: 'DB端口',
+      label: i18n.t('pages.Datasources.DbConfig.Port'),
       name: 'dbPort',
       rules: [
         { required: true },
         {
           pattern: rulesPattern.port,
-          message: '请正确输入端口号(1-65535)',
+          message: i18n.t('pages.Datasources.DbConfig.PortPattern'),
         },
       ],
     },
     {
       type: 'input',
-      label: '备份DB IP',
+      label: i18n.t('pages.Datasources.DbConfig.BackupDbIp'),
       name: 'backupDbIp',
       rules: [
         {
           pattern: rulesPattern.ip,
-          message: '请正确输入Ip地址',
+          message: i18n.t('pages.Datasources.DbConfig.IpPattern'),
         },
       ],
     },
     {
       type: 'inputnumber',
-      label: '备份DB端口',
+      label: i18n.t('pages.Datasources.DbConfig.BackupDbPort'),
       name: 'backupDbPort',
       rules: [
         {
           pattern: rulesPattern.port,
-          message: '请正确输入端口号(1-65535)',
+          message: i18n.t('pages.Datasources.DbConfig.PortPattern'),
         },
       ],
     },
     {
       type: 'input',
-      label: '目标库',
+      label: i18n.t('pages.Datasources.DbConfig.DbName'),
       name: 'dbName',
     },
     {
       type: 'input',
-      label: '用户名',
+      label: i18n.t('pages.Datasources.DbConfig.Username'),
       name: 'username',
       rules: [{ required: true }],
     },
     {
       type: 'input',
-      label: '密码',
+      label: i18n.t('pages.Datasources.DbConfig.Password'),
       name: 'password',
       rules: [{ required: true }],
     },
     {
       type: <StaffSelect mode="multiple" currentUserClosable={false} />,
-      label: 'DB负责人',
+      label: i18n.t('pages.Datasources.DbConfig.InCharges'),
       name: 'inCharges',
-      rules: [{ required: true, message: '请选择DB责任人' }],
+      rules: [{ required: true }],
     },
     {
       type: 'input',
-      label: 'DB描述',
+      label: i18n.t('pages.Datasources.DbConfig.DbDescription'),
       name: 'dbDescription',
       props: {
         maxLength: 256,
@@ -135,11 +136,11 @@ export const getCreateFormContent = (defaultValues = {}) => {
 
 export const tableColumns: ColumnsType = [
   {
-    title: 'DB连接名',
+    title: i18n.t('pages.Datasources.DbConfig.ServerName'),
     dataIndex: 'serverName',
   },
   {
-    title: 'DB类型',
+    title: i18n.t('pages.Datasources.DbConfig.Type'),
     dataIndex: 'dbType',
   },
   {
@@ -147,15 +148,15 @@ export const tableColumns: ColumnsType = [
     dataIndex: 'dbIp',
   },
   {
-    title: 'DB端口',
+    title: i18n.t('pages.Datasources.DbConfig.Port'),
     dataIndex: 'dbPort',
   },
   {
-    title: '目标库',
+    title: i18n.t('pages.Datasources.DbConfig.DbName'),
     dataIndex: 'dbName',
   },
   {
-    title: 'DB描述',
+    title: i18n.t('pages.Datasources.DbConfig.DbDescription'),
     dataIndex: 'dbDescription',
   },
 ];

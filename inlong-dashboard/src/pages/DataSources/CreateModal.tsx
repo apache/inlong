@@ -23,6 +23,7 @@ import { ModalProps } from 'antd/es/modal';
 import { State } from '@/models';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect, useSelector } from '@/hooks';
+import { useTranslation } from 'react-i18next';
 import request from '@/utils/request';
 // import { getCreateFormContent as getFileCreateFormContent } from './FileConfig';
 import { getCreateFormContent as getDbCreateFormContent } from './DbConfig';
@@ -35,6 +36,8 @@ export interface Props extends ModalProps {
 }
 
 const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
+  const { t } = useTranslation();
+
   const [form] = useForm();
 
   const { userName } = useSelector<State, State>(state => state);
@@ -58,7 +61,7 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
       data: submitData,
     });
     await modalProps?.onOk(values);
-    message.success('保存成功');
+    message.success(t('basic.OperatingSuccess'));
   };
 
   useUpdateEffect(() => {
@@ -99,7 +102,11 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
   }, [type]);
 
   return (
-    <Modal {...modalProps} title={`${type}服务器`} onOk={onOk}>
+    <Modal
+      {...modalProps}
+      title={`${type} ${t('pages.Datasources.CreateModal.Server')}`}
+      onOk={onOk}
+    >
       <FormGenerator content={getCreateFormContent(data)} form={form} useMaxWidth />
     </Modal>
   );
