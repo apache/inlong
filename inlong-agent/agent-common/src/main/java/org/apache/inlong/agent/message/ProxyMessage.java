@@ -53,7 +53,6 @@ public class ProxyMessage implements Message {
         this.batchKey = dataKey + inlongStreamId;
     }
 
-
     public String getDataKey() {
         return dataKey;
     }
