@@ -321,7 +321,8 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
      * @return if equals
      */
     public boolean isDataEquals(TopicDeployEntity other) {
-        return brokerId == other.brokerId
+        return super.isDataEquals(other)
+                && brokerId == other.brokerId
                 && brokerPort == other.brokerPort
                 && topicNameId == other.topicNameId
                 && recordKey.equals(other.recordKey)

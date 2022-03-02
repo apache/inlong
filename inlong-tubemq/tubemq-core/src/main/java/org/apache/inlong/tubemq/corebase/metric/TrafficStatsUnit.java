@@ -58,6 +58,12 @@ public class TrafficStatsUnit {
         this.msgSize.addValue(msgSize);
     }
 
+    /**
+     * Get traffic information in json format.
+     *
+     * @param strBuff      the string information container
+     * @param resetValue   whether reset value
+     */
     public void getValue(StringBuilder strBuff, boolean resetValue) {
         if (!TStringUtils.isEmpty(this.trafficName)) {
             strBuff.append("\"").append(this.trafficName).append("\":");

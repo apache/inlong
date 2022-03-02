@@ -408,7 +408,8 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
      * @return if equals
      */
     public boolean isDataEquals(BrokerConfEntity other) {
-        return brokerId == other.brokerId
+        return super.isDataEquals(other)
+                && brokerId == other.brokerId
                 && brokerPort == other.brokerPort
                 && brokerTLSPort == other.brokerTLSPort
                 && brokerWebPort == other.brokerWebPort

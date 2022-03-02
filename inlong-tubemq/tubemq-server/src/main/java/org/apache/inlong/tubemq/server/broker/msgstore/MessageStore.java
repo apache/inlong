@@ -613,6 +613,12 @@ public class MessageStore implements Closeable {
         return this.msgFileStore.getIndexMaxHighOffset();
     }
 
+    /**
+     * Get the index max offset
+     * Read from cache settings if memory cache is enabled, otherwise directly from file store
+     *
+     * @return  the current index offset
+     */
     public long getIndexMaxOffset() {
         long lastOffset = 0L;
         if (tubeConfig.isEnableMemStore()) {
@@ -636,6 +642,12 @@ public class MessageStore implements Closeable {
         return this.msgFileStore.getDataMinOffset();
     }
 
+    /**
+     * Get the data max offset
+     * Read from cache settings if memory cache is enabled, otherwise directly from file store
+     *
+     * @return  the current data offset
+     */
     public long getDataMaxOffset() {
         long lastOffset = 0L;
         if (tubeConfig.isEnableMemStore()) {
@@ -651,6 +663,13 @@ public class MessageStore implements Closeable {
         return lastOffset;
     }
 
+    /**
+     * Get the index total size
+     * If memory cache is enabled, the data in the cache is counted first,
+     * and then the data in the file is counted
+     *
+     * @return  the current index total size
+     */
     public long getIndexStoreSize() {
         long totalSize = 0L;
         if (!tubeConfig.isEnableMemStore()) {
@@ -670,6 +689,13 @@ public class MessageStore implements Closeable {
         return totalSize;
     }
 
+    /**
+     * Get the data total size
+     * If memory cache is enabled, the data in the cache is counted first,
+     * and then the data in the file is counted
+     *
+     * @return  the current data total size
+     */
     public long getDataStoreSize() {
         long totalSize = 0L;
         if (!tubeConfig.isEnableMemStore()) {
