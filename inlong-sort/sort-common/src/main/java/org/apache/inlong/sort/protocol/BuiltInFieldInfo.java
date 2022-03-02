@@ -27,6 +27,7 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 public class BuiltInFieldInfo extends FieldInfo {
 
     public enum BuiltInField {
+        DATA,
         DATA_TIME,
         MYSQL_METADATA_DATABASE,
         MYSQL_METADATA_TABLE,

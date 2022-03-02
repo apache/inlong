@@ -29,6 +29,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
@@ -54,6 +55,9 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.sort.formats.common.FormatInfo;
+import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
@@ -164,7 +168,12 @@ public class CreateSortConfigListener implements SortOperateListener {
         String middleWareType = groupInfo.getMiddlewareType();
 
         List<FieldInfo> fieldInfos = Lists.newArrayList();
-        if (CollectionUtils.isNotEmpty(streamInfo.getFieldList())) {
+        if (SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
+            fieldInfos.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE, BuiltInField.DATA));
+        }
+
+        if (!SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType()) &&
+        CollectionUtils.isNotEmpty(streamInfo.getFieldList())) {
             fieldInfos = streamInfo.getFieldList().stream().map(inlongStreamFieldInfo -> {
                 FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(
                         inlongStreamFieldInfo.getFieldType().toLowerCase());
