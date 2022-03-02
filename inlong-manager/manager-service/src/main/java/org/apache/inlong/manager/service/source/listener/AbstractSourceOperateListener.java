@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.source.listener;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
@@ -59,8 +59,8 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
         log.info("Delete data source for context={}", context);
-        InlongGroupRequest groupRequest = getGroupRequest(context.getProcessForm());
-        final String groupId = groupRequest.getInlongGroupId();
+        InlongGroupInfo groupInfo = getGroupInfo(context.getProcessForm());
+        final String groupId = groupInfo.getInlongGroupId();
         List<StreamBriefResponse> streamBriefResponses = streamService.getBriefList(groupId);
         streamBriefResponses.stream().forEach(streamBriefResponse -> {
             operateStreamSources(groupId, streamBriefResponse.getInlongStreamId(), context.getApplicant());
@@ -92,7 +92,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
 
     public abstract void operateStreamSource(SourceRequest sourceRequest, String operator);
 
-    private InlongGroupRequest getGroupRequest(ProcessForm processForm) {
+    private InlongGroupInfo getGroupInfo(ProcessForm processForm) {
         if (processForm instanceof GroupResourceProcessForm) {
             GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
             return groupResourceProcessForm.getGroupInfo();

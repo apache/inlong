@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
 
 import java.util.List;
@@ -48,7 +49,7 @@ public interface InlongGroupService {
      * @param groupId Inlong group id
      * @return Group details
      */
-    InlongGroupRequest get(String groupId);
+    InlongGroupInfo get(String groupId);
 
     /**
      * Query group list based on conditions

@@ -25,8 +25,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
-import org.apache.inlong.manager.client.api.InlongGroupInfo;
-import org.apache.inlong.manager.client.api.InlongGroupInfo.InlongGroupState;
+import org.apache.inlong.manager.client.api.InlongGroupContext;
+import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupState;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
@@ -40,7 +40,9 @@ import org.apache.inlong.manager.client.api.util.InlongStreamSourceTransfer;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
@@ -48,6 +50,7 @@ import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 public class InlongGroupImpl implements InlongGroup {
 
@@ -60,18 +63,20 @@ public class InlongGroupImpl implements InlongGroup {
     public InlongGroupImpl(InlongGroupConf groupConf, InlongClientImpl inlongClient) {
         this.groupConf = groupConf;
         this.groupContext = new InnerGroupContext();
-        InlongGroupRequest groupRequest = InlongGroupTransfer.createGroupInfo(groupConf);
-        this.groupContext.setGroupRequest(groupRequest);
+        InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(groupConf);
+        this.groupContext.setGroupInfo(groupInfo);
         if (this.managerClient == null) {
             this.managerClient = new InnerInlongManagerClient(inlongClient);
         }
-        Pair<Boolean, InlongGroupRequest> existMsg = managerClient.isGroupExists(groupRequest);
+        InlongGroupRequest inlongGroupRequest = groupInfo.genRequest();
+        Pair<Boolean, InlongGroupResponse> existMsg = managerClient.isGroupExists(inlongGroupRequest);
         if (existMsg.getKey()) {
             //Update current snapshot
-            this.groupContext.setGroupRequest(existMsg.getValue());
+            groupInfo = CommonBeanUtils.copyProperties(existMsg.getValue(), InlongGroupInfo::new);
+            this.groupContext.setGroupInfo(groupInfo);
         } else {
-            String groupId = managerClient.createGroupInfo(groupRequest);
-            groupRequest.setInlongGroupId(groupId);
+            String groupId = managerClient.createGroup(inlongGroupRequest);
+            groupInfo.setInlongGroupId(groupId);
         }
     }
 
@@ -81,13 +86,14 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
-    public InlongGroupInfo snapshot() throws Exception {
-        return generateSnapshot(groupContext.getGroupRequest());
+    public InlongGroupContext context() throws Exception {
+        return generateSnapshot(groupContext.getGroupInfo());
     }
 
     @Override
-    public InlongGroupInfo init() throws Exception {
-        WorkflowResult initWorkflowResult = managerClient.initInlongGroup(this.groupContext.getGroupRequest());
+    public InlongGroupContext init() throws Exception {
+        InlongGroupInfo groupInfo = this.groupContext.getGroupInfo();
+        WorkflowResult initWorkflowResult = managerClient.initInlongGroup(groupInfo.genRequest());
         List<TaskResponse> taskViews = initWorkflowResult.getNewTasks();
         AssertUtil.notEmpty(taskViews, "Init business info failed");
         TaskResponse taskView = taskViews.get(0);
@@ -109,7 +115,7 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
-    public InlongGroupInfo initOnUpdate(InlongGroupConf conf) throws Exception {
+    public InlongGroupContext initOnUpdate(InlongGroupConf conf) throws Exception {
         if (conf != null) {
             AssertUtil.isTrue(conf.getGroupName() != null
                             && conf.getGroupName().equals(this.groupConf.getGroupName()),
@@ -118,22 +124,25 @@ public class InlongGroupImpl implements InlongGroup {
         } else {
             conf = this.groupConf;
         }
-        InlongGroupRequest groupRequest = InlongGroupTransfer.createGroupInfo(conf);
-        Pair<String, String> idAndErr = managerClient.updateGroupInfo(groupRequest);
+        InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(conf);
+        InlongGroupRequest groupRequest = groupInfo.genRequest();
+        Pair<String, String> idAndErr = managerClient.updateGroup(groupRequest);
         String errMsg = idAndErr.getValue();
         AssertUtil.isNull(errMsg, errMsg);
-        Pair<Boolean, InlongGroupRequest> existMsg = managerClient.isGroupExists(groupRequest);
+        Pair<Boolean, InlongGroupResponse> existMsg = managerClient.isGroupExists(groupRequest);
         if (existMsg.getKey()) {
-            this.groupContext.setGroupRequest(existMsg.getValue());
+            groupInfo = CommonBeanUtils.copyProperties(existMsg.getValue(), InlongGroupInfo::new);
+            this.groupContext.setGroupInfo(groupInfo);
             return init();
         } else {
-            throw new RuntimeException(String.format("Group is not found by groupName=%s",groupRequest.getName()));
+            throw new RuntimeException(String.format("Group is not found by groupName=%s", groupInfo.getName()));
         }
     }
 
     @Override
-    public InlongGroupInfo suspend() throws Exception {
-        Pair<String, String> idAndErr = managerClient.updateGroupInfo(groupContext.getGroupRequest());
+    public InlongGroupContext suspend() throws Exception {
+        InlongGroupInfo groupInfo = groupContext.getGroupInfo();
+        Pair<String, String> idAndErr = managerClient.updateGroup(groupInfo.genRequest());
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
@@ -142,8 +151,9 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
-    public InlongGroupInfo restart() throws Exception {
-        Pair<String, String> idAndErr = managerClient.updateGroupInfo(groupContext.getGroupRequest());
+    public InlongGroupContext restart() throws Exception {
+        InlongGroupInfo groupInfo = groupContext.getGroupInfo();
+        Pair<String, String> idAndErr = managerClient.updateGroup(groupInfo.genRequest());
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
@@ -152,14 +162,15 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
-    public InlongGroupInfo delete() throws Exception {
-        InlongGroupRequest curGroupRequest = managerClient.getGroupInfo(
-                groupContext.getGroupRequest().getInlongGroupId());
-        boolean isDeleted = managerClient.deleteInlongGroup(curGroupRequest.getInlongGroupId());
+    public InlongGroupContext delete() throws Exception {
+        InlongGroupResponse groupResponse = managerClient.getGroupInfo(
+                groupContext.getGroupId());
+        boolean isDeleted = managerClient.deleteInlongGroup(groupResponse.getInlongGroupId());
         if (isDeleted) {
-            curGroupRequest.setStatus(GroupState.GROUP_DELETE.getCode());
+            groupResponse.setStatus(GroupState.GROUP_DELETE.getCode());
         }
-        return generateSnapshot(curGroupRequest);
+        InlongGroupInfo groupInfo = CommonBeanUtils.copyProperties(groupResponse, InlongGroupInfo::new);
+        return generateSnapshot(groupInfo);
     }
 
     @Override
@@ -168,21 +179,22 @@ public class InlongGroupImpl implements InlongGroup {
         return fetchDataStreams(inlongGroupId);
     }
 
-    private InlongGroupInfo generateSnapshot(InlongGroupRequest currentBizInfo) {
-        if (currentBizInfo == null) {
-            currentBizInfo = managerClient.getGroupInfo(
-                    groupContext.getGroupRequest().getInlongGroupId());
-            groupContext.setGroupRequest(currentBizInfo);
+    private InlongGroupContext generateSnapshot(InlongGroupInfo currentGroupInfo) {
+        if (currentGroupInfo == null) {
+            InlongGroupResponse groupResponse = managerClient.getGroupInfo(
+                    groupContext.getGroupId());
+            currentGroupInfo = CommonBeanUtils.copyProperties(groupResponse, InlongGroupInfo::new);
+            groupContext.setGroupInfo(currentGroupInfo);
         }
-        String inlongGroupId = currentBizInfo.getInlongGroupId();
+        String inlongGroupId = currentGroupInfo.getInlongGroupId();
         List<InlongStream> dataStreams = fetchDataStreams(inlongGroupId);
         dataStreams.stream().forEach(dataStream -> groupContext.setStream(dataStream));
-        InlongGroupInfo groupInfo = new InlongGroupInfo(groupContext, groupConf);
+        InlongGroupContext inlongGroupContext = new InlongGroupContext(groupContext, groupConf);
         List<EventLogView> logViews = managerClient.getInlongGroupError(inlongGroupId);
         Map<String, String> errMsgs = logViews.stream().collect(
                 Collectors.toMap(EventLogView::getEvent, EventLogView::getException));
-        groupInfo.setErrMsg(errMsgs);
-        return groupInfo;
+        inlongGroupContext.setErrMsg(errMsgs);
+        return inlongGroupContext;
     }
 
     private List<InlongStream> fetchDataStreams(String groupId) {

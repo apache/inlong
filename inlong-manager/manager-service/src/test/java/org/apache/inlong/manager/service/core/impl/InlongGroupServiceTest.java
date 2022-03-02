@@ -17,11 +17,13 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
@@ -29,9 +31,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Inlong group service test
@@ -52,7 +51,7 @@ public class InlongGroupServiceTest {
      * Test to save group
      */
     public String saveGroup(String groupName, String operator) {
-        InlongGroupRequest groupInfo;
+        InlongGroupInfo groupInfo;
         try {
             groupInfo = groupService.get(globalGroupId);
             if (groupInfo != null) {
@@ -62,7 +61,7 @@ public class InlongGroupServiceTest {
             // ignore
         }
 
-        groupInfo = new InlongGroupRequest();
+        groupInfo = new InlongGroupInfo();
         groupInfo.setName(groupName);
         groupInfo.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
         groupInfo.setCreator(operator);
@@ -77,7 +76,7 @@ public class InlongGroupServiceTest {
 
         groupInfo.setMqExtInfo(pulsarInfo);
 
-        return groupService.save(groupInfo, operator);
+        return groupService.save(groupInfo.genRequest(), operator);
     }
 
     @Test

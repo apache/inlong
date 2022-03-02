@@ -19,10 +19,10 @@ package org.apache.inlong.manager.service.thirdparty.sort;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +37,7 @@ public class ZkEnabledEventSelector implements EventSelector {
             return false;
         }
         GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
-        InlongGroupRequest groupInfo = groupResourceForm.getGroupInfo();
+        InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
         return groupInfo.getZookeeperEnabled() == 1 && !groupInfo.getMiddlewareType().equals(Constant.MIDDLEWARE_NONE);
     }
 

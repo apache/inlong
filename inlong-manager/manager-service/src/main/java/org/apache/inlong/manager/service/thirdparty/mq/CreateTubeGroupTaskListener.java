@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ReTryConfigBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest.GroupNameJsonSetBean;
 import org.apache.inlong.manager.common.pojo.tubemq.QueryTubeTopicRequest;
@@ -62,7 +62,7 @@ public class CreateTubeGroupTaskListener implements QueueOperateListener {
         String groupId = form.getInlongGroupId();
         log.info("try to create consumer group for groupId {}", groupId);
 
-        InlongGroupRequest groupInfo = groupService.get(groupId);
+        InlongGroupInfo groupInfo = groupService.get(groupId);
         String topicName = groupInfo.getMqResourceObj();
         int clusterId = Integer.parseInt(commonOperateService.getSpecifiedParam(Constant.CLUSTER_TUBE_CLUSTER_ID));
         QueryTubeTopicRequest queryTubeTopicRequest = QueryTubeTopicRequest.builder()

@@ -17,7 +17,10 @@
 
 package org.apache.inlong.manager.service.workflow.consumption;
 
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
 import org.apache.inlong.manager.common.pojo.workflow.form.ConsumptionApproveForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
@@ -36,10 +39,6 @@ import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * New data consumption workflow definition
@@ -126,7 +125,7 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
 
     private List<String> bizOwnerUserTaskApprover(WorkflowContext context) {
         NewConsumptionProcessForm form = (NewConsumptionProcessForm) context.getProcessForm();
-        InlongGroupRequest groupInfo = groupService.get(form.getConsumptionInfo().getInlongGroupId());
+        InlongGroupInfo groupInfo = groupService.get(form.getConsumptionInfo().getInlongGroupId());
         if (groupInfo == null || groupInfo.getInCharges() == null) {
             return Collections.emptyList();
         }

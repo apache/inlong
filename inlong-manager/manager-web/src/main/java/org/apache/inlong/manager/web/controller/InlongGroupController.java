@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
@@ -64,8 +65,8 @@ public class InlongGroupController {
     @RequestMapping(value = "/get/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Query inlong group information")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
-    public Response<InlongGroupRequest> get(@PathVariable String groupId) {
-        return Response.success(groupService.get(groupId));
+    public Response<InlongGroupResponse> get(@PathVariable String groupId) {
+        return Response.success(groupService.get(groupId).genResponse());
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)

@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.service.thirdparty.mq;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
@@ -36,8 +37,6 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /**
  * Create task listener for Pulsar Topic
@@ -68,7 +67,7 @@ public class CreatePulsarTopicForStreamTaskListener implements QueueOperateListe
         String groupId = form.getInlongGroupId();
         String streamId = form.getInlongStreamId();
 
-        InlongGroupRequest groupInfo = groupService.get(groupId);
+        InlongGroupInfo groupInfo = groupService.get(groupId);
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
         if (groupInfo == null || streamEntity == null) {
             throw new WorkflowListenerException("inlong group or inlong stream not found with groupId=" + groupId
@@ -94,7 +93,7 @@ public class CreatePulsarTopicForStreamTaskListener implements QueueOperateListe
         return ListenerResult.success();
     }
 
-    private void createTopic(InlongGroupRequest bizInfo, String pulsarTopic, String serviceHttpUrl) throws Exception {
+    private void createTopic(InlongGroupInfo bizInfo, String pulsarTopic, String serviceHttpUrl) throws Exception {
         Integer partitionNum = bizInfo.getTopicPartitionNum();
         int partition = 0;
         if (partitionNum != null && partitionNum > 0) {

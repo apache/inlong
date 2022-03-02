@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.service.thirdparty.mq;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
@@ -39,8 +40,6 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /**
  * Create Pulsar tenant, namespace and topic
@@ -73,7 +72,7 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
         String groupId = form.getInlongGroupId();
         log.info("begin to create pulsar resource for groupId={}", groupId);
 
-        InlongGroupRequest groupInfo = groupService.get(groupId);
+        InlongGroupInfo groupInfo = groupService.get(groupId);
         if (groupInfo == null) {
             throw new WorkflowListenerException("inlong group or pulsar cluster not found for groupId=" + groupId);
         }
@@ -97,7 +96,7 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
     /**
      * Create Pulsar tenant, namespace and topic
      */
-    private void createPulsarProcess(InlongGroupRequest groupInfo, String serviceHttpUrl) throws Exception {
+    private void createPulsarProcess(InlongGroupInfo groupInfo, String serviceHttpUrl) throws Exception {
         String groupId = groupInfo.getInlongGroupId();
         log.info("begin to create pulsar resource for groupId={} in cluster={}", groupId, serviceHttpUrl);
 

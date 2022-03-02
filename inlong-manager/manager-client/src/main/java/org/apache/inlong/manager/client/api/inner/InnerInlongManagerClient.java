@@ -31,7 +31,7 @@ import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.InlongGroupInfo.InlongGroupState;
+import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupState;
 import org.apache.inlong.manager.client.api.auth.Authentication;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
@@ -41,6 +41,7 @@ import org.apache.inlong.manager.client.api.util.InlongParser;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
@@ -88,12 +89,12 @@ public class InnerInlongManagerClient {
                 .build();
     }
 
-    public Pair<Boolean, InlongGroupRequest> isGroupExists(InlongGroupRequest groupInfo) {
+    public Pair<Boolean, InlongGroupResponse> isGroupExists(InlongGroupRequest groupInfo) {
         String inlongGroupId = groupInfo.getInlongGroupId();
         if (StringUtils.isEmpty(inlongGroupId)) {
             inlongGroupId = "b_" + groupInfo.getName();
         }
-        InlongGroupRequest currentBizInfo = getGroupInfo(inlongGroupId);
+        InlongGroupResponse currentBizInfo = getGroupInfo(inlongGroupId);
         if (currentBizInfo != null) {
             return Pair.of(true, currentBizInfo);
         } else {
@@ -101,7 +102,7 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public InlongGroupRequest getGroupInfo(String inlongGroupId) {
+    public InlongGroupResponse getGroupInfo(String inlongGroupId) {
         if (StringUtils.isEmpty(inlongGroupId)) {
             throw new IllegalArgumentException("InlongGroupId should not be empty");
         }
@@ -132,7 +133,7 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public PageInfo<InlongGroupListResponse> listGroupInfo(String keyword, int status, int pageNum, int pageSize) {
+    public PageInfo<InlongGroupListResponse> listGroups(String keyword, int status, int pageNum, int pageSize) {
         if (pageNum <= 0) {
             pageNum = 1;
         }
@@ -174,7 +175,7 @@ public class InnerInlongManagerClient {
     /**
      * Create inlong group
      */
-    public String createGroupInfo(InlongGroupRequest groupInfo) {
+    public String createGroup(InlongGroupRequest groupInfo) {
         String path = HTTP_PATH + "/group/save";
         final String biz = GsonUtil.toJson(groupInfo);
         final RequestBody bizBody = RequestBody.create(MediaType.parse("application/json"), biz);
@@ -204,7 +205,7 @@ public class InnerInlongManagerClient {
      *
      * @return groupId && errMsg
      */
-    public Pair<String, String> updateGroupInfo(InlongGroupRequest groupInfo) {
+    public Pair<String, String> updateGroup(InlongGroupRequest groupInfo) {
         String path = HTTP_PATH + "/group/update";
         final String biz = GsonUtil.toJson(groupInfo);
         final RequestBody bizBody = RequestBody.create(MediaType.parse("application/json"), biz);

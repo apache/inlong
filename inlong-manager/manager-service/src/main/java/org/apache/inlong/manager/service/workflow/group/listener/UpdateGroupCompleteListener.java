@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.workflow.group.listener;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -47,8 +47,8 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
     public ListenerResult listen(WorkflowContext context) throws Exception {
         UpdateGroupProcessForm form = (UpdateGroupProcessForm) context.getProcessForm();
         String username = context.getApplicant();
-        InlongGroupRequest groupInfo = form.getGroupInfo();
-        groupService.update(groupInfo, username);
+        InlongGroupInfo groupInfo = form.getGroupInfo();
+        groupService.update(groupInfo.genRequest(), username);
         return ListenerResult.success();
     }
 

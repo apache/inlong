@@ -18,12 +18,11 @@
 package org.apache.inlong.manager.common.pojo.workflow.form;
 
 import com.google.common.collect.Maps;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
-
-import java.util.Map;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 
 /**
  * Form of create inlong group resource
@@ -34,15 +33,15 @@ public class GroupResourceProcessForm extends BaseProcessForm {
 
     public static final String FORM_NAME = "GroupResourceProcessForm";
 
-    private InlongGroupRequest groupInfo;
+    private InlongGroupInfo groupInfo;
 
     private String streamId;
 
-    public InlongGroupRequest getGroupInfo() {
+    public InlongGroupInfo getGroupInfo() {
         return groupInfo;
     }
 
-    public void setGroupInfo(InlongGroupRequest groupInfo) {
+    public void setGroupInfo(InlongGroupInfo groupInfo) {
         this.groupInfo = groupInfo;
     }
 

@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -91,11 +91,11 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
 
     @Test
     public void testCreateSortConfigInCreateWorkflow() {
-        InlongGroupRequest groupRequest = initGroupForm("PULSAR");
-        groupRequest.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
-        groupRequest.setZookeeperEnabled(0);
-        groupService.update(groupRequest, OPERATOR);
-        InlongStreamInfo streamInfo = createStreamInfo(groupRequest);
+        InlongGroupInfo groupInfo = initGroupForm("PULSAR");
+        groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
+        groupInfo.setZookeeperEnabled(0);
+        groupService.update(groupInfo.genRequest(), OPERATOR);
+        InlongStreamInfo streamInfo = createStreamInfo(groupInfo);
         createHiveSink(streamInfo);
         mockTaskListenerFactory();
         WorkflowContext context = workflowEngine.processService().start(processName.name(), applicant, form);
@@ -110,21 +110,21 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
         Assert.assertTrue(listeners.get(0) instanceof CreateSortConfigListener);
         ProcessForm form = context.getProcessForm();
-        InlongGroupRequest curGroupRequest = ((GroupResourceProcessForm) form).getGroupInfo();
+        InlongGroupInfo curGroupRequest = ((GroupResourceProcessForm) form).getGroupInfo();
         Assert.assertTrue(curGroupRequest.getExtList().size() == 1);
 
     }
 
     @Test
     public void testCreateSortConfigInUpdateWorkflow() {
-        InlongGroupRequest groupRequest = initGroupForm("PULSAR");
-        groupRequest.setZookeeperEnabled(0);
-        groupRequest.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
-        groupService.update(groupRequest, OPERATOR);
-        InlongStreamInfo streamInfo = createStreamInfo(groupRequest);
+        InlongGroupInfo groupInfo = initGroupForm("PULSAR");
+        groupInfo.setZookeeperEnabled(0);
+        groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
+        groupService.update(groupInfo.genRequest(), OPERATOR);
+        InlongStreamInfo streamInfo = createStreamInfo(groupInfo);
         createHiveSink(streamInfo);
         UpdateGroupProcessForm form = new UpdateGroupProcessForm();
-        form.setGroupInfo(groupRequest);
+        form.setGroupInfo(groupInfo);
         form.setOperateType(OperateType.SUSPEND);
         taskListenerFactory.acceptPlugin(new MockPlugin());
 
@@ -140,7 +140,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
         Assert.assertTrue(listeners.get(1) instanceof CreateSortConfigListener);
         ProcessForm currentProcessForm = context.getProcessForm();
-        InlongGroupRequest curGroupRequest = ((UpdateGroupProcessForm) currentProcessForm).getGroupInfo();
+        InlongGroupInfo curGroupRequest = ((UpdateGroupProcessForm) currentProcessForm).getGroupInfo();
         Assert.assertTrue(curGroupRequest.getExtList().size() == 1);
     }
 

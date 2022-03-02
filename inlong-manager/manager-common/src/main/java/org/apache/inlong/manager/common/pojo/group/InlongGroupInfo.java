@@ -20,24 +20,27 @@ package org.apache.inlong.manager.common.pojo.group;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
+import java.util.List;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.List;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 /**
- * Inlong group request
+ * Inlong group info
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Inlong group create request")
-public class InlongGroupRequest {
+@ApiModel("Inlong group info")
+public class InlongGroupInfo {
+
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
 
     @ApiModelProperty(value = "Inlong group id", required = true)
     private String inlongGroupId;
@@ -57,10 +60,10 @@ public class InlongGroupRequest {
 
     @ApiModelProperty(value = "Queue model of Pulsar, parallel: multiple partitions, high throughput, out-of-order "
             + "messages; serial: single partition, low throughput, and orderly messages")
-    private String queueModule = "parallel";
+    private String queueModule;
 
     @ApiModelProperty(value = "The number of partitions of Pulsar Topic, 1-20")
-    private Integer topicPartitionNum = 3;
+    private Integer topicPartitionNum;
 
     @ApiModelProperty(value = "MQ resource object, in inlong group",
             notes = "Tube corresponds to Topic, Pulsar corresponds to Namespace")
@@ -76,7 +79,7 @@ public class InlongGroupRequest {
     private String pulsarServiceUrl;
 
     @ApiModelProperty(value = "Need zookeeper support, 0 false 1 true")
-    private Integer zookeeperEnabled = 1;
+    private Integer zookeeperEnabled;
 
     @ApiModelProperty(value = "Data type name")
     private String schemaName;
@@ -101,9 +104,6 @@ public class InlongGroupRequest {
 
     private Integer status;
 
-    @ApiModelProperty(value = "is deleted? 0: deleted, 1: not deleted")
-    private Integer isDeleted = 0;
-
     private String creator;
 
     private String modifier;
@@ -123,4 +123,11 @@ public class InlongGroupRequest {
     @ApiModelProperty(value = "The extension info for MQ")
     private InlongGroupMqExtBase mqExtInfo;
 
+    public InlongGroupRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, InlongGroupRequest::new);
+    }
+
+    public InlongGroupResponse genResponse() {
+        return CommonBeanUtils.copyProperties(this, InlongGroupResponse::new);
+    }
 }

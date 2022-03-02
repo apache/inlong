@@ -17,18 +17,17 @@
 
 package org.apache.inlong.manager.service.thirdparty.mq.util;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.PulsarClientException;
-
-import java.util.List;
 
 /**
  * Pulsar connection utils
@@ -42,7 +41,7 @@ public class PulsarUtils {
     /**
      * Get pulsar admin info
      */
-    public static PulsarAdmin getPulsarAdmin(InlongGroupRequest groupInfo, String defaultServiceUrl)
+    public static PulsarAdmin getPulsarAdmin(InlongGroupInfo groupInfo, String defaultServiceUrl)
             throws PulsarClientException {
         if (CollectionUtils.isEmpty(groupInfo.getExtList())) {
             return getPulsarAdmin(defaultServiceUrl);

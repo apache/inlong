@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
@@ -70,7 +70,7 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
 
         String groupId = form.getInlongGroupId();
-        InlongGroupRequest bizInfo = groupService.get(groupId);
+        InlongGroupInfo bizInfo = groupService.get(groupId);
         if (bizInfo == null) {
             log.error("inlong group not found with groupId={}", groupId);
             throw new WorkflowListenerException("inlong group not found with groupId=" + groupId);

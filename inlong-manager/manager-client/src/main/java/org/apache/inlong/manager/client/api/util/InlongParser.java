@@ -27,7 +27,7 @@ import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
@@ -53,9 +53,9 @@ public class InlongParser {
         return workflowResult;
     }
 
-    public static InlongGroupRequest parseGroupInfo(Response response) {
+    public static InlongGroupResponse parseGroupInfo(Response response) {
         Object data = response.getData();
-        return GsonUtil.fromJson(GsonUtil.toJson(data), InlongGroupRequest.class);
+        return GsonUtil.fromJson(GsonUtil.toJson(data), InlongGroupResponse.class);
     }
 
     public static PageInfo<InlongGroupListResponse> parseGroupList(Response response) {

@@ -21,7 +21,7 @@ import com.google.common.collect.Lists;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.internal.PulsarAdminImpl;
@@ -47,7 +47,7 @@ public class PulsarUtilsTest {
         groupExtInfo2.setKeyName(InlongGroupSettings.PULSAR_AUTHENTICATION);
         groupExtInfo2.setKeyValue("QWEASDZXC");
         ArrayList<InlongGroupExtInfo> groupExtInfoList = Lists.newArrayList(groupExtInfo1, groupExtInfo2);
-        InlongGroupRequest groupInfo = new InlongGroupRequest();
+        InlongGroupInfo groupInfo = new InlongGroupInfo();
         groupInfo.setExtList(groupExtInfoList);
         final String defaultServiceUrl = "http://127.0.0.1:10080";
         try {
