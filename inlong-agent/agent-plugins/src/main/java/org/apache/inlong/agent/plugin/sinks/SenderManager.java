@@ -22,6 +22,7 @@ import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VI
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -201,7 +202,7 @@ public class SenderManager {
             if (result == null || !result.equals(SendResult.OK)) {
                 LOGGER.warn("send groupId {}, streamId {}, jobId {}, dataTime {} fail with times {}, "
                         + "error {}", groupId, streamId, jobId, dataTime, retry, result);
-                sendBatch(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
+                sendBatchAsync(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
                 return;
             }
             metric.incSendSuccessNum(bodyList.size());
@@ -222,7 +223,7 @@ public class SenderManager {
      * @param bodyList - body list
      * @param retry - retry time
      */
-    public void sendBatch(String jobId, String groupId, String streamId,
+    public void sendBatchAsync(String jobId, String groupId, String streamId,
         List<byte[]> bodyList, int retry, long dataTime) {
         if (retry > maxSenderRetry) {
             LOGGER.warn("max retry reached, retry count is {}, sleep and send again", retry);
@@ -242,10 +243,42 @@ public class SenderManager {
             // retry time
             try {
                 TimeUnit.SECONDS.sleep(1);
-                sendBatch(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
+                sendBatchAsync(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
             } catch (Exception ignored) {
                 // ignore it.
             }
         }
     }
+
+    /**
+     * Send message to proxy by batch, use message cache.
+     *
+     * @param groupId - groupId
+     * @param streamId - streamId
+     * @param bodyList - body list
+     * @param retry - retry time
+     */
+    public void sendBatchSync(String groupId, String streamId,
+        List<byte[]> bodyList, int retry, long dataTime, Map<String, String> extraMap) {
+        if (retry > maxSenderRetry) {
+            LOGGER.warn("max retry reached, retry count is {}, sleep and send again", retry);
+            AgentUtils.silenceSleepInMs(retrySleepTime);
+        }
+        try {
+            selectSender(groupId).sendMessage(
+                bodyList, groupId, streamId, dataTime, "",
+                maxSenderTimeout, TimeUnit.SECONDS, extraMap
+            );
+        } catch (Exception exception) {
+            LOGGER.error("Exception caught", exception);
+            // retry time
+            try {
+                TimeUnit.SECONDS.sleep(1);
+                sendBatchSync(groupId, streamId, bodyList, retry + 1, dataTime, extraMap);
+            } catch (Exception ignored) {
+                // ignore it.
+            }
+        }
+    }
+
 }

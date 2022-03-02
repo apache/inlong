@@ -15,26 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent;
+package org.apache.inlong.agent.pojo;
 
 import lombok.Data;
 
 @Data
-public class DataConfig {
+public class DebeziumSourceFormat {
 
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private String deliveryTime;
-    private String uuid;
-    private String ip;
-    private String op;
-    private Integer jobId;
-    private Integer taskType;
+    private String version;
+
     private String snapshot;
-    private String syncSend;
-    private String extParams;
 
-    public boolean isValid() {
-        return true;
-    }
+    private String db;
+
+    private String table;
+
 }

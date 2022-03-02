@@ -54,6 +54,10 @@ public class CommonConstants {
 
     // max size of message list
     public static final String PROXY_PACKAGE_MAX_SIZE = "proxy.package.maxSize";
+
+    // determine if the send method is sync or async
+    public static final String PROXY_SEND_SYNC = "proxy.sync";
+
     // max size of single batch in bytes, default is 200KB.
     public static final int DEFAULT_PROXY_PACKAGE_MAX_SIZE = 200000;
 
@@ -84,6 +88,7 @@ public class CommonConstants {
 
     public static final String PROXY_KEY_GROUP_ID = "inlongGroupId";
     public static final String PROXY_KEY_STREAM_ID = "inlongStreamId";
+    public static final String PROXY_KEY_DATA = "dataKey";
     public static final String PROXY_KEY_ID = "id";
     public static final String PROXY_KEY_AGENT_IP = "agentip";
     public static final String PROXY_OCEANUS_F = "f";
@@ -137,4 +142,7 @@ public class CommonConstants {
     public static final String AGENT_NIX_OS = "nix";
     public static final String AGENT_NUX_OS = "nux";
     public static final String AGENT_COLON = ":";
+
+    public static final Integer DEFAULT_MAP_CAPACITY = 16;
+
 }

@@ -17,20 +17,28 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPACITY;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
+
+import com.google.gson.Gson;
 import io.debezium.connector.mysql.MySqlConnector;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.relational.history.FileDatabaseHistory;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.snapshot.BinlogSnapshotBase;
+import org.apache.inlong.agent.pojo.DebeziumFormat;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.slf4j.Logger;
 
@@ -58,7 +66,12 @@ public class BinlogReader implements Reader {
     private static final String JOB_DATABASE_HISTORY_MONITOR_DDL = "job.binlogJob.ddl";
     private static final String JOB_DATABASE_PORT = "job.binlogJob.port";
 
-    private static LinkedBlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
+    /**
+     * pair.left: table name
+     * pair.right: actual data
+     */
+    private static LinkedBlockingQueue<Pair<String, String>> binlogMessagesQueue =
+        new LinkedBlockingQueue<>();
 
     private boolean finished = false;
     private String userName;
@@ -79,17 +92,26 @@ public class BinlogReader implements Reader {
     private String offset;
     private BinlogSnapshotBase binlogSnapshot;
     private JobProfile jobProfile;
+    private static final Gson gson = new Gson();
 
     public BinlogReader() {
     }
 
     @Override
     public Message read() {
-        if (!messageQueue.isEmpty()) {
-            return new DefaultMessage(messageQueue.poll().getBytes(StandardCharsets.UTF_8));
+        if (!binlogMessagesQueue.isEmpty()) {
+            return getBinlogMessage();
         } else {
             return null;
         }
+    }
+
+    private DefaultMessage getBinlogMessage() {
+        Pair<String, String> message = binlogMessagesQueue.poll();
+        Map<String, String> header = new HashMap<>(DEFAULT_MAP_CAPACITY);
+        header.put(PROXY_KEY_DATA, message.getKey());
+        return new DefaultMessage(message.getValue().getBytes(StandardCharsets.UTF_8),
+            header);
     }
 
     @Override
@@ -124,13 +146,25 @@ public class BinlogReader implements Reader {
             io.debezium.engine.format.Json.class)
             .using(props)
             .notifying((records, committer) -> {
-                for (ChangeEvent<String, String> record : records) {
-                    messageQueue.add(record.value());
-                    committer.markProcessed(record);
+                try {
+                    for (ChangeEvent<String, String> record : records) {
+                        DebeziumFormat debeziumFormat = gson
+                            .fromJson(record.value(), DebeziumFormat.class);
+                        binlogMessagesQueue.add(Pair.of(debeziumFormat.getSource().getTable(),
+                            record.value()));
+                        committer.markProcessed(record);
+                    }
+                    committer.markBatchFinished();
+                } catch (Exception e) {
+                    LOGGER.error("parse binlog message error", e);
                 }
-                committer.markBatchFinished();
+
             })
             .using((success, message, error) -> {
+                if (!success) {
+                    LOGGER.error("binlog job with jobConf {} has "
+                        + "error {}", jobConf.getInstanceId(), message, error);
+                }
             }).build();
 
         executor = Executors.newSingleThreadExecutor();
