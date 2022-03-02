@@ -26,7 +26,7 @@ import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 
 @Data
-public class GroupInfo implements Serializable {
+public class InlongGroupContext implements Serializable {
 
     private String groupId;
 
@@ -41,7 +41,7 @@ public class GroupInfo implements Serializable {
 
     private InlongGroupState state;
 
-    public GroupInfo(InnerGroupContext groupContext, InlongGroupConf streamGroupConf) {
+    public InlongGroupContext(InnerGroupContext groupContext, InlongGroupConf streamGroupConf) {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
         AssertUtil.notNull(groupInfo);
         this.groupId = groupInfo.getInlongGroupId();

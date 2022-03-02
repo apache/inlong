@@ -31,7 +31,7 @@ import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.GroupInfo.InlongGroupState;
+import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupState;
 import org.apache.inlong.manager.client.api.auth.Authentication;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;

@@ -25,8 +25,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
-import org.apache.inlong.manager.client.api.GroupInfo;
-import org.apache.inlong.manager.client.api.GroupInfo.InlongGroupState;
+import org.apache.inlong.manager.client.api.InlongGroupContext;
+import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupState;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
@@ -86,12 +86,12 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
-    public GroupInfo snapshot() throws Exception {
+    public InlongGroupContext snapshot() throws Exception {
         return generateSnapshot(groupContext.getGroupInfo());
     }
 
     @Override
-    public GroupInfo init() throws Exception {
+    public InlongGroupContext init() throws Exception {
         InlongGroupInfo groupInfo = this.groupContext.getGroupInfo();
         WorkflowResult initWorkflowResult = managerClient.initInlongGroup(groupInfo.genRequest());
         List<TaskResponse> taskViews = initWorkflowResult.getNewTasks();
@@ -115,7 +115,7 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
-    public GroupInfo initOnUpdate(InlongGroupConf conf) throws Exception {
+    public InlongGroupContext initOnUpdate(InlongGroupConf conf) throws Exception {
         if (conf != null) {
             AssertUtil.isTrue(conf.getGroupName() != null
                             && conf.getGroupName().equals(this.groupConf.getGroupName()),
@@ -140,7 +140,7 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
-    public GroupInfo suspend() throws Exception {
+    public InlongGroupContext suspend() throws Exception {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
         Pair<String, String> idAndErr = managerClient.updateGroup(groupInfo.genRequest());
         final String errMsg = idAndErr.getValue();
@@ -151,7 +151,7 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
-    public GroupInfo restart() throws Exception {
+    public InlongGroupContext restart() throws Exception {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
         Pair<String, String> idAndErr = managerClient.updateGroup(groupInfo.genRequest());
         final String errMsg = idAndErr.getValue();
@@ -162,7 +162,7 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
-    public GroupInfo delete() throws Exception {
+    public InlongGroupContext delete() throws Exception {
         InlongGroupResponse groupResponse = managerClient.getGroupInfo(
                 groupContext.getGroupId());
         boolean isDeleted = managerClient.deleteInlongGroup(groupResponse.getInlongGroupId());
@@ -179,7 +179,7 @@ public class InlongGroupImpl implements InlongGroup {
         return fetchDataStreams(inlongGroupId);
     }
 
-    private GroupInfo generateSnapshot(InlongGroupInfo currentGroupInfo) {
+    private InlongGroupContext generateSnapshot(InlongGroupInfo currentGroupInfo) {
         if (currentGroupInfo == null) {
             InlongGroupResponse groupResponse = managerClient.getGroupInfo(
                     groupContext.getGroupId());
@@ -189,12 +189,12 @@ public class InlongGroupImpl implements InlongGroup {
         String inlongGroupId = currentGroupInfo.getInlongGroupId();
         List<InlongStream> dataStreams = fetchDataStreams(inlongGroupId);
         dataStreams.stream().forEach(dataStream -> groupContext.setStream(dataStream));
-        GroupInfo groupInfo = new GroupInfo(groupContext, groupConf);
+        InlongGroupContext inlongGroupContext = new InlongGroupContext(groupContext, groupConf);
         List<EventLogView> logViews = managerClient.getInlongGroupError(inlongGroupId);
         Map<String, String> errMsgs = logViews.stream().collect(
                 Collectors.toMap(EventLogView::getEvent, EventLogView::getException));
-        groupInfo.setErrMsg(errMsgs);
-        return groupInfo;
+        inlongGroupContext.setErrMsg(errMsgs);
+        return inlongGroupContext;
     }
 
     private List<InlongStream> fetchDataStreams(String groupId) {

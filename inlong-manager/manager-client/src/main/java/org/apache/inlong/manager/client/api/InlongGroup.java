@@ -33,7 +33,7 @@ public interface InlongGroup {
      * @return
      * @throws Exception
      */
-    GroupInfo snapshot() throws Exception;
+    InlongGroupContext snapshot() throws Exception;
 
     /**
      * Init inlong group.
@@ -42,7 +42,7 @@ public interface InlongGroup {
      *
      * @return inlong group info
      */
-    GroupInfo init() throws Exception;
+    InlongGroupContext init() throws Exception;
 
     /**
      * Init inlong group on updated conf.
@@ -50,28 +50,28 @@ public interface InlongGroup {
      *
      * @return inlong group info
      */
-    GroupInfo initOnUpdate(InlongGroupConf conf) throws Exception;
+    InlongGroupContext initOnUpdate(InlongGroupConf conf) throws Exception;
 
     /**
      * Suspend the stream group and return group info.
      *
      * @return group info
      */
-    GroupInfo suspend() throws Exception;
+    InlongGroupContext suspend() throws Exception;
 
     /**
      * Restart the stream group and return group info.
      *
      * @return group info
      */
-    GroupInfo restart() throws Exception;
+    InlongGroupContext restart() throws Exception;
 
     /**
      * delete the stream group and return group info
      *
      * @return group info
      */
-    GroupInfo delete() throws Exception;
+    InlongGroupContext delete() throws Exception;
 
     /**
      * List all inlong streams in certain group
