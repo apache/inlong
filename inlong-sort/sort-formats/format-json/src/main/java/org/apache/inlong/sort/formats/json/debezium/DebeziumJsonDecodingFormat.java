@@ -60,13 +60,19 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
 
     private final boolean schemaInclude;
 
+    private final boolean updateBeforeInclude;
+
     private final boolean ignoreParseErrors;
 
     private final TimestampFormat timestampFormat;
 
     public DebeziumJsonDecodingFormat(
-            boolean schemaInclude, boolean ignoreParseErrors, TimestampFormat timestampFormat) {
+            boolean schemaInclude,
+            boolean updateBeforeInclude,
+            boolean ignoreParseErrors,
+            TimestampFormat timestampFormat) {
         this.schemaInclude = schemaInclude;
+        this.updateBeforeInclude = updateBeforeInclude;
         this.ignoreParseErrors = ignoreParseErrors;
         this.timestampFormat = timestampFormat;
         this.metadataKeys = Collections.emptyList();
@@ -102,6 +108,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 readableMetadata,
                 producedTypeInfo,
                 schemaInclude,
+                updateBeforeInclude,
                 ignoreParseErrors,
                 timestampFormat);
     }
@@ -133,7 +140,9 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
     // Metadata handling
     // --------------------------------------------------------------------------------------------
 
-    /** List of metadata that can be read with this format. */
+    /**
+     * List of metadata that can be read with this format.
+     */
     public enum ReadableMetadata {
         SCHEMA(
                 "schema",
