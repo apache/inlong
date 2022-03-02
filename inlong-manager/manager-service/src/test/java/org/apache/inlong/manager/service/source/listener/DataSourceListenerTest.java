@@ -21,7 +21,7 @@ import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -45,7 +45,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
 
     public UpdateGroupProcessForm form;
 
-    public InlongGroupRequest groupRequest;
+    public InlongGroupInfo groupInfo;
 
     @Autowired
     private StreamSourceService streamSourceService;
@@ -59,12 +59,12 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
 
     @Test
     public void testFrozenSource() {
-        groupRequest = initGroupForm("PULSAR");
-        groupRequest.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
-        groupService.update(groupRequest, OPERATOR);
-        final InlongStreamInfo streamInfo = createStreamInfo(groupRequest);
+        groupInfo = initGroupForm("PULSAR");
+        groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
+        groupService.update(groupInfo.genRequest(), OPERATOR);
+        final InlongStreamInfo streamInfo = createStreamInfo(groupInfo);
         form = new UpdateGroupProcessForm();
-        form.setGroupInfo(groupRequest);
+        form.setGroupInfo(groupInfo);
         form.setOperateType(OperateType.SUSPEND);
         BinlogSourceRequest sourceRequest = createBinlogSourceRequest(streamInfo);
         int sourceId = streamSourceService.save(sourceRequest, OPERATOR);
@@ -83,12 +83,12 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
     @Test
     public void testRestartSource() {
         testFrozenSource();
-        groupRequest.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
-        groupService.update(groupRequest, OPERATOR);
-        groupRequest.setStatus(GroupState.GROUP_SUSPEND.getCode());
-        groupService.update(groupRequest, OPERATOR);
+        groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
+        groupService.update(groupInfo.genRequest(), OPERATOR);
+        groupInfo.setStatus(GroupState.GROUP_SUSPEND.getCode());
+        groupService.update(groupInfo.genRequest(), OPERATOR);
         form = new UpdateGroupProcessForm();
-        form.setGroupInfo(groupRequest);
+        form.setGroupInfo(groupInfo);
         form.setOperateType(OperateType.RESTART);
         WorkflowContext context = workflowEngine.processService()
                 .start(ProcessName.RESTART_GROUP_PROCESS.name(), applicant, form);

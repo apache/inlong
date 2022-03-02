@@ -28,14 +28,14 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 
 @Data
 @NoArgsConstructor
 public class InnerGroupContext {
 
-    private InlongGroupRequest groupRequest;
+    private InlongGroupInfo groupInfo;
 
     private Map<String, InnerStreamContext> streamContextMap;
 
@@ -44,8 +44,8 @@ public class InnerGroupContext {
     private Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> initMsg;
 
     public String getGroupId() {
-        AssertUtil.notNull(groupRequest, "InlongGroupRequest is not init");
-        return groupRequest.getInlongGroupId();
+        AssertUtil.notNull(groupInfo, "InlongGroupRequest is not init");
+        return groupInfo.getInlongGroupId();
     }
 
     public void setStreamContext(InnerStreamContext streamContext) {

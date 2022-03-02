@@ -39,45 +39,46 @@ import org.apache.inlong.manager.client.api.auth.Authentication.AuthType;
 import org.apache.inlong.manager.client.api.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.client.api.auth.TokenAuthentication;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupMqExtBase;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 public class InlongGroupTransfer {
 
-    public static InlongGroupConf parseGroupRequest(InlongGroupRequest groupRequest) {
+    public static InlongGroupConf parseGroupResponse(InlongGroupResponse groupResponse) {
         InlongGroupConf inlongGroupConf = new InlongGroupConf();
-        inlongGroupConf.setGroupName(groupRequest.getName());
-        inlongGroupConf.setDescription(groupRequest.getDescription());
-        inlongGroupConf.setCnName(groupRequest.getCnName());
-        inlongGroupConf.setZookeeperEnabled(groupRequest.getZookeeperEnabled() == 1);
-        inlongGroupConf.setDailyRecords(Long.valueOf(groupRequest.getDailyRecords()));
-        inlongGroupConf.setPeakRecords(Long.valueOf(groupRequest.getPeakRecords()));
-        inlongGroupConf.setMqBaseConf(parseMqBaseConf(groupRequest));
-        inlongGroupConf.setSortBaseConf(parseSortBaseConf(groupRequest));
+        inlongGroupConf.setGroupName(groupResponse.getName());
+        inlongGroupConf.setDescription(groupResponse.getDescription());
+        inlongGroupConf.setCnName(groupResponse.getCnName());
+        inlongGroupConf.setZookeeperEnabled(groupResponse.getZookeeperEnabled() == 1);
+        inlongGroupConf.setDailyRecords(Long.valueOf(groupResponse.getDailyRecords()));
+        inlongGroupConf.setPeakRecords(Long.valueOf(groupResponse.getPeakRecords()));
+        inlongGroupConf.setMqBaseConf(parseMqBaseConf(groupResponse));
+        inlongGroupConf.setSortBaseConf(parseSortBaseConf(groupResponse));
         return inlongGroupConf;
     }
 
-    public static MqBaseConf parseMqBaseConf(InlongGroupRequest inlongGroupRequest) {
-        InlongGroupMqExtBase mqExtBase = inlongGroupRequest.getMqExtInfo();
+    public static MqBaseConf parseMqBaseConf(InlongGroupResponse inlongGroupResponse) {
+        InlongGroupMqExtBase mqExtBase = inlongGroupResponse.getMqExtInfo();
         String middleWare = mqExtBase.getMiddlewareType();
         MqType mqType = MqType.forType(middleWare);
         switch (mqType) {
             case NONE:
                 return MqBaseConf.BLANK_MQ_CONF;
             case PULSAR:
-                return parsePulsarConf(inlongGroupRequest);
+                return parsePulsarConf(inlongGroupResponse);
             case TUBE:
-                return parseTubeConf(inlongGroupRequest);
+                return parseTubeConf(inlongGroupResponse);
             default:
                 throw new RuntimeException(String.format("Illegal mqType=%s for Inlong", mqType));
         }
     }
 
-    public static SortBaseConf parseSortBaseConf(InlongGroupRequest groupRequest) {
-        List<InlongGroupExtInfo> groupExtInfos = groupRequest.getExtList();
+    public static SortBaseConf parseSortBaseConf(InlongGroupResponse groupResponse) {
+        List<InlongGroupExtInfo> groupExtInfos = groupResponse.getExtList();
         if (CollectionUtils.isEmpty(groupExtInfos)) {
             return null;
         }
@@ -134,10 +135,10 @@ public class InlongGroupTransfer {
         return sortConf;
     }
 
-    private static PulsarBaseConf parsePulsarConf(InlongGroupRequest groupRequest) {
+    private static PulsarBaseConf parsePulsarConf(InlongGroupResponse groupResponse) {
         PulsarBaseConf pulsarBaseConf = new PulsarBaseConf();
-        pulsarBaseConf.setNamespace(groupRequest.getMqResourceObj());
-        InlongGroupPulsarInfo inlongGroupPulsarInfo = (InlongGroupPulsarInfo) groupRequest.getMqExtInfo();
+        pulsarBaseConf.setNamespace(groupResponse.getMqResourceObj());
+        InlongGroupPulsarInfo inlongGroupPulsarInfo = (InlongGroupPulsarInfo) groupResponse.getMqExtInfo();
         pulsarBaseConf.setAckQuorum(inlongGroupPulsarInfo.getAckQuorum());
         pulsarBaseConf.setWriteQuorum(inlongGroupPulsarInfo.getWriteQuorum());
         pulsarBaseConf.setEnsemble(inlongGroupPulsarInfo.getEnsemble());
@@ -146,7 +147,7 @@ public class InlongGroupTransfer {
         pulsarBaseConf.setRetentionSize(inlongGroupPulsarInfo.getRetentionSize());
         pulsarBaseConf.setRetentionSizeUnit(inlongGroupPulsarInfo.getRetentionSizeUnit());
         pulsarBaseConf.setRetentionTimeUnit(inlongGroupPulsarInfo.getRetentionTimeUnit());
-        List<InlongGroupExtInfo> groupExtInfos = groupRequest.getExtList();
+        List<InlongGroupExtInfo> groupExtInfos = groupResponse.getExtList();
         for (InlongGroupExtInfo extInfo : groupExtInfos) {
             if (extInfo.getKeyName().equals(InlongGroupSettings.PULSAR_ADMIN_URL)) {
                 pulsarBaseConf.setPulsarAdminUrl(extInfo.getKeyValue());
@@ -158,10 +159,10 @@ public class InlongGroupTransfer {
         return pulsarBaseConf;
     }
 
-    private static TubeBaseConf parseTubeConf(InlongGroupRequest groupRequest) {
+    private static TubeBaseConf parseTubeConf(InlongGroupResponse groupResponse) {
         TubeBaseConf tubeBaseConf = new TubeBaseConf();
-        tubeBaseConf.setGroupName(groupRequest.getMqResourceObj());
-        List<InlongGroupExtInfo> groupExtInfos = groupRequest.getExtList();
+        tubeBaseConf.setGroupName(groupResponse.getMqResourceObj());
+        List<InlongGroupExtInfo> groupExtInfos = groupResponse.getExtList();
         for (InlongGroupExtInfo extInfo : groupExtInfos) {
             if (extInfo.getKeyName().equals(InlongGroupSettings.TUBE_CLUSTER_ID)) {
                 tubeBaseConf.setTubeClusterId(Integer.parseInt(extInfo.getKeyValue()));
@@ -176,8 +177,8 @@ public class InlongGroupTransfer {
         return tubeBaseConf;
     }
 
-    public static InlongGroupRequest createGroupInfo(InlongGroupConf groupConf) {
-        InlongGroupRequest groupInfo = new InlongGroupRequest();
+    public static InlongGroupInfo createGroupInfo(InlongGroupConf groupConf) {
+        InlongGroupInfo groupInfo = new InlongGroupInfo();
         AssertUtil.hasLength(groupConf.getGroupName(), "GroupName should not be empty");
         groupInfo.setName(groupConf.getGroupName());
         groupInfo.setCnName(groupConf.getCnName());

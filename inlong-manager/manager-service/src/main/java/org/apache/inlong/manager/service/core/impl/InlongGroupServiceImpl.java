@@ -34,6 +34,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -153,7 +154,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    public InlongGroupRequest get(String groupId) {
+    public InlongGroupInfo get(String groupId) {
         LOGGER.debug("begin to get inlong group info by groupId={}", groupId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
@@ -162,7 +163,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
 
-        InlongGroupRequest groupInfo = CommonBeanUtils.copyProperties(entity, InlongGroupRequest::new);
+        InlongGroupInfo groupInfo = CommonBeanUtils.copyProperties(entity, InlongGroupInfo::new);
         List<InlongGroupExtEntity> extEntityList = groupExtMapper.selectByGroupId(groupId);
         List<InlongGroupExtInfo> extInfoList = CommonBeanUtils
                 .copyListProperties(extEntityList, InlongGroupExtInfo::new);
@@ -405,7 +406,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     public InlongGroupTopicResponse getTopic(String groupId) {
         LOGGER.debug("begin to get topic by groupId={}", groupId);
-        InlongGroupRequest groupInfo = this.get(groupId);
+        InlongGroupInfo groupInfo = this.get(groupId);
 
         String middlewareType = groupInfo.getMiddlewareType();
         InlongGroupTopicResponse topicVO = new InlongGroupTopicResponse();

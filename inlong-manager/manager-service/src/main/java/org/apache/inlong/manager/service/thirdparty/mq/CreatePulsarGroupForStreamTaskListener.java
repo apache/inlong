@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.service.thirdparty.mq;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
@@ -39,8 +40,6 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /**
  * Create a subscription group for a single inlong stream
@@ -75,7 +74,7 @@ public class CreatePulsarGroupForStreamTaskListener implements QueueOperateListe
         String groupId = form.getInlongGroupId();
         String streamId = form.getInlongStreamId();
 
-        InlongGroupRequest bizInfo = groupService.get(groupId);
+        InlongGroupInfo bizInfo = groupService.get(groupId);
         if (bizInfo == null) {
             log.error("inlong group not found with groupId={}", groupId);
             throw new WorkflowListenerException("inlong group not found with groupId=" + groupId);

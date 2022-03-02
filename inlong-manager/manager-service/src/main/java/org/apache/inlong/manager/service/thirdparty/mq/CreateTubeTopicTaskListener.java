@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.thirdparty.mq;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeMqTopicRequest;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
@@ -57,7 +57,7 @@ public class CreateTubeTopicTaskListener implements QueueOperateListener {
         String groupId = form.getInlongGroupId();
 
         try {
-            InlongGroupRequest groupInfo = groupService.get(groupId);
+            InlongGroupInfo groupInfo = groupService.get(groupId);
             String topicName = groupInfo.getMqResourceObj();
             AddTubeMqTopicRequest request = new AddTubeMqTopicRequest();
             request.setUser("inlong-manager");

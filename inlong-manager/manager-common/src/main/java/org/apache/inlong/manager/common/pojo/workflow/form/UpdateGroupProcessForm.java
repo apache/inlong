@@ -24,7 +24,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.Locale;
@@ -36,7 +36,7 @@ public class UpdateGroupProcessForm extends BaseProcessForm {
 
     public static final String FORM_NAME = "UpdateGroupProcessForm";
     @ApiModelProperty(value = "Inlong group info", required = true)
-    private InlongGroupRequest groupInfo;
+    private InlongGroupInfo groupInfo;
     @Getter
     @Setter
     @ApiModelProperty(value = "OperateType to define the update operation", required = true)

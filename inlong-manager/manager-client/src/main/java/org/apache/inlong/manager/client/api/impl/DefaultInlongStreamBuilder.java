@@ -65,7 +65,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         if (MapUtils.isEmpty(groupContext.getStreamContextMap())) {
             groupContext.setStreamContextMap(Maps.newHashMap());
         }
-        InlongStreamInfo streamInfo = InlongStreamTransfer.createStreamInfo(streamConf, groupContext.getGroupRequest());
+        InlongStreamInfo streamInfo = InlongStreamTransfer.createStreamInfo(streamConf, groupContext.getGroupInfo());
         InnerStreamContext streamContext = new InnerStreamContext(streamInfo);
         groupContext.setStreamContext(streamContext);
         this.streamContext = streamContext;

@@ -37,7 +37,7 @@ import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 
 @Slf4j
 public class InlongClientImpl implements InlongClient {
@@ -82,15 +82,15 @@ public class InlongClientImpl implements InlongClient {
     public List<InlongGroup> listGroup(String expr, int status,
             int pageNum, int pageSize) throws Exception {
         InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
-        PageInfo<InlongGroupListResponse> responsePageInfo = managerClient.listGroupInfo(expr, status, pageNum,
+        PageInfo<InlongGroupListResponse> responsePageInfo = managerClient.listGroups(expr, status, pageNum,
                 pageSize);
         if (CollectionUtils.isEmpty(responsePageInfo.getList())) {
             return Lists.newArrayList();
         } else {
             return responsePageInfo.getList().stream().map(response -> {
                 String groupId = response.getInlongGroupId();
-                InlongGroupRequest request = managerClient.getGroupInfo(groupId);
-                InlongGroupConf groupConf = InlongGroupTransfer.parseGroupRequest(request);
+                InlongGroupResponse groupResponse = managerClient.getGroupInfo(groupId);
+                InlongGroupConf groupConf = InlongGroupTransfer.parseGroupResponse(groupResponse);
                 return new InlongGroupImpl(groupConf, this);
             }).collect(Collectors.toList());
         }
@@ -100,11 +100,11 @@ public class InlongClientImpl implements InlongClient {
     public InlongGroup getGroup(String groupName) throws Exception {
         InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
         final String groupId = "b_" + groupName;
-        InlongGroupRequest groupRequest = managerClient.getGroupInfo(groupId);
-        if (groupRequest == null) {
+        InlongGroupResponse groupResponse = managerClient.getGroupInfo(groupId);
+        if (groupResponse == null) {
             return new BlankInlongGroup();
         }
-        InlongGroupConf groupConf = InlongGroupTransfer.parseGroupRequest(groupRequest);
+        InlongGroupConf groupConf = InlongGroupTransfer.parseGroupResponse(groupResponse);
         return new InlongGroupImpl(groupConf, this);
     }
 

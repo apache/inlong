@@ -27,7 +27,7 @@ import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.sink.HiveSink;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
@@ -37,16 +37,16 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 public class InlongStreamTransfer {
 
-    public static InlongStreamInfo createStreamInfo(InlongStreamConf streamConf, InlongGroupRequest groupRequest) {
+    public static InlongStreamInfo createStreamInfo(InlongStreamConf streamConf, InlongGroupInfo groupInfo) {
         InlongStreamInfo dataStreamInfo = new InlongStreamInfo();
-        dataStreamInfo.setInlongGroupId(groupRequest.getInlongGroupId());
+        dataStreamInfo.setInlongGroupId(groupInfo.getInlongGroupId());
         dataStreamInfo.setInlongStreamId("b_" + streamConf.getName());
         dataStreamInfo.setName(streamConf.getName());
         dataStreamInfo.setDataEncoding(streamConf.getCharset().name());
-        dataStreamInfo.setMqResourceObj(groupRequest.getMqResourceObj() + "_" + streamConf.getName());
+        dataStreamInfo.setMqResourceObj(groupInfo.getMqResourceObj() + "_" + streamConf.getName());
         dataStreamInfo.setDataSeparator(String.valueOf(streamConf.getDataSeparator().getAsciiCode()));
         dataStreamInfo.setDescription(streamConf.getDescription());
-        dataStreamInfo.setCreator(groupRequest.getCreator());
+        dataStreamInfo.setCreator(groupInfo.getCreator());
         dataStreamInfo.setDailyRecords(streamConf.getDailyRecords());
         dataStreamInfo.setDailyStorage(streamConf.getDailyStorage());
         dataStreamInfo.setPeakRecords(streamConf.getPeakRecords());

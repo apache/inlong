@@ -23,10 +23,10 @@ import java.util.Map;
 import lombok.Data;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 
 @Data
-public class InlongGroupInfo implements Serializable {
+public class GroupInfo implements Serializable {
 
     private String groupId;
 
@@ -41,8 +41,8 @@ public class InlongGroupInfo implements Serializable {
 
     private InlongGroupState state;
 
-    public InlongGroupInfo(InnerGroupContext groupContext, InlongGroupConf streamGroupConf) {
-        InlongGroupRequest groupInfo = groupContext.getGroupRequest();
+    public GroupInfo(InnerGroupContext groupContext, InlongGroupConf streamGroupConf) {
+        InlongGroupInfo groupInfo = groupContext.getGroupInfo();
         AssertUtil.notNull(groupInfo);
         this.groupId = groupInfo.getInlongGroupId();
         this.groupName = groupInfo.getName();

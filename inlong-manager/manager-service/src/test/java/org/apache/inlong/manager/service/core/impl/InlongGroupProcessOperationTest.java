@@ -21,6 +21,7 @@ import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
@@ -78,20 +79,20 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
         WorkflowResult result = groupProcessOperation.startProcess(GROUP_ID, OPERATOR);
         ProcessResponse response = result.getProcessInfo();
         Assert.assertSame(response.getStatus(), ProcessStatus.PROCESSING);
-        InlongGroupRequest groupInfo = groupService.get(GROUP_ID);
+        InlongGroupInfo groupInfo = groupService.get(GROUP_ID);
         Assert.assertEquals(groupInfo.getStatus(), GroupState.GROUP_WAIT_APPROVAL.getCode());
     }
 
     @Test
     public void testSuspendProcess() {
         testStartProcess();
-        InlongGroupRequest groupInfo = groupService.get(GROUP_ID);
+        InlongGroupInfo groupInfo = groupService.get(GROUP_ID);
         groupInfo.setStatus(GroupState.GROUP_APPROVE_PASSED.getCode());
-        groupService.update(groupInfo, OPERATOR);
+        groupService.update(groupInfo.genRequest(), OPERATOR);
         groupInfo.setStatus(GroupState.GROUP_CONFIG_ING.getCode());
-        groupService.update(groupInfo, OPERATOR);
+        groupService.update(groupInfo.genRequest(), OPERATOR);
         groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
-        groupService.update(groupInfo, OPERATOR);
+        groupService.update(groupInfo.genRequest(), OPERATOR);
         groupInfo = groupService.get(GROUP_ID);
         WorkflowResult result = groupProcessOperation.suspendProcess(GROUP_ID, OPERATOR);
         ProcessResponse response = result.getProcessInfo();
@@ -106,7 +107,7 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
         WorkflowResult result = groupProcessOperation.restartProcess(GROUP_ID, OPERATOR);
         ProcessResponse response = result.getProcessInfo();
         Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
-        InlongGroupRequest groupInfo = groupService.get(GROUP_ID);
+        InlongGroupInfo groupInfo = groupService.get(GROUP_ID);
         Assert.assertEquals(groupInfo.getStatus(), EntityStatus.GROUP_RESTART.getCode());
     }
 

@@ -19,10 +19,10 @@ package org.apache.inlong.manager.service.thirdparty.mq;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
 @Slf4j
@@ -35,7 +35,7 @@ public class TubeEventSelector implements EventSelector {
             return false;
         }
         GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
-        InlongGroupRequest groupInfo = form.getGroupInfo();
+        InlongGroupInfo groupInfo = form.getGroupInfo();
         if (Constant.MIDDLEWARE_TUBE.equalsIgnoreCase(groupInfo.getMiddlewareType())) {
             return true;
         }

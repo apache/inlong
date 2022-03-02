@@ -64,8 +64,8 @@ public class InlongGroupController {
     @RequestMapping(value = "/get/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Query inlong group information")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
-    public Response<InlongGroupRequest> get(@PathVariable String groupId) {
-        return Response.success(groupService.get(groupId));
+    public Response<InlongGroupResponse> get(@PathVariable String groupId) {
+        return Response.success(groupService.get(groupId).genResponse());
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)

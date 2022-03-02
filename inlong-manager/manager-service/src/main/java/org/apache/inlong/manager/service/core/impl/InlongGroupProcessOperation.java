@@ -22,7 +22,7 @@ import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
@@ -62,11 +62,11 @@ public class InlongGroupProcessOperation {
     public WorkflowResult startProcess(String groupId, String operator) {
         LOGGER.info("begin to start approve process, groupId = {}, operator = {}", groupId, operator);
         final GroupState nextState = GroupState.GROUP_WAIT_APPROVAL;
-        InlongGroupRequest groupInfo = validateGroup(groupId, nextState);
+        InlongGroupInfo groupInfo = validateGroup(groupId, nextState);
 
         // Modify inlong group status
         groupInfo.setStatus(nextState.getCode());
-        groupService.update(groupInfo, operator);
+        groupService.update(groupInfo.genRequest(), operator);
 
         // Initiate the approval process
         NewGroupProcessForm form = genNewGroupProcessForm(groupInfo);
@@ -82,10 +82,10 @@ public class InlongGroupProcessOperation {
     public WorkflowResult suspendProcess(String groupId, String operator) {
         LOGGER.info("begin to suspend process, groupId = {}, operator = {}", groupId, operator);
         final GroupState nextState = GroupState.GROUP_SUSPEND;
-        InlongGroupRequest groupInfo = validateGroup(groupId, nextState);
+        InlongGroupInfo groupInfo = validateGroup(groupId, nextState);
 
         groupInfo.setStatus(nextState.getCode());
-        groupService.update(groupInfo, operator);
+        groupService.update(groupInfo.genRequest(), operator);
         UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, OperateType.SUSPEND);
         return workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form);
     }
@@ -98,9 +98,9 @@ public class InlongGroupProcessOperation {
     public WorkflowResult restartProcess(String groupId, String operator) {
         LOGGER.info("begin to restart process, groupId = {}, operator = {}", groupId, operator);
         GroupState nextState = GroupState.GROUP_RESTART;
-        InlongGroupRequest groupInfo = validateGroup(groupId, nextState);
+        InlongGroupInfo groupInfo = validateGroup(groupId, nextState);
         groupInfo.setStatus(nextState.getCode());
-        groupService.update(groupInfo, operator);
+        groupService.update(groupInfo.genRequest(), operator);
         UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, OperateType.RESTART);
         return workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form);
     }
@@ -110,7 +110,7 @@ public class InlongGroupProcessOperation {
      */
     public boolean deleteProcess(String groupId, String operator) {
         LOGGER.info("begin to delete process, groupId = {}, operator = {}", groupId, operator);
-        InlongGroupRequest groupInfo = groupService.get(groupId);
+        InlongGroupInfo groupInfo = groupService.get(groupId);
         UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, OperateType.DELETE);
         try {
             workflowService.start(ProcessName.DELETE_GROUP_PROCESS, operator, form);
@@ -124,7 +124,7 @@ public class InlongGroupProcessOperation {
     /**
      * Generate the form of [New Group Workflow]
      */
-    public NewGroupProcessForm genNewGroupProcessForm(InlongGroupRequest groupInfo) {
+    public NewGroupProcessForm genNewGroupProcessForm(InlongGroupInfo groupInfo) {
         NewGroupProcessForm form = new NewGroupProcessForm();
         form.setGroupInfo(groupInfo);
         // Query all inlong streams under the groupId and the sink information of each inlong stream
@@ -133,7 +133,7 @@ public class InlongGroupProcessOperation {
         return form;
     }
 
-    private UpdateGroupProcessForm genUpdateGroupProcessForm(InlongGroupRequest groupInfo,
+    private UpdateGroupProcessForm genUpdateGroupProcessForm(InlongGroupInfo groupInfo,
             OperateType operateType) {
         UpdateGroupProcessForm updateForm = new UpdateGroupProcessForm();
         updateForm.setGroupInfo(groupInfo);
@@ -141,11 +141,11 @@ public class InlongGroupProcessOperation {
         return updateForm;
     }
 
-    private InlongGroupRequest validateGroup(String groupId, GroupState nextState) {
+    private InlongGroupInfo validateGroup(String groupId, GroupState nextState) {
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
 
         // Check whether the current status of the inlong group allows the process to be re-initiated
-        InlongGroupRequest groupInfo = groupService.get(groupId);
+        InlongGroupInfo groupInfo = groupService.get(groupId);
         if (groupInfo == null) {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);

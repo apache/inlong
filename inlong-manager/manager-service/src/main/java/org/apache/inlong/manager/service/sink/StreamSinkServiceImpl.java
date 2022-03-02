@@ -22,13 +22,22 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
@@ -55,16 +64,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation of sink service interface
@@ -414,7 +413,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             String groupId = inlongGroupEntity.getInlongGroupId();
             LOGGER.info("begin start inlong stream workflow, groupId={}, streamId={}", groupId, streamId);
 
-            InlongGroupRequest groupInfo = CommonBeanUtils.copyProperties(inlongGroupEntity, InlongGroupRequest::new);
+            InlongGroupInfo groupInfo = CommonBeanUtils.copyProperties(inlongGroupEntity, InlongGroupInfo::new);
             GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, streamId);
 
             workflowService.start(ProcessName.CREATE_STREAM_RESOURCE, operator, form);
@@ -424,7 +423,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         /**
          * Generate [Group Resource] form
          */
-        private GroupResourceProcessForm genGroupResourceProcessForm(InlongGroupRequest groupInfo, String streamId) {
+        private GroupResourceProcessForm genGroupResourceProcessForm(InlongGroupInfo groupInfo, String streamId) {
             GroupResourceProcessForm form = new GroupResourceProcessForm();
             form.setGroupInfo(groupInfo);
             form.setInlongStreamId(streamId);

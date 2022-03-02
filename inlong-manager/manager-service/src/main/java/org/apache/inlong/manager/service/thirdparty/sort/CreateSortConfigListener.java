@@ -30,7 +30,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMap
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
@@ -88,8 +88,8 @@ public class CreateSortConfigListener implements SortOperateListener {
     public ListenerResult listen(WorkflowContext context) throws Exception {
         log.info("Create sort config for context={}", context);
         ProcessForm form = context.getProcessForm();
-        InlongGroupRequest groupRequest = getGroupRequest(form);
-        String groupId = groupRequest.getInlongGroupId();
+        InlongGroupInfo groupInfo = getGroupInfo(form);
+        String groupId = groupInfo.getInlongGroupId();
         if (StringUtils.isEmpty(groupId)) {
             log.warn("GroupId is null for context={}", context);
             return ListenerResult.success();
@@ -101,14 +101,14 @@ public class CreateSortConfigListener implements SortOperateListener {
         }
 
         Map<String, DataFlowInfo> dataFlowInfoMap = streamBriefResponses.stream().map(streamBriefResponse -> {
-                    DataFlowInfo flowInfo = createDataFlow(streamBriefResponse, groupRequest);
-                    if (flowInfo != null) {
-                        return Pair.of(streamBriefResponse.getInlongStreamId(), flowInfo);
-                    } else {
-                        return null;
-                    }
-                }
-        ).filter(pair -> pair != null)
+                            DataFlowInfo flowInfo = createDataFlow(streamBriefResponse, groupInfo);
+                            if (flowInfo != null) {
+                                return Pair.of(streamBriefResponse.getInlongStreamId(), flowInfo);
+                            } else {
+                                return null;
+                            }
+                        }
+                ).filter(pair -> pair != null)
                 .collect(Collectors.toMap(pair -> pair.getKey(),
                         pair -> pair.getValue()));
         final ObjectMapper objectMapper = new ObjectMapper();
@@ -117,26 +117,26 @@ public class CreateSortConfigListener implements SortOperateListener {
         extInfo.setInlongGroupId(groupId);
         extInfo.setKeyName(InlongGroupSettings.DATA_FLOW);
         extInfo.setKeyValue(dataFlows);
-        if (groupRequest.getExtList() == null) {
-            groupRequest.setExtList(Lists.newArrayList());
+        if (groupInfo.getExtList() == null) {
+            groupInfo.setExtList(Lists.newArrayList());
         }
-        upsertDataFlow(groupRequest, extInfo);
+        upsertDataFlow(groupInfo, extInfo);
         return ListenerResult.success();
     }
 
-    private void upsertDataFlow(InlongGroupRequest groupRequest, InlongGroupExtInfo extInfo) {
-        Iterator<InlongGroupExtInfo> inlongGroupExtInfoIterator = groupRequest.getExtList().iterator();
+    private void upsertDataFlow(InlongGroupInfo groupInfo, InlongGroupExtInfo extInfo) {
+        Iterator<InlongGroupExtInfo> inlongGroupExtInfoIterator = groupInfo.getExtList().iterator();
         while (inlongGroupExtInfoIterator.hasNext()) {
             InlongGroupExtInfo inlongGroupExtInfo = inlongGroupExtInfoIterator.next();
             if (InlongGroupSettings.DATA_FLOW.equals(inlongGroupExtInfo.getKeyName())) {
                 inlongGroupExtInfoIterator.remove();
             }
         }
-        groupRequest.getExtList().add(extInfo);
+        groupInfo.getExtList().add(extInfo);
     }
 
     private DataFlowInfo createDataFlow(StreamBriefResponse streamBriefResponse,
-            InlongGroupRequest inlongGroupRequest) {
+            InlongGroupInfo inlongGroupInfo) {
         //TODO only support one source and one sink
         final String groupId = streamBriefResponse.getInlongGroupId();
         final String streamId = streamBriefResponse.getInlongStreamId();
@@ -154,14 +154,14 @@ public class CreateSortConfigListener implements SortOperateListener {
         String sinkType = sinkBriefResponse.getSinkType();
         int sinkId = sinkBriefResponse.getId();
         final SinkResponse sinkResponse = streamSinkService.get(sinkId, sinkType);
-        SourceInfo sourceInfo = createSourceInfo(inlongGroupRequest, streamInfo, sourceResponse);
+        SourceInfo sourceInfo = createSourceInfo(inlongGroupInfo, streamInfo, sourceResponse);
         SinkInfo sinkInfo = SinkInfoUtils.createSinkInfo(streamInfo, sourceResponse, sinkResponse);
         return new DataFlowInfo(sinkId, sourceInfo, sinkInfo);
     }
 
-    private SourceInfo createSourceInfo(InlongGroupRequest groupRequest, InlongStreamInfo streamInfo,
+    private SourceInfo createSourceInfo(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             SourceResponse sourceResponse) {
-        String middleWareType = groupRequest.getMiddlewareType();
+        String middleWareType = groupInfo.getMiddlewareType();
 
         List<FieldInfo> fieldInfos = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(streamInfo.getFieldList())) {
@@ -174,39 +174,39 @@ public class CreateSortConfigListener implements SortOperateListener {
         DeserializationInfo deserializationInfo = SerializationUtils.createDeserializationInfo(sourceResponse,
                 streamInfo);
         if (Constant.MIDDLEWARE_PULSAR.equals(middleWareType)) {
-            return createPulsarSourceInfo(groupRequest, streamInfo, deserializationInfo, fieldInfos);
+            return createPulsarSourceInfo(groupInfo, streamInfo, deserializationInfo, fieldInfos);
         } else if (Constant.MIDDLEWARE_TUBE.equals(middleWareType)) {
-            return createTubeSourceInfo(groupRequest, deserializationInfo, fieldInfos);
+            return createTubeSourceInfo(groupInfo, deserializationInfo, fieldInfos);
         } else {
             throw new RuntimeException(
                     String.format("MiddleWare:{} not support in CreateSortConfigListener", middleWareType));
         }
     }
 
-    private PulsarSourceInfo createPulsarSourceInfo(InlongGroupRequest groupRequest,
+    private PulsarSourceInfo createPulsarSourceInfo(InlongGroupInfo groupInfo,
             InlongStreamInfo streamInfo,
             DeserializationInfo deserializationInfo,
             List<FieldInfo> fieldInfos) {
         String topicName = streamInfo.getMqResourceObj();
         String pulsarAdminUrl = commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL);
         String pulsarServiceUrl = commonOperateService.getSpecifiedParam(Constant.PULSAR_SERVICEURL);
-        return SourceInfoUtils.createPulsarSourceInfo(groupRequest, topicName, deserializationInfo,
+        return SourceInfoUtils.createPulsarSourceInfo(groupInfo, topicName, deserializationInfo,
                 fieldInfos, clusterBean.getAppName(), clusterBean.getDefaultTenant(), pulsarAdminUrl, pulsarServiceUrl);
     }
 
-    private TubeSourceInfo createTubeSourceInfo(InlongGroupRequest groupRequest,
+    private TubeSourceInfo createTubeSourceInfo(InlongGroupInfo groupInfo,
             DeserializationInfo deserializationInfo,
             List<FieldInfo> fieldInfos) {
         String masterAddress = commonOperateService.getSpecifiedParam(Constant.TUBE_MASTER_URL);
         Preconditions.checkNotNull(masterAddress, "tube cluster address cannot be empty");
-        String topic = groupRequest.getMqResourceObj();
+        String topic = groupInfo.getMqResourceObj();
         // The consumer group name is: taskName_topicName_consumer_group
         String consumerGroup = clusterBean.getAppName() + "_" + topic + "_consumer_group";
         return new TubeSourceInfo(topic, masterAddress, consumerGroup,
                 deserializationInfo, fieldInfos.toArray(new FieldInfo[0]));
     }
 
-    private InlongGroupRequest getGroupRequest(ProcessForm processForm) {
+    private InlongGroupInfo getGroupInfo(ProcessForm processForm) {
         if (processForm instanceof GroupResourceProcessForm) {
             GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
             return groupResourceProcessForm.getGroupInfo();

@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.service.workflow;
 
+import java.util.List;
 import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarGroupTaskListener;
@@ -31,8 +32,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
-
 public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
 
     @Autowired
@@ -42,7 +41,7 @@ public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
     public void testGetQueueOperateListener() {
         WorkflowContext context = new WorkflowContext();
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
-        InlongGroupRequest groupInfo = new InlongGroupRequest();
+        InlongGroupInfo groupInfo = new InlongGroupInfo();
         //check pulsar listener
         groupInfo.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
         processForm.setGroupInfo(groupInfo);

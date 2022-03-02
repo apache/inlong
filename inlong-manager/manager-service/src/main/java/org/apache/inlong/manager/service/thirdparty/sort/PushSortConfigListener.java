@@ -17,12 +17,14 @@
 
 package org.apache.inlong.manager.service.thirdparty.sort;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
@@ -53,9 +55,6 @@ import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Component
@@ -88,7 +87,7 @@ public class PushSortConfigListener implements SortOperateListener {
         }
 
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-        InlongGroupRequest groupInfo = form.getGroupInfo();
+        InlongGroupInfo groupInfo = form.getGroupInfo();
         String groupId = groupInfo.getInlongGroupId();
 
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
@@ -130,7 +129,7 @@ public class PushSortConfigListener implements SortOperateListener {
         return ListenerResult.success();
     }
 
-    private DataFlowInfo getDataFlowInfo(InlongGroupRequest groupInfo, SinkResponse sinkResponse) {
+    private DataFlowInfo getDataFlowInfo(InlongGroupInfo groupInfo, SinkResponse sinkResponse) {
         String groupId = sinkResponse.getInlongGroupId();
         String streamId = sinkResponse.getInlongStreamId();
         List<StreamSinkFieldEntity> fieldList = streamSinkFieldMapper.selectFields(groupId, streamId);
@@ -149,7 +148,7 @@ public class PushSortConfigListener implements SortOperateListener {
     /**
      * Get source info
      */
-    private SourceInfo getSourceInfo(InlongGroupRequest groupInfo,
+    private SourceInfo getSourceInfo(InlongGroupInfo groupInfo,
                                      SinkResponse hiveResponse, List<StreamSinkFieldEntity> fieldList) {
         DeserializationInfo deserializationInfo = null;
         String groupId = groupInfo.getInlongGroupId();

@@ -20,7 +20,7 @@ package org.apache.inlong.manager.client.api.impl;
 import java.util.List;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
-import org.apache.inlong.manager.client.api.InlongGroupInfo;
+import org.apache.inlong.manager.client.api.GroupInfo;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
@@ -33,32 +33,32 @@ public class BlankInlongGroup implements InlongGroup {
     }
 
     @Override
-    public InlongGroupInfo snapshot() throws Exception {
+    public GroupInfo snapshot() throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 
     @Override
-    public InlongGroupInfo init() throws Exception {
+    public GroupInfo init() throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 
     @Override
-    public InlongGroupInfo initOnUpdate(InlongGroupConf conf) throws Exception {
+    public GroupInfo initOnUpdate(InlongGroupConf conf) throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 
     @Override
-    public InlongGroupInfo suspend() throws Exception {
+    public GroupInfo suspend() throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 
     @Override
-    public InlongGroupInfo restart() throws Exception {
+    public GroupInfo restart() throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 
     @Override
-    public InlongGroupInfo delete() throws Exception {
+    public GroupInfo delete() throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 

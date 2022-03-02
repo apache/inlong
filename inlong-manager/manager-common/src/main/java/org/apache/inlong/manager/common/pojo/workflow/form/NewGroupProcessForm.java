@@ -19,15 +19,14 @@ package org.apache.inlong.manager.common.pojo.workflow.form;
 
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.util.Preconditions;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * New inlong group process form
@@ -39,7 +38,7 @@ public class NewGroupProcessForm extends BaseProcessForm {
     public static final String FORM_NAME = "NewGroupProcessForm";
 
     @ApiModelProperty(value = "Inlong group info", required = true)
-    private InlongGroupRequest groupInfo;
+    private InlongGroupInfo groupInfo;
 
     @ApiModelProperty(value = "All inlong stream info under the inlong group, including the sink info")
     private List<StreamBriefResponse> streamInfoList;

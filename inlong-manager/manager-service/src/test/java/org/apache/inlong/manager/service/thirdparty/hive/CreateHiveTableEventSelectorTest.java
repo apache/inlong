@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.thirdparty.hive;
 
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
-import org.apache.inlong.manager.service.ServiceBaseTest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class CreateHiveTableEventSelectorTest extends ServiceBaseTest {
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
         workflowContext.setProcessForm(processForm);
         Assert.assertFalse(createHiveTableEventSelector.accept(workflowContext));
-        processForm.setGroupInfo(new InlongGroupRequest());
+        processForm.setGroupInfo(new InlongGroupInfo());
         Assert.assertFalse(createHiveTableEventSelector.accept(workflowContext));
         processForm.getGroupInfo().setInlongGroupId("test");
         Assert.assertTrue(createHiveTableEventSelector.accept(workflowContext));

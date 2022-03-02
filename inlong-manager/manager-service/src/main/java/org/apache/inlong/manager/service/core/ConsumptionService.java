@@ -18,11 +18,11 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionListVo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionSummary;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 
 /**
@@ -100,6 +100,6 @@ public interface ConsumptionService {
     /**
      * Save the consumer group info for Sort to the database
      */
-    void saveSortConsumption(InlongGroupRequest bizInfo, String topic, String consumerGroup);
+    void saveSortConsumption(InlongGroupInfo bizInfo, String topic, String consumerGroup);
 
 }

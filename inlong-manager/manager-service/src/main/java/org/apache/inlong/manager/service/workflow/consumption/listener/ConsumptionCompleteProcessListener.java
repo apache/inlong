@@ -17,12 +17,16 @@
 
 package org.apache.inlong.manager.service.workflow.consumption.listener;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
@@ -41,11 +45,6 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Added data consumption process complete archive event listener
@@ -114,7 +113,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
      */
     private void createPulsarTopicMessage(ConsumptionEntity entity) {
         String groupId = entity.getInlongGroupId();
-        InlongGroupRequest groupInfo = groupService.get(groupId);
+        InlongGroupInfo groupInfo = groupService.get(groupId);
         Preconditions.checkNotNull(groupInfo, "inlong group not found for groupId=" + groupId);
         String mqResourceObj = groupInfo.getMqResourceObj();
         Preconditions.checkNotNull(mqResourceObj, "mq resource cannot empty for groupId=" + groupId);
@@ -139,7 +138,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
     }
 
     private void createPulsarSubscription(PulsarAdmin globalPulsarAdmin, String subscription, PulsarTopicBean topicBean,
-            List<String> clusters, List<String> topics, InlongGroupRequest groupInfo) {
+            List<String> clusters, List<String> topics, InlongGroupInfo groupInfo) {
         try {
             for (String cluster : clusters) {
                 String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
