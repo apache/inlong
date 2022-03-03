@@ -29,13 +29,13 @@ import org.apache.inlong.agent.conf.ProfileFetcher;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.db.CommandDb;
+import org.apache.inlong.agent.plugin.Trigger;
+import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.apache.inlong.agent.pojo.ConfirmAgentIpRequest;
 import org.apache.inlong.agent.pojo.DbCollectorTaskRequestDto;
 import org.apache.inlong.agent.pojo.DbCollectorTaskResult;
-import org.apache.inlong.agent.plugin.Trigger;
-import org.apache.inlong.agent.utils.HttpManager;
-import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.HttpManager;
 import org.apache.inlong.common.db.CommandEntity;
 import org.apache.inlong.common.enums.ManagerOpEnum;
 import org.apache.inlong.common.pojo.agent.CmdConfig;
@@ -90,7 +90,7 @@ import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalIp;
 import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalUuid;
 
 /**
- * fetch command from manager
+ * Fetch command from Inlong-Manager
  */
 public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
@@ -139,7 +139,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build base url for manager according to config
      *
-     * @example - http://127.0.0.1:8080/api/inlong/manager/openapi
+     * example - http://127.0.0.1:8080/api/inlong/manager/openapi
      */
     private String buildBaseUrl() {
         return "http://" + conf.get(AGENT_MANAGER_VIP_HTTP_HOST)
@@ -150,7 +150,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build vip url for manager according to config
      *
-     * @example - http://127.0.0.1:8080/api/inlong/manager/openapi/agent/getInLongManagerIp
+     * example - http://127.0.0.1:8080/api/inlong/manager/openapi/agent/getInLongManagerIp
      */
     private String buildVipUrl(String baseUrl) {
         return baseUrl + conf.get(AGENT_MANAGER_VIP_HTTP_PATH, DEFAULT_AGENT_TDM_VIP_HTTP_PATH);
@@ -159,7 +159,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build file collect task url for manager according to config
      *
-     * @example - http://127.0.0.1:8080/api/inlong/manager/openapi/fileAgent/getTaskConf
+     * example - http://127.0.0.1:8080/api/inlong/manager/openapi/fileAgent/getTaskConf
      */
     private String buildFileCollectTaskUrl(String baseUrl) {
         return baseUrl + conf.get(AGENT_MANAGER_TASK_HTTP_PATH, DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH);
@@ -168,7 +168,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build ip check url for manager according to config
      *
-     * @example - http://127.0.0.1:8080/api/inlong/manager/openapi/fileAgent/confirmAgentIp
+     * example - http://127.0.0.1:8080/api/inlong/manager/openapi/fileAgent/confirmAgentIp
      */
     private String buildIpCheckUrl(String baseUrl) {
         return baseUrl + conf.get(AGENT_MANAGER_IP_CHECK_HTTP_PATH, DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH);
@@ -177,7 +177,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build db collector get task url for manager according to config
      *
-     * @example - http://127.0.0.1:8080/api/inlong/manager/openapi/dbcollector/getTask
+     * example - http://127.0.0.1:8080/api/inlong/manager/openapi/dbcollector/getTask
      */
     private String buildDbCollectorGetTaskUrl(String baseUrl) {
         return baseUrl + conf
@@ -198,7 +198,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * for manager to get job profiles
      *
-     * @return -  job profile list
+     * @return job profile list
      */
     @Override
     public List<JobProfile> getJobProfiles() {
@@ -225,10 +225,12 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      */
     public void fetchCommand() {
         List<CommandEntity> unackedCommands = commandDb.getUnackedCommands();
-        JsonObject resultData = getResultData(
-                httpManager.doSentPost(managerTaskUrl, getFileCmdFetchRequest(unackedCommands)));
-        dealWithFileTaskResult(GSON.fromJson(resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA).getAsJsonObject(),
-                TaskResult.class));
+        String resultStr = httpManager.doSentPost(managerTaskUrl, getFileCmdFetchRequest(unackedCommands));
+        JsonObject resultData = getResultData(resultStr);
+        JsonElement element = resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA);
+        if (element != null) {
+            dealWithFileTaskResult(GSON.fromJson(element.getAsJsonObject(), TaskResult.class));
+        }
         ackCommands(unackedCommands);
     }
 
@@ -259,7 +261,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         }
         JobProfile profile = taskResult.getJobProfile();
         if (profile == null) {
-            LOGGER.error("profile null", profile);
+            LOGGER.error("profile is null");
             return;
         }
         agentManager.getJobManager().submitSqlJobProfile(profile);
@@ -273,7 +275,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
         for (DataConfig dataConfig : taskResult.getDataConfigs()) {
             TriggerProfile profile = TriggerProfile.getTriggerProfiles(dataConfig);
-            LOGGER.info("the triggerProfile : {}",profile);
+            LOGGER.info("the triggerProfile: {}", profile);
             if (profile.hasKey(JOB_TRIGGER)) {
                 dealWithTdmTriggerProfile(profile);
             } else {
@@ -398,8 +400,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     *
-     * @param triggerProfile
+     * Handle tasks according to the trigger profile
      */
     public void dealWithJobProfile(TriggerProfile triggerProfile) {
         ManagerOpEnum opType = ManagerOpEnum.getOpType(triggerProfile.getInt(JOB_OP));
