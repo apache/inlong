@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.springframework.stereotype.Repository;
@@ -52,13 +51,13 @@ public interface StreamSourceEntityMapper {
     List<StreamSourceEntity> selectByCondition(@Param("request") SourcePageRequest request);
 
     /**
-     * According to the inlong group id and inlong stream id, query valid source information
+     * Query valid source list by the given group id and stream id.
      *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
-     * @return Source entity list
+     * @param groupId Inlong group id.
+     * @param streamId Inlong stream id.
+     * @return Source entity list.
      */
-    List<StreamSourceEntity> selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    List<StreamSourceEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
      * According to the group id, stream id and source type, query valid source entity list.
@@ -70,6 +69,11 @@ public interface StreamSourceEntityMapper {
      */
     List<StreamSourceEntity> selectByIdAndType(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("sourceType") String sourceType);
+
+    /**
+     * Query the source list by the given agent ip and agent uuid.
+     */
+    List<StreamSourceEntity> selectByIpAndUuid(@Param("agentIp") String agentIp, @Param("uuid") String uuid);
 
     /**
      * Get the distinct source type from the given groupId and streamId
@@ -100,7 +104,5 @@ public interface StreamSourceEntityMapper {
     int updateSnapshot(StreamSourceEntity entity);
 
     int deleteByPrimaryKey(Integer id);
-
-    List<StreamSourceEntity> selectAgentTaskDataConfig(TaskRequest taskRequest);
 
 }

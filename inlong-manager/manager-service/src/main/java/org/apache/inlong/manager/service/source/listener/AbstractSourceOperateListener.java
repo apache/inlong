@@ -81,7 +81,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         String sourceType = sourceResponse.getSourceType();
         SourceType type = SourceType.valueOf(sourceType);
         switch (type) {
-            case DB_BINLOG:
+            case BINLOG:
                 return CommonBeanUtils.copyProperties((BinlogSourceResponse) sourceResponse, BinlogSourceRequest::new);
             case KAFKA:
                 return CommonBeanUtils.copyProperties((KafkaSourceResponse) sourceResponse, KafkaSourceRequest::new);

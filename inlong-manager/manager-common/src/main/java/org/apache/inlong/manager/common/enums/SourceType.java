@@ -17,15 +17,16 @@
 
 package org.apache.inlong.manager.common.enums;
 
-import java.util.Locale;
 import lombok.Getter;
 import org.apache.inlong.common.enums.TaskTypeEnum;
+
+import java.util.Locale;
 
 public enum SourceType {
 
     FILE("FILE", TaskTypeEnum.FILE),
-    DB_SQL("DB_SQL", TaskTypeEnum.SQL),
-    DB_BINLOG("DB_BINLOG", TaskTypeEnum.BINLOG),
+    SQL("SQL", TaskTypeEnum.SQL),
+    BINLOG("BINLOG", TaskTypeEnum.BINLOG),
     KAFKA("KAFKA", TaskTypeEnum.KAFKA);
 
     @Getter

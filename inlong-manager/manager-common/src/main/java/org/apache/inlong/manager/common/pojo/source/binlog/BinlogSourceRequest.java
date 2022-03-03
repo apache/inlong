@@ -34,11 +34,11 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Request of the binlog source info")
-@JsonTypeDefine(value = Constant.SOURCE_DB_BINLOG)
+@JsonTypeDefine(value = Constant.SOURCE_BINLOG)
 public class BinlogSourceRequest extends SourceRequest {
 
     public BinlogSourceRequest() {
-        this.setSourceType(SourceType.DB_BINLOG.toString());
+        this.setSourceType(SourceType.BINLOG.toString());
     }
 
     @ApiModelProperty("Username of the DB server")

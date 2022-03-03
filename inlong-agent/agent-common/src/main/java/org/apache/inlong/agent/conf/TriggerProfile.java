@@ -20,11 +20,21 @@ package org.apache.inlong.agent.conf;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.pojo.JobProfileDto;
 import org.apache.inlong.common.pojo.agent.DataConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * profile used in trigger. Trigger profile is a special job profile
  */
 public class TriggerProfile extends JobProfile {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TriggerProfile.class);
+
+    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     /**
      * Parse a given json string and get a TriggerProfile
@@ -67,8 +77,16 @@ public class TriggerProfile extends JobProfile {
         return getInt(JobConstants.JOB_OP);
     }
 
-    public String getDeliveryTime() {
-        return get(JobConstants.JOB_DELIVERY_TIME);
+    public Date getDeliveryTime() {
+        String dateStr = get(JobConstants.JOB_DELIVERY_TIME);
+        Date date = null;
+        try {
+            date = format.parse(dateStr);
+        } catch (ParseException e) {
+            LOGGER.error("parse delivery time error for {}", dateStr);
+        }
+
+        return date;
     }
 
 }

@@ -15,18 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service;
+package org.apache.inlong.common.constant;
 
-import org.apache.inlong.manager.test.BaseTest;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.context.SpringBootTest;
+/**
+ * The constants class
+ */
+public class Constants {
 
-@SpringBootApplication
-@SpringBootTest(classes = ServiceBaseTest.class)
-public class ServiceBaseTest extends BaseTest {
+    public static final int RESULT_SUCCESS = 0;
 
-    public final String globalGroupId = "b_group1";
-    public final String globalStreamId = "stream1";
-    public final String globalOperator = "admin";
+    public static final int RESULT_FAIL = 1;
 
 }
