@@ -90,7 +90,8 @@ public class SinkInfoUtils {
             KafkaSinkResponse kafkaSinkResponse) {
         List<FieldInfo> fieldInfoList = Lists.newArrayList();
         if (SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
-            fieldInfoList.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_DATA));
+            fieldInfoList.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE,
+                    BuiltInField.MYSQL_METADATA_DATA));
         } else {
             fieldInfoList = getSinkFields(kafkaSinkResponse.getFieldList(), null);
         }
@@ -159,7 +160,8 @@ public class SinkInfoUtils {
         // Get the sink field, if there is no partition field in the source field, add the partition field to the end
         List<FieldInfo> fieldInfoList = Lists.newArrayList();
         if (SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
-            fieldInfoList.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_DATA));
+            fieldInfoList.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE,
+                    BuiltInField.MYSQL_METADATA_DATA));
         } else {
             fieldInfoList = getSinkFields(hiveInfo.getFieldList(), hiveInfo.getPrimaryPartition());
         }
