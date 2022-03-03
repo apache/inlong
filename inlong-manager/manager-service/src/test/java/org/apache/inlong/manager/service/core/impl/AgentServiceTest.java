@@ -15,32 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.source;
+package org.apache.inlong.manager.service.core.impl;
 
+import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
+import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
+import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collections;
+import java.util.Date;
+
 /**
  * Stream source service test
  */
-public class StreamSourceServiceTest extends ServiceBaseTest {
-
-    private final String globalGroupId = "b_group1";
-    private final String globalStreamId = "stream1";
-    private final String globalOperator = "test_user";
-    private final String sourceName = "default";
+public class AgentServiceTest extends ServiceBaseTest {
 
     @Autowired
     private StreamSourceService sourceService;
+    @Autowired
+    private AgentService agentService;
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
@@ -50,40 +49,25 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
         BinlogSourceRequest sourceInfo = new BinlogSourceRequest();
         sourceInfo.setInlongGroupId(globalGroupId);
         sourceInfo.setInlongStreamId(globalStreamId);
-        sourceInfo.setSourceName(sourceName);
         sourceInfo.setSourceType(Constant.SOURCE_BINLOG);
+
         return sourceService.save(sourceInfo, globalOperator);
     }
 
     @Test
-    public void testSaveAndDelete() {
-        Integer id = this.saveSource();
-        Assert.assertNotNull(id);
-
-        boolean result = sourceService.delete(id, Constant.SOURCE_BINLOG, globalOperator);
-        Assert.assertTrue(result);
-    }
-
-    @Test
-    public void testListByIdentifier() {
+    public void testReportSnapshot() {
         Integer id = this.saveSource();
 
-        SourceResponse source = sourceService.get(id, Constant.SOURCE_BINLOG);
-        Assert.assertEquals(globalGroupId, source.getInlongGroupId());
+        TaskSnapshotRequest request = new TaskSnapshotRequest();
+        request.setAgentIp("127.0.0.1");
+        request.setReportTime(new Date());
 
-        sourceService.delete(id, Constant.SOURCE_BINLOG, globalOperator);
-    }
+        TaskSnapshotMessage message = new TaskSnapshotMessage();
+        message.setJobId(id);
+        message.setSnapshot("{\"offset\": 100}");
+        request.setSnapshotList(Collections.singletonList(message));
 
-    @Test
-    public void testGetAndUpdate() {
-        Integer id = this.saveSource();
-        SourceResponse response = sourceService.get(id, Constant.SOURCE_BINLOG);
-        Assert.assertEquals(globalGroupId, response.getInlongGroupId());
-
-        BinlogSourceResponse binlogResponse = (BinlogSourceResponse) response;
-
-        BinlogSourceRequest request = CommonBeanUtils.copyProperties(binlogResponse, BinlogSourceRequest::new);
-        boolean result = sourceService.update(request, globalOperator);
+        Boolean result = agentService.reportSnapshot(request);
         Assert.assertTrue(result);
 
         sourceService.delete(id, Constant.SOURCE_BINLOG, globalOperator);

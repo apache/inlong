@@ -170,7 +170,7 @@ public class SourceSnapshotOperation implements AutoCloseable {
      * @see org.apache.inlong.manager.common.enums.SourceState
      */
     private ConcurrentHashMap<String, ConcurrentHashMap<Integer, Integer>> getTaskIpAndStatusMap() {
-        ConcurrentHashMap<String, ConcurrentHashMap<Integer, Integer>> ipTaskMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, ConcurrentHashMap<Integer, Integer>> ipTaskMap = new ConcurrentHashMap<>(16);
         List<StreamSourceEntity> sourceList = sourceMapper.selectTempStatusSource();
         for (StreamSourceEntity entity : sourceList) {
             String ip = entity.getAgentIp();

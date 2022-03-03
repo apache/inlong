@@ -44,19 +44,6 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
-    <resultMap id="DataConfig" type="org.apache.inlong.common.pojo.agent.DataConfig">
-        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
-        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
-        <result column="modify_time" jdbcType="VARCHAR" property="deliveryTime"/>
-        <result column="uuid" jdbcType="VARCHAR" property="uuid"/>
-        <result column="agent_ip" jdbcType="VARCHAR" property="ip"/>
-        <result column="op" jdbcType="VARCHAR" property="op"/>
-        <result column="id" jdbcType="VARCHAR" property="taskId"/>
-        <result column="source_type" jdbcType="INTEGER" property="taskType"/>
-        <result column="source_name" jdbcType="VARCHAR" property="taskName"/>
-        <result column="snapshot" jdbcType="LONGVARCHAR" property="snapshot"/>
-        <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
-    </resultMap>
     <sql id="Base_Column_List">
         id
         , inlong_group_id, inlong_stream_id, source_type, source_name, agent_ip, uuid, server_id, server_name,
@@ -249,12 +236,12 @@
         from stream_source
         <where>
             is_deleted = 0
-            <if test="request.sourceType != null and request.sourceType != ''">
-                and source_type = #{request.sourceType, jdbcType=VARCHAR}
-            </if>
             and inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
             <if test="request.inlongStreamId != null and request.inlongStreamId != ''">
                 and inlong_stream_id = #{request.inlongStreamId, jdbcType=VARCHAR}
+            </if>
+            <if test="request.sourceType != null and request.sourceType != ''">
+                and source_type = #{request.sourceType, jdbcType=VARCHAR}
             </if>
             <if test="request.keyWord != null and request.keyWord != ''">
                 and (
@@ -269,6 +256,7 @@
             order by modify_time desc
         </where>
     </select>
+
     <select id="selectByIdentifier"
             resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
@@ -295,6 +283,18 @@
             </if>
             <if test="sourceType != null and sourceType != ''">
                 and source_type = #{sourceType, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectByIpAndUuid" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            and agent_ip = #{agentIp, jdbcType=VARCHAR}
+            <if test="uuid != null and uuid != ''">
+                and uuid = #{uuid, jdbcType=VARCHAR}
             </if>
         </where>
     </select>
@@ -438,31 +438,4 @@
         from stream_source
         where id = #{id,jdbcType=INTEGER}
     </delete>
-
-    <select id="selectAgentTaskDataConfig"
-            parameterType="org.apache.inlong.common.pojo.agent.TaskRequest"
-            resultMap="DataConfig">
-        select
-        detail.inlong_group_id,
-        detail.inlong_stream_id,
-        detail.modify_time,
-        detail.uuid,
-        detail.agent_ip,
-        detail.status,
-        detail.id,
-        detail.source_type,
-        detail.source_name,
-        detail.snapshot,
-        detail.ext_params
-        from stream_source detail
-        where detail.is_deleted = 0
-        <if test="agentIp != null and agentIp != ''">
-            and detail.agent_ip = #{agentIp, jdbcType=VARCHAR}
-        </if>
-        <if test="uuid != null and uuid != ''">
-            and detail.uuid = #{uuid, jdbcType=VARCHAR}
-        </if>
-        and (floor(detail.STATUS / 100) = 2)
-    </select>
-
 </mapper>

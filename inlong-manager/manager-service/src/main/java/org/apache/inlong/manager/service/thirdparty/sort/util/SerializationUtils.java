@@ -44,7 +44,7 @@ public class SerializationUtils {
             InlongStreamInfo streamInfo) {
         SourceType sourceType = SourceType.forType(sourceResponse.getSourceType());
         switch (sourceType) {
-            case DB_BINLOG:
+            case BINLOG:
                 return forBinlog((BinlogSourceResponse) sourceResponse, streamInfo);
             case KAFKA:
                 return forKafka((KafkaSourceResponse) sourceResponse, streamInfo);

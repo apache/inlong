@@ -23,11 +23,16 @@ import org.apache.inlong.common.db.CommandEntity;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Request task from agent to manager.
+ */
 @Data
 public class TaskRequest {
 
     private String agentIp;
+
     private String uuid;
+
     private List<CommandEntity> commandInfo = new ArrayList<>();
 
 }

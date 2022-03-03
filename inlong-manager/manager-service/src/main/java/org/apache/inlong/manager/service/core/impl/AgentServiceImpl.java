@@ -19,20 +19,17 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.db.CommandEntity;
 import org.apache.inlong.common.pojo.agent.CmdConfig;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
+import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.FileAgentDataGenerateRule;
+import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.agent.AgentStatusReportRequest;
 import org.apache.inlong.manager.common.pojo.agent.CheckAgentTaskConfRequest;
@@ -50,65 +47,135 @@ import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
-import org.apache.inlong.manager.service.core.AgentTaskService;
+import org.apache.inlong.manager.service.core.AgentService;
+import org.apache.inlong.manager.service.source.SourceSnapshotOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
-@Slf4j
-public class AgentTaskServiceImpl implements AgentTaskService {
+public class AgentServiceImpl implements AgentService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentTaskServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentServiceImpl.class);
+    private static final int UNISSUED_STATUS = 2;
+    private static final int ISSUED_STATUS = 3;
 
+    @Autowired
+    private StreamSourceEntityMapper sourceMapper;
+    @Autowired
+    private SourceSnapshotOperation snapshotOperation;
     @Autowired
     private SourceFileDetailEntityMapper fileDetailMapper;
-
     @Autowired
     private DataSourceCmdConfigEntityMapper sourceCmdConfigMapper;
-
-    @Autowired
-    private StreamSourceEntityMapper streamSourceMapper;
-
     @Autowired
     private InlongStreamFieldEntityMapper streamFieldMapper;
 
+    /**
+     * If the reported task time and the modification time in the database exceed this value,
+     * it will be considered that the user has modified the task, and the result of this report will be ignored.
+     */
+    @Value("${stream.source.maxModifyTime:5000}")
+    private Integer maxModifyTime;
+
     @Override
-    public TaskResult getAgentTask(TaskRequest taskRequest) {
-        LOGGER.debug("begin to get agent task by taskRequestDto={}", taskRequest);
-        if (taskRequest == null || taskRequest.getAgentIp() == null) {
-            LOGGER.error("agent command taskRequestDto cannot be empty");
+    public Boolean reportSnapshot(TaskSnapshotRequest request) {
+        return snapshotOperation.snapshot(request);
+    }
+
+    @Override
+    public TaskResult reportAndGetTask(TaskRequest request) {
+        LOGGER.debug("begin to get agent task: {}", request);
+        if (request == null || request.getAgentIp() == null) {
+            LOGGER.warn("agent request was empty, just return");
             return null;
         }
-        // Query pending tasks by agentIp
-        List<DataConfig> dataConfigs = getAgentDataConfigs(taskRequest);
+
+        this.updateTaskStatus(request);
+
+        return this.getTaskResult(request);
+    }
+
+    /**
+     * Get task result by the request
+     */
+    private TaskResult getTaskResult(TaskRequest request) {
+        // Query all tasks with status in 20x
+        String agentIp = request.getAgentIp();
+        String uuid = request.getUuid();
+        List<StreamSourceEntity> entityList = sourceMapper.selectByIpAndUuid(agentIp, uuid);
+
+        List<DataConfig> dataConfigs = entityList.stream().map(entity -> {
+            DataConfig dataConfig = new DataConfig();
+            dataConfig.setJobId(entity.getId());
+            SourceType sourceType = SourceType.forType(entity.getSourceType());
+            dataConfig.setTaskType(sourceType.getTaskType().getType());
+            dataConfig.setTaskName(entity.getSourceName());
+            dataConfig.setOp(String.valueOf(entity.getStatus() % 100));
+            dataConfig.setInlongGroupId(entity.getInlongGroupId());
+            dataConfig.setInlongStreamId(entity.getInlongStreamId());
+            dataConfig.setIp(entity.getAgentIp());
+            dataConfig.setUuid(entity.getUuid());
+            dataConfig.setExtParams(entity.getExtParams());
+            dataConfig.setSnapshot(entity.getSnapshot());
+            return dataConfig;
+        }).collect(Collectors.toList());
 
         // Query pending special commands
-        List<CmdConfig> cmdConfigs = getAgentCmdConfigs(taskRequest);
+        List<CmdConfig> cmdConfigs = getAgentCmdConfigs(request);
 
         return TaskResult.builder().dataConfigs(dataConfigs).cmdConfigs(cmdConfigs).build();
     }
 
-    private List<DataConfig> getAgentDataConfigs(TaskRequest taskRequest) {
-        List<StreamSourceEntity> sourceEntities = streamSourceMapper.selectAgentTaskDataConfig(taskRequest);
-        List<DataConfig> dataConfigs = sourceEntities.stream().map(sourceEntity -> {
-            DataConfig dataConfig = new DataConfig();
-            dataConfig.setOp(String.valueOf(sourceEntity.getStatus() % 100));
-            dataConfig.setJobId(sourceEntity.getId());
-            SourceType sourceType = SourceType.forType(sourceEntity.getSourceType());
-            dataConfig.setTaskType(sourceType.getTaskType().getType());
-            dataConfig.setTaskName(sourceEntity.getSourceName());
-            dataConfig.setInlongGroupId(sourceEntity.getInlongGroupId());
-            dataConfig.setInlongStreamId(sourceEntity.getInlongStreamId());
-            dataConfig.setIp(sourceEntity.getAgentIp());
-            dataConfig.setUuid(sourceEntity.getUuid());
-            dataConfig.setExtParams(sourceEntity.getExtParams());
-            dataConfig.setSnapshot(sourceEntity.getSnapshot());
-            return dataConfig;
-        }).collect(Collectors.toList());
-        //Forward Compatible File task type
-        return dataConfigs;
+    /**
+     * Update the task status by the request
+     */
+    private void updateTaskStatus(TaskRequest request) {
+        if (CollectionUtils.isEmpty(request.getCommandInfo())) {
+            LOGGER.warn("task result was empty, just return");
+            return;
+        }
+
+        for (CommandEntity command : request.getCommandInfo()) {
+            Integer taskId = command.getTaskId();
+            StreamSourceEntity current = sourceMapper.selectByPrimaryKey(taskId);
+            if (current == null) {
+                continue;
+            }
+
+            if (current.getModifyTime().getTime() - command.getDeliveryTime().getTime() > maxModifyTime) {
+                LOGGER.warn("task {} receive result delay more than {} ms, skip it", taskId, maxModifyTime);
+                continue;
+            }
+
+            int result = command.getCommandResult();
+            int previousStatus = current.getStatus();
+            int nextStatus = SourceState.SOURCE_NORMAL.getCode();
+            if (previousStatus / 100 == UNISSUED_STATUS) {
+                if (Constants.RESULT_SUCCESS == result) {
+                    if (SourceState.TEMP_TO_NORMAL.contains(previousStatus)) {
+                        nextStatus = SourceState.SOURCE_NORMAL.getCode();
+                    } else if (SourceState.BEEN_ISSUED_DELETE.getCode() == previousStatus) {
+                        nextStatus = SourceState.SOURCE_DISABLE.getCode();
+                    } else if (SourceState.BEEN_ISSUED_FROZEN.getCode() == previousStatus) {
+                        nextStatus = SourceState.SOURCE_FROZEN.getCode();
+                    }
+                } else if (Constants.RESULT_FAIL == result) {
+                    nextStatus = SourceState.SOURCE_FAILED.getCode();
+                }
+
+                sourceMapper.updateStatus(taskId, nextStatus);
+            }
+        }
     }
 
     private List<CmdConfig> getAgentCmdConfigs(TaskRequest taskRequest) {
@@ -215,8 +282,8 @@ public class AgentTaskServiceImpl implements AgentTaskService {
                 }
 
             } else { // Modify the result status of the data collection task
-                if (current.getModifyTime().getTime() - command.getDeliveryTime() > 1000 * 5) {
-                    log.warn(" task id {} receive heartbeat time delay more than 5's, skip it!",
+                if (current.getModifyTime().getTime() - command.getDeliveryTime().getTime() > 1000 * 5) {
+                    LOGGER.warn(" task id {} receive heartbeat time delay more than 5's, skip it!",
                             command.getTaskId());
                     continue;
                 }

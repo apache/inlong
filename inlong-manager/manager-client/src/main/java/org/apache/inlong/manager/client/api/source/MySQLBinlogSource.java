@@ -35,7 +35,7 @@ import org.apache.inlong.manager.common.enums.SourceType;
 public class MySQLBinlogSource extends StreamSource {
 
     @ApiModelProperty(value = "DataSource type", required = true)
-    private SourceType sourceType = SourceType.DB_BINLOG;
+    private SourceType sourceType = SourceType.BINLOG;
 
     @ApiModelProperty("SyncType for MySQL")
     private SyncType syncType;

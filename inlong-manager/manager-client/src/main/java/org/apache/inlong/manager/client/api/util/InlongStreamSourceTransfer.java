@@ -42,7 +42,7 @@ public class InlongStreamSourceTransfer {
         switch (sourceType) {
             case KAFKA:
                 return createKafkaSourceRequest((KafkaSource) streamSource, streamInfo);
-            case DB_BINLOG:
+            case BINLOG:
                 return createBinlogSourceRequest((MySQLBinlogSource) streamSource, streamInfo);
             default:
                 throw new RuntimeException(String.format("Unsupport source=%s for Inlong", sourceType));
@@ -55,7 +55,7 @@ public class InlongStreamSourceTransfer {
         if (sourceType == SourceType.KAFKA && sourceListResponse instanceof KafkaSourceListResponse) {
             return parseKafkaSource((KafkaSourceListResponse) sourceListResponse);
         }
-        if (sourceType == SourceType.DB_BINLOG && sourceListResponse instanceof BinlogSourceListResponse) {
+        if (sourceType == SourceType.BINLOG && sourceListResponse instanceof BinlogSourceListResponse) {
             return parseMySQLBinlogSource((BinlogSourceListResponse) sourceListResponse);
         }
         throw new IllegalArgumentException(String.format("Unsupport source type : %s for Inlong", sourceType));

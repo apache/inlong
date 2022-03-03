@@ -17,6 +17,7 @@
 
 package org.apache.inlong.common.db;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sleepycat.persist.model.Entity;
 import com.sleepycat.persist.model.PrimaryKey;
 import com.sleepycat.persist.model.Relationship;
@@ -24,6 +25,8 @@ import com.sleepycat.persist.model.SecondaryKey;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 @Entity(version = 1)
 @Data
@@ -37,7 +40,12 @@ public class CommandEntity {
     @SecondaryKey(relate = Relationship.MANY_TO_ONE)
     private boolean isAcked;
     private Integer taskId;
-    private String deliveryTime;
+
+    /**
+     * The task delivery time
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date deliveryTime;
 
     public static String generateCommandId(String taskId, int opType) {
         return taskId + opType;

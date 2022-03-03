@@ -147,7 +147,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     private int initOrUpdateSource(SourceRequest sourceRequest) {
         String sourceType = sourceRequest.getSourceType();
-        if (SourceType.KAFKA.name().equals(sourceType) || SourceType.DB_BINLOG.name().equals(sourceType)) {
+        if (SourceType.KAFKA.name().equals(sourceType) || SourceType.BINLOG.name().equals(sourceType)) {
             List<SourceListResponse> responses = managerClient.listSources(sourceRequest.getInlongGroupId(),
                     sourceRequest.getInlongStreamId(), sourceRequest.getSourceType());
             if (CollectionUtils.isEmpty(responses)) {
