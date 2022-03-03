@@ -27,13 +27,13 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 public class BuiltInFieldInfo extends FieldInfo {
 
     public enum BuiltInField {
-        DATA,
         DATA_TIME,
         MYSQL_METADATA_DATABASE,
         MYSQL_METADATA_TABLE,
         MYSQL_METADATA_EVENT_TIME,
         MYSQL_METADATA_IS_DDL,
-        MYSQL_METADATA_EVENT_TYPE
+        MYSQL_METADATA_EVENT_TYPE,
+        MYSQL_METADATA_DATA
     }
 
     private static final long serialVersionUID = -3436204467879205139L;

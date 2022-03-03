@@ -169,7 +169,7 @@ public class CreateSortConfigListener implements SortOperateListener {
 
         List<FieldInfo> fieldInfos = Lists.newArrayList();
         if (SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
-            fieldInfos.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE, BuiltInField.DATA));
+            fieldInfos.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_DATA));
         }
 
         if (!SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())
