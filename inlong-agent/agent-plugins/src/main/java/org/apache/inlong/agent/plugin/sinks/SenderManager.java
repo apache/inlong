@@ -206,7 +206,13 @@ public class SenderManager {
                 return;
             }
             metric.incSendSuccessNum(bodyList.size());
-            taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
+            /**
+             * when there is no source, the position should not be stored locally
+             * since we report snapshot to manager already
+             */
+            if (sourcePath != null) {
+                taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
+            }
         }
 
         @Override
