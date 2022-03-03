@@ -22,7 +22,7 @@ import lombok.Getter;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 
 public enum SourceType {
-
+    DATABASE_MIGRATION("DATABASE_MIGRATION",TaskTypeEnum.DATABASE_MIGRATION),
     FILE("FILE", TaskTypeEnum.FILE),
     DB_SQL("DB_SQL", TaskTypeEnum.SQL),
     DB_BINLOG("DB_BINLOG", TaskTypeEnum.BINLOG),
