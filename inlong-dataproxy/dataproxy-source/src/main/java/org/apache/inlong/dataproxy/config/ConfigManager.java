@@ -302,6 +302,12 @@ public class ConfigManager {
                      */
                     int index = 1;
                     List<ThirdPartyClusterInfo> clusterSet = configJson.getData().getMqSet();
+
+                    if (clusterSet == null || clusterSet.isEmpty()) {
+                        LOG.error("getConfig from manager: no available mq config");
+                        return false;
+                    }
+
                     for (ThirdPartyClusterInfo mqCluster : clusterSet) {
                         String key = ThirdPartyClusterConfigHolder.URL_STORE_PREFIX + index;
                         String value = mqCluster.getUrl() + AttributeConstants.KEY_VALUE_SEPARATOR
@@ -310,9 +316,7 @@ public class ConfigManager {
                         ++index;
                     }
                     // mq other params
-                    if (!clusterSet.isEmpty()) {
-                        mqConfig.putAll(clusterSet.get(0).getParams());
-                    }
+                    mqConfig.putAll(clusterSet.get(0).getParams());
 
                     for (DataProxyConfig topic : configJson.getData().getTopicList()) {
                         if (!StringUtils.isEmpty(topic.getM())) {
