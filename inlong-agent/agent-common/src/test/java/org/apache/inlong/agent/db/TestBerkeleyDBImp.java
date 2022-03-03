@@ -80,7 +80,7 @@ public class TestBerkeleyDBImp {
 
     @Test
     public void testCommandDb() {
-        CommandEntity commandEntity = new CommandEntity("1", 0, false, "1", "");
+        CommandEntity commandEntity = new CommandEntity("1", 0, false, 1, "");
         db.putCommand(commandEntity);
         CommandEntity command = db.getCommand("1");
         Assert.assertEquals("1", command.getId());
