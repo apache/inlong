@@ -23,7 +23,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Base64.Decoder;
+import java.util.Base64.Encoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,8 @@ public class BinlogSnapshotBase implements SnapshotBase {
     public static final int START_OFFSET = 0;
     private static final Logger log = LoggerFactory.getLogger(BinlogSnapshotBase.class);
     private File file;
+    private final Decoder decoder = Base64.getDecoder();
+    private final Encoder encoder = Base64.getEncoder();
 
     private byte[] offset;
 
@@ -43,7 +47,7 @@ public class BinlogSnapshotBase implements SnapshotBase {
     @Override
     public String getSnapshot() {
         load();
-        return new String(offset, StandardCharsets.ISO_8859_1);
+        return encoder.encodeToString(offset);
     }
 
     @Override
@@ -72,7 +76,7 @@ public class BinlogSnapshotBase implements SnapshotBase {
     }
 
     public void save(String snapshot) {
-        byte[] bytes = snapshot.getBytes(StandardCharsets.ISO_8859_1);
+        byte[] bytes = decoder.decode(snapshot);
         if (bytes.length != 0) {
             offset = bytes;
             try (OutputStream output = new FileOutputStream(file)) {

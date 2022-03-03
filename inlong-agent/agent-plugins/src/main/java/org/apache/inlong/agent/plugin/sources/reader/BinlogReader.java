@@ -169,6 +169,9 @@ public class BinlogReader implements Reader {
 
         executor = Executors.newSingleThreadExecutor();
         executor.execute(engine);
+
+        LOGGER.info("get initial snapshot of job {}, snapshot {}",
+            jobConf.getInstanceId(), getSnapshot());
     }
 
     private Properties getEngineProps() {
