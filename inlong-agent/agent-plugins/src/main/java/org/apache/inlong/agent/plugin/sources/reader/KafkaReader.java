@@ -142,6 +142,8 @@ public class KafkaReader<K, V> implements Reader {
                 recordReadLimit(1L, message.getBody().length);
                 return message;
             }
+        } else {
+            fetchData(5000);
         }
         AgentUtils.silenceSleepInMs(waitTimeout);
 
@@ -150,14 +152,7 @@ public class KafkaReader<K, V> implements Reader {
 
     @Override
     public boolean isFinished() {
-        if (!isFinished) {
-            if (iterator == null || !iterator.hasNext()) {
-                // fetch data
-                fetchData(5000);
-            }
-            return false;
-        }
-        return true;
+        return isFinished;
     }
 
     @Override
