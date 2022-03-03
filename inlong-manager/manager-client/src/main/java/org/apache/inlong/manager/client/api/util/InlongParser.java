@@ -21,9 +21,9 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
@@ -38,6 +38,8 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+
+import java.util.List;
 
 import static org.apache.inlong.manager.common.enums.SourceType.DB_BINLOG;
 import static org.apache.inlong.manager.common.enums.SourceType.KAFKA;
@@ -131,7 +133,8 @@ public class InlongParser {
         InlongGroupApproveRequest groupApproveInfo = GsonUtil.fromJson(groupJson.toString(),
                 InlongGroupApproveRequest.class);
         JsonObject mqExtInfo = groupJson.getAsJsonObject(mqExtInfoField);
-        if (mqExtInfo.get("middlewareType").getAsString().equals("PULSAR")) {
+        if (mqExtInfo.get("middlewareType") != null
+                && Constant.MIDDLEWARE_PULSAR.equals(mqExtInfo.get("middlewareType").getAsString())) {
             InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
             groupApproveInfo.setAckQuorum(pulsarInfo.getAckQuorum());
             groupApproveInfo.setEnsemble(pulsarInfo.getEnsemble());
