@@ -188,7 +188,7 @@ public class TaskManager extends AbstractDaemon {
         taskMetrics.decRunningTaskCount();
         TaskWrapper taskWrapper = tasks.remove(taskId);
         if (taskWrapper != null) {
-            taskWrapper.waitForFinish();
+            taskWrapper.destroyTask();
         }
     }
 

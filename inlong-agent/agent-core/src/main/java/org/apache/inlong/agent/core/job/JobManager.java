@@ -179,6 +179,7 @@ public class JobManager extends AbstractDaemon {
      */
     public boolean deleteJob(String jobInstancId) {
         JobWrapper jobWrapper = jobs.remove(jobInstancId);
+        LOGGER.info("start to delete job, job id set {}", jobs.keySet());
         if (jobWrapper != null) {
             LOGGER.info("delete job instance with job id {}", jobInstancId);
             jobWrapper.cleanup();
