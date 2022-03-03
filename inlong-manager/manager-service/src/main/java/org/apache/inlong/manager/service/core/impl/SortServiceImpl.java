@@ -159,6 +159,7 @@ public class SortServiceImpl implements SortService {
             return SortSourceConfigResponse.builder()
                     .msg(msg)
                     .code(RESPONSE_CODE_NO_UPDATE)
+                    .md5(md5)
                     .build();
         }
 

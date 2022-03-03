@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-
 import com.google.gson.Gson;
 import jodd.util.StringUtil;
 import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse.CacheZone;
@@ -130,8 +129,5 @@ public class SortSourceServiceImpl implements SortSourceService {
     private Map<String, String> jsonProperty2Map(String jsonProperty) {
         return new Gson().fromJson(jsonProperty, Map.class);
     }
-
-
-
 
 }
