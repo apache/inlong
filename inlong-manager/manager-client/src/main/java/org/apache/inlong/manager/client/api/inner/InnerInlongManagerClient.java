@@ -206,6 +206,8 @@ public class InnerInlongManagerClient {
      * @return groupId && errMsg
      */
     public Pair<String, String> updateGroup(InlongGroupRequest groupInfo) {
+        groupInfo.setCreateTime(null);
+        groupInfo.setModifyTime(null);
         String path = HTTP_PATH + "/group/update";
         final String biz = GsonUtil.toJson(groupInfo);
         final RequestBody bizBody = RequestBody.create(MediaType.parse("application/json"), biz);
@@ -263,6 +265,8 @@ public class InnerInlongManagerClient {
     }
 
     public Pair<Boolean, String> updateStreamInfo(InlongStreamInfo streamInfo) {
+        streamInfo.setCreateTime(null);
+        streamInfo.setModifyTime(null);
         final String path = HTTP_PATH + "/stream/update";
         final String url = formatUrl(path);
         final String stream = GsonUtil.toJson(streamInfo);
