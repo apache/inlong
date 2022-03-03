@@ -66,6 +66,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         HiveSinkRequest hiveSinkRequest = new HiveSinkRequest();
         hiveSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         hiveSinkRequest.setSinkType("HIVE");
+        hiveSinkRequest.setSinkName("HIVE");
         hiveSinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         List<SinkFieldRequest> sinkFieldRequests = createStreamFields(streamInfo.getInlongGroupId(),
                 streamInfo.getInlongStreamId())
@@ -100,6 +101,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         kafkaSourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         kafkaSourceRequest.setGroupId("default");
         kafkaSourceRequest.setSerializationType("csv");
+        kafkaSourceRequest.setSourceName("KAFKA");
         streamSourceService.save(kafkaSourceRequest, OPERATOR);
         return kafkaSourceRequest;
     }

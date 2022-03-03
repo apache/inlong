@@ -30,6 +30,7 @@ public class DataConfig {
     private String op;
     private Integer jobId;
     private Integer taskType;
+    private String taskName;
     private String snapshot;
     private String extParams;
 

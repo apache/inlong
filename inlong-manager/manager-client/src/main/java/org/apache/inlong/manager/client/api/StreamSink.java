@@ -26,6 +26,8 @@ import org.apache.inlong.manager.common.enums.SinkType;
 @ApiModel("Stream sink configuration")
 public abstract class StreamSink {
 
+    private String sinkName;
+
     public abstract SinkType getSinkType();
 
     public abstract List<StreamField> getStreamFields();

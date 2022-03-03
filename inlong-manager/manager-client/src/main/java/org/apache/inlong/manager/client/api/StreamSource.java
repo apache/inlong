@@ -29,9 +29,12 @@ public abstract class StreamSource {
         FULL, INCREMENT
     }
 
+    private String sourceName;
+
     public abstract SourceType getSourceType();
 
     public abstract SyncType getSyncType();
 
     public abstract DataFormat getDataFormat();
+
 }

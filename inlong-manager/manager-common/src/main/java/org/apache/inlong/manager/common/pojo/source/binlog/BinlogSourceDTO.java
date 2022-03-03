@@ -49,6 +49,9 @@ public class BinlogSourceDTO {
     @ApiModelProperty("Hostname of the DB server")
     private String hostname;
 
+    @ApiModelProperty("Exposed port the DB server")
+    private int port;
+
     @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions, "
             + "separate them with commas, for example: db1.tb1,db2.tb2",
             notes = "DBs not in this list are excluded. By default, all DBs are monitored")

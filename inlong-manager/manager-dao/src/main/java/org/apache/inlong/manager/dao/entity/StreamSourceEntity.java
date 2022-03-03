@@ -30,6 +30,7 @@ public class StreamSourceEntity implements Serializable {
     private String inlongGroupId;
     private String inlongStreamId;
     private String sourceType;
+    private String sourceName;
     private String agentIp;
     private String uuid;
 

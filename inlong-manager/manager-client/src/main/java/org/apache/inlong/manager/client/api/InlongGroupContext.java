@@ -19,10 +19,13 @@ package org.apache.inlong.manager.client.api;
 
 import com.google.common.collect.Maps;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import lombok.Data;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 
 @Data
@@ -36,7 +39,14 @@ public class InlongGroupContext implements Serializable {
 
     private Map<String, InlongStream> inlongStreamMap;
 
-    //k->taskName v->errorMsg
+    /**
+     * Extension configuration for Inlong group
+     */
+    private Map<String, String> extensions;
+
+    /**
+     * Error message for Inlong group, key: taskName,  value: message
+     */
     private Map<String, String> errMsg;
 
     private InlongGroupState state;
@@ -50,6 +60,13 @@ public class InlongGroupContext implements Serializable {
         this.inlongStreamMap = groupContext.getStreamMap();
         this.errMsg = Maps.newHashMap();
         this.state = InlongGroupState.parseByBizStatus(groupInfo.getStatus());
+        this.extensions = Maps.newHashMap();
+        List<InlongGroupExtInfo> extInfos = groupInfo.getExtList();
+        if (CollectionUtils.isNotEmpty(extInfos)) {
+            extInfos.stream().forEach(extInfo -> {
+                extensions.put(extInfo.getKeyName(), extInfo.getKeyValue());
+            });
+        }
     }
 
     public enum InlongGroupState {

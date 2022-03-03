@@ -591,6 +591,7 @@ CREATE TABLE `stream_source`
     `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Inlong group id',
     `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Inlong stream id',
+    `source_name`      varchar(256) NOT NULL DEFAULT '' COMMENT 'source_name',
     `source_type`      varchar(20)       DEFAULT '0' COMMENT 'Source type, including: FILE, DB, etc',
     `agent_ip`         varchar(40)       DEFAULT NULL COMMENT 'Ip of the agent running the task',
     `uuid`             varchar(30)       DEFAULT NULL COMMENT 'Mac uuid of the agent running the task',
@@ -608,7 +609,8 @@ CREATE TABLE `stream_source`
     `modifier`         varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `source_idx` (`inlong_group_id`,`inlong_stream_id`,`source_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream source table';
 
@@ -622,6 +624,7 @@ CREATE TABLE `stream_sink`
     `inlong_group_id`        varchar(256) NOT NULL COMMENT 'Owning inlong group id',
     `inlong_stream_id`       varchar(256) NOT NULL COMMENT 'Owning inlong stream id',
     `sink_type`              varchar(15)           DEFAULT 'HIVE' COMMENT 'Sink type, including: HIVE, ES, etc',
+    `sink_name`              varchar(256) NOT NULL DEFAULT '' COMMENT 'Sink name',
     `storage_period`         int(11)               DEFAULT '10' COMMENT 'Data storage period, unit: day',
     `enable_create_resource` tinyint(1)            DEFAULT '1' COMMENT 'Whether to enable create sink resource? 0: disable, 1: enable. default is 1',
     `ext_params`             text COMMENT 'Another fields, will saved as JSON type',
@@ -633,7 +636,8 @@ CREATE TABLE `stream_sink`
     `modifier`               varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `sink_idx` (`inlong_group_id`,`inlong_stream_id`,`sink_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream sink table';
 

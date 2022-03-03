@@ -34,11 +34,14 @@ public class BinlogSourceListResponse extends SourceListResponse {
     @ApiModelProperty("Username of the DB server")
     private String user;
 
+    @ApiModelProperty("Password of the DB server")
+    private String password;
+
     @ApiModelProperty("Hostname of the DB server")
     private String hostname;
 
-    @ApiModelProperty("Password of the DB server")
-    private String password;
+    @ApiModelProperty("Exposed port the DB server")
+    private int port;
 
     @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions")
     private String whitelist;

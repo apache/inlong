@@ -45,6 +45,9 @@ public class BinlogSourceResponse extends SourceResponse {
     @ApiModelProperty("Hostname of the DB server")
     private String hostname;
 
+    @ApiModelProperty("Exposed port of the DB server")
+    private int port;
+
     @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions")
     private String whitelist;
 

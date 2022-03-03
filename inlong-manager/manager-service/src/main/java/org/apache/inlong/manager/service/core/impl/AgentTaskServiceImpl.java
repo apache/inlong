@@ -98,6 +98,7 @@ public class AgentTaskServiceImpl implements AgentTaskService {
             dataConfig.setJobId(sourceEntity.getId());
             SourceType sourceType = SourceType.forType(sourceEntity.getSourceType());
             dataConfig.setTaskType(sourceType.getTaskType().getType());
+            dataConfig.setTaskName(sourceEntity.getSourceName());
             dataConfig.setInlongGroupId(sourceEntity.getInlongGroupId());
             dataConfig.setInlongStreamId(sourceEntity.getInlongStreamId());
             dataConfig.setIp(sourceEntity.getAgentIp());

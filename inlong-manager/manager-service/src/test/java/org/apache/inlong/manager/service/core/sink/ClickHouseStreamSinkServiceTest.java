@@ -44,6 +44,7 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
     private static final String ckUsername = "ck_user";
     private static final String ckDatabaseName = "ck_db";
     private static final String ckTableName = "ck_tbl";
+    private static final String sinkName = "default";
     private static Integer sinkId;
     @Autowired
     private StreamSinkService sinkService;
@@ -56,6 +57,7 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
         ClickHouseSinkRequest sinkInfo = new ClickHouseSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
+        sinkInfo.setSinkName(sinkName);
         sinkInfo.setSinkType(Constant.SINK_CLICKHOUSE);
         sinkInfo.setJdbcUrl(ckJdbcUrl);
         sinkInfo.setUsername(ckUsername);

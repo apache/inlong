@@ -42,6 +42,7 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
     private final String globalGroupId = "b_group1";
     private final String globalStreamId = "stream1";
     private final String globalOperator = "test_user";
+    private final String sourceName = "default";
 
     @Autowired
     private StreamSourceService sourceService;
@@ -55,7 +56,7 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
         sourceInfo.setInlongGroupId(globalGroupId);
         sourceInfo.setInlongStreamId(globalStreamId);
         sourceInfo.setSourceType(Constant.SOURCE_DB_BINLOG);
-
+        sourceInfo.setSourceName(sourceName);
         return sourceService.save(sourceInfo, globalOperator);
     }
 

@@ -34,6 +34,7 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
     private final String globalGroupId = "b_group1";
     private final String globalStreamId = "stream1";
     private final String globalOperator = "test_user";
+    private final String sinkName = "default";
 
     @Autowired
     private StreamSinkService sinkService;
@@ -49,7 +50,7 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setSinkType(Constant.SINK_ICEBERG);
         sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
         sinkInfo.setTableLocation("hdfs://127.0.0.1:8020/data");
-
+        sinkInfo.setSinkName(sinkName);
         return sinkService.save(sinkInfo, globalOperator);
     }
 

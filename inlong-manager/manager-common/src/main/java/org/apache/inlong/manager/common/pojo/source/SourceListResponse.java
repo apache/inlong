@@ -44,6 +44,9 @@ public class SourceListResponse {
     @ApiModelProperty("Source type, including: FILE, KAFKA, etc.")
     private String sourceType;
 
+    @ApiModelProperty("Source name, unique in one stream.")
+    private String sourceName;
+
     @ApiModelProperty("Id of the source server")
     private Integer serverId;
 

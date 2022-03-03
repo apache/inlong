@@ -17,7 +17,9 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
+import com.google.common.collect.Maps;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,7 +30,8 @@ import org.apache.inlong.manager.client.api.StreamField;
 import org.apache.inlong.manager.client.api.StreamField.FieldType;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.StreamSource;
-import org.apache.inlong.manager.client.api.util.InlongStreamTransfer;
+import org.apache.inlong.manager.client.api.util.AssertUtil;
+import org.apache.inlong.manager.client.api.util.InlongStreamSinkTransfer;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
@@ -41,17 +44,17 @@ public class InlongStreamImpl extends InlongStream {
 
     private String name;
 
-    private StreamSource streamSource;
+    private Map<String, StreamSource> streamSources = Maps.newHashMap();
 
-    private StreamSink streamSink;
+    private Map<String, StreamSink> streamSinks = Maps.newHashMap();
 
     private List<StreamField> streamFields;
 
-    public InlongStreamImpl(FullStreamResponse fullStreamResponse,InlongStream curStreamInfo) {
+    public InlongStreamImpl(FullStreamResponse fullStreamResponse, InlongStream curStreamInfo) {
         InlongStreamInfo streamInfo = fullStreamResponse.getStreamInfo();
         this.name = streamInfo.getName();
-        this.streamSink = curStreamInfo.getSink();
-        this.streamSource = curStreamInfo.getSource();
+        this.streamSinks = curStreamInfo.getSinks();
+        this.streamSources = curStreamInfo.getSources();
         List<InlongStreamFieldInfo> streamFieldInfos = streamInfo.getFieldList();
         this.streamFields = streamFieldInfos.stream().map(streamFieldInfo -> {
             return new StreamField(streamFieldInfo.getId(),
@@ -63,9 +66,14 @@ public class InlongStreamImpl extends InlongStream {
         }).collect(Collectors.toList());
         List<SinkResponse> sinkList = fullStreamResponse.getSinkInfo();
         if (CollectionUtils.isNotEmpty(sinkList)) {
-            this.streamSink = InlongStreamTransfer.parseStreamSink(sinkList.get(0), streamSink);
+            Map<String, StreamSink> streamSinks = sinkList.stream()
+                    .map(sinkResponse -> {
+                        String sinkName = sinkResponse.getSinkName();
+                        StreamSink streamSink = this.streamSinks.get(sinkName);
+                        return InlongStreamSinkTransfer.parseStreamSink(sinkResponse, streamSink);
+                    }).collect(Collectors.toMap(StreamSink::getSinkName, streamSink -> streamSink));
+            this.streamSinks = streamSinks;
         }
-        // todo generate source
     }
 
     public InlongStreamImpl(String name) {
@@ -78,13 +86,45 @@ public class InlongStreamImpl extends InlongStream {
     }
 
     @Override
-    public StreamSource getSource() {
-        return this.streamSource;
+    public Map<String, StreamSource> getSources() {
+        return this.streamSources;
     }
 
     @Override
-    public StreamSink getSink() {
-        return this.streamSink;
+    public Map<String, StreamSink> getSinks() {
+        return this.streamSinks;
+    }
+
+    @Override
+    public void addSource(StreamSource source) {
+        AssertUtil.notNull(source.getSourceName(), "Source name should not be empty");
+        String sourceName = source.getSourceName();
+        if (streamSources.get(sourceName) != null) {
+            throw new IllegalArgumentException(String.format("StreamSource=%s has already be set", source));
+        }
+        streamSources.put(sourceName, source);
+    }
+
+    @Override
+    public void addSink(StreamSink sink) {
+        AssertUtil.notNull(sink.getSinkName(), "Sink name should not be empty");
+        String sinkName = sink.getSinkName();
+        if (streamSinks.get(sinkName) != null) {
+            throw new IllegalArgumentException(String.format("StreamSink=%s has already be set", sink));
+        }
+        streamSinks.put(sinkName, sink);
+    }
+
+    @Override
+    public void updateSource(StreamSource source) {
+        AssertUtil.notNull(source.getSourceName(), "Source name should not be empty");
+        streamSources.put(source.getSourceName(), source);
+    }
+
+    @Override
+    public void updateSink(StreamSink sink) {
+        AssertUtil.notNull(sink.getSinkName(), "Sink name should not be empty");
+        streamSinks.put(sink.getSinkName(), sink);
     }
 
 }
