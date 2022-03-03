@@ -133,7 +133,7 @@ public class InlongParser {
         InlongGroupApproveRequest groupApproveInfo = GsonUtil.fromJson(groupJson.toString(),
                 InlongGroupApproveRequest.class);
         JsonObject mqExtInfo = groupJson.getAsJsonObject(mqExtInfoField);
-        if (mqExtInfo.get("middlewareType") != null
+        if (mqExtInfo != null && mqExtInfo.get("middlewareType") != null
                 && Constant.MIDDLEWARE_PULSAR.equals(mqExtInfo.get("middlewareType").getAsString())) {
             InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
             groupApproveInfo.setAckQuorum(pulsarInfo.getAckQuorum());
