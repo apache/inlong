@@ -17,17 +17,16 @@
 
 package org.apache.inlong.agent.pojo;
 
-import com.google.gson.Gson;
-import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.common.pojo.agent.DataConfig;
-import org.apache.inlong.common.enums.TaskTypeEnum;
-
 import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+
+import com.google.gson.Gson;
+import lombok.Data;
+import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.common.enums.TaskTypeEnum;
+import org.apache.inlong.common.pojo.agent.DataConfig;
 
 @Data
 public class JobProfileDto {
