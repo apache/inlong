@@ -49,8 +49,7 @@ public class CanalSerializationTest {
     @Test
     public void test() throws Exception {
         SerializationSchema<Row> canalJsonSerializationSchema = SerializationSchemaFactory.build(
-                fieldInfos,
-                new CanalSerializationInfo("Sql", "Literal", null, false)
+                fieldInfos, new CanalSerializationInfo()
         );
         canalJsonSerializationSchema.open(new InitializationContext() {
             @Override

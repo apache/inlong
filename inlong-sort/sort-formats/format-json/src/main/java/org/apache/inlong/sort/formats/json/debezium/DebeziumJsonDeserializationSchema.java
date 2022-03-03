@@ -70,6 +70,7 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
 
     private static final int BEFORE_POS = 0;
     private static final int AFTER_POS = 1;
+    private static final int OP_POS = 2;
 
     private static final String REPLICA_IDENTITY_EXCEPTION =
             "The \"before\" field of %s message is null, "
@@ -170,7 +171,7 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
                 after = (GenericRowData) payload.getField(AFTER_POS);
             }
 
-            String op = payload.getField(2).toString();
+            String op = payload.getField(OP_POS).toString();
             if (OP_CREATE.equals(op) || OP_READ.equals(op)) {
                 after.setRowKind(RowKind.INSERT);
                 emitRow(row, after, out);
@@ -212,7 +213,7 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
     private void emitRow(GenericRowData rootRow, GenericRowData physicalRow, Collector<RowData> out) {
         int physicalArity = physicalRow.getArity();
         if (isMigrateAll) {
-            physicalArity -= 1;
+            physicalArity = 0;
         }
         final int metadataArity = metadataConverters.length;
 

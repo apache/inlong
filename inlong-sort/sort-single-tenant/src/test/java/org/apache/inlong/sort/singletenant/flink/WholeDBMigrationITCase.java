@@ -112,8 +112,7 @@ public class WholeDBMigrationITCase {
 
                 // Serialize and output
                 SerializationSchema<Row> serializationSchema = SerializationSchemaFactory.build(
-                        fieldInfos,
-                        new CanalSerializationInfo("Sql", "Literal", null, false)
+                        fieldInfos, new CanalSerializationInfo()
                 );
                 deserializedStream.addSink(new TestSink(serializationSchema));
 

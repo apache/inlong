@@ -117,8 +117,6 @@ public class CanalJsonSerializationSchema implements SerializationSchema<Row> {
                 index++;
             }
 
-            reuse.setKind(row.getKind());
-
             return jsonSerializer.serialize(reuse);
         } catch (Throwable t) {
             throw new RuntimeException("Could not serialize row '" + row + "'.", t);
