@@ -37,7 +37,7 @@ public class SortSourceConfigResponse {
     @Builder
     public static class SortSourceConfig {
         String sortClusterName;
-        String zoneName;
+        String sortTaskId;
         Map<String, CacheZone> cacheZones;
     }
 
