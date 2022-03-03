@@ -17,8 +17,8 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.sources.snapshot.BinlogSnapshotBase;
 import org.junit.AfterClass;
@@ -49,9 +49,10 @@ public class TestBinlogOffsetManager {
     public void testOffset() {
         BinlogSnapshotBase snapshotManager = new BinlogSnapshotBase(testDir.toString());
         byte[] snapshotBytes = new byte[]{-65, -14, -23};
-        String snapshotString = new String(snapshotBytes, StandardCharsets.ISO_8859_1);
-        snapshotManager.save(snapshotString);
-        Assert.assertEquals(snapshotManager.getSnapshot(), snapshotString);
+        final Base64 base64 = new Base64();
+        String encodeSnapshot = base64.encodeAsString(snapshotBytes);
+        snapshotManager.save(encodeSnapshot);
+        Assert.assertEquals(snapshotManager.getSnapshot(), encodeSnapshot);
     }
 
 }
