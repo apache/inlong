@@ -23,7 +23,6 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;
@@ -66,8 +65,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
     private CommonOperateService commonOperateService;
-    @Autowired
-    private SourceSnapshotOperation heartbeatOperation;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -111,7 +108,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         LOGGER.debug("begin to list source by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
 
-        List<StreamSourceEntity> entityList = sourceMapper.selectByIdentifier(groupId, streamId);
+        List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedId(groupId, streamId);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
         }
@@ -138,7 +135,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             SourceType sourceType = SourceType.forType(entity.getSourceType());
             StreamSourceOperation operation = operationFactory.getInstance(sourceType);
             switch (sourceType) {
-                case DB_BINLOG:
+                case BINLOG:
                     BinlogSourceListResponse binlogSourceListResponse = operation.getFromEntity(entity,
                             BinlogSourceListResponse::new);
                     responses.add(binlogSourceListResponse);
@@ -263,7 +260,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             nextStatus = SourceState.SOURCE_DISABLE.getCode();
         }
         Date now = new Date();
-        List<StreamSourceEntity> entityList = sourceMapper.selectByIdentifier(groupId, streamId);
+        List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedId(groupId, streamId);
         if (CollectionUtils.isNotEmpty(entityList)) {
             for (StreamSourceEntity entity : entityList) {
                 Integer id = entity.getId();
@@ -291,7 +288,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         // Check if it can be deleted
         commonOperateService.checkGroupStatus(groupId, operator);
 
-        List<StreamSourceEntity> entityList = sourceMapper.selectByIdentifier(groupId, streamId);
+        List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedId(groupId, streamId);
         if (CollectionUtils.isNotEmpty(entityList)) {
             entityList.forEach(entity -> sourceMapper.deleteByPrimaryKey(entity.getId()));
         }
@@ -310,11 +307,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         List<String> resultList = sourceMapper.selectSourceType(groupId, streamId);
         LOGGER.debug("success to get source type list, result sourceType={}", resultList);
         return resultList;
-    }
-
-    @Override
-    public Boolean reportSnapshot(TaskSnapshotRequest request) {
-        return heartbeatOperation.snapshot(request);
     }
 
     private void checkParams(SourceRequest request) {

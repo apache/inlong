@@ -26,9 +26,9 @@ public class Constant {
 
     public static final String SOURCE_FILE = "FILE";
 
-    public static final String SOURCE_DB_SQL = "DB_SQL";
+    public static final String SOURCE_SQL = "SQL";
 
-    public static final String SOURCE_DB_BINLOG = "DB_BINLOG";
+    public static final String SOURCE_BINLOG = "BINLOG";
 
     public static final String SOURCE_KAFKA = "KAFKA";
 

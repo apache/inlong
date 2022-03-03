@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.core;
 
-import java.util.List;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
+import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.pojo.agent.AgentStatusReportRequest;
 import org.apache.inlong.manager.common.pojo.agent.CheckAgentTaskConfRequest;
 import org.apache.inlong.manager.common.pojo.agent.ConfirmAgentIpRequest;
@@ -27,9 +27,28 @@ import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
 
-public interface AgentTaskService {
+import java.util.List;
 
-    TaskResult getAgentTask(TaskRequest taskRequest);
+/**
+ * The service interface for agent
+ */
+public interface AgentService {
+
+    /**
+     * Report the heartbeat for given source.
+     *
+     * @param request Heartbeat request.
+     * @return Whether succeed.
+     */
+    Boolean reportSnapshot(TaskSnapshotRequest request);
+
+    /**
+     * Agent report the task result, and pull task config to operate.
+     *
+     * @param request Request of the task result.
+     * @return Task result.
+     */
+    TaskResult reportAndGetTask(TaskRequest request);
 
     @Deprecated
     FileAgentTaskInfo getFileAgentTask(FileAgentCommandInfo info);

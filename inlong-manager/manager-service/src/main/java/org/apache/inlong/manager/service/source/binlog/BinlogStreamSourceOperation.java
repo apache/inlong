@@ -52,12 +52,12 @@ public class BinlogStreamSourceOperation extends AbstractStreamSourceOperation {
 
     @Override
     public Boolean accept(SourceType sourceType) {
-        return SourceType.DB_BINLOG == sourceType;
+        return SourceType.BINLOG == sourceType;
     }
 
     @Override
     protected String getSourceType() {
-        return Constant.SOURCE_DB_BINLOG;
+        return Constant.SOURCE_BINLOG;
     }
 
     @Override

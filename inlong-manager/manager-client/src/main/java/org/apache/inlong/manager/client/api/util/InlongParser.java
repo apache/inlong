@@ -41,7 +41,7 @@ import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 
 import java.util.List;
 
-import static org.apache.inlong.manager.common.enums.SourceType.DB_BINLOG;
+import static org.apache.inlong.manager.common.enums.SourceType.BINLOG;
 import static org.apache.inlong.manager.common.enums.SourceType.KAFKA;
 
 /**
@@ -57,8 +57,7 @@ public class InlongParser {
     public static WorkflowResult parseWorkflowResult(Response response) {
         Object data = response.getData();
         String resultData = GsonUtil.toJson(data);
-        WorkflowResult workflowResult = GsonUtil.fromJson(resultData, WorkflowResult.class);
-        return workflowResult;
+        return GsonUtil.fromJson(resultData, WorkflowResult.class);
     }
 
     public static InlongGroupResponse parseGroupInfo(Response response) {
@@ -69,25 +68,22 @@ public class InlongParser {
     public static PageInfo<InlongGroupListResponse> parseGroupList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);
-        PageInfo<InlongGroupListResponse> pageInfo = GsonUtil.fromJson(pageInfoJson,
+        return GsonUtil.fromJson(pageInfoJson,
                 new TypeToken<PageInfo<InlongGroupListResponse>>() {
                 }.getType());
-        return pageInfo;
     }
 
     public static InlongStreamInfo parseStreamInfo(Response response) {
         Object data = response.getData();
-        InlongStreamInfo streamInfo = GsonUtil.fromJson(GsonUtil.toJson(data), InlongStreamInfo.class);
-        return streamInfo;
+        return GsonUtil.fromJson(GsonUtil.toJson(data), InlongStreamInfo.class);
     }
 
     public static PageInfo<FullStreamResponse> parseStreamList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);
-        PageInfo<FullStreamResponse> pageInfo = GsonUtil.fromJson(pageInfoJson,
+        return GsonUtil.fromJson(pageInfoJson,
                 new TypeToken<PageInfo<FullStreamResponse>>() {
                 }.getType());
-        return pageInfo;
     }
 
     public static PageInfo<SourceListResponse> parseSourceList(Response response) {
@@ -99,7 +95,7 @@ public class InlongParser {
         if (pageInfo.getList() != null && !pageInfo.getList().isEmpty()) {
             SourceListResponse sourceListResponse = pageInfo.getList().get(0);
             SourceType sourceType = SourceType.forType(sourceListResponse.getSourceType());
-            if (sourceType == DB_BINLOG) {
+            if (sourceType == BINLOG) {
                 return GsonUtil.fromJson(pageInfoJson,
                         new TypeToken<PageInfo<BinlogSourceListResponse>>() {
                         }.getType());
@@ -119,10 +115,9 @@ public class InlongParser {
     public static PageInfo<SinkListResponse> parseSinkList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);
-        PageInfo<SinkListResponse> pageInfo = GsonUtil.fromJson(pageInfoJson,
+        return GsonUtil.fromJson(pageInfoJson,
                 new TypeToken<PageInfo<SinkListResponse>>() {
                 }.getType());
-        return pageInfo;
     }
 
     public static Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> parseGroupForm(String formJson) {
@@ -156,9 +151,9 @@ public class InlongParser {
     public static PageInfo<EventLogView> parseEventLogViewList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);
-        PageInfo<EventLogView> pageInfo = GsonUtil.fromJson(pageInfoJson,
+        return GsonUtil.fromJson(pageInfoJson,
                 new TypeToken<PageInfo<EventLogView>>() {
                 }.getType());
-        return pageInfo;
     }
+
 }

@@ -22,6 +22,9 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * The task result pulled by the agent from the manager.
+ */
 @Data
 @Builder
 public class TaskResult {
