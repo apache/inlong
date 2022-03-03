@@ -20,11 +20,11 @@ package org.apache.inlong.agent.conf;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.pojo.JobProfileDto;
 import org.apache.inlong.common.pojo.agent.DataConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
@@ -32,9 +32,7 @@ import java.util.Date;
  */
 public class TriggerProfile extends JobProfile {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TriggerProfile.class);
-
-    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
      * Parse a given json string and get a TriggerProfile
@@ -79,14 +77,9 @@ public class TriggerProfile extends JobProfile {
 
     public Date getDeliveryTime() {
         String dateStr = get(JobConstants.JOB_DELIVERY_TIME);
-        Date date = null;
-        try {
-            date = format.parse(dateStr);
-        } catch (ParseException e) {
-            LOGGER.error("parse delivery time error for {}", dateStr);
-        }
-
-        return date;
+        LocalDateTime localDateTime = LocalDateTime.parse(dateStr, TIME_FORMATTER);
+        Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+        return Date.from(instant);
     }
 
 }
