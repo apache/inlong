@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
@@ -43,10 +44,12 @@ import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo.CommandI
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
 import org.apache.inlong.manager.dao.entity.DataSourceCmdConfigEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
 import org.apache.inlong.manager.dao.entity.SourceFileDetailEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
@@ -72,6 +75,9 @@ public class AgentTaskServiceImpl implements AgentTaskService {
     private StreamSourceEntityMapper streamSourceMapper;
 
     @Autowired
+    private InlongStreamEntityMapper inlongStreamMapper;
+
+    @Autowired
     private InlongStreamFieldEntityMapper streamFieldMapper;
 
     @Override
@@ -91,21 +97,26 @@ public class AgentTaskServiceImpl implements AgentTaskService {
     }
 
     private List<DataConfig> getAgentDataConfigs(TaskRequest taskRequest) {
+        List<DataConfig> dataConfigs = Lists.newArrayList();
         List<StreamSourceEntity> sourceEntities = streamSourceMapper.selectAgentTaskDataConfig(taskRequest);
-        List<DataConfig> dataConfigs = sourceEntities.stream().map(sourceEntity -> {
+        for (StreamSourceEntity sourceEntity : sourceEntities) {
             DataConfig dataConfig = new DataConfig();
             dataConfig.setOp(String.valueOf(sourceEntity.getStatus() % 100));
             dataConfig.setJobId(sourceEntity.getId());
             SourceType sourceType = SourceType.forType(sourceEntity.getSourceType());
             dataConfig.setTaskType(sourceType.getTaskType().getType());
-            dataConfig.setInlongGroupId(sourceEntity.getInlongGroupId());
-            dataConfig.setInlongStreamId(sourceEntity.getInlongStreamId());
+            String inlongGroupId = sourceEntity.getInlongGroupId();
+            String inlongStreamId = sourceEntity.getInlongStreamId();
+            dataConfig.setInlongGroupId(inlongGroupId);
+            dataConfig.setInlongStreamId(inlongStreamId);
             dataConfig.setIp(sourceEntity.getAgentIp());
             dataConfig.setUuid(sourceEntity.getUuid());
             dataConfig.setExtParams(sourceEntity.getExtParams());
             dataConfig.setSnapshot(sourceEntity.getSnapshot());
-            return dataConfig;
-        }).collect(Collectors.toList());
+            InlongStreamEntity inlongStreamEntity = inlongStreamMapper.selectByIdentifier(inlongGroupId,inlongStreamId);
+            inlongStreamEntity.setSyncSend(inlongStreamEntity.getSyncSend());
+            dataConfigs.add(dataConfig);
+        }
         //Forward Compatible File task type
         return dataConfigs;
     }

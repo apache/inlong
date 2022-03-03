@@ -31,7 +31,7 @@ public class DataConfig {
     private Integer jobId;
     private Integer taskType;
     private String snapshot;
-    private String syncSend;
+    private Integer syncSend;
     private String extParams;
 
     public boolean isValid() {

@@ -152,7 +152,7 @@ public class JobProfileDto {
         proxy.setInlongGroupId(dataConfigs.getInlongGroupId());
         proxy.setInlongStreamId(dataConfigs.getInlongStreamId());
         proxy.setManager(manager);
-        if (!StringUtils.isEmpty(dataConfigs.getSyncSend())) {
+        if (null != dataConfigs.getSyncSend()) {
             proxy.setSync(dataConfigs.getSyncSend());
         }
         return proxy;
@@ -234,7 +234,7 @@ public class JobProfileDto {
         private String inlongGroupId;
         private String inlongStreamId;
         private Manager manager;
-        private String sync;
+        private Integer sync;
     }
 
 }

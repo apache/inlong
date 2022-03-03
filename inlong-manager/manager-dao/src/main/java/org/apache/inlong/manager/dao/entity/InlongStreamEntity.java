@@ -39,6 +39,7 @@ public class InlongStreamEntity implements Serializable {
     private String dataSeparator;
     private String dataEscapeChar;
     private Integer havePredefinedFields;
+    private Integer syncSend;
 
     private Integer dailyRecords;
     private Integer dailyStorage;
