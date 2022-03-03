@@ -54,6 +54,8 @@ public class AgentManager extends AbstractDaemon {
     private final TaskManager taskManager;
     private final TriggerManager triggerManager;
     private final TaskPositionManager taskPositionManager;
+    private final HeartbeatManager heartbeatManager;
+
 
     // jetty for config operations via http.
     private ConfigJetty configJetty;
@@ -76,6 +78,7 @@ public class AgentManager extends AbstractDaemon {
         triggerManager = new TriggerManager(this, new TriggerProfileDb(db));
         jobManager = new JobManager(this, jobProfileDb);
         taskManager = new TaskManager(this);
+        heartbeatManager = new HeartbeatManager(this);
         taskPositionManager = TaskPositionManager.getTaskPositionManager(this);
         // need to be an option.
         if (conf.getBoolean(
@@ -146,6 +149,10 @@ public class AgentManager extends AbstractDaemon {
 
     public TaskManager getTaskManager() {
         return taskManager;
+    }
+
+    public HeartbeatManager getHeartbeatManager() {
+        return heartbeatManager;
     }
 
     @Override

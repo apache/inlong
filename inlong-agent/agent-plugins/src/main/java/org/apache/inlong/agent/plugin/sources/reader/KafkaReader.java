@@ -88,6 +88,7 @@ public class KafkaReader<K, V> implements Reader {
     private String inlongGroupId;
     private String inlongStreamId;
     private String snapshot;
+    private boolean isFinished = false;
 
     /**
      * init attribute
@@ -129,6 +130,8 @@ public class KafkaReader<K, V> implements Reader {
                 Map<String, String> headerMap = new HashMap<>();
                 headerMap.put("record.offset", String.valueOf(record.offset()));
                 headerMap.put("record.key", String.valueOf(record.key()));
+                LOGGER.info(
+                        "partition:" + record.partition() + "value:" + recordValue + ", offset:" + record.offset());
                 // control speed
                 kafkaMetric.incReadNum();
                 // commit offset
@@ -139,6 +142,8 @@ public class KafkaReader<K, V> implements Reader {
                 recordReadLimit(1L, message.getBody().length);
                 return message;
             }
+        } else {
+            fetchData(5000);
         }
         AgentUtils.silenceSleepInMs(waitTimeout);
 
@@ -147,29 +152,7 @@ public class KafkaReader<K, V> implements Reader {
 
     @Override
     public boolean isFinished() {
-        if (iterator == null) {
-            // fetch data
-            fetchData(5000);
-            return false;
-        }
-        if (iterator.hasNext()) {
-            lastTime = 0;
-            return false;
-        }
-        // fetch data
-        boolean fetchDataSuccess = fetchData(5000);
-        if (fetchDataSuccess && iterator.hasNext()) {
-            lastTime = 0;
-            return false;
-        } else {
-            if (lastTime == 0) {
-                lastTime = System.currentTimeMillis();
-            }
-            if (timeout == NEVER_STOP_SIGN) {
-                return false;
-            }
-            return System.currentTimeMillis() - lastTime > timeout;
-        }
+        return isFinished;
     }
 
     @Override
@@ -207,7 +190,7 @@ public class KafkaReader<K, V> implements Reader {
 
     @Override
     public void destroy() {
-        iterator.remove();
+        isFinished = true;
         consumer.close();
     }
 

@@ -15,33 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.utils;
+package org.apache.inlong.agent.pojo;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import lombok.Data;
 
-public class ExcuteLinux {
+@Data
+public class DebeziumSourceFormat {
 
-    public static String exeCmd(String commandStr) {
+    private String version;
 
-        String result = null;
-        try {
-            String[] cmd = new String[]{"/bin/sh", "-c",commandStr};
-            Process ps = Runtime.getRuntime().exec(cmd);
+    private String snapshot;
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(ps.getInputStream()));
-            StringBuffer sb = new StringBuffer();
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line).append("\n");
-            }
-            result = sb.toString();
+    private String db;
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private String table;
 
-        return result;
-
-    }
 }

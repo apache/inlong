@@ -36,14 +36,17 @@ public class FetcherConstants {
     public static final String AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "agent.manager.vip.http.prefix.path";
     public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "/api/inlong/manager/openapi";
 
-    public static final String AGENT_MANAGER_TASK_HTTP_PATH = "agent.manager.vip.http.task.path";
-    public static final String DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH = "/fileAgent/getTaskConf";
+    public static final String AGENT_MANAGER_TASK_HTTP_PATH = "agent.manager.task.http.path";
+    public static final String DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH = "/agent/getTask";
 
     public static final String AGENT_MANAGER_IP_CHECK_HTTP_PATH = "agent.manager.vip.http.checkIP.path";
     public static final String DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH = "/fileAgent/confirmAgentIp";
 
     public static final String AGENT_MANAGER_DBCOLLECT_GETTASK_HTTP_PATH = "agent.manager.dbcollect.gettask.http.path";
     public static final String DEFAULT_AGENT_MANAGER_DBCOLLECTOR_GETTASK_HTTP_PATH = "/dbCollector/getTask";
+
+    public static final String AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH = "agent.manager.reportsnapshot.http.path";
+    public static final String DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH = "/agent/reportSnapshot";
 
     public static final String AGENT_HTTP_APPLICATION_JSON = "application/json";
 

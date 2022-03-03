@@ -15,27 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent;
+package org.apache.inlong.agent.pojo;
 
+import java.util.Map;
 import lombok.Data;
 
 @Data
-public class DataConfig {
+public class DebeziumFormat {
 
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private String deliveryTime;
-    private String uuid;
-    private String ip;
-    private String op;
-    private Integer jobId;
-    private Integer taskType;
-    private String taskName;
-    private String snapshot;
-    private String syncSend;
-    private String extParams;
+    /**
+     * no need to deserialize
+     */
+    private Map<String, String> before;
 
-    public boolean isValid() {
-        return true;
-    }
+    /**
+     * no need to deserialize
+     */
+    private Map<String, String> after;
+
+
+    /**
+     * extra info about db
+     */
+    private DebeziumSourceFormat source;
+
 }

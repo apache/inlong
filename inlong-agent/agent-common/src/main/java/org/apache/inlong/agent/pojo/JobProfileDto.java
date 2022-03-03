@@ -19,6 +19,7 @@ package org.apache.inlong.agent.pojo;
 
 import com.google.gson.Gson;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.common.pojo.agent.DataConfig;
@@ -151,6 +152,9 @@ public class JobProfileDto {
         proxy.setInlongGroupId(dataConfigs.getInlongGroupId());
         proxy.setInlongStreamId(dataConfigs.getInlongStreamId());
         proxy.setManager(manager);
+        if (!StringUtils.isEmpty(dataConfigs.getSyncSend())) {
+            proxy.setSync(dataConfigs.getSyncSend());
+        }
         return proxy;
     }
 
@@ -230,6 +234,7 @@ public class JobProfileDto {
         private String inlongGroupId;
         private String inlongStreamId;
         private Manager manager;
+        private String sync;
     }
 
 }

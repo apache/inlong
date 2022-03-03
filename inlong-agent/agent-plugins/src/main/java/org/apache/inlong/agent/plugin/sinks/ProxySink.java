@@ -22,6 +22,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_AGENT_I
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_OCEANUS_BL;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_OCEANUS_F;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_SYNC;
 import static org.apache.inlong.agent.constant.JobConstants.PROXY_BATCH_FLUSH_INTERVAL;
 import static org.apache.inlong.agent.constant.JobConstants.PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constant.JobConstants.PROXY_PACKAGE_MAX_TIMEOUT_MS;
@@ -74,6 +75,7 @@ public class ProxySink extends AbstractSink {
     private int maxBatchTimeoutMs;
     private int batchFlushInterval;
     private int maxQueueNumber;
+    private boolean syncSend;
     private final ExecutorService executorService = new ThreadPoolExecutor(1, 1,
             0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(), new AgentThreadFactory("ProxySink"));
@@ -94,12 +96,16 @@ public class ProxySink extends AbstractSink {
             if (!(message instanceof EndMessage)) {
                 ProxyMessage proxyMessage = ProxyMessage.parse(message);
                 // add proxy message to cache.
-                cache.compute(proxyMessage.getInlongStreamId(),
+                cache.compute(proxyMessage.getBatchKey(),
                         (s, packProxyMessage) -> {
                             if (packProxyMessage == null) {
                                 packProxyMessage = new PackProxyMessage(
                                         maxBatchSize, maxQueueNumber,
-                                        maxBatchTimeoutMs, proxyMessage.getInlongStreamId());
+                                        maxBatchTimeoutMs,
+                                    proxyMessage.getInlongStreamId()
+                                );
+                                packProxyMessage.generateExtraMap(syncSend,
+                                    proxyMessage.getDataKey());
                             }
                             // add message to package proxy
                             packProxyMessage.addProxyMessage(proxyMessage);
@@ -153,8 +159,13 @@ public class ProxySink extends AbstractSink {
                         Pair<String, List<byte[]>> result = packProxyMessage.fetchBatch();
                         if (result != null) {
                             long sendTime = AgentUtils.getCurrentTime();
-                            senderManager.sendBatch(jobInstanceId, inlongGroupId, result.getKey(),
+                            if (syncSend) {
+                                senderManager.sendBatchSync(inlongGroupId, result.getKey(), result.getValue(),
+                                    0, sendTime, packProxyMessage.getExtraMap());
+                            } else {
+                                senderManager.sendBatchAsync(jobInstanceId, inlongGroupId, result.getKey(),
                                     result.getValue(), 0, sendTime);
+                            }
                             LOGGER.info("send group id {} with message size {}, the job id is {}, read source is {}"
                                             + "sendTime is {}", inlongGroupId, result.getRight().size(),
                                     jobInstanceId, sourceName, sendTime);
@@ -173,6 +184,7 @@ public class ProxySink extends AbstractSink {
     public void init(JobProfile jobConf) {
         super.init(jobConf);
         intMetric(PROXY_SINK_TAG_NAME);
+        syncSend = jobConf.getBoolean(PROXY_SEND_SYNC, false);
         maxBatchSize = jobConf.getInt(PROXY_PACKAGE_MAX_SIZE, DEFAULT_PROXY_PACKAGE_MAX_SIZE);
         maxQueueNumber = jobConf.getInt(PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER,
                 DEFAULT_PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER);

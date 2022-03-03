@@ -15,27 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent;
+package org.apache.inlong.agent.utils;
 
-import lombok.Data;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
-@Data
-public class DataConfig {
+public class ExcuteLinux {
 
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private String deliveryTime;
-    private String uuid;
-    private String ip;
-    private String op;
-    private Integer jobId;
-    private Integer taskType;
-    private String taskName;
-    private String snapshot;
-    private String syncSend;
-    private String extParams;
+    public static String exeCmd(String commandStr) {
 
-    public boolean isValid() {
-        return true;
+        String result = null;
+        try {
+            String[] cmd = new String[]{"/bin/sh", "-c",commandStr};
+            Process ps = Runtime.getRuntime().exec(cmd);
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(ps.getInputStream()));
+            StringBuffer sb = new StringBuffer();
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            result = sb.toString();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
+
     }
 }

@@ -26,18 +26,17 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
-import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.TestComponent;
 
 /**
  * Inlong group service test
  */
-@EnableAutoConfiguration
-public class InlongGroupServiceTest extends ServiceBaseTest {
+@TestComponent
+public class InlongGroupServiceTest {
 
     private final String globalGroupId = "b_group1";
     private final String globalGroupName = "group1";

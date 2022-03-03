@@ -34,7 +34,7 @@ public class TestKafkaReader {
         KafkaSource kafkaSource = new KafkaSource();
         JobProfile conf = JobProfile.parseJsonStr("{}");
         conf.set("job.kafkaJob.topic", "test3");
-        conf.set("job.kafkaJob.bootstrap.servers", "10.91.78.118:9092");
+        conf.set("job.kafkaJob.bootstrap.servers", "127.0.0.1:9092");
         conf.set("job.kafkaJob.group.id", "test_group1");
         conf.set("job.kafkaJob.recordspeed.limit", "1");
         conf.set("job.kafkaJob.bytespeed.limit", "1");

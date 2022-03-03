@@ -85,7 +85,6 @@ public class TaskWrapper extends AbstractStateWrapper {
                 if (message == null || task.getChannel()
                         .push(message, pushMaxWaitTime, TimeUnit.SECONDS)) {
                     message = task.getReader().read();
-                    LOGGER.debug("submitReadThread get message {}", message);
                 }
             }
             LOGGER.info("read end, task exception status is {}, read finish status is {}",
@@ -141,6 +140,16 @@ public class TaskWrapper extends AbstractStateWrapper {
     void waitForFinish() {
         LOGGER.info("set readTime out to 1 minute task id is {}", task.getTaskId());
         task.getReader().setReadTimeout(TimeUnit.MINUTES.toMillis(WAIT_FINISH_TIME_OUT));
+    }
+
+
+
+    /**
+     * destroy task
+     */
+    void destroyTask() {
+        LOGGER.info("destroy task id is {}", task.getTaskId());
+        task.getReader().destroy();
     }
 
     /**

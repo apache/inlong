@@ -30,17 +30,17 @@ import java.util.List;
 public class TaskSnapshotRequest {
 
     /**
-     * The ip of agent
+     * The ip of agent Ip
      */
     private String agentIp;
 
     /**
      * The mac UUID of agent
      */
-    private String uuid;
+    private  String uuid;
 
     /**
-     * Report time
+     * Report Time
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date reportTime;
@@ -49,5 +49,6 @@ public class TaskSnapshotRequest {
      * The snapshot message list
      */
     private List<TaskSnapshotMessage> snapshotList;
+
 
 }

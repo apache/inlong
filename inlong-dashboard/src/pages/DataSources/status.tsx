@@ -17,35 +17,45 @@
  * under the License.
  */
 
+import React from 'react';
 import i18n from '@/i18n';
+import StatusTag, { StatusTagProps } from '@/components/StatusTag';
 
-export interface MenuItemType {
-  name: string;
-  children?: MenuItemType[];
-  path?: string;
-}
+type StatusProp = {
+  label: string;
+  value: string | number;
+  type: StatusTagProps['type'];
+  icon?: StatusTagProps['icon'];
+};
 
-const menus: MenuItemType[] = [
+export const statusList: StatusProp[] = [
   {
-    path: '/access',
-    name: i18n.t('configs.menus.DataAccess'),
+    label: i18n.t('pages.Datasources.status.Success'),
+    value: 10,
+    type: 'success',
   },
   {
-    path: '/consume',
-    name: i18n.t('configs.menus.DataConsumption'),
+    label: i18n.t('pages.Datasources.status.Error'),
+    value: 20,
+    type: 'error',
   },
   {
-    path: '/approvals',
-    name: i18n.t('configs.menus.ApprovalManagement'),
-  },
-  {
-    path: '/datasources',
-    name: i18n.t('configs.menus.Datasources'),
-  },
-  {
-    path: '/user',
-    name: i18n.t('configs.menus.SystemManagement'),
+    label: i18n.t('pages.Datasources.status.Deleted'),
+    value: 40,
+    type: 'error',
   },
 ];
 
-export default menus;
+export const statusMap = statusList.reduce(
+  (acc, cur) => ({
+    ...acc,
+    [cur.value]: cur,
+  }),
+  {},
+);
+
+export const genStatusTag = (value: StatusProp['value']) => {
+  const item = statusMap[value] || {};
+
+  return <StatusTag type={item.type || 'default'} title={item.label || value} icon={item.icon} />;
+};
