@@ -17,6 +17,7 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
+import java.util.Map;
 import java.util.Objects;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.SettingValidUtils;
@@ -263,7 +264,8 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
      * @return if equals
      */
     public boolean isDataEquals(ClusterSettingEntity other) {
-        return brokerPort == other.brokerPort
+        return super.isDataEquals(other)
+                && brokerPort == other.brokerPort
                 && brokerTLSPort == other.brokerTLSPort
                 && brokerWebPort == other.brokerWebPort
                 && maxMsgSizeInB == other.maxMsgSizeInB
@@ -314,11 +316,54 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
     }
 
     /**
+     * Get field value to key and value format.
+     *
+     * @param paramMap   output map
+     * @param isLongName if return field key is long name
+     */
+    public void getConfigureInfo(Map<String, String> paramMap,
+                                 boolean isLongName) {
+        if (brokerPort != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "brokerPort" : "bPort"),
+                    String.valueOf(brokerPort));
+        }
+        if (brokerTLSPort != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "brokerTLSPort" : "bTlsPort"),
+                    String.valueOf(brokerTLSPort));
+        }
+        if (brokerWebPort != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "brokerWebPort" : "bWebPort"),
+                    String.valueOf(brokerWebPort));
+        }
+        if (maxMsgSizeInMB != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "maxMsgSizeInMB" : "mxMsgInMB"),
+                    String.valueOf(maxMsgSizeInMB));
+        }
+        if (qryPriorityId != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "qryPriorityId" : "qryPriId"),
+                    String.valueOf(qryPriorityId));
+        }
+        if (gloFlowCtrlStatus != EnableStatus.STATUS_UNDEFINE) {
+            paramMap.put((isLongName ? "flowCtrlEnable" : "fCtrlEn"),
+                    String.valueOf(gloFlowCtrlStatus.isEnable()));
+        }
+        if (gloFlowCtrlRuleCnt != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "flowCtrlRuleCount" : "fCtrlCnt"),
+                    String.valueOf(gloFlowCtrlRuleCnt));
+        }
+        if (TStringUtils.isNotBlank(gloFlowCtrlRuleInfo)) {
+            paramMap.put((isLongName ? "flowCtrlInfo" : "fCtrlInfo"), gloFlowCtrlRuleInfo);
+        }
+        clsDefTopicProps.getConfigureInfo(paramMap, isLongName);
+        super.getConfigureInfo(paramMap, isLongName);
+    }
+
+    /**
      * Serialize field to old version json format
      *
      * @param sBuilder   build container
      * @param isLongName if return field key is long name
-     * @return
+     * @return           the build result
      */
     public StringBuilder toOldVerFlowCtrlWebJsonStr(StringBuilder sBuilder,
                                                     boolean isLongName) {

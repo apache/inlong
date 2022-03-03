@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
@@ -271,6 +272,66 @@ public class TopicPropGroup implements Serializable, Cloneable {
                     .append(",\"dPath\":\"").append(dataPath).append("\"");
         }
         return sBuilder;
+    }
+
+    /**
+     * Get field value in key and value format
+     *
+     * @param paramMap    the value container
+     * @param isLongName  whether long field name
+     */
+    public void getConfigureInfo(Map<String, String> paramMap,
+                                 boolean isLongName) {
+        if (numTopicStores != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "numTopicStores" : "numStore"),
+                    String.valueOf(numTopicStores));
+        }
+        if (numPartitions != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "numPartitions" : "numPart"),
+                    String.valueOf(numPartitions));
+        }
+        if (unflushThreshold != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "unflushThreshold" : "unfDskMsgCnt"),
+                    String.valueOf(unflushThreshold));
+        }
+        if (unflushInterval != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "unflushInterval" : "unfDskInt"),
+                    String.valueOf(unflushInterval));
+        }
+        if (unflushDataHold != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "unflushDataHold" : "unfDskDataSz"),
+                    String.valueOf(unflushDataHold));
+        }
+        if (memCacheMsgSizeInMB != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "memCacheMsgSizeInMB" : "cacheInMB"),
+                    String.valueOf(memCacheMsgSizeInMB));
+        }
+        if (memCacheMsgCntInK != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "memCacheMsgCntInK" : "unfMemMsgCnt"),
+                    String.valueOf(memCacheMsgCntInK));
+        }
+        if (memCacheFlushIntvl != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "memCacheFlushIntvl" : "unfMemInt"),
+                    String.valueOf(memCacheFlushIntvl));
+        }
+        if (acceptPublish != null) {
+            paramMap.put((isLongName ? "acceptPublish" : "accPub"),
+                    String.valueOf(acceptPublish));
+        }
+        if (acceptSubscribe != null) {
+            paramMap.put((isLongName ? "acceptSubscribe" : "accSub"),
+                    String.valueOf(acceptSubscribe));
+        }
+        if (TStringUtils.isNotBlank(deletePolicy)) {
+            paramMap.put((isLongName ? "deletePolicy" : "delPol"), deletePolicy);
+        }
+        if (dataStoreType != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "dataStoreType" : "dStType"),
+                    String.valueOf(dataStoreType));
+        }
+        if (TStringUtils.isNotBlank(dataPath)) {
+            paramMap.put((isLongName ? "dataPath" : "dPath"), dataPath);
+        }
     }
 
     /**

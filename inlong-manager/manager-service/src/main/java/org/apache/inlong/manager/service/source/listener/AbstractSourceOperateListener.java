@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.source.listener;
 
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -41,6 +40,8 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Slf4j
 @Component
 public abstract class AbstractSourceOperateListener implements DataSourceOperateListener {
@@ -62,7 +63,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         InlongGroupInfo groupInfo = getGroupInfo(context.getProcessForm());
         final String groupId = groupInfo.getInlongGroupId();
         List<StreamBriefResponse> streamBriefResponses = streamService.getBriefList(groupId);
-        streamBriefResponses.stream().forEach(streamBriefResponse -> {
+        streamBriefResponses.forEach(streamBriefResponse -> {
             operateStreamSources(groupId, streamBriefResponse.getInlongStreamId(), context.getApplicant());
         });
         return ListenerResult.success();
@@ -70,7 +71,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
 
     protected void operateStreamSources(String groupId, String streamId, String operator) {
         List<SourceResponse> sourceResponses = streamSourceService.listSource(groupId, streamId);
-        sourceResponses.stream().forEach(sourceResponse -> {
+        sourceResponses.forEach(sourceResponse -> {
             SourceRequest sourceRequest = createSourceRequest(sourceResponse);
             operateStreamSource(sourceRequest, operator);
         });
@@ -86,7 +87,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
                 return CommonBeanUtils.copyProperties((KafkaSourceResponse) sourceResponse, KafkaSourceRequest::new);
             default:
                 throw new IllegalArgumentException(
-                        String.format("Unsupport type=%s for DataSourceOperateListener", type));
+                        String.format("Unsupported type=%s for DataSourceOperateListener", type));
         }
     }
 
@@ -101,7 +102,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
             return updateGroupProcessForm.getGroupInfo();
         } else {
             log.error("Illegal ProcessForm {} to get inlong group info", processForm.getFormName());
-            throw new RuntimeException(String.format("Unsupport ProcessForm {} in CreateSortConfigListener",
+            throw new RuntimeException(String.format("Unsupported ProcessForm {%s} in CreateSortConfigListener",
                     processForm.getFormName()));
         }
     }

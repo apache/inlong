@@ -17,11 +17,9 @@
 
 package org.apache.inlong.manager.service.source;
 
-import java.util.Date;
-import javax.validation.constraints.NotNull;
 import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
@@ -32,6 +30,9 @@ import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 public abstract class AbstractStreamSourceOperation implements StreamSourceOperation {
 
@@ -75,7 +76,11 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     public void updateOpt(SourceRequest request, String operator) {
         StreamSourceEntity entity = sourceMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
-        final SourceState curState = SourceState.forCode(entity.getStatus());
+        if (!SourceState.ALLOWED_UPDATE.contains(entity.getStatus())) {
+            throw new RuntimeException(String.format("Source=%s is not allowed to update, "
+                    + "please stop / frozen / delete it firstly", entity));
+        }
+
         // Setting updated parameters of stream source entity.
         setTargetEntity(request, entity);
         entity.setModifier(operator);
@@ -85,10 +90,14 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     }
 
     @Override
-    public Integer saveOpt(SourceRequest request, String operator) {
+    public Integer saveOpt(SourceRequest request, Integer groupStatus, String operator) {
         StreamSourceEntity entity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        entity.setStatus(SourceState.SOURCE_ADD.getCode());
-        entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
+        if (GroupState.forCode(groupStatus).equals(GroupState.GROUP_CONFIG_SUCCESSFUL)) {
+            entity.setStatus(SourceState.TO_BE_ISSUED_ADD.getCode());
+        } else {
+            entity.setStatus(SourceState.SOURCE_NEW.getCode());
+        }
+        entity.setIsDeleted(Constant.UN_DELETED);
         entity.setCreator(operator);
         entity.setModifier(operator);
         Date now = new Date();
@@ -104,7 +113,7 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     public void stopOpt(SourceRequest request, String operator) {
         StreamSourceEntity snapshot = sourceMapper.selectByPrimaryKey(request.getId());
         SourceState curState = SourceState.forCode(snapshot.getStatus());
-        SourceState nextState = SourceState.SOURCE_FROZEN;
+        SourceState nextState = SourceState.TO_BE_ISSUED_FROZEN;
         if (!SourceState.isAllowedTransition(curState, nextState)) {
             throw new RuntimeException(String.format("Source=%s is not allowed to stop", snapshot));
         }
@@ -119,7 +128,7 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     public void restartOpt(SourceRequest request, String operator) {
         StreamSourceEntity snapshot = sourceMapper.selectByPrimaryKey(request.getId());
         SourceState curState = SourceState.forCode(snapshot.getStatus());
-        SourceState nextState = SourceState.SOURCE_ACTIVE;
+        SourceState nextState = SourceState.TO_BE_ISSUED_ACTIVE;
         if (!SourceState.isAllowedTransition(curState, nextState)) {
             throw new RuntimeException(String.format("Source=%s is not allowed to restart", snapshot));
         }
@@ -135,7 +144,7 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     public void deleteOpt(SourceRequest request, String operator) {
         StreamSourceEntity snapshot = sourceMapper.selectByPrimaryKey(request.getId());
         SourceState curState = SourceState.forCode(snapshot.getStatus());
-        SourceState nextState = SourceState.SOURCE_DEL;
+        SourceState nextState = SourceState.TO_BE_ISSUED_DELETE;
         if (!SourceState.isAllowedTransition(curState, nextState)) {
             throw new RuntimeException(String.format("Source=%s is not allowed to delete", snapshot));
         }

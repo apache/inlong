@@ -41,10 +41,11 @@ public interface StreamSourceOperation {
      * Save the source info.
      *
      * @param request The request of the source.
+     * @param groupStatus The belongs group status.
      * @param operator The operator name.
      * @return Source id after saving.
      */
-    Integer saveOpt(SourceRequest request, String operator);
+    Integer saveOpt(SourceRequest request, Integer groupStatus, String operator);
 
     /**
      * Get source info by source id.

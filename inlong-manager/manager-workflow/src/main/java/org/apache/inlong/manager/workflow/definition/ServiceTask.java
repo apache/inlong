@@ -91,6 +91,7 @@ public class ServiceTask extends WorkflowTask {
         ServiceTask serviceTask = (ServiceTask) super.clone();
         serviceTask.addServiceTaskType(this.serviceTaskType);
         serviceTask.addListenerProvider(this.listenerProvider);
+        serviceTask.isInit.set(false);
         return serviceTask;
     }
 

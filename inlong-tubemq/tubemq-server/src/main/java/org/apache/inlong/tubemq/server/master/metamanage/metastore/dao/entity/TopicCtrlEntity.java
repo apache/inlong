@@ -256,7 +256,8 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
      * @return if equals
      */
     public boolean isDataEquals(TopicCtrlEntity other) {
-        return topicNameId == other.topicNameId
+        return super.isDataEquals(other)
+                && topicNameId == other.topicNameId
                 && maxMsgSizeInB == other.maxMsgSizeInB
                 && topicName.equals(other.topicName)
                 && authCtrlStatus == other.authCtrlStatus;
