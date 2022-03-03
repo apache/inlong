@@ -142,6 +142,16 @@ public class TaskWrapper extends AbstractStateWrapper {
         task.getReader().setReadTimeout(TimeUnit.MINUTES.toMillis(WAIT_FINISH_TIME_OUT));
     }
 
+
+
+    /**
+     * destroy task
+     */
+    void destroyTask() {
+        LOGGER.info("destroy task id is {}", task.getTaskId());
+        task.getReader().destroy();
+    }
+
     /**
      * whether task retry times exceed max retry time.
      *
