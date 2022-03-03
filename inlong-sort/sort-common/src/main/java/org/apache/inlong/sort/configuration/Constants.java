@@ -57,6 +57,8 @@ public class Constants {
 
     public static final String DESERIALIZATION_SCHEMA_UID = "deserialization_schema_uid";
 
+    public static final String TRANSFORMATION_UID = "transformation_uid";
+
     public static final String SINK_UID = "sink_uid";
 
     /**
@@ -119,6 +121,10 @@ public class Constants {
 
     public static final ConfigOption<Integer> DESERIALIZATION_PARALLELISM =
             key("deserialization.parallelism")
+                    .defaultValue(1);
+
+    public static final ConfigOption<Integer> TRANSFORMATION_PARALLELISM =
+            key("transformation.parallelism")
                     .defaultValue(1);
 
     public static final ConfigOption<Integer> SINK_PARALLELISM =
@@ -232,25 +238,6 @@ public class Constants {
 
     // ------------------------------------------------------------------------
     //  Hive sink related configs
-    // ------------------------------------------------------------------------
-    public static final ConfigOption<Long> HIKARICP_IDLE_TIMEOUT_MS =
-            key("hikaricp.idle.timeout.ms")
-                    .defaultValue(10000L);
-
-    public static final ConfigOption<Long> HIKARICP_CONNECTION_TIMEOUT_MS =
-            key("hikaricp.connection.timeout.ms")
-                    .defaultValue(30000L);
-
-    public static final ConfigOption<Integer> HIKARICP_MAXIMUM_POOL_SIZE =
-            key("hikaricp.maximum.pool.size")
-                    .defaultValue(10);
-
-    public static final ConfigOption<Long> HIKARICP_MAXIMUM_LIFETIME_MS =
-            key("hikaricp.maximum.lifetime.ms")
-                    .defaultValue(30000L);
-
-    // ------------------------------------------------------------------------
-    //  Hive sink related configs (initial version, refactor later)
     // ------------------------------------------------------------------------
 
     public static final ConfigOption<Integer> SINK_HIVE_COMMITTED_PARTITIONS_CACHE_SIZE =
