@@ -73,6 +73,8 @@
         <kafka.version>3.0.0</kafka.version>
         <jackson.version>2.13.1</jackson.version>
         <flink.scala.binary.version>2.12</flink.scala.binary.version>
+        <akka.version>2.5.21</akka.version>
+        <springcontext.version>5.3.13</springcontext.version>
     </properties>
 
     <repositories>
@@ -100,6 +102,16 @@
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>${httpclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-stream_2.11</artifactId>
+                <version>${akka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${springcontext.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.protobuf</groupId>
