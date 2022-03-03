@@ -33,8 +33,11 @@ public enum GroupState {
     GROUP_CONFIG_ING(110, "in configure"),
     GROUP_CONFIG_FAILED(120, "configuration failed"),
     GROUP_CONFIG_SUCCESSFUL(130, "configuration successful"),
+    GROUP_SUSPEND_ING(141, "suspending"),
     GROUP_SUSPEND(140, "suspend"),
+    GROUP_RESTART_ING(151, "restart"),
     GROUP_RESTART(150, "restart"),
+    GROUP_DELETE_ING(41, "deleting"),
     GROUP_DELETE(40, "delete"),
     //GROUP_FINISH is used for batch task.
     GROUP_FINISH(131, "finish");
@@ -46,28 +49,34 @@ public enum GroupState {
      */
     static {
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_DRAFT,
-                Sets.newHashSet(GROUP_DRAFT, GROUP_WAIT_SUBMIT, GROUP_DELETE));
+                Sets.newHashSet(GROUP_DRAFT, GROUP_WAIT_SUBMIT, GROUP_DELETE_ING));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_WAIT_SUBMIT,
-                Sets.newHashSet(GROUP_WAIT_SUBMIT, GROUP_WAIT_APPROVAL, GROUP_DELETE));
+                Sets.newHashSet(GROUP_WAIT_SUBMIT, GROUP_WAIT_APPROVAL, GROUP_DELETE_ING));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_WAIT_APPROVAL,
                 Sets.newHashSet(GROUP_WAIT_APPROVAL, GROUP_APPROVE_REJECTED, GROUP_APPROVE_PASSED));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_APPROVE_REJECTED,
-                Sets.newHashSet(GROUP_APPROVE_REJECTED, GROUP_WAIT_APPROVAL, GROUP_DELETE));
+                Sets.newHashSet(GROUP_APPROVE_REJECTED, GROUP_WAIT_APPROVAL, GROUP_DELETE_ING));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_APPROVE_PASSED,
-                Sets.newHashSet(GROUP_APPROVE_PASSED, GROUP_CONFIG_ING, GROUP_DELETE));
+                Sets.newHashSet(GROUP_APPROVE_PASSED, GROUP_CONFIG_ING, GROUP_DELETE_ING));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_CONFIG_ING,
                 Sets.newHashSet(GROUP_CONFIG_ING, GROUP_CONFIG_FAILED, GROUP_CONFIG_SUCCESSFUL));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_CONFIG_FAILED,
-                Sets.newHashSet(GROUP_CONFIG_FAILED, GROUP_WAIT_APPROVAL, GROUP_DELETE));
+                Sets.newHashSet(GROUP_CONFIG_FAILED, GROUP_WAIT_APPROVAL, GROUP_DELETE_ING));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_CONFIG_SUCCESSFUL,
-                Sets.newHashSet(GROUP_CONFIG_SUCCESSFUL, GROUP_WAIT_APPROVAL, GROUP_SUSPEND, GROUP_FINISH,
-                        GROUP_DELETE));
+                Sets.newHashSet(GROUP_CONFIG_SUCCESSFUL, GROUP_WAIT_APPROVAL, GROUP_SUSPEND_ING, GROUP_FINISH,
+                        GROUP_DELETE_ING));
+        GROUP_FINITE_STATE_AUTOMATON.put(GROUP_SUSPEND_ING,
+                Sets.newHashSet(GROUP_SUSPEND_ING, GROUP_SUSPEND));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_SUSPEND,
-                Sets.newHashSet(GROUP_SUSPEND, GROUP_RESTART, GROUP_DELETE));
+                Sets.newHashSet(GROUP_SUSPEND, GROUP_RESTART_ING, GROUP_DELETE_ING));
+        GROUP_FINITE_STATE_AUTOMATON.put(GROUP_RESTART_ING,
+                Sets.newHashSet(GROUP_RESTART_ING, GROUP_RESTART));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_RESTART,
-                Sets.newHashSet(GROUP_RESTART, GROUP_SUSPEND, GROUP_WAIT_APPROVAL, GROUP_DELETE));
+                Sets.newHashSet(GROUP_RESTART, GROUP_SUSPEND_ING, GROUP_WAIT_APPROVAL, GROUP_DELETE_ING));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_FINISH,
-                Sets.newHashSet(GROUP_FINISH, GROUP_DELETE));
+                Sets.newHashSet(GROUP_FINISH, GROUP_DELETE_ING));
+        GROUP_FINITE_STATE_AUTOMATON.put(GROUP_DELETE_ING,
+                Sets.newHashSet(GROUP_DELETE_ING, GROUP_DELETE));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_DELETE,
                 Sets.newHashSet(GROUP_DELETE));
     }
@@ -87,7 +96,8 @@ public enum GroupState {
     }
 
     public static boolean isAllowedUpdate(GroupState state) {
-        return state != GroupState.GROUP_CONFIG_ING && state != GroupState.GROUP_WAIT_APPROVAL;
+        return state != GroupState.GROUP_CONFIG_ING
+                && state != GroupState.GROUP_WAIT_APPROVAL;
     }
 
     public static boolean isAllowedLogicDel(GroupState state) {

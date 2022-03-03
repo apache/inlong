@@ -46,6 +46,14 @@ public interface InlongGroup {
     InlongGroupContext init() throws Exception;
 
     /**
+     * Update Inlong group on updated conf
+     *
+     * @return
+     * @throws Exception
+     */
+    void update(InlongGroupConf conf) throws Exception;
+
+    /**
      * Init inlong group on updated conf.
      * Must be invoked when group is rejected,failed or started
      *

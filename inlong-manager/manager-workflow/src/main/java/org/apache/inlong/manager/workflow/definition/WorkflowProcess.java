@@ -19,20 +19,23 @@ package org.apache.inlong.manager.workflow.definition;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * WorkflowProcess definition
@@ -123,15 +126,34 @@ public class WorkflowProcess extends Element {
         WorkflowProcess cloneProcess = (WorkflowProcess) super.clone();
         cloneProcess.setStartEvent((StartEvent) this.startEvent.clone());
         cloneProcess.setEndEvent((EndEvent) this.endEvent.clone());
-
         Map<String, WorkflowTask> cloneMap = new HashMap<>();
-        nameToTaskMap.forEach((k, v) -> {
-            try {
-                cloneMap.put(k, v.clone());
-            } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
+
+        StartEvent startEvent = cloneProcess.getStartEvent();
+        Map<WorkflowAction, List<ConditionNextElement>> workflowActionListMap = startEvent.getActionToNextElementMap();
+        Queue<Map<WorkflowAction, List<ConditionNextElement>>> queue = new LinkedBlockingQueue();
+        if (MapUtils.isNotEmpty(workflowActionListMap)) {
+            queue.add(workflowActionListMap);
+        }
+        while (!queue.isEmpty()) {
+            workflowActionListMap = queue.remove();
+            for (List<ConditionNextElement> conditionNextElements : workflowActionListMap.values()) {
+                for (ConditionNextElement conditionNextElement : conditionNextElements) {
+                    Element element = conditionNextElement.getElement();
+                    if (element instanceof WorkflowTask) {
+                        WorkflowTask workflowTask = (WorkflowTask) element;
+                        cloneMap.put(workflowTask.getName(), workflowTask);
+                    }
+                    if (element instanceof NextableElement) {
+                        NextableElement nextableElement = (NextableElement) element;
+                        Map<WorkflowAction, List<ConditionNextElement>> childListMap =
+                                nextableElement.getActionToNextElementMap();
+                        if (MapUtils.isNotEmpty(childListMap)) {
+                            queue.add(childListMap);
+                        }
+                    }
+                }
             }
-        });
+        }
 
         cloneProcess.setNameToTaskMap(cloneMap);
         Map<ProcessEvent, List<ProcessEventListener>> cloneSyncListener = Maps.newHashMap();
