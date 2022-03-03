@@ -80,6 +80,13 @@ public class CommonConstants {
     public static final String PROXY_IS_FILE = "proxy.isFile";
     public static final boolean DEFAULT_IS_FILE = false;
 
+    public static final String PROXY_CLIENT_IO_THREAD_NUM = "client.iothread.num";
+    public static final int DEFAULT_PROXY_CLIENT_IO_THREAD_NUM =
+            Runtime.getRuntime().availableProcessors();
+
+    public static final String PROXY_CLIENT_ENABLE_BUSY_WAIT = "client.enable.busy.wait";
+    public static final boolean DEFAULT_PROXY_CLIENT_ENABLE_BUSY_WAIT = false;
+
     public static final String PROXY_RETRY_SLEEP = "proxy.retry.sleep";
     public static final long DEFAULT_PROXY_RETRY_SLEEP = 500;
 

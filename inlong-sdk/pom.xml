@@ -42,7 +42,6 @@
         <compiler.target>1.8</compiler.target>
         <flume.version>1.9.0</flume.version>
         <plugin.assembly.version>3.2.0</plugin.assembly.version>
-        <netty.version>3.8.0.Final</netty.version>
         <codec.version>1.15</codec.version>
         <junit.version>4.13</junit.version>
         <powermock.version>2.0.2</powermock.version>
@@ -78,11 +77,6 @@
             <groupId>org.apache.flume</groupId>
             <artifactId>flume-ng-configuration</artifactId>
             <version>${flume.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty</artifactId>
-            <version>${netty.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>

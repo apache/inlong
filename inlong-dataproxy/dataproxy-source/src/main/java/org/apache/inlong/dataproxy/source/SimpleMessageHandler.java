@@ -683,6 +683,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error("exception caught cause = {}", cause);
         ctx.fireExceptionCaught(cause);
+        ctx.close();
     }
 
     @Override

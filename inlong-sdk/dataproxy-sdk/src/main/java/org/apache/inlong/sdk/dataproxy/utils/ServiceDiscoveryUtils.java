@@ -195,6 +195,11 @@ public class ServiceDiscoveryUtils {
                 log.info("Get configure from manager is " + returnStr);
                 JsonParser jsonParser = new JsonParser();
                 JsonObject jb = jsonParser.parse(returnStr).getAsJsonObject();
+                if (jb == null) {
+                    log.warn("ServiceDiscovery updated manager ip failed, returnStr = {} jb is "
+                                    + "null ", returnStr, jb);
+                    return null;
+                }
                 JsonObject rd = jb.get("resultData").getAsJsonObject();
                 String ip = rd.get("ip").getAsString();
                 log.info("ServiceDiscovery updated manager ip success, ip : " + ip + ", retStr : " + returnStr);

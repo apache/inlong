@@ -18,6 +18,7 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
+import io.netty.channel.Channel;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,6 +26,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,8 +41,6 @@ import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.threads.MetricWorkerThread;
 import org.apache.inlong.sdk.dataproxy.threads.TimeoutScanThread;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +70,7 @@ public class Sender {
         this(configure, null);
     }
 
-    public Sender(ProxyClientConfig configure, ChannelFactory selfDefineFactory) throws Exception {
+    public Sender(ProxyClientConfig configure, ThreadFactory selfDefineFactory) throws Exception {
         this.configure = configure;
         this.asyncCallbackMaxSize = configure.getTotalAsyncCallbackSize();
         this.threadPool = Executors.newCachedThreadPool();
@@ -151,6 +151,7 @@ public class Sender {
 
     /*Used for asynchronously message sending.*/
     public void notifyCallback(Channel channel, String messageId, SendResult result) {
+        logger.debug("Channel = {} , ack messageId = {}", channel, messageId);
         if (channel == null) {
             return;
         }
@@ -163,7 +164,7 @@ public class Sender {
             return;
         }
         if (isFile) {
-            String proxyip = channel.getRemoteAddress().toString();
+            String proxyip = channel.remoteAddress().toString();
             ((FileCallback) callback.getCallback()).onMessageAck(result.toString()
                     + "=" + proxyip.substring(1, proxyip.indexOf(':')));
             currentBufferSize.addAndGet(-callback.getSize());
@@ -632,7 +633,7 @@ public class Sender {
                 if (netChannel1 == null) {
                     continue;
                 }
-                if (netChannel1.getId().equals(channel.getId())) {
+                if (netChannel1.id().equals(channel.id())) {
                     messageCallable.update(SendResult.CONNECTION_BREAK);
                     syncCallables.remove(messageId);
                     break;

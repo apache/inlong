@@ -52,6 +52,18 @@
             <groupId>com.google.code.gson</groupId>
         </dependency>
         <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+        </dependency>
+        <dependency>
             <artifactId>slf4j-api</artifactId>
             <groupId>org.slf4j</groupId>
         </dependency>
@@ -59,11 +71,6 @@
             <groupId>org.rocksdb</groupId>
             <artifactId>rocksdbjni</artifactId>
         </dependency>
-        <dependency>
-            <artifactId>slf4j-log4j12</artifactId>
-            <groupId>org.slf4j</groupId>
-        </dependency>
-
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
@@ -106,6 +113,12 @@
             <groupId>org.apache.inlong</groupId>
             <artifactId>audit-sdk</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     <build>
