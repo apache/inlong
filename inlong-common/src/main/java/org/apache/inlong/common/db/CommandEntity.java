@@ -36,7 +36,7 @@ public class CommandEntity {
     private int commandResult;
     @SecondaryKey(relate = Relationship.MANY_TO_ONE)
     private boolean isAcked;
-    private String taskId;
+    private Integer taskId;
     private String deliveryTime;
 
     public static String generateCommandId(String taskId, int opType) {

@@ -58,7 +58,7 @@ public class CommandDb {
     public void saveNormalCmds(TriggerProfile profile, boolean success) {
         CommandEntity entity = new CommandEntity();
         entity.setId(CommandEntity.generateCommandId(profile.getTriggerId(), profile.getOpType()));
-        entity.setTaskId(profile.getTriggerId());
+        entity.setTaskId(Integer.valueOf(profile.getTriggerId()));
         entity.setDeliveryTime(profile.getDeliveryTime());
         entity.setCommandResult(success ? MANAGER_SUCCESS_CODE : MANAGER_FAIL_CODE);
         entity.setAcked(false);
@@ -74,7 +74,7 @@ public class CommandDb {
     public void saveSpecialCmds(Integer id, Integer taskId, boolean success) {
         CommandEntity entity = new CommandEntity();
         entity.setId(String.valueOf(id));
-        entity.setTaskId(String.valueOf(taskId));
+        entity.setTaskId(taskId);
         entity.setAcked(false);
         entity.setCommandResult(success ? MANAGER_SUCCESS_CODE : MANAGER_FAIL_CODE);
         storeCommand(entity);
