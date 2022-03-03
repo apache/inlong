@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.config;
 
 import com.google.gson.Gson;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
@@ -115,20 +116,22 @@ public class ConfigManager {
      * @param addElseRemove - if add(true) else remove(false)
      * @return true if changed else false.
      */
-    private boolean updatePropertiesHolder(Map<String, String> result,
-            PropertiesConfigHolder holder, boolean addElseRemove) {
+    private boolean updatePropertiesHolder(Map<String, String> result, PropertiesConfigHolder holder,
+            boolean addElseRemove) {
         Map<String, String> tmpHolder = holder.forkHolder();
         boolean changed = false;
+
         for (Map.Entry<String, String> entry : result.entrySet()) {
-            String oldValue = addElseRemove
-                    ? tmpHolder.put(entry.getKey(), entry.getValue()) : tmpHolder.remove(entry.getKey());
-            // if addElseRemove is false, that means removing item, changed is true.
-            if (oldValue == null && entry.getValue() == null) {
-                continue;
-            }
-            if (oldValue == null || entry.getValue() == null || !oldValue.equals(entry.getValue())
-                    || !addElseRemove) {
-                changed = true;
+            if (addElseRemove) {
+                String oldValue = tmpHolder.put(entry.getKey(), entry.getValue());
+                if (!ObjectUtils.equals(oldValue, entry.getValue())) {
+                    changed = true;
+                }
+            } else {
+                String oldValue = tmpHolder.remove(entry.getKey());
+                if (oldValue != null) {
+                    changed = true;
+                }
             }
         }
 
