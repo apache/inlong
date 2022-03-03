@@ -33,7 +33,6 @@ import org.apache.inlong.agent.pojo.ConfirmAgentIpRequest;
 import org.apache.inlong.agent.pojo.DbCollectorTaskRequestDto;
 import org.apache.inlong.agent.pojo.DbCollectorTaskResult;
 import org.apache.inlong.agent.plugin.Trigger;
-import org.apache.inlong.agent.utils.ExcuteLinux;
 import org.apache.inlong.agent.utils.HttpManager;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -60,8 +59,6 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HOME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_CACHE;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_CACHE_TIMEOUT;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_UNIQ_ID;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_HOME;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_CACHE;
@@ -83,13 +80,14 @@ import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MA
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_TDM_VIP_HTTP_PATH;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_LOCAL_IP;
 import static org.apache.inlong.agent.constant.FetcherConstants.VERSION;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_OP;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_RETRY_TIME;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
 import static org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter.getResultData;
 import static org.apache.inlong.agent.plugin.utils.PluginUtils.copyJobProfile;
+import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalIp;
+import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalUuid;
 
 /**
  * fetch command from manager
@@ -271,11 +269,11 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      * the fetch file command can be normal or special
      */
     private void dealWithFileTaskResult(TaskResult taskResult) {
-        LOGGER.info("deal with fetch result {} ", taskResult);
+        LOGGER.info("deal with fetch result {}", taskResult);
 
         for (DataConfig dataConfig : taskResult.getDataConfigs()) {
             TriggerProfile profile = TriggerProfile.getTriggerProfiles(dataConfig);
-            LOGGER.info("the triggerProfile : {} ",profile);
+            LOGGER.info("the triggerProfile : {}",profile);
             if (profile.hasKey(JOB_TRIGGER)) {
                 dealWithTdmTriggerProfile(profile);
             } else {
@@ -418,21 +416,6 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             default:
         }
         commandDb.saveNormalCmds(triggerProfile, success);
-    }
-
-    /**
-     * check agent ip from manager
-     */
-    private void fetchLocalIp() {
-        localIp = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_IP, DEFAULT_LOCAL_IP);
-    }
-
-    /**
-     * check agent uuid from manager
-     */
-    private void fetchLocalUuid() {
-        String result = ExcuteLinux.exeCmd("dmidecode | grep UUID");
-        uuid = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_UUID, result);
     }
 
     /**

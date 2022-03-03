@@ -29,6 +29,7 @@ import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,6 +43,7 @@ import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VI
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 
+@Component
 public class HeartbeatManager  extends AbstractDaemon {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatManager.class);
@@ -83,7 +85,7 @@ public class HeartbeatManager  extends AbstractDaemon {
 
         for (Map.Entry<String, JobWrapper> entry:jobWrapperMap.entrySet()) {
             if (StringUtils.isBlank(entry.getKey()) || entry.getValue() == null) {
-                LOGGER.info(" key : {} , value : {} exits null",entry.getKey(),entry.getValue());
+                LOGGER.info(" key : {}, value : {} exits null",entry.getKey(),entry.getValue());
                 continue;
             }
             String offset = entry.getValue().getSnapshot();
@@ -101,17 +103,17 @@ public class HeartbeatManager  extends AbstractDaemon {
     }
 
     /**
-     * report heartbeat on time
+     * report heartbeat (default : per minute)
      */
-    @Scheduled(cron = "0 0/1 * * * ? *")
-    private void sendHeartBeat() {
+    @Scheduled(cron = "${agent.scheduled.snapshotreport:0 0/1 * * * ? *}")
+    private  void sendHeartBeat() {
         TaskSnapshotRequest taskSnapshotRequest = getHeartBeat();
         try {
             String returnStr = httpManager.doSentPost(reportSnapshotUrl,taskSnapshotRequest);
-            LOGGER.info(" {} report to manager ",taskSnapshotRequest);
+            LOGGER.info(" {} report to manager",taskSnapshotRequest);
         } catch (Throwable e) {
-            LOGGER.error(" sendHeartBeat to " + reportSnapshotUrl
-                    + " exception {}, {} ", e.toString(), e.getStackTrace());
+            LOGGER.error(" sendHeartBeat to" + reportSnapshotUrl
+                    + " exception {}, {}", e.toString(), e.getStackTrace());
         }
     }
 
