@@ -50,16 +50,15 @@
         <gson.version>2.8.5</gson.version>
         <guava.version>12.0.1</guava.version>
         <jdk.version>1.8</jdk.version>
-        <log4j2.version>1.2.17</log4j2.version>
+        <log4j2.version>2.17.1</log4j2.version>
         <mockito.version>3.3.3</mockito.version>
         <plugin.assembly.version>3.2.0</plugin.assembly.version>
-        <slf4j.version>1.7.30</slf4j.version>
+        <slf4j.version>1.7.36</slf4j.version>
         <junit.version>4.13</junit.version>
         <common.lang.version>2.4</common.lang.version>
         <oro.version>2.0.8</oro.version>
         <avro.version>1.7.2</avro.version>
         <pulsar.version>2.6.2</pulsar.version>
-        <netty.version>3.8.0.Final</netty.version>
         <snappy.version>1.0.4.1</snappy.version>
         <protobuf.version>2.5.0</protobuf.version>
         <httpclient.version>4.5.13</httpclient.version>
@@ -129,11 +128,6 @@
                 <version>${snappy.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
                 <artifactId>commons-dbutils</artifactId>
                 <groupId>commons-dbutils</groupId>
                 <version>${dbutils.version}</version>
@@ -154,17 +148,25 @@
                 <version>${pulsar.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+            <dependency>
                 <artifactId>slf4j-api</artifactId>
                 <groupId>org.slf4j</groupId>
                 <version>${slf4j.version}</version>
             </dependency>
-
-            <dependency>
-                <artifactId>slf4j-log4j12</artifactId>
-                <groupId>org.slf4j</groupId>
-                <version>${slf4j.version}</version>
-            </dependency>
-
             <dependency>
                 <artifactId>guava</artifactId>
                 <groupId>com.google.guava</groupId>

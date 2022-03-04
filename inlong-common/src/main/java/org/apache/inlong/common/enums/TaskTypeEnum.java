@@ -20,7 +20,7 @@ package org.apache.inlong.common.enums;
 import static java.util.Objects.requireNonNull;
 
 public enum TaskTypeEnum {
-    SQL(1), BINLOG(2), FILE(3), KAFKA(4);
+    DATABASE_MIGRATION(0),SQL(1), BINLOG(2), FILE(3), KAFKA(4);
 
     private int type;
 
@@ -31,6 +31,8 @@ public enum TaskTypeEnum {
     public static TaskTypeEnum getTaskType(int taskType) {
         requireNonNull(taskType);
         switch (taskType) {
+            case 0:
+                return DATABASE_MIGRATION;
             case 1:
                 return SQL;
             case 2:

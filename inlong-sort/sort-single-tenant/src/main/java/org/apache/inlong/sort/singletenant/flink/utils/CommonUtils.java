@@ -195,10 +195,23 @@ public class CommonUtils {
         return output;
     }
 
-    public static FieldInfo[] extractNonBuiltInFieldInfos(FieldInfo[] fieldInfos) {
+    public static FieldInfo[] extractNonBuiltInFieldInfos(FieldInfo[] fieldInfos, boolean includeData) {
         return Arrays.stream(fieldInfos)
-                .filter(fieldInfo -> !(fieldInfo instanceof BuiltInFieldInfo))
+                .filter(fieldInfo -> !(fieldInfo instanceof BuiltInFieldInfo)
+                        || (includeData && ((BuiltInFieldInfo) fieldInfo).getBuiltInField()
+                        == BuiltInFieldInfo.BuiltInField.MYSQL_METADATA_DATA))
                 .toArray(FieldInfo[]::new);
+    }
+
+    public static boolean checkWhetherMigrateAll(FieldInfo[] fieldInfos) {
+        for (FieldInfo fieldInfo : fieldInfos) {
+            if (fieldInfo instanceof BuiltInFieldInfo && ((BuiltInFieldInfo) fieldInfo).getBuiltInField()
+                    == BuiltInFieldInfo.BuiltInField.MYSQL_METADATA_DATA) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

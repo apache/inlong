@@ -30,6 +30,7 @@ public class StreamSinkEntity implements Serializable {
     private String inlongGroupId;
     private String inlongStreamId;
     private String sinkType;
+    private String sinkName;
     private Integer storagePeriod;
     private Integer enableCreateResource;
 

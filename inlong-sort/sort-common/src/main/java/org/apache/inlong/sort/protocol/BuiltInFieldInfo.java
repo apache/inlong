@@ -32,7 +32,8 @@ public class BuiltInFieldInfo extends FieldInfo {
         MYSQL_METADATA_TABLE,
         MYSQL_METADATA_EVENT_TIME,
         MYSQL_METADATA_IS_DDL,
-        MYSQL_METADATA_EVENT_TYPE
+        MYSQL_METADATA_EVENT_TYPE,
+        MYSQL_METADATA_DATA
     }
 
     private static final long serialVersionUID = -3436204467879205139L;
@@ -49,6 +50,7 @@ public class BuiltInFieldInfo extends FieldInfo {
         this.builtInField = builtInField;
     }
 
+    @JsonProperty("builtin_field")
     public BuiltInField getBuiltInField() {
         return builtInField;
     }

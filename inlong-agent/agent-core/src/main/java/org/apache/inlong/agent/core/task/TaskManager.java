@@ -126,6 +126,8 @@ public class TaskManager extends AbstractDaemon {
                 }
             }
             taskMetrics.incRunningTaskCount();
+        } else {
+            LOGGER.warn("task cannot be repeated added taskId {}", wrapper.getTask().getTaskId());
         }
     }
 
@@ -188,7 +190,7 @@ public class TaskManager extends AbstractDaemon {
         taskMetrics.decRunningTaskCount();
         TaskWrapper taskWrapper = tasks.remove(taskId);
         if (taskWrapper != null) {
-            taskWrapper.waitForFinish();
+            taskWrapper.destroyTask();
         }
     }
 

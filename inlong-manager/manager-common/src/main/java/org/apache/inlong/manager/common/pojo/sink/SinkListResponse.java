@@ -44,6 +44,9 @@ public class SinkListResponse {
     @ApiModelProperty("Sink type, including: HIVE, ES, etc.")
     private String sinkType;
 
+    @ApiModelProperty("Sink name, unique in one stream.")
+    private String sinkName;
+
     @ApiModelProperty("Sink period, unit: day")
     private Integer storagePeriod;
 

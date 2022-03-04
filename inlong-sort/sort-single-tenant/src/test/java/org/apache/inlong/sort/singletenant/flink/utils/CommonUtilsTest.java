@@ -31,6 +31,7 @@ import org.apache.inlong.sort.formats.common.MapFormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.common.ShortFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.junit.Test;
 
@@ -39,8 +40,11 @@ import java.io.IOException;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.buildAvroRecordSchemaInJson;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertFieldInfosToRowTypeInfo;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.deepCopy;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.extractNonBuiltInFieldInfos;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.checkWhetherMigrateAll;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class CommonUtilsTest {
@@ -311,6 +315,43 @@ public class CommonUtilsTest {
 
         fieldInfos[0].setFormatInfo(IntFormatInfo.INSTANCE);
         assertTrue(copiedInfos[0].getFormatInfo() instanceof StringFormatInfo);
+    }
+
+    @Test
+    public void testExtractNonBuiltInFieldInfos() {
+        FieldInfo[] fieldInfos = {
+                new FieldInfo("f1", StringFormatInfo.INSTANCE),
+                new BuiltInFieldInfo("f2", StringFormatInfo.INSTANCE,
+                        BuiltInFieldInfo.BuiltInField.MYSQL_METADATA_DATA),
+                new BuiltInFieldInfo("f3", StringFormatInfo.INSTANCE, BuiltInFieldInfo.BuiltInField.DATA_TIME)
+        };
+
+        FieldInfo[] fieldInfos1 = extractNonBuiltInFieldInfos(fieldInfos, false);
+        assertEquals(1, fieldInfos1.length);
+        assertFalse(fieldInfos1[0] instanceof BuiltInFieldInfo);
+
+        FieldInfo[] fieldInfos2 = extractNonBuiltInFieldInfos(fieldInfos, true);
+        assertEquals(2, fieldInfos2.length);
+        assertFalse(fieldInfos2[0] instanceof BuiltInFieldInfo);
+        assertTrue(fieldInfos2[1] instanceof BuiltInFieldInfo && ((BuiltInFieldInfo) fieldInfos2[1]).getBuiltInField()
+                == BuiltInFieldInfo.BuiltInField.MYSQL_METADATA_DATA);
+    }
+
+    @Test
+    public void testIsMigrateAll() {
+        FieldInfo[] fieldInfos1 = {
+                new FieldInfo("f1", StringFormatInfo.INSTANCE),
+                new BuiltInFieldInfo("f2", StringFormatInfo.INSTANCE,
+                        BuiltInFieldInfo.BuiltInField.MYSQL_METADATA_DATA),
+                new BuiltInFieldInfo("f3", StringFormatInfo.INSTANCE, BuiltInFieldInfo.BuiltInField.DATA_TIME)
+        };
+        assertTrue(checkWhetherMigrateAll(fieldInfos1));
+
+        FieldInfo[] fieldInfos2 = {
+                new FieldInfo("f1", StringFormatInfo.INSTANCE),
+                new BuiltInFieldInfo("f3", StringFormatInfo.INSTANCE, BuiltInFieldInfo.BuiltInField.DATA_TIME)
+        };
+        assertFalse(checkWhetherMigrateAll(fieldInfos2));
     }
 
 }

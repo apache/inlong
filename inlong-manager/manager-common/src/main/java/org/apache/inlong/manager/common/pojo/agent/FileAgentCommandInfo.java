@@ -17,10 +17,13 @@
 
 package org.apache.inlong.manager.common.pojo.agent;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
 import lombok.Data;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * File agent operation result
@@ -43,7 +46,8 @@ public class FileAgentCommandInfo {
         private int commandResult;
 
         @ApiModelProperty(value = "Command issuance time")
-        private long deliveryTime;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        private Date deliveryTime;
 
         @ApiModelProperty(value = "task id")
         private int taskId;

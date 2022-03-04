@@ -42,6 +42,7 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
     private static final String bootstrapServers = "127.0.0.1:9092";
     private static final String serializationType = "Json";
     private static final String topicName = "kafka_topic_name";
+    private static final String sinkName = "default";
     private static Integer kafkaSinkId;
 
     @Autowired
@@ -56,6 +57,7 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
         sinkInfo.setSinkType(Constant.SINK_KAFKA);
+        sinkInfo.setSinkName(sinkName);
         sinkInfo.setSerializationType(serializationType);
         sinkInfo.setAddress(bootstrapServers);
         sinkInfo.setTopicName(topicName);

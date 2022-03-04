@@ -20,15 +20,14 @@ package org.apache.inlong.agent.plugin.sinks;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
@@ -43,7 +42,6 @@ import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.SendResult;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,14 +60,8 @@ public class SenderManager {
 
     // sharing worker threads between sender client
     // in case of thread abusing.
-    private static final NioClientSocketChannelFactory SHARED_FACTORY =
-            new NioClientSocketChannelFactory(
-                new ThreadPoolExecutor(0, Integer.MAX_VALUE,
-                    60L, TimeUnit.SECONDS,
-                    new SynchronousQueue<Runnable>(), new AgentThreadFactory("SenderManager")),
-                new ThreadPoolExecutor(0, Integer.MAX_VALUE,
-                60L, TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>(),  new AgentThreadFactory("SenderManager")));
+    private static final ThreadFactory SHARED_FACTORY = new DefaultThreadFactory("agent-client-io",
+            Thread.currentThread().isDaemon());
 
     private final String managerHost;
     private final int managerPort;
@@ -89,6 +81,9 @@ public class SenderManager {
     private final int maxSenderPerGroup;
     private final String sourcePath;
     private final PluginMetric metric;
+
+    private int ioThreadNum;
+    private boolean enableBusyWait;
 
     public SenderManager(JobProfile jobConf, String inlongGroupId, String sourcePath) {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
@@ -117,6 +112,12 @@ public class SenderManager {
             CommonConstants.PROXY_RETRY_SLEEP, CommonConstants.DEFAULT_PROXY_RETRY_SLEEP);
         isFile = jobConf.getBoolean(CommonConstants.PROXY_IS_FILE, CommonConstants.DEFAULT_IS_FILE);
         taskPositionManager = TaskPositionManager.getTaskPositionManager();
+
+        ioThreadNum = jobConf.getInt(CommonConstants.PROXY_CLIENT_IO_THREAD_NUM,
+                CommonConstants.DEFAULT_PROXY_CLIENT_IO_THREAD_NUM);
+        enableBusyWait = jobConf.getBoolean(CommonConstants.PROXY_CLIENT_ENABLE_BUSY_WAIT,
+                CommonConstants.DEFAULT_PROXY_CLIENT_ENABLE_BUSY_WAIT);
+
         this.sourcePath = sourcePath;
         this.inlongGroupId = inlongGroupId;
 
@@ -151,6 +152,9 @@ public class SenderManager {
         proxyClientConfig.setTotalAsyncCallbackSize(totalAsyncBufSize);
         proxyClientConfig.setFile(isFile);
         proxyClientConfig.setAliveConnections(aliveConnectionNum);
+
+        proxyClientConfig.setIoThreadNum(ioThreadNum);
+        proxyClientConfig.setEnableBusyWait(enableBusyWait);
 
         DefaultMessageSender sender = new DefaultMessageSender(proxyClientConfig, SHARED_FACTORY);
         sender.setMsgtype(msgType);
@@ -206,7 +210,9 @@ public class SenderManager {
                 return;
             }
             metric.incSendSuccessNum(bodyList.size());
-            taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
+            if (sourcePath != null) {
+                taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
+            }
         }
 
         @Override

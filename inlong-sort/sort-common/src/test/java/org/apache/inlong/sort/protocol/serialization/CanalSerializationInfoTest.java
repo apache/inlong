@@ -24,15 +24,13 @@ public class CanalSerializationInfoTest extends ProtocolBaseTest {
 
     @Override
     public void init() {
-        expectedObject = new CanalSerializationInfo("Sql", "Literal", null, false);
+        expectedObject = new CanalSerializationInfo();
         expectedJson = "{\n"
-                + "  \"type\" : \"canal\",\n"
-                + "  \"timestamp_format_standard\" : \"Sql\",\n"
-                + "  \"map_null_key_mod\" : \"Literal\"\n"
+                + "  \"type\" : \"canal\""
                 + "}";
         equalObj1 = expectedObject;
-        equalObj2 = new CanalSerializationInfo("Sql", "Literal", null, false);
-        unequalObj = new CanalSerializationInfo("Sql", "Literal", null, true);
+        equalObj2 = new CanalSerializationInfo();
+        unequalObj = new JsonSerializationInfo();
     }
 
 }

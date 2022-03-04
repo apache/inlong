@@ -17,7 +17,9 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
+import com.google.common.collect.Maps;
 import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
@@ -31,9 +33,9 @@ public class InnerStreamContext {
 
     private InlongStreamInfo streamInfo;
 
-    private SourceRequest sourceRequest;
+    private Map<String, SourceRequest> sourceRequests = Maps.newHashMap();
 
-    private SinkRequest sinkRequest;
+    private Map<String, SinkRequest> sinkRequests = Maps.newHashMap();
 
     public InnerStreamContext(InlongStreamInfo streamInfo) {
         this.streamInfo = streamInfo;
@@ -41,6 +43,14 @@ public class InnerStreamContext {
 
     public void updateStreamFields(List<InlongStreamFieldInfo> fieldInfoList) {
         streamInfo.setFieldList(fieldInfoList);
+    }
+
+    public void setSourceRequest(SourceRequest sourceRequest) {
+        this.sourceRequests.put(sourceRequest.getSourceName(), sourceRequest);
+    }
+
+    public void setSinkRequest(SinkRequest sinkRequest) {
+        this.sinkRequests.put(sinkRequest.getSinkName(), sinkRequest);
     }
 
 }

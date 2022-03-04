@@ -34,7 +34,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 @ApiModel(value = "Response of the binlog source")
 public class BinlogSourceResponse extends SourceResponse {
 
-    private String sourceType = Constant.SOURCE_DB_BINLOG;
+    private String sourceType = Constant.SOURCE_BINLOG;
 
     @ApiModelProperty("Username of the DB server")
     private String user;
@@ -44,6 +44,9 @@ public class BinlogSourceResponse extends SourceResponse {
 
     @ApiModelProperty("Hostname of the DB server")
     private String hostname;
+
+    @ApiModelProperty("Exposed port of the DB server")
+    private int port;
 
     @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions")
     private String whitelist;

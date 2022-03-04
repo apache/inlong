@@ -176,7 +176,6 @@ public class InlongGroupImpl implements InlongGroup {
         if (isDeleted) {
             groupResponse.setStatus(GroupState.GROUP_DELETE.getCode());
         }
-        InlongGroupInfo groupInfo = CommonBeanUtils.copyProperties(groupResponse, InlongGroupInfo::new);
         return generateSnapshot();
     }
 
@@ -216,8 +215,10 @@ public class InlongGroupImpl implements InlongGroup {
                 InlongStream stream = groupContext.getStream(streamName);
                 InlongStreamImpl inlongStream = new InlongStreamImpl(fullStreamResponse, stream);
                 if (CollectionUtils.isNotEmpty(sourceListResponses)) {
-                    inlongStream.setStreamSource(
-                            InlongStreamSourceTransfer.parseStreamSource(sourceListResponses.get(0)));
+                    for (SourceListResponse response : sourceListResponses) {
+                        inlongStream.addSource(
+                                InlongStreamSourceTransfer.parseStreamSource(response));
+                    }
                 }
                 return inlongStream;
             }).collect(Collectors.toList());

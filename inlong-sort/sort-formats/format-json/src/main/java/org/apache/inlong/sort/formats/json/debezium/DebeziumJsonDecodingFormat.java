@@ -66,16 +66,20 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
 
     private final TimestampFormat timestampFormat;
 
+    private final boolean isMigrateAll;
+
     public DebeziumJsonDecodingFormat(
             boolean schemaInclude,
             boolean updateBeforeInclude,
             boolean ignoreParseErrors,
-            TimestampFormat timestampFormat) {
+            TimestampFormat timestampFormat,
+            boolean isMigrateAll) {
         this.schemaInclude = schemaInclude;
         this.updateBeforeInclude = updateBeforeInclude;
         this.ignoreParseErrors = ignoreParseErrors;
         this.timestampFormat = timestampFormat;
         this.metadataKeys = Collections.emptyList();
+        this.isMigrateAll = isMigrateAll;
     }
 
     @Override
@@ -110,7 +114,9 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 schemaInclude,
                 updateBeforeInclude,
                 ignoreParseErrors,
-                timestampFormat);
+                timestampFormat,
+                isMigrateAll
+        );
     }
 
     @Override

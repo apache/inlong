@@ -83,6 +83,11 @@ const routes: RouteProps[] = [
     ],
   },
   {
+    path: '/dataSources',
+    component: () => import('@/pages/DataSources'),
+    exact: true,
+  },
+  {
     path: '/user',
     component: () => import('@/pages/UserManagement'),
     exact: true,

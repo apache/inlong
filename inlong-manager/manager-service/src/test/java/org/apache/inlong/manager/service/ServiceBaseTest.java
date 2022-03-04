@@ -25,4 +25,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(classes = ServiceBaseTest.class)
 public class ServiceBaseTest extends BaseTest {
 
+    public final String globalGroupId = "b_group1";
+    public final String globalStreamId = "stream1";
+    public final String globalOperator = "admin";
+
 }

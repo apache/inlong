@@ -51,7 +51,7 @@ function start_agent() {
 		echo "agent is running."
 		exit 1
 	fi
-	nohup $JAVA $AGENT_ARGS org.apache.inlong.agent.core.AgentMain > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null &
+	nohup $JAVA $AGENT_ARGS org.apache.inlong.agent.core.AgentMain > /dev/null 2>&1 &
   echo $! > $PID_FILE
   chmod 755 $PID_FILE
 }

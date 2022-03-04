@@ -55,6 +55,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         BinlogSourceRequest sourceRequest = new BinlogSourceRequest();
         sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+        sourceRequest.setSourceName("binlog-collect");
         return streamSourceService.save(sourceRequest, OPERATOR);
     }
 
@@ -80,7 +81,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("stopSource");
         Assert.assertTrue(task instanceof ServiceTask);
-        SourceResponse sourceResponse = streamSourceService.get(sourceId, SourceType.DB_BINLOG.toString());
+        SourceResponse sourceResponse = streamSourceService.get(sourceId, SourceType.BINLOG.toString());
         Assert.assertSame(SourceState.forCode(sourceResponse.getStatus()), SourceState.TO_BE_ISSUED_FROZEN);
     }
 
@@ -109,7 +110,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("restartSource");
         Assert.assertTrue(task instanceof ServiceTask);
-        SourceResponse sourceResponse = streamSourceService.get(sourceId, SourceType.DB_BINLOG.toString());
+        SourceResponse sourceResponse = streamSourceService.get(sourceId, SourceType.BINLOG.toString());
         Assert.assertSame(SourceState.forCode(sourceResponse.getStatus()), SourceState.TO_BE_ISSUED_ACTIVE);
     }
 

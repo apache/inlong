@@ -39,6 +39,9 @@ public class SinkBriefResponse {
     @ApiModelProperty("Sink type, such as HIVE")
     private String sinkType;
 
+    @ApiModelProperty("Sink name, unique in one stream")
+    private String sinkName;
+
     @ApiModelProperty("Sink cluster ID")
     private Integer clusterId;
 

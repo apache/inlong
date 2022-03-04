@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
@@ -32,6 +33,7 @@ import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.inner.InnerStreamContext;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
+import org.apache.inlong.manager.client.api.util.InlongStreamSinkTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamSourceTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamTransfer;
 import org.apache.inlong.manager.common.enums.SinkType;
@@ -75,7 +77,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     @Override
     public InlongStreamBuilder source(StreamSource source) {
-        inlongStream.setStreamSource(source);
+        inlongStream.addSource(source);
         SourceRequest sourceRequest = InlongStreamSourceTransfer.createSourceRequest(source,
                 streamContext.getStreamInfo());
         streamContext.setSourceRequest(sourceRequest);
@@ -84,8 +86,8 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     @Override
     public InlongStreamBuilder sink(StreamSink sink) {
-        inlongStream.setStreamSink(sink);
-        SinkRequest sinkRequest = InlongStreamTransfer.createSinkRequest(sink, streamContext.getStreamInfo());
+        inlongStream.addSink(sink);
+        SinkRequest sinkRequest = InlongStreamSinkTransfer.createSinkRequest(sink, streamContext.getStreamInfo());
         streamContext.setSinkRequest(sinkRequest);
         return this;
     }
@@ -105,13 +107,17 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         String streamIndex = managerClient.createStreamInfo(streamInfo);
         streamInfo.setId(Double.valueOf(streamIndex).intValue());
         //Create source and update index
-        SourceRequest sourceRequest = streamContext.getSourceRequest();
-        String sourceIndex = managerClient.createSource(sourceRequest);
-        sourceRequest.setId(Double.valueOf(sourceIndex).intValue());
+        List<SourceRequest> sourceRequests = Lists.newArrayList(streamContext.getSourceRequests().values());
+        for (SourceRequest sourceRequest : sourceRequests) {
+            String sourceIndex = managerClient.createSource(sourceRequest);
+            sourceRequest.setId(Double.valueOf(sourceIndex).intValue());
+        }
         //Create sink and update index
-        SinkRequest sinkRequest = streamContext.getSinkRequest();
-        String sinkIndex = managerClient.createSink(sinkRequest);
-        sinkRequest.setId(Double.valueOf(sinkIndex).intValue());
+        List<SinkRequest> sinkRequests = Lists.newArrayList(streamContext.getSinkRequests().values());
+        for (SinkRequest sinkRequest : sinkRequests) {
+            String sinkIndex = managerClient.createSink(sinkRequest);
+            sinkRequest.setId(Double.valueOf(sinkIndex).intValue());
+        }
         return inlongStream;
     }
 
@@ -122,10 +128,14 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         if (existMsg.getKey()) {
             Pair<Boolean, String> updateMsg = managerClient.updateStreamInfo(dataStreamInfo);
             if (updateMsg.getKey()) {
-                SourceRequest sourceRequest = streamContext.getSourceRequest();
-                sourceRequest.setId(initOrUpdateSource(sourceRequest));
-                SinkRequest sinkRequest = streamContext.getSinkRequest();
-                sinkRequest.setId(initOrUpdateSink(sinkRequest));
+                List<SourceRequest> sourceRequests = Lists.newArrayList(streamContext.getSourceRequests().values());
+                for (SourceRequest sourceRequest : sourceRequests) {
+                    sourceRequest.setId(initOrUpdateSource(sourceRequest));
+                }
+                List<SinkRequest> sinkRequests = Lists.newArrayList(streamContext.getSinkRequests().values());
+                for (SinkRequest sinkRequest : sinkRequests) {
+                    sinkRequest.setId(initOrUpdateSink(sinkRequest));
+                }
             } else {
                 throw new RuntimeException(String.format("Update data stream failed:%s", updateMsg.getValue()));
             }
@@ -137,18 +147,28 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     private int initOrUpdateSource(SourceRequest sourceRequest) {
         String sourceType = sourceRequest.getSourceType();
-        if (SourceType.KAFKA.name().equals(sourceType) || SourceType.DB_BINLOG.name().equals(sourceType)) {
+        if (SourceType.KAFKA.name().equals(sourceType) || SourceType.BINLOG.name().equals(sourceType)) {
             List<SourceListResponse> responses = managerClient.listSources(sourceRequest.getInlongGroupId(),
                     sourceRequest.getInlongStreamId(), sourceRequest.getSourceType());
             if (CollectionUtils.isEmpty(responses)) {
                 String sourceIndex = managerClient.createSource(sourceRequest);
                 return Double.valueOf(sourceIndex).intValue();
             } else {
-                SourceListResponse response = responses.get(0);
-                sourceRequest.setId(response.getId());
+                SourceListResponse sourceListResponse = null;
+                for (SourceListResponse response : responses) {
+                    if (response.getSourceName().equals(sourceRequest.getSourceName())) {
+                        sourceListResponse = response;
+                        break;
+                    }
+                }
+                if (sourceListResponse == null) {
+                    String sourceIndex = managerClient.createSource(sourceRequest);
+                    return Double.valueOf(sourceIndex).intValue();
+                }
+                sourceRequest.setId(sourceListResponse.getId());
                 Pair<Boolean, String> updateMsg = managerClient.updateSource(sourceRequest);
                 if (updateMsg.getKey()) {
-                    return response.getId();
+                    return sourceListResponse.getId();
                 } else {
                     throw new RuntimeException(
                             String.format("Update source:%s failed with ex:%s", GsonUtil.toJson(sourceRequest),
@@ -166,14 +186,24 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
             List<SinkListResponse> responses = managerClient.listSinks(sinkRequest.getInlongGroupId(),
                     sinkRequest.getInlongStreamId(), sinkRequest.getSinkType());
             if (CollectionUtils.isEmpty(responses)) {
-                String storageIndex = managerClient.createSink(sinkRequest);
-                return Double.valueOf(storageIndex).intValue();
+                String sinkIndex = managerClient.createSink(sinkRequest);
+                return Double.valueOf(sinkIndex).intValue();
             } else {
-                SinkListResponse response = responses.get(0);
-                sinkRequest.setId(response.getId());
+                SinkListResponse sinkListResponse = null;
+                for (SinkListResponse response : responses) {
+                    if (response.getSinkName().equals(sinkRequest.getSinkName())) {
+                        sinkListResponse = response;
+                        break;
+                    }
+                }
+                if (sinkListResponse == null) {
+                    String sinkIndex = managerClient.createSink(sinkRequest);
+                    return Double.valueOf(sinkIndex).intValue();
+                }
+                sinkRequest.setId(sinkListResponse.getId());
                 Pair<Boolean, String> updateMsg = managerClient.updateSink(sinkRequest);
                 if (updateMsg.getKey()) {
-                    return response.getId();
+                    return sinkListResponse.getId();
                 } else {
                     throw new RuntimeException(
                             String.format("Update sink:%s failed with ex:%s", GsonUtil.toJson(sinkRequest),

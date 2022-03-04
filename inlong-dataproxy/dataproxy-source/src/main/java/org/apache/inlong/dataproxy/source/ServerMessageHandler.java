@@ -489,7 +489,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void responsePackage(Map<String, String> commonAttrMap,
+    private void responsePackage(ChannelHandlerContext ctx, Map<String, String> commonAttrMap,
             Map<String, Object> resultMap,
             Channel remoteChannel,
             SocketAddress remoteSocketAddress,
@@ -519,7 +519,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     buffer.writeInt(backAttr.length);
                     buffer.writeBytes(backAttr);
                     if (remoteChannel.isWritable()) {
-                        remoteChannel.write(buffer);
+                        remoteChannel.writeAndFlush(buffer);
                     } else {
                         String backAttrStr = new String(backAttr, StandardCharsets.UTF_8);
                         logger.warn(
@@ -566,7 +566,9 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
                 binBuffer.writeShort(0xee01);
                 if (remoteChannel.isWritable()) {
-                    remoteChannel.write(binBuffer);
+                    remoteChannel.writeAndFlush(binBuffer);
+                    logger.debug("Connection info: {} ; attr is {} ; uniqVal {}",
+                            remoteChannel, backattrs, uniqVal);
                 } else {
                     binBuffer.release();
                     logger.warn(
@@ -619,7 +621,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             if (MsgType.MSG_HEARTBEAT.equals(msgType)) {
                 ByteBuf heartbeatBuffer = ByteBufAllocator.DEFAULT.buffer(5);
                 heartbeatBuffer.writeBytes(new byte[]{0, 0, 0, 1, 1});
-                remoteChannel.write(heartbeatBuffer);
+                remoteChannel.writeAndFlush(heartbeatBuffer);
                 this.addMetric(false, 0, null);
                 return;
             }
@@ -687,7 +689,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 }
             }
             SocketAddress remoteSocketAddress = remoteChannel.remoteAddress();
-            responsePackage(commonAttrMap, resultMap, remoteChannel, remoteSocketAddress, msgType);
+            responsePackage(ctx, commonAttrMap, resultMap, remoteChannel,
+                    remoteSocketAddress, msgType);
         } finally {
             cb.release();
         }
@@ -697,7 +700,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error("exception caught cause = {}", cause);
         monitorIndexExt.incrementAndGet("EVENT_OTHEREXP");
-        ctx.fireExceptionCaught(cause);
+        ctx.close();
     }
 
     /**

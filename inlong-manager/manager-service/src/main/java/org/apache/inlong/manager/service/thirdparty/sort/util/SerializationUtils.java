@@ -44,7 +44,7 @@ public class SerializationUtils {
             InlongStreamInfo streamInfo) {
         SourceType sourceType = SourceType.forType(sourceResponse.getSourceType());
         switch (sourceType) {
-            case DB_BINLOG:
+            case BINLOG:
                 return forBinlog((BinlogSourceResponse) sourceResponse, streamInfo);
             case KAFKA:
                 return forKafka((KafkaSourceResponse) sourceResponse, streamInfo);
@@ -101,15 +101,11 @@ public class SerializationUtils {
             case JSON:
                 return new JsonSerializationInfo();
             case CANAL:
-                Assert.isInstanceOf(BinlogSourceResponse.class, sourceResponse,
-                        "Unsupport serializationType for Kafka;");
-                BinlogSourceResponse binlogSourceResponse = (BinlogSourceResponse) sourceResponse;
-                return new CanalSerializationInfo(binlogSourceResponse.getTimestampFormatStandard(),
-                        "FAIL", "", false);
+                return new CanalSerializationInfo();
             case DEBEZIUM_JSON:
                 Assert.isInstanceOf(BinlogSourceResponse.class, sourceResponse,
                         "Unsupport serializationType for Kafka;");
-                binlogSourceResponse = (BinlogSourceResponse) sourceResponse;
+                BinlogSourceResponse binlogSourceResponse = (BinlogSourceResponse) sourceResponse;
                 return new DebeziumSerializationInfo(binlogSourceResponse.getTimestampFormatStandard(),
                         "FAIL", "", false);
             default:

@@ -21,20 +21,19 @@ package org.apache.inlong.sdk.dataproxy.example;
 import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
 import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_ENCRYPT;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.DatagramPacket;
+import io.netty.channel.socket.nio.NioDatagramChannel;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
-import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -83,7 +82,7 @@ public class UdpClientExample {
                             demo.getEncodeObject(7, false,
                                     false, false, dt, seqId, groupId,
                                     streamId, attr);
-                    ChannelBuffer buffer = demo.getSendBuf(encodeObject);
+                    ByteBuf buffer = demo.getSendBuf(encodeObject);
                     demo.sendUdpMessage(channel, busIp, busPort, buffer);
                     TimeUnit.SECONDS.sleep(1);
                 }
@@ -93,9 +92,9 @@ public class UdpClientExample {
         }
     }
 
-    public boolean sendUdpMessage(Channel channel, String ip, int port, ChannelBuffer msg) {
+    public boolean sendUdpMessage(Channel channel, String ip, int port, ByteBuf msg) {
         try {
-            channel.write(msg, new InetSocketAddress(ip, port)).sync();
+            channel.writeAndFlush(new DatagramPacket(msg, new InetSocketAddress(ip, port))).sync();
             logger.info("send = [{}/{}]", ip, port);
         } catch (InterruptedException e) {
             logger.info("send has exception e = {}", e);
@@ -113,8 +112,8 @@ public class UdpClientExample {
         return encodeObject;
     }
 
-    public ChannelBuffer getSendBuf(EncodeObject message) {
-        ChannelBuffer buf = null;
+    public ByteBuf getSendBuf(EncodeObject message) {
+        ByteBuf buf = null;
         try {
             if (message.getMsgtype() == 7) {
                 buf = writeToBuf7(message);
@@ -126,8 +125,8 @@ public class UdpClientExample {
         return buf;
     }
 
-    private ChannelBuffer writeToBuf7(EncodeObject object) {
-        ChannelBuffer buf = ChannelBuffers.dynamicBuffer();
+    private ByteBuf writeToBuf7(EncodeObject object) {
+        ByteBuf buf = null;
         try {
             int totalLength = 1 + 2 + 2 + 2 + 4 + 2 + 4 + 4 + 2 + 2;
             byte[] body = null;
@@ -215,6 +214,7 @@ public class UdpClientExample {
                 }
                 totalLength = totalLength + body.length
                         + endAttr.getBytes("utf8").length;
+                buf = ByteBufAllocator.DEFAULT.buffer(4 + totalLength);
                 buf.writeInt(totalLength);
                 buf.writeByte(msgType);
                 buf.writeShort(object.getGroupIdNum());
@@ -263,38 +263,19 @@ public class UdpClientExample {
 
     public Channel initUdpChannel() {
         Channel channel = null;
-        ConnectionlessBootstrap bootstrap =
-                new ConnectionlessBootstrap(new NioDatagramChannelFactory());
-        bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
-            
-            @Override
-            public ChannelPipeline getPipeline() throws Exception {
-                ChannelPipeline pipeline = Channels.pipeline();
-                pipeline.addLast("handler", new SimpleChannelUpstreamHandler() {
-
-                    @Override
-                    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
-                            throws Exception {
-                        ChannelBuffer buffer = (ChannelBuffer) e.getMessage();
-                        byte[] recByte = buffer.copy().toByteBuffer().array();
-                        String msg = new String(recByte);
+        Bootstrap bootstrap = new Bootstrap();
+        bootstrap.group(new NioEventLoopGroup())
+                .channel(NioDatagramChannel.class)
+                .option(ChannelOption.SO_BROADCAST, true)
+                .handler(new SimpleChannelInboundHandler<DatagramPacket>() {
+                    protected void channelRead0(ChannelHandlerContext var1,
+                            DatagramPacket dmsg) throws Exception {
+                        String msg = dmsg.content().toString(StandardCharsets.UTF_8);
                         System.out.println("from server:" + msg);
-                        super.messageReceived(ctx, e);
-                    }
-
-                    @Override
-                    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
-                            throws Exception {
-                        super.exceptionCaught(ctx, e);
                     }
                 });
-                return pipeline;
-            }
-        });
-        bootstrap.setOption("localAddress", new InetSocketAddress(10001));
-
         try {
-            channel = bootstrap.bind();
+            channel = bootstrap.bind(0).sync().channel();
         } catch (Exception e) {
             logger.error("Connection has exception e = {}", e);
         }

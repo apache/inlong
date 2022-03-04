@@ -37,6 +37,7 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
     private final String globalGroupId = "b_group1";
     private final String globalStreamId = "stream1";
     private final String globalOperator = "test_user";
+    private final String sinkName = "default";
 
     @Autowired
     private StreamSinkService sinkService;
@@ -51,7 +52,7 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setInlongStreamId(globalStreamId);
         sinkInfo.setSinkType(Constant.SINK_HIVE);
         sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
-
+        sinkInfo.setSinkName(sinkName);
         return sinkService.save(sinkInfo, globalOperator);
     }
 

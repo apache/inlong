@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.thirdparty.sort.util;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
@@ -33,7 +35,10 @@ import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
+import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
@@ -71,7 +76,7 @@ public class SinkInfoUtils {
             SinkResponse sinkResponse) {
         String sinkType = sinkResponse.getSinkType();
         if (SinkType.forType(sinkType) == SinkType.HIVE) {
-            return createHiveSinkInfo((HiveSinkResponse) sinkResponse);
+            return createHiveSinkInfo(sourceResponse, (HiveSinkResponse) sinkResponse);
         } else if (SinkType.forType(sinkType) == SinkType.KAFKA) {
             return createKafkaSinkInfo(inlongStreamInfo, sourceResponse, (KafkaSinkResponse) sinkResponse);
         } else {
@@ -83,7 +88,13 @@ public class SinkInfoUtils {
 
     private static KafkaSinkInfo createKafkaSinkInfo(InlongStreamInfo inlongStreamInfo, SourceResponse sourceResponse,
             KafkaSinkResponse kafkaSinkResponse) {
-        List<FieldInfo> fieldInfoList = getSinkFields(kafkaSinkResponse.getFieldList(), null);
+        List<FieldInfo> fieldInfoList = Lists.newArrayList();
+        if (SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
+            fieldInfoList.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE,
+                    BuiltInField.MYSQL_METADATA_DATA));
+        } else {
+            fieldInfoList = getSinkFields(kafkaSinkResponse.getFieldList(), null);
+        }
         String addressUrl = kafkaSinkResponse.getAddress();
         String topicName = kafkaSinkResponse.getTopicName();
         SerializationInfo serializationInfo = SerializationUtils.createSerializationInfo(sourceResponse,
@@ -91,7 +102,7 @@ public class SinkInfoUtils {
         return new KafkaSinkInfo(fieldInfoList.toArray(new FieldInfo[0]), addressUrl, topicName, serializationInfo);
     }
 
-    private static HiveSinkInfo createHiveSinkInfo(HiveSinkResponse hiveInfo) {
+    private static HiveSinkInfo createHiveSinkInfo(SourceResponse sourceResponse, HiveSinkResponse hiveInfo) {
         if (hiveInfo.getJdbcUrl() == null) {
             throw new RuntimeException(String.format("hiveSink={} server url cannot be empty", hiveInfo));
         }
@@ -147,7 +158,13 @@ public class SinkInfoUtils {
                 .append(".db/").append(hiveInfo.getTableName()).toString();
 
         // Get the sink field, if there is no partition field in the source field, add the partition field to the end
-        List<FieldInfo> fieldInfoList = getSinkFields(hiveInfo.getFieldList(), hiveInfo.getPrimaryPartition());
+        List<FieldInfo> fieldInfoList = Lists.newArrayList();
+        if (SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
+            fieldInfoList.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE,
+                    BuiltInField.MYSQL_METADATA_DATA));
+        } else {
+            fieldInfoList = getSinkFields(hiveInfo.getFieldList(), hiveInfo.getPrimaryPartition());
+        }
 
         return new HiveSinkInfo(fieldInfoList.toArray(new FieldInfo[0]), hiveInfo.getJdbcUrl(),
                 hiveInfo.getDbName(), hiveInfo.getTableName(), hiveInfo.getUsername(), hiveInfo.getPassword(),

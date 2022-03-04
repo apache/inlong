@@ -18,13 +18,15 @@
     under the License.
 -->
 
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
         <result column="source_type" jdbcType="VARCHAR" property="sourceType"/>
+        <result column="source_name" jdbcType="VARCHAR" property="sourceName"/>
         <result column="agent_ip" jdbcType="VARCHAR" property="agentIp"/>
         <result column="uuid" jdbcType="VARCHAR" property="uuid"/>
         <result column="server_id" jdbcType="INTEGER" property="serverId"/>
@@ -42,20 +44,9 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
-    <resultMap id="DataConfig" type="org.apache.inlong.common.pojo.agent.DataConfig">
-        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
-        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
-        <result column="modify_time" jdbcType="VARCHAR" property="deliveryTime"/>
-        <result column="uuid" jdbcType="VARCHAR" property="uuid"/>
-        <result column="agent_ip" jdbcType="VARCHAR" property="ip"/>
-        <result column="op" jdbcType="VARCHAR" property="op"/>
-        <result column="id" jdbcType="VARCHAR" property="taskId"/>
-        <result column="source_type" jdbcType="INTEGER" property="taskType"/>
-        <result column="snapshot" jdbcType="LONGVARCHAR" property="snapshot"/>
-        <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
-    </resultMap>
     <sql id="Base_Column_List">
-        id, inlong_group_id, inlong_stream_id, source_type, agent_ip, uuid, server_id, server_name,
+        id
+        , inlong_group_id, inlong_stream_id, source_type, source_name, agent_ip, uuid, server_id, server_name,
         cluster_id, cluster_name, snapshot, report_time, ext_params, status, previous_status,
         is_deleted, creator, modifier, create_time, modify_time
     </sql>
@@ -63,18 +54,24 @@
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         insert into stream_source (id, inlong_group_id, inlong_stream_id,
-                                   source_type, agent_ip, uuid,
+                                   source_type, source_name, agent_ip, uuid,
                                    server_id, server_name, cluster_id,
                                    cluster_name, snapshot, report_time,
                                    ext_params, status, previous_status,
                                    is_deleted, creator, modifier,
                                    create_time, modify_time)
-        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
-                #{sourceType,jdbcType=VARCHAR}, #{agentIp,jdbcType=VARCHAR}, #{uuid,jdbcType=VARCHAR},
-                #{serverId,jdbcType=INTEGER}, #{serverName,jdbcType=VARCHAR}, #{clusterId,jdbcType=INTEGER},
-                #{clusterName,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR}, #{modifyTime,jdbcType=TIMESTAMP},
-                #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER},
-                #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
+        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR},
+                #{inlongStreamId,jdbcType=VARCHAR},
+                #{sourceType,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR},
+                #{agentIp,jdbcType=VARCHAR}, #{uuid,jdbcType=VARCHAR},
+                #{serverId,jdbcType=INTEGER}, #{serverName,jdbcType=VARCHAR},
+                #{clusterId,jdbcType=INTEGER},
+                #{clusterName,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR},
+                #{modifyTime,jdbcType=TIMESTAMP},
+                #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER},
+                #{previousStatus,jdbcType=INTEGER},
+                #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
+                #{modifier,jdbcType=VARCHAR},
                 #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
@@ -92,6 +89,9 @@
             </if>
             <if test="sourceType != null">
                 source_type,
+            </if>
+            <if test="sourceName != null">
+                source_name,
             </if>
             <if test="agentIp != null">
                 agent_ip,
@@ -154,6 +154,9 @@
             </if>
             <if test="sourceType != null">
                 #{sourceType,jdbcType=VARCHAR},
+            </if>
+            <if test="sourceName != null">
+                #{sourceName,jdbcType=VARCHAR},
             </if>
             <if test="agentIp != null">
                 #{agentIp,jdbcType=VARCHAR},
@@ -225,24 +228,26 @@
             </if>
         </where>
     </select>
-    <select id="selectByCondition" parameterType="org.apache.inlong.manager.common.pojo.source.SourcePageRequest"
+    <select id="selectByCondition"
+            parameterType="org.apache.inlong.manager.common.pojo.source.SourcePageRequest"
             resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source
         <where>
             is_deleted = 0
-            <if test="request.sourceType != null and request.sourceType != ''">
-                and source_type = #{request.sourceType, jdbcType=VARCHAR}
-            </if>
             and inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
             <if test="request.inlongStreamId != null and request.inlongStreamId != ''">
                 and inlong_stream_id = #{request.inlongStreamId, jdbcType=VARCHAR}
+            </if>
+            <if test="request.sourceType != null and request.sourceType != ''">
+                and source_type = #{request.sourceType, jdbcType=VARCHAR}
             </if>
             <if test="request.keyWord != null and request.keyWord != ''">
                 and (
                 inlong_group_id like CONCAT('%', #{request.keyWord}, '%')
                 or inlong_stream_id like CONCAT('%', #{request.keyWord}, '%')
+                or source_name like CONCAT('%', #{request.keyWord}, '%')
                 )
             </if>
             <if test="request.status != null and request.status != ''">
@@ -251,7 +256,9 @@
             order by modify_time desc
         </where>
     </select>
-    <select id="selectByIdentifier" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+
+    <select id="selectByIdentifier"
+            resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source
@@ -263,7 +270,8 @@
             </if>
         </where>
     </select>
-    <select id="selectByIdAndType" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <select id="selectByIdAndType"
+            resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source
@@ -275,6 +283,18 @@
             </if>
             <if test="sourceType != null and sourceType != ''">
                 and source_type = #{sourceType, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectByIpAndUuid" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            and agent_ip = #{agentIp, jdbcType=VARCHAR}
+            <if test="uuid != null and uuid != ''">
+                and uuid = #{uuid, jdbcType=VARCHAR}
             </if>
         </where>
     </select>
@@ -291,13 +311,15 @@
             </if>
         </where>
     </select>
-    <select id="selectTempStatusSource" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <select id="selectTempStatusSource"
+            resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select id, agent_ip, uuid, status
         from stream_source
         where status >= 200
     </select>
 
-    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <update id="updateByPrimaryKeySelective"
+            parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         update stream_source
         <set>
             <if test="inlongGroupId != null">
@@ -308,6 +330,9 @@
             </if>
             <if test="sourceType != null">
                 source_type = #{sourceType,jdbcType=VARCHAR},
+            </if>
+            <if test="sourceName != null">
+                source_name = #{sourceName,jdbcType=VARCHAR},
             </if>
             <if test="agentIp != null">
                 agent_ip = #{agentIp,jdbcType=VARCHAR},
@@ -360,11 +385,13 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <update id="updateByPrimaryKey"
+            parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         update stream_source
         set inlong_group_id  = #{inlongGroupId,jdbcType=VARCHAR},
             inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
             source_type      = #{sourceType,jdbcType=VARCHAR},
+            source_name      = #{sourceName,jdbcType=VARCHAR},
             agent_ip         = #{agentIp,jdbcType=VARCHAR},
             uuid             = #{uuid,jdbcType=VARCHAR},
             server_id        = #{serverId,jdbcType=INTEGER},
@@ -398,7 +425,8 @@
             and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
         </if>
     </update>
-    <update id="updateSnapshot" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <update id="updateSnapshot"
+            parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         update stream_source
         set snapshot    = #{snapshot,jdbcType=LONGVARCHAR},
             report_time = #{reportTime,jdbcType=TIMESTAMP}
@@ -410,29 +438,4 @@
         from stream_source
         where id = #{id,jdbcType=INTEGER}
     </delete>
-
-    <select id="selectAgentTaskDataConfig" parameterType="org.apache.inlong.common.pojo.agent.TaskRequest"
-            resultMap="DataConfig">
-        select
-        detail.inlong_group_id,
-        detail.inlong_stream_id,
-        detail.modify_time,
-        detail.uuid,
-        detail.agent_ip,
-        detail.status,
-        detail.id,
-        detail.source_type,
-        detail.snapshot,
-        detail.ext_params
-        from stream_source detail
-        where detail.is_deleted = 0
-        <if test="agentIp != null and agentIp != ''">
-            and detail.agent_ip = #{agentIp, jdbcType=VARCHAR}
-        </if>
-        <if test="uuid != null and uuid != ''">
-            and detail.uuid = #{uuid, jdbcType=VARCHAR}
-        </if>
-        and (floor(detail.STATUS / 100) = 2)
-    </select>
-
 </mapper>

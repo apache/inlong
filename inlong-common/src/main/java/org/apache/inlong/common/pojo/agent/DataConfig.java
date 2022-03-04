@@ -17,22 +17,30 @@
 
 package org.apache.inlong.common.pojo.agent;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.util.Date;
+
+/**
+ * The task config for agent.
+ */
 @Data
 public class DataConfig {
 
+    private String ip;
+    private String uuid;
     private String inlongGroupId;
     private String inlongStreamId;
-    private String deliveryTime;
-    private String uuid;
-    private String ip;
     private String op;
     private Integer jobId;
     private Integer taskType;
+    private String taskName;
     private String snapshot;
     private Integer syncSend;
     private String extParams;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date deliveryTime;
 
     public boolean isValid() {
         return true;

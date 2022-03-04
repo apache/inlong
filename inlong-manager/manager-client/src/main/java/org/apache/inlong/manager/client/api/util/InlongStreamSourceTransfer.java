@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.StreamSource;
 import org.apache.inlong.manager.client.api.StreamSource.SyncType;
+import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.source.KafkaSource;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
 import org.apache.inlong.manager.common.enums.SourceType;
@@ -41,7 +42,7 @@ public class InlongStreamSourceTransfer {
         switch (sourceType) {
             case KAFKA:
                 return createKafkaSourceRequest((KafkaSource) streamSource, streamInfo);
-            case DB_BINLOG:
+            case BINLOG:
                 return createBinlogSourceRequest((MySQLBinlogSource) streamSource, streamInfo);
             default:
                 throw new RuntimeException(String.format("Unsupport source=%s for Inlong", sourceType));
@@ -54,7 +55,7 @@ public class InlongStreamSourceTransfer {
         if (sourceType == SourceType.KAFKA && sourceListResponse instanceof KafkaSourceListResponse) {
             return parseKafkaSource((KafkaSourceListResponse) sourceListResponse);
         }
-        if (sourceType == SourceType.DB_BINLOG && sourceListResponse instanceof BinlogSourceListResponse) {
+        if (sourceType == SourceType.BINLOG && sourceListResponse instanceof BinlogSourceListResponse) {
             return parseMySQLBinlogSource((BinlogSourceListResponse) sourceListResponse);
         }
         throw new IllegalArgumentException(String.format("Unsupport source type : %s for Inlong", sourceType));
@@ -62,6 +63,7 @@ public class InlongStreamSourceTransfer {
 
     private static KafkaSource parseKafkaSource(KafkaSourceListResponse kafkaSourceResponse) {
         KafkaSource kafkaSource = new KafkaSource();
+        kafkaSource.setSourceName(kafkaSourceResponse.getSourceName());
         kafkaSource.setConsumerGroup(kafkaSourceResponse.getGroupId());
         DataFormat dataFormat = DataFormat.forName(kafkaSourceResponse.getSerializationType());
         kafkaSource.setDataFormat(dataFormat);
@@ -76,10 +78,14 @@ public class InlongStreamSourceTransfer {
 
     private static MySQLBinlogSource parseMySQLBinlogSource(BinlogSourceListResponse binlogSourceResponse) {
         MySQLBinlogSource binlogSource = new MySQLBinlogSource();
+        binlogSource.setSourceName(binlogSourceResponse.getSourceName());
         binlogSource.setHostname(binlogSourceResponse.getHostname());
-        binlogSource.setDataFormat(DataFormat.CANAL);
-        binlogSource.setPassword(binlogSourceResponse.getPassword());
-        binlogSource.setUser(binlogSourceResponse.getUser());
+        binlogSource.setDataFormat(DataFormat.NONE);
+        binlogSource.setPort(binlogSourceResponse.getPort());
+        DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
+                binlogSourceResponse.getUser(),
+                binlogSourceResponse.getPassword());
+        binlogSource.setAuthentication(defaultAuthentication);
         binlogSource.setTimeZone(binlogSourceResponse.getTimeZone());
         binlogSource.setTimestampFormatStandard(binlogSourceResponse.getTimestampFormatStandard());
         List<String> dbs = Splitter.on(",").splitToList(binlogSourceResponse.getWhitelist());
@@ -89,6 +95,7 @@ public class InlongStreamSourceTransfer {
 
     private static KafkaSourceRequest createKafkaSourceRequest(KafkaSource kafkaSource, InlongStreamInfo streamInfo) {
         KafkaSourceRequest sourceRequest = new KafkaSourceRequest();
+        sourceRequest.setSourceName(kafkaSource.getSourceName());
         sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         sourceRequest.setSourceType(kafkaSource.getSourceType().name());
@@ -105,12 +112,15 @@ public class InlongStreamSourceTransfer {
     private static BinlogSourceRequest createBinlogSourceRequest(MySQLBinlogSource binlogSource,
             InlongStreamInfo streamInfo) {
         BinlogSourceRequest binlogSourceRequest = new BinlogSourceRequest();
+        binlogSourceRequest.setSourceName(binlogSource.getSourceName());
         binlogSourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         binlogSourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         binlogSourceRequest.setSourceType(binlogSource.getSourceType().name());
-        binlogSourceRequest.setPassword(binlogSource.getPassword());
-        binlogSourceRequest.setUser(binlogSource.getUser());
+        DefaultAuthentication authentication = binlogSource.getAuthentication();
+        binlogSourceRequest.setUser(authentication.getUserName());
+        binlogSourceRequest.setPassword(authentication.getPassword());
         binlogSourceRequest.setHostname(binlogSource.getHostname());
+        binlogSourceRequest.setPort(binlogSource.getPort());
         String dbNames = Joiner.on(",").join(binlogSource.getDbNames());
         binlogSourceRequest.setWhitelist(dbNames);
         binlogSourceRequest.setTimestampFormatStandard(binlogSource.getTimestampFormatStandard());

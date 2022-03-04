@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.source;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
@@ -173,13 +172,5 @@ public interface StreamSourceService {
     default Boolean updateAfterApprove(String operator) {
         return true;
     }
-
-    /**
-     * Report the heartbeat for given source.
-     *
-     * @param request Heartbeat request.
-     * @return Whether succeed.
-     */
-    Boolean reportSnapshot(TaskSnapshotRequest request);
 
 }

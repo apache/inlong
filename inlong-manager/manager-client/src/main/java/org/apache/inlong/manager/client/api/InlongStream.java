@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.api;
 
 import java.util.List;
+import java.util.Map;
 
 public abstract class InlongStream {
 
@@ -25,7 +26,15 @@ public abstract class InlongStream {
 
     public abstract List<StreamField> listFields();
 
-    public abstract StreamSource getSource();
+    public abstract Map<String, StreamSource> getSources();
 
-    public abstract StreamSink getSink();
+    public abstract Map<String, StreamSink> getSinks();
+
+    public abstract void addSource(StreamSource source);
+
+    public abstract void addSink(StreamSink sink);
+
+    public abstract void updateSource(StreamSource source);
+
+    public abstract void updateSink(StreamSink sink);
 }

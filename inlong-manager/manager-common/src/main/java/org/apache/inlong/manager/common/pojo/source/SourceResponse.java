@@ -42,6 +42,9 @@ public class SourceResponse {
     @ApiModelProperty("Source type, including: FILE, KAFKA, etc.")
     private String sourceType;
 
+    @ApiModelProperty("Source name, unique in one stream.")
+    private String sourceName;
+
     @ApiModelProperty("Ip of the agent running the task")
     private String agentIp;
 

@@ -44,7 +44,7 @@ public enum DataSeparator {
         this.seperator = seperator;
     }
 
-    public static DataSeparator getByAscii(int asciiCode) {
+    public static DataSeparator forAscii(int asciiCode) {
         for (DataSeparator value : values()) {
             if (value.getAsciiCode() == asciiCode) {
                 return value;
