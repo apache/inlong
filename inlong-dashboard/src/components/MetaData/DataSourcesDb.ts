@@ -2,6 +2,7 @@ import request from '@/utils/request';
 import { getColsFromFields } from '@/utils/metaData';
 import { ColumnsType } from 'antd/es/table';
 import rulesPattern from '@/utils/pattern';
+import i18n from '@/i18n';
 
 export const getDataSourcesDbFields = (
   type: 'form' | 'col' = 'form',
@@ -11,7 +12,7 @@ export const getDataSourcesDbFields = (
     {
       name: 'accessType',
       type: 'radio',
-      label: '类型',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.AccessType'),
       initialValue: 'DB_SYNC_AGENT',
       rules: [{ required: true }],
       props: {
@@ -30,7 +31,7 @@ export const getDataSourcesDbFields = (
     {
       name: 'serverName',
       type: 'select',
-      label: 'DB服务器',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.Server'),
       rules: [{ required: true }],
       extraNames: ['serverId'],
       props: {
@@ -67,7 +68,7 @@ export const getDataSourcesDbFields = (
     {
       name: 'dbName',
       type: 'input',
-      label: 'DB名称',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.Name'),
       rules: [{ required: true }],
       _inTable: true,
     },
@@ -79,24 +80,24 @@ export const getDataSourcesDbFields = (
         { required: true },
         {
           pattern: rulesPattern.ip,
-          message: '请正确输入IP地址',
+          message: i18n.t('components.AccessHelper.DataSourceMetaData.Db.IpRule'),
         },
       ],
     },
     {
       name: 'tableName',
       type: 'input',
-      label: '表名称',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.TableName'),
       rules: [{ required: true }],
       props: {
-        placeholder: '多张表用（,）分隔，注意：多表的结构须完全一致',
+        placeholder: i18n.t('components.AccessHelper.DataSourceMetaData.Db.TableNamePlaceholder'),
       },
       _inTable: true,
     },
     {
       name: 'charset',
       type: 'select',
-      label: '字符编码',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.Charset'),
       rules: [{ required: true }],
       initialValue: 'UTF-8',
       props: {
@@ -116,17 +117,17 @@ export const getDataSourcesDbFields = (
     {
       name: 'skipDelete',
       type: 'radio',
-      label: '跳过delete事件',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.SkipDelete'),
       rules: [{ required: true }],
       initialValue: 1,
       props: {
         options: [
           {
-            label: '是',
+            label: i18n.t('basic.Yes'),
             value: 1,
           },
           {
-            label: '否',
+            label: i18n.t('basic.No'),
             value: 0,
           },
         ],
@@ -135,17 +136,17 @@ export const getDataSourcesDbFields = (
     {
       name: '_startDumpPosition',
       type: 'radio',
-      label: '回拨BinLog起始位置',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.StartDumpPosition'),
       initialValue: currentValues?._startDumpPosition || 0,
       rules: [{ required: true }],
       props: {
         options: [
           {
-            label: '是',
+            label: i18n.t('basic.Yes'),
             value: 1,
           },
           {
-            label: '否',
+            label: i18n.t('basic.No'),
             value: 0,
           },
         ],
@@ -154,12 +155,12 @@ export const getDataSourcesDbFields = (
     {
       name: 'startDumpPosition.logIdentity.sourceIp',
       type: 'input',
-      label: '数据库IP',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.startDumpPositionIp'),
       rules: [
         { required: true },
         {
           pattern: rulesPattern.ip,
-          message: '请正确输入IP地址',
+          message: i18n.t('components.AccessHelper.DataSourceMetaData.Db.IpRule'),
         },
       ],
       visible: values => values?._startDumpPosition,
@@ -167,7 +168,7 @@ export const getDataSourcesDbFields = (
     {
       name: 'startDumpPosition.logIdentity.sourcePort',
       type: 'inputnumber',
-      label: '数据库端口号',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.startDumpPositionPort'),
       props: {
         min: 1,
         max: 65535,
@@ -178,14 +179,14 @@ export const getDataSourcesDbFields = (
     {
       name: 'startDumpPosition.entryPosition.journalName',
       type: 'input',
-      label: 'BinLog文件名',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.startDumpPositionFilename'),
       rules: [{ required: true }],
       visible: values => values?._startDumpPosition,
     },
     {
       name: 'startDumpPosition.entryPosition.position',
       type: 'inputnumber',
-      label: 'BinLog文件位置',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.startDumpPositionPosition'),
       rules: [{ required: true }],
       props: {
         min: 1,
