@@ -31,6 +31,7 @@ public class SinkForSortDTO {
     private String inlongGroupId;
     private String inlongStreamId;
     private String sinkType;
+    private String sinkName;
     private Integer storagePeriod;
     private Integer enableCreateResource;
     private String extParams;

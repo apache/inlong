@@ -34,6 +34,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class StreamSourceServiceTest extends ServiceBaseTest {
 
+    private final String globalGroupId = "b_group1";
+    private final String globalStreamId = "stream1";
+    private final String globalOperator = "test_user";
+    private final String sourceName = "default";
+
     @Autowired
     private StreamSourceService sourceService;
     @Autowired
@@ -45,8 +50,8 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
         BinlogSourceRequest sourceInfo = new BinlogSourceRequest();
         sourceInfo.setInlongGroupId(globalGroupId);
         sourceInfo.setInlongStreamId(globalStreamId);
+        sourceInfo.setSourceName(sourceName);
         sourceInfo.setSourceType(Constant.SOURCE_BINLOG);
-
         return sourceService.save(sourceInfo, globalOperator);
     }
 

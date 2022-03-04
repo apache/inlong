@@ -55,6 +55,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         BinlogSourceRequest sourceRequest = new BinlogSourceRequest();
         sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+        sourceRequest.setSourceName("binlog-collect");
         return streamSourceService.save(sourceRequest, OPERATOR);
     }
 

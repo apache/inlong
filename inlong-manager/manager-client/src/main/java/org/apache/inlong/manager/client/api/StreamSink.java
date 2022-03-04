@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.api;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.SinkType;
@@ -25,6 +26,9 @@ import org.apache.inlong.manager.common.enums.SinkType;
 @Data
 @ApiModel("Stream sink configuration")
 public abstract class StreamSink {
+
+    @ApiModelProperty(value = "DataSink name", required = true)
+    private String sinkName;
 
     public abstract SinkType getSinkType();
 

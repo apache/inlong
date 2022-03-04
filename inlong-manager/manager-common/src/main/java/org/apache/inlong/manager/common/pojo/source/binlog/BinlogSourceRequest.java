@@ -47,19 +47,23 @@ public class BinlogSourceRequest extends SourceRequest {
     @ApiModelProperty("Password of the DB server")
     private String password;
 
-    @ApiModelProperty("Hostname of the DB server")
+    @ApiModelProperty("Hostname or Ip of the DB server, for example: 127.0.0.1")
     private String hostname;
 
+    @ApiModelProperty("Exposed port the DB server")
+    private int port = 3306;
+
     @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions, "
-            + "separate them with commas, for example: db1.tb1,db2.tb2",
+            + "separate them with commas, for example: db1.tb1,db2.tb2 "
+            + "if all tables in db are collected , use db.*",
             notes = "DBs not in this list are excluded. By default, all DBs are monitored")
     private String whitelist;
 
     @ApiModelProperty("Database time zone, Default is UTC")
     private String timeZone;
 
-    @ApiModelProperty("The file path to store history info")
-    private String storeHistoryFilename;
+    @ApiModelProperty("The file path to store history info, default path : /data/history")
+    private String storeHistoryFilename = "/data/history";
 
     @ApiModelProperty("The interval for recording an offset")
     private String intervalMs;
@@ -80,7 +84,7 @@ public class BinlogSourceRequest extends SourceRequest {
      * generally not used.
      */
     @ApiModelProperty("Snapshot mode, supports: initial, when_needed, never, schema_only, schema_only_recovery")
-    private String snapshotMode;
+    private String snapshotMode = "initial";
 
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
     private String timestampFormatStandard = "SQL";

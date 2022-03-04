@@ -48,6 +48,10 @@ public class SinkRequest {
     @NotNull
     private String sinkType;
 
+    @ApiModelProperty("Sink name, unique in one stream.")
+    @NotNull
+    private String sinkName;
+
     @ApiModelProperty("Data storage period, unit: day")
     private Integer storagePeriod;
 

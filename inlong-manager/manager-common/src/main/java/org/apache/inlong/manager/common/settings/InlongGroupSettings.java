@@ -38,7 +38,7 @@ public class InlongGroupSettings {
     /**
      * oceanus need param start
      */
-    public static String SORT_JOB_ID = "sort_job_id";
+    public static String SORT_JOB_ID = "sort.job.id";
 
     public static String ENDPOINT = "endpoint";
 

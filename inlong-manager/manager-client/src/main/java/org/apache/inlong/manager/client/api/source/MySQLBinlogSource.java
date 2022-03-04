@@ -25,6 +25,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.StreamSource;
+import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.SourceType;
 
 @Data
@@ -42,16 +43,17 @@ public class MySQLBinlogSource extends StreamSource {
     @ApiModelProperty("Data format type for binlog")
     private DataFormat dataFormat = DataFormat.NONE;
 
-    @ApiModelProperty("Username of the DB server")
-    private String user;
+    @ApiModelProperty("Auth for binlog")
+    private DefaultAuthentication authentication;
 
-    @ApiModelProperty("Password of the DB server")
-    private String password;
-
-    @ApiModelProperty("Hostname of the DB server")
+    @ApiModelProperty("Hostname of the DB server, for example: 127.0.0.1")
     private String hostname;
 
-    @ApiModelProperty(value = "List of DBs to be collected, for example: db1.tb1,db2.tb2",
+    @ApiModelProperty("Exposed port the DB server")
+    private int port = 3306;
+
+    @ApiModelProperty(value = "List of DBs to be collected, for example: db1.tb1,db2.tb2"
+            + ",if all tables in db are collected , use db.*",
             notes = "DBs not in this list are excluded. By default, all DBs are monitored")
     private List<String> dbNames;
 

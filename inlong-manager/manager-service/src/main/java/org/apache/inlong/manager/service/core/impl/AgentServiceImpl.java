@@ -119,6 +119,7 @@ public class AgentServiceImpl implements AgentService {
             dataConfig.setJobId(entity.getId());
             SourceType sourceType = SourceType.forType(entity.getSourceType());
             dataConfig.setTaskType(sourceType.getTaskType().getType());
+            dataConfig.setTaskName(entity.getSourceName());
             dataConfig.setOp(String.valueOf(entity.getStatus() % 100));
             dataConfig.setInlongGroupId(entity.getInlongGroupId());
             dataConfig.setInlongStreamId(entity.getInlongStreamId());
@@ -126,7 +127,6 @@ public class AgentServiceImpl implements AgentService {
             dataConfig.setUuid(entity.getUuid());
             dataConfig.setExtParams(entity.getExtParams());
             dataConfig.setSnapshot(entity.getSnapshot());
-
             return dataConfig;
         }).collect(Collectors.toList());
 

@@ -21,6 +21,12 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.Constant;
@@ -32,8 +38,6 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -45,11 +49,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Implementation of source service interface
@@ -127,30 +126,22 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Preconditions.checkNotNull(request.getInlongGroupId(), Constant.GROUP_ID_IS_EMPTY);
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<StreamSourceEntity> entityPage = (Page<StreamSourceEntity>) sourceMapper.selectByCondition(request);
+        List<StreamSourceEntity> entityPage = sourceMapper.selectByCondition(request);
 
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
-        List<SourceListResponse> responses = Lists.newArrayList();
-        for (StreamSourceEntity entity : entityPage) {
-            SourceType sourceType = SourceType.forType(entity.getSourceType());
-            StreamSourceOperation operation = operationFactory.getInstance(sourceType);
-            switch (sourceType) {
-                case BINLOG:
-                    BinlogSourceListResponse binlogSourceListResponse = operation.getFromEntity(entity,
-                            BinlogSourceListResponse::new);
-                    responses.add(binlogSourceListResponse);
-                    break;
-                case KAFKA:
-                    KafkaSourceListResponse kafkaSourceListResponse = operation.getFromEntity(entity,
-                            KafkaSourceListResponse::new);
-                    responses.add(kafkaSourceListResponse);
-                    break;
-                default:
-                    throw new IllegalArgumentException(
-                            String.format("Unsupported sourceType=%s for Inlong", sourceType));
-            }
+        Map<SourceType, Page<StreamSourceEntity>> sourceMap = Maps.newHashMap();
+        for (StreamSourceEntity streamSource : entityPage) {
+            SourceType sourceType = SourceType.forType(streamSource.getSourceType());
+            sourceMap.computeIfAbsent(sourceType, k -> new Page<>()).add(streamSource);
         }
-        PageInfo<? extends SourceListResponse> pageInfo = PageInfo.of(responses);
+        List<SourceListResponse> sourceListResponses = Lists.newArrayList();
+        for (Map.Entry<SourceType, Page<StreamSourceEntity>> entry : sourceMap.entrySet()) {
+            SourceType sourceType = entry.getKey();
+            StreamSourceOperation operation = operationFactory.getInstance(sourceType);
+            PageInfo<? extends SourceListResponse> pageInfo = operation.getPageInfo(entry.getValue());
+            sourceListResponses.addAll(pageInfo.getList());
+        }
+        PageInfo<? extends SourceListResponse> pageInfo = PageInfo.of(sourceListResponses);
         LOGGER.debug("success to list source page");
         return pageInfo;
     }
