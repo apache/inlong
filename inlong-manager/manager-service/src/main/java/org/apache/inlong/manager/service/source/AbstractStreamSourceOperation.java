@@ -142,16 +142,18 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
 
     @Override
     public void deleteOpt(SourceRequest request, String operator) {
-        StreamSourceEntity snapshot = sourceMapper.selectByPrimaryKey(request.getId());
-        SourceState curState = SourceState.forCode(snapshot.getStatus());
+        Integer id = request.getId();
+        StreamSourceEntity existEntity = sourceMapper.selectByPrimaryKey(id);
+        SourceState curState = SourceState.forCode(existEntity.getStatus());
         SourceState nextState = SourceState.TO_BE_ISSUED_DELETE;
         if (!SourceState.isAllowedTransition(curState, nextState)) {
-            throw new RuntimeException(String.format("Source=%s is not allowed to delete", snapshot));
+            throw new RuntimeException(String.format("Source=%s is not allowed to delete", existEntity));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
         curEntity.setModifyTime(new Date());
         curEntity.setPreviousStatus(curState.getCode());
         curEntity.setStatus(nextState.getCode());
+        curEntity.setIsDeleted(id);
         sourceMapper.updateByPrimaryKeySelective(curEntity);
     }
 }
