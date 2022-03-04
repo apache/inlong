@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.standalone.sink.cls;
 
-import lombok.Getter;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Cls config of each uid.
  */
-@Getter
+@Data
 public class ClsIdConfig {
     private String inlongGroupId;
     private String inlongStreamId;

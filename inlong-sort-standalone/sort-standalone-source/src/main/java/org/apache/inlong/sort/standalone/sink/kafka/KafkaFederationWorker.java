@@ -105,6 +105,8 @@ public class KafkaFederationWorker extends Thread {
                     continue;
                 }
                 if (!(rowEvent instanceof ProfileEvent)) {
+                    tx.commit();
+                    tx.close();
                     LOG.error("The type of row event is not compatible with ProfileEvent");
                     continue;
                 }
