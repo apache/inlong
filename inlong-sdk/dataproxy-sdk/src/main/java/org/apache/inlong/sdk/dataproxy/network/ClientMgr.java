@@ -18,6 +18,11 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -28,7 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -39,10 +44,7 @@ import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.apache.inlong.sdk.dataproxy.utils.EventLoopUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +67,7 @@ public class ClientMgr {
     private final Map<HostInfo, int[]> channelLoadMapData = new ConcurrentHashMap<HostInfo, int[]>();
     private final Map<HostInfo, int[]> channelLoadMapHB = new ConcurrentHashMap<HostInfo, int[]>();
 
-    private ClientBootstrap bootstrap;
+    private Bootstrap bootstrap;
     private int currentIndex = 0;
     private ProxyClientConfig configure;
     private Sender sender;
@@ -178,20 +180,23 @@ public class ClientMgr {
     }
 
     // Build up the connection between the server and client.
-    public ClientMgr(ProxyClientConfig configure, Sender sender, ChannelFactory selfDefineFactory) throws Exception {
+    public ClientMgr(ProxyClientConfig configure, Sender sender, ThreadFactory selfDefineFactory) throws Exception {
         /* Initialize the bootstrap. */
         if (selfDefineFactory == null) {
-            selfDefineFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool(),
-                    Executors.newCachedThreadPool());
+            selfDefineFactory = new DefaultThreadFactory("agent-client-io",
+                    Thread.currentThread().isDaemon());
         }
-        bootstrap = new ClientBootstrap(selfDefineFactory);
-        bootstrap.setPipelineFactory(new ClientPipelineFactory(this, sender));
-        bootstrap.setOption(ConfigConstants.RECEIVE_BUFFER_SIZE, ConfigConstants.DEFAULT_RECEIVE_BUFFER_SIZE);
-        bootstrap.setOption(ConfigConstants.SEND_BUFFER_SIZE, ConfigConstants.DEFAULT_SEND_BUFFER_SIZE);
+        EventLoopGroup eventLoopGroup = EventLoopUtil.newEventLoopGroup(configure.getIoThreadNum(),
+                configure.isEnableBusyWait(), selfDefineFactory);
+        bootstrap = new Bootstrap();
+        bootstrap.group(eventLoopGroup);
+        bootstrap.channel(EventLoopUtil.getClientSocketChannelClass(eventLoopGroup));
+        bootstrap.option(ChannelOption.SO_RCVBUF, ConfigConstants.DEFAULT_RECEIVE_BUFFER_SIZE);
+        bootstrap.option(ChannelOption.SO_SNDBUF, ConfigConstants.DEFAULT_SEND_BUFFER_SIZE);
         if (configure.getNetTag().equals("bobcat")) {
-            bootstrap.setOption("trafficClass", 96);
+            bootstrap.option(ChannelOption.IP_TOS, 96);
         }
-
+        bootstrap.handler(new ClientPipelineFactory(this, sender));
         /* ready to Start the thread which refreshes the proxy list. */
         ipManager = new ProxyConfigManager(configure, Utils.getLocalIp(), this);
         ipManager.setName("proxyConfigManager");
@@ -272,7 +277,7 @@ public class ClientMgr {
             }
             NettyClient client = clientMap.get(hostInfo);
             if (client != null && client.getChannel() != null
-                    && client.getChannel().getId().equals(channel.getId())) {
+                    && client.getChannel().id().equals(channel.id())) {
                 client.reconnect();
                 break;
             }
@@ -290,7 +295,7 @@ public class ClientMgr {
             }
             NettyClient client = clientMap.get(hostInfo);
             if (client != null && client.getChannel() != null
-                    && client.getChannel().getId().equals(channel.getId())) {
+                    && client.getChannel().id().equals(channel.id())) {
                 client.setFrozen();
                 logger.info("end to froze this channel {}", client.getChannel().toString());
                 break;
@@ -309,7 +314,7 @@ public class ClientMgr {
             }
             NettyClient client = clientMap.get(hostInfo);
             if (client != null && client.getChannel() != null
-                    && client.getChannel().getId().equals(channel.getId())) {
+                    && client.getChannel().id().equals(channel.id())) {
                 client.setBusy();
                 break;
             }
@@ -349,7 +354,6 @@ public class ClientMgr {
     }
 
     public void shutDown() {
-        bootstrap.releaseExternalResources();
 //        bootstrap.shutdown();
 
         ipManager.shutDown();
@@ -401,7 +405,7 @@ public class ClientMgr {
                     NettyClient client = entry.getValue();
                     HostInfo hostInfo = entry.getKey();
                     if (client != null && client.getChannel() != null
-                            && client.getChannel().getId().equals(channel.getId())) {
+                            && client.getChannel().id().equals(channel.id())) {
 //                        logger.info("channel" + channel + "; Load:" + load);
                         if (!channelLoadMapData.containsKey(hostInfo)) {
                             channelLoadMapData.put(hostInfo, new int[ConfigConstants.CYCLE]);
@@ -419,7 +423,7 @@ public class ClientMgr {
                     NettyClient client = entry.getValue();
                     HostInfo hostInfo = entry.getKey();
                     if (client != null && client.getChannel() != null
-                            && client.getChannel().getId().equals(channel.getId())) {
+                            && client.getChannel().id().equals(channel.id())) {
 //                        logger.info("HBchannel" + channel + "; Load:" + load);
                         if (!channelLoadMapHB.containsKey(hostInfo)) {
                             channelLoadMapHB.put(hostInfo, new int[ConfigConstants.CYCLE]);

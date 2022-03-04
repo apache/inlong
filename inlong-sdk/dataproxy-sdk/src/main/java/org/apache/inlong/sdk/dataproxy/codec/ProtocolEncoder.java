@@ -22,6 +22,10 @@ import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_AUTH;
 import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
 import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_ENCRYPT;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToMessageEncoder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -29,31 +33,24 @@ import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Iterator;
 
+import java.util.List;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.EncryptInfo;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.apache.inlong.sdk.dataproxy.utils.EncryptUtil;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
 
-public class ProtocolEncoder extends OneToOneEncoder {
+public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
     private static final Logger logger = LoggerFactory
             .getLogger(ProtocolEncoder.class);
 
-    @Override
-    protected Object encode(ChannelHandlerContext ctx, Channel channel,
-                            Object message) {
-        ChannelBuffer buf = null;
+    protected void encode(ChannelHandlerContext var1,
+            EncodeObject message, List<Object> out) throws Exception {
+        ByteBuf buf = null;
         try {
-            EncodeObject object = (EncodeObject) message;
-
-            buf = ChannelBuffers.dynamicBuffer();
+            EncodeObject object = message;
             if (object.getMsgtype() == 3) {
                 buf = writeToBuf3(object);
             }
@@ -71,11 +68,15 @@ public class ProtocolEncoder extends OneToOneEncoder {
             logger.error("{}", e.getMessage());
             e.printStackTrace();
         }
-        return buf;
+        if (buf != null) {
+            out.add(buf);
+        } else {
+            logger.warn("write buf is null !");
+        }
     }
 
-    private ChannelBuffer writeToBuf8(EncodeObject object) {
-        ChannelBuffer buf = ChannelBuffers.dynamicBuffer();
+    private ByteBuf writeToBuf8(EncodeObject object) {
+        ByteBuf buf = null;
         try {
             String endAttr = object.getCommonattr();
             if (object.isAuth()) {
@@ -100,6 +101,7 @@ public class ProtocolEncoder extends OneToOneEncoder {
                 msgType |= FLAG_ALLOW_AUTH;
             }
             int totalLength = 1 + 4 + 1 + 4 + 2 + endAttr.getBytes("utf8").length + 2;
+            buf = ByteBufAllocator.DEFAULT.buffer(4 + totalLength);
             buf.writeInt(totalLength);
             buf.writeByte(msgType);
             buf.writeInt((int) object.getDt());
@@ -116,8 +118,9 @@ public class ProtocolEncoder extends OneToOneEncoder {
         return buf;
     }
 
-    private void constructBody(byte[] body, EncodeObject object,
-        int totalLength, ChannelBuffer buf, int cnt) throws UnsupportedEncodingException {
+    private ByteBuf constructBody(byte[] body, EncodeObject object,
+        int totalLength, int cnt) throws UnsupportedEncodingException {
+        ByteBuf buf = null;
         if (body != null) {
             if (object.isCompress()) {
                 body = processCompress(body);
@@ -157,6 +160,7 @@ public class ProtocolEncoder extends OneToOneEncoder {
                 msgType |= FLAG_ALLOW_COMPRESS;
             }
             totalLength = totalLength + body.length + endAttr.getBytes("utf8").length;
+            buf = ByteBufAllocator.DEFAULT.buffer(4 + totalLength);
             buf.writeInt(totalLength);
             buf.writeByte(msgType);
             buf.writeShort(object.getGroupIdNum());
@@ -180,10 +184,11 @@ public class ProtocolEncoder extends OneToOneEncoder {
             buf.writeBytes(endAttr.getBytes("utf8"));
             buf.writeShort(0xee01);
         }
+        return buf;
     }
 
-    private ChannelBuffer writeToBuf7(EncodeObject object) {
-        ChannelBuffer buf = ChannelBuffers.dynamicBuffer();
+    private ByteBuf writeToBuf7(EncodeObject object) {
+        ByteBuf buf = null;
         try {
             int totalLength = 1 + 2 + 2 + 2 + 4 + 2 + 4 + 4 + 2 + 2;
             byte[] body = null;
@@ -233,16 +238,15 @@ public class ProtocolEncoder extends OneToOneEncoder {
                 body = out.toByteArray();
             }
 
-            constructBody(body, object, totalLength, buf, cnt);
+            buf = constructBody(body, object, totalLength, cnt);
         } catch (Exception e) {
-            logger.error("{}", e.getMessage());
-            e.printStackTrace();
+            logger.error("writeToBuf7 has {}", e);
         }
         return buf;
     }
 
-    private ChannelBuffer writeToBuf5(EncodeObject object) {
-        ChannelBuffer buf = ChannelBuffers.dynamicBuffer();
+    private ByteBuf writeToBuf5(EncodeObject object) {
+        ByteBuf buf = null;
         try {
             int totalLength = 1 + 4 + 4;
             byte[] body = null;
@@ -299,6 +303,7 @@ public class ProtocolEncoder extends OneToOneEncoder {
                     msgType |= FLAG_ALLOW_ENCRYPT;
                 }
                 totalLength = totalLength + body.length + msgAttrs.getBytes("utf8").length;
+                buf = ByteBufAllocator.DEFAULT.buffer(4 + totalLength);
                 buf.writeInt(totalLength);
                 buf.writeByte(msgType);
                 buf.writeInt(body.length);
@@ -337,8 +342,8 @@ public class ProtocolEncoder extends OneToOneEncoder {
     }
     */
 
-    private ChannelBuffer writeToBuf3(EncodeObject object) {
-        ChannelBuffer buf = ChannelBuffers.dynamicBuffer();
+    private ByteBuf writeToBuf3(EncodeObject object) {
+        ByteBuf buf = null;
         try {
             int totalLength = 1 + 4 + 4;
             byte[] body = null;
@@ -388,6 +393,7 @@ public class ProtocolEncoder extends OneToOneEncoder {
                     msgType |= FLAG_ALLOW_ENCRYPT;
                 }
                 totalLength = totalLength + body.length + msgAttrs.getBytes("utf8").length;
+                buf = ByteBufAllocator.DEFAULT.buffer(4 + totalLength);
                 buf.writeInt(totalLength);
                 buf.writeByte(msgType);
                 buf.writeInt(body.length);

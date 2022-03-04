@@ -18,34 +18,31 @@
 
 package org.apache.inlong.sdk.dataproxy.codec;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToMessageDecoder;
 import java.nio.charset.StandardCharsets;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.DefaultExceptionEvent;
-import org.jboss.netty.handler.codec.frame.FrameDecoder;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProtocolDecoder extends FrameDecoder {
+public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
 
-    private static final Logger logger = LoggerFactory.getLogger(FrameDecoder.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProtocolDecoder.class);
 
     @Override
-    protected Object decode(ChannelHandlerContext ctx, Channel channel,
-                            ChannelBuffer buffer) throws Exception {
-        //        if(!channel.isConnected()||channel.isReadable()){return null;}
-
+    protected void decode(ChannelHandlerContext var1,
+            ByteBuf buffer, List<Object> out) throws Exception {
         buffer.markReaderIndex();
         // totallen
         int totalLen = buffer.readInt();
-        //logger.info("totalLen : {}",totalLen);
+        logger.debug("decode totalLen : {}", totalLen);
         if (totalLen != buffer.readableBytes()) {
             logger.error("totalLen is not equal readableBytes.total:" + totalLen
                     + ";readableBytes:" + buffer.readableBytes());
             buffer.resetReaderIndex();
-            return new DefaultExceptionEvent(channel, new Exception("totalLen is not equal readableBytes.total"));
+            throw new Exception("totalLen is not equal readableBytes.total");
         }
         // msgtype
         int msgType = buffer.readByte() & 0x1f;
@@ -60,7 +57,7 @@ public class ProtocolDecoder extends FrameDecoder {
                 logger.error("bodyLen is greater than totalLen.totalLen:" + totalLen
                         + ";bodyLen:" + bodyLength);
                 buffer.resetReaderIndex();
-                return new DefaultExceptionEvent(channel, new Exception("bodyLen is greater than totalLen.totalLen"));
+                throw new Exception("bodyLen is greater than totalLen.totalLen");
             }
             byte[] bodyBytes = null;
             if (bodyLength > 0) {
@@ -78,12 +75,11 @@ public class ProtocolDecoder extends FrameDecoder {
             EncodeObject object = new EncodeObject(bodyBytes, new String(attrBytes,
                     StandardCharsets.UTF_8));
             object.setMsgtype(5);
-            return object;
+            out.add(object);
         } else if (msgType == 7) {
 
             int seqId = buffer.readInt();
             int attrLen = buffer.readShort();
-
             EncodeObject object = new EncodeObject();
             object.setMessageId(String.valueOf(seqId));
 
@@ -102,7 +98,7 @@ public class ProtocolDecoder extends FrameDecoder {
             buffer.readShort();
 
             object.setMsgtype(msgType);
-            return object;
+            out.add(object);
 
         } else if (msgType == 8) {
             int attrlen = buffer.getShort(4 + 1 + 4 + 1 + 4 + 2);
@@ -110,8 +106,7 @@ public class ProtocolDecoder extends FrameDecoder {
             EncodeObject object = new EncodeObject();
             object.setMsgtype(8);
             object.setLoad(buffer.getShort(4 + 1 + 4 + 1 + 4));
-            return object;
+            out.add(object);
         }
-        return null;
     }
 }

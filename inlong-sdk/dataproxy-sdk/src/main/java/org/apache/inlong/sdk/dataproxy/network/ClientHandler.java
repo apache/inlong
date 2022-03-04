@@ -18,17 +18,13 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.handler.timeout.IdleStateAwareChannelHandler;
-import org.jboss.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClientHandler extends IdleStateAwareChannelHandler {
+public class ClientHandler extends SimpleChannelInboundHandler<EncodeObject> {
     private static final Logger logger = LoggerFactory
             .getLogger(ClientHandler.class);
 
@@ -41,18 +37,14 @@ public class ClientHandler extends IdleStateAwareChannelHandler {
     }
 
     @Override
-    public void channelIdle(ChannelHandlerContext ctx, IdleStateEvent e) throws Exception {
-
-    }
-
-    @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
+    public void channelRead0(ChannelHandlerContext ctx, EncodeObject e) {
         try {
-            EncodeObject encodeObject = (EncodeObject) e.getMessage();
+            EncodeObject encodeObject = e;
+            logger.debug("Channel = {} , msgType = {}", ctx.channel(), encodeObject.getMsgtype());
             if (encodeObject.getMsgtype() != 8) {
-                sender.notifyFeedback(e.getChannel(), encodeObject);
+                sender.notifyFeedback(ctx.channel(), encodeObject);
             } else {
-                clientMgr.notifyHBAck(e.getChannel(), encodeObject.getLoad());
+                clientMgr.notifyHBAck(ctx.channel(), encodeObject.getLoad());
             }
         } catch (Exception ex) {
             logger.error("error :", ex);
@@ -60,35 +52,35 @@ public class ClientHandler extends IdleStateAwareChannelHandler {
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
-        logger.error("this channel {} has error! , reason is {} ", e.getChannel(), e.getCause());
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) {
+        logger.error("this channel {} has error! , reason is {} ", ctx.channel(), e.getCause());
         try {
-            clientMgr.setConnectionFrozen(e.getChannel());
+            clientMgr.setConnectionFrozen(ctx.channel());
         } catch (Exception e1) {
             logger.error("exceptionCaught error :", e1);
         }
     }
 
     @Override
-    public void channelDisconnected(ChannelHandlerContext ctx,
-                                    ChannelStateEvent e) {
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        ctx.fireChannelInactive();
         // clientMgr.resetClient(e.getChannel());
-        logger.info("ClientHandler channelDisconnected {}", e.getChannel());
+        logger.info("ClientHandler channelDisconnected {}", ctx.channel());
         try {
-            sender.notifyConnectionDisconnected(e.getChannel());
+            sender.notifyConnectionDisconnected(ctx.channel());
         } catch (Exception e1) {
             logger.error("exceptionCaught error {}", e1.getMessage());
         }
     }
 
     @Override
-    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) {
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
         // clientMgr.resetClient(e.getChannel());
-        logger.info("ClientHandler channelClosed {}", e.getChannel());
+        logger.info("ClientHandler channelDisconnected {}", ctx.channel());
         try {
-            sender.notifyConnectionDisconnected(e.getChannel());
+            sender.notifyConnectionDisconnected(ctx.channel());
         } catch (Exception e1) {
-            logger.error("exceptionCaught error ", e1);
+            logger.error("exceptionCaught error {}", e1.getMessage());
         }
     }
 }

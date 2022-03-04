@@ -285,6 +285,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
             byte[] attrData = new byte[attrLen];
             cb.readBytes(attrData, 0, attrLen);
             strAttr = new String(attrData, StandardCharsets.UTF_8);
+            LOG.debug("strAttr = {}, length = {}", strAttr, strAttr.length());
             resultMap.put(ConfigConstants.DECODER_ATTRS, strAttr);
 
             try {

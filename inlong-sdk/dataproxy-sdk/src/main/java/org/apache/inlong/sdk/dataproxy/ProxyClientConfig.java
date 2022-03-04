@@ -91,6 +91,9 @@ public class ProxyClientConfig {
     // metric groupId
     private String metricGroupId = "inlong_sla_metric";
 
+    private int ioThreadNum = Runtime.getRuntime().availableProcessors();
+    private boolean enableBusyWait = false;
+
     /*pay attention to the last url parameter ip*/
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
                            int managerPort, String groupId, String netTag) throws ProxysdkException {
@@ -431,5 +434,21 @@ public class ProxyClientConfig {
 
     public void setEnableSlaMetric(boolean enableSlaMetric) {
         this.enableSlaMetric = enableSlaMetric;
+    }
+
+    public int getIoThreadNum() {
+        return ioThreadNum;
+    }
+
+    public void setIoThreadNum(int ioThreadNum) {
+        this.ioThreadNum = ioThreadNum;
+    }
+
+    public boolean isEnableBusyWait() {
+        return enableBusyWait;
+    }
+
+    public void setEnableBusyWait(boolean enableBusyWait) {
+        this.enableBusyWait = enableBusyWait;
     }
 }
