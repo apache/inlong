@@ -169,8 +169,8 @@ public class JobProfileDto {
         profileDto.setProxy(proxy);
         Job job = new Job();
 
-        //common Attribu
-        job.setId(String.valueOf(dataConfigs.getJobId()));
+        // common attribute
+        job.setId(String.valueOf(dataConfigs.getTaskId()));
         job.setChannel(DEFAULT_CHANNEL);
         job.setIp(dataConfigs.getIp());
         job.setOp(dataConfigs.getOp());
