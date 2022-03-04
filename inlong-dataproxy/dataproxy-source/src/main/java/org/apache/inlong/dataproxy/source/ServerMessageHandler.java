@@ -48,6 +48,7 @@ import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.dataproxy.base.OrderEvent;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
@@ -57,6 +58,7 @@ import org.apache.inlong.dataproxy.exception.MessageIDException;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
+import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -381,7 +383,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void formatMessagesAndSend(Map<String, String> commonAttrMap,
+    private void formatMessagesAndSend(ChannelHandlerContext ctx, Map<String, String> commonAttrMap,
             Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
             String strRemoteIP, MsgType msgType) throws MessageIDException {
 
@@ -425,6 +427,16 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     headers.put(AttributeConstants.DATA_TIME, String.valueOf(System.currentTimeMillis()));
                 }
 
+                String syncSend = commonAttrMap.get(AttributeConstants.MESSAGE_SYNC_SEND);
+                if (StringUtils.isNotEmpty(syncSend)) {
+                    headers.put(AttributeConstants.MESSAGE_SYNC_SEND, syncSend);
+                }
+
+                String partitionKey = commonAttrMap.get(AttributeConstants.MESSAGE_PARTITION_KEY);
+                if (StringUtils.isNotEmpty(partitionKey)) {
+                    headers.put(AttributeConstants.MESSAGE_PARTITION_KEY, partitionKey);
+                }
+
                 headers.put(ConfigConstants.TOPIC_KEY, topicEntry.getKey());
                 headers.put(AttributeConstants.GROUP_ID,
                         streamIdEntry.getValue().get(0).getGroupId());
@@ -438,6 +450,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 byte[] data = inLongMsg.buildArray();
                 headers.put(ConfigConstants.TOTAL_LEN, String.valueOf(data.length));
 
+                headers.put(AttributeConstants.UNIQ_ID,
+                        commonAttrMap.get(AttributeConstants.UNIQ_ID));
                 String sequenceId = commonAttrMap.get(AttributeConstants.SEQUENCE_ID);
                 if (StringUtils.isNotEmpty(sequenceId)) {
                     StringBuilder sidBuilder = new StringBuilder();
@@ -448,7 +462,9 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
                 headers.put(ConfigConstants.PKG_TIME_KEY, pkgTimeStr);
                 Event event = EventBuilder.withBody(data, headers);
-
+                if (MessageUtils.isSyncSendForOrder(event)) {
+                    event = new OrderEvent(ctx, event);
+                }
                 long dtten = 0;
                 try {
                     dtten = Long.parseLong(headers.get(AttributeConstants.DATA_TIME));
@@ -539,32 +555,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 if (resultMap.containsKey(ConfigConstants.DECODER_ATTRS)) {
                     backattrs = (String) resultMap.get(ConfigConstants.DECODER_ATTRS);
                 }
-
-                int binTotalLen = 1 + 4 + 2 + 2;
-                if (null != backattrs) {
-                    binTotalLen += backattrs.length();
-                }
-
-                ByteBuf binBuffer = ByteBufAllocator.DEFAULT.buffer(4 + binTotalLen);
-                binBuffer.writeInt(binTotalLen);
-                binBuffer.writeByte(msgType.getValue());
-
-                long uniqVal = Long.parseLong(commonAttrMap.get(AttributeConstants.UNIQ_ID));
-                byte[] uniq = new byte[4];
-                uniq[0] = (byte) ((uniqVal >> 24) & 0xFF);
-                uniq[1] = (byte) ((uniqVal >> 16) & 0xFF);
-                uniq[2] = (byte) ((uniqVal >> 8) & 0xFF);
-                uniq[3] = (byte) (uniqVal & 0xFF);
-                binBuffer.writeBytes(uniq);
-
-                if (null != backattrs) {
-                    binBuffer.writeShort(backattrs.length());
-                    binBuffer.writeBytes(backattrs.getBytes(StandardCharsets.UTF_8));
-                } else {
-                    binBuffer.writeShort(0x0);
-                }
-
-                binBuffer.writeShort(0xee01);
+                String uniqVal = commonAttrMap.get(AttributeConstants.UNIQ_ID);
+                ByteBuf binBuffer = MessageUtils.getResponsePackage(backattrs, msgType, uniqVal);
                 if (remoteChannel.isWritable()) {
                     remoteChannel.writeAndFlush(binBuffer);
                     logger.debug("Connection info: {} ; attr is {} ; uniqVal {}",
@@ -647,16 +639,23 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
                 updateMsgList(msgList, commonAttrMap, messageMap, strRemoteIP, msgType);
 
-                formatMessagesAndSend(commonAttrMap, messageMap, strRemoteIP, msgType);
+                formatMessagesAndSend(ctx, commonAttrMap, messageMap,
+                        strRemoteIP, msgType);
 
             } else if (msgList != null && commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)) {
                 Map<String, String> headers = new HashMap<String, String>();
                 headers.put("msgtype", "filestatus");
                 headers.put(ConfigConstants.FILE_CHECK_DATA,
                         "true");
+                headers.put(AttributeConstants.UNIQ_ID,
+                        commonAttrMap.get(AttributeConstants.UNIQ_ID));
                 for (ProxyMessage message : msgList) {
                     byte[] body = message.getData();
                     Event event = EventBuilder.withBody(body, headers);
+                    if (MessageUtils.isSyncSendForOrder(commonAttrMap
+                            .get(AttributeConstants.MESSAGE_SYNC_SEND))) {
+                        event = new OrderEvent(ctx, event);
+                    }
                     try {
                         processor.processEvent(event);
                         this.addMetric(true, body.length, event);
@@ -674,9 +673,15 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 headers.put("msgtype", "measure");
                 headers.put(ConfigConstants.FILE_CHECK_DATA,
                         "true");
+                headers.put(AttributeConstants.UNIQ_ID,
+                        commonAttrMap.get(AttributeConstants.UNIQ_ID));
                 for (ProxyMessage message : msgList) {
                     byte[] body = message.getData();
                     Event event = EventBuilder.withBody(body, headers);
+                    if (MessageUtils.isSyncSendForOrder(commonAttrMap
+                            .get(AttributeConstants.MESSAGE_SYNC_SEND))) {
+                        event = new OrderEvent(ctx, event);
+                    }
                     try {
                         processor.processEvent(event);
                         this.addMetric(true, body.length, event);
@@ -689,8 +694,11 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 }
             }
             SocketAddress remoteSocketAddress = remoteChannel.remoteAddress();
-            responsePackage(ctx, commonAttrMap, resultMap, remoteChannel,
-                    remoteSocketAddress, msgType);
+            if (!MessageUtils.isSyncSendForOrder(commonAttrMap
+                    .get(AttributeConstants.MESSAGE_SYNC_SEND))) {
+                responsePackage(ctx, commonAttrMap, resultMap, remoteChannel,
+                        remoteSocketAddress, msgType);
+            }
         } finally {
             cb.release();
         }

@@ -36,6 +36,7 @@ import org.apache.flume.interceptor.InterceptorBuilderFactory;
 import org.apache.flume.interceptor.InterceptorChain;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.common.monitor.LogCounter;
+import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -241,7 +242,6 @@ public class FailoverChannelProcessor
 
         boolean success = true;
         List<Channel> requiredChannels = selector.getRequiredChannels(event);
-
         for (Channel reqChannel : requiredChannels) {
             Transaction tx = reqChannel.getTransaction();
             Preconditions.checkNotNull(tx, "Transaction object must not be null");
@@ -272,7 +272,7 @@ public class FailoverChannelProcessor
             }
         }
 
-        if (!success) {
+        if (!success && !MessageUtils.isSyncSendForOrder(event)) {
             List<Channel> optionalChannels = selector.getOptionalChannels(event);
             for (Channel optChannel : optionalChannels) {
                 Transaction tx = null;
