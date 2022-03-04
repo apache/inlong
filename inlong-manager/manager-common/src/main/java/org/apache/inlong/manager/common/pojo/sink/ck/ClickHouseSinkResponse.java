@@ -34,7 +34,9 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 @ApiModel(value = "Response of the ClickHouse sink")
 public class ClickHouseSinkResponse extends SinkResponse {
 
-    private String sinkType = Constant.SINK_CLICKHOUSE;
+    public ClickHouseSinkResponse() {
+        this.sinkType = Constant.SINK_CLICKHOUSE;
+    }
 
     @ApiModelProperty("ClickHouse JDBC URL")
     private String jdbcUrl;

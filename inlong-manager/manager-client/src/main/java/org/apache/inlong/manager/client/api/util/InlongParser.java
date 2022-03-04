@@ -17,19 +17,30 @@
 
 package org.apache.inlong.manager.client.api.util;
 
+import static org.apache.inlong.manager.common.enums.SourceType.BINLOG;
+import static org.apache.inlong.manager.common.enums.SourceType.KAFKA;
+
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
@@ -39,15 +50,16 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 
-import java.util.List;
-
-import static org.apache.inlong.manager.common.enums.SourceType.BINLOG;
-import static org.apache.inlong.manager.common.enums.SourceType.KAFKA;
-
 /**
  * Parser for Inlong entity
  */
 public class InlongParser {
+
+    public static final String GROUP_INFO = "groupInfo";
+    public static final String MQ_EXT_INFO = "mqExtInfo";
+    public static final String MIDDLEWARE_TYPE = "middlewareType";
+    public static final String SINK_INFO = "sinkInfo";
+    public static final String SINK_TYPE = "sinkType";
 
     public static Response parseResponse(String responseBody) {
         Response response = GsonUtil.fromJson(responseBody, Response.class);
@@ -62,7 +74,16 @@ public class InlongParser {
 
     public static InlongGroupResponse parseGroupInfo(Response response) {
         Object data = response.getData();
-        return GsonUtil.fromJson(GsonUtil.toJson(data), InlongGroupResponse.class);
+        JsonObject groupJson = GsonUtil.fromJson(GsonUtil.toJson(data), JsonObject.class);
+        InlongGroupResponse inlongGroupResponse = GsonUtil.fromJson(GsonUtil.toJson(data), InlongGroupResponse.class);
+        JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
+        if (mqExtInfo != null && mqExtInfo.get(MIDDLEWARE_TYPE) != null) {
+            if (Constant.MIDDLEWARE_PULSAR.equals(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString())) {
+                InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
+                inlongGroupResponse.setMqExtInfo(pulsarInfo);
+            }
+        }
+        return inlongGroupResponse;
     }
 
     public static PageInfo<InlongGroupListResponse> parseGroupList(Response response) {
@@ -78,12 +99,51 @@ public class InlongParser {
         return GsonUtil.fromJson(GsonUtil.toJson(data), InlongStreamInfo.class);
     }
 
-    public static PageInfo<FullStreamResponse> parseStreamList(Response response) {
+    public static List<FullStreamResponse> parseStreamList(Response response) {
         Object data = response.getData();
-        String pageInfoJson = GsonUtil.toJson(data);
-        return GsonUtil.fromJson(pageInfoJson,
-                new TypeToken<PageInfo<FullStreamResponse>>() {
-                }.getType());
+        JsonObject pageInfoJson = GsonUtil.fromJson(GsonUtil.toJson(data), JsonObject.class);
+        JsonArray fullStreamArray = pageInfoJson.getAsJsonArray("list");
+        List<FullStreamResponse> list = Lists.newArrayList();
+        for (int i = 0; i < fullStreamArray.size(); i++) {
+            JsonObject fullStreamJson = (JsonObject) fullStreamArray.get(i);
+            FullStreamResponse fullStreamResponse = GsonUtil.fromJson(fullStreamJson.toString(),
+                    FullStreamResponse.class);
+            list.add(fullStreamResponse);
+            //Parse sinkResponse in each stream
+            JsonArray sinkJsonArr = fullStreamJson.getAsJsonArray(SINK_INFO);
+            List<SinkResponse> sinkResponses = Lists.newArrayList();
+            fullStreamResponse.setSinkInfo(sinkResponses);
+            for (int j = 0; j < sinkJsonArr.size(); j++) {
+                JsonObject sinkJson = (JsonObject) sinkJsonArr.get(i);
+                String type = sinkJson.get(SINK_TYPE).getAsString();
+                SinkType sinkType = SinkType.forType(type);
+                switch (sinkType) {
+                    case HIVE:
+                        HiveSinkResponse hiveSinkResponse = GsonUtil.fromJson(sinkJson.toString(),
+                                HiveSinkResponse.class);
+                        sinkResponses.add(hiveSinkResponse);
+                        break;
+                    case KAFKA:
+                        KafkaSinkResponse kafkaSinkResponse = GsonUtil.fromJson(sinkJson.toString(),
+                                KafkaSinkResponse.class);
+                        sinkResponses.add(kafkaSinkResponse);
+                        break;
+                    case ICEBERG:
+                        IcebergSinkResponse icebergSinkResponse = GsonUtil.fromJson(sinkJson.toString(),
+                                IcebergSinkResponse.class);
+                        sinkResponses.add(icebergSinkResponse);
+                        break;
+                    case CLICKHOUSE:
+                        ClickHouseSinkResponse clickHouseSinkResponse = GsonUtil.fromJson(sinkJson.toString(),
+                                ClickHouseSinkResponse.class);
+                        sinkResponses.add(clickHouseSinkResponse);
+                        break;
+                    default:
+                        throw new RuntimeException(String.format("Unsupport sinkType=%s for Inlong", sinkType));
+                }
+            }
+        }
+        return list;
     }
 
     public static PageInfo<SourceListResponse> parseSourceList(Response response) {
@@ -107,9 +167,9 @@ public class InlongParser {
             }
             throw new IllegalArgumentException(
                     String.format("Unsupported sourceType=%s for Inlong", sourceType));
-
+        } else {
+            return new PageInfo<>();
         }
-        throw new IllegalArgumentException(String.format("pageInfo is empty for Inlong"));
     }
 
     public static PageInfo<SinkListResponse> parseSinkList(Response response) {
@@ -121,25 +181,24 @@ public class InlongParser {
     }
 
     public static Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> parseGroupForm(String formJson) {
-        final String groupInfoField = "groupInfo";
-        final String mqExtInfoField = "mqExtInfo";
         JsonObject formData = GsonUtil.fromJson(formJson, JsonObject.class);
-        JsonObject groupJson = formData.getAsJsonObject(groupInfoField);
+        JsonObject groupJson = formData.getAsJsonObject(GROUP_INFO);
         InlongGroupApproveRequest groupApproveInfo = GsonUtil.fromJson(groupJson.toString(),
                 InlongGroupApproveRequest.class);
-        JsonObject mqExtInfo = groupJson.getAsJsonObject(mqExtInfoField);
-        if (mqExtInfo != null && mqExtInfo.get("middlewareType") != null
-                && Constant.MIDDLEWARE_PULSAR.equals(mqExtInfo.get("middlewareType").getAsString())) {
-            InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
-            groupApproveInfo.setAckQuorum(pulsarInfo.getAckQuorum());
-            groupApproveInfo.setEnsemble(pulsarInfo.getEnsemble());
-            groupApproveInfo.setWriteQuorum(pulsarInfo.getWriteQuorum());
-            groupApproveInfo.setRetentionTime(pulsarInfo.getRetentionTime());
-            groupApproveInfo.setRetentionTimeUnit(pulsarInfo.getRetentionTimeUnit());
-            groupApproveInfo.setTtl(pulsarInfo.getTtl());
-            groupApproveInfo.setTtlUnit(pulsarInfo.getTtlUnit());
-            groupApproveInfo.setRetentionSize(pulsarInfo.getRetentionSize());
-            groupApproveInfo.setRetentionSizeUnit(pulsarInfo.getRetentionSizeUnit());
+        JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
+        if (mqExtInfo != null && mqExtInfo.get(MIDDLEWARE_TYPE) != null) {
+            if (Constant.MIDDLEWARE_PULSAR.equals(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString())) {
+                InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
+                groupApproveInfo.setAckQuorum(pulsarInfo.getAckQuorum());
+                groupApproveInfo.setEnsemble(pulsarInfo.getEnsemble());
+                groupApproveInfo.setWriteQuorum(pulsarInfo.getWriteQuorum());
+                groupApproveInfo.setRetentionTime(pulsarInfo.getRetentionTime());
+                groupApproveInfo.setRetentionTimeUnit(pulsarInfo.getRetentionTimeUnit());
+                groupApproveInfo.setTtl(pulsarInfo.getTtl());
+                groupApproveInfo.setTtlUnit(pulsarInfo.getTtlUnit());
+                groupApproveInfo.setRetentionSize(pulsarInfo.getRetentionSize());
+                groupApproveInfo.setRetentionSizeUnit(pulsarInfo.getRetentionSizeUnit());
+            }
         }
         JsonArray streamJson = formData.getAsJsonArray("streamInfoList");
         List<InlongStreamApproveRequest> streamApproveList = GsonUtil.fromJson(streamJson.toString(),

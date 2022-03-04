@@ -216,7 +216,7 @@ public class InlongGroupImpl implements InlongGroup {
                 InlongStreamImpl inlongStream = new InlongStreamImpl(fullStreamResponse, stream);
                 if (CollectionUtils.isNotEmpty(sourceListResponses)) {
                     for (SourceListResponse response : sourceListResponses) {
-                        inlongStream.addSource(
+                        inlongStream.updateSource(
                                 InlongStreamSourceTransfer.parseStreamSource(response));
                     }
                 }

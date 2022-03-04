@@ -337,8 +337,7 @@ public class InnerInlongManagerClient {
             org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
-            PageInfo<FullStreamResponse> pageInfo = InlongParser.parseStreamList(responseBody);
-            return pageInfo.getList();
+            return InlongParser.parseStreamList(responseBody);
         } catch (Exception e) {
             throw new RuntimeException(String.format("List inlong streams failed: %s", e.getMessage()), e);
         }

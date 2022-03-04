@@ -34,7 +34,9 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 @ApiModel(value = "Response of the Iceberg sink")
 public class IcebergSinkResponse extends SinkResponse {
 
-    private String sinkType = Constant.SINK_ICEBERG;
+    public IcebergSinkResponse() {
+        this.sinkType = Constant.SINK_ICEBERG;
+    }
 
     @ApiModelProperty("table Location like hdfs://")
     private String tableLocation;

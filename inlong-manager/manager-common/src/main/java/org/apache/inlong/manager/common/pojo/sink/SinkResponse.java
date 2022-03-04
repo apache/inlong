@@ -24,12 +24,14 @@ import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
+import lombok.NoArgsConstructor;
 
 /**
  * Response of the stream sink
  */
 @Data
 @ApiModel("Response of the stream sink")
+@NoArgsConstructor
 public class SinkResponse {
 
     private Integer id;
@@ -40,11 +42,11 @@ public class SinkResponse {
     @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
 
-    @ApiModelProperty("Sink type, including: HIVE, ES, etc.")
-    private String sinkType;
-
     @ApiModelProperty("Sink name, unique in one stream.")
     private String sinkName;
+
+    @ApiModelProperty("Sink type, including: HIVE, ES, etc.")
+    protected String sinkType;
 
     @ApiModelProperty("Data storage period, unit: day")
     private Integer storagePeriod;
