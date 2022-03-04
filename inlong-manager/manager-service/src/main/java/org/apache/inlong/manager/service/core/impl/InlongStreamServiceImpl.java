@@ -33,6 +33,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceDbBasicInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceDbDetailInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceFileBasicInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceFileDetailInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullPageUpdateRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
@@ -58,6 +59,7 @@ import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.core.SourceDbService;
 import org.apache.inlong.manager.service.core.SourceFileService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
+import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,6 +93,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     private SourceFileService sourceFileService;
     @Autowired
     private SourceDbService sourceDbService;
+    @Autowired
+    private StreamSourceService sourceService;
     @Autowired
     private StreamSinkService sinkService;
 
@@ -515,11 +519,15 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                     throw new BusinessException(ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORTED);
             }
 
-            // 4. Query various stream sinks and its extended information, field information
-            List<SinkResponse> sinkInfoList = sinkService.listSink(groupId, streamId);
-            pageInfo.setSinkInfo(sinkInfoList);
+            // 4. Query stream sources information
+            List<SourceResponse> sourceList = sourceService.listSource(groupId, streamId);
+            pageInfo.setSourceInfo(sourceList);
 
-            // 5. Add a single result to the paginated list
+            // 5. Query various stream sinks and its extended information, field information
+            List<SinkResponse> sinkList = sinkService.listSink(groupId, streamId);
+            pageInfo.setSinkInfo(sinkList);
+
+            // 6. Add a single result to the paginated list
             responseList.add(pageInfo);
         }
 
@@ -539,9 +547,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         Preconditions.checkNotNull(updateInfo, "updateInfo is empty");
         Preconditions.checkNotNull(updateInfo.getStreamInfo(), "inlong stream info is empty");
 
-        // Check whether it can be added: check by sub-layer specific services
-        // this.checkBizIsTempStatus(streamInfo.getInlongGroupId());
-
         // 1. Modify the inlong stream (inlong stream information cannot be empty)
         this.update(updateInfo.getStreamInfo(), operator);
 
@@ -554,6 +559,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         if (updateInfo.getDbBasicInfo() != null) {
             sourceDbService.updateBasic(updateInfo.getDbBasicInfo(), operator);
         }
+
+        // TODO Update stream source info
 
         LOGGER.info("success to update all stream page info");
         return true;
