@@ -257,7 +257,7 @@
         </where>
     </select>
 
-    <select id="selectByIdentifier"
+    <select id="selectByRelatedId"
             resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
