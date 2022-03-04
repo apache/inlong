@@ -19,11 +19,13 @@ package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -43,6 +45,8 @@ public class StreamCompleteProcessListener implements ProcessEventListener {
     @Autowired
     private InlongStreamService streamService;
     @Autowired
+    private StreamSourceService sourceService;
+    @Autowired
     private SourceFileDetailEntityMapper fileDetailMapper;
 
     @Override
@@ -51,22 +55,23 @@ public class StreamCompleteProcessListener implements ProcessEventListener {
     }
 
     /**
-     * The creation process ends normally, modify the status of inlong group and all inlong stream
-     * belong to the inlong group to [CONFIG_SUCCESSFUL]
+     * The creation process ends normally, modify the status of inlong group and other related info.
      */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
         String streamId = form.getInlongStreamId();
-        String user = context.getApplicant();
+        String applicant = context.getApplicant();
 
         // update inlong group status
-        groupService.updateStatus(groupId, EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode(), user);
+        groupService.updateStatus(groupId, EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode(), applicant);
         // update inlong stream status
-        streamService.updateStatus(groupId, streamId, EntityStatus.STREAM_CONFIG_SUCCESSFUL.getCode(), user);
+        streamService.updateStatus(groupId, streamId, EntityStatus.STREAM_CONFIG_SUCCESSFUL.getCode(), applicant);
         // update file data source status
-        fileDetailMapper.updateStatusAfterApprove(groupId, streamId, EntityStatus.AGENT_ADD.getCode(), user);
+        fileDetailMapper.updateStatusAfterApprove(groupId, streamId, EntityStatus.AGENT_ADD.getCode(), applicant);
+        // Update stream source status
+        sourceService.updateStatus(groupId, streamId, SourceState.TO_BE_ISSUED_ADD.getCode(), applicant);
 
         return ListenerResult.success();
     }
