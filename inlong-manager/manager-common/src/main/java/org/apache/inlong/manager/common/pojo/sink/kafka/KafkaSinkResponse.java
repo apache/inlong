@@ -34,7 +34,9 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 @ApiModel(value = "Response of the Kafka sink")
 public class KafkaSinkResponse extends SinkResponse {
 
-    private String sinkType = Constant.SINK_KAFKA;
+    public KafkaSinkResponse() {
+        this.sinkType = Constant.SINK_KAFKA;
+    }
 
     @ApiModelProperty("Kafka bootstrap servers")
     private String address;
