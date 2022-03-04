@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.api;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.SourceType;
 
@@ -29,6 +30,7 @@ public abstract class StreamSource {
         FULL, INCREMENT
     }
 
+    @ApiModelProperty(value = "DataSource name", required = true)
     private String sourceName;
 
     public abstract SourceType getSourceType();
