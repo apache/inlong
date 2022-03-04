@@ -156,7 +156,7 @@ public class AgentServiceImpl implements AgentService {
         } else {
             BinlogSourceDTO binlogSourceDTO = binlogStreamSourceOperation.getFromEntity(sourceEntity,
                     BinlogSourceDTO::new);
-            if (binlogSourceDTO.isMigrationTransfer()) {
+            if (binlogSourceDTO.isAllMigration()) {
                 return TaskTypeEnum.DATABASE_MIGRATION.getType();
             } else {
                 return sourceType.getTaskType().getType();

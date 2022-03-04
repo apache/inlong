@@ -35,7 +35,7 @@ public class SourceInfoUtils {
     public static boolean isBinlogMigrationSource(SourceResponse sourceResponse) {
         if (SourceType.BINLOG.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
             BinlogSourceResponse binlogSourceResponse = (BinlogSourceResponse) sourceResponse;
-            return binlogSourceResponse.isMigrationTransfer();
+            return binlogSourceResponse.isAllMigration();
         }
         return false;
     }

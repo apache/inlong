@@ -90,6 +90,6 @@ public class BinlogSourceRequest extends SourceRequest {
     private String timestampFormatStandard = "SQL";
 
     @ApiModelProperty("Need transfer total database")
-    private boolean migrationTransfer = false;
+    private boolean allMigration = false;
 
 }

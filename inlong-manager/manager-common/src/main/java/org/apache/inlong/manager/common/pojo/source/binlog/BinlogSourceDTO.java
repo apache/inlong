@@ -88,7 +88,7 @@ public class BinlogSourceDTO {
     private String timestampFormatStandard = "SQL";
 
     @ApiModelProperty("Need transfer total database")
-    private boolean migrationTransfer;
+    private boolean allMigration;
 
     /**
      * Get the dto instance from the request
@@ -103,7 +103,7 @@ public class BinlogSourceDTO {
                 .timeZone(request.getTimeZone())
                 .intervalMs(request.getIntervalMs())
                 .snapshotMode(request.getSnapshotMode())
-                .migrationTransfer(request.isMigrationTransfer())
+                .allMigration(request.isAllMigration())
                 .storeHistoryFilename(request.getStoreHistoryFilename())
                 .build();
     }

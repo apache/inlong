@@ -62,5 +62,5 @@ public class BinlogSourceListResponse extends SourceListResponse {
     private String timestampFormatStandard = "SQL";
 
     @ApiModelProperty("Need transfer total database")
-    private boolean migrationTransfer;
+    private boolean allMigration;
 }
