@@ -113,6 +113,10 @@ export default (
             value: 'FILE',
           },
           {
+            label: 'DB',
+            value: 'DB',
+          },
+          {
             label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Autonomous'),
             value: 'AUTO_PUSH',
           },
@@ -121,16 +125,39 @@ export default (
       rules: [{ required: true }],
     },
     {
-      type: (
+      type: currentValues.dataSourceType ? (
         <DataSourcesEditor
           readonly={readonly}
           type={currentValues.dataSourceType}
           useActionRequest={useDataSourcesActionRequest}
           {...basicProps}
         />
+      ) : (
+        <div />
       ),
+      preserve: false,
       name: 'dataSourcesConfig',
-      visible: values => values.dataSourceType === 'FILE',
+      visible: values => values.dataSourceType === 'DB' || values.dataSourceType === 'FILE',
+    },
+    {
+      type: 'radio',
+      label: '同步类型',
+      name: 'syncType',
+      initialValue: currentValues.syncType ?? 0,
+      props: {
+        options: [
+          {
+            label: '全量',
+            value: 0,
+          },
+          {
+            label: '增量',
+            value: 1,
+          },
+        ],
+      },
+      rules: [{ required: true }],
+      visible: values => currentValues.dataSourceType === 'DB',
     },
     {
       type: 'radio',
