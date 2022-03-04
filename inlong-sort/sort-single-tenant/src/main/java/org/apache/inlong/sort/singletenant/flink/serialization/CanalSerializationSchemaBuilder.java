@@ -17,18 +17,14 @@
 
 package org.apache.inlong.sort.singletenant.flink.serialization;
 
-import static org.apache.inlong.sort.singletenant.flink.serialization.SerializationSchemaFactory.MAP_NULL_KEY_LITERAL_DEFAULT;
-import static org.apache.inlong.sort.singletenant.flink.serialization.SerializationSchemaFactory.getMapNullKeyMode;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.checkWhetherMigrateAll;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertDateToStringFormatInfo;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertFieldInfosToRowType;
-import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.createRowConverter;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.extractFormatInfos;
-import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.getTimestampFormatStandard;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.Row;
@@ -37,40 +33,21 @@ import org.apache.inlong.sort.formats.json.canal.CanalJsonSerializationSchema;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.serialization.CanalSerializationInfo;
 import org.apache.inlong.sort.singletenant.flink.utils.CommonUtils;
 
 public class CanalSerializationSchemaBuilder {
 
-    public static SerializationSchema<Row> build(
-            FieldInfo[] fieldInfos,
-            CanalSerializationInfo canalSerializationInfo
-    ) throws IOException, ClassNotFoundException {
-        String mapNullKeyLiteral = canalSerializationInfo.getMapNullKeyLiteral();
-        if (StringUtils.isEmpty(mapNullKeyLiteral)) {
-            mapNullKeyLiteral = MAP_NULL_KEY_LITERAL_DEFAULT;
-        }
-
-        FieldInfo[] originPhysicalFieldInfos = CommonUtils.extractNonBuiltInFieldInfos(fieldInfos);
+    public static SerializationSchema<Row> build(FieldInfo[] fieldInfos) throws IOException, ClassNotFoundException {
+        boolean isMigrateAll = checkWhetherMigrateAll(fieldInfos);
+        FieldInfo[] originPhysicalFieldInfos = CommonUtils.extractNonBuiltInFieldInfos(fieldInfos, isMigrateAll);
         FieldInfo[] convertedPhysicalFieldInfos = convertDateToStringFormatInfo(originPhysicalFieldInfos);
         RowType convertedPhysicalRowType = convertFieldInfosToRowType(convertedPhysicalFieldInfos);
-        FieldInfo[] convertedFieldInfos = convertDateToStringFormatInfo(fieldInfos);
 
         CanalJsonSerializationSchema canalSchema = new CanalJsonSerializationSchema(
-                convertedPhysicalRowType,
-                getFieldIndexToMetadata(fieldInfos),
-                createRowConverter(convertedFieldInfos),
-                createRowConverter(convertedPhysicalFieldInfos),
-                getTimestampFormatStandard(canalSerializationInfo.getTimestampFormatStandard()),
-                getMapNullKeyMode(canalSerializationInfo.getMapNullKeyMod()),
-                mapNullKeyLiteral,
-                canalSerializationInfo.isEncodeDecimalAsPlainNumber()
+                convertedPhysicalRowType, getFieldIndexToMetadata(fieldInfos), isMigrateAll
         );
 
-        RowToRowDataSerializationSchemaWrapper rowToRowDataSchema
-                = new RowToRowDataSerializationSchemaWrapper(canalSchema, convertedFieldInfos);
-
-        return new CustomDateFormatSerializationSchemaWrapper(rowToRowDataSchema, extractFormatInfos(fieldInfos));
+        return new CustomDateFormatSerializationSchemaWrapper(canalSchema, extractFormatInfos(fieldInfos));
     }
 
     private static Map<Integer, ReadableMetadata> getFieldIndexToMetadata(FieldInfo[] fieldInfos) {
@@ -94,6 +71,7 @@ public class CanalSerializationSchemaBuilder {
                     case MYSQL_METADATA_IS_DDL:
                         fieldIndexToMetadata.put(i, ReadableMetadata.IS_DDL);
                         break;
+                    case MYSQL_METADATA_DATA:
                     case MYSQL_METADATA_EVENT_TYPE:
                         // We will always append `type` to the result
                         break;

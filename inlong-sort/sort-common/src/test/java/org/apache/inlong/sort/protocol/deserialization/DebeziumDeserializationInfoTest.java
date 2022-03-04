@@ -24,11 +24,15 @@ public class DebeziumDeserializationInfoTest extends ProtocolBaseTest {
 
     @Override
     public void init() {
-        expectedObject = new DebeziumDeserializationInfo(true, "SQL", false);
-        expectedJson = "{\"type\":\"debezium_json\", \"ignore_parse_errors\":\"true\","
-                + "\"timestamp_format_standard\":\"SQL\",\"include_update_before\":\"false\"}";
+        expectedObject = new DebeziumDeserializationInfo(true, "SQL", true);
+        expectedJson = "{\n"
+                + "  \"type\" : \"debezium_json\",\n"
+                + "  \"ignore_parse_errors\" : true,\n"
+                + "  \"timestamp_format_standard\" : \"SQL\",\n"
+                + "  \"include_update_before\" : true\n"
+                + "}";
         equalObj1 = expectedObject;
-        equalObj2 = new DebeziumDeserializationInfo(true, "SQL");
-        unequalObj = "";
+        equalObj2 = new DebeziumDeserializationInfo(true, "SQL", true);
+        unequalObj = new DebeziumDeserializationInfo(true, "SQL", false);
     }
 }

@@ -43,9 +43,7 @@ public class RowToCanalKafkaSinkTest extends KafkaSinkTestBase {
                 new FieldInfo("f2", new IntFormatInfo())
         };
 
-        serializationSchema = SerializationSchemaFactory.build(
-                fieldInfos, new CanalSerializationInfo("sql", "literal", "null", true)
-        );
+        serializationSchema = SerializationSchemaFactory.build(fieldInfos, new CanalSerializationInfo());
 
         prepareTestData();
     }

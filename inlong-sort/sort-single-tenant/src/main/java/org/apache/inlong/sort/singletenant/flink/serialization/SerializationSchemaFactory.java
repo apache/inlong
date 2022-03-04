@@ -56,7 +56,7 @@ public class SerializationSchemaFactory {
         } else if (serializationInfo instanceof AvroSerializationInfo) {
             return buildAvroSerializationSchema(fieldInfos);
         } else if (serializationInfo instanceof CanalSerializationInfo) {
-            return CanalSerializationSchemaBuilder.build(fieldInfos, (CanalSerializationInfo) serializationInfo);
+            return CanalSerializationSchemaBuilder.build(fieldInfos);
         } else if (serializationInfo instanceof DebeziumSerializationInfo) {
             return DebeziumSerializationSchemaBuilder.build(fieldInfos, (DebeziumSerializationInfo) serializationInfo);
         } else {
