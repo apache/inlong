@@ -20,9 +20,7 @@ package org.apache.inlong.sort.singletenant.flink.transformation;
 import static org.junit.Assert.assertEquals;
 
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.TimerService;
 import org.apache.flink.types.Row;
-import org.apache.flink.util.OutputTag;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
@@ -66,25 +64,7 @@ public class TransformerTest {
 
         Row input = Row.of("name", 29, 179);
         ListCollector<Row> collector = new ListCollector<>();
-        transformer.processElement(
-                input,
-                transformer.new Context() {
-                        @Override
-                        public Long timestamp() {
-                            return null;
-                        }
-
-                        @Override
-                        public TimerService timerService() {
-                            return null;
-                        }
-
-                        @Override
-                        public <X> void output(OutputTag<X> outputTag, X x) {
-
-                        }
-                    },
-                collector);
+        transformer.processElement(input, null, collector);
         assertEquals(Row.of(29, "name"), collector.getInnerList().get(0));
     }
 
@@ -109,25 +89,7 @@ public class TransformerTest {
 
         Row input = Row.of("name", 29, 179);
         ListCollector<Row> collector = new ListCollector<>();
-        transformer.processElement(
-                input,
-                transformer.new Context() {
-                    @Override
-                    public Long timestamp() {
-                        return null;
-                    }
-
-                    @Override
-                    public TimerService timerService() {
-                        return null;
-                    }
-
-                    @Override
-                    public <X> void output(OutputTag<X> outputTag, X x) {
-
-                    }
-                },
-                collector);
+        transformer.processElement(input, null, collector);
         assertEquals(Row.of(29, null), collector.getInnerList().get(0));
     }
 
@@ -152,25 +114,7 @@ public class TransformerTest {
 
         Row input = Row.of("name", 29, 179);
         ListCollector<Row> collector = new ListCollector<>();
-        transformer.processElement(
-                input,
-                transformer.new Context() {
-                    @Override
-                    public Long timestamp() {
-                        return null;
-                    }
-
-                    @Override
-                    public TimerService timerService() {
-                        return null;
-                    }
-
-                    @Override
-                    public <X> void output(OutputTag<X> outputTag, X x) {
-
-                    }
-                },
-                collector);
+        transformer.processElement(input, null, collector);
         assertEquals(Row.of(29, null), collector.getInnerList().get(0));
     }
 
