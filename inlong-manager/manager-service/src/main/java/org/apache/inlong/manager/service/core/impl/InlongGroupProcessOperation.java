@@ -23,12 +23,14 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamSyncResponse;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
@@ -51,6 +53,9 @@ public class InlongGroupProcessOperation {
     private WorkflowService workflowService;
     @Autowired
     private InlongStreamService streamService;
+
+    @Autowired
+    private InlongStreamEntityMapper streamMapper;
 
     /**
      * Allocate resource application groups for access services and initiate an approval process
@@ -136,6 +141,11 @@ public class InlongGroupProcessOperation {
     private UpdateGroupProcessForm genUpdateGroupProcessForm(InlongGroupInfo groupInfo,
             OperateType operateType) {
         UpdateGroupProcessForm updateForm = new UpdateGroupProcessForm();
+        if (OperateType.RESTART == operateType) {
+            List<InlongStreamSyncResponse> inlongStreamSyncResponseList =
+                    streamMapper.selectInlongStreamSyncList(groupInfo.getInlongGroupId());
+            updateForm.setInlongStreamSyncResponseList(inlongStreamSyncResponseList);
+        }
         updateForm.setGroupInfo(groupInfo);
         updateForm.setOperateType(operateType);
         return updateForm;

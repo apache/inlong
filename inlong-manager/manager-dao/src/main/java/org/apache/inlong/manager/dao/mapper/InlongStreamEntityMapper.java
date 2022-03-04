@@ -20,6 +20,7 @@ package org.apache.inlong.manager.dao.mapper;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamSyncResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.springframework.stereotype.Repository;
@@ -71,5 +72,13 @@ public interface InlongStreamEntityMapper {
      * Logic delete dlq or rlq topic by bid
      */
     void logicDeleteDlqOrRlq(String groupId, String streamId, String operator);
+
+    /**
+     *
+     * get inlong stream sync send flag
+     * @param groupId
+     * @return
+     */
+    List<InlongStreamSyncResponse> selectInlongStreamSyncList(@Param("groupId") String groupId);
 
 }

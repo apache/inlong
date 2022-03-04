@@ -19,8 +19,10 @@ package org.apache.inlong.manager.service.workflow.group.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamSyncResponse;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
+import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
@@ -30,6 +32,8 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * After the new inlong group is approved, initiate a listener for other processes
@@ -42,6 +46,9 @@ public class StartCreateGroupProcessListener implements ProcessEventListener {
     private InlongGroupService groupService;
     @Autowired
     private WorkflowService workflowService;
+
+    @Autowired
+    private InlongStreamEntityMapper streamMapper;
 
     @Override
     public ProcessEvent event() {
@@ -59,8 +66,9 @@ public class StartCreateGroupProcessListener implements ProcessEventListener {
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
         processForm.setGroupInfo(groupService.get(groupId));
         String username = context.getApplicant();
+        List<InlongStreamSyncResponse> inlongStreamSyncResponseList = streamMapper.selectInlongStreamSyncList(groupId);
+        processForm.setInlongStreamSyncResponseList(inlongStreamSyncResponseList);
         workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm);
-
         return ListenerResult.success();
     }
 
