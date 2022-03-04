@@ -610,7 +610,7 @@ CREATE TABLE `stream_source`
     `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `source_idx` (`inlong_group_id`,`inlong_stream_id`,`source_name`)
+    UNIQUE KEY `source_idx` (`inlong_group_id`,`inlong_stream_id`,`source_name`,`is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream source table';
 
@@ -637,7 +637,7 @@ CREATE TABLE `stream_sink`
     `create_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `sink_idx` (`inlong_group_id`,`inlong_stream_id`,`sink_name`)
+    UNIQUE KEY `sink_idx` (`inlong_group_id`,`inlong_stream_id`,`sink_name`,`is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream sink table';
 
