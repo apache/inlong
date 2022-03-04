@@ -87,18 +87,23 @@ public class BinlogSourceDTO {
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
     private String timestampFormatStandard = "SQL";
 
+    @ApiModelProperty("Need transfer total database")
+    private boolean migrationTransfer;
+
     /**
      * Get the dto instance from the request
      */
     public static BinlogSourceDTO getFromRequest(BinlogSourceRequest request) {
         return BinlogSourceDTO.builder()
                 .user(request.getUser())
+                .port(request.getPort())
                 .password(request.getPassword())
                 .hostname(request.getHostname())
                 .whitelist(request.getWhitelist())
                 .timeZone(request.getTimeZone())
                 .intervalMs(request.getIntervalMs())
                 .snapshotMode(request.getSnapshotMode())
+                .migrationTransfer(request.isMigrationTransfer())
                 .storeHistoryFilename(request.getStoreHistoryFilename())
                 .build();
     }

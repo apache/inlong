@@ -29,7 +29,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
@@ -168,19 +167,20 @@ public class CreateSortConfigListener implements SortOperateListener {
         String middleWareType = groupInfo.getMiddlewareType();
 
         List<FieldInfo> fieldInfos = Lists.newArrayList();
-        if (SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
+        if (SourceInfoUtils.isBinlogMigrationSource(sourceResponse)) {
             fieldInfos.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE,
                     BuiltInField.MYSQL_METADATA_DATA));
+
+        } else {
+            if (CollectionUtils.isNotEmpty(streamInfo.getFieldList())) {
+                fieldInfos = streamInfo.getFieldList().stream().map(inlongStreamFieldInfo -> {
+                    FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(
+                            inlongStreamFieldInfo.getFieldType().toLowerCase());
+                    return new FieldInfo(inlongStreamFieldInfo.getFieldName(), formatInfo);
+                }).collect(Collectors.toList());
+            }
         }
 
-        if (!SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())
-                && CollectionUtils.isNotEmpty(streamInfo.getFieldList())) {
-            fieldInfos = streamInfo.getFieldList().stream().map(inlongStreamFieldInfo -> {
-                FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(
-                        inlongStreamFieldInfo.getFieldType().toLowerCase());
-                return new FieldInfo(inlongStreamFieldInfo.getFieldName(), formatInfo);
-            }).collect(Collectors.toList());
-        }
         DeserializationInfo deserializationInfo = SerializationUtils.createDeserializationInfo(sourceResponse,
                 streamInfo);
         if (Constant.MIDDLEWARE_PULSAR.equals(middleWareType)) {
@@ -191,6 +191,7 @@ public class CreateSortConfigListener implements SortOperateListener {
             throw new RuntimeException(
                     String.format("MiddleWare:{} not support in CreateSortConfigListener", middleWareType));
         }
+
     }
 
     private PulsarSourceInfo createPulsarSourceInfo(InlongGroupInfo groupInfo,

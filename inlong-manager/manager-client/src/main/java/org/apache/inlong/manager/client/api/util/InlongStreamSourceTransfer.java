@@ -86,6 +86,7 @@ public class InlongStreamSourceTransfer {
                 binlogSourceResponse.getUser(),
                 binlogSourceResponse.getPassword());
         binlogSource.setAuthentication(defaultAuthentication);
+        binlogSource.setMigrationTransfer(binlogSourceResponse.isMigrationTransfer());
         binlogSource.setTimeZone(binlogSourceResponse.getTimeZone());
         binlogSource.setTimestampFormatStandard(binlogSourceResponse.getTimestampFormatStandard());
         List<String> dbs = Splitter.on(",").splitToList(binlogSourceResponse.getWhitelist());
@@ -121,6 +122,7 @@ public class InlongStreamSourceTransfer {
         binlogSourceRequest.setPassword(authentication.getPassword());
         binlogSourceRequest.setHostname(binlogSource.getHostname());
         binlogSourceRequest.setPort(binlogSource.getPort());
+        binlogSourceRequest.setMigrationTransfer(binlogSource.isMigrationTransfer());
         String dbNames = Joiner.on(",").join(binlogSource.getDbNames());
         binlogSourceRequest.setWhitelist(dbNames);
         binlogSourceRequest.setTimestampFormatStandard(binlogSource.getTimestampFormatStandard());

@@ -27,7 +27,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
@@ -89,7 +88,7 @@ public class SinkInfoUtils {
     private static KafkaSinkInfo createKafkaSinkInfo(InlongStreamInfo inlongStreamInfo, SourceResponse sourceResponse,
             KafkaSinkResponse kafkaSinkResponse) {
         List<FieldInfo> fieldInfoList = Lists.newArrayList();
-        if (SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
+        if (SourceInfoUtils.isBinlogMigrationSource(sourceResponse)) {
             fieldInfoList.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE,
                     BuiltInField.MYSQL_METADATA_DATA));
         } else {
@@ -159,7 +158,7 @@ public class SinkInfoUtils {
 
         // Get the sink field, if there is no partition field in the source field, add the partition field to the end
         List<FieldInfo> fieldInfoList = Lists.newArrayList();
-        if (SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
+        if (SourceInfoUtils.isBinlogMigrationSource(sourceResponse)) {
             fieldInfoList.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE,
                     BuiltInField.MYSQL_METADATA_DATA));
         } else {

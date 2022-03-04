@@ -20,14 +20,25 @@ package org.apache.inlong.manager.service.thirdparty.sort.util;
 import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
 import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 
 public class SourceInfoUtils {
+
+    public static boolean isBinlogMigrationSource(SourceResponse sourceResponse) {
+        if (SourceType.BINLOG.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
+            BinlogSourceResponse binlogSourceResponse = (BinlogSourceResponse) sourceResponse;
+            return binlogSourceResponse.isMigrationTransfer();
+        }
+        return false;
+    }
 
     public static PulsarSourceInfo createPulsarSourceInfo(InlongGroupInfo groupInfo, String pulsarTopic,
                                                           DeserializationInfo deserializationInfo,
