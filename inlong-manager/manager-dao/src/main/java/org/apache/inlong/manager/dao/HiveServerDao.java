@@ -17,17 +17,19 @@
 
 package org.apache.inlong.manager.dao;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hive.jdbc.HiveDatabaseMetaData;
+import org.apache.inlong.manager.common.pojo.query.ColumnInfoBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.hive.jdbc.HiveDatabaseMetaData;
-import org.apache.inlong.manager.common.pojo.query.ColumnInfoBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Repository;
 
 @Repository
 public class HiveServerDao {
@@ -93,6 +95,9 @@ public class HiveServerDao {
      * Get Hive connection from hive url and user
      */
     public Connection getHiveConnection(String hiveUrl, String user, String password) throws Exception {
+        if (StringUtils.isBlank(hiveUrl) || !hiveUrl.startsWith("jdbc:hive2")) {
+            throw new Exception("Hive server URL was invalid, it should start with jdbc:hive2");
+        }
         Connection conn;
         try {
             Class.forName(HIVE_DRIVER_CLASS);
