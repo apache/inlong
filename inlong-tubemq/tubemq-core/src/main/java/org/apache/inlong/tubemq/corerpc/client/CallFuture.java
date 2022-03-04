@@ -84,8 +84,8 @@ public class CallFuture<T> implements Future<T>, Callback<T> {
      * {@link #get(long, java.util.concurrent.TimeUnit)} is usually preferred because these methods
      * block until the result is available or an error occurs.
      *
-     * @return the value of the response, or null if no result was returned or the RPC has not yet
-     * completed.
+     * @return the value of the response, or null if no result was returned or the RPC has not
+     * yet completed.
      */
     public T getResult() {
         return result;
