@@ -80,6 +80,11 @@ public interface StreamSourceEntityMapper {
      */
     List<String> selectSourceType(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
+    /**
+     * Get all sources in temporary status.
+     *
+     * @apiNote Do not need to filter sources that is_deleted > 0.
+     */
     List<StreamSourceEntity> selectTempStatusSource();
 
     int updateByPrimaryKeySelective(StreamSourceEntity record);
