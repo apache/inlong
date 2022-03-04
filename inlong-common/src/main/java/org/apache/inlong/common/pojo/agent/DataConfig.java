@@ -33,7 +33,7 @@ public class DataConfig {
     private String inlongGroupId;
     private String inlongStreamId;
     private String op;
-    private Integer jobId;
+    private Integer taskId;
     private Integer taskType;
     private String taskName;
     private String snapshot;

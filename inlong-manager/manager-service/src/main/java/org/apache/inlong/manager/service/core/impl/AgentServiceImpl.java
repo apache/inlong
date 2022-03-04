@@ -83,7 +83,7 @@ public class AgentServiceImpl implements AgentService {
     @Autowired
     private InlongStreamFieldEntityMapper streamFieldMapper;
     @Autowired
-    private InlongStreamEntityMapper inlongStreamMapper;
+    private InlongStreamEntityMapper streamMapper;
 
     /**
      * If the reported task time and the modification time in the database exceed this value,
@@ -121,20 +121,21 @@ public class AgentServiceImpl implements AgentService {
         List<StreamSourceEntity> entityList = sourceMapper.selectByIpAndUuid(agentIp, uuid);
         for (StreamSourceEntity entity : entityList) {
             DataConfig dataConfig = new DataConfig();
-            dataConfig.setJobId(entity.getId());
+            dataConfig.setTaskId(entity.getId());
             SourceType sourceType = SourceType.forType(entity.getSourceType());
             dataConfig.setTaskType(sourceType.getTaskType().getType());
             dataConfig.setTaskName(entity.getSourceName());
             dataConfig.setOp(String.valueOf(entity.getStatus() % 100));
-            String inlongGroupId = entity.getInlongGroupId();
-            String inlongStreamId = entity.getInlongStreamId();
-            dataConfig.setInlongGroupId(inlongGroupId);
-            dataConfig.setInlongStreamId(inlongStreamId);
             dataConfig.setIp(entity.getAgentIp());
             dataConfig.setUuid(entity.getUuid());
             dataConfig.setExtParams(entity.getExtParams());
             dataConfig.setSnapshot(entity.getSnapshot());
-            InlongStreamEntity inlongStreamEntity = inlongStreamMapper.selectByIdentifier(inlongGroupId,inlongStreamId);
+
+            String groupId = entity.getInlongGroupId();
+            String streamId = entity.getInlongStreamId();
+            dataConfig.setInlongGroupId(groupId);
+            dataConfig.setInlongStreamId(streamId);
+            InlongStreamEntity inlongStreamEntity = streamMapper.selectByIdentifier(groupId, streamId);
             dataConfig.setSyncSend(inlongStreamEntity.getSyncSend());
             dataConfigs.add(dataConfig);
         }
