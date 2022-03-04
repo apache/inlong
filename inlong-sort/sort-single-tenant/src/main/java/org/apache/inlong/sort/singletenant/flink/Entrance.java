@@ -48,11 +48,13 @@ import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
+import org.apache.inlong.sort.protocol.transformation.TransformationInfo;
 import org.apache.inlong.sort.singletenant.flink.clickhouse.ClickhouseRowSinkFunction;
 import org.apache.inlong.sort.singletenant.flink.deserialization.DeserializationFunction;
 import org.apache.inlong.sort.singletenant.flink.deserialization.DeserializationSchemaFactory;
 import org.apache.inlong.sort.singletenant.flink.deserialization.FieldMappingTransformer;
 import org.apache.inlong.sort.singletenant.flink.serialization.SerializationSchemaFactory;
+import org.apache.inlong.sort.singletenant.flink.transformation.Transformer;
 import org.apache.inlong.sort.singletenant.flink.utils.CommonUtils;
 import org.apache.inlong.sort.util.ParameterTool;
 
@@ -82,8 +84,11 @@ public class Entrance {
         DataStream<Row> deserializedStream =
                 buildDeserializationStream(sourceStream, dataFlowInfo.getSourceInfo(), config);
 
+        DataStream<Row> transformationStream =
+                buildTransformationStream(deserializedStream, dataFlowInfo, config);
+
         buildSinkStream(
-                deserializedStream,
+                transformationStream,
                 config,
                 dataFlowInfo.getSinkInfo(),
                 dataFlowInfo.getProperties(),
@@ -137,6 +142,25 @@ public class Entrance {
                 .uid(Constants.DESERIALIZATION_SCHEMA_UID)
                 .name("Deserialization")
                 .setParallelism(config.getInteger(Constants.DESERIALIZATION_PARALLELISM));
+    }
+
+    private static DataStream<Row> buildTransformationStream(
+            DataStream<Row> deserializationStream,
+            DataFlowInfo dataFlowInfo,
+            Configuration config) {
+        TransformationInfo transformationInfo = dataFlowInfo.getTransformationInfo();
+        if (transformationInfo == null) {
+            return deserializationStream;
+        }
+
+        return deserializationStream
+                .process(new Transformer(
+                        transformationInfo,
+                        dataFlowInfo.getSourceInfo().getFields(),
+                        dataFlowInfo.getSinkInfo().getFields()))
+                       .uid(Constants.TRANSFORMATION_UID)
+                       .name("Transformation")
+                       .setParallelism(config.getInteger(Constants.TRANSFORMATION_PARALLELISM));
     }
 
     private static void buildSinkStream(
