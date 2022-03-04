@@ -21,14 +21,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.StreamConfigLogEntityMapper">
   <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.StreamConfigLogEntity">
-    <id column="id" jdbcType="INTEGER" property="id" />
-    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <id column="ip" jdbcType="VARCHAR" property="ip" />
+    <id column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId" />
+    <id column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId" />
+    <id column="component_name" jdbcType="VARCHAR" property="componentName" />
+    <id column="config_name" jdbcType="VARCHAR" property="configName" />
+    <id column="log_type" jdbcType="INTEGER" property="logType" />
     <result column="version" jdbcType="VARCHAR" property="version" />
-    <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId" />
-    <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId" />
-    <result column="component_name" jdbcType="VARCHAR" property="componentName" />
-    <result column="config_name" jdbcType="VARCHAR" property="configName" />
-    <result column="log_type" jdbcType="INTEGER" property="logType" />
     <result column="report_time" jdbcType="TIMESTAMP" property="reportTime" />
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
   </resultMap>
@@ -36,180 +35,47 @@
     <result column="log_info" jdbcType="LONGVARCHAR" property="logInfo" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, ip, version, inlong_stream_id, inlong_group_id, component_name, config_name, 
+    ip, version, inlong_stream_id, inlong_group_id, component_name, config_name,
     log_type, report_time, modify_time
   </sql>
   <sql id="Blob_Column_List">
     log_info
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
-    select 
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from stream_config_log
-    where id = #{id,jdbcType=INTEGER}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from stream_config_log
-    where id = #{id,jdbcType=INTEGER}
-  </delete>
-  <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.StreamConfigLogEntity">
-    insert into stream_config_log (id, ip, version, 
-      inlong_stream_id, inlong_group_id, component_name, 
-      config_name, log_type, report_time, 
-      modify_time, log_info)
-    values (#{id,jdbcType=INTEGER}, #{ip,jdbcType=VARCHAR}, #{version,jdbcType=VARCHAR}, 
-      #{inlongStreamId,jdbcType=VARCHAR}, #{inlongGroupId,jdbcType=VARCHAR}, #{componentName,jdbcType=VARCHAR}, 
-      #{configName,jdbcType=VARCHAR}, #{logType,jdbcType=INTEGER}, #{reportTime,jdbcType=TIMESTAMP}, 
-      #{modifyTime,jdbcType=TIMESTAMP}, #{logInfo,jdbcType=LONGVARCHAR})
-  </insert>
-  <insert id="insertList" parameterType="org.apache.inlong.manager.dao.entity.StreamConfigLogEntity">
+  <insert id="insertOrUpdateAll" parameterType="java.util.List">
     insert into stream_config_log (ip, version,
       inlong_stream_id, inlong_group_id, component_name,
-      config_name, log_type, report_time, log_info)
-    values
+      config_name, log_type, report_time, log_info) values
     <foreach collection="list" index="index" item="item" open="" close="" separator=",">
-     (#{item.ip,jdbcType=VARCHAR}, #{item.version,jdbcType=VARCHAR},
+      (#{item.ip,jdbcType=VARCHAR}, #{item.version,jdbcType=VARCHAR},
       #{item.inlongStreamId,jdbcType=VARCHAR}, #{item.inlongGroupId,jdbcType=VARCHAR}, #{item.componentName,jdbcType=VARCHAR},
       #{item.configName,jdbcType=VARCHAR}, #{item.logType,jdbcType=INTEGER}, #{item.reportTime,jdbcType=TIMESTAMP},
       #{item.logInfo,jdbcType=LONGVARCHAR})
     </foreach>
+    ON DUPLICATE key update report_time=values(report_time),log_info=values(log_info)
   </insert>
-  <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.StreamConfigLogEntity">
-    insert into stream_config_log
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
-      <if test="ip != null">
-        ip,
-      </if>
-      <if test="version != null">
-        version,
-      </if>
-      <if test="inlongStreamId != null">
-        inlong_stream_id,
-      </if>
-      <if test="inlongGroupId != null">
-        inlong_group_id,
-      </if>
-      <if test="componentName != null">
-        component_name,
-      </if>
-      <if test="configName != null">
-        config_name,
-      </if>
-      <if test="logType != null">
-        log_type,
-      </if>
-      <if test="reportTime != null">
-        report_time,
-      </if>
-      <if test="modifyTime != null">
-        modify_time,
-      </if>
-      <if test="logInfo != null">
-        log_info,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=INTEGER},
-      </if>
-      <if test="ip != null">
-        #{ip,jdbcType=VARCHAR},
-      </if>
-      <if test="version != null">
-        #{version,jdbcType=VARCHAR},
-      </if>
-      <if test="inlongStreamId != null">
-        #{inlongStreamId,jdbcType=VARCHAR},
-      </if>
-      <if test="inlongGroupId != null">
-        #{inlongGroupId,jdbcType=VARCHAR},
-      </if>
-      <if test="componentName != null">
-        #{componentName,jdbcType=VARCHAR},
-      </if>
-      <if test="configName != null">
-        #{configName,jdbcType=VARCHAR},
-      </if>
-      <if test="logType != null">
-        #{logType,jdbcType=INTEGER},
-      </if>
-      <if test="reportTime != null">
-        #{reportTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="modifyTime != null">
-        #{modifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="logInfo != null">
-        #{logInfo,jdbcType=LONGVARCHAR},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.StreamConfigLogEntity">
-    update stream_config_log
-    <set>
-      <if test="ip != null">
-        ip = #{ip,jdbcType=VARCHAR},
-      </if>
-      <if test="version != null">
-        version = #{version,jdbcType=VARCHAR},
-      </if>
-      <if test="inlongStreamId != null">
-        inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
-      </if>
-      <if test="inlongGroupId != null">
-        inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
-      </if>
-      <if test="componentName != null">
-        component_name = #{componentName,jdbcType=VARCHAR},
-      </if>
-      <if test="configName != null">
-        config_name = #{configName,jdbcType=VARCHAR},
-      </if>
-      <if test="logType != null">
-        log_type = #{logType,jdbcType=INTEGER},
-      </if>
-      <if test="reportTime != null">
-        report_time = #{reportTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="modifyTime != null">
-        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="logInfo != null">
-        log_info = #{logInfo,jdbcType=LONGVARCHAR},
-      </if>
-    </set>
-    where id = #{id,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="org.apache.inlong.manager.dao.entity.StreamConfigLogEntity">
-    update stream_config_log
-    set ip = #{ip,jdbcType=VARCHAR},
-      version = #{version,jdbcType=VARCHAR},
-      inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
-      inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
-      component_name = #{componentName,jdbcType=VARCHAR},
-      config_name = #{configName,jdbcType=VARCHAR},
-      log_type = #{logType,jdbcType=INTEGER},
-      report_time = #{reportTime,jdbcType=TIMESTAMP},
-      modify_time = #{modifyTime,jdbcType=TIMESTAMP},
-      log_info = #{logInfo,jdbcType=LONGVARCHAR}
-    where id = #{id,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.StreamConfigLogEntity">
-    update stream_config_log
-    set ip = #{ip,jdbcType=VARCHAR},
-      version = #{version,jdbcType=VARCHAR},
-      inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
-      inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
-      component_name = #{componentName,jdbcType=VARCHAR},
-      config_name = #{configName,jdbcType=VARCHAR},
-      log_type = #{logType,jdbcType=INTEGER},
-      report_time = #{reportTime,jdbcType=TIMESTAMP},
-      modify_time = #{modifyTime,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=INTEGER}
-  </update>
+  <select id="selectByCondition" resultMap="ResultMapWithBLOBs"
+      parameterType="org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogPageRequest">
+    select
+    <include refid="Base_Column_List"/>
+    ,
+    <include refid="Blob_Column_List" />
+    from stream_config_log
+    where log_type = 1
+    <if test="reportTime != null">
+      and report_time > #{reportTime, jdbcType=TIMESTAMP}
+    </if>
+    <if test="inlongStreamId != null and inlongStreamId != ''">
+      and inlong_stream_id = #{inlongStreamId, jdbcType=VARCHAR}
+    </if>
+    <if test="inlongGroupId != null and inlongGroupId != ''">
+      and inlong_stream_id = #{inlongGroupId, jdbcType=VARCHAR}
+    </if>
+    <if test="componentName != null and componentName != ''">
+      and inlong_stream_id = #{inlongGroupId, jdbcType=VARCHAR}
+    </if>
+    <if test="configName != null and configName != ''">
+      and inlong_stream_id = #{inlongGroupId, jdbcType=VARCHAR}
+    </if>
+    order by modify_time desc
+  </select>
 </mapper>

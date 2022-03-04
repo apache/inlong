@@ -21,7 +21,7 @@ import java.util.concurrent.RejectedExecutionHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.inlong.common.reporpter.dto.StreamConfigLogInfo;
 
-public class StreamConfigLogReporter extends AbstractReporter<StreamConfigLogInfo, String> {
+public class StreamConfigLogReporter extends AbstractReporter<StreamConfigLogInfo> {
 
     public StreamConfigLogReporter(String serverUrl) {
         super(serverUrl);

@@ -15,32 +15,39 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.reporpter.dto;
+package org.apache.inlong.manager.common.pojo.stream;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.Date;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-@Setter
-@Getter
-public class StreamMetricInfo {
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ApiModel("Inlong stream config log query response")
+public class InlongStreamConfigLogListResponse
+        extends InlongStreamBaseInfo {
 
+    @ApiModelProperty(value = "ip")
     private String ip;
 
+    @ApiModelProperty(value = "client version")
     private String version;
 
+    @ApiModelProperty(value = "component name")
     private String componentName;
 
-    private String metricName;
+    @ApiModelProperty(value = "config name")
+    private String configName;
 
+    @ApiModelProperty(value = "log type, 0 normal, 1 error")
     private Integer logType;
 
+    @ApiModelProperty(value = "report time")
     private Date reportTime;
 
-    private String metricInfo;
-
-    private String inlongGroupId;
-
-    private String inlongStreamId;
+    @ApiModelProperty(value = "long info")
+    private String logInfo;
 
 }

@@ -23,20 +23,22 @@ import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogRequest;
 import org.apache.inlong.manager.service.core.StreamConfigLogService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/openapi")
+@RequestMapping("/openapi/stream")
 @Api(tags = "Stream Config")
 public class StreamConfigLogController {
 
     @Autowired
     private StreamConfigLogService streamConfigLogService;
 
-    @PostMapping("/stream/log/reportConfigLogStatus")
+    @PostMapping(value = "/log/reportConfigLogStatus",
+            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "stream config log status")
     public Response<String> reportStreamConfigLogStatus(@RequestBody
             InlongStreamConfigLogRequest info) {

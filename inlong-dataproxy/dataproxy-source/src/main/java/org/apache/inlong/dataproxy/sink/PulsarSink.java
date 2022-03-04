@@ -37,6 +37,7 @@ import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
+import org.apache.inlong.common.reporpter.StreamConfigLogMetric;
 import org.apache.inlong.dataproxy.base.HighPriorityThreadFactory;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
@@ -145,10 +146,8 @@ public class PulsarSink extends AbstractSink implements Configurable,
     private static final LogCounter logPrinterB = new LogCounter(10, 100000, 60 * 1000);
     private static final LogCounter logPrinterC = new LogCounter(10, 100000, 60 * 1000);
 
-    private static final String SINK_THREAD_NUM = "thread-num";
     private int eventQueueSize = 10000;
     private int badEventQueueSize = 10000;
-    private int threadNum;
 
     /*
      * send thread pool
@@ -165,6 +164,9 @@ public class PulsarSink extends AbstractSink implements Configurable,
     private MonitorIndexExt monitorIndexExt;
     private SinkCounter sinkCounter;
 
+    private StreamConfigLogMetric streamConfigLogMetric;
+    private String localIp;
+
     /*
      *  metric
      */
@@ -172,6 +174,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
     private DataProxyMetricItemSet metricItemSet;
 
     private ConfigManager configManager;
+    private Map<String, String> commonProperties;
     private Map<String, String> topicProperties;
 
     private Map<String, String> pulsarCluster;
@@ -221,14 +224,32 @@ public class PulsarSink extends AbstractSink implements Configurable,
         topicProperties = configManager.getTopicProperties();
         pulsarCluster = configManager.getThirdPartyClusterUrl2Token();
         pulsarConfig = configManager.getThirdPartyClusterConfig(); //pulsar common config
+        commonProperties = configManager.getCommonProperties();
         pulsarClientService = new PulsarClientService(pulsarConfig);
+        boolean enableReportConfigLog =
+                Boolean.parseBoolean(commonProperties
+                        .getOrDefault(StreamConfigLogMetric.CONFIG_LOG_REPORT_ENABLE,"true"));
+        localIp = NetworkUtils.getLocalIp();
+        if (enableReportConfigLog) {
+            String reportConfigServerUrl = commonProperties
+                    .getOrDefault(StreamConfigLogMetric.CONFIG_LOG_REPORT_SERVER_URL, "");
+            String reportConfigLogInterval = commonProperties
+                    .getOrDefault(StreamConfigLogMetric.CONFIG_LOG_REPORT_INTERVAL, "60000");
+            String clientVersion = commonProperties
+                    .getOrDefault(StreamConfigLogMetric.CONFIG_LOG_REPORT_CLIENT_VERSION, "");
+            streamConfigLogMetric = new StreamConfigLogMetric(ConfigConstants.COMPONENT_NAME,
+                    reportConfigServerUrl, Long.parseLong(reportConfigLogInterval),
+                    localIp, clientVersion);
+            pulsarClientService.setConfigLogMetric(streamConfigLogMetric);
+        }
+
         configManager.getTopicConfig().addUpdateCallback(new ConfigUpdateCallback() {
             @Override
             public void update() {
                 if (pulsarClientService != null) {
                     diffSetPublish(pulsarClientService,
-                            new HashSet<String>(topicProperties.values()),
-                            new HashSet<String>(configManager.getTopicProperties().values()));
+                            new HashSet<>(topicProperties.values()),
+                            new HashSet<>(configManager.getTopicProperties().values()));
                 }
             }
         });

@@ -34,11 +34,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.snapshot.BinlogSnapshotBase;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
+import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.common.reporpter.ConfigLogTypeEnum;
+import org.apache.inlong.common.reporpter.StreamConfigLogMetric;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.slf4j.Logger;
 
@@ -48,6 +52,7 @@ public class BinlogReader implements Reader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BinlogReader.class);
 
+    private static final String COMPONENT_NAME = "BinlogReader";
     private static final String JOB_DATABASE_USER = "job.binlogJob.user";
     private static final String JOB_DATABASE_PASSWORD = "job.binlogJob.password";
     private static final String JOB_DATABASE_HOSTNAME = "job.binlogJob.hostname";
@@ -93,6 +98,12 @@ public class BinlogReader implements Reader {
     private BinlogSnapshotBase binlogSnapshot;
     private JobProfile jobProfile;
     private static final Gson gson = new Gson();
+
+    private boolean enableReportConfigLog;
+    private StreamConfigLogMetric streamConfigLogMetric;
+
+    private String inlongGroupId;
+    private String inlongStreamId;
 
     public BinlogReader() {
     }
@@ -140,6 +151,27 @@ public class BinlogReader implements Reader {
         binlogSnapshot = new BinlogSnapshotBase(offsetStoreFileName);
         binlogSnapshot.save(offset);
 
+        enableReportConfigLog =
+                Boolean.parseBoolean(jobConf.get(StreamConfigLogMetric.CONFIG_LOG_REPORT_ENABLE,
+                "true"));
+
+        inlongGroupId = jobConf.get(CommonConstants.PROXY_INLONG_GROUP_ID,
+                CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID);
+        inlongStreamId = jobConf.get(CommonConstants.PROXY_INLONG_STREAM_ID,
+                CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID);
+
+        if (enableReportConfigLog) {
+            String reportConfigServerUrl = jobConf
+                    .get(StreamConfigLogMetric.CONFIG_LOG_REPORT_SERVER_URL, "");
+            String reportConfigLogInterval = jobConf
+                    .get(StreamConfigLogMetric.CONFIG_LOG_REPORT_INTERVAL, "60000");
+            String clientVersion = jobConf
+                    .get(StreamConfigLogMetric.CONFIG_LOG_REPORT_CLIENT_VERSION, "");
+            streamConfigLogMetric = new StreamConfigLogMetric(COMPONENT_NAME,
+                    reportConfigServerUrl, Long.parseLong(reportConfigLogInterval),
+                    AgentUtils.getLocalIp(), clientVersion);
+        }
+
         Properties props = getEngineProps();
 
         DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(
@@ -162,8 +194,11 @@ public class BinlogReader implements Reader {
             })
             .using((success, message, error) -> {
                 if (!success) {
-                    LOGGER.error("binlog job with jobConf {} has "
-                        + "error {}", jobConf.getInstanceId(), message, error);
+                    LOGGER.error("binlog job with jobConf {} has " + "error {}",
+                            jobConf.getInstanceId(), message, error);
+                    streamConfigLogMetric
+                            .updateConfigLog(inlongGroupId, inlongStreamId, "DBConfig",
+                                    ConfigLogTypeEnum.ERROR, error == null ? "" : error.toString());
                 }
             }).build();
 
