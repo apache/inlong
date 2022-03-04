@@ -135,7 +135,7 @@ public class AgentServiceImpl implements AgentService {
             dataConfig.setExtParams(entity.getExtParams());
             dataConfig.setSnapshot(entity.getSnapshot());
             InlongStreamEntity inlongStreamEntity = inlongStreamMapper.selectByIdentifier(inlongGroupId,inlongStreamId);
-            inlongStreamEntity.setSyncSend(inlongStreamEntity.getSyncSend());
+            dataConfig.setSyncSend(inlongStreamEntity.getSyncSend());
             dataConfigs.add(dataConfig);
         }
         // Query pending special commands
