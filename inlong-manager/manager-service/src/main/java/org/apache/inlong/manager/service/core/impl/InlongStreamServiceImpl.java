@@ -599,17 +599,15 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         String groupId = null;
         for (InlongStreamApproveRequest info : streamApproveList) {
-            // Modify mqResourceObj
+            // Modify the inlong stream info after approve
             InlongStreamEntity streamEntity = new InlongStreamEntity();
             groupId = info.getInlongGroupId(); // these groupIds are all the same
             streamEntity.setInlongGroupId(groupId);
             streamEntity.setInlongStreamId(info.getInlongStreamId());
-            // Update status to [STREAM_CONFIG_ING]
             streamEntity.setStatus(EntityStatus.STREAM_CONFIG_ING.getCode());
             streamMapper.updateByIdentifierSelective(streamEntity);
-            // If you need to change inlong stream info after approve, just do in here
 
-            // Modify the sink information
+            // Modify the sink info after approve, such as update cluster info
             sinkService.updateAfterApprove(info.getSinkList(), operator);
         }
 
