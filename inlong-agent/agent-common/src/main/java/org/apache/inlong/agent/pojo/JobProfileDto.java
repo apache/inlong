@@ -17,20 +17,18 @@
 
 package org.apache.inlong.agent.pojo;
 
+import static java.util.Objects.requireNonNull;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.gson.Gson;
+import java.util.Date;
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
-
-import java.util.Date;
-
-import static java.util.Objects.requireNonNull;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 
 @Data
 public class JobProfileDto {
@@ -155,7 +153,7 @@ public class JobProfileDto {
         proxy.setInlongGroupId(dataConfigs.getInlongGroupId());
         proxy.setInlongStreamId(dataConfigs.getInlongStreamId());
         proxy.setManager(manager);
-        if (!StringUtils.isEmpty(dataConfigs.getSyncSend())) {
+        if (null != dataConfigs.getSyncSend()) {
             proxy.setSync(dataConfigs.getSyncSend());
         }
         return proxy;
@@ -238,7 +236,7 @@ public class JobProfileDto {
         private String inlongGroupId;
         private String inlongStreamId;
         private Manager manager;
-        private String sync;
+        private Integer sync;
     }
 
 }

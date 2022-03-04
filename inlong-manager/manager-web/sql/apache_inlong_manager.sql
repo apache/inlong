@@ -373,6 +373,7 @@ CREATE TABLE `inlong_stream`
     `data_separator`         varchar(8)        DEFAULT NULL COMMENT 'The source data field separator, stored as ASCII code',
     `data_escape_char`       varchar(8)        DEFAULT NULL COMMENT 'Source data field escape character, the default is NULL (NULL), stored as 1 character',
     `have_predefined_fields` tinyint(1)        DEFAULT '0' COMMENT '(File, DB access) whether there are predefined fields, 0: none, 1: yes (save to inlong_stream_field)',
+    `sync_send`              tinyint(1)        DEFAULT '0' COMMENT 'order_preserving 0: none, 1: yes',
     `daily_records`          int(11)           DEFAULT '10' COMMENT 'Number of access records per day, unit: 10,000 records per day',
     `daily_storage`          int(11)           DEFAULT '10' COMMENT 'Access size by day, unit: GB per day',
     `peak_records`           int(11)           DEFAULT '1000' COMMENT 'Access peak per second, unit: records per second',

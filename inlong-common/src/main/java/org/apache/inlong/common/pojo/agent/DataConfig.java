@@ -37,7 +37,7 @@ public class DataConfig {
     private Integer taskType;
     private String taskName;
     private String snapshot;
-    private String syncSend;
+    private Integer syncSend;
     private String extParams;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date deliveryTime;

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.collections.CollectionUtils;
@@ -40,10 +41,12 @@ import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo.CommandI
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
 import org.apache.inlong.manager.dao.entity.DataSourceCmdConfigEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
 import org.apache.inlong.manager.dao.entity.SourceFileDetailEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
@@ -79,6 +82,8 @@ public class AgentServiceImpl implements AgentService {
     private DataSourceCmdConfigEntityMapper sourceCmdConfigMapper;
     @Autowired
     private InlongStreamFieldEntityMapper streamFieldMapper;
+    @Autowired
+    private InlongStreamEntityMapper inlongStreamMapper;
 
     /**
      * If the reported task time and the modification time in the database exceed this value,
@@ -112,24 +117,27 @@ public class AgentServiceImpl implements AgentService {
         // Query all tasks with status in 20x
         String agentIp = request.getAgentIp();
         String uuid = request.getUuid();
+        List<DataConfig> dataConfigs = Lists.newArrayList();
         List<StreamSourceEntity> entityList = sourceMapper.selectByIpAndUuid(agentIp, uuid);
-
-        List<DataConfig> dataConfigs = entityList.stream().map(entity -> {
+        for (StreamSourceEntity entity : entityList) {
             DataConfig dataConfig = new DataConfig();
             dataConfig.setJobId(entity.getId());
             SourceType sourceType = SourceType.forType(entity.getSourceType());
             dataConfig.setTaskType(sourceType.getTaskType().getType());
             dataConfig.setTaskName(entity.getSourceName());
             dataConfig.setOp(String.valueOf(entity.getStatus() % 100));
-            dataConfig.setInlongGroupId(entity.getInlongGroupId());
-            dataConfig.setInlongStreamId(entity.getInlongStreamId());
+            String inlongGroupId = entity.getInlongGroupId();
+            String inlongStreamId = entity.getInlongStreamId();
+            dataConfig.setInlongGroupId(inlongGroupId);
+            dataConfig.setInlongStreamId(inlongStreamId);
             dataConfig.setIp(entity.getAgentIp());
             dataConfig.setUuid(entity.getUuid());
             dataConfig.setExtParams(entity.getExtParams());
             dataConfig.setSnapshot(entity.getSnapshot());
-            return dataConfig;
-        }).collect(Collectors.toList());
-
+            InlongStreamEntity inlongStreamEntity = inlongStreamMapper.selectByIdentifier(inlongGroupId,inlongStreamId);
+            dataConfig.setSyncSend(inlongStreamEntity.getSyncSend());
+            dataConfigs.add(dataConfig);
+        }
         // Query pending special commands
         List<CmdConfig> cmdConfigs = getAgentCmdConfigs(request);
 

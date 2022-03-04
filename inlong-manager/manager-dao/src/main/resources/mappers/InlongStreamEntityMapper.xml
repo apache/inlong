@@ -34,6 +34,7 @@
         <result column="data_separator" jdbcType="VARCHAR" property="dataSeparator"/>
         <result column="data_escape_char" jdbcType="VARCHAR" property="dataEscapeChar"/>
         <result column="have_predefined_fields" jdbcType="INTEGER" property="havePredefinedFields"/>
+        <result column="sync_send" jdbcType="INTEGER" property="syncSend"/>
         <result column="daily_records" jdbcType="INTEGER" property="dailyRecords"/>
         <result column="daily_storage" jdbcType="INTEGER" property="dailyStorage"/>
         <result column="peak_records" jdbcType="INTEGER" property="peakRecords"/>
@@ -51,7 +52,7 @@
     <sql id="Base_Column_List">
         id, inlong_stream_id, inlong_group_id, name, description, mq_resource_obj, data_source_type,
         storage_period, data_type, data_encoding, data_separator, data_escape_char, have_predefined_fields,
-        daily_records, daily_storage, peak_records, max_length, in_charges, status, previous_status,
+        sync_send, daily_records, daily_storage, peak_records, max_length, in_charges, status, previous_status,
         is_deleted, creator, modifier, create_time, modify_time, temp_view
     </sql>
 
@@ -87,7 +88,7 @@
         select
             distinct stream.id, stream.inlong_group_id, stream.inlong_stream_id, stream.name,
             stream.description, stream.mq_resource_obj, stream.data_source_type, stream.storage_period, stream.data_type,
-            stream.data_encoding, stream.data_separator, stream.data_escape_char, stream.have_predefined_fields,
+            stream.data_encoding, stream.data_separator, stream.data_escape_char, stream.have_predefined_fields, stream.sync_send,
             stream.daily_records, stream.daily_storage, stream.peak_records, stream.max_length, stream.in_charges,
             stream.status, stream.creator, stream.modifier, stream.create_time, stream.modify_time
         from inlong_stream stream, inlong_group biz, workflow_approver approver
@@ -160,7 +161,7 @@
                                    name, description, mq_resource_obj,
                                    data_source_type, storage_period, data_type,
                                    data_encoding, data_separator,
-                                   data_escape_char, have_predefined_fields,
+                                   data_escape_char, have_predefined_fields, sync_send,
                                    daily_records, daily_storage,
                                    peak_records, max_length,
                                    in_charges, status, previous_status,
@@ -170,7 +171,7 @@
                 #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{mqResourceObj,jdbcType=VARCHAR},
                 #{dataSourceType,jdbcType=VARCHAR}, #{storagePeriod,jdbcType=INTEGER}, #{dataType,jdbcType=VARCHAR},
                 #{dataEncoding,jdbcType=VARCHAR}, #{dataSeparator,jdbcType=VARCHAR},
-                #{dataEscapeChar,jdbcType=VARCHAR}, #{havePredefinedFields,jdbcType=INTEGER},
+                #{dataEscapeChar,jdbcType=VARCHAR}, #{havePredefinedFields,jdbcType=INTEGER}, #{syncSend,jdbcType=INTEGER},
                 #{dailyRecords,jdbcType=INTEGER}, #{dailyStorage,jdbcType=INTEGER},
                 #{peakRecords,jdbcType=INTEGER}, #{maxLength,jdbcType=INTEGER},
                 #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER},
@@ -219,6 +220,9 @@
             </if>
             <if test="havePredefinedFields != null">
                 have_predefined_fields,
+            </if>
+            <if test="syncSend != null">
+                sync_send,
             </if>
             <if test="dailyRecords != null">
                 daily_records,
@@ -300,6 +304,9 @@
             <if test="havePredefinedFields != null">
                 #{havePredefinedFields,jdbcType=INTEGER},
             </if>
+            <if test="syncSend != null">
+                #{syncSend,jdbcType=INTEGER},
+            </if>
             <if test="dailyRecords != null">
                 #{dailyRecords,jdbcType=INTEGER},
             </if>
@@ -356,6 +363,7 @@
             data_separator         = #{dataSeparator,jdbcType=VARCHAR},
             data_escape_char       = #{dataEscapeChar,jdbcType=VARCHAR},
             have_predefined_fields = #{havePredefinedFields,jdbcType=INTEGER},
+            sync_send       = #{syncSend,jdbcType=INTEGER},
             daily_records          = #{dailyRecords,jdbcType=INTEGER},
             daily_storage          = #{dailyStorage,jdbcType=INTEGER},
             peak_records           = #{peakRecords,jdbcType=INTEGER},
@@ -409,6 +417,9 @@
             </if>
             <if test="havePredefinedFields != null">
                 have_predefined_fields = #{havePredefinedFields,jdbcType=INTEGER},
+            </if>
+            <if test="syncSend != null">
+                sync_send = #{syncSend,jdbcType=INTEGER},
             </if>
             <if test="dailyRecords!= null">
                 daily_records= #{dailyRecords,jdbcType=INTEGER},
