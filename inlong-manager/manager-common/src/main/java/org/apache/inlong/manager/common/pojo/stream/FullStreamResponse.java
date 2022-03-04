@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceDbBasicInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceDbDetailInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceFileBasicInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceFileDetailInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 
 import java.util.List;
 
@@ -50,7 +51,10 @@ public class FullStreamResponse {
     @ApiModelProperty("DB source details")
     private List<SourceDbDetailInfo> dbDetailInfoList;
 
-    @ApiModelProperty("Data sink information")
+    @ApiModelProperty("Stream source information")
+    private List<SourceResponse> sourceInfo;
+
+    @ApiModelProperty("Stream sink information")
     private List<SinkResponse> sinkInfo;
 
 }
