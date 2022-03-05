@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 
 /**
@@ -34,7 +34,9 @@ import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 @ApiModel(value = "Response of the kafka source")
 public class KafkaSourceResponse extends SourceResponse {
 
-    private String sourceType = Constant.SOURCE_KAFKA;
+    public KafkaSourceResponse() {
+        this.setSourceType(SourceType.KAFKA.name());
+    }
 
     @ApiModelProperty("Kafka topic")
     private String topic;
