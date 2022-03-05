@@ -91,15 +91,15 @@
     <modules>
         <module>inlong-common</module>
         <module>inlong-sdk</module>
-<!--        <module>inlong-tubemq</module>-->
-<!--        <module>inlong-audit</module>-->
-<!--        <module>inlong-dataproxy</module>-->
-<!--        <module>inlong-agent</module>-->
+        <module>inlong-tubemq</module>
+        <module>inlong-audit</module>
+        <module>inlong-dataproxy</module>
+        <module>inlong-agent</module>
         <module>inlong-manager</module>
-<!--        <module>inlong-sort</module>-->
-<!--        <module>inlong-sort-standalone</module>-->
-<!--        <module>inlong-dashboard</module>-->
-<!--        <module>inlong-distribution</module>-->
+        <module>inlong-sort</module>
+        <module>inlong-sort-standalone</module>
+        <module>inlong-dashboard</module>
+        <module>inlong-distribution</module>
     </modules>
 
 
