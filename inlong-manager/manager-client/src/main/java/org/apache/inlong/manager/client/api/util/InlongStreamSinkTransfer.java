@@ -51,14 +51,13 @@ public class InlongStreamSinkTransfer {
         SinkType sinkType = streamSink.getSinkType();
         if (sinkType == SinkType.HIVE) {
             return createHiveRequest(streamSink, streamInfo);
-        }
-        if (sinkType == SinkType.KAFKA) {
+        } else if (sinkType == SinkType.KAFKA) {
             return createKafkaRequest(streamSink, streamInfo);
-        }
-        if (sinkType == SinkType.CLICKHOUSE) {
+        } else if (sinkType == SinkType.CLICKHOUSE) {
             return createClickHouseRequest(streamSink, streamInfo);
+        } else {
+            throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
         }
-        throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
     }
 
     public static StreamSink parseStreamSink(SinkResponse sinkResponse) {
@@ -70,14 +69,13 @@ public class InlongStreamSinkTransfer {
         SinkType sinkType = SinkType.forType(type);
         if (sinkType == SinkType.HIVE) {
             return parseHiveSink((HiveSinkResponse) sinkResponse, streamSink);
-        }
-        if (sinkType == SinkType.KAFKA) {
+        } else if (sinkType == SinkType.KAFKA) {
             return parseKafkaSink((KafkaSinkResponse) sinkResponse, streamSink);
-        }
-        if (sinkType == SinkType.CLICKHOUSE) {
+        } else if (sinkType == SinkType.CLICKHOUSE) {
             return parseClickHouseSink((ClickHouseSinkResponse) sinkResponse, streamSink);
+        } else {
+            throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
         }
-        throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
     }
 
     private static SinkRequest createClickHouseRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
