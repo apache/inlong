@@ -20,46 +20,13 @@ package org.apache.inlong.sdk.dataproxy.pb;
 import org.apache.flume.Context;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
 import org.apache.inlong.sdk.dataproxy.MessageSender;
-import org.apache.inlong.sdk.dataproxy.pb.channel.BufferQueueChannel;
 import org.apache.inlong.sdk.dataproxy.pb.config.LoaderType;
-import org.apache.inlong.sdk.dataproxy.pb.config.ProxyClusterConfigLoader;
-import org.apache.inlong.sdk.dataproxy.pb.context.Constants;
-import org.apache.inlong.sdk.dataproxy.pb.context.SdkSinkContext;
-import org.apache.inlong.sdk.dataproxy.pb.context.SinkContext;
-import org.apache.inlong.sdk.dataproxy.pb.dispatch.DispatchManager;
 
 /**
  * MessageSenderBuilder
  */
-public class MessageSenderBuilder {
+public class MessageSenderBuilder implements ISenderBuilder {
 
-    // reload
-    public static final String KEY_RELOADINTERVAL = Constants.RELOAD_INTERVAL;
-    // channel
-    public static final String KEY_MAX_BUFFERQUEUE_SIZE_KB = BufferQueueChannel.KEY_MAX_BUFFERQUEUE_SIZE_KB;
-    // config
-    public static final String KEY_LOADER_RELOADINTERVAL = ProxyClusterConfigLoader.KEY_RELOAD_INTERVAL;
-    public static final String KEY_LOADER_TYPE = ProxyClusterConfigLoader.KEY_LOADER_TYPE;
-    // config.file
-    public static final String KEY_LOADER_TYPE_FILE_NAME = ProxyClusterConfigLoader.KEY_LOADER_TYPE_FILE_NAME;
-    // config.context
-    public static final String KEY_LOADER_TYPE_CONTEXT_KEY = ProxyClusterConfigLoader.KEY_LOADER_TYPE_CONTEXT_KEY;
-    // config.manager
-    public static final String KEY_LOADER_TYPE_MANAGER_STREAMURL = ProxyClusterConfigLoader.KEY_LOADER_TYPE_MANAGER_STREAMURL;
-    public static final String KEY_LOADER_TYPE_MANAGER_SDKURL = ProxyClusterConfigLoader.KEY_LOADER_TYPE_MANAGER_SDKURL;
-    // config.plugin
-    public static final String KEY_LOADER_TYPE_PLUGIN_CLASS = ProxyClusterConfigLoader.KEY_LOADER_TYPE_PLUGIN_CLASS;
-    // pack
-    public static final String KEY_SDK_PACK_TIMEOUT = SdkSinkContext.KEY_SDK_PACK_TIMEOUT;
-    public static final String KEY_COMPRESSED_TYPE = SdkSinkContext.KEY_COMPRESSED_TYPE;
-    public static final String KEY_NODE_ID = SinkContext.KEY_NODE_ID;
-    public static final String KEY_MAX_THREADS = SinkContext.KEY_MAX_THREADS;
-    public static final String KEY_PROCESSINTERVAL = SinkContext.KEY_PROCESSINTERVAL;
-    public static final String KEY_AUDITFORMATINTERVAL = SinkContext.KEY_AUDITFORMATINTERVAL;
-    // dispatch
-    public static final String KEY_DISPATCH_TIMEOUT = DispatchManager.KEY_DISPATCH_TIMEOUT;
-    public static final String KEY_DISPATCH_MAX_PACKCOUNT = DispatchManager.KEY_DISPATCH_MAX_PACKCOUNT;
-    public static final String KEY_DISPATCH_MAX_PACKSIZE = DispatchManager.KEY_DISPATCH_MAX_PACKSIZE;
     // context
     private Context context = new Context();
     // name
