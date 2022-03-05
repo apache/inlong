@@ -45,34 +45,27 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id
-        , inlong_group_id, inlong_stream_id, source_type, source_name, agent_ip, uuid, server_id, server_name,
-        cluster_id, cluster_name, snapshot, report_time, ext_params, status, previous_status,
-        is_deleted, creator, modifier, create_time, modify_time
+        id, inlong_group_id, inlong_stream_id, source_type, source_name, agent_ip, uuid,
+        server_id, server_name, cluster_id, cluster_name, snapshot, report_time, ext_params,
+        status, previous_status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         insert into stream_source (id, inlong_group_id, inlong_stream_id,
-                                   source_type, source_name, agent_ip, uuid,
-                                   server_id, server_name, cluster_id,
-                                   cluster_name, snapshot, report_time,
-                                   ext_params, status, previous_status,
-                                   is_deleted, creator, modifier,
-                                   create_time, modify_time)
-        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR},
-                #{inlongStreamId,jdbcType=VARCHAR},
-                #{sourceType,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR},
-                #{agentIp,jdbcType=VARCHAR}, #{uuid,jdbcType=VARCHAR},
-                #{serverId,jdbcType=INTEGER}, #{serverName,jdbcType=VARCHAR},
-                #{clusterId,jdbcType=INTEGER},
-                #{clusterName,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR},
-                #{modifyTime,jdbcType=TIMESTAMP},
-                #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER},
-                #{previousStatus,jdbcType=INTEGER},
-                #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
-                #{modifier,jdbcType=VARCHAR},
-                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
+                                   source_type, source_name, agent_ip,
+                                   uuid, server_id, server_name,
+                                   cluster_id, cluster_name, snapshot,
+                                   report_time, ext_params, status,
+                                   previous_status, is_deleted, creator,
+                                   modifier, create_time, modify_time)
+        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
+                #{sourceType,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR}, #{agentIp,jdbcType=VARCHAR},
+                #{uuid,jdbcType=VARCHAR}, #{serverId,jdbcType=INTEGER}, #{serverName,jdbcType=VARCHAR},
+                #{clusterId,jdbcType=INTEGER}, #{clusterName,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR},
+                #{modifyTime,jdbcType=TIMESTAMP}, #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER},
+                #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
+                #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
@@ -257,8 +250,7 @@
         </where>
     </select>
 
-    <select id="selectByRelatedId"
-            resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <select id="selectByRelatedId" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source
@@ -270,8 +262,7 @@
             </if>
         </where>
     </select>
-    <select id="selectByIdAndType"
-            resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <select id="selectByIdAndType" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source
@@ -311,15 +302,13 @@
             </if>
         </where>
     </select>
-    <select id="selectTempStatusSource"
-            resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <select id="selectTempStatusSource" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select id, agent_ip, uuid, status
         from stream_source
         where status >= 200
     </select>
 
-    <update id="updateByPrimaryKeySelective"
-            parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         update stream_source
         <set>
             <if test="inlongGroupId != null">
@@ -385,8 +374,7 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKey"
-            parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         update stream_source
         set inlong_group_id  = #{inlongGroupId,jdbcType=VARCHAR},
             inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
@@ -425,8 +413,7 @@
             and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
         </if>
     </update>
-    <update id="updateSnapshot"
-            parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <update id="updateSnapshot" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         update stream_source
         set snapshot    = #{snapshot,jdbcType=LONGVARCHAR},
             report_time = #{reportTime,jdbcType=TIMESTAMP}

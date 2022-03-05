@@ -22,7 +22,11 @@ import org.apache.inlong.common.enums.TaskTypeEnum;
 
 import java.util.Locale;
 
+/**
+ * The enum of source type
+ */
 public enum SourceType {
+
     FILE("FILE", TaskTypeEnum.FILE),
     SQL("SQL", TaskTypeEnum.SQL),
     BINLOG("BINLOG", TaskTypeEnum.BINLOG),
