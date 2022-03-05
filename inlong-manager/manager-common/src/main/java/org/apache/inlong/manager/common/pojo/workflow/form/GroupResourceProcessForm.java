@@ -25,7 +25,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamSyncResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 /**
  * Form of create inlong group resource
@@ -40,7 +40,7 @@ public class GroupResourceProcessForm extends BaseProcessForm {
 
     private String streamId;
 
-    private List<InlongStreamSyncResponse> inlongStreamSyncResponseList;
+    private List<InlongStreamInfo> inlongStreamInfoList;
 
     public InlongGroupInfo getGroupInfo() {
         return groupInfo;

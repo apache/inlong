@@ -485,13 +485,4 @@
           and is_deleted = 0
     </update>
 
-    <select id="selectInlongStreamSyncList" resultType="org.apache.inlong.manager.common.pojo.stream.InlongStreamSyncResponse">
-        select inlong_stream_id, sync_send
-        from inlong_stream
-        <where>
-            inlong_group_id = #{groupId, jdbcType=VARCHAR}
-            and is_deleted = 0
-        </where>
-    </select>
-
 </mapper>

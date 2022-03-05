@@ -23,13 +23,15 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamSyncResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
@@ -142,9 +144,11 @@ public class InlongGroupProcessOperation {
             OperateType operateType) {
         UpdateGroupProcessForm updateForm = new UpdateGroupProcessForm();
         if (OperateType.RESTART == operateType) {
-            List<InlongStreamSyncResponse> inlongStreamSyncResponseList =
-                    streamMapper.selectInlongStreamSyncList(groupInfo.getInlongGroupId());
-            updateForm.setInlongStreamSyncResponseList(inlongStreamSyncResponseList);
+            List<InlongStreamEntity> inlongStreamEntityList =
+                    streamMapper.selectByGroupId(groupInfo.getInlongGroupId());
+            List<InlongStreamInfo> inlongStreamInfoList = CommonBeanUtils.copyListProperties(inlongStreamEntityList,
+                    InlongStreamInfo::new);
+            updateForm.setInlongStreamInfoList(inlongStreamInfoList);
         }
         updateForm.setGroupInfo(groupInfo);
         updateForm.setOperateType(operateType);
