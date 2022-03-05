@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import java.util.List;
+
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;

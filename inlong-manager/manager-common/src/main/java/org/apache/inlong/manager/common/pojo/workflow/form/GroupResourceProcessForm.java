@@ -21,6 +21,7 @@ import com.google.common.collect.Maps;
 
 import java.util.List;
 import java.util.Map;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
