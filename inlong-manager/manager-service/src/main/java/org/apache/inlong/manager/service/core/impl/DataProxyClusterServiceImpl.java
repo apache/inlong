@@ -21,17 +21,17 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfigResponse;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.enums.BizConstant;
-import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyClusterSet;
@@ -39,13 +39,14 @@ import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.BusinessEntity;
 import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
-import org.apache.inlong.manager.dao.entity.DataProxyConfig;
-import org.apache.inlong.manager.dao.entity.DataStreamEntity;
-import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
+import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
 import org.apache.inlong.manager.dao.mapper.DataProxyClusterEntityMapper;
-import org.apache.inlong.manager.dao.mapper.DataStreamEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
+import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterEntityMapper;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.slf4j.Logger;
@@ -53,6 +54,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * DataProxy cluster service layer implementation class
@@ -66,13 +72,15 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     @Autowired
     private DataProxyClusterEntityMapper dataProxyClusterMapper;
     @Autowired
-    private BusinessEntityMapper businessMapper;
+    private InlongGroupEntityMapper groupMapper;
     @Autowired
-    private DataStreamEntityMapper dataStreamMapper;
+    private InlongStreamEntityMapper streamMapper;
     @Autowired
     private DataProxyConfigRepository proxyRepository;
     @Autowired
     private ClusterBean clusterBean;
+    @Autowired
+    private ThirdPartyClusterEntityMapper thirdPartyClusterEntityMapper;
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -99,7 +107,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         DataProxyClusterEntity entity = dataProxyClusterMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("data proxy cluster not found by id={}", id);
-            throw new BusinessException(BizErrorCodeEnum.CLUSTER_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
 
         DataProxyClusterInfo clusterInfo = CommonBeanUtils.copyProperties(entity, DataProxyClusterInfo::new);
@@ -137,7 +145,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         DataProxyClusterEntity entity = dataProxyClusterMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("data proxy cluster not found by id={}", id);
-            throw new BusinessException(BizErrorCodeEnum.CLUSTER_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
 
         CommonBeanUtils.copyProperties(clusterInfo, entity, true);
@@ -157,7 +165,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         DataProxyClusterEntity entity = dataProxyClusterMapper.selectByPrimaryKey(id);
         if (entity == null) {
             LOGGER.error("data proxy cluster not found by id={}", id);
-            throw new BusinessException(BizErrorCodeEnum.CLUSTER_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
 
         entity.setIsDeleted(EntityStatus.IS_DELETED.getCode());
@@ -172,36 +180,18 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     @Override
     public List<DataProxyIpResponse> getIpList(DataProxyIpRequest request) {
         LOGGER.debug("begin to get data proxy ip list, request: {}", request);
-
         List<DataProxyClusterEntity> entityList = dataProxyClusterMapper.selectAll();
         if (entityList == null || entityList.isEmpty()) {
             LOGGER.info("success to get data proxy ip list, but result is empty, request ip={}", request.getIp());
             return null;
         }
 
-        final String requestNetTag = request.getNetTag();
         List<DataProxyIpResponse> responseList = new ArrayList<>();
         for (DataProxyClusterEntity entity : entityList) {
-            // Subject to the net tag of any entity
-            String netTag = requestNetTag;
-            if (StringUtils.isEmpty(netTag)) {
-                int innerIp = entity.getIsInnerIp();
-                if (innerIp == 1) {
-                    netTag = "auto";
-                } else {
-                    netTag = entity.getNetType();
-                }
-
-                if (StringUtils.isEmpty(netTag)) {
-                    netTag = "all";
-                }
-            }
-
             DataProxyIpResponse response = new DataProxyIpResponse();
             response.setId(entity.getId());
             response.setPort(entity.getPort());
             response.setIp(entity.getAddress());
-            response.setNetTag(netTag);
 
             responseList.add(response);
         }
@@ -212,32 +202,103 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
 
     @Override
     public List<DataProxyConfig> getConfig() {
-        // get all configs with business status of 130, that is, config successful
+        // get all configs with inlong group status of 130, that is, config successful
         // TODO Optimize query conditions
-        List<BusinessEntity> bizEntityList = businessMapper.selectAll(EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode());
+        List<InlongGroupEntity> bizEntityList = groupMapper.selectAll(EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode());
         List<DataProxyConfig> configList = new ArrayList<>();
-        for (BusinessEntity entity : bizEntityList) {
+        for (InlongGroupEntity entity : bizEntityList) {
             String groupId = entity.getInlongGroupId();
             String bizResource = entity.getMqResourceObj();
 
             DataProxyConfig config = new DataProxyConfig();
             config.setM(entity.getSchemaName());
-            if (BizConstant.MIDDLEWARE_TUBE.equals(entity.getMiddlewareType())) {
+            if (Constant.MIDDLEWARE_TUBE.equals(entity.getMiddlewareType())) {
                 config.setInlongGroupId(groupId);
                 config.setTopic(bizResource);
-            } else if (BizConstant.MIDDLEWARE_PULSAR.equals(entity.getMiddlewareType())) {
-                List<DataStreamEntity> streamList = dataStreamMapper.selectByGroupId(groupId);
-                for (DataStreamEntity stream : streamList) {
+            } else if (Constant.MIDDLEWARE_PULSAR.equals(entity.getMiddlewareType())) {
+                List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
+                for (InlongStreamEntity stream : streamList) {
+                    String topic = stream.getMqResourceObj();
                     String streamId = stream.getInlongStreamId();
                     config.setInlongGroupId(groupId + "/" + streamId);
-                    config.setTopic("persistent://" + clusterBean.getDefaultTenant() + "/" + groupId + "/" + streamId);
-
+                    config.setTopic("persistent://" + clusterBean.getDefaultTenant() + "/" + bizResource + "/" + topic);
                 }
             }
             configList.add(config);
         }
 
         return configList;
+    }
+
+    /**
+     * query data proxy config by cluster name, result includes pulsar/tube cluster configs and topic etc
+     */
+    @Override
+    public ThirdPartyClusterDTO getConfigV2(String dataproxyClusterName) {
+
+        List<ThirdPartyClusterInfo> mqSet = new ArrayList<>();
+        List<DataProxyConfig> topicList = new ArrayList<>();
+
+        DataProxyClusterEntity dataProxyClusterEntity = dataProxyClusterMapper.selectByName(dataproxyClusterName);
+
+        // TODO Optimize query conditions use dataProxyClusterId
+        List<InlongGroupEntity> groupEntities = groupMapper.selectAll(EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode());
+//        List<String> groupIdList = groupMapper.selectGroupIdByProxyId(dataProxyClusterEntity.getId());
+        ClusterRequest request = ClusterRequest.builder().mqSetName(dataProxyClusterEntity.getMqSetName()).build();
+        List<ThirdPartyClusterEntity> clusterInfoEntities = thirdPartyClusterEntityMapper
+                .selectByCondition(request);
+
+        // third-party-cluster type
+        String middlewareType = "";
+        if (!groupEntities.isEmpty()) {
+            middlewareType = groupEntities.get(0).getMiddlewareType();
+        }
+//        if (!groupIdList.isEmpty()) {
+//            middlewareType = groupMapper.selectByGroupId(groupIdList.get(0)).getMiddlewareType();
+//        }
+        String tenant = clusterBean.getDefaultTenant();
+
+        // based on group id, get topic list
+        for (InlongGroupEntity inlongGroupEntity : groupEntities) {
+//        for (String groupId : groupIdList) {
+            final String groupId = inlongGroupEntity.getInlongGroupId();
+            final String mqResource = inlongGroupEntity.getMqResourceObj();
+            if (Constant.MIDDLEWARE_PULSAR.equals(middlewareType)) {
+                List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
+                for (InlongStreamEntity stream : streamList) {
+                    DataProxyConfig topicConfig = new DataProxyConfig();
+                    String streamId = stream.getInlongStreamId();
+                    String topic = stream.getMqResourceObj();
+                    topicConfig.setInlongGroupId(groupId + "/" + streamId);
+                    topicConfig.setTopic("persistent://" + tenant + "/" + mqResource + "/" + topic);
+                    topicList.add(topicConfig);
+
+                }
+            } else if (Constant.MIDDLEWARE_TUBE.equals(middlewareType)) {
+                DataProxyConfig topicConfig = new DataProxyConfig();
+                topicConfig.setInlongGroupId(groupId);
+                topicConfig.setTopic(mqResource);
+                topicList.add(topicConfig);
+
+            }
+        }
+        // construct pulsarSet info
+        Gson gson = new Gson();
+        for (ThirdPartyClusterEntity cluster : clusterInfoEntities) {
+            ThirdPartyClusterInfo clusterInfo = new ThirdPartyClusterInfo();
+            clusterInfo.setUrl(cluster.getUrl());
+            clusterInfo.setToken(cluster.getToken());
+            Map<String, String> configParams = gson.fromJson(cluster.getExtParams(), Map.class);
+            clusterInfo.setParams(configParams);
+
+            mqSet.add(clusterInfo);
+        }
+
+        ThirdPartyClusterDTO object = new ThirdPartyClusterDTO();
+        object.setMqSet(mqSet);
+        object.setTopicList(topicList);
+
+        return object;
     }
 
     /**

@@ -32,7 +32,7 @@ public class PartitionExtTest {
         PartitionExt partition = new PartitionExt(
                 groupFlowCtrlRuleHandler,
                 defFlowCtrlRuleHandler,
-                new BrokerInfo(1, "192.168.1.1", 18080),
+                new BrokerInfo(1, "127.0.0.1", 18080),
                 "test",
                 1);
         partition.setLastPackConsumed(true);
@@ -50,7 +50,7 @@ public class PartitionExtTest {
         PartitionExt partition = new PartitionExt(
                 groupFlowCtrlRuleHandler,
                 defFlowCtrlRuleHandler,
-                new BrokerInfo(1, "192.168.1.1", 18080),
+                new BrokerInfo(1, "127.0.0.1", 18080),
                 "test",
                 1);
         int limitDlt = 4096;
@@ -68,7 +68,7 @@ public class PartitionExtTest {
         PartitionExt partition = new PartitionExt(
                 groupFlowCtrlRuleHandler,
                 defFlowCtrlRuleHandler,
-                new BrokerInfo(1, "192.168.1.1", 18080),
+                new BrokerInfo(1, "127.0.0.1", 18080),
                 "test",
                 1);
         int limitDlt = 4096;

@@ -26,7 +26,7 @@ using namespace tubemq;
 using std::string;
 
 PYBIND11_MODULE(tubemq_client, m) {
-    m.def("startTubeMQService", &StartTubeMQService, "start TubeMQ Service");
+    m.def("startTubeMQService", (bool (*)(string&, const string&) ) &StartTubeMQService, "start TubeMQ Service");
     m.def("stopTubeMQService", &StopTubeMQService, "stop TubeMQ Service");
 
     py::class_<TubeMQConsumer>(m, "TubeMQConsumer")

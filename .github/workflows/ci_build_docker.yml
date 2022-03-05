@@ -37,6 +37,11 @@ jobs:
           java-version: 8
           distribution: adopt
 
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
       - name: Cache Maven packages
         uses: actions/cache@v2
         with:
@@ -50,3 +55,11 @@ jobs:
         run: mvn --batch-mode --update-snapshots -e -V clean package -DskipTests -Pdocker
         env:
           CI: false
+
+      - name: Push docker image to Docker Hub
+        if: ${{ success() && github.event_name == 'push' && github.ref_name == 'master' && github.repository_owner == 'apache' }}
+        working-directory: docker
+        run: bash +x publish.sh
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

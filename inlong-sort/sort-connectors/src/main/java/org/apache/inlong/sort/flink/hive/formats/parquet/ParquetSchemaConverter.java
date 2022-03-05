@@ -25,7 +25,9 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.MapTypeInfo;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
+import org.apache.flink.table.types.logical.ArrayType;
 import org.apache.flink.table.types.logical.LogicalType;
+import org.apache.flink.table.types.logical.MapType;
 import org.apache.flink.table.types.logical.RowType;
 
 import org.apache.parquet.schema.GroupType;
@@ -44,6 +46,7 @@ import java.util.List;
 /** Schema converter converts Parquet schema to and from Flink internal types. */
 public class ParquetSchemaConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetSchemaConverter.class);
+    public static final String MAP_KEY = "key";
     public static final String MAP_VALUE = "value";
     public static final String LIST_ARRAY_TYPE = "array";
     public static final String LIST_ELEMENT = "element";
@@ -600,6 +603,15 @@ public class ParquetSchemaConverter {
             case TIMESTAMP_WITHOUT_TIME_ZONE:
                 return Types.primitive(PrimitiveType.PrimitiveTypeName.INT64, repetition)
                         .as(OriginalType.TIMESTAMP_MILLIS)
+                        .named(name);
+            case ARRAY:
+                return Types.list(repetition)
+                        .setElementType(convertToParquetType(LIST_ELEMENT, ((ArrayType) type).getElementType()))
+                        .named(name);
+            case MAP:
+                return Types.map(repetition)
+                        .key(convertToParquetType(MAP_KEY, ((MapType) type).getKeyType()))
+                        .value(convertToParquetType(MAP_VALUE, ((MapType) type).getValueType()))
                         .named(name);
             default:
                 throw new UnsupportedOperationException("Unsupported type: " + type);

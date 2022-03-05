@@ -22,14 +22,15 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogQuery;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.service.core.WorkflowEventService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
-import org.apache.inlong.manager.common.event.process.ProcessEvent;
-import org.apache.inlong.manager.common.event.task.TaskEvent;
-import org.apache.inlong.manager.common.model.view.EventLogQuery;
-import org.apache.inlong.manager.common.model.view.EventLogView;
+import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
+import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -75,12 +76,12 @@ public class WorkflowEventController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Re-execute the specified listener according to the process ID")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "processInstId", value = "process id", dataTypeClass = Integer.class),
+            @ApiImplicitParam(name = "processId", value = "process id", dataTypeClass = Integer.class),
             @ApiImplicitParam(name = "listenerName", value = "listener name", dataTypeClass = String.class)
     })
-    public Response<Object> executeProcessEventListener(@RequestParam Integer processInstId,
+    public Response<Object> executeProcessEventListener(@RequestParam Integer processId,
             @RequestParam String listenerName) {
-        workflowEventService.executeProcessEventListener(processInstId, listenerName);
+        workflowEventService.executeProcessEventListener(processId, listenerName);
         return Response.success();
     }
 
@@ -88,35 +89,31 @@ public class WorkflowEventController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Re-execute the specified listener based on the task ID")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "taskInstId", value = "task id", dataTypeClass = Integer.class),
+            @ApiImplicitParam(name = "taskId", value = "task id", dataTypeClass = Integer.class),
             @ApiImplicitParam(name = "listenerName", value = "listener name", dataTypeClass = String.class)
     })
-    public Response<Object> executeTaskEventListener(Integer taskInstId, String listenerName) {
-        workflowEventService.executeTaskEventListener(taskInstId, listenerName);
+    public Response<Object> executeTaskEventListener(Integer taskId, String listenerName) {
+        workflowEventService.executeTaskEventListener(taskId, listenerName);
         return Response.success();
     }
 
     @PostMapping("triggerProcessEvent")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Re-trigger the process event based on the process ID")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "processInstId", value = "process id", dataTypeClass = Integer.class),
-            @ApiImplicitParam(name = "processEvent", value = "process event", dataTypeClass = ProcessEvent.class)
-    })
-    public Response<Object> triggerProcessEvent(Integer processInstId, ProcessEvent processEvent) {
-        workflowEventService.triggerProcessEvent(processInstId, processEvent);
+    public Response<Object> triggerProcessEvent(
+            @ApiParam(value = "process id", required = true) Integer processId,
+            @ApiParam(value = "process event", required = true) ProcessEvent processEvent) {
+        workflowEventService.triggerProcessEvent(processId, processEvent);
         return Response.success();
     }
 
     @PostMapping("triggerTaskEvent")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Re-trigger the task event based on the task ID")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "taskInstId", value = "task id", dataTypeClass = Integer.class),
-            @ApiImplicitParam(name = "taskEvent", value = "task event", dataTypeClass = TaskEvent.class)
-    })
-    public Response<Object> triggerTaskEvent(Integer taskInstId, TaskEvent taskEvent) {
-        workflowEventService.triggerTaskEvent(taskInstId, taskEvent);
+    public Response<Object> triggerTaskEvent(
+            @ApiParam(value = "task id", required = true) Integer taskId,
+            @ApiParam(value = "task event", required = true) TaskEvent taskEvent) {
+        workflowEventService.triggerTaskEvent(taskId, taskEvent);
         return Response.success();
     }
 

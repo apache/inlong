@@ -18,33 +18,41 @@
 package org.apache.inlong.dataproxy.sink.pulsar;
 
 import com.google.common.base.Preconditions;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
+import io.netty.buffer.ByteBuf;
 import org.apache.commons.lang.StringUtils;
-import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
+import org.apache.inlong.common.monitor.LogCounter;
+import org.apache.inlong.common.reporpter.ConfigLogTypeEnum;
+import org.apache.inlong.common.reporpter.StreamConfigLogMetric;
+import org.apache.inlong.dataproxy.base.OrderEvent;
+import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.config.pojo.ThirdPartyClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.sink.EventStat;
-import org.apache.inlong.commons.monitor.LogCounter;
+import org.apache.inlong.dataproxy.source.MsgType;
+import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.ClientBuilder;
+import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.impl.MessageIdImpl;
-import org.apache.pulsar.shade.io.netty.util.NettyRuntime;
-import org.apache.pulsar.shade.io.netty.util.internal.SystemPropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class PulsarClientService {
 
@@ -53,43 +61,10 @@ public class PulsarClientService {
     private static final LogCounter logPrinterA = new LogCounter(10, 100000, 60 * 1000);
 
     /*
-     * properties key for pulsar client
-     */
-    private static String PULSAR_SERVER_URL_LIST = "pulsar_server_url_list";
-    private static String PULSAR_TOKEN = "pulsar_token";
-    private static String PULSAR_AUTH_TYPE = "pulsar_auth_type";
-    private static String PULSAR_DEFAULT_AUTH_TYPE = "token";
-
-    /*
-     * properties key pulsar producer
-     */
-    private static String SEND_TIMEOUT = "send_timeout_mill";
-    private static String CLIENT_TIMEOUT = "client_timeout_second";
-    private static String ENABLE_BATCH = "enable_batch";
-    private static String PULSAR_IO_THREADS = "pulsar_io_threads";
-    private static String PULSAR_CONNECTIONS_PRE_BROKER = "connections_pre_broker";
-    private static String BLOCK_IF_QUEUE_FULL = "block_if_queue_full";
-    private static String MAX_PENDING_MESSAGES = "max_pending_messages";
-    private static String MAX_BATCHING_MESSAGES = "max_batching_messages";
-    private static String RETRY_INTERVAL_WHEN_SEND_ERROR_MILL = "retry_interval_when_send_error_ms";
-
-    private static int DEFAULT_PULSAR_IO_THREADS = Math.max(1, SystemPropertyUtil
-            .getInt("io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
-
-    private static int DEFAULT_CONNECTIONS_PRE_BROKER = 1;
-    private static int DEFAULT_SEND_TIMEOUT_MILL = 30 * 1000;
-    private static int DEFAULT_CLIENT_TIMEOUT_SECOND = 30;
-    private static long DEFAULT_RETRY_INTERVAL_WHEN_SEND_ERROR_MILL = 30 * 1000L;
-    private static boolean DEFAULT_ENABLE_BATCH = true;
-    private static boolean DEFAULT_BLOCK_IF_QUEUE_FULL = true;
-    private static int DEFAULT_MAX_PENDING_MESSAGES = 10000;
-    private static int DEFAULT_MAX_BATCHING_MESSAGES = 1000;
-
-    /*
      * for pulsar client
      */
-    private String[] pulsarServerUrls;
-    private String token;
+    private Map<String, String> pulsarUrl2token;
+
     private String authType;
     /*
      * for producer
@@ -99,48 +74,51 @@ public class PulsarClientService {
     private boolean enableBatch = true;
     private boolean blockIfQueueFull = true;
     private int maxPendingMessages = 10000;
+    private int maxBatchingBytes = 128 * 1024;
     private int maxBatchingMessages = 1000;
+    private long maxBatchingPublishDelayMillis = 1;
     private long retryIntervalWhenSendMsgError = 30 * 1000L;
     public Map<String, List<TopicProducerInfo>> producerInfoMap;
     public Map<String, AtomicLong> topicSendIndexMap;
-    public List<PulsarClient> pulsarClients;
+    public Map<String, PulsarClient> pulsarClients;
 
     public int pulsarClientIoThreads;
     public int pulsarConnectionsPreBroker;
     private String localIp = "127.0.0.1";
 
+    private StreamConfigLogMetric streamConfigLogMetric;
+
     /**
      * PulsarClientService
-     * @param context
+     *
+     * @param pulsarConfig
      */
-    public PulsarClientService(Context context) {
+    public PulsarClientService(ThirdPartyClusterConfig pulsarConfig) {
 
-        String pulsarServerUrlList = context.getString(PULSAR_SERVER_URL_LIST);
-        Preconditions.checkState(pulsarServerUrlList != null, "No pulsar server url specified");
-        pulsarServerUrls = pulsarServerUrlList.split("\\|");
-        token = context.getString(PULSAR_TOKEN);
-        authType = context.getString(PULSAR_AUTH_TYPE, PULSAR_DEFAULT_AUTH_TYPE);
-        Preconditions.checkState(pulsarServerUrls != null && pulsarServerUrls.length > 0, "No "
-                + "pulsar server url config");
-        sendTimeout = context.getInteger(SEND_TIMEOUT, DEFAULT_SEND_TIMEOUT_MILL);
-        retryIntervalWhenSendMsgError = context.getLong(RETRY_INTERVAL_WHEN_SEND_ERROR_MILL,
-                DEFAULT_RETRY_INTERVAL_WHEN_SEND_ERROR_MILL);
-        clientTimeout = context.getInteger(CLIENT_TIMEOUT, DEFAULT_CLIENT_TIMEOUT_SECOND);
-        logger.debug("PulsarClientService " + SEND_TIMEOUT + " " + sendTimeout);
+//        String pulsarServerUrlList = context.getString(PULSAR_SERVER_URL_LIST);
+        authType = pulsarConfig.getAuthType();
+        sendTimeout = pulsarConfig.getSendTimeoutMs();
+        retryIntervalWhenSendMsgError = pulsarConfig.getRetryIntervalWhenSendErrorMs();
+        clientTimeout = pulsarConfig.getClientTimeoutSecond();
+
         Preconditions.checkArgument(sendTimeout > 0, "sendTimeout must be > 0");
 
-        pulsarClientIoThreads = context.getInteger(PULSAR_IO_THREADS, DEFAULT_PULSAR_IO_THREADS);
-        pulsarConnectionsPreBroker = context.getInteger(PULSAR_CONNECTIONS_PRE_BROKER,
-                DEFAULT_CONNECTIONS_PRE_BROKER);
+        pulsarClientIoThreads = pulsarConfig.getPulsarClientIoThreads();
+        pulsarConnectionsPreBroker = pulsarConfig.getPulsarConnectionsPreBroker();
 
-        enableBatch = context.getBoolean(ENABLE_BATCH, DEFAULT_ENABLE_BATCH);
-        blockIfQueueFull = context.getBoolean(BLOCK_IF_QUEUE_FULL, DEFAULT_BLOCK_IF_QUEUE_FULL);
-        maxPendingMessages = context.getInteger(MAX_PENDING_MESSAGES, DEFAULT_MAX_PENDING_MESSAGES);
-        maxBatchingMessages =  context.getInteger(MAX_BATCHING_MESSAGES, DEFAULT_MAX_BATCHING_MESSAGES);
+        enableBatch = pulsarConfig.getEnableBatch();
+        blockIfQueueFull = pulsarConfig.getBlockIfQueueFull();
+        maxPendingMessages = pulsarConfig.getMaxPendingMessages();
+        maxBatchingMessages = pulsarConfig.getMaxBatchingMessages();
+        maxBatchingBytes = pulsarConfig.getMaxBatchingBytes();
+        maxBatchingPublishDelayMillis = pulsarConfig.getMaxBatchingPublishDelayMillis();
         producerInfoMap = new ConcurrentHashMap<String, List<TopicProducerInfo>>();
         topicSendIndexMap = new ConcurrentHashMap<String, AtomicLong>();
         localIp = NetworkUtils.getLocalIp();
+    }
 
+    public void setConfigLogMetric(StreamConfigLogMetric streamConfigLogMetric) {
+        this.streamConfigLogMetric = streamConfigLogMetric;
     }
 
     public void initCreateConnection(CreatePulsarClientCallBack callBack) {
@@ -154,6 +132,7 @@ public class PulsarClientService {
 
     /**
      * send message
+     *
      * @param topic
      * @param event
      * @param sendMessageCallBack
@@ -161,10 +140,12 @@ public class PulsarClientService {
      * @return
      */
     public boolean sendMessage(String topic, Event event,
-            SendMessageCallBack sendMessageCallBack, EventStat es) {
+                               SendMessageCallBack sendMessageCallBack, EventStat es) {
         TopicProducerInfo producer = null;
+        final String inlongStreamId = getInlongStreamId(event);
+        final String inlongGroupId = getInlongGroupId(event);
         try {
-            producer = getProducer(topic);
+            producer = getProducer(topic, inlongGroupId, inlongStreamId);
         } catch (Exception e) {
             if (logPrinterA.shouldPrint()) {
                 /*
@@ -173,6 +154,11 @@ public class PulsarClientService {
                  * causing the sendMessage part to report a null pointer later
                  */
                 logger.error("Get producer failed!", e);
+            }
+            if (streamConfigLogMetric != null) {
+                streamConfigLogMetric.updateConfigLog(inlongGroupId,
+                        inlongStreamId, StreamConfigLogMetric.CONFIG_LOG_PULSAR_PRODUCER,
+                        ConfigLogTypeEnum.ERROR, e.toString());
             }
         }
         /*
@@ -186,30 +172,70 @@ public class PulsarClientService {
              * After 30s, reopen the topic check, if it is still a null value,
              *  put it back into the illegal map
              */
+            sendMessageCallBack.handleMessageSendException(topic, es, new Exception("producer is "
+                    + "null"));
             return false;
         }
 
         Map<String, String> proMap = new HashMap<>();
         proMap.put("data_proxy_ip", localIp);
-        String streamId = "";
-        if (event.getHeaders().containsKey(AttributeConstants.INTERFACE_ID)) {
-            streamId = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
-        } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-            streamId = event.getHeaders().get(AttributeConstants.INAME);
-        }
-        proMap.put(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
+        proMap.put(inlongStreamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
+
         TopicProducerInfo forCallBackP = producer;
-        forCallBackP.getProducer().newMessage().properties(proMap).value(event.getBody())
-                .sendAsync().thenAccept((msgId) -> {
-                    AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
-                    forCallBackP.setCanUseSend(true);
-                    sendMessageCallBack.handleMessageSendSuccess(topic, (MessageIdImpl)msgId, es);
-        }).exceptionally((e) -> {
-            forCallBackP.setCanUseSend(false);
-            sendMessageCallBack.handleMessageSendException(topic, es, e);
-            return null;
-        });
+
+        if (MessageUtils.isSyncSendForOrder(event) && (event instanceof OrderEvent)) {
+            String partitionKey = event.getHeaders().get(AttributeConstants.MESSAGE_PARTITION_KEY);
+            try {
+                MessageId msgId = forCallBackP.getProducer().newMessage().key(partitionKey)
+                        .properties(proMap).value(event.getBody())
+                        .send();
+                sendResponse((OrderEvent)event);
+                sendMessageCallBack.handleMessageSendSuccess(topic, msgId, es);
+                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
+                forCallBackP.setCanUseSend(true);
+            } catch (PulsarClientException ex) {
+                if (streamConfigLogMetric != null) {
+                    streamConfigLogMetric.updateConfigLog(inlongGroupId,
+                            inlongStreamId, StreamConfigLogMetric.CONFIG_LOG_PULSAR_PRODUCER,
+                            ConfigLogTypeEnum.ERROR, ex.toString());
+                }
+                forCallBackP.setCanUseSend(false);
+                sendMessageCallBack.handleMessageSendException(topic, es, ex);
+            }
+
+        } else {
+            forCallBackP.getProducer().newMessage().properties(proMap).value(event.getBody())
+                    .sendAsync().thenAccept((msgId) -> {
+                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
+                forCallBackP.setCanUseSend(true);
+                sendMessageCallBack.handleMessageSendSuccess(topic, (MessageIdImpl) msgId, es);
+            }).exceptionally((e) -> {
+                if (streamConfigLogMetric != null) {
+                    streamConfigLogMetric.updateConfigLog(inlongGroupId,
+                            inlongStreamId, StreamConfigLogMetric.CONFIG_LOG_PULSAR_PRODUCER,
+                            ConfigLogTypeEnum.ERROR, e.toString());
+                }
+                forCallBackP.setCanUseSend(false);
+                sendMessageCallBack.handleMessageSendException(topic, es, e);
+                return null;
+            });
+        }
         return true;
+    }
+
+    /**
+     * send Response
+     * @param orderEvent orderEvent
+     */
+    private void sendResponse(OrderEvent orderEvent) {
+        if (orderEvent.getCtx() != null && orderEvent.getCtx().channel().isActive()) {
+            orderEvent.getCtx().channel().eventLoop().execute(() -> {
+                ByteBuf binBuffer = MessageUtils.getResponsePackage("",
+                        MsgType.MSG_BIN_MULTI_BODY,
+                        orderEvent.getHeaders().get(AttributeConstants.UNIQ_ID));
+                orderEvent.getCtx().writeAndFlush(binBuffer);
+            });
+        }
     }
 
     /**
@@ -222,28 +248,37 @@ public class PulsarClientService {
         if (pulsarClients != null) {
             return;
         }
-        pulsarClients = new ArrayList<PulsarClient>();
-        for (int i = 0; i < pulsarServerUrls.length; i++) {
+        pulsarClients = new ConcurrentHashMap<>();
+        pulsarUrl2token = ConfigManager.getInstance().getThirdPartyClusterUrl2Token();
+        Preconditions.checkState(!pulsarUrl2token.isEmpty(), "No pulsar server url specified");
+        logger.debug("number of pulsarcluster is {}", pulsarUrl2token.size());
+        for (Map.Entry<String, String> info : pulsarUrl2token.entrySet()) {
             try {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("index = {}, url = {}", i, pulsarServerUrls[i]);
+                    logger.debug("url = {}, token = {}", info.getKey(), info.getValue());
                 }
-                PulsarClient client = initPulsarClient(pulsarServerUrls[i]);
-                pulsarClients.add(client);
-                callBack.handleCreateClientSuccess(pulsarServerUrls[i]);
+                PulsarClient client = initPulsarClient(info.getKey(), info.getValue());
+                pulsarClients.put(info.getKey(), client);
+                callBack.handleCreateClientSuccess(info.getKey());
             } catch (PulsarClientException e) {
-                callBack.handleCreateClientException(pulsarServerUrls[i]);
-                logger.error("create connnection error in pulsar sink, "
-                        + "maybe pulsar master set error, please re-check.url{}, ex1 {}",
-                        pulsarServerUrls[i],
-                        e);
+                callBack.handleCreateClientException(info.getKey());
+                if (streamConfigLogMetric != null) {
+                    streamConfigLogMetric.updateConfigLog("DataProxyGlobal",
+                            "DataProxyGlobal",
+                            StreamConfigLogMetric.CONFIG_LOG_PULSAR_CLIENT,
+                            ConfigLogTypeEnum.ERROR, e.toString());
+                }
+                logger.error("create connnection error in metasink, "
+                                + "maybe pulsar master set error, please re-check.url{}, ex1 {}",
+                        info.getKey(),
+                        e.getMessage());
             } catch (Throwable e) {
-                callBack.handleCreateClientException(pulsarServerUrls[i]);
-                logger.error("create connnection error in pulsar sink, "
+                callBack.handleCreateClientException(info.getKey());
+                logger.error("create connnection error in metasink, "
                                 + "maybe pulsar master set error/shutdown in progress, please "
                                 + "re-check. url{}, ex2 {}",
-                        pulsarServerUrls[i],
-                        e);
+                        info.getKey(),
+                        e.getMessage());
             }
         }
         if (pulsarClients.size() == 0) {
@@ -252,9 +287,9 @@ public class PulsarClientService {
         }
     }
 
-    private PulsarClient initPulsarClient(String pulsarUrl) throws Exception {
+    private PulsarClient initPulsarClient(String pulsarUrl, String token) throws Exception {
         ClientBuilder builder = PulsarClient.builder();
-        if (PULSAR_DEFAULT_AUTH_TYPE.equals(authType) && StringUtils.isNotEmpty(token)) {
+        if (ThirdPartyClusterConfig.PULSAR_DEFAULT_AUTH_TYPE.equals(authType) && StringUtils.isNotEmpty(token)) {
             builder.authentication(AuthenticationFactory.token(token));
         }
         builder.serviceUrl(pulsarUrl)
@@ -264,14 +299,21 @@ public class PulsarClientService {
         return builder.build();
     }
 
-    public List<TopicProducerInfo> initTopicProducer(String topic) {
+    public List<TopicProducerInfo> initTopicProducer(String topic, String inlongGroupId,
+            String inlongStreamId) {
         List<TopicProducerInfo> producerInfoList = producerInfoMap.computeIfAbsent(topic, (k) -> {
-            List<TopicProducerInfo> newList = new ArrayList<>();
+            List<TopicProducerInfo> newList = null;
             if (pulsarClients != null) {
-                for (PulsarClient pulsarClient : pulsarClients) {
+                newList = new ArrayList<>();
+                for (PulsarClient pulsarClient : pulsarClients.values()) {
                     TopicProducerInfo info = new TopicProducerInfo(pulsarClient, topic);
-                    info.initProducer();
-                    newList.add(info);
+                    info.initProducer(inlongGroupId, inlongStreamId);
+                    if (info.isCanUseToSendMessage()) {
+                        newList.add(info);
+                    }
+                }
+                if (newList.size() == 0) {
+                    newList = null;
                 }
             }
             return newList;
@@ -279,19 +321,25 @@ public class PulsarClientService {
         return producerInfoList;
     }
 
-    private TopicProducerInfo getProducer(String topic) {
-        List<TopicProducerInfo> producerList = initTopicProducer(topic);
-        AtomicLong topicIndex = topicSendIndexMap.computeIfAbsent(topic,(k) -> {
+    public List<TopicProducerInfo> initTopicProducer(String topic) {
+        return initTopicProducer(topic, null, null);
+    }
+
+    private TopicProducerInfo getProducer(String topic, String inlongGroupId,
+            String inlongStreamId) {
+        List<TopicProducerInfo> producerList =
+                initTopicProducer(topic, inlongGroupId, inlongStreamId);
+        AtomicLong topicIndex = topicSendIndexMap.computeIfAbsent(topic, (k) -> {
             return new AtomicLong(0);
         });
-        int maxTryToGetProducer = producerList.size();
+        int maxTryToGetProducer = producerList == null ? 0 : producerList.size();
         if (maxTryToGetProducer == 0) {
             return null;
         }
         int retryTime = 0;
         TopicProducerInfo p = null;
         do {
-            int index = (int)(topicIndex.getAndIncrement() % maxTryToGetProducer);
+            int index = (int) (topicIndex.getAndIncrement() % maxTryToGetProducer);
             p = producerList.get(index);
             if (p.isCanUseToSendMessage() && p.getProducer().isConnected()) {
                 break;
@@ -308,7 +356,7 @@ public class PulsarClientService {
     private void destroyConnection() {
         producerInfoMap.clear();
         if (pulsarClients != null) {
-            for (PulsarClient pulsarClient : pulsarClients) {
+            for (PulsarClient pulsarClient : pulsarClients.values()) {
                 try {
                     pulsarClient.shutdown();
                 } catch (PulsarClientException e) {
@@ -321,6 +369,101 @@ public class PulsarClientService {
         }
         pulsarClients = null;
         logger.debug("closed meta producer");
+    }
+
+    private void removeProducers(PulsarClient pulsarClient) {
+        for (List<TopicProducerInfo> producers : producerInfoMap.values()) {
+            for (TopicProducerInfo topicProducer : producers) {
+                if (topicProducer.getPulsarClient().equals(pulsarClient)) {
+                    topicProducer.close();
+                    producers.remove(topicProducer);
+                }
+            }
+        }
+    }
+
+    /**
+     * close pulsarClients(the related url is removed); start pulsarClients for new url, and create producers for them
+     *
+     * @param callBack
+     * @param needToClose url-token map
+     * @param needToStart url-token map
+     * @param topicSet    for new pulsarClient, create these topics' producers
+     */
+    public void updatePulsarClients(CreatePulsarClientCallBack callBack, Map<String, String> needToClose,
+                                    Map<String, String> needToStart, Set<String> topicSet) {
+        // close
+        for (String url : needToClose.keySet()) {
+            PulsarClient pulsarClient = pulsarClients.get(url);
+            if (pulsarClient != null) {
+                try {
+                    removeProducers(pulsarClient);
+                    pulsarClient.shutdown();
+                    pulsarClients.remove(url);
+                } catch (PulsarClientException e) {
+                    logger.error("shutdown pulsarClient error in PulsarSink, PulsarClientException {}",
+                            e.getMessage());
+                } catch (Exception e) {
+                    logger.error("shutdown pulsarClient error in PulsarSink, ex {}", e.getMessage());
+                }
+            }
+        }
+        // new pulsarClient
+        for (Map.Entry<String, String> entry : needToStart.entrySet()) {
+            String url = entry.getKey();
+            String token = entry.getValue();
+            try {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("url = {}, token = {}", url, token);
+                }
+                PulsarClient client = initPulsarClient(url, token);
+                pulsarClients.put(url, client);
+                callBack.handleCreateClientSuccess(url);
+
+                //create related topicProducers
+                for (String topic : topicSet) {
+                    TopicProducerInfo info = new TopicProducerInfo(client, topic);
+                    info.initProducer();
+                    if (info.isCanUseToSendMessage()) {
+                        producerInfoMap.computeIfAbsent(topic, k -> new ArrayList<>()).add(info);
+                    }
+                }
+
+            } catch (PulsarClientException e) {
+                callBack.handleCreateClientException(url);
+                logger.error("create connnection error in pulsarsink, "
+                        + "maybe pulsar master set error, please re-check.url{}, ex1 {}", url, e.getMessage());
+            } catch (Throwable e) {
+                callBack.handleCreateClientException(url);
+                logger.error("create connnection error in pulsarsink, "
+                        + "maybe pulsar master set error/shutdown in progress, please "
+                        + "re-check. url{}, ex2 {}", url, e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * get inlong stream id from event
+     * @param event event
+     * @return inlong stream id
+     */
+    private String getInlongStreamId(Event event) {
+        String streamId = "";
+        if (event.getHeaders().containsKey(AttributeConstants.STREAM_ID)) {
+            streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
+        } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
+            streamId = event.getHeaders().get(AttributeConstants.INAME);
+        }
+        return streamId;
+    }
+
+    /**
+     *  get inlong group id from event
+     * @param event event
+     * @return inlong group id
+     */
+    private String getInlongGroupId(Event event) {
+        return event.getHeaders().get(AttributeConstants.GROUP_ID);
     }
 
     public void close() {
@@ -341,12 +484,12 @@ public class PulsarClientService {
         private volatile Boolean isFinishInit = false;
 
         public TopicProducerInfo(PulsarClient pulsarClient,
-                String topic) {
+                                 String topic) {
             this.pulsarClient = pulsarClient;
             this.topic = topic;
         }
 
-        public void initProducer() {
+        public void initProducer(String inlongGroupId, String inlongStreamId) {
             try {
                 producer = pulsarClient.newProducer().sendTimeout(sendTimeout,
                         TimeUnit.MILLISECONDS)
@@ -355,12 +498,26 @@ public class PulsarClientService {
                         .blockIfQueueFull(blockIfQueueFull)
                         .maxPendingMessages(maxPendingMessages)
                         .batchingMaxMessages(maxBatchingMessages)
+                        .batchingMaxBytes(maxBatchingBytes)
+                        .batchingMaxPublishDelay(maxBatchingPublishDelayMillis, TimeUnit.MILLISECONDS)
                         .create();
                 isFinishInit = true;
             } catch (PulsarClientException e) {
-                logger.error("create pulsar client has error e = {}", e);
+                logger.error("create pulsar client has error e = {} inlongGroupId = {}, "
+                        + "inlongStreamId= {}", e, inlongGroupId, inlongStreamId);
                 isFinishInit = false;
+                if (streamConfigLogMetric != null
+                        && StringUtils.isNotEmpty(inlongGroupId)
+                        && StringUtils.isNotEmpty(inlongStreamId)) {
+                    streamConfigLogMetric.updateConfigLog(inlongGroupId,
+                            inlongStreamId, StreamConfigLogMetric.CONFIG_LOG_PULSAR_CLIENT,
+                            ConfigLogTypeEnum.ERROR, e.toString());
+                }
             }
+        }
+
+        public void initProducer() {
+            initProducer(null, null);
         }
 
         public void setCanUseSend(Boolean isCanUseSend) {
@@ -381,8 +538,20 @@ public class PulsarClientService {
             return false;
         }
 
+        public void close() {
+            try {
+                producer.close();
+            } catch (PulsarClientException e) {
+                logger.error("close pulsar producer has error e = {}", e);
+            }
+        }
+
         public Producer getProducer() {
             return producer;
+        }
+
+        public PulsarClient getPulsarClient() {
+            return pulsarClient;
         }
     }
 }

@@ -17,14 +17,14 @@
 
 package org.apache.inlong.agent.plugin;
 
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_CYCLE_UNIT;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_DIR_FILTER_PATTERN;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_FILE_MAX_WAIT;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_FILE_TIME_OFFSET;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_READ_WAIT_TIMEOUT;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
 import static org.awaitility.Awaitility.await;
 
 import java.io.FileWriter;
@@ -49,9 +49,11 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestFileAgent {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestFileAgent.class);
     private static final ClassLoader LOADER = TestFileAgent.class.getClassLoader();
     private static final String RECORD = "This is the test line for huge file\n";
     private static Path testRootDir;
@@ -60,11 +62,17 @@ public class TestFileAgent {
 
     @BeforeClass
     public static void setup() throws Exception {
-        helper = new AgentBaseTestsHelper(
-            TestFileAgent.class.getName()).setupAgentHome();
-        agent = new MiniAgent();
-        agent.start();
-        testRootDir = helper.getTestRootDir();
+        try {
+            helper = new AgentBaseTestsHelper(
+                TestFileAgent.class.getName()).setupAgentHome();
+            agent = new MiniAgent();
+            agent.start();
+            testRootDir = helper.getTestRootDir();
+        } catch (Exception e) {
+            LOGGER.error("setup failure");
+
+        }
+
     }
 
     @AfterClass
@@ -109,7 +117,7 @@ public class TestFileAgent {
                 String jobJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
                 JobProfile profile = JobProfile.parseJsonStr(jobJson);
                 profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testRootDir.toString(),
-                    "hugeFile.[0-9].txt").toString());
+                        "hugeFile.[0-9].txt").toString());
                 profile.set(JOB_READ_WAIT_TIMEOUT, String.valueOf(readWaitTimeMilliseconds));
                 profile.set(PROXY_INLONG_GROUP_ID, "groupid");
                 profile.set(PROXY_INLONG_STREAM_ID, "streamid");
@@ -120,10 +128,11 @@ public class TestFileAgent {
 
     @Test
     public void testOneJobOnly() throws Exception {
-        TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(TestUtils.getTestTriggerProfile());
+        String jsonString = TestUtils.getTestTriggerProfile();
+        TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(jsonString);
         triggerProfile.set(JOB_DIR_FILTER_PATTERN, helper.getParentPath() + triggerProfile.get(JOB_DIR_FILTER_PATTERN));
         triggerProfile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testRootDir.toString(),
-            "test[0-9].dat").toString());
+                "test[0-9].dat").toString());
         triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");
         TriggerManager triggerManager = agent.getManager().getTriggerManager();
         triggerManager.addTrigger(triggerProfile);
@@ -138,9 +147,9 @@ public class TestFileAgent {
         AtomicBoolean result = new AtomicBoolean(false);
         if (jobs.size() == 1) {
             jobs.forEach(
-                (s, jobWrapper) -> result.set(jobWrapper.getJob().getJobConf()
-                    .get(JOB_DIR_FILTER_PATTERN).equals(testRootDir
-                        + FileSystems.getDefault().getSeparator() + "test1.dat"))
+                    (s, jobWrapper) -> result.set(jobWrapper.getJob().getJobConf()
+                            .get(JOB_DIR_FILTER_PATTERN).equals(testRootDir
+                                    + FileSystems.getDefault().getSeparator() + "test1.dat"))
             );
         }
         return result.get();
@@ -156,7 +165,7 @@ public class TestFileAgent {
                 String jobJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
                 JobProfile profile = JobProfile.parseJsonStr(jobJson);
                 profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testRootDir.toString(),
-                    "YYYYMMDD").toString());
+                        "YYYYMMDD").toString());
                 profile.set(JOB_CYCLE_UNIT, "D");
                 agent.submitTriggerJob(profile);
             }
@@ -175,10 +184,10 @@ public class TestFileAgent {
                 String jobJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
                 JobProfile profile = JobProfile.parseJsonStr(jobJson);
                 profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testRootDir.toString(),
-                    "YYYYMMDD").toString());
+                        "YYYYMMDD").toString());
                 profile.set(JOB_CYCLE_UNIT, "D");
                 profile.set(AGENT_MESSAGE_FILTER_CLASSNAME,
-                    "org.apache.inlong.agent.plugin.filter.DefaultMessageFilter");
+                        "org.apache.inlong.agent.plugin.filter.DefaultMessageFilter");
                 agent.submitTriggerJob(profile);
             }
         }
@@ -194,7 +203,7 @@ public class TestFileAgent {
                 String jobJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
                 JobProfile profile = JobProfile.parseJsonStr(jobJson);
                 profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testRootDir.toString(),
-                    "YYYYMMDD").toString());
+                        "YYYYMMDD").toString());
                 profile.set(JOB_FILE_TIME_OFFSET, "-1d");
                 profile.set(JOB_CYCLE_UNIT, "D");
                 agent.submitTriggerJob(profile);
@@ -207,11 +216,11 @@ public class TestFileAgent {
     private void assertJobSuccess() {
         await().atMost(5, TimeUnit.MINUTES).until(() -> {
             JobProfile jobConf = agent.getManager().getJobManager()
-                .getJobConfDb().getJob(StateSearchKey.SUCCESS);
+                    .getJobConfDb().getJob(StateSearchKey.SUCCESS);
             return jobConf != null;
         });
         JobProfile jobConf = agent.getManager().getJobManager()
-            .getJobConfDb().getJob(StateSearchKey.SUCCESS);
+                .getJobConfDb().getJob(StateSearchKey.SUCCESS);
         Assert.assertEquals(1, jobConf.getInt("job.id"));
     }
 

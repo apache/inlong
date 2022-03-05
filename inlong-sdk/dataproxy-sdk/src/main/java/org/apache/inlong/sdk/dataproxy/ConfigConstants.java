@@ -56,8 +56,8 @@ public class ConfigConstants {
     public static final long DEFAULT_REQUEST_TIMEOUT_MILLIS =
             TimeUnit.MILLISECONDS.convert(40, TimeUnit.SECONDS);
 
-    public static final long DEFAULT_SEND_BUFFER_SIZE = 16777216;
-    public static final long DEFAULT_RECEIVE_BUFFER_SIZE = 16777216;
+    public static final int DEFAULT_SEND_BUFFER_SIZE = 16777216;
+    public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 16777216;
 
     public static final String RECEIVE_BUFFER_SIZE = "receiveBufferSize";
     public static final String SEND_BUFFER_SIZE = "sendBufferSize";

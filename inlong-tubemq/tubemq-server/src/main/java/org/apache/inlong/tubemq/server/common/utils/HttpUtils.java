@@ -47,7 +47,12 @@ public class HttpUtils {
     private static final Logger logger =
             LoggerFactory.getLogger(HttpUtils.class);
 
-    /* Send request to target server. */
+    /**
+     * Send request to target server.
+     *
+     * @param url            the target url
+     * @param inParamMap     the parameter map
+     */
     public static JsonObject requestWebService(String url,
                                                Map<String, String> inParamMap) throws Exception {
         if (url == null) {
@@ -120,21 +125,24 @@ public class HttpUtils {
         return jsonRes;
     }
 
+    /**
+     *  Test scenario:
+     *     simulate where there are multiple Master nodes in the cluster,
+     *      and there are nodes that do not take effect
+     * Call url:
+     *    http://127.0.0.1:8080/webapi.htm?method=admin_query_topic_info
+     * Request parameters:
+     *    topicName=test_1, brokerId=170399798
+     * Master nodes:
+     *    127.0.0.1:8082(invalid node),127.0.0.1:8080(valid node)
+     *
+     * @param args   the call arguments
+     */
     public static void main(String[] args) {
-        /** Test scenario:
-         *     simulate where there are multiple Master nodes in the cluster,
-         *      and there are nodes that do not take effect
-         * Call url:
-         *    http://127.0.0.1:8080/webapi.htm?method=admin_query_topic_info
-         * Request parameters:
-         *    topicName=test_1, brokerId=170399798
-         * Master nodes:
-         *    10.54.55.32:8080(invalid node),127.0.0.1:8080(valid node)
-         */
         Map<String, String> inParamMap = new HashMap<>();
         inParamMap.put("topicName", "test_1");
         inParamMap.put("brokerId", "170399798");
-        String masterAddr = "10.54.55.32:8080,127.0.0.1:8080";
+        String masterAddr = "127.0.0.1:8082,127.0.0.1:8080";
         // build visit object
         MasterInfo masterInfo =  new MasterInfo(masterAddr.trim());
         JsonObject jsonRes = null;
@@ -157,5 +165,4 @@ public class HttpUtils {
             System.out.println("query result is " + jsonRes.toString());
         }
     }
-
 }

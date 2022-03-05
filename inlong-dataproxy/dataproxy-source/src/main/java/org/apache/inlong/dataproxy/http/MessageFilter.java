@@ -19,7 +19,7 @@ package org.apache.inlong.dataproxy.http;
 
 import static org.apache.inlong.dataproxy.consts.AttributeConstants.GROUP_ID;
 import static org.apache.inlong.dataproxy.consts.AttributeConstants.DATA_TIME;
-import static org.apache.inlong.dataproxy.consts.AttributeConstants.INTERFACE_ID;
+import static org.apache.inlong.dataproxy.consts.AttributeConstants.STREAM_ID;
 import static org.apache.inlong.dataproxy.http.HttpSourceConstants.BODY;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.ChannelException;
-import org.apache.inlong.commons.monitor.LogCounter;
+import org.apache.inlong.common.monitor.LogCounter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +77,7 @@ public class MessageFilter
 
         String invalidKey = null;
         String groupId = req.getParameter(GROUP_ID);
-        String streamId = req.getParameter(INTERFACE_ID);
+        String streamId = req.getParameter(STREAM_ID);
         String dt = req.getParameter(DATA_TIME);
         String body = req.getParameter(BODY);
 

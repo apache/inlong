@@ -31,36 +31,36 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.enums.BizConstant;
-import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.business.BusinessTopicVO;
+import org.apache.inlong.manager.common.pojo.common.CountInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionListVo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionMqExtBase;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionPulsarInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionSummary;
-import org.apache.inlong.manager.common.pojo.datastream.DataStreamTopicVO;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
+import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.BusinessEntity;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.entity.ConsumptionPulsarEntity;
-import org.apache.inlong.manager.dao.mapper.BusinessEntityMapper;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
 import org.apache.inlong.manager.dao.mapper.ConsumptionPulsarEntityMapper;
-import org.apache.inlong.manager.service.core.BusinessService;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.service.core.ConsumptionService;
-import org.apache.inlong.manager.service.core.DataStreamService;
+import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.service.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
-import org.apache.inlong.manager.service.workflow.consumption.NewConsumptionWorkflowForm;
-import org.apache.inlong.manager.common.model.view.CountByKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,7 +76,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     @Autowired
     private ClusterBean clusterBean;
     @Autowired
-    private BusinessEntityMapper businessMapper;
+    private InlongGroupEntityMapper groupMapper;
     @Autowired
     private ConsumptionEntityMapper consumptionMapper;
     @Autowired
@@ -84,21 +84,21 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     @Autowired
     private WorkflowService workflowService;
     @Autowired
-    private BusinessService businessService;
+    private InlongGroupService groupService;
     @Autowired
-    private DataStreamService streamService;
+    private InlongStreamService streamService;
 
     @Override
     public ConsumptionSummary getSummary(ConsumptionQuery query) {
-        Map<String, Integer> countByState = consumptionMapper.countByStatus(query)
+        Map<String, Integer> countMap = consumptionMapper.countByQuery(query)
                 .stream()
-                .collect(Collectors.toMap(CountByKey::getKey, CountByKey::getValue));
+                .collect(Collectors.toMap(CountInfo::getKey, CountInfo::getValue));
 
         return ConsumptionSummary.builder()
-                .totalCount(countByState.values().stream().mapToInt(c -> c).sum())
-                .waitingAssignCount(countByState.getOrDefault(ConsumptionStatus.WAITING_ASSIGN.getStatus() + "", 0))
-                .waitingApproveCount(countByState.getOrDefault(ConsumptionStatus.WAITING_APPROVE.getStatus() + "", 0))
-                .rejectedCount(countByState.getOrDefault(ConsumptionStatus.REJECTED.getStatus() + "", 0)).build();
+                .totalCount(countMap.values().stream().mapToInt(c -> c).sum())
+                .waitingAssignCount(countMap.getOrDefault(ConsumptionStatus.WAIT_ASSIGN.getStatus() + "", 0))
+                .waitingApproveCount(countMap.getOrDefault(ConsumptionStatus.WAIT_APPROVE.getStatus() + "", 0))
+                .rejectedCount(countMap.getOrDefault(ConsumptionStatus.REJECTED.getStatus() + "", 0)).build();
     }
 
     @Override
@@ -119,7 +119,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
         ConsumptionInfo info = CommonBeanUtils.copyProperties(entity, ConsumptionInfo::new);
 
-        if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(info.getMiddlewareType())) {
+        if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(info.getMiddlewareType())) {
             ConsumptionPulsarEntity pulsarEntity = consumptionPulsarMapper.selectByConsumptionId(info.getId());
             Preconditions.checkNotNull(pulsarEntity, "Pulsar consumption cannot be empty, as the middleware is Pulsar");
             ConsumptionPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(pulsarEntity, ConsumptionPulsarInfo::new);
@@ -151,7 +151,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         Date now = new Date();
         ConsumptionEntity entity = this.saveConsumption(info, operator, now);
 
-        if (BizConstant.MIDDLEWARE_PULSAR.equals(entity.getMiddlewareType())) {
+        if (Constant.MIDDLEWARE_PULSAR.equals(entity.getMiddlewareType())) {
             savePulsarInfo(info.getMqExtInfo(), entity);
         }
 
@@ -169,27 +169,27 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         boolean dlqEnable = (pulsarInfo.getIsDlq() != null && pulsarInfo.getIsDlq() == 1);
         boolean rlqEnable = (pulsarInfo.getIsRlq() != null && pulsarInfo.getIsRlq() == 1);
         if (rlqEnable && !dlqEnable) {
-            throw new BusinessException(BizErrorCodeEnum.PULSAR_DLQ_RLQ_ERROR);
+            throw new BusinessException(ErrorCodeEnum.PULSAR_DLQ_RLQ_ERROR);
         }
 
         // When saving, the DLQ / RLQ under the same groupId cannot be repeated;
         // when closing, delete the related configuration
         String groupId = entity.getInlongGroupId();
         if (dlqEnable) {
-            String dlqTopic = BizConstant.PREFIX_DLQ + "_" + pulsarInfo.getDeadLetterTopic();
+            String dlqTopic = Constant.PREFIX_DLQ + "_" + pulsarInfo.getDeadLetterTopic();
             Boolean exist = streamService.exist(groupId, dlqTopic);
             if (exist) {
-                throw new BusinessException(BizErrorCodeEnum.PULSAR_DLQ_DUPLICATED);
+                throw new BusinessException(ErrorCodeEnum.PULSAR_DLQ_DUPLICATED);
             }
         } else {
             pulsarInfo.setIsDlq(0);
             pulsarInfo.setDeadLetterTopic(null);
         }
         if (rlqEnable) {
-            String rlqTopic = BizConstant.PREFIX_RLQ + "_" + pulsarInfo.getRetryLetterTopic();
+            String rlqTopic = Constant.PREFIX_RLQ + "_" + pulsarInfo.getRetryLetterTopic();
             Boolean exist = streamService.exist(groupId, rlqTopic);
             if (exist) {
-                throw new BusinessException(BizErrorCodeEnum.PULSAR_RLQ_DUPLICATED);
+                throw new BusinessException(ErrorCodeEnum.PULSAR_RLQ_DUPLICATED);
             }
         } else {
             pulsarInfo.setIsRlq(0);
@@ -232,7 +232,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         entity.setModifyTime(now);
 
         // Modify Pulsar consumption info
-        if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(info.getMiddlewareType())) {
+        if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(info.getMiddlewareType())) {
             ConsumptionPulsarEntity pulsarEntity = consumptionPulsarMapper.selectByConsumptionId(consumptionId);
             Preconditions.checkNotNull(pulsarEntity, "Pulsar consumption cannot be null");
             pulsarEntity.setConsumerGroupId(info.getConsumerGroupId());
@@ -244,11 +244,11 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
             // DLQ is closed, RLQ cannot exist alone and must be closed
             if (rlqEnable && !dlqEnable) {
-                throw new BusinessException(BizErrorCodeEnum.PULSAR_TOPIC_CREATE_FAILED);
+                throw new BusinessException(ErrorCodeEnum.PULSAR_TOPIC_CREATE_FAILED);
             }
 
             // If the consumption has been approved, then close/open DLQ or RLQ, it is necessary to
-            // add/remove data streams in the business
+            // add/remove inlong streams in the inlong group
             if (ConsumptionStatus.APPROVED.getStatus() == exists.getStatus()) {
                 String groupId = info.getInlongGroupId();
                 String dlqNameOld = pulsarEntity.getDeadLetterTopic();
@@ -259,7 +259,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
                     streamService.logicDeleteDlqOrRlq(groupId, dlqNameOld, operator);
                 } else if (!Objects.equals(dlqNameNew, dlqNameOld)) {
                     pulsarEntity.setIsDlq(1);
-                    String topic = BizConstant.PREFIX_DLQ + "_" + dlqNameNew;
+                    String topic = Constant.PREFIX_DLQ + "_" + dlqNameNew;
                     topic = topic.toLowerCase(Locale.ROOT);
                     pulsarEntity.setDeadLetterTopic(topic);
                     streamService.insertDlqOrRlq(groupId, topic, operator);
@@ -273,7 +273,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
                     streamService.logicDeleteDlqOrRlq(groupId, rlqNameOld, operator);
                 } else if (!Objects.equals(rlqNameNew, pulsarEntity.getRetryLetterTopic())) {
                     pulsarEntity.setIsRlq(1);
-                    String topic = BizConstant.PREFIX_RLQ + "_" + rlqNameNew;
+                    String topic = Constant.PREFIX_RLQ + "_" + rlqNameNew;
                     topic = topic.toLowerCase(Locale.ROOT);
                     pulsarEntity.setRetryLetterTopic(topic);
                     streamService.insertDlqOrRlq(groupId, topic, operator);
@@ -292,9 +292,9 @@ public class ConsumptionServiceImpl implements ConsumptionService {
      * "persistent://" + tenant + "/" + namespace + "/" + topic;
      */
     private String getFullPulsarTopic(String groupId, String topic) {
-        BusinessEntity businessEntity = businessMapper.selectByIdentifier(groupId);
+        InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
         String tenant = clusterBean.getDefaultTenant();
-        String namespace = businessEntity.getMqResourceObj();
+        String namespace = inlongGroupEntity.getMqResourceObj();
         return "persistent://" + tenant + "/" + namespace + "/" + topic;
     }
 
@@ -319,16 +319,16 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         ConsumptionEntity updateConsumptionEntity = new ConsumptionEntity();
         updateConsumptionEntity.setId(consumptionInfo.getId());
         updateConsumptionEntity.setModifyTime(new Date());
-        updateConsumptionEntity.setStatus(ConsumptionStatus.WAITING_APPROVE.getStatus());
+        updateConsumptionEntity.setStatus(ConsumptionStatus.WAIT_APPROVE.getStatus());
         int success = this.consumptionMapper.updateByPrimaryKeySelective(updateConsumptionEntity);
         Preconditions.checkTrue(success == 1, "update consumption failed");
 
-        return workflowService.start(ProcessName.NEW_CONSUMPTION_WORKFLOW, operation,
-                genNewConsumptionWorkflowForm(consumptionInfo));
+        return workflowService.start(ProcessName.NEW_CONSUMPTION_PROCESS, operation,
+                genNewConsumptionProcessForm(consumptionInfo));
     }
 
     @Override
-    public void saveSortConsumption(BusinessInfo bizInfo, String topic, String consumerGroup) {
+    public void saveSortConsumption(InlongGroupInfo bizInfo, String topic, String consumerGroup) {
         String groupId = bizInfo.getInlongGroupId();
         ConsumptionEntity exists = consumptionMapper.selectConsumptionExists(groupId, topic, consumerGroup);
         if (exists != null) {
@@ -355,7 +355,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
         consumptionMapper.insert(entity);
 
-        if (BizConstant.MIDDLEWARE_PULSAR.equals(middlewareType)) {
+        if (Constant.MIDDLEWARE_PULSAR.equals(middlewareType)) {
             ConsumptionPulsarEntity pulsarEntity = new ConsumptionPulsarEntity();
             pulsarEntity.setConsumptionId(entity.getId());
             pulsarEntity.setConsumerGroupId(consumerGroup);
@@ -367,10 +367,10 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         log.debug("success save consumption, groupId={}, topic={}, consumer group={}", groupId, topic, consumerGroup);
     }
 
-    private NewConsumptionWorkflowForm genNewConsumptionWorkflowForm(ConsumptionInfo consumptionInfo) {
-        NewConsumptionWorkflowForm form = new NewConsumptionWorkflowForm();
+    private NewConsumptionProcessForm genNewConsumptionProcessForm(ConsumptionInfo consumptionInfo) {
+        NewConsumptionProcessForm form = new NewConsumptionProcessForm();
         Integer id = consumptionInfo.getId();
-        if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(consumptionInfo.getMiddlewareType())) {
+        if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(consumptionInfo.getMiddlewareType())) {
             ConsumptionPulsarEntity consumptionPulsarEntity = consumptionPulsarMapper.selectByConsumptionId(id);
             ConsumptionPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(consumptionPulsarEntity,
                     ConsumptionPulsarInfo::new);
@@ -382,7 +382,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
     private ConsumptionEntity saveConsumption(ConsumptionInfo info, String operator, Date now) {
         ConsumptionEntity entity = CommonBeanUtils.copyProperties(info, ConsumptionEntity::new);
-        entity.setStatus(ConsumptionStatus.WAITING_ASSIGN.getStatus());
+        entity.setStatus(ConsumptionStatus.WAIT_ASSIGN.getStatus());
         entity.setIsDeleted(0);
         entity.setCreator(operator);
         entity.setModifier(operator);
@@ -418,26 +418,26 @@ public class ConsumptionServiceImpl implements ConsumptionService {
                     "consumption not allow update when status is " + consumptionStatus.name());
         }
 
-        // Determine whether the consumed topic belongs to this groupId or the data stream under it
+        // Determine whether the consumed topic belongs to this groupId or the inlong stream under it
         Preconditions.checkNotNull(info.getTopic(), "consumption topic cannot be empty");
 
         String groupId = info.getInlongGroupId();
-        BusinessTopicVO topicVO = businessService.getTopic(groupId);
-        Preconditions.checkNotNull(topicVO, "business not exist: " + groupId);
+        InlongGroupTopicResponse topicVO = groupService.getTopic(groupId);
+        Preconditions.checkNotNull(topicVO, "inlong group not exist: " + groupId);
 
-        // Tube’s topic is the business group level, one business group, one Tube topic
-        if (BizConstant.MIDDLEWARE_TUBE.equalsIgnoreCase(topicVO.getMiddlewareType())) {
+        // Tube’s topic is the inlong group level, one inlong group, one Tube topic
+        if (Constant.MIDDLEWARE_TUBE.equalsIgnoreCase(topicVO.getMiddlewareType())) {
             String bizTopic = topicVO.getMqResourceObj();
             Preconditions.checkTrue(bizTopic == null || bizTopic.equals(info.getTopic()),
-                    "topic [" + info.getTopic() + "] not belong to business " + groupId);
-        } else if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(topicVO.getMiddlewareType())) {
-            // Pulsar's topic is the data stream level.
-            // There will be multiple data streams under one business, and there will be multiple topics
-            List<DataStreamTopicVO> dsTopicList = topicVO.getDsTopicList();
+                    "topic [" + info.getTopic() + "] not belong to inlong group " + groupId);
+        } else if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(topicVO.getMiddlewareType())) {
+            // Pulsar's topic is the inlong stream level.
+            // There will be multiple inlong streams under one inlong group, and there will be multiple topics
+            List<InlongStreamTopicResponse> dsTopicList = topicVO.getDsTopicList();
             if (dsTopicList != null && dsTopicList.size() > 0) {
                 Set<String> topicSet = new HashSet<>(Arrays.asList(info.getTopic().split(",")));
                 dsTopicList.forEach(ds -> topicSet.remove(ds.getMqResourceObj()));
-                Preconditions.checkEmpty(topicSet, "topic [" + topicSet + "] not belong to business " + groupId);
+                Preconditions.checkEmpty(topicSet, "topic [" + topicSet + "] not belong to inlong group " + groupId);
             }
         }
     }

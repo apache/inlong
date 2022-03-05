@@ -35,6 +35,16 @@
       <artifactId>agent-release</artifactId>
       <version>${project.parent.version}</version>
       <classifier>bin</classifier>
+      <exclusions>
+        <exclusion>
+          <artifactId>log4j-api</artifactId>
+          <groupId>org.apache.logging.log4j</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>log4j-slf4j-impl</artifactId>
+          <groupId>org.apache.logging.log4j</groupId>
+        </exclusion>
+      </exclusions>
       <type>tar.gz</type>
       <scope>provided</scope>
     </dependency>

@@ -18,7 +18,6 @@
 
 file_path=$(cd "$(dirname "$0")"/../;pwd)
 # config
-sed -i "s/TUBE_LIST/$TUBMQ_MASTER_LIST/g" ${file_path}/conf/flume.conf
 cat <<EOF > ${file_path}/conf/common.properties
 manager_hosts=$MANAGER_OPENAPI_IP:$MANAGER_OPENAPI_PORT
 EOF

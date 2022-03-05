@@ -51,7 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The Flink tubemq Consumer.
+ * The Flink TubeMQ Consumer.
  *
  * @param <T> The type of records produced by this data source
  */
@@ -67,7 +67,7 @@ public class TubemqSourceFunction<T>
     private static final String SPLIT_COLON = ":";
 
     /**
-     * The address of tubemq master, format eg: 127.0.0.1:8080,127.0.0.2:8081.
+     * The address of TubeMQ master, format eg: 127.0.0.1:8080,127.0.0.2:8081.
      */
     private final String masterAddress;
 
@@ -92,7 +92,7 @@ public class TubemqSourceFunction<T>
     private final DeserializationSchema<T> deserializationSchema;
 
     /**
-     * The random key for tubemq consumer group when startup.
+     * The random key for TubeMQ consumer group when startup.
      */
     private final String sessionKey;
 
@@ -131,15 +131,25 @@ public class TubemqSourceFunction<T>
     private transient Map<String, Long> currentOffsets;
 
     /**
-     * The tubemq session factory.
+     * The TubeMQ session factory.
      */
     private transient TubeSingleSessionFactory messageSessionFactory;
 
     /**
-     * The tubemq pull consumer.
+     * The TubeMQ pull consumer.
      */
     private transient PullMessageConsumer messagePullConsumer;
 
+    /**
+     * Build a TubeMQ source function
+     *
+     * @param masterAddress            the master address of TubeMQ
+     * @param topic                    the topic name
+     * @param tidSet                   the  topic's filter condition items
+     * @param consumerGroup            the consumer group name
+     * @param deserializationSchema    the deserialize schema
+     * @param configuration            the configure
+     */
     public TubemqSourceFunction(
         String masterAddress,
         String topic,

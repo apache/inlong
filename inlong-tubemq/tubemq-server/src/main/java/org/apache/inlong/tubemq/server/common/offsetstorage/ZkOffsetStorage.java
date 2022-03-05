@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.server.broker.exception.OffsetStoreException;
-import org.apache.inlong.tubemq.server.broker.stats.ServiceStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fileconfig.ZKConfig;
 import org.apache.inlong.tubemq.server.common.offsetstorage.zookeeper.ZKUtil;
@@ -65,9 +65,16 @@ public class ZkOffsetStorage implements OffsetStorage {
     private final boolean isBroker;
     private final int brokerId;
     private final String strBrokerId;
-    private ZKConfig zkConfig;
+    private final ZKConfig zkConfig;
     private ZooKeeperWatcher zkw;
 
+    /**
+     * Initial ZooKeeper offset storage ojbect
+     *
+     * @param zkConfig   the ZooKeeper configure
+     * @param isBroker   whether used in broker node
+     * @param brokerId   the broker id
+     */
     public ZkOffsetStorage(final ZKConfig zkConfig, boolean isBroker, int brokerId) {
         this.zkConfig = zkConfig;
         this.isBroker = isBroker;
@@ -78,7 +85,7 @@ public class ZkOffsetStorage implements OffsetStorage {
         try {
             this.zkw = new ZooKeeperWatcher(zkConfig);
         } catch (Throwable e) {
-            ServiceStatsHolder.incZKExcCnt();
+            BrokerSrvStatsHolder.incZKExcCnt();
             logger.error(new StringBuilder(256)
                     .append("[ZkOffsetStorage] Failed to connect ZooKeeper server (")
                     .append(this.zkConfig.getZkServerAddr()).append(") !").toString(), e);
@@ -142,7 +149,7 @@ public class ZkOffsetStorage implements OffsetStorage {
         try {
             offsetZkInfo = ZKUtil.readDataMaybeNull(this.zkw, znode);
         } catch (KeeperException e) {
-            ServiceStatsHolder.incZKExcCnt();
+            BrokerSrvStatsHolder.incZKExcCnt();
             logger.error("KeeperException during load offsets from ZooKeeper", e);
             return null;
         }
@@ -182,7 +189,7 @@ public class ZkOffsetStorage implements OffsetStorage {
             try {
                 ZKUtil.updatePersistentPath(this.zkw, offsetPath, offsetData);
             } catch (final Throwable t) {
-                ServiceStatsHolder.incZKExcCnt();
+                BrokerSrvStatsHolder.incZKExcCnt();
                 logger.error("Exception during commit offsets to ZooKeeper", t);
                 throw new OffsetStoreException(t);
             }
@@ -223,7 +230,7 @@ public class ZkOffsetStorage implements OffsetStorage {
                     offsetMap.put(partitionId, Long.parseLong(offsetInfoStrs[1]));
                 }
             } catch (Throwable e) {
-                ServiceStatsHolder.incZKExcCnt();
+                BrokerSrvStatsHolder.incZKExcCnt();
                 offsetMap.put(partitionId, null);
             }
         }
@@ -302,9 +309,8 @@ public class ZkOffsetStorage implements OffsetStorage {
 
     /**
      * Get offset stored in zookeeper, if not found or error, set null
-     * <p/>
      *
-     * @return partitionId--offset map info
+     * @param groupTopicPartMap   the group topic-partition map
      */
     @Override
     public void deleteGroupOffsetInfo(
@@ -371,5 +377,4 @@ public class ZkOffsetStorage implements OffsetStorage {
             return root;
         }
     }
-
 }

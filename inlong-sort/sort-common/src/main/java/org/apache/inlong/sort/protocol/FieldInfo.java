@@ -22,14 +22,18 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class FieldInfo {
+public class FieldInfo implements Serializable {
+
+    private static final long serialVersionUID = 5871970550803344673L;
+
     @JsonProperty("name")
     private final String name;
 
     @JsonProperty("format_info")
-    private final FormatInfo formatInfo;
+    private FormatInfo formatInfo;
 
     @JsonCreator
     public FieldInfo(
@@ -45,6 +49,10 @@ public class FieldInfo {
 
     public FormatInfo getFormatInfo() {
         return formatInfo;
+    }
+
+    public void setFormatInfo(FormatInfo formatInfo) {
+        this.formatInfo = formatInfo;
     }
 
     @Override

@@ -61,10 +61,10 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
     // -1: Uninitialized
     // 0: Running
     // 1:Stopped
-    private AtomicInteger statusId = new AtomicInteger(-1);
+    private final AtomicInteger statusId = new AtomicInteger(-1);
     private long lastPrintTime = System.currentTimeMillis();
     // Total sent request number.
-    private AtomicLong curTotalSentRequestNum = new AtomicLong(0);
+    private final AtomicLong curTotalSentRequestNum = new AtomicLong(0);
     // The time of last link quality statistic.
     private long lastLinkStatisticTime = System.currentTimeMillis();
     // Analyze the broker quality based on the request response. We calculate the quality metric by
@@ -77,6 +77,12 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
     private long lastQualityStatisticTime = System.currentTimeMillis();
     private long printCount = 0;
 
+    /**
+     * Initial a broker receive status statistics ojbect
+     *
+     * @param rpcServiceFactory  the session factory
+     * @param producerConfig     the producer configure
+     */
     public DefaultBrokerRcvQltyStats(final RpcServiceFactory rpcServiceFactory,
                                      final TubeClientConfig producerConfig) {
         this.clientConfig = producerConfig;
@@ -120,7 +126,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
      *
      * @param brokerPartList broker partition mapping
      * @return partition list
-     * @throws TubeClientException
+     * @throws TubeClientException  the exception while query
      */
     @Override
     public List<Partition> getAllowedBrokerPartitions(
@@ -212,7 +218,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
     /**
      * Remove a registered broker from the statistic list.
      *
-     * @param registeredBrokerIdList
+     * @param registeredBrokerIdList   the broker id need to delete
      */
     @Override
     public void removeUnRegisteredBroker(List<Integer> registeredBrokerIdList) {

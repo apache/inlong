@@ -17,6 +17,8 @@
 
 package org.apache.inlong.agent.db;
 
+import org.apache.inlong.common.db.CommandEntity;
+
 import java.io.Closeable;
 import java.util.List;
 import javax.management.openmbean.KeyAlreadyExistsException;

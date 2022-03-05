@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 @Data
 public class DataProxyClusterEntity implements Serializable {
@@ -31,8 +32,8 @@ public class DataProxyClusterEntity implements Serializable {
     private String address;
     private String port;
     private Integer isBackup;
-    private Integer isInnerIp;
-    private String netType;
+    private String mqSetName;
+    private String extParams;
     private String inCharges;
     private Integer status;
     private Integer isDeleted;
@@ -40,6 +41,5 @@ public class DataProxyClusterEntity implements Serializable {
     private String modifier;
     private Date createTime;
     private Date modifyTime;
-    private String extProps;
 
 }

@@ -47,8 +47,13 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_LOCAL_IP;
 
 public class AgentUtils {
 
@@ -79,6 +84,14 @@ public class AgentUtils {
             LOGGER.warn("cannot get md5 of {}", file, ex);
         }
         return "";
+    }
+
+    /**
+     * return system current time
+     * @return
+     */
+    public static long getCurrentTime() {
+        return System.currentTimeMillis();
     }
 
     /**
@@ -318,6 +331,23 @@ public class AgentUtils {
     public static String getmValue(String addictiveAttr) {
         Pair<String, Map<String, String>> mValueAttrs = parseAddAttr(addictiveAttr);
         return mValueAttrs.getLeft();
+    }
+
+    /**
+     * check agent ip from manager
+     */
+    public static String fetchLocalIp() {
+        String localIp = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_IP, DEFAULT_LOCAL_IP);
+        return localIp;
+    }
+
+    /**
+     * check agent uuid from manager
+     */
+    public static String  fetchLocalUuid() {
+        String result = ExcuteLinux.exeCmd("dmidecode | grep UUID");
+        String  uuid = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_UUID, result);
+        return uuid;
     }
 
     /**

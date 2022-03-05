@@ -94,9 +94,9 @@ export const genFormContent = (currentValues, inlongGroupId, middlewareType) => 
             </Divider>
           ),
         },
-        'dataStorage',
-        'dataStorageHIVE',
-        'dataStorageCLICK_HOUSE',
+        'streamSink',
+        'streamSinkHIVE',
+        'streamSinkCLICK_HOUSE',
       ],
       currentValues,
       extraParams,

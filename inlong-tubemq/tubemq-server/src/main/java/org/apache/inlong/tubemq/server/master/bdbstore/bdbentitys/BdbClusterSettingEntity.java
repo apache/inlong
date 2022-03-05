@@ -73,7 +73,31 @@ public class BdbClusterSettingEntity implements Serializable {
     public BdbClusterSettingEntity() {
     }
 
-    //Constructor
+    /**
+     * Build cluster setting entity
+     *
+     * @param recordKey              the record key
+     * @param configId               the configure id
+     * @param brokerPort             the broker port
+     * @param brokerTLSPort          the broker TLS port
+     * @param brokerWebPort          the broker web port
+     * @param numTopicStores         the number of topic store
+     * @param numPartitions          the number of partition
+     * @param unflushThreshold       the un-flushed message count
+     * @param unflushInterval        the un-flushed time delta
+     * @param unflushDataHold        the un-flushed data size
+     * @param memCacheMsgCntInK      the memory cached message count
+     * @param memCacheFlushIntvl     the memory cached time delta
+     * @param memCacheMsgSizeInMB    the memory cached message size
+     * @param acceptPublish          whether accept publish
+     * @param acceptSubscribe        whether accept subscribe
+     * @param deletePolicy           the delete policy
+     * @param qryPriorityId          the query priority id
+     * @param maxMsgSizeInB          the default message max size
+     * @param attributes          the attribute information
+     * @param modifyUser          the modifier
+     * @param modifyDate          the modify date
+     */
     public BdbClusterSettingEntity(String recordKey, long configId, int brokerPort,
                                    int brokerTLSPort, int brokerWebPort,
                                    int numTopicStores, int numPartitions,

@@ -29,6 +29,8 @@ import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
 
 public class ClickhouseRowSinkFunction extends RichSinkFunction<Row> implements CheckpointedFunction {
 
+    private static final long serialVersionUID = -2043675961013551232L;
+
     private final ClickHouseSinkFunction clickHouseSinkFunction;
 
     public ClickhouseRowSinkFunction(ClickHouseSinkInfo clickHouseSinkInfo) {

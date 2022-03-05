@@ -23,7 +23,6 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkFixedPartitioner;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.configuration.Configuration;
-import org.apache.inlong.sort.singletenant.flink.serialization.RowSerializationSchemaFactory;
 import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
@@ -37,16 +36,15 @@ public class KafkaSinkBuilder {
     public static SinkFunction<Row> buildKafkaSink(
             KafkaSinkInfo kafkaSinkInfo,
             Map<String, Object> properties,
+            SerializationSchema<Row> schema,
             Configuration config
     ) {
         String topic = kafkaSinkInfo.getTopic();
         Properties producerProperties = buildProducerProperties(properties, kafkaSinkInfo.getAddress());
-        SerializationSchema<Row> serializationSchema =
-                RowSerializationSchemaFactory.build(kafkaSinkInfo, kafkaSinkInfo.getSerializationInfo());
 
         return new FlinkKafkaProducer<>(
                 topic,
-                serializationSchema,
+                schema,
                 producerProperties,
                 new FlinkFixedPartitioner<>(),
                 FlinkKafkaProducer.Semantic.EXACTLY_ONCE,
@@ -60,4 +58,5 @@ public class KafkaSinkBuilder {
         producerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, address);
         return producerProperties;
     }
+
 }

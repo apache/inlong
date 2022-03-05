@@ -283,7 +283,8 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
      * @return if equals
      */
     public boolean isDataEquals(GroupConsumeCtrlEntity other) {
-        return recordKey.equals(other.recordKey)
+        return super.isDataEquals(other)
+                && recordKey.equals(other.recordKey)
                 && Objects.equals(topicName, other.topicName)
                 && Objects.equals(groupName, other.groupName)
                 && consumeEnable == other.consumeEnable

@@ -17,10 +17,10 @@
 
 package org.apache.inlong.agent.core.trigger;
 
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_TRIGGER_MAX_RUNNING_NUM;
-import static org.apache.inlong.agent.constants.AgentConstants.TRIGGER_MAX_RUNNING_NUM;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constants.JobConstants.TRIGGER_ONLY_ONE_JOB;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_TRIGGER_MAX_RUNNING_NUM;
+import static org.apache.inlong.agent.constant.AgentConstants.TRIGGER_MAX_RUNNING_NUM;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
+import static org.apache.inlong.agent.constant.JobConstants.TRIGGER_ONLY_ONE_JOB;
 
 import java.util.List;
 import java.util.Map;
@@ -30,8 +30,8 @@ import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.constants.AgentConstants;
-import org.apache.inlong.agent.constants.JobConstants;
+import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.core.job.JobWrapper;
 import org.apache.inlong.agent.db.TriggerProfileDb;

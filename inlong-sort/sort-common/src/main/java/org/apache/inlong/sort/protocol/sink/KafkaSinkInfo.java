@@ -24,6 +24,8 @@ import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 
 import java.util.Objects;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class KafkaSinkInfo extends SinkInfo {
 
     private static final long serialVersionUID = 161617117094475954L;
@@ -45,8 +47,8 @@ public class KafkaSinkInfo extends SinkInfo {
             @JsonProperty("serialization_info") SerializationInfo serializationInfo
     ) {
         super(fields);
-        this.address = address;
-        this.topic = topic;
+        this.address = checkNotNull(address);
+        this.topic = checkNotNull(topic);
         this.serializationInfo = serializationInfo;
     }
 

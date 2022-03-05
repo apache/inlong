@@ -21,10 +21,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.metric.impl.ESTHistogram;
 import org.apache.inlong.tubemq.corebase.metric.impl.SimpleHistogram;
 import org.apache.inlong.tubemq.corebase.metric.impl.SinceTime;
-import org.apache.inlong.tubemq.server.common.TServerConstants;
 
 /**
  * WebCallStatsHolder, statistic for web api calls
@@ -40,6 +40,8 @@ public class WebCallStatsHolder {
     private static final AtomicInteger writableIndex = new AtomicInteger(0);
     // Last snapshot time
     private static final AtomicLong lstSnapshotTime = new AtomicLong(0);
+    // whether the statistic is manual closed
+    private static volatile boolean isManualClosed = false;
 
     // Initial service statistic set
     static {
@@ -57,38 +59,45 @@ public class WebCallStatsHolder {
     }
 
     public static void snapShort(Map<String, Long> statsMap) {
-        long curSnapshotTime = lstSnapshotTime.get();
-        // Avoid frequent snapshots
-        if ((System.currentTimeMillis() - curSnapshotTime)
-                >= TServerConstants.MIN_SNAPSHOT_PERIOD_MS) {
-            if (lstSnapshotTime.compareAndSet(curSnapshotTime, System.currentTimeMillis())) {
-                int befIndex = writableIndex.getAndIncrement();
-                switchableSets[getIndex()].resetSinceTime();
-                getStatsValue(switchableSets[getIndex(befIndex)], true, statsMap);
-                return;
-            }
+        if (switchWritingStatsUnit()) {
+            getStatsValue(switchableSets[getIndex(writableIndex.get() - 1)], true, statsMap);
+        } else {
+            getStatsValue(switchableSets[getIndex()], false, statsMap);
         }
-        getValue(statsMap);
     }
 
     public static void snapShort(StringBuilder strBuff) {
-        long curSnapshotTime = lstSnapshotTime.get();
-        // Avoid frequent snapshots
-        if ((System.currentTimeMillis() - curSnapshotTime)
-                >= TServerConstants.MIN_SNAPSHOT_PERIOD_MS) {
-            if (lstSnapshotTime.compareAndSet(curSnapshotTime, System.currentTimeMillis())) {
-                int befIndex = writableIndex.getAndIncrement();
-                switchableSets[getIndex()].resetSinceTime();
-                getStatsValue(switchableSets[getIndex(befIndex)], true, strBuff);
-                return;
-            }
+        if (switchWritingStatsUnit()) {
+            getStatsValue(switchableSets[getIndex(writableIndex.get() - 1)], true, strBuff);
+        } else {
+            getStatsValue(switchableSets[getIndex()], false, strBuff);
         }
-        getValue(strBuff);
+    }
+
+    /**
+     * Set manually the statistic status.
+     *
+     * @param enableStats  enable or disable the statistic.
+     */
+    public static synchronized void setStatsStatus(boolean enableStats) {
+        WebCallStatsHolder.isManualClosed = !enableStats;
+    }
+
+    /**
+     * Query whether the statistic is closed.
+     *
+     * @return the statistic status
+     */
+    public static boolean isStatsClosed() {
+        return WebCallStatsHolder.isManualClosed;
     }
     // metric set operate APIs end
 
     // metric item operate APIs begin
     public static void addMethodCall(String method, long callDlt) {
+        if (isManualClosed) {
+            return;
+        }
         method = (method == null) ? "NULL" : method;
         WebCallStatsItemSet webCallStatsSet = switchableSets[getIndex()];
         webCallStatsSet.totalCallStats.update(callDlt);
@@ -105,22 +114,31 @@ public class WebCallStatsHolder {
     // metric set operate APIs end
 
     // private functions
+    private static boolean switchWritingStatsUnit() {
+        long curSnapshotTime = lstSnapshotTime.get();
+        // Avoid frequent snapshots
+        if ((System.currentTimeMillis() - curSnapshotTime)
+                >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
+            if (lstSnapshotTime.compareAndSet(curSnapshotTime, System.currentTimeMillis())) {
+                switchableSets[getIndex(writableIndex.incrementAndGet())].resetSinceTime();
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static void getStatsValue(WebCallStatsItemSet statsSet,
                                       boolean resetValue,
                                       Map<String, Long> statsMap) {
         statsMap.put(statsSet.lstResetTime.getFullName(),
                 statsSet.lstResetTime.getSinceTime());
+        statsMap.put("isClosed", (isManualClosed ? 1L : 0L));
         if (resetValue) {
             statsSet.totalCallStats.snapShort(statsMap, false);
-            for (SimpleHistogram itemStats : statsSet.methodStatsMap.values()) {
-                itemStats.snapShort(statsMap, false);
-            }
         } else {
             statsSet.totalCallStats.getValue(statsMap, false);
-            for (SimpleHistogram itemStats : statsSet.methodStatsMap.values()) {
-                itemStats.getValue(statsMap, false);
-            }
         }
+        statsSet.getMethodStatsInfo(statsMap, resetValue);
     }
 
     private static void getStatsValue(WebCallStatsItemSet statsSet,
@@ -128,29 +146,15 @@ public class WebCallStatsHolder {
                                       StringBuilder strBuff) {
         strBuff.append("{\"").append(statsSet.lstResetTime.getFullName())
                 .append("\":\"").append(statsSet.lstResetTime.getStrSinceTime())
-                .append("\",");
-        int totalcnt = 0;
+                .append("\",\"isClosed\":").append(isManualClosed).append(",");
         if (resetValue) {
             statsSet.totalCallStats.snapShort(strBuff, false);
-            strBuff.append(",\"").append("methods\":{");
-            for (SimpleHistogram itemStats : statsSet.methodStatsMap.values()) {
-                if (totalcnt++ > 0) {
-                    strBuff.append(",");
-                }
-                itemStats.snapShort(strBuff, false);
-            }
-            strBuff.append("}}");
         } else {
             statsSet.totalCallStats.getValue(strBuff, false);
-            strBuff.append(",\"").append("methods\":{");
-            for (SimpleHistogram itemStats : statsSet.methodStatsMap.values()) {
-                if (totalcnt++ > 0) {
-                    strBuff.append(",");
-                }
-                itemStats.getValue(strBuff, false);
-            }
-            strBuff.append("}}");
         }
+        strBuff.append(",");
+        statsSet.getMethodStatsInfo(strBuff, resetValue);
+        strBuff.append("}");
     }
 
     /**
@@ -193,6 +197,45 @@ public class WebCallStatsHolder {
 
         public void resetSinceTime() {
             this.lstResetTime.reset();
+        }
+
+        /**
+         * Gets the method statistics information
+         *
+         * @param statsMap    the statistics content contain
+         * @param resetValue  whether reset value
+         */
+        public void getMethodStatsInfo(Map<String, Long> statsMap, boolean resetValue) {
+            for (SimpleHistogram itemStats : methodStatsMap.values()) {
+                itemStats.getValue(statsMap, false);
+            }
+            if (resetValue) {
+                methodStatsMap.clear();
+            }
+        }
+
+        /**
+         * Gets the method statistics information
+         *
+         * @param strBuff     the statistics content contain
+         * @param resetValue  whether reset value
+         */
+        public void getMethodStatsInfo(StringBuilder strBuff, boolean resetValue) {
+            int totalCnt = 0;
+            strBuff.append("\"").append("methods\":{");
+            for (SimpleHistogram itemStats : methodStatsMap.values()) {
+                if (itemStats == null) {
+                    continue;
+                }
+                if (totalCnt++ > 0) {
+                    strBuff.append(",");
+                }
+                itemStats.getValue(strBuff, false);
+            }
+            strBuff.append("}");
+            if (resetValue) {
+                methodStatsMap.clear();
+            }
         }
     }
 }

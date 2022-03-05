@@ -45,7 +45,10 @@ public class ClusterRequest {
     @ApiModelProperty(value = "Whether to backup the cluster")
     private Integer isBackup;
 
-    @ApiModelProperty(value = "state")
+    @ApiModelProperty(value = "Status")
     private Integer status;
+
+    @ApiModelProperty(value = "MQ set name")
+    private String mqSetName;
 
 }

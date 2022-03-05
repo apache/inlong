@@ -89,6 +89,13 @@ public class RequestDispatcher {
         executeTarget(context, context.getTarget(), TYPE_LAYOUT);
     }
 
+    /**
+     * Execute required method service
+     * @param context   the context
+     * @param target    the target information
+     * @param type      the operation type
+     * @throws Exception the exception
+     */
     public void executeTarget(RequestContext context,
                               String target, String type) throws Exception {
         String targetKey = getActionKey(type, target);
@@ -162,6 +169,11 @@ public class RequestDispatcher {
                 .append("/").append(target).append(".vm").toString();
     }
 
+    /**
+     * Get layout information
+     * @param target  the target information
+     * @return   the layout information
+     */
     public String getLayout(String target) {
         String layout = null;
         String[] targetPaths = target.split("/");

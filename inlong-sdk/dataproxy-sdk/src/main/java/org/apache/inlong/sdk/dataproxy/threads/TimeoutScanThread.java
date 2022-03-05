@@ -18,6 +18,7 @@
 
 package org.apache.inlong.sdk.dataproxy.threads;
 
+import io.netty.channel.Channel;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,7 +29,6 @@ import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.network.QueueObject;
 import org.apache.inlong.sdk.dataproxy.network.TimeScanObject;
-import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +114,7 @@ public class TimeoutScanThread extends Thread {
 
                 if (timeScanObject.getCurTimeoutCount() > config.getMaxTimeoutCnt()) {
                     timeoutChannelStat.remove(tmpChannel);
-                    if (tmpChannel.isOpen() && tmpChannel.isConnected()) {
+                    if (tmpChannel.isOpen() && tmpChannel.isActive()) {
                         clientMgr.setConnectionBusy(tmpChannel);
                         logger.error("this client {} is busy!", tmpChannel);
                     }

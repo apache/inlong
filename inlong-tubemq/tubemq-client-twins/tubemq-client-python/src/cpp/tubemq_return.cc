@@ -32,7 +32,7 @@ PYBIND11_MODULE(tubemq_return, m) {
         .def(py::init<>())
         .def(py::init<const ConsumerResult&>())
         .def(py::init<int32_t, string>())
-        .def("setFailureResult", static_cast<void (ConsumerResult::*)\
+        .def("setFailureResult", static_cast<void(ConsumerResult::*) \
         (int32_t, string)>(&ConsumerResult::SetFailureResult), "set Failure Result")
         .def("isSuccess", &ConsumerResult::IsSuccess)
         .def("getErrCode", &ConsumerResult::GetErrCode)

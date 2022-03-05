@@ -29,15 +29,15 @@ import org.apache.flume.conf.Configurables;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.lifecycle.LifecycleController;
 import org.apache.flume.lifecycle.LifecycleState;
+import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.powermock.modules.testng.PowerMockTestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
 import org.testng.Assert;
 
-public class TestPulsarSink {
+public class TestPulsarSink extends PowerMockTestCase {
     private static final Logger logger = LoggerFactory
             .getLogger(TestPulsarSink.class);
     private static final String hostname = "127.0.0.1";
@@ -48,17 +48,18 @@ public class TestPulsarSink {
 
     private PulsarSink sink;
     private Channel channel;
+//    private ThirdPartyClusterConfig pulsarConfig = new ThirdPartyClusterConfig();
+//    private Map<String, String> url2token;
 
-    @BeforeClass
+    @Mock
+    private static ConfigManager configManager;
+
     public void setUp() {
         sink = new PulsarSink();
         channel = new MemoryChannel();
-
+//        url2token = ConfigManager.getInstance().getThirdPartyClusterUrl2Token();
         Context context = new Context();
-
         context.put("type", "org.apache.inlong.dataproxy.sink.PulsarSink");
-        context.put("pulsar_server_url_list", "pulsar://127.0.0.1:6650");
-
         sink.setChannel(channel);
 
         Configurables.configure(sink, context);
@@ -92,5 +93,4 @@ public class TestPulsarSink {
         Assert.assertTrue(LifecycleController.waitForOneOf(sink,
                 LifecycleState.STOP_OR_ERROR, 5000));
     }
-
 }

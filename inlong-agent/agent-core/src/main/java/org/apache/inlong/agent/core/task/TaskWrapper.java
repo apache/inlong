@@ -23,9 +23,10 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.constants.AgentConstants;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.message.EndMessage;
 import org.apache.inlong.agent.plugin.Message;
@@ -58,16 +59,16 @@ public class TaskWrapper extends AbstractStateWrapper {
         this.task = task;
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         maxRetryTime = conf.getInt(
-            AgentConstants.TASK_MAX_RETRY_TIME, AgentConstants.DEFAULT_TASK_MAX_RETRY_TIME);
+                AgentConstants.TASK_MAX_RETRY_TIME, AgentConstants.DEFAULT_TASK_MAX_RETRY_TIME);
         pushMaxWaitTime = conf.getInt(
-            AgentConstants.TASK_PUSH_MAX_SECOND, AgentConstants.DEFAULT_TASK_PUSH_MAX_SECOND);
+                AgentConstants.TASK_PUSH_MAX_SECOND, AgentConstants.DEFAULT_TASK_PUSH_MAX_SECOND);
         pullMaxWaitTime = conf.getInt(
-            AgentConstants.TASK_PULL_MAX_SECOND, AgentConstants.DEFAULT_TASK_PULL_MAX_SECOND);
+                AgentConstants.TASK_PULL_MAX_SECOND, AgentConstants.DEFAULT_TASK_PULL_MAX_SECOND);
         if (executorService == null) {
             executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
-                60L, TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>(),
-                new AgentThreadFactory("task-reader-writer"));
+                    60L, TimeUnit.SECONDS,
+                    new SynchronousQueue<Runnable>(),
+                    new AgentThreadFactory("task-reader-writer"));
         }
         doChangeState(State.ACCEPTED);
     }
@@ -87,7 +88,7 @@ public class TaskWrapper extends AbstractStateWrapper {
                 }
             }
             LOGGER.info("read end, task exception status is {}, read finish status is {}",
-                isException(), task.isReadFinished());
+                    isException(), task.isReadFinished());
             // write end message
             task.getChannel().push(new EndMessage());
         }, executorService);
@@ -139,6 +140,16 @@ public class TaskWrapper extends AbstractStateWrapper {
     void waitForFinish() {
         LOGGER.info("set readTime out to 1 minute task id is {}", task.getTaskId());
         task.getReader().setReadTimeout(TimeUnit.MINUTES.toMillis(WAIT_FINISH_TIME_OUT));
+    }
+
+
+
+    /**
+     * destroy task
+     */
+    void destroyTask() {
+        LOGGER.info("destroy task id is {}", task.getTaskId());
+        task.getReader().destroy();
     }
 
     /**

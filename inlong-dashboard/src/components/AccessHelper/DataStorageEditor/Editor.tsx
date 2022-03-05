@@ -93,13 +93,13 @@ const Comp = ({
     const isUpdate = detailModal.id;
     const submitData = {
       ...values,
-      storageType: type,
+      sinkType: type,
       inlongGroupId,
       inlongStreamId,
     };
     if (isUpdate) submitData.id = detailModal.id;
     const newId = await request({
-      url: `/storage/${isUpdate ? 'update' : 'save'}`,
+      url: `/sink/${isUpdate ? 'update' : 'save'}`,
       method: 'POST',
       data: submitData,
     });
@@ -118,10 +118,10 @@ const Comp = ({
         title: t('basic.DeleteConfirm'),
         onOk: async () => {
           await request({
-            url: `/storage/delete/${id}`,
+            url: `/sink/delete/${id}`,
             method: 'DELETE',
             params: {
-              storageType: type,
+              sinkType: type,
             },
           });
           resolve(true);
@@ -147,7 +147,7 @@ const Comp = ({
     setDetailModal({
       visible: true,
       id: useActionRequest ? record?.id : true,
-      _etid: record._etid,
+      _etid: record?._etid,
       record,
     });
   };
@@ -217,7 +217,7 @@ const Comp = ({
         id={detailModal.id !== true && detailModal.id}
         dataType={dataType}
         defaultRowTypeFields={defaultRowTypeFields}
-        storageType={type}
+        sinkType={type}
         onOk={async values => {
           const isUpdate = detailModal.id;
           const id = useActionRequest ? await onSaveRequest(values) : '';

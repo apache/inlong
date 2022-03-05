@@ -18,6 +18,13 @@
 package org.apache.inlong.dataproxy.source;
 
 import com.google.common.base.Preconditions;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.util.concurrent.DefaultThreadFactory;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import java.lang.reflect.Constructor;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.ChannelSelector;
@@ -29,14 +36,9 @@ import org.apache.flume.conf.Configurables;
 import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.dataproxy.channel.FailoverChannelProcessor;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.commons.monitor.MonitorIndex;
-import org.apache.inlong.commons.monitor.MonitorIndexExt;
+import org.apache.inlong.common.monitor.MonitorIndex;
+import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.dataproxy.utils.FailoverChannelProcessorHolder;
-import org.jboss.netty.bootstrap.Bootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,11 +94,17 @@ public abstract class BaseSource
    * netty server
    */
 
-  protected Bootstrap serverBootstrap = null;
+  protected EventLoopGroup acceptorGroup;
+
+  protected EventLoopGroup workerGroup;
+
+  protected DefaultThreadFactory acceptorThreadFactory;
+
+  protected boolean enableBusyWait = false;
 
   protected ChannelGroup allChannels;
 
-  protected Channel nettyChannel = null;
+  protected ChannelFuture channelFuture;
 
   private static String HOST_DEFAULT_VALUE = "0.0.0.0";
 
@@ -114,13 +122,29 @@ public abstract class BaseSource
 
   private static int INTERVAL_SEC = 60;
 
+  protected static int BUFFER_SIZE_MUST_THAN = 0;
+
   protected static int DEFAULT_MAX_THREADS = 32;
+
+  protected static int RECEIVE_BUFFER_DEFAULT_SIZE = 64 * 1024;
+
+  protected static int SEND_BUFFER_DEFAULT_SIZE = 64 * 1024;
+
+  protected static int RECEIVE_BUFFER_MAX_SIZE = 16 * 1024 * 1024;
+
+  protected static int SEND_BUFFER_MAX_SIZE = 16 * 1024 * 1024;
+
+  protected int receiveBufferSize;
+
+  protected int sendBufferSize;
 
   protected int maxThreads = 32;
 
+  protected int acceptorThreads = 1;
+
   public BaseSource() {
     super();
-    allChannels = new DefaultChannelGroup();
+    allChannels = new DefaultChannelGroup("DefaultChannelGroup", GlobalEventExecutor.INSTANCE);
   }
 
   @Override
@@ -149,27 +173,26 @@ public abstract class BaseSource
       try {
         allChannels.close().awaitUninterruptibly();
       } catch (Exception e) {
-        logger.warn("Simple UDP Source netty server stop ex, {}", e);
+        logger.warn("Simple Source netty server stop ex, {}", e);
       } finally {
         allChannels.clear();
       }
     }
 
-    if (serverBootstrap != null) {
-      try {
-        serverBootstrap.releaseExternalResources();
-      } catch (Exception e) {
-        logger.warn("Simple UDP Source serverBootstrap stop ex {}", e);
-      } finally {
-        serverBootstrap = null;
-      }
-    }
     super.stop();
     if (monitorIndex != null) {
       monitorIndex.shutDown();
     }
     if (monitorIndexExt != null) {
       monitorIndexExt.shutDown();
+    }
+
+    if (channelFuture != null) {
+      try {
+        channelFuture.channel().closeFuture().sync();
+      } catch (InterruptedException e) {
+        logger.warn("Simple Source netty server stop ex, {}", e);
+      }
     }
     logger.info("[STOP {} SOURCE]{} stopped", this.getProtocolName(), this.getName());
   }
@@ -245,6 +268,22 @@ public abstract class BaseSource
               context.getString(ConfigConstants.MAX_THREADS));
     }
 
+    receiveBufferSize = context.getInteger(ConfigConstants.RECEIVE_BUFFER_SIZE, RECEIVE_BUFFER_DEFAULT_SIZE);
+    if (receiveBufferSize > RECEIVE_BUFFER_MAX_SIZE) {
+      receiveBufferSize = RECEIVE_BUFFER_MAX_SIZE;
+    }
+    Preconditions.checkArgument(receiveBufferSize > BUFFER_SIZE_MUST_THAN,
+            "receiveBufferSize must be > 0");
+
+    sendBufferSize = context.getInteger(ConfigConstants.SEND_BUFFER_SIZE, SEND_BUFFER_DEFAULT_SIZE);
+    if (sendBufferSize > SEND_BUFFER_MAX_SIZE) {
+      sendBufferSize = SEND_BUFFER_MAX_SIZE;
+    }
+    Preconditions.checkArgument(sendBufferSize > BUFFER_SIZE_MUST_THAN,
+            "sendBufferSize must be > 0");
+
+    enableBusyWait = context.getBoolean(ConfigConstants.ENABLE_BUSY_WAIT, false);
+
     this.customProcessor = context.getBoolean(ConfigConstants.CUSTOM_CHANNEL_PROCESSOR, false);
   }
 
@@ -252,21 +291,21 @@ public abstract class BaseSource
    * channel factory
    * @return
    */
-  public ChannelPipelineFactory getChannelPiplineFactory() {
+  public ChannelInitializer getChannelInitializerFactory() {
     logger.info(new StringBuffer("load msgFactory=").append(msgFactoryName)
             .append(" and serviceDecoderName=").append(serviceDecoderName).toString());
-    ChannelPipelineFactory fac = null;
+    ChannelInitializer fac = null;
     try {
       ServiceDecoder serviceDecoder = (ServiceDecoder)Class.forName(serviceDecoderName).newInstance();
-      Class<? extends ChannelPipelineFactory> clazz =
-              (Class<? extends ChannelPipelineFactory>) Class.forName(msgFactoryName);
+      Class<? extends ChannelInitializer> clazz =
+              (Class<? extends ChannelInitializer>) Class.forName(msgFactoryName);
       Constructor ctor = clazz.getConstructor(AbstractSource.class, ChannelGroup.class,
               String.class, ServiceDecoder.class, String.class, Integer.class,
               String.class, String.class, Boolean.class,
               Integer.class, Boolean.class, MonitorIndex.class,
               MonitorIndexExt.class, String.class);
       logger.info("Using channel processor:{}", getChannelProcessor().getClass().getName());
-      fac = (ChannelPipelineFactory) ctor.newInstance(this, allChannels,
+      fac = (ChannelInitializer) ctor.newInstance(this, allChannels,
               this.getProtocolName(), serviceDecoder, messageHandlerName, maxMsgLength,
               topic, attr, filterEmptyMsg,
               maxConnections, isCompressed, monitorIndex,

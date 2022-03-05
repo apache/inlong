@@ -40,7 +40,7 @@ public class FileAgentTaskConfig {
     @ApiModelProperty(value = "Command delivery time")
     private Date deliveryTime;
 
-    @ApiModelProperty(value = "Task id")
+    @ApiModelProperty(value = "WorkflowTask id")
     private int taskId;
 
     @ApiModelProperty(value = "Agent IP")

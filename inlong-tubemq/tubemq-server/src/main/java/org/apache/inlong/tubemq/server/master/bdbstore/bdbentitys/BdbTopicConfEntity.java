@@ -60,7 +60,27 @@ public class BdbTopicConfEntity implements Serializable {
     public BdbTopicConfEntity() {
     }
 
-    //Constructor
+    /**
+     * Build topic configure entity
+     *
+     * @param brokerId            the broker id
+     * @param brokerIp            the broker ip
+     * @param brokerPort          the broker port
+     * @param topicName           the topic name
+     * @param numPartitions       the number of partition
+     * @param unflushThreshold    the un-flushed message count
+     * @param unflushInterval     the un-flushed time delta
+     * @param deleteWhen          the delete time
+     * @param deletePolicy        the delete policy
+     * @param acceptPublish       whether accept publish
+     * @param acceptSubscribe     whether accept subscribe
+     * @param numTopicStores      the number of topic store
+     * @param attributes          the attribute information
+     * @param createUser          the creator
+     * @param createDate          the create date
+     * @param modifyUser          the modifier
+     * @param modifyDate          the modify date
+     */
     public BdbTopicConfEntity(final int brokerId, final String brokerIp,
                               final int brokerPort, final String topicName,
                               final int numPartitions, final int unflushThreshold,

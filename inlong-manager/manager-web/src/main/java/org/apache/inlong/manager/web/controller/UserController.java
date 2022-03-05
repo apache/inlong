@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.pojo.user.UserDetail;
 import org.apache.inlong.manager.common.pojo.user.UserDetailListVO;
 import org.apache.inlong.manager.common.pojo.user.UserDetailPageRequest;
 import org.apache.inlong.manager.common.pojo.user.UserInfo;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -52,7 +52,7 @@ public class UserController {
     @PostMapping("/loginUser")
     @ApiOperation(value = "Get the logged-in user")
     public Response<UserDetail> currentUser() {
-        return Response.success(LoginUserUtil.getLoginUserDetail());
+        return Response.success(LoginUserUtils.getLoginUserDetail());
     }
 
     @PostMapping("/register")
@@ -71,7 +71,7 @@ public class UserController {
     @PostMapping("/update")
     @ApiOperation(value = "Update user info")
     public Response<Integer> update(@RequestBody UserInfo userInfo) {
-        String currentUser = LoginUserUtil.getLoginUserDetail().getUserName();
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
         return Response.success(userService.update(userInfo, currentUser));
     }
 
@@ -90,7 +90,7 @@ public class UserController {
     @DeleteMapping("/delete")
     @ApiOperation(value = "Delete user by id")
     public Response<Boolean> delete(@RequestParam("id") Integer id) {
-        String currentUser = LoginUserUtil.getLoginUserDetail().getUserName();
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
         return Response.success(userService.delete(id, currentUser));
     }
 

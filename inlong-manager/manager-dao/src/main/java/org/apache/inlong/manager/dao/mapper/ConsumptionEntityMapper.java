@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
+import org.apache.inlong.manager.common.pojo.common.CountInfo;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
-import org.apache.inlong.manager.common.model.view.CountByKey;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface ConsumptionEntityMapper {
@@ -44,6 +45,6 @@ public interface ConsumptionEntityMapper {
 
     List<ConsumptionEntity> listByQuery(ConsumptionQuery consumptionQuery);
 
-    List<CountByKey> countByStatus(ConsumptionQuery consumptionQuery);
+    List<CountInfo> countByQuery(ConsumptionQuery consumptionQuery);
 
 }

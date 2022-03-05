@@ -15,22 +15,21 @@
 # limitations under the License.
 #
 
-{{- if .Values.mysql.persistentVolumeClaim.enabled }}
+{{- if not .Values.external.mysql.enabled }}
+{{- if .Values.volumes.persistence }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
+  name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-{{ .Values.mysql.volumes.name }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "inlong.commonLabels" . | nindent 4 }}
     component: {{ .Values.mysql.component }}
 spec:
-  accessModes:
-    {{- range .Values.mysql.persistentVolumeClaim.accessModes }}
-    - {{ . | quote }}
-    {{- end }}
+  aaccessModes: [ "ReadWriteOnce" ]
   resources:
     requests:
-      storageClassName: {{ .Values.mysql.persistentVolumeClaim.storageClassName | quote }}
-      storage: {{ .Values.mysql.persistentVolumeClaim.storage | quote }}
+      storageClassName: {{ .Values.volumes.storageClassName | quote }}
+      storage: {{ .Values.mysql.volumes.size | quote }}
+{{- end }}
 {{- end }}

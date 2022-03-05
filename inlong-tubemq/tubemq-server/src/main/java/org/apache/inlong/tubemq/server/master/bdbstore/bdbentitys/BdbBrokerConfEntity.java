@@ -64,7 +64,28 @@ public class BdbBrokerConfEntity implements Serializable {
     public BdbBrokerConfEntity() {
     }
 
-    //Constructor
+    /**
+     * Build a broker configure entity
+     *
+     * @param brokerId            the broker id
+     * @param brokerIp            the broker ip
+     * @param brokerPort          the broker port
+     * @param numPartitions       the number of partition
+     * @param unflushThreshold    the un-flushed message count
+     * @param unflushInterval     the un-flushed time delta
+     * @param deleteWhen          the delete time
+     * @param deletePolicy        the delete policy
+     * @param manageStatus        the manage status
+     * @param acceptPublish       whether accept publish
+     * @param acceptSubscribe     whether accept subscribe
+     * @param attributes          the attribute information
+     * @param isConfDataUpdated   whether the configure is updated
+     * @param isBrokerLoaded      whether the broker has loaded
+     * @param createUser          the creator
+     * @param createDate          the create date
+     * @param modifyUser          the modifier
+     * @param modifyDate          the modify date
+     */
     public BdbBrokerConfEntity(final int brokerId, final String brokerIp,
                                final int brokerPort, final int numPartitions,
                                final int unflushThreshold, final int unflushInterval,
@@ -97,6 +118,9 @@ public class BdbBrokerConfEntity implements Serializable {
 
     /**
      * Serialize config field to json format
+     *
+     * @param sb  string buffer
+     * @return  the content in json format
      */
     public StringBuilder toJsonString(final StringBuilder sb) {
         return sb.append("{\"type\":\"BdbBrokerConfEntity\",")

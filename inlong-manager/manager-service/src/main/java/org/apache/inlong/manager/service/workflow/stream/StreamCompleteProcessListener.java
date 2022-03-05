@@ -19,29 +19,33 @@ package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EntityStatus;
-import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
-import org.apache.inlong.manager.service.core.BusinessService;
-import org.apache.inlong.manager.service.core.DataStreamService;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.process.ProcessEvent;
-import org.apache.inlong.manager.common.event.process.ProcessEventListener;
+import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
+import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.source.StreamSourceService;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
+import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Event listener for completed creation of data stream resource
+ * Event listener for completed creation of inlong stream resource
  */
 @Slf4j
 @Component
 public class StreamCompleteProcessListener implements ProcessEventListener {
 
     @Autowired
-    private BusinessService businessService;
+    private InlongGroupService groupService;
     @Autowired
-    private DataStreamService streamService;
+    private InlongStreamService streamService;
+    @Autowired
+    private StreamSourceService sourceService;
     @Autowired
     private SourceFileDetailEntityMapper fileDetailMapper;
 
@@ -51,22 +55,23 @@ public class StreamCompleteProcessListener implements ProcessEventListener {
     }
 
     /**
-     * The creation process ends normally, modify the status of business and all data stream
-     * belong to the business to [CONFIG_SUCCESSFUL]
+     * The creation process ends normally, modify the status of inlong group and other related info.
      */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) context.getProcessForm();
+        GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
         String streamId = form.getInlongStreamId();
-        String user = context.getApplicant();
+        String applicant = context.getApplicant();
 
-        // update business status
-        businessService.updateStatus(groupId, EntityStatus.BIZ_CONFIG_SUCCESSFUL.getCode(), user);
-        // update data stream status
-        streamService.updateStatus(groupId, streamId, EntityStatus.DATA_STREAM_CONFIG_SUCCESSFUL.getCode(), user);
+        // update inlong group status
+        groupService.updateStatus(groupId, EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode(), applicant);
+        // update inlong stream status
+        streamService.updateStatus(groupId, streamId, EntityStatus.STREAM_CONFIG_SUCCESSFUL.getCode(), applicant);
         // update file data source status
-        fileDetailMapper.updateStatusAfterApprove(groupId, streamId, EntityStatus.AGENT_ADD.getCode(), user);
+        fileDetailMapper.updateStatusAfterApprove(groupId, streamId, EntityStatus.AGENT_ADD.getCode(), applicant);
+        // Update stream source status
+        sourceService.updateStatus(groupId, streamId, SourceState.TO_BE_ISSUED_ADD.getCode(), applicant);
 
         return ListenerResult.success();
     }

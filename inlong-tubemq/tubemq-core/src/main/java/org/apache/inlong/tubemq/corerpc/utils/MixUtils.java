@@ -25,17 +25,31 @@ import org.apache.inlong.tubemq.corerpc.protocol.RpcProtocol;
 
 public class MixUtils {
 
+    /**
+     * Substitute class name prefix
+     *
+     * After TubeMQ was donated to Apache, the package prefix name was not migrated to
+     * the name of apache for a long time, and some errors on the server side were returned
+     * to the client by throwing exceptions.
+     * In order to maintain the compatibility between the previous and previous versions,
+     * the the class name in exception information is replaced through this function
+     *
+     * @param className        the class name
+     * @param toOldVersion     whether the client is old version
+     * @param toProtocolVer     the client's protocol version
+     * @return                 the translated class name
+     */
     public static String replaceClassNamePrefix(String className,
                                                 boolean toOldVersion,
-                                                int toPotocolVer) {
+                                                int toProtocolVer) {
 
-        if (toPotocolVer == RpcProtocol.RPC_PROTOCOL_VERSION_OLD_1) {
+        if (toProtocolVer == RpcProtocol.RPC_PROTOCOL_VERSION_OLD_1) {
             if (toOldVersion) {
                 return className.replace("org.apache.inlong.tubemq.", "com.tencent.tubemq.");
             } else {
                 return className.replace("com.tencent.tubemq.", "org.apache.inlong.tubemq.");
             }
-        } else if (toPotocolVer == RpcProtocol.RPC_PROTOCOL_VERSION_TUBEMQ) {
+        } else if (toProtocolVer == RpcProtocol.RPC_PROTOCOL_VERSION_TUBEMQ) {
             if (toOldVersion) {
                 return className.replace("org.apache.inlong.tubemq.", "com.apache.tubemq.");
             } else {
@@ -46,6 +60,12 @@ public class MixUtils {
         }
     }
 
+    /**
+     * Construct the corresponding exception object according to the exception text
+     *
+     * @param exceptionMsg     the exception text
+     * @return                 the exception object
+     */
     public static Throwable unwrapException(String exceptionMsg) {
         // Perform string to exception conversion processing
         try {

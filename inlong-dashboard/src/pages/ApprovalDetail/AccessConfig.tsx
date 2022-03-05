@@ -70,7 +70,7 @@ export const getFormContent = ({ isViwer, formData, suffixContent }) => {
         </Divider>
       ),
     },
-    ...(getBusinessContent(formData.businessInfo) || []),
+    ...(getBusinessContent(formData.groupInfo) || []),
     {
       type: (
         <Divider orientation="left">
@@ -86,11 +86,12 @@ export const getFormContent = ({ isViwer, formData, suffixContent }) => {
             { title: 'ID', dataIndex: 'inlongStreamId' },
             {
               title: i18n.t('pages.ApprovalDetail.AccessConfig.DataStorages'),
-              dataIndex: 'storageList',
-              render: text => text.map(item => item.storageType).join(','),
+              dataIndex: 'sinkList',
+              render: text => text.map(item => item.sinkType).join(','),
             },
           ]}
           dataSource={formData?.streamInfoList || []}
+          rowKey="id"
         />
       ),
     },

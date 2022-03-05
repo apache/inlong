@@ -26,13 +26,13 @@ export interface StepsProps {
   data: {
     title: string;
     desc: string;
-    state: string;
+    status: string;
     remark?: string;
   }[];
 }
 
 const Comp: React.FC<StepsProps> = ({ data }) => {
-  const current = data.findIndex(item => item.state === 'PENDING');
+  const current = data.findIndex(item => item.status === 'PENDING');
 
   return (
     <Steps size="small" current={current !== -1 ? current : data.length} direction="vertical">

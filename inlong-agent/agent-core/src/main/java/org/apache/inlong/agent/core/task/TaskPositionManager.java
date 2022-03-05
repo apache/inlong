@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.core.task;
 
-import static org.apache.inlong.agent.constants.CommonConstants.POSITION_SUFFIX;
+import static org.apache.inlong.agent.constant.CommonConstants.POSITION_SUFFIX;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;

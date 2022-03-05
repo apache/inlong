@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.user.UserDetail;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -82,11 +82,11 @@ public class AuthenticationFilter implements Filter {
 
     private void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain,
             UserDetail userDetail) throws IOException, ServletException {
-        LoginUserUtil.setUserLoginInfo(userDetail);
+        LoginUserUtils.setUserLoginInfo(userDetail);
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } finally {
-            LoginUserUtil.removeUserLoginInfo();
+            LoginUserUtils.removeUserLoginInfo();
         }
     }
 

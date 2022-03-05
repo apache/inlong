@@ -53,6 +53,10 @@ public class HiveSinkInfo extends SinkInfo {
     @JsonProperty("password")
     private final String password;
 
+    @JsonInclude(Include.NON_NULL)
+    @JsonProperty("hadoop_proxy_user")
+    private final String hadoopProxyUser;
+
     @JsonProperty("data_path")
     private final String dataPath;
 
@@ -72,12 +76,39 @@ public class HiveSinkInfo extends SinkInfo {
             @JsonProperty("data_path") String dataPath,
             @JsonProperty("partitions") HivePartitionInfo[] partitions,
             @JsonProperty("file_format") HiveFileFormat hiveFileFormat) {
+        this(
+                fields,
+                hiveServerJdbcUrl,
+                databaseName,
+                tableName,
+                username,
+                password,
+                null,
+                dataPath,
+                partitions,
+                hiveFileFormat
+        );
+    }
+
+    @JsonCreator
+    public HiveSinkInfo(
+            @JsonProperty("fields") FieldInfo[] fields,
+            @JsonProperty("hive_server_jdbc_url") String hiveServerJdbcUrl,
+            @JsonProperty("database") String databaseName,
+            @JsonProperty("table") String tableName,
+            @JsonProperty("username") @Nullable String username,
+            @JsonProperty("password") @Nullable String password,
+            @JsonProperty("hadoop_proxy_user") @Nullable String hadoopProxyUser,
+            @JsonProperty("data_path") String dataPath,
+            @JsonProperty("partitions") HivePartitionInfo[] partitions,
+            @JsonProperty("file_format") HiveFileFormat hiveFileFormat) {
         super(fields);
         this.hiveServerJdbcUrl = checkNotNull(hiveServerJdbcUrl);
         this.databaseName = checkNotNull(databaseName);
         this.tableName = checkNotNull(tableName);
         this.username = username;
         this.password = password;
+        this.hadoopProxyUser = hadoopProxyUser;
         this.dataPath = checkNotNull(dataPath);
         this.partitions = checkNotNull(partitions);
         this.hiveFileFormat = checkNotNull(hiveFileFormat);
@@ -115,6 +146,12 @@ public class HiveSinkInfo extends SinkInfo {
         return dataPath;
     }
 
+    @Nullable
+    @JsonProperty("hadoop_proxy_user")
+    public String getHadoopProxyUser() {
+        return hadoopProxyUser;
+    }
+
     @JsonProperty("partitions")
     public HivePartitionInfo[] getPartitions() {
         return partitions;
@@ -134,7 +171,10 @@ public class HiveSinkInfo extends SinkInfo {
     @JsonSubTypes({
             @Type(value = HiveTimePartitionInfo.class, name = "time"),
             @Type(value = HiveFieldPartitionInfo.class, name = "field")})
-    public abstract static class HivePartitionInfo {
+    public abstract static class HivePartitionInfo implements Serializable {
+
+        private static final long serialVersionUID = -4276796328049383208L;
+
         @JsonProperty("field_name")
         private final String fieldName;
 
@@ -150,6 +190,8 @@ public class HiveSinkInfo extends SinkInfo {
     }
 
     public static class HiveTimePartitionInfo extends HivePartitionInfo {
+
+        private static final long serialVersionUID = -2475470848828020684L;
 
         @JsonProperty("date_format")
         private final String format;
@@ -169,6 +211,8 @@ public class HiveSinkInfo extends SinkInfo {
 
     public static class HiveFieldPartitionInfo extends HivePartitionInfo {
 
+        private static final long serialVersionUID = 9208133177416395986L;
+
         public HiveFieldPartitionInfo(
                 @JsonProperty("field_name") String fieldName) {
             super(fieldName);
@@ -186,10 +230,12 @@ public class HiveSinkInfo extends SinkInfo {
             @Type(value = OrcFileFormat.class, name = "orc"),
             @Type(value = SequenceFileFormat.class, name = "sequence"),
             @Type(value = ParquetFileFormat.class, name = "parquet"),})
-    public interface HiveFileFormat {
+    public interface HiveFileFormat extends Serializable {
     }
 
-    public static class TextFileFormat implements HiveFileFormat, Serializable {
+    public static class TextFileFormat implements HiveFileFormat {
+
+        private static final long serialVersionUID = 522000219325150443L;
 
         @JsonProperty("splitter")
         private final Character splitter;
@@ -203,7 +249,7 @@ public class HiveSinkInfo extends SinkInfo {
                 @JsonProperty("splitter") Character splitter,
                 @JsonProperty("compression_type") CompressionType compressionType) {
             this.splitter = splitter;
-            this.compressionType = compressionType;
+            this.compressionType = compressionType == null ? CompressionType.NONE : compressionType;
         }
 
         public TextFileFormat(@JsonProperty("splitter") Character splitter) {
@@ -221,7 +267,9 @@ public class HiveSinkInfo extends SinkInfo {
         }
     }
 
-    public static class OrcFileFormat implements HiveFileFormat, Serializable {
+    public static class OrcFileFormat implements HiveFileFormat {
+
+        private static final long serialVersionUID = -6483139337919483030L;
 
         @JsonProperty("batch_size")
         private final int batchSize;
@@ -237,7 +285,9 @@ public class HiveSinkInfo extends SinkInfo {
         }
     }
 
-    public static class SequenceFileFormat implements HiveFileFormat, Serializable {
+    public static class SequenceFileFormat implements HiveFileFormat {
+
+        private static final long serialVersionUID = 263836241053911625L;
 
         @JsonProperty("splitter")
         private final Character splitter;
@@ -263,9 +313,12 @@ public class HiveSinkInfo extends SinkInfo {
         }
     }
 
-    public static class ParquetFileFormat implements HiveFileFormat, Serializable {
+    public static class ParquetFileFormat implements HiveFileFormat {
+
+        private static final long serialVersionUID = 3400568099604670179L;
 
         public ParquetFileFormat() {
         }
+
     }
 }

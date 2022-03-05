@@ -226,7 +226,29 @@ run_flume() {
 
 # set default params
 FLUME_CLASSPATH=""
-JAVA_OPTS="-Xmx1024m -Xms512m -Xmn512m -XX:SurvivorRatio=6"
+
+# Extra options to be passed to the jvm
+DATA_PROXY_MEM=${DATA_PROXY_MEM:-"-Xms2g -Xmx2g -XX:MaxDirectMemorySize=4g"}
+
+# Garbage collection options
+DATA_PROXY_GC=${DATA_PROXY_GC:-"-XX:+UseG1GC -XX:MaxGCPauseMillis=10 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+DoEscapeAnalysis -XX:ParallelGCThreads=32 -XX:ConcGCThreads=32 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC"}
+
+# Garbage collection log.
+IS_JAVA_8=`java -version 2>&1 |grep version|grep '"1\.8'`
+# java version has space, use [[ -n $PARAM ]] to judge if variable exists
+if [[ -n $IS_JAVA_8 ]]; then
+  DATA_PROXY_GC_LOG=${DATA_PROXY_GC_LOG:-"-Xloggc:logs/dataproxy_gc_%p.log -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=20M"}
+else
+# After jdk 9, gc log param should config like this. Ignoring version less than jdk 8
+  DATA_PROXY_GC_LOG=${DATA_PROXY_GC_LOG:-"-Xlog:gc*:logs/dataproxy_gc_%p.log:time,uptime:filecount=10,filesize=20M"}
+fi
+
+LOG_PATH=$(pwd)/logs
+# Extra options to be passed to the jvm
+DATA_PROXY_EXTRA_OPTS=${DATA_PROXY_EXTRA_OPTS:-"-Ddataproxy.log.path="$LOG_PATH" -Dio.netty.recycler.maxCapacity.default=1000 -Dio.netty.recycler.linkCapacity=1024"}
+
+JAVA_OPTS="$DATA_PROXY_MEM $DATA_PROXY_GC $DATA_PROXY_GC_LOG $DATA_PROXY_EXTRA_OPTS"
+
 #LD_LIBRARY_PATH=""
 
 opt_conf=""

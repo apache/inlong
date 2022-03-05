@@ -17,39 +17,69 @@
 
 package org.apache.inlong.agent.conf;
 
-import org.apache.inlong.agent.constants.JobConstants;
+import org.apache.inlong.agent.constant.JobConstants;
+import org.apache.inlong.agent.pojo.JobProfileDto;
+import org.apache.inlong.common.pojo.agent.DataConfig;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 /**
  * profile used in trigger. Trigger profile is a special job profile
  */
 public class TriggerProfile extends JobProfile {
 
-    @Override
-    public boolean allRequiredKeyExist() {
-        return hasKey(JobConstants.JOB_TRIGGER) && super.allRequiredKeyExist();
-    }
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+    /**
+     * Parse a given json string and get a TriggerProfile
+     */
     public static TriggerProfile parseJsonStr(String jsonStr) {
         TriggerProfile conf = new TriggerProfile();
         conf.loadJsonStrResource(jsonStr);
         return conf;
     }
 
-    public String getTriggerId() {
-        return get(JobConstants.JOB_ID);
-    }
-
+    /**
+     * Parse a given JobProfile instance and get a TriggerProfile
+     */
     public static TriggerProfile parseJobProfile(JobProfile jobProfile) {
         TriggerProfile conf = new TriggerProfile();
         conf.loadJsonStrResource(jobProfile.toJsonStr());
         return conf;
     }
 
+    /**
+     * Get a TriggerProfile from a DataConfig
+     */
+    public static TriggerProfile getTriggerProfiles(DataConfig dataConfig) {
+        if (dataConfig == null) {
+            return null;
+        }
+        return JobProfileDto.convertToTriggerProfile(dataConfig);
+    }
+
+    @Override
+    public boolean allRequiredKeyExist() {
+        return hasKey(JobConstants.JOB_TRIGGER) && super.allRequiredKeyExist();
+    }
+
+    public String getTriggerId() {
+        return get(JobConstants.JOB_ID);
+    }
+
     public Integer getOpType() {
         return getInt(JobConstants.JOB_OP);
     }
 
-    public String getDeliveryTime() {
-        return get(JobConstants.JOB_DELIVERY_TIME);
+    public Date getDeliveryTime() {
+        String dateStr = get(JobConstants.JOB_DELIVERY_TIME);
+        LocalDateTime localDateTime = LocalDateTime.parse(dateStr, TIME_FORMATTER);
+        Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+        return Date.from(instant);
     }
+
 }

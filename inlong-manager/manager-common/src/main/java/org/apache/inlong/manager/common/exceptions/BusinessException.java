@@ -20,22 +20,22 @@ package org.apache.inlong.manager.common.exceptions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.BizErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class BusinessException extends BaseException {
 
-    public BusinessException(BizErrorCodeEnum errorCodeEnum) {
-        super(errorCodeEnum.getCode(), errorCodeEnum.getDefaultMessage());
+    public BusinessException(ErrorCodeEnum errorCodeEnum) {
+        super(errorCodeEnum.getCode(), errorCodeEnum.getMessage());
     }
 
     public BusinessException(String message) {
         super(message);
     }
 
-    public BusinessException(BizErrorCodeEnum errorCodeEnum, String message) {
+    public BusinessException(ErrorCodeEnum errorCodeEnum, String message) {
         super(errorCodeEnum.getCode(), message);
     }
 }

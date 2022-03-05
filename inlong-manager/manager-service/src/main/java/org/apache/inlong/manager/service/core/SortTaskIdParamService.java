@@ -27,7 +27,7 @@ public interface SortTaskIdParamService {
 
     /**
      * Select all id params by task name.
-     * @param taskName Task name.
+     * @param taskName WorkflowTask name.
      * @return List of all id params.
      */
     List<Map<String, String>> selectByTaskName(String taskName);

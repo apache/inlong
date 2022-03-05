@@ -21,6 +21,9 @@ import java.io.Serializable;
 import org.apache.inlong.tubemq.corerpc.exception.StandbyException;
 import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
 
+/**
+ *  Response message wrapper class.
+ */
 public class ResponseWrapper implements Serializable {
 
     private static final long serialVersionUID = -3852197088007144687L;
@@ -35,6 +38,16 @@ public class ResponseWrapper implements Serializable {
     private String errMsg;
     private String stackTrace;
 
+    /**
+     *  Initial a response wrapper object
+     *
+     * @param flagId         the flag id
+     * @param serialNo       the serial no.
+     * @param serviceType    the service type
+     * @param locVersion     the local protocol version
+     * @param methodId       the method id
+     * @param responseData   the response data
+     */
     public ResponseWrapper(int flagId, int serialNo,
                            int serviceType, int locVersion,
                            int methodId, Object responseData) {
@@ -47,6 +60,16 @@ public class ResponseWrapper implements Serializable {
         this.success = true;
     }
 
+    /**
+     *  Initial a response wrapper object
+     *
+     * @param flagId         the flag id
+     * @param serialNo       the serial no.
+     * @param serviceType    the service type
+     * @param rmtVersion     the remote protocol version
+     * @param locVersion     the local protocol version
+     * @param exception      the exception
+     */
     public ResponseWrapper(int flagId, int serialNo,
                            int serviceType, int rmtVersion,
                            int locVersion, Throwable exception) {
@@ -75,6 +98,16 @@ public class ResponseWrapper implements Serializable {
         }
     }
 
+    /**
+     *  Initial a response wrapper object
+     *
+     * @param flagId         the flag id
+     * @param serialNo       the serial no.
+     * @param serviceType    the service type
+     * @param locVersion     the local protocol version
+     * @param errorMsg       the text error message
+     * @param stackTrace     the stack trace information
+     */
     public ResponseWrapper(int flagId, int serialNo,
                            int serviceType, int locVersion,
                            String errorMsg, String stackTrace) {

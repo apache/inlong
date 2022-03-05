@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
+        <result column="source_type" jdbcType="VARCHAR" property="sourceType"/>
+        <result column="source_name" jdbcType="VARCHAR" property="sourceName"/>
+        <result column="agent_ip" jdbcType="VARCHAR" property="agentIp"/>
+        <result column="uuid" jdbcType="VARCHAR" property="uuid"/>
+        <result column="server_id" jdbcType="INTEGER" property="serverId"/>
+        <result column="server_name" jdbcType="VARCHAR" property="serverName"/>
+        <result column="cluster_id" jdbcType="INTEGER" property="clusterId"/>
+        <result column="cluster_name" jdbcType="VARCHAR" property="clusterName"/>
+        <result column="snapshot" jdbcType="LONGVARCHAR" property="snapshot"/>
+        <result column="report_time" jdbcType="TIMESTAMP" property="reportTime"/>
+        <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="previous_status" jdbcType="INTEGER" property="previousStatus"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, inlong_group_id, inlong_stream_id, source_type, source_name, agent_ip, uuid,
+        server_id, server_name, cluster_id, cluster_name, snapshot, report_time, ext_params,
+        status, previous_status, is_deleted, creator, modifier, create_time, modify_time
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        insert into stream_source (id, inlong_group_id, inlong_stream_id,
+                                   source_type, source_name, agent_ip,
+                                   uuid, server_id, server_name,
+                                   cluster_id, cluster_name, snapshot,
+                                   report_time, ext_params, status,
+                                   previous_status, is_deleted, creator,
+                                   modifier, create_time, modify_time)
+        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
+                #{sourceType,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR}, #{agentIp,jdbcType=VARCHAR},
+                #{uuid,jdbcType=VARCHAR}, #{serverId,jdbcType=INTEGER}, #{serverName,jdbcType=VARCHAR},
+                #{clusterId,jdbcType=INTEGER}, #{clusterName,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR},
+                #{modifyTime,jdbcType=TIMESTAMP}, #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER},
+                #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
+                #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        insert into stream_source
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="inlongGroupId != null">
+                inlong_group_id,
+            </if>
+            <if test="inlongStreamId != null">
+                inlong_stream_id,
+            </if>
+            <if test="sourceType != null">
+                source_type,
+            </if>
+            <if test="sourceName != null">
+                source_name,
+            </if>
+            <if test="agentIp != null">
+                agent_ip,
+            </if>
+            <if test="uuid != null">
+                uuid,
+            </if>
+            <if test="serverId != null">
+                server_id,
+            </if>
+            <if test="serverName != null">
+                server_name,
+            </if>
+            <if test="clusterId != null">
+                cluster_id,
+            </if>
+            <if test="clusterName != null">
+                cluster_name,
+            </if>
+            <if test="snapshot != null">
+                snapshot,
+            </if>
+            <if test="reportTime != null">
+                report_time,
+            </if>
+            <if test="extParams != null">
+                ext_params,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="previousStatus != null">
+                previous_status,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="modifyTime != null">
+                modify_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="inlongGroupId != null">
+                #{inlongGroupId,jdbcType=VARCHAR},
+            </if>
+            <if test="inlongStreamId != null">
+                #{inlongStreamId,jdbcType=VARCHAR},
+            </if>
+            <if test="sourceType != null">
+                #{sourceType,jdbcType=VARCHAR},
+            </if>
+            <if test="sourceName != null">
+                #{sourceName,jdbcType=VARCHAR},
+            </if>
+            <if test="agentIp != null">
+                #{agentIp,jdbcType=VARCHAR},
+            </if>
+            <if test="uuid != null">
+                #{uuid,jdbcType=VARCHAR},
+            </if>
+            <if test="serverId != null">
+                #{serverId,jdbcType=INTEGER},
+            </if>
+            <if test="serverName != null">
+                #{serverName,jdbcType=VARCHAR},
+            </if>
+            <if test="clusterId != null">
+                #{clusterId,jdbcType=INTEGER},
+            </if>
+            <if test="clusterName != null">
+                #{clusterName,jdbcType=VARCHAR},
+            </if>
+            <if test="snapshot != null">
+                #{snapshot,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="reportTime != null">
+                #{reportTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="extParams != null">
+                #{extParams,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="previousStatus != null">
+                #{previousStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectCount" resultType="java.lang.Integer">
+        select count(1)
+        from stream_source
+        <where>
+            is_deleted = 0
+            <if test="groupId != null and groupId != ''">
+                and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            </if>
+            <if test="streamId != null and streamId != ''">
+                and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectByCondition"
+            parameterType="org.apache.inlong.manager.common.pojo.source.SourcePageRequest"
+            resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            and inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
+            <if test="request.inlongStreamId != null and request.inlongStreamId != ''">
+                and inlong_stream_id = #{request.inlongStreamId, jdbcType=VARCHAR}
+            </if>
+            <if test="request.sourceType != null and request.sourceType != ''">
+                and source_type = #{request.sourceType, jdbcType=VARCHAR}
+            </if>
+            <if test="request.keyWord != null and request.keyWord != ''">
+                and (
+                inlong_group_id like CONCAT('%', #{request.keyWord}, '%')
+                or inlong_stream_id like CONCAT('%', #{request.keyWord}, '%')
+                or source_name like CONCAT('%', #{request.keyWord}, '%')
+                )
+            </if>
+            <if test="request.status != null and request.status != ''">
+                and status = #{request.status, jdbcType=INTEGER}
+            </if>
+            order by modify_time desc
+        </where>
+    </select>
+
+    <select id="selectByRelatedId" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            <if test="streamId != null and streamId != ''">
+                and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectByIdAndType" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            <if test="streamId != null and streamId != ''">
+                and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+            </if>
+            <if test="sourceType != null and sourceType != ''">
+                and source_type = #{sourceType, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectByIpAndUuid" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            and agent_ip = #{agentIp, jdbcType=VARCHAR}
+            <if test="uuid != null and uuid != ''">
+                and uuid = #{uuid, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectSourceType" resultType="java.lang.String">
+        select distinct (source_type)
+        from stream_source
+        <where>
+            is_deleted = 0
+            <if test="groupId != null and groupId != ''">
+                and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            </if>
+            <if test="streamId != null and streamId != ''">
+                and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectTempStatusSource" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select id, agent_ip, uuid, status
+        from stream_source
+        where status >= 200
+    </select>
+
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        update stream_source
+        <set>
+            <if test="inlongGroupId != null">
+                inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
+            </if>
+            <if test="inlongStreamId != null">
+                inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
+            </if>
+            <if test="sourceType != null">
+                source_type = #{sourceType,jdbcType=VARCHAR},
+            </if>
+            <if test="sourceName != null">
+                source_name = #{sourceName,jdbcType=VARCHAR},
+            </if>
+            <if test="agentIp != null">
+                agent_ip = #{agentIp,jdbcType=VARCHAR},
+            </if>
+            <if test="uuid != null">
+                uuid = #{uuid,jdbcType=VARCHAR},
+            </if>
+            <if test="serverId != null">
+                server_id = #{serverId,jdbcType=INTEGER},
+            </if>
+            <if test="serverName != null">
+                server_name = #{serverName,jdbcType=VARCHAR},
+            </if>
+            <if test="clusterId != null">
+                cluster_id = #{clusterId,jdbcType=INTEGER},
+            </if>
+            <if test="clusterName != null">
+                cluster_name = #{clusterName,jdbcType=VARCHAR},
+            </if>
+            <if test="snapshot != null">
+                snapshot = #{snapshot,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="reportTime != null">
+                report_time = #{reportTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="extParams != null">
+                ext_params = #{extParams,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="previousStatus != null">
+                previous_status = #{previousStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        update stream_source
+        set inlong_group_id  = #{inlongGroupId,jdbcType=VARCHAR},
+            inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
+            source_type      = #{sourceType,jdbcType=VARCHAR},
+            source_name      = #{sourceName,jdbcType=VARCHAR},
+            agent_ip         = #{agentIp,jdbcType=VARCHAR},
+            uuid             = #{uuid,jdbcType=VARCHAR},
+            server_id        = #{serverId,jdbcType=INTEGER},
+            server_name      = #{serverName,jdbcType=VARCHAR},
+            cluster_id       = #{clusterId,jdbcType=INTEGER},
+            cluster_name     = #{clusterName,jdbcType=VARCHAR},
+            snapshot         = #{snapshot,jdbcType=LONGVARCHAR},
+            report_time      = #{reportTime,jdbcType=TIMESTAMP},
+            ext_params       = #{extParams,jdbcType=LONGVARCHAR},
+            status           = #{status,jdbcType=INTEGER},
+            previous_status  = #{previousStatus,jdbcType=INTEGER},
+            is_deleted       = #{isDeleted,jdbcType=INTEGER},
+            creator          = #{creator,jdbcType=VARCHAR},
+            modifier         = #{modifier,jdbcType=VARCHAR},
+            create_time      = #{createTime,jdbcType=TIMESTAMP},
+            modify_time      = #{modifyTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateStatus">
+        update stream_source
+        set previous_status = status,
+            status          = #{nextStatus, jdbcType=INTEGER}
+        where id = #{id, jdbcType=INTEGER}
+    </update>
+    <update id="updateStatusByRelatedId">
+        update stream_source
+        set previous_status = status,
+        status = #{nextStatus, jdbcType=INTEGER}
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        <if test="streamId != null">
+            and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+        </if>
+    </update>
+    <update id="updateSnapshot" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        update stream_source
+        set snapshot    = #{snapshot,jdbcType=LONGVARCHAR},
+            report_time = #{reportTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from stream_source
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+</mapper>

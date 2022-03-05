@@ -33,10 +33,18 @@ public class RcpService4BenchmarkClient {
     private final int targetPort;
     private final RpcServiceFactory rpcServiceFactory;
     private final NettyClientFactory clientFactory = new NettyClientFactory();
-    private SimpleService simpleService;
+    private final SimpleService simpleService;
     private int threadNum = 10;
     private int invokeTimes = 1000000;
 
+    /**
+     * Initial a benchmark client
+     *
+     * @param targetHost    the target host
+     * @param targetPort    the target port
+     * @param threadNum     the thread count
+     * @param invokeTimes   the invoke count
+     */
     public RcpService4BenchmarkClient(String targetHost, int targetPort, int threadNum,
                                       int invokeTimes) {
         this.targetHost = targetHost;
@@ -59,6 +67,11 @@ public class RcpService4BenchmarkClient {
         new RcpService4BenchmarkClient("127.0.0.1", 8088, 10, 100000).start();
     }
 
+    /**
+     * Start benchmark test
+     *
+     * @throws Exception the exception
+     */
     public void start() throws Exception {
         for (int i = 0; i < threadNum; i++) {
             executorService.submit(new Runnable() {

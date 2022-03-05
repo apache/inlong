@@ -30,13 +30,15 @@
     <name>Apache InLong - Manager</name>
 
     <modules>
+        <module>manager-test</module>
         <module>manager-common</module>
-        <module>manager-workflow-engine</module>
         <module>manager-dao</module>
         <module>manager-service</module>
+        <module>manager-workflow</module>
         <module>manager-web</module>
         <module>manager-docker</module>
         <module>manager-plugin-examples</module>
+        <module>manager-client</module>
     </modules>
 
     <properties>
@@ -49,7 +51,8 @@
         <pagehelper.version>5.2.0</pagehelper.version>
         <pagehelper.springboot.version>1.3.0</pagehelper.springboot.version>
         <mysql.version>8.0.15</mysql.version>
-        <h2.version>1.4.197</h2.version>
+        <h2.version>2.1.210</h2.version>
+        <h2_mysql.version>2.0.0</h2_mysql.version>
         <druid.version>1.2.5</druid.version>
         <shiro.version>1.8.0</shiro.version>
         <hive.version>3.1.2</hive.version>
@@ -61,12 +64,12 @@
         <guava.version>18.0</guava.version>
         <jackson.version>2.12.0</jackson.version>
         <jackson.jsr310.version>2.13.1</jackson.jsr310.version>
+        <reflections.version>0.10.2</reflections.version>
         <opencsv.version>5.4</opencsv.version>
         <httpcore.version>4.4.14</httpcore.version>
         <httpclient.version>4.5.13</httpclient.version>
         <junit.version>4.12</junit.version>
         <mockito.version>3.6.28</mockito.version>
-        <lombok.version>1.18.20</lombok.version>
         <ini4j.version>0.5.1</ini4j.version>
         <knife4j.version>2.0.5</knife4j.version>
         <swagger.version>3.0.0</swagger.version>
@@ -77,7 +80,12 @@
         <checkstyle.version>6.19</checkstyle.version>
         <project.build.encoding>UTF-8</project.build.encoding>
         <plugin.compile.version>3.8.1</plugin.compile.version>
+        <plugin.surefire.version>2.22.2</plugin.surefire.version>
+        <plugin.failsafe.version>2.22.0</plugin.failsafe.version>
         <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
+        <okhttp.version>3.14.9</okhttp.version>
+        <fastjson.version>1.2.76</fastjson.version>
+        <powermock.version>2.0.2</powermock.version>
         <docker.organization>inlong</docker.organization>
     </properties>
 
@@ -121,6 +129,11 @@
             <artifactId>h2</artifactId>
             <version>${h2.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mvnsearch</groupId>
+            <artifactId>h2-functions-4-mysql</artifactId>
+            <version>${h2_mysql.version}</version>
         </dependency>
     </dependencies>
 
@@ -188,6 +201,11 @@
                 <version>${log4j.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-aop</artifactId>
                 <version>${spring-boot.version}</version>
@@ -241,12 +259,6 @@
                 <scope>runtime</scope>
             </dependency>
             <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
@@ -271,6 +283,12 @@
                 <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>${reflections.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-annotations</artifactId>
@@ -352,12 +370,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.squareup.okhttp3</groupId>
-                <artifactId>okhttp</artifactId>
-                <version>3.14.9</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>3.11</version>
@@ -430,18 +442,36 @@
                 <artifactId>elasticsearch-rest-client-sniffer</artifactId>
                 <version>${elasticsearch.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-test</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${springframework.version}</version>
             </dependency>
 
         </dependencies>
@@ -467,6 +497,9 @@
                     <encoding>${project.build.encoding}</encoding>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                    <compilerArgument>-Xlint:unchecked</compilerArgument>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -476,6 +509,14 @@
                     </annotationProcessorPaths>
                 </configuration>
                 <version>${plugin.compile.version}</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${plugin.surefire.version}</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${plugin.failsafe.version}</version>
             </plugin>
         </plugins>
     </build>

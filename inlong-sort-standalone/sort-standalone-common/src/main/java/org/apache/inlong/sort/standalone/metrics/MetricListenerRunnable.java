@@ -33,12 +33,12 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 import org.apache.commons.lang.ClassUtils;
-import org.apache.inlong.commons.config.metrics.MetricItem;
-import org.apache.inlong.commons.config.metrics.MetricItemMBean;
-import org.apache.inlong.commons.config.metrics.MetricItemSetMBean;
-import org.apache.inlong.commons.config.metrics.MetricRegister;
-import org.apache.inlong.commons.config.metrics.MetricUtils;
-import org.apache.inlong.commons.config.metrics.MetricValue;
+import org.apache.inlong.common.metric.MetricItem;
+import org.apache.inlong.common.metric.MetricItemMBean;
+import org.apache.inlong.common.metric.MetricItemSetMBean;
+import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.metric.MetricUtils;
+import org.apache.inlong.common.metric.MetricValue;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 

@@ -18,15 +18,17 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceDbBasicInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceDbDetailInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceDbDetailListVO;
+import org.apache.inlong.manager.common.pojo.source.SourceDbDetailPageRequest;
+
 import java.util.List;
-import org.apache.inlong.manager.common.pojo.datasource.SourceDbBasicInfo;
-import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailInfo;
-import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailListVO;
-import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailPageRequest;
 
 /**
  * DB data source service layer interface
  */
+@Deprecated
 public interface SourceDbService {
 
     /**
@@ -39,10 +41,10 @@ public interface SourceDbService {
     Integer saveBasic(SourceDbBasicInfo basicInfo, String operator);
 
     /**
-     * Query the basic information of the data source based on the business group id and the data stream id
+     * Query the basic information of the data source based on the inlong group id and the inlong stream id
      *
-     * @param groupId Business group id
-     * @param streamId Data stream id
+     * @param groupId Inlong group id
+     * @param streamId Inlong stream id
      * @return Basic data source information
      */
     SourceDbBasicInfo getBasicByIdentifier(String groupId, String streamId);
@@ -51,7 +53,7 @@ public interface SourceDbService {
      * Modify the basic information of the data source
      *
      * @param basicInfo Data source information that needs to be modified
-     * @param operator perator name
+     * @param operator operator name
      * @return whether succeed
      */
     boolean updateBasic(SourceDbBasicInfo basicInfo, String operator);
@@ -82,10 +84,10 @@ public interface SourceDbService {
     SourceDbDetailInfo getDetailById(Integer id);
 
     /**
-     * Query a detailed list of DB data sources based on business group id and data stream id
+     * Query a detailed list of DB data sources based on inlong group id and inlong stream id
      *
-     * @param groupId Business group id
-     * @param streamId Data stream id, can be null
+     * @param groupId Inlong group id
+     * @param streamId Inlong stream id, can be null
      * @return Data source details
      */
     List<SourceDbDetailInfo> listDetailByIdentifier(String groupId, String streamId);
@@ -119,8 +121,8 @@ public interface SourceDbService {
     /**
      * Physically delete the basic and detailed information of the data source
      *
-     * @param groupId The business group id to which the data source belongs
-     * @param streamId The data stream id to which the data source belongs
+     * @param groupId The inlong group id to which the data source belongs
+     * @param streamId The inlong stream id to which the data source belongs
      * @return whether succeed
      */
     boolean deleteAllByIdentifier(String groupId, String streamId);
@@ -128,8 +130,8 @@ public interface SourceDbService {
     /**
      * Tombstone data source basic information and detailed information
      *
-     * @param groupId The business group id to which the data source belongs
-     * @param streamId The data stream id to which the data source belongs
+     * @param groupId The inlong group id to which the data source belongs
+     * @param streamId The inlong stream id to which the data source belongs
      * @param operator perator name
      * @return whether succeed
      */

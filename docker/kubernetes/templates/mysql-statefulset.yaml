@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if not .Values.external.mysql.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -40,14 +41,18 @@ spec:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
           image: {{ .Values.images.mysql.repository }}:{{ .Values.images.mysql.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
+          {{- if .Values.mysql.resources }}
+          resources:
+{{ toYaml .Values.mysql.resources | indent 12 }}
+          {{- end }}
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
-                  key: mysql-root-password
+                  key: mysql-password
           ports:
-            - name: {{ .Values.mysql.component }}-server-port
+            - name: {{ .Values.mysql.component }}-port
               containerPort: 3306
           volumeMounts:
             - name: data
@@ -56,17 +61,18 @@ spec:
               mountPath: /docker-entrypoint-initdb.d
       volumes:
         - name: data
-          {{- if .Values.mysql.persistentVolumeClaim.enabled }}
+          {{- if .Values.volumes.persistence }}
           persistentVolumeClaim:
-            claimName: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
+            claimName: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-{{ .Values.mysql.volumes.name }}
           {{- else }}
           emptyDir: {}
           {{- end }}
         - name: sql
-          {{- if .Values.mysql.persistentVolumeClaim.enabled }}
+          {{- if .Values.volumes.persistence }}
           persistentVolumeClaim:
-            claimName: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
+            claimName: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-{{ .Values.mysql.volumes.name }}
           {{- else }}
           emptyDir: {}
           {{- end }}
       restartPolicy: Always
+{{- end }}

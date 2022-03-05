@@ -17,95 +17,183 @@
 
 package org.apache.inlong.manager.service.workflow;
 
+import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
+import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.ProcessStatus;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
+import org.apache.inlong.manager.common.pojo.workflow.TaskExecuteLogQuery;
+import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
+import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
+import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
+import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
+import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
+import org.apache.inlong.manager.service.ServiceBaseTest;
+import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.mocks.MockDeleteSortListener;
+import org.apache.inlong.manager.service.mocks.MockPlugin;
+import org.apache.inlong.manager.service.mocks.MockRestartSortListener;
+import org.apache.inlong.manager.service.mocks.MockStopSortListener;
+import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveTableListener;
+import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarGroupTaskListener;
+import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarResourceTaskListener;
+import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeGroupTaskListener;
+import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeTopicTaskListener;
+import org.apache.inlong.manager.service.thirdparty.sort.PushSortConfigListener;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.core.WorkflowEngine;
+import org.apache.inlong.manager.workflow.definition.ServiceTask;
+import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
+import org.apache.inlong.manager.workflow.definition.WorkflowTask;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.task.TaskEvent;
+import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
+import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
+import org.junit.Assert;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
-import java.util.List;
-import org.apache.inlong.manager.common.enums.BizConstant;
-import org.apache.inlong.manager.common.enums.EntityStatus;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.task.TaskEvent;
-import org.apache.inlong.manager.common.event.task.TaskEventListener;
-import org.apache.inlong.manager.common.model.ProcessState;
-import org.apache.inlong.manager.common.model.WorkflowContext;
-import org.apache.inlong.manager.common.model.definition.Process;
-import org.apache.inlong.manager.common.model.definition.ServiceTask;
-import org.apache.inlong.manager.common.model.definition.Task;
-import org.apache.inlong.manager.common.model.view.ProcessView;
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.business.BusinessPulsarInfo;
-import org.apache.inlong.manager.service.BaseTest;
-import org.apache.inlong.manager.service.core.BusinessService;
-import org.apache.inlong.manager.service.mocks.MockDeleteSortListener;
-import org.apache.inlong.manager.service.mocks.MockDeleteSourceListener;
-import org.apache.inlong.manager.service.mocks.MockPlugin;
-import org.apache.inlong.manager.service.mocks.MockRestartSortListener;
-import org.apache.inlong.manager.service.mocks.MockRestartSourceListener;
-import org.apache.inlong.manager.service.mocks.MockStopSortListener;
-import org.apache.inlong.manager.service.mocks.MockStopSourceListener;
-import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableListener;
-import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarGroupTaskListener;
-import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarResourceTaskListener;
-import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeGroupTaskListener;
-import org.apache.inlong.manager.service.thirdpart.mq.CreateTubeTopicTaskListener;
-import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigTaskListener;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
-import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm;
-import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm.OperateType;
-import org.junit.Assert;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+@EnableAutoConfiguration
+public class WorkflowServiceImplTest extends ServiceBaseTest {
 
-public class WorkflowServiceImplTest extends BaseTest {
+    public static final String OPERATOR = "admin";
 
-    private static final String OPERATOR = "admin";
+    public static final String GROUP_ID = "b_test";
+
+    public static final String STREAM_ID = "test_stream";
+
+    public static final String DATA_ENCODING = "UTF-8";
 
     @Autowired
-    WorkflowServiceImpl workflowService;
-
+    protected WorkflowServiceImpl workflowService;
     @Autowired
-    BusinessService businessService;
-
+    protected WorkflowEngine workflowEngine;
     @Autowired
-    ServiceTaskListenerFactory serviceTaskListenerFactory;
+    protected InlongGroupService groupService;
+    @Autowired
+    protected ServiceTaskListenerFactory taskListenerFactory;
+    @Autowired
+    protected WorkflowProcessEntityMapper processEntityMapper;
+    @Autowired
+    protected WorkflowTaskEntityMapper taskEntityMapper;
+    @Autowired
+    protected InlongStreamService streamService;
 
-    private ProcessName processName;
+    protected ProcessName processName;
 
-    private String applicant;
+    protected String applicant;
 
-    private BusinessResourceWorkflowForm form;
+    protected GroupResourceProcessForm form;
 
-    public BusinessInfo initBusinessForm(String middlewareType) {
-        processName = ProcessName.CREATE_BUSINESS_RESOURCE;
-        applicant = "test_create_new_business";
-        form = new BusinessResourceWorkflowForm();
-        BusinessInfo businessInfo = new BusinessInfo();
-        String inlongStreamId = "test_stream";
-        form.setInlongStreamId(inlongStreamId);
-        form.setBusinessInfo(businessInfo);
-        businessInfo.setName("test");
-        businessInfo.setInlongGroupId("b_test");
-        businessInfo.setMiddlewareType(middlewareType);
-        businessInfo.setMqExtInfo(new BusinessPulsarInfo());
-        businessInfo.setMqResourceObj("test-queue");
-        businessService.save(businessInfo, OPERATOR);
-        return businessInfo;
+    /**
+     * Init inlong group form
+     */
+    public InlongGroupInfo initGroupForm(String middlewareType) {
+        processName = ProcessName.CREATE_GROUP_RESOURCE;
+        applicant = OPERATOR;
+
+        try {
+            streamService.logicDeleteAll(GROUP_ID, OPERATOR);
+            groupService.delete(GROUP_ID, OPERATOR);
+        } catch (Exception e) {
+            // ignore
+        }
+
+        InlongGroupInfo groupInfo = new InlongGroupInfo();
+        groupInfo.setName("test");
+        groupInfo.setInCharges(OPERATOR);
+        groupInfo.setInlongGroupId("b_test");
+        groupInfo.setMiddlewareType(middlewareType);
+        groupInfo.setMqExtInfo(new InlongGroupPulsarInfo());
+        groupInfo.setMqResourceObj("test-queue");
+        groupService.save(groupInfo.genRequest(), OPERATOR);
+        groupInfo.setStatus(GroupState.GROUP_WAIT_APPROVAL.getCode());
+        groupService.update(groupInfo.genRequest(), OPERATOR);
+        groupInfo.setStatus(GroupState.GROUP_APPROVE_PASSED.getCode());
+        groupService.update(groupInfo.genRequest(), OPERATOR);
+        groupInfo.setStatus(GroupState.GROUP_CONFIG_ING.getCode());
+        groupService.update(groupInfo.genRequest(), OPERATOR);
+
+        form = new GroupResourceProcessForm();
+        form.setInlongStreamId(STREAM_ID);
+        form.setGroupInfo(groupInfo);
+        return groupInfo;
     }
 
+    /**
+     * Delete inlong group.
+     */
+    public void deleteGroupInfo() {
+        groupService.delete(GROUP_ID, OPERATOR);
+    }
+
+    /**
+     * Create inlong stream
+     */
+    public InlongStreamInfo createStreamInfo(InlongGroupInfo inlongGroupInfo) {
+        // delete first
+        try {
+            streamService.delete(GROUP_ID, OPERATOR, OPERATOR);
+        } catch (Exception e) {
+            // ignore
+        }
+
+        InlongStreamInfo streamInfo = new InlongStreamInfo();
+        streamInfo.setInlongGroupId(inlongGroupInfo.getInlongGroupId());
+        streamInfo.setInlongStreamId(STREAM_ID);
+        streamInfo.setMqResourceObj(STREAM_ID);
+        streamInfo.setDataSeparator("124");
+        streamInfo.setDataEncoding(DATA_ENCODING);
+        streamInfo.setInCharges(OPERATOR);
+        streamInfo.setCreator(OPERATOR);
+        streamInfo.setFieldList(createStreamFields(inlongGroupInfo.getInlongGroupId(), STREAM_ID));
+        streamService.save(streamInfo, OPERATOR);
+        return streamInfo;
+    }
+
+    public List<InlongStreamFieldInfo> createStreamFields(String inlongGroupId, String inlongStreamId) {
+        final List<InlongStreamFieldInfo> streamFieldInfos = new ArrayList<>();
+        InlongStreamFieldInfo fieldInfo = new InlongStreamFieldInfo();
+        fieldInfo.setFieldName("id");
+        fieldInfo.setFieldType("int");
+        fieldInfo.setFieldComment("idx");
+        streamFieldInfos.add(fieldInfo);
+        return streamFieldInfos;
+    }
+
+    /**
+     * Mock the task listener factory
+     */
     public void mockTaskListenerFactory() {
         CreateTubeGroupTaskListener createTubeGroupTaskListener = mock(CreateTubeGroupTaskListener.class);
         when(createTubeGroupTaskListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
         when(createTubeGroupTaskListener.name()).thenReturn(CreateHiveTableListener.class.getSimpleName());
         when(createTubeGroupTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
-        serviceTaskListenerFactory.setCreateTubeGroupTaskListener(createTubeGroupTaskListener);
+        taskListenerFactory.setCreateTubeGroupTaskListener(createTubeGroupTaskListener);
 
         CreateTubeTopicTaskListener createTubeTopicTaskListener = mock(CreateTubeTopicTaskListener.class);
         when(createTubeTopicTaskListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
         when(createTubeTopicTaskListener.name()).thenReturn(CreateTubeTopicTaskListener.class.getSimpleName());
         when(createTubeTopicTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
-        serviceTaskListenerFactory.setCreateTubeTopicTaskListener(createTubeTopicTaskListener);
+        taskListenerFactory.setCreateTubeTopicTaskListener(createTubeTopicTaskListener);
 
         CreatePulsarResourceTaskListener createPulsarResourceTaskListener = mock(
                 CreatePulsarResourceTaskListener.class);
@@ -113,142 +201,181 @@ public class WorkflowServiceImplTest extends BaseTest {
         when(createPulsarResourceTaskListener.name()).thenReturn(
                 CreatePulsarResourceTaskListener.class.getSimpleName());
         when(createPulsarResourceTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
-        serviceTaskListenerFactory.setCreatePulsarResourceTaskListener(createPulsarResourceTaskListener);
+        taskListenerFactory.setCreatePulsarResourceTaskListener(createPulsarResourceTaskListener);
 
         CreatePulsarGroupTaskListener createPulsarGroupTaskListener = mock(CreatePulsarGroupTaskListener.class);
         when(createPulsarGroupTaskListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
         when(createPulsarGroupTaskListener.name()).thenReturn(CreatePulsarGroupTaskListener.class.getSimpleName());
         when(createPulsarGroupTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
-        serviceTaskListenerFactory.setCreatePulsarGroupTaskListener(createPulsarGroupTaskListener);
+        taskListenerFactory.setCreatePulsarGroupTaskListener(createPulsarGroupTaskListener);
 
         CreateHiveTableListener createHiveTableListener = mock(CreateHiveTableListener.class);
         when(createHiveTableListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
         when(createHiveTableListener.name()).thenReturn(CreateHiveTableListener.class.getSimpleName());
         when(createHiveTableListener.event()).thenReturn(TaskEvent.COMPLETE);
-        serviceTaskListenerFactory.setCreateHiveTableListener(createHiveTableListener);
+        taskListenerFactory.setCreateHiveTableListener(createHiveTableListener);
 
-        PushHiveConfigTaskListener pushHiveConfigTaskListener = mock(PushHiveConfigTaskListener.class);
-        when(pushHiveConfigTaskListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
-        when(pushHiveConfigTaskListener.name()).thenReturn(PushHiveConfigTaskListener.class.getSimpleName());
-        when(pushHiveConfigTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
-        serviceTaskListenerFactory.setPushHiveConfigTaskListener(pushHiveConfigTaskListener);
-        serviceTaskListenerFactory.clearListeners();
-        serviceTaskListenerFactory.init();
+        PushSortConfigListener pushSortConfigListener = mock(PushSortConfigListener.class);
+        when(pushSortConfigListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
+        when(pushSortConfigListener.name()).thenReturn(PushSortConfigListener.class.getSimpleName());
+        when(pushSortConfigListener.event()).thenReturn(TaskEvent.COMPLETE);
+        taskListenerFactory.setPushSortConfigListener(pushSortConfigListener);
+        taskListenerFactory.clearListeners();
+        taskListenerFactory.init();
     }
 
     @Test
     public void testStartCreatePulsarWorkflow() {
-        initBusinessForm(BizConstant.MIDDLEWARE_PULSAR);
+        initGroupForm(Constant.MIDDLEWARE_PULSAR);
         mockTaskListenerFactory();
-        WorkflowContext context = workflowService.getWorkflowEngine().processService()
-                .start(processName.name(), applicant, form);
-        WorkflowResult result = WorkflowResult.of(context);
-        ProcessView view = result.getProcessInfo();
-        Assert.assertTrue(view.getState() == ProcessState.COMPLETED);
-        Process process = context.getProcess();
-        Task task = process.getTaskByName("initMQ");
+        WorkflowContext context = workflowEngine.processService().start(processName.name(), applicant, form);
+        WorkflowResult result = WorkflowBeanUtils.result(context);
+        ProcessResponse view = result.getProcessInfo();
+        Assert.assertSame(view.getStatus(), ProcessStatus.COMPLETED);
+        WorkflowProcess process = context.getProcess();
+        WorkflowTask task = process.getTaskByName("initMQ");
         Assert.assertTrue(task instanceof ServiceTask);
-        Assert.assertTrue(task.getName2EventListenerMap().size() == 2);
-        List<TaskEventListener> listeners = Lists.newArrayList(task.getName2EventListenerMap().values());
+        Assert.assertEquals(2, task.getNameToListenerMap().size());
+
+        List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
         Assert.assertTrue(listeners.get(0) instanceof CreatePulsarGroupTaskListener);
         Assert.assertTrue(listeners.get(1) instanceof CreatePulsarResourceTaskListener);
     }
 
     @Test
     public void testStartCreateTubeWorkflow() {
-        initBusinessForm(BizConstant.MIDDLEWARE_TUBE);
+        initGroupForm(Constant.MIDDLEWARE_TUBE);
         mockTaskListenerFactory();
-        WorkflowContext context = workflowService.getWorkflowEngine().processService()
-                .start(processName.name(), applicant, form);
-        WorkflowResult result = WorkflowResult.of(context);
-        ProcessView view = result.getProcessInfo();
-        Assert.assertTrue(view.getState() == ProcessState.COMPLETED);
-        Process process = context.getProcess();
-        Task task = process.getTaskByName("initMQ");
+        WorkflowContext context = workflowEngine.processService().start(processName.name(), applicant, form);
+        WorkflowResult result = WorkflowBeanUtils.result(context);
+        ProcessResponse response = result.getProcessInfo();
+        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
+
+        WorkflowProcess process = context.getProcess();
+        WorkflowTask task = process.getTaskByName("initMQ");
         Assert.assertTrue(task instanceof ServiceTask);
-        Assert.assertTrue(task.getName2EventListenerMap().size() == 2);
-        List<TaskEventListener> listeners = Lists.newArrayList(task.getName2EventListenerMap().values());
+        Assert.assertEquals(2, task.getNameToListenerMap().size());
+
+        List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
         Assert.assertTrue(listeners.get(0) instanceof CreateTubeTopicTaskListener);
         Assert.assertTrue(listeners.get(1) instanceof CreateTubeGroupTaskListener);
     }
 
     @Test
     public void testSuspendProcess() {
-        BusinessInfo businessInfo = initBusinessForm(BizConstant.MIDDLEWARE_PULSAR);
-        businessInfo.setStatus(EntityStatus.BIZ_APPROVE_PASSED.getCode());
-        businessService.update(businessInfo, OPERATOR);
-        UpdateBusinessWorkflowForm form = new UpdateBusinessWorkflowForm();
-        form.setBusinessInfo(businessInfo);
+        InlongGroupInfo groupInfo = initGroupForm(Constant.MIDDLEWARE_PULSAR);
+        groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
+        groupService.update(groupInfo.genRequest(), OPERATOR);
+        UpdateGroupProcessForm form = new UpdateGroupProcessForm();
+        form.setGroupInfo(groupInfo);
         form.setOperateType(OperateType.SUSPEND);
-        serviceTaskListenerFactory.acceptPlugin(new MockPlugin());
-        WorkflowContext context = workflowService.getWorkflowEngine().processService()
-                .start(ProcessName.SUSPEND_BUSINESS_WORKFLOW.name(), applicant, form);
-        WorkflowResult result = WorkflowResult.of(context);
-        ProcessView view = result.getProcessInfo();
-        Assert.assertTrue(view.getState() == ProcessState.COMPLETED);
-        Process process = context.getProcess();
-        Task stopSortTask = process.getTaskByName("stopSort");
+        taskListenerFactory.acceptPlugin(new MockPlugin());
+
+        WorkflowContext context = workflowEngine.processService()
+                .start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
+        WorkflowResult result = WorkflowBeanUtils.result(context);
+        ProcessResponse response = result.getProcessInfo();
+        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
+
+        WorkflowProcess process = context.getProcess();
+        WorkflowTask stopSortTask = process.getTaskByName("stopSort");
         Assert.assertTrue(stopSortTask instanceof ServiceTask);
-        List<TaskEventListener> listeners = Lists.newArrayList(stopSortTask.getName2EventListenerMap().values());
+        List<TaskEventListener> listeners = Lists.newArrayList(stopSortTask.getNameToListenerMap().values());
         Assert.assertTrue(listeners.get(0) instanceof MockStopSortListener);
-        Task stopSourceTask = process.getTaskByName("stopDataSource");
+
+        WorkflowTask stopSourceTask = process.getTaskByName("stopSource");
         Assert.assertTrue(stopSourceTask instanceof ServiceTask);
-        listeners = Lists.newArrayList(stopSourceTask.getName2EventListenerMap().values());
-        Assert.assertTrue(listeners.get(0) instanceof MockStopSourceListener);
+        listeners = Lists.newArrayList(stopSourceTask.getNameToListenerMap().values());
     }
 
     @Test
     public void testRestartProcess() {
-        BusinessInfo businessInfo = initBusinessForm(BizConstant.MIDDLEWARE_PULSAR);
-        businessInfo.setStatus(EntityStatus.BIZ_SUSPEND.getCode());
-        businessService.update(businessInfo, OPERATOR);
-        UpdateBusinessWorkflowForm form = new UpdateBusinessWorkflowForm();
-        form.setBusinessInfo(businessInfo);
+        InlongGroupInfo groupInfo = initGroupForm(Constant.MIDDLEWARE_PULSAR);
+        groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
+        groupService.update(groupInfo.genRequest(), OPERATOR);
+        groupInfo.setStatus(GroupState.GROUP_SUSPEND.getCode());
+        groupService.update(groupInfo.genRequest(), OPERATOR);
+        UpdateGroupProcessForm form = new UpdateGroupProcessForm();
+        form.setGroupInfo(groupInfo);
         form.setOperateType(OperateType.RESTART);
-        serviceTaskListenerFactory.acceptPlugin(new MockPlugin());
-        WorkflowContext context = workflowService.getWorkflowEngine().processService()
-                .start(ProcessName.RESTART_BUSINESS_WORKFLOW.name(), applicant, form);
-        WorkflowResult result = WorkflowResult.of(context);
-        ProcessView view = result.getProcessInfo();
-        Assert.assertTrue(view.getState() == ProcessState.COMPLETED);
-        Process process = context.getProcess();
-        Task restartSort = process.getTaskByName("restartSort");
+        taskListenerFactory.acceptPlugin(new MockPlugin());
+
+        WorkflowContext context = workflowEngine.processService()
+                .start(ProcessName.RESTART_GROUP_PROCESS.name(), applicant, form);
+        WorkflowResult result = WorkflowBeanUtils.result(context);
+        ProcessResponse response = result.getProcessInfo();
+        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
+
+        WorkflowProcess process = context.getProcess();
+        WorkflowTask restartSort = process.getTaskByName("restartSort");
         Assert.assertTrue(restartSort instanceof ServiceTask);
-        List<TaskEventListener> listeners = Lists.newArrayList(restartSort.getName2EventListenerMap().values());
-        Assert.assertTrue(listeners.size() == 1);
+        List<TaskEventListener> listeners = Lists.newArrayList(restartSort.getNameToListenerMap().values());
+        Assert.assertEquals(1, listeners.size());
         Assert.assertTrue(listeners.get(0) instanceof MockRestartSortListener);
-        Task restartSourceTask = process.getTaskByName("restartDataSource");
+
+        WorkflowTask restartSourceTask = process.getTaskByName("restartSource");
         Assert.assertTrue(restartSourceTask instanceof ServiceTask);
-        listeners = Lists.newArrayList(restartSourceTask.getName2EventListenerMap().values());
-        Assert.assertTrue(listeners.size() == 1);
-        Assert.assertTrue(listeners.get(0) instanceof MockRestartSourceListener);
+        listeners = Lists.newArrayList(restartSourceTask.getNameToListenerMap().values());
+        Assert.assertEquals(2, listeners.size());
     }
 
     @Test
     public void testStopProcess() {
-        BusinessInfo businessInfo = initBusinessForm(BizConstant.MIDDLEWARE_PULSAR);
-        businessInfo.setStatus(EntityStatus.BIZ_RESTART.getCode());
-        businessService.update(businessInfo, OPERATOR);
-        UpdateBusinessWorkflowForm form = new UpdateBusinessWorkflowForm();
-        form.setBusinessInfo(businessInfo);
+        InlongGroupInfo groupInfo = initGroupForm(Constant.MIDDLEWARE_PULSAR);
+        groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
+        groupService.update(groupInfo.genRequest(), OPERATOR);
+        groupInfo.setStatus(GroupState.GROUP_SUSPEND.getCode());
+        groupService.update(groupInfo.genRequest(), OPERATOR);
+        UpdateGroupProcessForm form = new UpdateGroupProcessForm();
+        form.setGroupInfo(groupInfo);
         form.setOperateType(OperateType.DELETE);
-        serviceTaskListenerFactory.acceptPlugin(new MockPlugin());
-        WorkflowContext context = workflowService.getWorkflowEngine().processService()
-                .start(ProcessName.DELETE_BUSINESS_WORKFLOW.name(), applicant, form);
-        WorkflowResult result = WorkflowResult.of(context);
-        ProcessView view = result.getProcessInfo();
-        Assert.assertTrue(view.getState() == ProcessState.COMPLETED);
-        Process process = context.getProcess();
-        Task deleteSort = process.getTaskByName("deleteSort");
+        taskListenerFactory.acceptPlugin(new MockPlugin());
+
+        WorkflowContext context = workflowEngine.processService()
+                .start(ProcessName.DELETE_GROUP_PROCESS.name(), applicant, form);
+        WorkflowResult result = WorkflowBeanUtils.result(context);
+        ProcessResponse view = result.getProcessInfo();
+        Assert.assertSame(view.getStatus(), ProcessStatus.COMPLETED);
+        WorkflowProcess process = context.getProcess();
+        WorkflowTask deleteSort = process.getTaskByName("deleteSort");
         Assert.assertTrue(deleteSort instanceof ServiceTask);
-        List<TaskEventListener> listeners = Lists.newArrayList(deleteSort.getName2EventListenerMap().values());
-        Assert.assertTrue(listeners.size() == 1);
+        List<TaskEventListener> listeners = Lists.newArrayList(deleteSort.getNameToListenerMap().values());
+        Assert.assertEquals(1, listeners.size());
         Assert.assertTrue(listeners.get(0) instanceof MockDeleteSortListener);
-        Task deleteSourceTask = process.getTaskByName("deleteDataSource");
+
+        WorkflowTask deleteSourceTask = process.getTaskByName("deleteSource");
         Assert.assertTrue(deleteSourceTask instanceof ServiceTask);
-        listeners = Lists.newArrayList(deleteSourceTask.getName2EventListenerMap().values());
-        Assert.assertTrue(listeners.size() == 1);
-        Assert.assertTrue(listeners.get(0) instanceof MockDeleteSourceListener);
+        listeners = Lists.newArrayList(deleteSourceTask.getNameToListenerMap().values());
+        Assert.assertEquals(2, listeners.size());
+    }
+
+    @Test
+    public void testListTaskExecuteLogs() {
+        // insert process instance
+        String groupId = "test_group";
+        WorkflowProcessEntity process = new WorkflowProcessEntity();
+        process.setId(1);
+        process.setInlongGroupId(groupId);
+        process.setName("CREATE_GROUP_RESOURCE");
+        process.setDisplayName("Group-Resource");
+        process.setHidden(1);
+        process.setStatus(ProcessStatus.COMPLETED.name());
+        processEntityMapper.insert(process);
+
+        // insert task instance
+        WorkflowTaskEntity task = new WorkflowTaskEntity();
+        task.setId(1);
+        task.setType("ServiceTask");
+        task.setProcessId(1);
+        taskEntityMapper.insert(task);
+
+        // query execute logs
+        TaskExecuteLogQuery query = new TaskExecuteLogQuery();
+        query.setInlongGroupId(groupId);
+        query.setProcessNames(Collections.singletonList("CREATE_GROUP_RESOURCE"));
+        PageInfo<WorkflowExecuteLog> logPageInfo = workflowService.listTaskExecuteLogs(query);
+
+        Assert.assertEquals(1, logPageInfo.getTotal());
     }
 
 }

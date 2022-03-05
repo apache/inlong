@@ -36,7 +36,7 @@ const workflowFormat = (applicant, startEvent, taskHistory = []) => {
       title: i18n.t('pages.ApprovalDetail.SubmitApplication'),
       name: '',
       desc: applicant,
-      state: 'COMPLETED',
+      status: 'COMPLETED',
     },
   ];
   const nextList = [startEvent.next];
@@ -51,7 +51,7 @@ const workflowFormat = (applicant, startEvent, taskHistory = []) => {
           title: nextList.length ? item.displayName : i18n.t('pages.ApprovalDetail.Done'),
           desc: item.approvers?.join(', '),
           name: item.name,
-          state: item.state,
+          status: item.status,
           remark: taskHistoryMap.get(item.name)?.remark,
         };
       }),
@@ -82,7 +82,7 @@ const Comp: React.FC = () => {
   const { data = {} } = useRequest({
     url: `/workflow/detail/${id}`,
     params: {
-      taskInstId: taskId,
+      taskId: taskId,
     },
   });
 
@@ -154,7 +154,7 @@ const Comp: React.FC = () => {
 
   const Footer = () => (
     <>
-      {actived === 'Approvals' && currentTask?.state === 'PENDING' && (
+      {actived === 'Approvals' && currentTask?.status === 'PENDING' && (
         <Space style={{ display: 'flex', justifyContent: 'center' }}>
           <Button type="primary" onClick={onApprove}>
             {i18n.t('pages.ApprovalDetail.Ok')}
@@ -165,7 +165,7 @@ const Comp: React.FC = () => {
           </Button>
         </Space>
       )}
-      {actived === 'Applies' && processInfo?.state === 'PROCESSING' && (
+      {actived === 'Applies' && processInfo?.status === 'PROCESSING' && (
         <Space style={{ display: 'flex', justifyContent: 'center' }}>
           <Button onClick={onCancel}>{i18n.t('pages.ApprovalDetail.Withdraw')}</Button>
           <Button onClick={() => history.push('/approvals?actived=Applies')}>
@@ -178,15 +178,15 @@ const Comp: React.FC = () => {
 
   const Form = useMemo(() => {
     return {
-      NEW_BUSINESS_WORKFLOW: Access,
-      NEW_CONSUMPTION_WORKFLOW: Consume,
+      NEW_GROUP_PROCESS: Access,
+      NEW_CONSUMPTION_PROCESS: Consume,
     }[processInfo?.name];
   }, [processInfo]);
 
   // Approval completed
-  const isFinished = currentTask?.state === 'APPROVED';
+  const isFinished = currentTask?.status === 'APPROVED';
   // Do not display redundant approval information, such as approval cancellation/rejection
-  const noExtraForm = currentTask?.state === 'REJECTED' || currentTask?.state === 'CANCELED';
+  const noExtraForm = currentTask?.status === 'REJECTED' || currentTask?.status === 'CANCELED';
 
   const suffixContent = [
     {

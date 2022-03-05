@@ -39,14 +39,17 @@ import org.apache.flink.table.factories.TableFactoryService;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.ArrayType;
 import org.apache.flink.table.types.logical.BigIntType;
+import org.apache.flink.table.types.logical.BinaryType;
 import org.apache.flink.table.types.logical.BooleanType;
 import org.apache.flink.table.types.logical.DateType;
 import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.DoubleType;
 import org.apache.flink.table.types.logical.FloatType;
 import org.apache.flink.table.types.logical.IntType;
+import org.apache.flink.table.types.logical.LocalZonedTimestampType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.MapType;
+import org.apache.flink.table.types.logical.NullType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.SmallIntType;
 import org.apache.flink.table.types.logical.TimeType;
@@ -57,6 +60,8 @@ import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
 import org.apache.inlong.sort.formats.common.ArrayTypeInfo;
 import org.apache.inlong.sort.formats.common.BasicFormatInfo;
+import org.apache.inlong.sort.formats.common.BinaryFormatInfo;
+import org.apache.inlong.sort.formats.common.BinaryTypeInfo;
 import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
 import org.apache.inlong.sort.formats.common.BooleanTypeInfo;
 import org.apache.inlong.sort.formats.common.ByteFormatInfo;
@@ -73,10 +78,13 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.FormatUtils;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.IntTypeInfo;
+import org.apache.inlong.sort.formats.common.LocalZonedTimestampFormatInfo;
+import org.apache.inlong.sort.formats.common.LocalZonedTimestampTypeInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.LongTypeInfo;
 import org.apache.inlong.sort.formats.common.MapFormatInfo;
 import org.apache.inlong.sort.formats.common.MapTypeInfo;
+import org.apache.inlong.sort.formats.common.NullFormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.common.RowTypeInfo;
 import org.apache.inlong.sort.formats.common.ShortFormatInfo;
@@ -93,6 +101,9 @@ import org.apache.inlong.sort.formats.common.TypeInfo;
  * A utility class for table formats.
  */
 public class TableFormatUtils {
+
+    // to support avro format, precision must be less than 3
+    private static final int DEFAULT_PRECISION_FOR_TIMESTAMP = 2;
 
     /**
      * Returns the {@link DeserializationSchema} described by the given
@@ -268,6 +279,8 @@ public class TableFormatUtils {
             return new TimeFormatInfo();
         } else if (logicalType instanceof TimestampType) {
             return new TimestampFormatInfo();
+        } else if (logicalType instanceof LocalZonedTimestampType) {
+            return new LocalZonedTimestampFormatInfo();
         } else if (logicalType instanceof ArrayType) {
             ArrayType arrayType = (ArrayType) logicalType;
             LogicalType elementType = arrayType.getElementType();
@@ -299,6 +312,10 @@ public class TableFormatUtils {
             }
 
             return new RowFormatInfo(fieldNames, fieldFormatInfos);
+        } else if (logicalType instanceof BinaryType) {
+            return BinaryFormatInfo.INSTANCE;
+        } else if (logicalType instanceof NullType) {
+            return NullFormatInfo.INSTANCE;
         } else {
             throw new UnsupportedOperationException();
         }
@@ -331,7 +348,9 @@ public class TableFormatUtils {
         } else if (formatInfo instanceof DateFormatInfo) {
             return new DateType();
         } else if (formatInfo instanceof TimestampFormatInfo) {
-            return new TimestampType();
+            return new TimestampType(DEFAULT_PRECISION_FOR_TIMESTAMP);
+        } else if (formatInfo instanceof LocalZonedTimestampFormatInfo) {
+            return new LocalZonedTimestampType();
         } else if (formatInfo instanceof ArrayFormatInfo) {
             FormatInfo elementFormatInfo = ((ArrayFormatInfo) formatInfo).getElementFormatInfo();
             return new ArrayType(deriveLogicalType(elementFormatInfo));
@@ -350,6 +369,10 @@ public class TableFormatUtils {
                 logicalTypes[i] = deriveLogicalType(formatInfos[i]);
             }
             return RowType.of(logicalTypes, rowFormatInfo.getFieldNames());
+        } else if (formatInfo instanceof BinaryFormatInfo) {
+            return new BinaryType();
+        } else if (formatInfo instanceof NullFormatInfo) {
+            return new NullType();
         } else {
             throw new UnsupportedOperationException();
         }
@@ -386,6 +409,10 @@ public class TableFormatUtils {
             return Types.SQL_TIME;
         } else if (typeInfo instanceof TimestampTypeInfo) {
             return Types.SQL_TIMESTAMP;
+        } else if (typeInfo instanceof LocalZonedTimestampTypeInfo) {
+            return Types.LOCAL_DATE_TIME;
+        } else if (typeInfo instanceof BinaryTypeInfo) {
+            return Types.PRIMITIVE_ARRAY(Types.BYTE);
         } else if (typeInfo instanceof ArrayTypeInfo) {
             ArrayTypeInfo arrayTypeInfo = (ArrayTypeInfo) typeInfo;
             TypeInfo elementTypeInfo =
@@ -414,7 +441,7 @@ public class TableFormatUtils {
 
             return Types.ROW_NAMED(fieldNames, fieldTypes);
         } else {
-            throw new IllegalStateException("Unexpected format.");
+            throw new IllegalStateException("Unexpected type info " + typeInfo + ".");
         }
     }
 

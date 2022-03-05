@@ -23,7 +23,7 @@ import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.user.LoginUser;
 import org.apache.inlong.manager.common.pojo.user.UserDetail;
 import org.apache.inlong.manager.common.pojo.user.UserInfo;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -50,7 +50,7 @@ public class AnnoController {
         Subject subject = SecurityUtils.getSubject();
         UsernamePasswordToken token = new UsernamePasswordToken(loginUser.getUsername(), loginUser.getPassword());
         subject.login(token);
-        LoginUserUtil.setUserLoginInfo((UserDetail) subject.getPrincipal());
+        LoginUserUtils.setUserLoginInfo((UserDetail) subject.getPrincipal());
 
         return Response.success("success");
     }

@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApprover;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverQuery;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +59,7 @@ public class WorkflowApproverController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Add approver configuration")
     public Response<Object> add(@RequestBody WorkflowApprover config) {
-        this.workflowApproverService.add(config, LoginUserUtil.getLoginUserDetail().getUserName());
+        this.workflowApproverService.add(config, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success();
     }
 
@@ -67,7 +67,7 @@ public class WorkflowApproverController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update approver configuration")
     public Response<Object> update(@RequestBody WorkflowApprover config) {
-        this.workflowApproverService.update(config, LoginUserUtil.getLoginUserDetail().getUserName());
+        this.workflowApproverService.update(config, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success();
     }
 
@@ -76,7 +76,7 @@ public class WorkflowApproverController {
     @ApiOperation(value = "Delete approver configuration")
     @ApiParam(value = "Configuration item ID", required = true)
     public Response<Object> delete(@PathVariable Integer id) {
-        this.workflowApproverService.delete(id, LoginUserUtil.getLoginUserDetail().getUserName());
+        this.workflowApproverService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success();
     }
 }

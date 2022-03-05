@@ -42,8 +42,8 @@ public class MessageFetchManagerTest {
         PowerMockito.mockStatic(AddressUtils.class);
         PowerMockito.when(AddressUtils.getLocalAddress()).thenReturn("127.0.0.1");
 
-        when(clientConfig.getMasterInfo()).thenReturn(new MasterInfo("192.168.1.1:18080"));
-        ConsumerConfig config = new ConsumerConfig("192.168.1.1:18080", "test");
+        when(clientConfig.getMasterInfo()).thenReturn(new MasterInfo("127.0.0.1:18080"));
+        ConsumerConfig config = new ConsumerConfig("127.0.0.1:18080", "test");
         ClientFactory clientFactory = new NettyClientFactory();
         TubeBaseSessionFactory factory = new TubeBaseSessionFactory(clientFactory, clientConfig);
         SimplePushMessageConsumer consumer = new SimplePushMessageConsumer(factory, config);

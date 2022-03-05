@@ -21,6 +21,8 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.server.common.statusdef.CleanPolType;
 import org.junit.Assert;
 import org.junit.Test;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TopicPropGroupTest {
 
@@ -147,7 +149,53 @@ public class TopicPropGroupTest {
         Assert.assertEquals(propsCase3.getRetPeriodInMs(), 10 * 3600 * 1000);
         Assert.assertFalse(propsCase3.isMatched(propsCase2));
         Assert.assertTrue(propsCase2.updModifyInfo(propsCase3));
-
     }
 
+    @Test
+    public void getMapValuesTest() {
+        Map<String, String> paramMap = new HashMap<>();
+        // case 1
+        TopicPropGroup entity1 = new TopicPropGroup();
+        entity1.getConfigureInfo(paramMap, true);
+        Assert.assertEquals(paramMap.size(), 0);
+        paramMap.clear();
+        // case 2
+        TopicPropGroup entity2 = new TopicPropGroup(1, 2,
+                3, 4, 5, 6,
+                7, 8, true, false,
+                "delete,22h", 9, "aaa");
+        entity2.getConfigureInfo(paramMap, true);
+        Assert.assertEquals(paramMap.size(), 13);
+        Assert.assertEquals(paramMap.get("numTopicStores"), String.valueOf(1));
+        Assert.assertEquals(paramMap.get("numPartitions"), String.valueOf(2));
+        Assert.assertEquals(paramMap.get("unflushThreshold"), String.valueOf(3));
+        Assert.assertEquals(paramMap.get("unflushInterval"), String.valueOf(4));
+        Assert.assertEquals(paramMap.get("unflushDataHold"), String.valueOf(5));
+        Assert.assertEquals(paramMap.get("memCacheMsgSizeInMB"), String.valueOf(6));
+        Assert.assertEquals(paramMap.get("memCacheMsgCntInK"), String.valueOf(7));
+        Assert.assertEquals(paramMap.get("memCacheFlushIntvl"), String.valueOf(8));
+        Assert.assertEquals(paramMap.get("acceptPublish"), "true");
+        Assert.assertEquals(paramMap.get("acceptSubscribe"), "false");
+        Assert.assertEquals(paramMap.get("deletePolicy"), "delete,22h");
+        Assert.assertEquals(paramMap.get("dataStoreType"), String.valueOf(9));
+        Assert.assertEquals(paramMap.get("dataPath"), "aaa");
+        paramMap.clear();
+        // case 3
+        entity2.getConfigureInfo(paramMap, false);
+        Assert.assertEquals(paramMap.size(), 13);
+        Assert.assertEquals(paramMap.get("numStore"), String.valueOf(1));
+        Assert.assertEquals(paramMap.get("numPart"), String.valueOf(2));
+        Assert.assertEquals(paramMap.get("unfDskMsgCnt"), String.valueOf(3));
+        Assert.assertEquals(paramMap.get("unfDskInt"), String.valueOf(4));
+        Assert.assertEquals(paramMap.get("unfDskDataSz"), String.valueOf(5));
+        Assert.assertEquals(paramMap.get("cacheInMB"), String.valueOf(6));
+        Assert.assertEquals(paramMap.get("unfMemMsgCnt"), String.valueOf(7));
+        Assert.assertEquals(paramMap.get("unfMemInt"), String.valueOf(8));
+        Assert.assertEquals(paramMap.get("accPub"), "true");
+        Assert.assertEquals(paramMap.get("accSub"), "false");
+        Assert.assertEquals(paramMap.get("delPol"), "delete,22h");
+        Assert.assertEquals(paramMap.get("dStType"), String.valueOf(9));
+        Assert.assertEquals(paramMap.get("dPath"), "aaa");
+        paramMap.clear();
+    }
 }

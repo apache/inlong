@@ -20,4 +20,4 @@
 #
 
 # this program kills the audit store
-ps -ef |grep "inlong-audit" | grep -v grep|awk '{print $2}' | xargs kill -9
+ps -ef |grep "audit-store" | grep -v grep|awk '{print $2}' | xargs kill -9
