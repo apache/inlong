@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 
 /**
@@ -34,7 +34,9 @@ import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 @ApiModel(value = "Response of the binlog source")
 public class BinlogSourceResponse extends SourceResponse {
 
-    private String sourceType = Constant.SOURCE_BINLOG;
+    public BinlogSourceResponse() {
+        this.setSourceType(SourceType.BINLOG.name());
+    }
 
     @ApiModelProperty("Username of the DB server")
     private String user;
