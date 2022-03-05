@@ -178,7 +178,7 @@ public class Sender {
                                                EncodeObject encodeObject, String msgUUID,
                                                long timeout, TimeUnit timeUnit)
         throws ExecutionException, InterruptedException, TimeoutException {
-        client = clientMgr.getClientByRoundRobin();
+
         if (client == null) {
             return SendResult.NO_CONNECTION;
         }
@@ -220,7 +220,7 @@ public class Sender {
         metricWorker.recordNumByKey(encodeObject.getMessageId(),
                 encodeObject.getGroupId(), encodeObject.getStreamId(),
                 Utils.getLocalIp(), encodeObject.getDt(), encodeObject.getPackageTime(), encodeObject.getRealCnt());
-        NettyClient client = null;
+        NettyClient client = clientMgr.getClientByRoundRobin();
         SendResult message = null;
         try {
             message = syncSendInternalMessage(client, encodeObject, msgUUID, timeout, timeUnit);
@@ -259,7 +259,9 @@ public class Sender {
             syncCallables.remove(encodeObject.getMessageId());
             return SendResult.UNKOWN_ERROR;
         }
-        scanThread.resetTimeoutChannel(client.getChannel());
+        if (client != null) {
+            scanThread.resetTimeoutChannel(client.getChannel());
+        }
         if (message == SendResult.OK) {
             metricWorker.recordSuccessByMessageId(encodeObject.getMessageId());
         }
