@@ -78,32 +78,28 @@ public class SinkInfoUtils {
     public static SinkInfo createSinkInfo(InlongStreamInfo inlongStreamInfo, SourceResponse sourceResponse,
             SinkResponse sinkResponse) {
         String sinkType = sinkResponse.getSinkType();
+        SinkInfo sinkInfo;
         if (SinkType.forType(sinkType) == SinkType.HIVE) {
-            return createHiveSinkInfo(sourceResponse, (HiveSinkResponse) sinkResponse);
+            sinkInfo = createHiveSinkInfo(sourceResponse, (HiveSinkResponse) sinkResponse);
+        } else if (SinkType.forType(sinkType) == SinkType.KAFKA) {
+            sinkInfo = createKafkaSinkInfo(inlongStreamInfo, sourceResponse, (KafkaSinkResponse) sinkResponse);
+        } else if (SinkType.forType(sinkType) == SinkType.CLICKHOUSE) {
+            sinkInfo = createClickhouseSinkInfo((ClickHouseSinkResponse) sinkResponse);
+        } else {
+            throw new RuntimeException(
+                    String.format("SinkType:{} not support in CreateSortConfigListener", sinkType));
         }
-        if (SinkType.forType(sinkType) == SinkType.KAFKA) {
-            return createKafkaSinkInfo(inlongStreamInfo, sourceResponse, (KafkaSinkResponse) sinkResponse);
-        }
-        if (SinkType.forType(sinkType) == SinkType.CLICKHOUSE) {
-            return createClickhouseSinkInfo(inlongStreamInfo, sourceResponse, (ClickHouseSinkResponse) sinkResponse);
-        }
-        // todo iceberg is wait to support
-        throw new RuntimeException(
-                String.format("SinkType:{} not support in CreateSortConfigListener", sinkType));
+        return sinkInfo;
     }
 
-    private static ClickHouseSinkInfo createClickhouseSinkInfo(InlongStreamInfo inlongStreamInfo,
-            SourceResponse sourceResponse, ClickHouseSinkResponse sinkResponse) {
+    private static ClickHouseSinkInfo createClickhouseSinkInfo(ClickHouseSinkResponse sinkResponse) {
         if (StringUtils.isEmpty(sinkResponse.getJdbcUrl())) {
             throw new RuntimeException(String.format("clickHouseSink={} server url cannot be empty", sinkResponse));
-        }
-        if (CollectionUtils.isEmpty(sinkResponse.getFieldList())) {
+        } else if (CollectionUtils.isEmpty(sinkResponse.getFieldList())) {
             throw new RuntimeException(String.format("clickHouseSink={} fields cannot be empty", sinkResponse));
-        }
-        if (StringUtils.isEmpty(sinkResponse.getTableName())) {
+        } else if (StringUtils.isEmpty(sinkResponse.getTableName())) {
             throw new RuntimeException(String.format("clickHouseSink={} table name cannot be empty", sinkResponse));
-        }
-        if (StringUtils.isEmpty(sinkResponse.getDatabaseName())) {
+        } else if (StringUtils.isEmpty(sinkResponse.getDatabaseName())) {
             throw new RuntimeException(String.format("clickHouseSink={} database name cannot be empty", sinkResponse));
         }
         if (sinkResponse.getDistributedTable() == null) {
