@@ -124,9 +124,9 @@ public class InlongParser {
                 SourceType sourceType = SourceType.forType(type);
                 switch (sourceType) {
                     case BINLOG:
-                        BinlogSourceResponse hiveSinkResponse = GsonUtil.fromJson(sourceJson.toString(),
+                        BinlogSourceResponse binlogSourceResponse = GsonUtil.fromJson(sourceJson.toString(),
                                 BinlogSourceResponse.class);
-                        sourceResponses.add(hiveSinkResponse);
+                        sourceResponses.add(binlogSourceResponse);
                         break;
                     case KAFKA:
                         KafkaSourceResponse kafkaSourceResponse = GsonUtil.fromJson(sourceJson.toString(),
