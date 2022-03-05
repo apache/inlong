@@ -218,10 +218,10 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
             } else if (Constant.MIDDLEWARE_PULSAR.equals(entity.getMiddlewareType())) {
                 List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
                 for (InlongStreamEntity stream : streamList) {
+                    String topic = stream.getMqResourceObj();
                     String streamId = stream.getInlongStreamId();
                     config.setInlongGroupId(groupId + "/" + streamId);
-                    config.setTopic("persistent://" + clusterBean.getDefaultTenant() + "/" + groupId + "/" + streamId);
-
+                    config.setTopic("persistent://" + clusterBean.getDefaultTenant() + "/" + bizResource + "/" + topic);
                 }
             }
             configList.add(config);
@@ -261,22 +261,23 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         // based on group id, get topic list
         for (InlongGroupEntity inlongGroupEntity : groupEntities) {
 //        for (String groupId : groupIdList) {
-            String groupId = inlongGroupEntity.getInlongGroupId();
+            final String groupId = inlongGroupEntity.getInlongGroupId();
+            final String mqResource = inlongGroupEntity.getMqResourceObj();
             if (Constant.MIDDLEWARE_PULSAR.equals(middlewareType)) {
                 List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
-
                 for (InlongStreamEntity stream : streamList) {
                     DataProxyConfig topicConfig = new DataProxyConfig();
                     String streamId = stream.getInlongStreamId();
+                    String topic = stream.getMqResourceObj();
                     topicConfig.setInlongGroupId(groupId + "/" + streamId);
-                    topicConfig.setTopic("persistent://" + tenant + "/" + groupId + "/" + streamId);
+                    topicConfig.setTopic("persistent://" + tenant + "/" + mqResource + "/" + topic);
                     topicList.add(topicConfig);
 
                 }
             } else if (Constant.MIDDLEWARE_TUBE.equals(middlewareType)) {
                 DataProxyConfig topicConfig = new DataProxyConfig();
                 topicConfig.setInlongGroupId(groupId);
-                topicConfig.setTopic(groupId);
+                topicConfig.setTopic(mqResource);
                 topicList.add(topicConfig);
 
             }

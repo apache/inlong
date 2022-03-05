@@ -62,4 +62,7 @@ public class MySQLBinlogSource extends StreamSource {
 
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
     private String timestampFormatStandard = "SQL";
+
+    @ApiModelProperty("Need transfer total database")
+    private boolean allMigration = false;
 }

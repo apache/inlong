@@ -23,7 +23,6 @@ import org.apache.inlong.common.enums.TaskTypeEnum;
 import java.util.Locale;
 
 public enum SourceType {
-    DATABASE_MIGRATION("DATABASE_MIGRATION",TaskTypeEnum.DATABASE_MIGRATION),
     FILE("FILE", TaskTypeEnum.FILE),
     SQL("SQL", TaskTypeEnum.SQL),
     BINLOG("BINLOG", TaskTypeEnum.BINLOG),
