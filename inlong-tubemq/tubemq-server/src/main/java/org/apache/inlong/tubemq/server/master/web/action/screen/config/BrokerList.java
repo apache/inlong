@@ -54,13 +54,13 @@ public class BrokerList implements Action {
         pageNum = pageNum <= 0 ? 1 : pageNum;
         int pageSize = TStringUtils.isNotEmpty(strPageSize)
                 ? Integer.parseInt(strPageSize) : 10;
-        pageSize = pageSize <= 10 ? 10 : pageSize;
+        pageSize = Math.max(pageSize, 10);
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         List<BrokerInfo> brokerInfoList =
                 new ArrayList(brokerRunManager.getBrokerInfoMap(null).values());
         // *************************************************************************************
         for (int i = 0; i < 95; i++) {
-            BrokerInfo info = new BrokerInfo(i, "192.168.0.1", 8123);
+            BrokerInfo info = new BrokerInfo(i, "127.0.0.1", 8123);
             brokerInfoList.add(info);
         }
         // *************************************************************************************
@@ -80,8 +80,7 @@ public class BrokerList implements Action {
             Collections.sort(brokerInfoList, new BrokerComparator());
             int fromIndex = pageSize * (pageNum - 1);
             int toIndex =
-                    fromIndex + pageSize > brokerInfoList.size() ? brokerInfoList.size() : fromIndex
-                            + pageSize;
+                    Math.min(fromIndex + pageSize, brokerInfoList.size());
             List<BrokerInfo> firstPageList = brokerInfoList.subList(fromIndex, toIndex);
             brokerVOList = new ArrayList<>(brokerInfoList.size());
             for (BrokerInfo brokerInfo : firstPageList) {

@@ -134,7 +134,7 @@ public class HttpUtils {
      * Request parameters:
      *    topicName=test_1, brokerId=170399798
      * Master nodes:
-     *    10.54.55.32:8080(invalid node),127.0.0.1:8080(valid node)
+     *    127.0.0.1:8082(invalid node),127.0.0.1:8080(valid node)
      *
      * @param args   the call arguments
      */
@@ -142,7 +142,7 @@ public class HttpUtils {
         Map<String, String> inParamMap = new HashMap<>();
         inParamMap.put("topicName", "test_1");
         inParamMap.put("brokerId", "170399798");
-        String masterAddr = "10.54.55.32:8080,127.0.0.1:8080";
+        String masterAddr = "127.0.0.1:8082,127.0.0.1:8080";
         // build visit object
         MasterInfo masterInfo =  new MasterInfo(masterAddr.trim());
         JsonObject jsonRes = null;

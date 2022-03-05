@@ -239,7 +239,7 @@ bool TubeMQTDMsg::parseDefaultMsg(const char* data, uint32_t data_length, int32_
       err_info = "Parse message error: invalid attr length";
       return false;
     }
-    origAttrData = (char*)malloc(origAttrLen + 1);
+    origAttrData = static_cast<char*>(malloc(origAttrLen + 1));
     if (origAttrData == NULL) {
       err_info = "Parse message error: malloc buffer for default attr value failure!";
       return false;
@@ -275,7 +275,7 @@ bool TubeMQTDMsg::parseDefaultMsg(const char* data, uint32_t data_length, int32_
         err_info = "Parse message error:  snappy uncompressed default compress's length failure!";
         return false;
       }
-      uncompressData = (char*)malloc(uncompressDataLen);
+      uncompressData = static_cast<char*>(malloc(uncompressDataLen));
       if (uncompressData == NULL) {
         err_info = "Parse message error: malloc buffer for default compress's data failure!";
         return false;
@@ -289,7 +289,7 @@ bool TubeMQTDMsg::parseDefaultMsg(const char* data, uint32_t data_length, int32_
       }
     } else {
       uncompressDataLen = dataLen - 1;
-      uncompressData = (char*)malloc(uncompressDataLen);
+      uncompressData = static_cast<char*>(malloc(uncompressDataLen));
       if (uncompressData == NULL) {
         err_info = "Parse message error: malloc buffer for default's data failure!";
         return false;
@@ -359,7 +359,7 @@ bool TubeMQTDMsg::parseMixAttrMsg(const char* data, uint32_t data_length, int32_
       err_info = "Parse message error: invalid attr length";
       return false;
     }
-    origAttrData = (char*)malloc(origAttrLen + 1);
+    origAttrData = static_cast<char*>(malloc(origAttrLen + 1));
     if (origAttrData == NULL) {
       err_info = "Parse message error: malloc buffer for v3 attr value failure!";
       return false;
@@ -391,7 +391,7 @@ bool TubeMQTDMsg::parseMixAttrMsg(const char* data, uint32_t data_length, int32_
         err_info = "Parse message error:  snappy uncompressed v3 compress's length failure!";
         return false;
       }
-      uncompressData = (char*)malloc(uncompressDataLen);
+      uncompressData = static_cast<char*>(malloc(uncompressDataLen));
       if (uncompressData == NULL) {
         err_info = "Parse message error: malloc buffer for v3 compress's data failure!";
         return false;
@@ -405,7 +405,7 @@ bool TubeMQTDMsg::parseMixAttrMsg(const char* data, uint32_t data_length, int32_
       }
     } else {
       uncompressDataLen = bodyDataLen - 1;
-      uncompressData = (char*)malloc(uncompressDataLen);
+      uncompressData = static_cast<char*>(malloc(uncompressDataLen));
       if (uncompressData == NULL) {
         err_info = "Parse message error: malloc buffer for v3 compress's data failure!";
         return false;
@@ -447,7 +447,7 @@ bool TubeMQTDMsg::parseMixAttrMsg(const char* data, uint32_t data_length, int32_
         err_info = "Parse message error: invalid v3 attr's msg Length";
         return false;
       }
-      singleData = (char*)malloc(singleMsgLen);
+      singleData = static_cast<char*>(malloc(singleMsgLen));
       if (singleData == NULL) {
         free(uncompressData);
         uncompressData = NULL;
@@ -474,7 +474,7 @@ bool TubeMQTDMsg::parseMixAttrMsg(const char* data, uint32_t data_length, int32_
           err_info = "Parse message error: invalid v3 attr's attr Length";
           return false;
         }
-        singleAttr = (char*)malloc(singleAttrLen + 1);
+        singleAttr = static_cast<char*>(malloc(singleAttrLen + 1));
         if (singleAttr == NULL) {
           free(uncompressData);
           free(singleData);
@@ -588,7 +588,7 @@ bool TubeMQTDMsg::parseBinMsg(const char* data, uint32_t data_length, int32_t st
   bool result = false;
   map<string, string> commonAttrMap;
   if (attrLen != 0) {
-    char* commonAttr = (char*)malloc(attrLen + 1);
+    char* commonAttr = static_cast<char*>(malloc(attrLen + 1));
     if (commonAttr == NULL) {
       err_info = "Parse message error: malloc buffer for v3 common attr failure!";
       return false;
@@ -613,7 +613,7 @@ bool TubeMQTDMsg::parseBinMsg(const char* data, uint32_t data_length, int32_t st
         err_info = "Parse message error:  snappy uncompressed v4 body's length failure!";
         return false;
       }
-      bodyData = (char*)malloc(realBodyLen);
+      bodyData = static_cast<char*>(malloc(realBodyLen));
       if (bodyData == NULL) {
         err_info = "Parse message error: malloc buffer for v4 body's data failure!";
         return false;
@@ -630,7 +630,7 @@ bool TubeMQTDMsg::parseBinMsg(const char* data, uint32_t data_length, int32_t st
     case 0:
     default: {
       realBodyLen = bodyLen;
-      bodyData = (char*)malloc(realBodyLen);
+      bodyData = static_cast<char*>(malloc(realBodyLen));
       if (bodyData == NULL) {
         err_info = "Parse message error: malloc buffer for v4 body's data failure!";
         return false;
@@ -670,7 +670,7 @@ bool TubeMQTDMsg::parseBinMsg(const char* data, uint32_t data_length, int32_t st
         err_info = "Parse message error: invalid v4 attr's msg Length 1";
         return false;
       }
-      char* singleData = (char*)malloc(singleMsgLen);
+      char* singleData = static_cast<char*>(malloc(singleMsgLen));
       if (singleData == NULL) {
         free(bodyData);
         bodyData = NULL;
@@ -707,7 +707,7 @@ bool TubeMQTDMsg::parseBinMsg(const char* data, uint32_t data_length, int32_t st
         err_info = "Parse message error: invalid v4 attr's msg Length 2";
         return false;
       }
-      char* singleData = (char*)malloc(singleMsgLen);
+      char* singleData = static_cast<char*>(malloc(singleMsgLen));
       if (singleData == NULL) {
         free(bodyData);
         bodyData = NULL;
@@ -741,7 +741,7 @@ bool TubeMQTDMsg::parseBinMsg(const char* data, uint32_t data_length, int32_t st
       }
       string strSingleAttr;
       if (singleAttrLen > 0) {
-        char* singleAttr = (char*)malloc(singleAttrLen + 1);
+        char* singleAttr = static_cast<char*>(malloc(singleAttrLen + 1));
         if (singleAttr == NULL) {
           free(bodyData);
           free(singleData);
