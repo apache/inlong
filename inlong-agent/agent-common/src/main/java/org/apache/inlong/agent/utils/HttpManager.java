@@ -17,13 +17,6 @@
 
 package org.apache.inlong.agent.utils;
 
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_APPLICATION_JSON;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_SUCCESS_CODE;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REQUEST_TIMEOUT;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT;
-
-import java.util.concurrent.TimeUnit;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.http.client.config.RequestConfig;
@@ -38,19 +31,33 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.TimeUnit;
+
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_APPLICATION_JSON;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_SUCCESS_CODE;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REQUEST_TIMEOUT;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT;
+
 public class HttpManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpManager.class);
-    private final CloseableHttpClient httpClient;
-    private static Gson gson;
+    private static final Gson gson;
 
     static {
-        final GsonBuilder gsonBuilder = new GsonBuilder();
+        final GsonBuilder gsonBuilder = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss");
         gson = gsonBuilder.create();
+    }
+
+    private final CloseableHttpClient httpClient;
+
+    public HttpManager(AgentConfiguration conf) {
+        httpClient = constructHttpClient(conf.getInt(AGENT_MANAGER_REQUEST_TIMEOUT,
+                DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT));
     }
 
     /**
      * construct http client
+     *
      * @param timeout - timeout setting
      * @return closeable timeout
      */
@@ -60,16 +67,11 @@ public class HttpManager {
         }
         long timeoutInMs = TimeUnit.SECONDS.toMillis(timeout);
         RequestConfig requestConfig = RequestConfig.custom()
-            .setConnectTimeout((int) timeoutInMs)
-            .setSocketTimeout((int) timeoutInMs).build();
+                .setConnectTimeout((int) timeoutInMs)
+                .setSocketTimeout((int) timeoutInMs).build();
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
         httpClientBuilder.setDefaultRequestConfig(requestConfig);
         return httpClientBuilder.build();
-    }
-
-    public HttpManager(AgentConfiguration conf) {
-        httpClient = constructHttpClient(conf.getInt(AGENT_MANAGER_REQUEST_TIMEOUT,
-            DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT));
     }
 
     public String doSentPost(String url, Object dto) {
@@ -81,7 +83,7 @@ public class HttpManager {
             CloseableHttpResponse response = httpClient.execute(post);
             String returnStr = EntityUtils.toString(response.getEntity());
             if (returnStr != null && !returnStr.isEmpty()
-                && response.getStatusLine().getStatusCode() == 200) {
+                    && response.getStatusLine().getStatusCode() == 200) {
                 LOGGER.info("request url {}, dto: {}, return str {}", url, dto, returnStr);
                 return returnStr;
             }
@@ -92,7 +94,7 @@ public class HttpManager {
         return null;
     }
 
-    public  String toJsonStr(Object obj) {
+    public String toJsonStr(Object obj) {
         return gson.toJson(obj);
     }
 
@@ -102,7 +104,7 @@ public class HttpManager {
             CloseableHttpResponse response = httpClient.execute(get);
             String returnStr = EntityUtils.toString(response.getEntity());
             if (returnStr != null && !returnStr.isEmpty()
-                && response.getStatusLine().getStatusCode() == AGENT_HTTP_SUCCESS_CODE) {
+                    && response.getStatusLine().getStatusCode() == AGENT_HTTP_SUCCESS_CODE) {
                 return returnStr;
             }
         } catch (Exception e) {
@@ -114,22 +116,16 @@ public class HttpManager {
 
     /**
      * get http post, the tauth params should be passed
-     * @param url
-     * @return
      */
     private HttpPost getHttpPost(String url) {
-        HttpPost httpPost = new HttpPost(url);
-        return httpPost;
+        return new HttpPost(url);
     }
 
     /**
      * get http get, the tauth params should be passed
-     * @param url
-     * @return
      */
     private HttpGet getHttpGet(String url) {
-        HttpGet httpGet = new HttpGet(url);
-        return httpGet;
+        return new HttpGet(url);
     }
 
 }

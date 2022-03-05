@@ -61,6 +61,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -72,6 +76,7 @@ import java.util.stream.Collectors;
 public class AgentServiceImpl implements AgentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentServiceImpl.class);
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final int UNISSUED_STATUS = 2;
     private static final int ISSUED_STATUS = 3;
 
@@ -116,6 +121,52 @@ public class AgentServiceImpl implements AgentService {
     }
 
     /**
+     * Update the task status by the request
+     */
+    private void updateTaskStatus(TaskRequest request) {
+        if (CollectionUtils.isEmpty(request.getCommandInfo())) {
+            LOGGER.warn("task result was empty, just return");
+            return;
+        }
+
+        for (CommandEntity command : request.getCommandInfo()) {
+            Integer taskId = command.getTaskId();
+            StreamSourceEntity current = sourceMapper.selectByPrimaryKey(taskId);
+            if (current == null) {
+                continue;
+            }
+
+            LocalDateTime localDateTime = LocalDateTime.parse(command.getDeliveryTime(), TIME_FORMATTER);
+            Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+            if (current.getModifyTime().getTime() - instant.toEpochMilli() > maxModifyTime) {
+                LOGGER.warn("task {} receive result delay more than {} ms, skip it", taskId, maxModifyTime);
+                continue;
+            }
+
+            int result = command.getCommandResult();
+            int previousStatus = current.getStatus();
+            int nextStatus = SourceState.SOURCE_NORMAL.getCode();
+            // Change the status from 30x to normal / disable / frozen
+            if (previousStatus / 100 == ISSUED_STATUS) {
+                if (Constants.RESULT_SUCCESS == result) {
+                    if (SourceState.TEMP_TO_NORMAL.contains(previousStatus)) {
+                        nextStatus = SourceState.SOURCE_NORMAL.getCode();
+                    } else if (SourceState.BEEN_ISSUED_DELETE.getCode() == previousStatus) {
+                        nextStatus = SourceState.SOURCE_DISABLE.getCode();
+                    } else if (SourceState.BEEN_ISSUED_FROZEN.getCode() == previousStatus) {
+                        nextStatus = SourceState.SOURCE_FROZEN.getCode();
+                    }
+                } else if (Constants.RESULT_FAIL == result) {
+                    nextStatus = SourceState.SOURCE_FAILED.getCode();
+                }
+
+                sourceMapper.updateStatus(taskId, nextStatus);
+            }
+            // Other tasks with status 20x will change to 30x in next getTaskResult method
+        }
+    }
+
+    /**
      * Get task result by the request
      */
     private TaskResult getTaskResult(TaskRequest request) {
@@ -133,7 +184,9 @@ public class AgentServiceImpl implements AgentService {
             dataConfig.setIp(entity.getAgentIp());
             dataConfig.setUuid(entity.getUuid());
             dataConfig.setExtParams(entity.getExtParams());
-            dataConfig.setSnapshot(entity.getSnapshot());
+            LocalDateTime dateTime = LocalDateTime.ofInstant(entity.getModifyTime().toInstant(),
+                    ZoneId.systemDefault());
+            dataConfig.setDeliveryTime(dateTime.format(TIME_FORMATTER));
 
             String groupId = entity.getInlongGroupId();
             String streamId = entity.getInlongStreamId();
@@ -160,48 +213,6 @@ public class AgentServiceImpl implements AgentService {
                 return TaskTypeEnum.DATABASE_MIGRATION.getType();
             } else {
                 return sourceType.getTaskType().getType();
-            }
-        }
-    }
-
-    /**
-     * Update the task status by the request
-     */
-    private void updateTaskStatus(TaskRequest request) {
-        if (CollectionUtils.isEmpty(request.getCommandInfo())) {
-            LOGGER.warn("task result was empty, just return");
-            return;
-        }
-
-        for (CommandEntity command : request.getCommandInfo()) {
-            Integer taskId = command.getTaskId();
-            StreamSourceEntity current = sourceMapper.selectByPrimaryKey(taskId);
-            if (current == null) {
-                continue;
-            }
-
-            if (current.getModifyTime().getTime() - command.getDeliveryTime().getTime() > maxModifyTime) {
-                LOGGER.warn("task {} receive result delay more than {} ms, skip it", taskId, maxModifyTime);
-                continue;
-            }
-
-            int result = command.getCommandResult();
-            int previousStatus = current.getStatus();
-            int nextStatus = SourceState.SOURCE_NORMAL.getCode();
-            if (previousStatus / 100 == UNISSUED_STATUS) {
-                if (Constants.RESULT_SUCCESS == result) {
-                    if (SourceState.TEMP_TO_NORMAL.contains(previousStatus)) {
-                        nextStatus = SourceState.SOURCE_NORMAL.getCode();
-                    } else if (SourceState.BEEN_ISSUED_DELETE.getCode() == previousStatus) {
-                        nextStatus = SourceState.SOURCE_DISABLE.getCode();
-                    } else if (SourceState.BEEN_ISSUED_FROZEN.getCode() == previousStatus) {
-                        nextStatus = SourceState.SOURCE_FROZEN.getCode();
-                    }
-                } else if (Constants.RESULT_FAIL == result) {
-                    nextStatus = SourceState.SOURCE_FAILED.getCode();
-                }
-
-                sourceMapper.updateStatus(taskId, nextStatus);
             }
         }
     }
