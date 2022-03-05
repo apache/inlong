@@ -29,10 +29,13 @@ import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 public class InlongStreamSourceTransfer {
@@ -49,6 +52,18 @@ public class InlongStreamSourceTransfer {
         }
     }
 
+    public static StreamSource parseStreamSource(SourceResponse sourceResponse) {
+        String type = sourceResponse.getSourceType();
+        SourceType sourceType = SourceType.forType(type);
+        if (sourceType == SourceType.KAFKA && sourceResponse instanceof KafkaSourceResponse) {
+            return parseKafkaSource((KafkaSourceResponse) sourceResponse);
+        }
+        if (sourceType == SourceType.BINLOG && sourceResponse instanceof BinlogSourceResponse) {
+            return parseMySQLBinlogSource((BinlogSourceResponse) sourceResponse);
+        }
+        throw new IllegalArgumentException(String.format("Unsupport source type : %s for Inlong", sourceType));
+    }
+
     public static StreamSource parseStreamSource(SourceListResponse sourceListResponse) {
         String type = sourceListResponse.getSourceType();
         SourceType sourceType = SourceType.forType(type);
@@ -59,6 +74,21 @@ public class InlongStreamSourceTransfer {
             return parseMySQLBinlogSource((BinlogSourceListResponse) sourceListResponse);
         }
         throw new IllegalArgumentException(String.format("Unsupport source type : %s for Inlong", sourceType));
+    }
+
+    private static KafkaSource parseKafkaSource(KafkaSourceResponse kafkaSourceResponse) {
+        KafkaSource kafkaSource = new KafkaSource();
+        kafkaSource.setSourceName(kafkaSourceResponse.getSourceName());
+        kafkaSource.setConsumerGroup(kafkaSourceResponse.getGroupId());
+        DataFormat dataFormat = DataFormat.forName(kafkaSourceResponse.getSerializationType());
+        kafkaSource.setDataFormat(dataFormat);
+        kafkaSource.setTopic(kafkaSourceResponse.getTopic());
+        kafkaSource.setBootstrapServers(kafkaSourceResponse.getBootstrapServers());
+        kafkaSource.setByteSpeedLimit(kafkaSourceResponse.getByteSpeedLimit());
+        kafkaSource.setTopicPartitionOffset(kafkaSourceResponse.getTopicPartitionOffset());
+        kafkaSource.setRecordSpeedLimit(kafkaSourceResponse.getRecordSpeedLimit());
+        kafkaSource.setSyncType(SyncType.FULL);
+        return kafkaSource;
     }
 
     private static KafkaSource parseKafkaSource(KafkaSourceListResponse kafkaSourceResponse) {
@@ -74,6 +104,24 @@ public class InlongStreamSourceTransfer {
         kafkaSource.setRecordSpeedLimit(kafkaSourceResponse.getRecordSpeedLimit());
         kafkaSource.setSyncType(SyncType.FULL);
         return kafkaSource;
+    }
+
+    private static MySQLBinlogSource parseMySQLBinlogSource(BinlogSourceResponse binlogSourceResponse) {
+        MySQLBinlogSource binlogSource = new MySQLBinlogSource();
+        binlogSource.setSourceName(binlogSourceResponse.getSourceName());
+        binlogSource.setHostname(binlogSourceResponse.getHostname());
+        binlogSource.setDataFormat(DataFormat.NONE);
+        binlogSource.setPort(binlogSourceResponse.getPort());
+        DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
+                binlogSourceResponse.getUser(),
+                binlogSourceResponse.getPassword());
+        binlogSource.setAllMigration(binlogSourceResponse.isAllMigration());
+        binlogSource.setAuthentication(defaultAuthentication);
+        binlogSource.setTimeZone(binlogSourceResponse.getTimeZone());
+        binlogSource.setTimestampFormatStandard(binlogSourceResponse.getTimestampFormatStandard());
+        List<String> dbs = Splitter.on(",").splitToList(binlogSourceResponse.getWhitelist());
+        binlogSource.setDbNames(dbs);
+        return binlogSource;
     }
 
     private static MySQLBinlogSource parseMySQLBinlogSource(BinlogSourceListResponse binlogSourceResponse) {
