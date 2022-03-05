@@ -49,15 +49,17 @@ public class InlongStreamSinkTransfer {
 
     public static SinkRequest createSinkRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
         SinkType sinkType = streamSink.getSinkType();
+        SinkRequest sinkRequest;
         if (sinkType == SinkType.HIVE) {
-            return createHiveRequest(streamSink, streamInfo);
+            sinkRequest = createHiveRequest(streamSink, streamInfo);
         } else if (sinkType == SinkType.KAFKA) {
-            return createKafkaRequest(streamSink, streamInfo);
+            sinkRequest = createKafkaRequest(streamSink, streamInfo);
         } else if (sinkType == SinkType.CLICKHOUSE) {
-            return createClickHouseRequest(streamSink, streamInfo);
+            sinkRequest = createClickHouseRequest(streamSink, streamInfo);
         } else {
             throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
         }
+        return sinkRequest;
     }
 
     public static StreamSink parseStreamSink(SinkResponse sinkResponse) {
@@ -67,15 +69,17 @@ public class InlongStreamSinkTransfer {
     public static StreamSink parseStreamSink(SinkResponse sinkResponse, StreamSink streamSink) {
         String type = sinkResponse.getSinkType();
         SinkType sinkType = SinkType.forType(type);
+        StreamSink streamSinkResult;
         if (sinkType == SinkType.HIVE) {
-            return parseHiveSink((HiveSinkResponse) sinkResponse, streamSink);
+            streamSinkResult = parseHiveSink((HiveSinkResponse) sinkResponse, streamSink);
         } else if (sinkType == SinkType.KAFKA) {
-            return parseKafkaSink((KafkaSinkResponse) sinkResponse, streamSink);
+            streamSinkResult = parseKafkaSink((KafkaSinkResponse) sinkResponse, streamSink);
         } else if (sinkType == SinkType.CLICKHOUSE) {
-            return parseClickHouseSink((ClickHouseSinkResponse) sinkResponse, streamSink);
+            streamSinkResult = parseClickHouseSink((ClickHouseSinkResponse) sinkResponse, streamSink);
         } else {
             throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
         }
+        return streamSinkResult;
     }
 
     private static SinkRequest createClickHouseRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
