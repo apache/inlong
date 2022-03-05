@@ -143,5 +143,31 @@ public interface MessageSender {
                                  long timeout, TimeUnit timeUnit,
                                  Map<String, String> extraAttrMap) throws ProxysdkException;
 
+    /**
+     * This method provides an asynchronized function which you want to send data.<br>
+     * Sending timeout is configured by MessageSenderBuilder.<br>
+     * Message time will be current time.<br>
+     * @param inlongGroupId
+     * @param inlongStreamId
+     * @param body
+     * @param callback, callback can be null.
+     * @throws ProxysdkException
+     */
+    void asyncSendMessage(String inlongGroupId, String inlongStreamId, byte[] body, SendMessageCallback callback) 
+            throws ProxysdkException;
+    
+    /**
+     * This method provides an asynchronized function which you want to send datas.<br>
+     * Sending timeout is configured by MessageSenderBuilder.<br>
+     * Message time will be current time.<br>
+     * @param inlongGroupId
+     * @param inlongStreamId
+     * @param bodyList
+     * @param callback, callback can be null.
+     * @throws ProxysdkException
+     */
+    void asyncSendMessage(String inlongGroupId, String inlongStreamId, List<byte[]> bodyList, 
+            SendMessageCallback callback) throws ProxysdkException;
+
     public void close();
 }
