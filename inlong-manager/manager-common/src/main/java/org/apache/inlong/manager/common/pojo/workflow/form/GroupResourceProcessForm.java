@@ -18,15 +18,14 @@
 package org.apache.inlong.manager.common.pojo.workflow.form;
 
 import com.google.common.collect.Maps;
-
-import java.util.List;
-import java.util.Map;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Form of create inlong group resource
