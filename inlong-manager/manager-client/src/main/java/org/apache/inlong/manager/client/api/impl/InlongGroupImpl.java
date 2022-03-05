@@ -190,18 +190,24 @@ public class InlongGroupImpl implements InlongGroup {
         String inlongGroupId = currentGroupInfo.getInlongGroupId();
         //Fetch stream in group
         List<InlongStream> dataStreams = fetchDataStreams(inlongGroupId);
-        dataStreams.stream().forEach(dataStream -> groupContext.setStream(dataStream));
+        if (null != dataStreams) {
+            dataStreams.stream().forEach(dataStream -> groupContext.setStream(dataStream));
+        }
         //Create group context
         InlongGroupContext inlongGroupContext = new InlongGroupContext(groupContext, groupConf);
         List<EventLogView> logViews = managerClient.getInlongGroupError(inlongGroupId);
-        Map<String, String> errMsgs = logViews.stream().collect(
-                Collectors.toMap(EventLogView::getEvent, EventLogView::getException));
+        Map<String, String> errMsgs = logViews.stream()
+                .filter(x -> null != x.getEvent() && null != x.getException())
+                .collect(Collectors.toMap(EventLogView::getEvent, EventLogView::getException));
         inlongGroupContext.setErrMsg(errMsgs);
         return inlongGroupContext;
     }
 
     private List<InlongStream> fetchDataStreams(String groupId) {
         List<FullStreamResponse> streamResponses = managerClient.listStreamInfo(groupId);
+        if (null == streamResponses) {
+            return null;
+        }
         List<InlongStream> streamList = streamResponses.stream()
                 .map(fullStreamResponse -> new InlongStreamImpl(fullStreamResponse)).collect(Collectors.toList());
         return streamList;
