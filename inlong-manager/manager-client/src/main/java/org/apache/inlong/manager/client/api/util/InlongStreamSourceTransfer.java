@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.api.util;
 
 import com.google.common.base.Joiner;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.StreamSource;
@@ -192,10 +193,14 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setServerTimezone(binlogSource.getServerTimezone());
         sourceRequest.setMonitoredDdl(binlogSource.getMonitoredDdl());
         sourceRequest.setAllMigration(binlogSource.isAllMigration());
-        String dbNames = Joiner.on(",").join(binlogSource.getDbNames());
-        sourceRequest.setDatabaseWhiteList(dbNames);
-        String tableNames = Joiner.on(",").join(binlogSource.getTableNames());
-        sourceRequest.setTableWhiteList(tableNames);
+        if (CollectionUtils.isNotEmpty(binlogSource.getDbNames())) {
+            String dbNames = Joiner.on(",").join(binlogSource.getDbNames());
+            sourceRequest.setDatabaseWhiteList(dbNames);
+        }
+        if (CollectionUtils.isNotEmpty(binlogSource.getTableNames())) {
+            String tableNames = Joiner.on(",").join(binlogSource.getTableNames());
+            sourceRequest.setTableWhiteList(tableNames);
+        }
         sourceRequest.setSnapshotMode("initial");
         sourceRequest.setIntervalMs("500");
         sourceRequest.setTimestampFormatStandard(binlogSource.getTimestampFormatStandard());

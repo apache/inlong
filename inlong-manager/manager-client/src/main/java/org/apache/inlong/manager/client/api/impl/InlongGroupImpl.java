@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api.impl;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
@@ -190,18 +191,26 @@ public class InlongGroupImpl implements InlongGroup {
         String inlongGroupId = currentGroupInfo.getInlongGroupId();
         //Fetch stream in group
         List<InlongStream> dataStreams = fetchDataStreams(inlongGroupId);
-        dataStreams.forEach(dataStream -> groupContext.setStream(dataStream));
+        if (CollectionUtils.isNotEmpty(dataStreams)) {
+            dataStreams.forEach(dataStream -> groupContext.setStream(dataStream));
+        }
         //Create group context
         InlongGroupContext inlongGroupContext = new InlongGroupContext(groupContext, groupConf);
         List<EventLogView> logViews = managerClient.getInlongGroupError(inlongGroupId);
-        Map<String, String> errMsgs = logViews.stream().collect(
-                Collectors.toMap(EventLogView::getEvent, EventLogView::getException));
-        inlongGroupContext.setErrMsg(errMsgs);
+        if (CollectionUtils.isNotEmpty(logViews)) {
+            Map<String, String> errMsgs = logViews.stream()
+                    .filter(x -> null != x.getEvent() && null != x.getException())
+                    .collect(Collectors.toMap(EventLogView::getEvent, EventLogView::getException));
+            inlongGroupContext.setErrMsg(errMsgs);
+        }
         return inlongGroupContext;
     }
 
     private List<InlongStream> fetchDataStreams(String groupId) {
         List<FullStreamResponse> streamResponses = managerClient.listStreamInfo(groupId);
+        if (CollectionUtils.isEmpty(streamResponses)) {
+            return null;
+        }
         return streamResponses.stream().map(InlongStreamImpl::new).collect(Collectors.toList());
     }
 }
