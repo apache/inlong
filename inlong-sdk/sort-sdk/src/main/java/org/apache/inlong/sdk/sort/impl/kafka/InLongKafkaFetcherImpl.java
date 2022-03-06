@@ -222,7 +222,7 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
                         .getStatistics(context.getConfig().getSortTaskId(),
                                 inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                         .addCallbackErrorTimes(1);
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
             }
         }
 
