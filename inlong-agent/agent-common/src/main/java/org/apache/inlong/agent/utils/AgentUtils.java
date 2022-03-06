@@ -344,16 +344,21 @@ public class AgentUtils {
      * check agent uuid from manager
      */
     public static String  fetchLocalUuid() {
-        String uuid = null;
+        String uuid = "";
         try {
-            String result = ExcuteLinux.exeCmd("dmidecode | grep UUID");
-            if (!StringUtils.isEmpty(result) && StringUtils.containsIgnoreCase(result,"UUID")) {
-                String uuidResult = result.split(":")[1].trim();
-                 uuid = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_UUID, uuidResult);
+            String localUuid = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_UUID);
+            if (!StringUtils.isEmpty(localUuid)) {
+                uuid = localUuid;
                 return uuid;
             }
+            String result = ExcuteLinux.exeCmd("dmidecode | grep UUID");
+            if (!StringUtils.isEmpty(result)
+                    && StringUtils.containsIgnoreCase(result,"UUID")) {
+                    uuid = result.split(":")[1].trim();
+                    return uuid;
+                }
         } catch (Exception e) {
-            LOGGER.error("fetch uuid  error");
+            LOGGER.error("fetch uuid  error", e);
             e.printStackTrace();
         }
         return uuid;
