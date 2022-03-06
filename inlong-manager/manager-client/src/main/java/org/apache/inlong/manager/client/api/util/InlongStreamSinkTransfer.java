@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.client.api.util;
 
-import java.nio.charset.Charset;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.DataSeparator;
@@ -27,6 +24,7 @@ import org.apache.inlong.manager.client.api.StreamField;
 import org.apache.inlong.manager.client.api.StreamField.FieldType;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
+import org.apache.inlong.manager.client.api.sink.ClickHouseSink;
 import org.apache.inlong.manager.client.api.sink.HiveSink;
 import org.apache.inlong.manager.client.api.sink.HiveSink.FileFormat;
 import org.apache.inlong.manager.client.api.sink.KafkaSink;
@@ -34,23 +32,34 @@ import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class InlongStreamSinkTransfer {
 
     public static SinkRequest createSinkRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
         SinkType sinkType = streamSink.getSinkType();
+        SinkRequest sinkRequest;
         if (sinkType == SinkType.HIVE) {
-            return createHiveRequest(streamSink, streamInfo);
+            sinkRequest = createHiveRequest(streamSink, streamInfo);
+        } else if (sinkType == SinkType.KAFKA) {
+            sinkRequest = createKafkaRequest(streamSink, streamInfo);
+        } else if (sinkType == SinkType.CLICKHOUSE) {
+            sinkRequest = createClickHouseRequest(streamSink, streamInfo);
+        } else {
+            throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
         }
-        if (sinkType == SinkType.KAFKA) {
-            return createKafkaRequest(streamSink, streamInfo);
-        }
-        throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
+        return sinkRequest;
     }
 
     public static StreamSink parseStreamSink(SinkResponse sinkResponse) {
@@ -60,13 +69,95 @@ public class InlongStreamSinkTransfer {
     public static StreamSink parseStreamSink(SinkResponse sinkResponse, StreamSink streamSink) {
         String type = sinkResponse.getSinkType();
         SinkType sinkType = SinkType.forType(type);
+        StreamSink streamSinkResult;
         if (sinkType == SinkType.HIVE) {
-            return parseHiveSink((HiveSinkResponse) sinkResponse, streamSink);
+            streamSinkResult = parseHiveSink((HiveSinkResponse) sinkResponse, streamSink);
+        } else if (sinkType == SinkType.KAFKA) {
+            streamSinkResult = parseKafkaSink((KafkaSinkResponse) sinkResponse, streamSink);
+        } else if (sinkType == SinkType.CLICKHOUSE) {
+            streamSinkResult = parseClickHouseSink((ClickHouseSinkResponse) sinkResponse, streamSink);
+        } else {
+            throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
         }
-        if (sinkType == SinkType.KAFKA) {
-            return parseKafkaSink((KafkaSinkResponse) sinkResponse, streamSink);
+        return streamSinkResult;
+    }
+
+    private static SinkRequest createClickHouseRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
+        ClickHouseSinkRequest clickHouseSinkRequest = new ClickHouseSinkRequest();
+        ClickHouseSink clickHouseSink = (ClickHouseSink) streamSink;
+        clickHouseSinkRequest.setSinkName(clickHouseSink.getSinkName());
+        clickHouseSinkRequest.setDatabaseName(clickHouseSink.getDatabaseName());
+        clickHouseSinkRequest.setSinkType(clickHouseSink.getSinkType().name());
+        clickHouseSinkRequest.setJdbcUrl(clickHouseSink.getJdbcUrl());
+        DefaultAuthentication defaultAuthentication = clickHouseSink.getAuthentication();
+        AssertUtil.notNull(defaultAuthentication,
+                String.format("Clickhouse storage:%s must be authenticated", clickHouseSink.getDatabaseName()));
+        clickHouseSinkRequest.setUsername(defaultAuthentication.getUserName());
+        clickHouseSinkRequest.setPassword(defaultAuthentication.getPassword());
+        clickHouseSinkRequest.setTableName(clickHouseSink.getTableName());
+        clickHouseSinkRequest.setDistributedTable(clickHouseSink.getDistributedTable());
+        clickHouseSinkRequest.setFlushInterval(clickHouseSink.getFlushInterval());
+        clickHouseSinkRequest.setFlushRecordNumber(clickHouseSink.getFlushRecordNumber());
+        clickHouseSinkRequest.setKeyFieldNames(clickHouseSink.getKeyFieldNames());
+        clickHouseSinkRequest.setPartitionKey(clickHouseSink.getPartitionKey());
+        clickHouseSinkRequest.setPartitionStrategy(clickHouseSink.getPartitionStrategy());
+        clickHouseSinkRequest.setPartitionKey(clickHouseSink.getPartitionKey());
+        clickHouseSinkRequest.setWriteMaxRetryTimes(clickHouseSink.getWriteMaxRetryTimes());
+        clickHouseSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
+        clickHouseSinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+        clickHouseSinkRequest.setEnableCreateResource(clickHouseSink.isNeedCreated() ? 1 : 0);
+        if (CollectionUtils.isNotEmpty(clickHouseSink.getStreamFields())) {
+            List<SinkFieldRequest> fieldRequests = clickHouseSink.getStreamFields()
+                    .stream()
+                    .map(streamField -> {
+                        SinkFieldRequest storageFieldRequest = new SinkFieldRequest();
+                        storageFieldRequest.setFieldName(streamField.getFieldName());
+                        storageFieldRequest.setFieldType(streamField.getFieldType().toString());
+                        storageFieldRequest.setFieldComment(streamField.getFieldComment());
+                        return storageFieldRequest;
+                    })
+                    .collect(Collectors.toList());
+            clickHouseSinkRequest.setFieldList(fieldRequests);
         }
-        throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
+        return clickHouseSinkRequest;
+    }
+
+    private static StreamSink parseClickHouseSink(ClickHouseSinkResponse clickHouseSinkResponse,
+            StreamSink streamSink) {
+        ClickHouseSink clickHouseSink = new ClickHouseSink();
+        if (streamSink != null) {
+            AssertUtil.isTrue(clickHouseSinkResponse.getSinkName().equals(streamSink.getSinkName()),
+                    String.format("SinkName is not equal: %s != %s", clickHouseSinkResponse, streamSink));
+            ClickHouseSink snapshot = (ClickHouseSink) streamSink;
+            clickHouseSink = CommonBeanUtils.copyProperties(snapshot, ClickHouseSink::new);
+        } else {
+            clickHouseSink.setDistributedTable(clickHouseSinkResponse.getDistributedTable());
+            clickHouseSink.setSinkName(clickHouseSinkResponse.getSinkName());
+            clickHouseSink.setFlushInterval(clickHouseSinkResponse.getFlushInterval());
+            clickHouseSink.setAuthentication(new DefaultAuthentication(clickHouseSinkResponse.getSinkName(),
+                    clickHouseSinkResponse.getPassword()));
+            clickHouseSink.setDatabaseName(clickHouseSinkResponse.getDatabaseName());
+            clickHouseSink.setFlushRecordNumber(clickHouseSinkResponse.getFlushRecordNumber());
+            clickHouseSink.setJdbcUrl(clickHouseSinkResponse.getJdbcUrl());
+            clickHouseSink.setPartitionKey(clickHouseSinkResponse.getPartitionKey());
+            clickHouseSink.setKeyFieldNames(clickHouseSinkResponse.getKeyFieldNames());
+            clickHouseSink.setPartitionStrategy(clickHouseSinkResponse.getPartitionStrategy());
+            clickHouseSink.setWriteMaxRetryTimes(clickHouseSinkResponse.getWriteMaxRetryTimes());
+            clickHouseSink.setDistributedTable(clickHouseSinkResponse.getDistributedTable());
+        }
+
+        clickHouseSink.setNeedCreated(clickHouseSinkResponse.getEnableCreateResource() == 1);
+        List<StreamField> fieldList = clickHouseSinkResponse.getFieldList()
+                .stream()
+                .map(storageFieldRequest -> {
+                    return new StreamField(storageFieldRequest.getId(),
+                            FieldType.forName(storageFieldRequest.getFieldType()),
+                            storageFieldRequest.getFieldName(),
+                            storageFieldRequest.getFieldComment(),
+                            null);
+                }).collect(Collectors.toList());
+        clickHouseSink.setStreamFields(fieldList);
+        return clickHouseSink;
     }
 
     private static SinkRequest createKafkaRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
@@ -98,7 +189,6 @@ public class InlongStreamSinkTransfer {
 
     private static StreamSink parseKafkaSink(KafkaSinkResponse sinkResponse, StreamSink sink) {
         KafkaSink kafkaSink = new KafkaSink();
-        kafkaSink.setSinkType(SinkType.KAFKA);
         if (sink != null) {
             AssertUtil.isTrue(sinkResponse.getSinkName().equals(sink.getSinkName()),
                     String.format("SinkName is not equal: %s != %s", sinkResponse, sink));
@@ -115,16 +205,18 @@ public class InlongStreamSinkTransfer {
         }
 
         kafkaSink.setNeedCreated(sinkResponse.getEnableCreateResource() == 1);
-        List<StreamField> fieldList = sinkResponse.getFieldList()
-                .stream()
-                .map(storageFieldRequest -> {
-                    return new StreamField(storageFieldRequest.getId(),
-                            FieldType.forName(storageFieldRequest.getFieldType()),
-                            storageFieldRequest.getFieldName(),
-                            storageFieldRequest.getFieldComment(),
-                            null);
-                }).collect(Collectors.toList());
-        kafkaSink.setStreamFields(fieldList);
+        if (sinkResponse.getFieldList() != null && !sinkResponse.getFieldList().isEmpty()) {
+            List<StreamField> fieldList = sinkResponse.getFieldList()
+                    .stream()
+                    .map(storageFieldRequest -> {
+                        return new StreamField(storageFieldRequest.getId(),
+                                FieldType.forName(storageFieldRequest.getFieldType()),
+                                storageFieldRequest.getFieldName(),
+                                storageFieldRequest.getFieldComment(),
+                                null);
+                    }).collect(Collectors.toList());
+            kafkaSink.setStreamFields(fieldList);
+        }
         return kafkaSink;
     }
 
