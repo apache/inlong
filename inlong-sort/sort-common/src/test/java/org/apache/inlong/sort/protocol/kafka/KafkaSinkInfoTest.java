@@ -36,18 +36,21 @@ public class KafkaSinkInfoTest extends ProtocolBaseTest {
         );
 
         expectedJson = "{\n"
-                + "  \"type\" : \"kafka\",\n"
-                + "  \"fields\" : [ {\n"
-                + "    \"name\" : \"field1\",\n"
-                + "    \"format_info\" : {\n"
-                + "      \"type\" : \"string\"\n"
+                + "    \"type\":\"kafka\",\n"
+                + "    \"fields\":[\n"
+                + "        {\n"
+                + "            \"type\":\"base\",\n"
+                + "            \"name\":\"field1\",\n"
+                + "            \"format_info\":{\n"
+                + "                \"type\":\"string\"\n"
+                + "            }\n"
+                + "        }\n"
+                + "    ],\n"
+                + "    \"address\":\"testAddress\",\n"
+                + "    \"topic\":\"testTopic\",\n"
+                + "    \"serialization_info\":{\n"
+                + "        \"type\":\"json\"\n"
                 + "    }\n"
-                + "  } ],\n"
-                + "  \"address\" : \"testAddress\",\n"
-                + "  \"topic\" : \"testTopic\",\n"
-                + "  \"serialization_info\" : {\n"
-                + "    \"type\" : \"json\"\n"
-                + "  }\n"
                 + "}";
 
         equalObj1 = expectedObject;
