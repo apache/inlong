@@ -198,8 +198,9 @@ public class InlongGroupImpl implements InlongGroup {
         InlongGroupContext inlongGroupContext = new InlongGroupContext(groupContext, groupConf);
         List<EventLogView> logViews = managerClient.getInlongGroupError(inlongGroupId);
         if (CollectionUtils.isNotEmpty(logViews)) {
-            Map<String, String> errMsgs = logViews.stream().collect(
-                    Collectors.toMap(EventLogView::getEvent, EventLogView::getException));
+            Map<String, String> errMsgs = logViews.stream()
+                    .filter(x -> null != x.getEvent() && null != x.getException())
+                    .collect(Collectors.toMap(EventLogView::getEvent, EventLogView::getException));
             inlongGroupContext.setErrMsg(errMsgs);
         }
         return inlongGroupContext;
