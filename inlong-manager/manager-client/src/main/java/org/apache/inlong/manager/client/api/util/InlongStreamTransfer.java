@@ -35,6 +35,7 @@ public class InlongStreamTransfer {
         dataStreamInfo.setName(streamConf.getName());
         dataStreamInfo.setDataEncoding(streamConf.getCharset().name());
         dataStreamInfo.setMqResourceObj(streamId);
+        dataStreamInfo.setSyncSend(streamConf.isStrictlyOrdered() ? 1 : 0);
         dataStreamInfo.setDataSeparator(String.valueOf(streamConf.getDataSeparator().getAsciiCode()));
         dataStreamInfo.setDescription(streamConf.getDescription());
         dataStreamInfo.setCreator(groupInfo.getCreator());
