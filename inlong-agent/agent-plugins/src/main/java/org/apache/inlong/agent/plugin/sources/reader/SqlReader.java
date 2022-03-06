@@ -163,6 +163,11 @@ public class SqlReader extends AbstractReader {
         return StringUtils.EMPTY;
     }
 
+    @Override
+    public void finishRead() {
+        destroy();
+    }
+
     /**
      * Init column meta data.
      *

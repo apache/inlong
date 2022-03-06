@@ -98,7 +98,7 @@ public class BinlogReader implements Reader {
     private BinlogSnapshotBase binlogSnapshot;
     private JobProfile jobProfile;
     private static final Gson gson = new Gson();
-
+    private boolean destroyed = false;
     private boolean enableReportConfigLog;
     private StreamConfigLogMetric streamConfigLogMetric;
 
@@ -243,9 +243,13 @@ public class BinlogReader implements Reader {
 
     @Override
     public void destroy() {
-        finished = true;
-        executor.shutdownNow();
-        binlogSnapshot.close();
+        synchronized (this) {
+            if (!destroyed) {
+                executor.shutdownNow();
+                binlogSnapshot.close();
+                destroyed = true;
+            }
+        }
     }
 
     @Override
@@ -275,6 +279,11 @@ public class BinlogReader implements Reader {
         } else {
             return "";
         }
+    }
+
+    @Override
+    public void finishRead() {
+        finished = true;
     }
 
 }

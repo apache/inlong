@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.plugin.fetcher;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -96,7 +97,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
     public static final String AGENT = "agent";
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagerFetcher.class);
-    private static final Gson GSON = new Gson();
+    private static final GsonBuilder gsonBuilder = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final Gson GSON = gsonBuilder.create();
     private static final int MAX_RETRY = 2;
     private final String managerVipUrl;
     private final String baseManagerUrl;
