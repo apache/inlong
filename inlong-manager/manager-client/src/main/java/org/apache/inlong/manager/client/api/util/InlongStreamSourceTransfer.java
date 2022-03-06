@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.api.util;
 
 import com.google.common.base.Joiner;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.StreamSource;
@@ -36,7 +37,6 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListRespons
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
 
@@ -193,11 +193,11 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setServerTimezone(binlogSource.getServerTimezone());
         sourceRequest.setMonitoredDdl(binlogSource.getMonitoredDdl());
         sourceRequest.setAllMigration(binlogSource.isAllMigration());
-        if (!CollectionUtils.isEmpty(binlogSource.getDbNames())) {
+        if (CollectionUtils.isNotEmpty(binlogSource.getDbNames())) {
             String dbNames = Joiner.on(",").join(binlogSource.getDbNames());
             sourceRequest.setDatabaseWhiteList(dbNames);
         }
-        if (!CollectionUtils.isEmpty(binlogSource.getTableNames())) {
+        if (CollectionUtils.isNotEmpty(binlogSource.getTableNames())) {
             String tableNames = Joiner.on(",").join(binlogSource.getTableNames());
             sourceRequest.setTableWhiteList(tableNames);
         }
