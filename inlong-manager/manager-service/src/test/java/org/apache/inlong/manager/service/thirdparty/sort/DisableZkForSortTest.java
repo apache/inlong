@@ -47,6 +47,7 @@ import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -61,6 +62,11 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
 
     @Autowired
     protected StreamSourceService streamSourceService;
+
+    @Before
+    public void init() {
+        subType = "DisableZkFor";
+    }
 
     public HiveSinkRequest createHiveSink(InlongStreamInfo streamInfo) {
         HiveSinkRequest hiveSinkRequest = new HiveSinkRequest();
@@ -108,7 +114,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
 
     @Test
     public void testCreateSortConfigInCreateWorkflow() {
-        InlongGroupInfo groupInfo = initGroupForm("PULSAR");
+        InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test21");
         groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
         groupInfo.setZookeeperEnabled(0);
         groupService.update(groupInfo.genRequest(), OPERATOR);
@@ -133,9 +139,9 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
 
     }
 
-    @Test
+    //    @Test
     public void testCreateSortConfigInUpdateWorkflow() {
-        InlongGroupInfo groupInfo = initGroupForm("PULSAR");
+        InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test20");
         groupInfo.setZookeeperEnabled(0);
         groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
         groupService.update(groupInfo.genRequest(), OPERATOR);

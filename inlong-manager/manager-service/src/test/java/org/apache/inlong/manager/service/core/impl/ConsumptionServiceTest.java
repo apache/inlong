@@ -43,6 +43,7 @@ public class ConsumptionServiceTest extends ServiceBaseTest {
         consumptionInfo.setInlongGroupId("b_" + inlongGroup);
         consumptionInfo.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
         consumptionInfo.setCreator(operator);
+        consumptionInfo.setInCharges("admin");
 
         ConsumptionPulsarInfo pulsarInfo = new ConsumptionPulsarInfo();
         pulsarInfo.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
@@ -59,7 +60,7 @@ public class ConsumptionServiceTest extends ServiceBaseTest {
     public void testSave() {
         String inlongGroup = "inlong_group1";
         String consumerGroup = "test_save_consumer_group";
-        String operator = "test_user";
+        String operator = "admin";
         groupServiceTest.saveGroup(inlongGroup, operator);
         Integer id = this.saveConsumption(inlongGroup, consumerGroup, operator);
         Assert.assertNotNull(id);
@@ -68,7 +69,7 @@ public class ConsumptionServiceTest extends ServiceBaseTest {
     @Test
     public void testDelete() {
         String inlongGroup = "inlong_group2";
-        String operator = "test_user";
+        String operator = "admin";
         String consumerGroup = "test_delete_consumer_group";
         groupServiceTest.saveGroup(inlongGroup, operator);
         Integer id = this.saveConsumption(inlongGroup, consumerGroup, operator);

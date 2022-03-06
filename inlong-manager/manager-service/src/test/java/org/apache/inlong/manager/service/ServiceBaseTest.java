@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service;
 
 import org.apache.inlong.manager.test.BaseTest;
+import org.junit.Test;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -27,6 +28,11 @@ public class ServiceBaseTest extends BaseTest {
 
     public final String globalGroupId = "b_group1";
     public final String globalStreamId = "stream1";
+    public final String globalStreamName = "streamName1";
     public final String globalOperator = "admin";
 
+    @Test
+    public void test() {
+        System.out.println("The test class cannot be empty, otherwise No runnable methods exception will be reported");
+    }
 }

@@ -36,7 +36,7 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
 
     private final String globalGroupId = "b_group1";
     private final String globalStreamId = "stream1";
-    private final String globalOperator = "test_user";
+    private final String globalOperator = "admin";
     private final String sourceName = "default";
 
     @Autowired

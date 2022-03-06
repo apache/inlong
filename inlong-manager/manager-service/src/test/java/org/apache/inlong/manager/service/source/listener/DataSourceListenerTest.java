@@ -38,6 +38,7 @@ import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -46,6 +47,11 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
     public UpdateGroupProcessForm form;
 
     public InlongGroupInfo groupInfo;
+
+    @Before
+    public void init() {
+        subType = "DataSource";
+    }
 
     @Autowired
     private StreamSourceService streamSourceService;
@@ -61,7 +67,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
 
     @Test
     public void testFrozenSource() {
-        groupInfo = initGroupForm("PULSAR");
+        groupInfo = initGroupForm("PULSAR", "test1");
         groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
@@ -87,8 +93,8 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
 
     @Test
     public void testRestartSource() {
-        // testFrozenSource();
-        groupInfo = initGroupForm("PULSAR");
+//        testFrozenSource();
+        groupInfo = initGroupForm("PULSAR", "test2");
         groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
         groupService.update(groupInfo.genRequest(), OPERATOR);
         groupInfo.setStatus(GroupState.GROUP_SUSPEND.getCode());

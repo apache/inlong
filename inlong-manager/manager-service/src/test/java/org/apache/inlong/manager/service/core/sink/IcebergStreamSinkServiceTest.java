@@ -32,16 +32,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
 
     private final String globalGroupId = "b_group1";
-    private final String globalStreamId = "stream1";
-    private final String globalOperator = "test_user";
-    private final String sinkName = "default";
+    private final String globalStreamId = "stream1_iceberg";
+    private final String globalOperator = "admin";
+//    private final String sinkName = "default";
 
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
-    public Integer saveSink() {
+    public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
 
         IcebergSinkRequest sinkInfo = new IcebergSinkRequest();
@@ -51,12 +51,13 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
         sinkInfo.setTableLocation("hdfs://127.0.0.1:8020/data");
         sinkInfo.setSinkName(sinkName);
+        sinkInfo.setId((int) (Math.random() * 100000 + 1));
         return sinkService.save(sinkInfo, globalOperator);
     }
 
     @Test
     public void testSaveAndDelete() {
-        Integer id = this.saveSink();
+        Integer id = this.saveSink("default1");
         Assert.assertNotNull(id);
         boolean result = sinkService.delete(id, Constant.SINK_ICEBERG, globalOperator);
         Assert.assertTrue(result);
@@ -64,7 +65,7 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
 
     @Test
     public void testListByIdentifier() {
-        Integer id = this.saveSink();
+        Integer id = this.saveSink("default2");
         SinkResponse sink = sinkService.get(id, Constant.SINK_ICEBERG);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
         sinkService.delete(id, Constant.SINK_ICEBERG, globalOperator);
@@ -72,7 +73,7 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
 
     @Test
     public void testGetAndUpdate() {
-        Integer id = this.saveSink();
+        Integer id = this.saveSink("default3");
         SinkResponse response = sinkService.get(id, Constant.SINK_ICEBERG);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
