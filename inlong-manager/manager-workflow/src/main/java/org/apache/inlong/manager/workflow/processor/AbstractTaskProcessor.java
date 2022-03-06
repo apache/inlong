@@ -37,7 +37,7 @@ public abstract class AbstractTaskProcessor<T extends WorkflowTask> extends
 
     protected WorkflowTaskEntityMapper taskEntityMapper;
 
-    public AbstractTaskProcessor(WorkflowTaskEntityMapper taskEntityMapper) {
+    protected AbstractTaskProcessor(WorkflowTaskEntityMapper taskEntityMapper) {
         this.taskEntityMapper = taskEntityMapper;
     }
 

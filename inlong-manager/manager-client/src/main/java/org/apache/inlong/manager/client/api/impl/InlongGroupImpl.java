@@ -190,7 +190,7 @@ public class InlongGroupImpl implements InlongGroup {
         String inlongGroupId = currentGroupInfo.getInlongGroupId();
         //Fetch stream in group
         List<InlongStream> dataStreams = fetchDataStreams(inlongGroupId);
-        dataStreams.stream().forEach(dataStream -> groupContext.setStream(dataStream));
+        dataStreams.forEach(dataStream -> groupContext.setStream(dataStream));
         //Create group context
         InlongGroupContext inlongGroupContext = new InlongGroupContext(groupContext, groupConf);
         List<EventLogView> logViews = managerClient.getInlongGroupError(inlongGroupId);
@@ -202,8 +202,6 @@ public class InlongGroupImpl implements InlongGroup {
 
     private List<InlongStream> fetchDataStreams(String groupId) {
         List<FullStreamResponse> streamResponses = managerClient.listStreamInfo(groupId);
-        List<InlongStream> streamList = streamResponses.stream()
-                .map(fullStreamResponse -> new InlongStreamImpl(fullStreamResponse)).collect(Collectors.toList());
-        return streamList;
+        return streamResponses.stream().map(InlongStreamImpl::new).collect(Collectors.toList());
     }
 }

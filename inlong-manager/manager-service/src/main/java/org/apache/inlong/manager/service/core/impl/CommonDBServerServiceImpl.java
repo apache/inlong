@@ -41,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Slf4j
 @Service
@@ -52,11 +53,8 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
     private CommonDbServerEntityMapper commonDbServerMapper;
 
     public static boolean checkStrLen(String text, int maxLength) {
-        if (text != null && text.length() > maxLength) {
-            // too large.
-            return true;
-        }
-        return false;
+        // too large.
+        return text != null && text.length() > maxLength;
     }
 
     /**
@@ -91,7 +89,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
                 info.getDbType(),
                 info.getDbServerIp(),
                 info.getPort());
-        if (entities != null && entities.size() > 0) {
+        if (!CollectionUtils.isEmpty(entities)) {
             for (CommonDbServerEntity entry : entities) {
                 // Have the same normal entry
                 if (entry.getIsDeleted() == 0) {
