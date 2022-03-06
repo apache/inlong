@@ -67,6 +67,9 @@ public class InlongStreamInfo extends InlongStreamBaseInfo {
     @ApiModelProperty(value = "(File and DB access) Whether there are predefined fields, 0: no, 1: yes")
     private Integer havePredefinedFields;
 
+    @ApiModelProperty(value = "order_preserving 0: none, 1: yes")
+    private Integer syncSend;
+
     @ApiModelProperty(value = "Number of access items per day, unit: 10,000 items per day")
     private Integer dailyRecords;
 

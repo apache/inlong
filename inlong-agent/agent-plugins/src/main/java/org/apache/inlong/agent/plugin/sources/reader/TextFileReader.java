@@ -145,6 +145,11 @@ public class TextFileReader extends AbstractReader {
         return StringUtils.EMPTY;
     }
 
+    @Override
+    public void finishRead() {
+        destroy();
+    }
+
     public void addPatternValidator(String pattern) {
         if (pattern.isEmpty()) {
             return;

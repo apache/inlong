@@ -32,7 +32,9 @@ import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.StreamSource;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.InlongStreamSinkTransfer;
+import org.apache.inlong.manager.client.api.util.InlongStreamSourceTransfer;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -50,11 +52,9 @@ public class InlongStreamImpl extends InlongStream {
 
     private List<StreamField> streamFields;
 
-    public InlongStreamImpl(FullStreamResponse fullStreamResponse, InlongStream curStreamInfo) {
+    public InlongStreamImpl(FullStreamResponse fullStreamResponse) {
         InlongStreamInfo streamInfo = fullStreamResponse.getStreamInfo();
         this.name = streamInfo.getName();
-        this.streamSinks = curStreamInfo.getSinks();
-        this.streamSources = curStreamInfo.getSources();
         List<InlongStreamFieldInfo> streamFieldInfos = streamInfo.getFieldList();
         this.streamFields = streamFieldInfos.stream().map(streamFieldInfo -> {
             return new StreamField(streamFieldInfo.getId(),
@@ -66,14 +66,19 @@ public class InlongStreamImpl extends InlongStream {
         }).collect(Collectors.toList());
         List<SinkResponse> sinkList = fullStreamResponse.getSinkInfo();
         if (CollectionUtils.isNotEmpty(sinkList)) {
-            Map<String, StreamSink> streamSinks = sinkList.stream()
+            this.streamSinks = sinkList.stream()
                     .map(sinkResponse -> {
-                        String sinkName = sinkResponse.getSinkName();
-                        StreamSink streamSink = this.streamSinks.get(sinkName);
-                        return InlongStreamSinkTransfer.parseStreamSink(sinkResponse, streamSink);
+                        return InlongStreamSinkTransfer.parseStreamSink(sinkResponse, null);
                     }).collect(Collectors.toMap(StreamSink::getSinkName, streamSink -> streamSink));
-            this.streamSinks = streamSinks;
         }
+        List<SourceResponse> sourceList = fullStreamResponse.getSourceInfo();
+        if (CollectionUtils.isNotEmpty(sourceList)) {
+            this.streamSources = sourceList.stream()
+                    .map(sourceResponse -> {
+                        return InlongStreamSourceTransfer.parseStreamSource(sourceResponse);
+                    }).collect(Collectors.toMap(StreamSource::getSourceName, streamSource -> streamSource));
+        }
+
     }
 
     public InlongStreamImpl(String name) {

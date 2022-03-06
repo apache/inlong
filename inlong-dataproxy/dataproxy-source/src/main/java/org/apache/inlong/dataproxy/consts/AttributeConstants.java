@@ -80,4 +80,10 @@ public interface AttributeConstants {
     String GROUPID_NUM = "groupIdnum";
 
     String STREAMID_NUM = "streamIdnum";
+
+    String MESSAGE_PARTITION_KEY = "partitionKey";
+
+    String MESSAGE_SYNC_SEND = "syncSend";
+
+    String MESSAGE_IS_ACK = "isAck";
 }

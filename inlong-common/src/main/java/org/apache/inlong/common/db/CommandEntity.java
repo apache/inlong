@@ -17,7 +17,6 @@
 
 package org.apache.inlong.common.db;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sleepycat.persist.model.Entity;
 import com.sleepycat.persist.model.PrimaryKey;
 import com.sleepycat.persist.model.Relationship;
@@ -26,8 +25,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
+/**
+ * The entity of task command, used for Agent to interact with Manager and BDB.
+ */
 @Entity(version = 1)
 @Data
 @AllArgsConstructor
@@ -40,12 +40,10 @@ public class CommandEntity {
     @SecondaryKey(relate = Relationship.MANY_TO_ONE)
     private boolean isAcked;
     private Integer taskId;
-
     /**
-     * The task delivery time
+     * The task delivery time, format is 'yyyy-MM-dd HH:mm:ss'.
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date deliveryTime;
+    private String deliveryTime;
 
     public static String generateCommandId(String taskId, int opType) {
         return taskId + opType;

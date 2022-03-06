@@ -43,7 +43,7 @@ public abstract class AbstractNextableElementProcessor<T extends NextableElement
 
         Element endEvent = nextElements
                 .stream()
-                .filter(ele -> ele instanceof EndEvent)
+                .filter(EndEvent.class::isInstance)
                 .findFirst()
                 .orElse(null);
 

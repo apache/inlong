@@ -40,23 +40,35 @@ public class BinlogSourceListResponse extends SourceListResponse {
     @ApiModelProperty("Hostname of the DB server")
     private String hostname;
 
-    @ApiModelProperty("Exposed port the DB server")
+    @ApiModelProperty("Exposed port of the DB server")
     private int port;
 
+    @ApiModelProperty("Whether include schema, default is 'false'")
+    private String includeSchema;
+
     @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions")
-    private String whitelist;
+    private String databaseWhiteList;
+
+    @ApiModelProperty(value = "List of tables to be collected, supporting regular expressions")
+    private String tableWhiteList;
 
     @ApiModelProperty("Database time zone, Default is UTC")
-    private String timeZone;
-
-    @ApiModelProperty("The file path to store history info")
-    private String storeHistoryFilename;
+    private String serverTimezone;
 
     @ApiModelProperty("The interval for recording an offset")
     private String intervalMs;
 
     @ApiModelProperty("Snapshot mode, supports: initial, when_needed, never, schema_only, schema_only_recovery")
     private String snapshotMode;
+
+    @ApiModelProperty("The file path to store offset info")
+    private String offsetFilename;
+
+    @ApiModelProperty("The file path to store history info")
+    private String historyFilename;
+
+    @ApiModelProperty("Whether to monitor the DDL, default is 'false'")
+    private String monitoredDdl;
 
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
     private String timestampFormatStandard = "SQL";

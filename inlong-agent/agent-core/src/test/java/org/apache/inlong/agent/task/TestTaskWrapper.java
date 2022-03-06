@@ -149,6 +149,11 @@ public class TestTaskWrapper {
             return null;
         }
 
+        @Override
+        public void finishRead() {
+
+        }
+
         public int getCount() {
             return count;
         }

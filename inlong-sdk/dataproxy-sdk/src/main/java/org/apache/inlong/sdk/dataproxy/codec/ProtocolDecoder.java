@@ -32,7 +32,7 @@ public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
     private static final Logger logger = LoggerFactory.getLogger(ProtocolDecoder.class);
 
     @Override
-    protected void decode(ChannelHandlerContext var1,
+    protected void decode(ChannelHandlerContext ctx,
             ByteBuf buffer, List<Object> out) throws Exception {
         buffer.markReaderIndex();
         // totallen

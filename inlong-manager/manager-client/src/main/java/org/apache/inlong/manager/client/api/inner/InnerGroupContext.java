@@ -37,9 +37,9 @@ public class InnerGroupContext {
 
     private InlongGroupInfo groupInfo;
 
-    private Map<String, InnerStreamContext> streamContextMap;
+    private Map<String, InnerStreamContext> streamContextMap = Maps.newHashMap();
 
-    private Map<String, InlongStream> streamMap;
+    private Map<String, InlongStream> streamMap = Maps.newHashMap();
 
     private Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> initMsg;
 

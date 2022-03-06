@@ -63,9 +63,8 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         InlongGroupInfo groupInfo = getGroupInfo(context.getProcessForm());
         final String groupId = groupInfo.getInlongGroupId();
         List<StreamBriefResponse> streamBriefResponses = streamService.getBriefList(groupId);
-        streamBriefResponses.forEach(streamBriefResponse -> {
-            operateStreamSources(groupId, streamBriefResponse.getInlongStreamId(), context.getApplicant());
-        });
+        streamBriefResponses.forEach(streamBriefResponse ->
+                operateStreamSources(groupId, streamBriefResponse.getInlongStreamId(), context.getApplicant()));
         return ListenerResult.success();
     }
 

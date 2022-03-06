@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Slf4j
 @Service
@@ -82,7 +83,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
                 info.getUsername(),
                 info.getIp(),
                 info.getPort());
-        if (entities != null && entities.size() > 0) {
+        if (!CollectionUtils.isEmpty(entities)) {
             for (CommonFileServerEntity entry : entities) {
                 // Have the same normal entry
                 if (entry.getIsDeleted() == 0) {

@@ -24,7 +24,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.Date;
 import java.util.List;
 
 public class TestBerkeleyDBImp {
@@ -81,7 +80,7 @@ public class TestBerkeleyDBImp {
 
     @Test
     public void testCommandDb() {
-        CommandEntity commandEntity = new CommandEntity("1", 0, false, 1, new Date());
+        CommandEntity commandEntity = new CommandEntity("1", 0, false, 1, "1");
         db.putCommand(commandEntity);
         CommandEntity command = db.getCommand("1");
         Assert.assertEquals("1", command.getId());

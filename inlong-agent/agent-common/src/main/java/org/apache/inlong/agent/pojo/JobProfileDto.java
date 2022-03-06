@@ -20,10 +20,9 @@ package org.apache.inlong.agent.pojo;
 import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+import static org.apache.inlong.agent.constant.JobConstants.SYNC_SEND_OPEN;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.gson.Gson;
-import java.util.Date;
 import lombok.Data;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
@@ -66,10 +65,10 @@ public class JobProfileDto {
         binlogJob.setUser(binlogJobTaskConfig.getUser());
         binlogJob.setTableWhiteList(binlogJobTaskConfig.getTableWhiteList());
         binlogJob.setDatabaseWhiteList(binlogJobTaskConfig.getDatabaseWhiteList());
-        binlogJob.setSchema(binlogJobTaskConfig.getSchema());
+        binlogJob.setSchema(binlogJobTaskConfig.getIncludeSchema());
         binlogJob.setPort(binlogJobTaskConfig.getPort());
         binlogJob.setOffsets(dataConfigs.getSnapshot());
-        binlogJob.setDdl(binlogJobTaskConfig.getDdl());
+        binlogJob.setDdl(binlogJobTaskConfig.getMonitoredDdl());
         binlogJob.setServerTimezone(binlogJobTaskConfig.getServerTimezone());
 
         BinlogJob.Offset offset = new BinlogJob.Offset();
@@ -79,7 +78,7 @@ public class JobProfileDto {
         binlogJob.setOffset(offset);
 
         BinlogJob.Snapshot snapshot = new BinlogJob.Snapshot();
-        snapshot.setMode(binlogJobTaskConfig.getMode());
+        snapshot.setMode(binlogJobTaskConfig.getSnapshotMode());
 
         binlogJob.setSnapshot(snapshot);
 
@@ -154,7 +153,7 @@ public class JobProfileDto {
         proxy.setInlongStreamId(dataConfigs.getInlongStreamId());
         proxy.setManager(manager);
         if (null != dataConfigs.getSyncSend()) {
-            proxy.setSync(dataConfigs.getSyncSend());
+            proxy.setSync(dataConfigs.getSyncSend() == SYNC_SEND_OPEN);
         }
         return proxy;
     }
@@ -176,6 +175,7 @@ public class JobProfileDto {
         job.setOp(dataConfigs.getOp());
         job.setDeliveryTime(dataConfigs.getDeliveryTime());
         job.setUuid(dataConfigs.getUuid());
+        job.setSink(DEFAULT_DATAPROXY_SINK);
         TaskTypeEnum taskType = TaskTypeEnum.getTaskType(dataConfigs.getTaskType());
         switch (requireNonNull(taskType)) {
             case SQL:
@@ -214,8 +214,7 @@ public class JobProfileDto {
         private String name;
         private String op;
         private String retryTime;
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        private Date deliveryTime;
+        private String deliveryTime;
         private String uuid;
 
         private FileJob fileJob;
@@ -236,7 +235,7 @@ public class JobProfileDto {
         private String inlongGroupId;
         private String inlongStreamId;
         private Manager manager;
-        private Integer sync;
+        private Boolean sync;
     }
 
 }

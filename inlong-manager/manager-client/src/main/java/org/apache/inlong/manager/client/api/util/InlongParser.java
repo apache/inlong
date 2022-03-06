@@ -42,8 +42,11 @@ import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -59,7 +62,9 @@ public class InlongParser {
     public static final String MQ_EXT_INFO = "mqExtInfo";
     public static final String MIDDLEWARE_TYPE = "middlewareType";
     public static final String SINK_INFO = "sinkInfo";
+    public static final String SOURCE_INFO = "sourceInfo";
     public static final String SINK_TYPE = "sinkType";
+    public static final String SOURCE_TYPE = "sourceType";
 
     public static Response parseResponse(String responseBody) {
         Response response = GsonUtil.fromJson(responseBody, Response.class);
@@ -109,6 +114,30 @@ public class InlongParser {
             FullStreamResponse fullStreamResponse = GsonUtil.fromJson(fullStreamJson.toString(),
                     FullStreamResponse.class);
             list.add(fullStreamResponse);
+            //Parse sourceResponse in each stream
+            JsonArray sourceJsonArr = fullStreamJson.getAsJsonArray(SOURCE_INFO);
+            List<SourceResponse> sourceResponses = Lists.newArrayList();
+            fullStreamResponse.setSourceInfo(sourceResponses);
+            for (int j = 0; j < sourceJsonArr.size(); j++) {
+                JsonObject sourceJson = (JsonObject) sourceJsonArr.get(i);
+                String type = sourceJson.get(SOURCE_TYPE).getAsString();
+                SourceType sourceType = SourceType.forType(type);
+                switch (sourceType) {
+                    case BINLOG:
+                        BinlogSourceResponse binlogSourceResponse = GsonUtil.fromJson(sourceJson.toString(),
+                                BinlogSourceResponse.class);
+                        sourceResponses.add(binlogSourceResponse);
+                        break;
+                    case KAFKA:
+                        KafkaSourceResponse kafkaSourceResponse = GsonUtil.fromJson(sourceJson.toString(),
+                                KafkaSourceResponse.class);
+                        sourceResponses.add(kafkaSourceResponse);
+                        break;
+                    default:
+                        throw new RuntimeException(String.format("Unsupport sourceType=%s for Inlong", sourceType));
+                }
+            }
+
             //Parse sinkResponse in each stream
             JsonArray sinkJsonArr = fullStreamJson.getAsJsonArray(SINK_INFO);
             List<SinkResponse> sinkResponses = Lists.newArrayList();

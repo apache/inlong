@@ -37,7 +37,6 @@ import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.core.AgentSysConfigService;
 import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,7 +58,7 @@ public class AgentController {
     @Autowired
     private ThirdPartyClusterService thirdPartyClusterService;
 
-    @GetMapping("/getManagerIpList")
+    @PostMapping("/getManagerIpList")
     @ApiOperation(value = "Get inlong manager ip list")
     public Response<List<String>> getInLongManagerIp() {
         return Response.success(thirdPartyClusterService.listClusterIpByType("inlong-openapi"));
@@ -67,7 +66,7 @@ public class AgentController {
 
     @PostMapping("/reportSnapshot")
     @ApiOperation(value = "Report source task snapshot")
-    public Response<Boolean> reportSnapshot(TaskSnapshotRequest request) {
+    public Response<Boolean> reportSnapshot(@RequestBody TaskSnapshotRequest request) {
         return Response.success(agentService.reportSnapshot(request));
     }
 

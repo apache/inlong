@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.protocol;
 
 import com.google.common.base.Preconditions;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,6 +27,14 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import java.io.Serializable;
 import java.util.Objects;
 
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = FieldInfo.class, name = "base"),
+        @JsonSubTypes.Type(value = BuiltInFieldInfo.class, name = "builtin")
+})
 public class FieldInfo implements Serializable {
 
     private static final long serialVersionUID = 5871970550803344673L;
