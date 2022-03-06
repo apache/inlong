@@ -71,8 +71,7 @@ public class JobProfile extends AbstractConfiguration {
     @Override
     public boolean allRequiredKeyExist() {
         return hasKey(JobConstants.JOB_ID) && hasKey(JobConstants.JOB_SOURCE_CLASS)
-                && hasKey(JobConstants.JOB_SINK) && hasKey(JobConstants.JOB_CHANNEL) && hasKey(
-            JobConstants.JOB_NAME);
+                && hasKey(JobConstants.JOB_SINK) && hasKey(JobConstants.JOB_CHANNEL);
     }
 
     public String toJsonStr() {

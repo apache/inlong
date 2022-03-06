@@ -178,8 +178,8 @@ public class JobManager extends AbstractDaemon {
      * @param jobInstancId
      */
     public boolean deleteJob(String jobInstancId) {
-        JobWrapper jobWrapper = jobs.remove(jobInstancId);
         LOGGER.info("start to delete job, job id set {}", jobs.keySet());
+        JobWrapper jobWrapper = jobs.remove(jobInstancId);
         if (jobWrapper != null) {
             LOGGER.info("delete job instance with job id {}", jobInstancId);
             jobWrapper.cleanup();
@@ -193,7 +193,7 @@ public class JobManager extends AbstractDaemon {
      * start all accepted jobs.
      */
     private void startJobs() {
-        List<JobProfile> profileList = getJobConfDb().getAcceptedJobs();
+        List<JobProfile> profileList = getJobConfDb().getRestartJobs();
         for (JobProfile profile : profileList) {
             LOGGER.info("init starting job from db {}", profile.toJsonStr());
             addJob(new Job(profile));

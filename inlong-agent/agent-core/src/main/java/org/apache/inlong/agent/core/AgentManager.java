@@ -168,6 +168,7 @@ public class AgentManager extends AbstractDaemon {
         triggerManager.start();
         jobManager.start();
         taskManager.start();
+        heartbeatManager.start();
         taskPositionManager.start();
         // read job profiles from local
         List<JobProfile> profileList = localProfile.readFromLocal();
@@ -207,6 +208,7 @@ public class AgentManager extends AbstractDaemon {
         triggerManager.stop();
         jobManager.stop();
         taskManager.stop();
+        heartbeatManager.stop();
         taskPositionManager.stop();
         this.db.close();
     }

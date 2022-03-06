@@ -231,6 +231,7 @@ public class BinlogReader implements Reader {
         props.setProperty("database.history.file.filename", databaseStoreHistoryName);
         props.setProperty("database.snapshot.mode", snapshotMode);
         props.setProperty("database.history.store.only.monitored.tables.ddl", historyMonitorDdl);
+        props.setProperty("database.allowPublicKeyRetrieval", "true");
         props.setProperty("key.converter.schemas.enable", "false");
         props.setProperty("value.converter.schemas.enable", "false");
         props.setProperty("include.schema.changes", includeSchemaChanges);
@@ -269,7 +270,11 @@ public class BinlogReader implements Reader {
 
     @Override
     public String getSnapshot() {
-        return binlogSnapshot.getSnapshot();
+        if (binlogSnapshot != null) {
+            return binlogSnapshot.getSnapshot();
+        } else {
+            return "";
+        }
     }
 
 }

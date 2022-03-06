@@ -36,8 +36,11 @@ public class JobProfileDb {
         this.db = db;
     }
 
-    public List<JobProfile> getAcceptedJobs() {
-        return getJobsByState(StateSearchKey.ACCEPTED);
+    public List<JobProfile> getRestartJobs() {
+        List<JobProfile> jobsByState = getJobsByState(StateSearchKey.ACCEPTED);
+        jobsByState.addAll(getJobsByState(StateSearchKey.RUNNING));
+        LOGGER.info("try to get restart jobs from db {}", jobsByState);
+        return jobsByState;
     }
 
     /**
@@ -64,6 +67,7 @@ public class JobProfileDb {
             KeyValueEntity entity = new KeyValueEntity(keyName,
                 jobProfile.toJsonStr(), jobProfile.get(JobConstants.JOB_DIR_FILTER_PATTERN, ""));
             entity.setStateSearchKey(StateSearchKey.ACCEPTED);
+            LOGGER.info("store job {} to db", jobProfile.toJsonStr());
             db.put(entity);
         }
     }
@@ -164,9 +168,7 @@ public class JobProfileDb {
         List<KeyValueEntity> entityList = db.search(stateSearchKey);
         List<JobProfile> profileList = new ArrayList<>();
         for (KeyValueEntity entity : entityList) {
-            if (entity.getKey().startsWith(JobConstants.JOB_ID_PREFIX)) {
-                profileList.add(entity.getAsJobProfile());
-            }
+            profileList.add(entity.getAsJobProfile());
         }
         return profileList;
     }

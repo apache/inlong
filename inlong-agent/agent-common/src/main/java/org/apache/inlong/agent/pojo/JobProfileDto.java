@@ -17,16 +17,16 @@
 
 package org.apache.inlong.agent.pojo;
 
+import static java.util.Objects.requireNonNull;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+
 import com.google.gson.Gson;
 import lombok.Data;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
-
-import static java.util.Objects.requireNonNull;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 
 @Data
 public class JobProfileDto {
@@ -64,10 +64,10 @@ public class JobProfileDto {
         binlogJob.setUser(binlogJobTaskConfig.getUser());
         binlogJob.setTableWhiteList(binlogJobTaskConfig.getTableWhiteList());
         binlogJob.setDatabaseWhiteList(binlogJobTaskConfig.getDatabaseWhiteList());
-        binlogJob.setSchema(binlogJobTaskConfig.getSchema());
+        binlogJob.setSchema(binlogJobTaskConfig.getIncludeSchema());
         binlogJob.setPort(binlogJobTaskConfig.getPort());
         binlogJob.setOffsets(dataConfigs.getSnapshot());
-        binlogJob.setDdl(binlogJobTaskConfig.getDdl());
+        binlogJob.setDdl(binlogJobTaskConfig.getMonitoredDdl());
         binlogJob.setServerTimezone(binlogJobTaskConfig.getServerTimezone());
 
         BinlogJob.Offset offset = new BinlogJob.Offset();
@@ -77,7 +77,7 @@ public class JobProfileDto {
         binlogJob.setOffset(offset);
 
         BinlogJob.Snapshot snapshot = new BinlogJob.Snapshot();
-        snapshot.setMode(binlogJobTaskConfig.getMode());
+        snapshot.setMode(binlogJobTaskConfig.getSnapshotMode());
 
         binlogJob.setSnapshot(snapshot);
 
@@ -174,6 +174,7 @@ public class JobProfileDto {
         job.setOp(dataConfigs.getOp());
         job.setDeliveryTime(dataConfigs.getDeliveryTime());
         job.setUuid(dataConfigs.getUuid());
+        job.setSink(DEFAULT_DATAPROXY_SINK);
         TaskTypeEnum taskType = TaskTypeEnum.getTaskType(dataConfigs.getTaskType());
         switch (requireNonNull(taskType)) {
             case SQL:

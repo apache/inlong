@@ -261,7 +261,6 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         }
         JobProfile profile = taskResult.getJobProfile();
         if (profile == null) {
-            LOGGER.error("profile is null");
             return;
         }
         agentManager.getJobManager().submitSqlJobProfile(profile);
@@ -272,10 +271,9 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      */
     private void dealWithFileTaskResult(TaskResult taskResult) {
         LOGGER.info("deal with fetch result {}", taskResult);
-
         for (DataConfig dataConfig : taskResult.getDataConfigs()) {
             TriggerProfile profile = TriggerProfile.getTriggerProfiles(dataConfig);
-            LOGGER.info("the triggerProfile: {}", profile);
+            LOGGER.info("the triggerProfile: {}", profile.toJsonStr());
             if (profile.hasKey(JOB_TRIGGER)) {
                 dealWithTdmTriggerProfile(profile);
             } else {
@@ -497,8 +495,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     @Override
     public void start() throws Exception {
         // when agent start, check local ip and fetch manager ip list;
-        fetchLocalIp();
-        fetchLocalUuid();
+        localIp = fetchLocalIp();
+        uuid = fetchLocalUuid();
         fetchTdmList(true, 0);
         submitWorker(profileFetchThread());
     }
