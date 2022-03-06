@@ -20,6 +20,7 @@ package org.apache.inlong.agent.pojo;
 import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+import static org.apache.inlong.agent.constant.JobConstants.SYNC_SEND_OPEN;
 
 import com.google.gson.Gson;
 import lombok.Data;
@@ -152,7 +153,7 @@ public class JobProfileDto {
         proxy.setInlongStreamId(dataConfigs.getInlongStreamId());
         proxy.setManager(manager);
         if (null != dataConfigs.getSyncSend()) {
-            proxy.setSync(dataConfigs.getSyncSend());
+            proxy.setSync(dataConfigs.getSyncSend() == SYNC_SEND_OPEN);
         }
         return proxy;
     }
@@ -234,7 +235,7 @@ public class JobProfileDto {
         private String inlongGroupId;
         private String inlongStreamId;
         private Manager manager;
-        private Integer sync;
+        private Boolean sync;
     }
 
 }
