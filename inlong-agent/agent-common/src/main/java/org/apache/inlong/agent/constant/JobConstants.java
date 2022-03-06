@@ -130,7 +130,7 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_KAFKA_PARTITION_OFFSET_DELIMITER = "#";
 
     /**
-     * delimiter the sync send when sending to DataProxy
+     * sync send data when sending to DataProxy
      */
     public static final int SYNC_SEND_OPEN = 1;
 
