@@ -36,6 +36,7 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListRespons
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
 
@@ -192,10 +193,14 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setServerTimezone(binlogSource.getServerTimezone());
         sourceRequest.setMonitoredDdl(binlogSource.getMonitoredDdl());
         sourceRequest.setAllMigration(binlogSource.isAllMigration());
-        String dbNames = Joiner.on(",").join(binlogSource.getDbNames());
-        sourceRequest.setDatabaseWhiteList(dbNames);
-        String tableNames = Joiner.on(",").join(binlogSource.getTableNames());
-        sourceRequest.setTableWhiteList(tableNames);
+        if (!CollectionUtils.isEmpty(binlogSource.getDbNames())) {
+            String dbNames = Joiner.on(",").join(binlogSource.getDbNames());
+            sourceRequest.setDatabaseWhiteList(dbNames);
+        }
+        if (!CollectionUtils.isEmpty(binlogSource.getTableNames())) {
+            String tableNames = Joiner.on(",").join(binlogSource.getTableNames());
+            sourceRequest.setTableWhiteList(tableNames);
+        }
         sourceRequest.setSnapshotMode("initial");
         sourceRequest.setIntervalMs("500");
         sourceRequest.setTimestampFormatStandard(binlogSource.getTimestampFormatStandard());
