@@ -66,7 +66,7 @@ public class AgentController {
 
     @PostMapping("/reportSnapshot")
     @ApiOperation(value = "Report source task snapshot")
-    public Response<Boolean> reportSnapshot(TaskSnapshotRequest request) {
+    public Response<Boolean> reportSnapshot(@RequestBody TaskSnapshotRequest request) {
         return Response.success(agentService.reportSnapshot(request));
     }
 
