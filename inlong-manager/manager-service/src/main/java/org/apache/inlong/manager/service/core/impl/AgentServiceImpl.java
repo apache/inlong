@@ -79,6 +79,7 @@ public class AgentServiceImpl implements AgentService {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final int UNISSUED_STATUS = 2;
     private static final int ISSUED_STATUS = 3;
+    private static final int MODULUS_100 = 100;
 
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
@@ -147,7 +148,7 @@ public class AgentServiceImpl implements AgentService {
             int previousStatus = current.getStatus();
             int nextStatus = SourceState.SOURCE_NORMAL.getCode();
             // Change the status from 30x to normal / disable / frozen
-            if (previousStatus / 100 == ISSUED_STATUS) {
+            if (previousStatus / MODULUS_100 == ISSUED_STATUS) {
                 if (Constants.RESULT_SUCCESS == result) {
                     if (SourceState.TEMP_TO_NORMAL.contains(previousStatus)) {
                         nextStatus = SourceState.SOURCE_NORMAL.getCode();
@@ -176,13 +177,25 @@ public class AgentServiceImpl implements AgentService {
         List<DataConfig> dataConfigs = Lists.newArrayList();
         List<StreamSourceEntity> entityList = sourceMapper.selectByIpAndUuid(agentIp, uuid);
         for (StreamSourceEntity entity : entityList) {
+            // Change 20x to 30x
+            int id = entity.getId();
+            int status = entity.getStatus();
+            int op = status % MODULUS_100;
+            if (status / MODULUS_100 == UNISSUED_STATUS) {
+                sourceMapper.updateStatus(id, ISSUED_STATUS * MODULUS_100 + op);
+            } else {
+                LOGGER.info("skip task status not in 20x, id={}", id);
+                continue;
+            }
+
             DataConfig dataConfig = new DataConfig();
+            dataConfig.setIp(entity.getAgentIp());
+            dataConfig.setUuid(entity.getUuid());
+            dataConfig.setOp(String.valueOf(op));
             dataConfig.setTaskId(entity.getId());
             dataConfig.setTaskType(getTaskType(entity));
             dataConfig.setTaskName(entity.getSourceName());
-            dataConfig.setOp(String.valueOf(entity.getStatus() % 100));
-            dataConfig.setIp(entity.getAgentIp());
-            dataConfig.setUuid(entity.getUuid());
+            dataConfig.setSnapshot(entity.getSnapshot());
             dataConfig.setExtParams(entity.getExtParams());
             LocalDateTime dateTime = LocalDateTime.ofInstant(entity.getModifyTime().toInstant(),
                     ZoneId.systemDefault());
@@ -192,8 +205,8 @@ public class AgentServiceImpl implements AgentService {
             String streamId = entity.getInlongStreamId();
             dataConfig.setInlongGroupId(groupId);
             dataConfig.setInlongStreamId(streamId);
-            InlongStreamEntity inlongStreamEntity = streamMapper.selectByIdentifier(groupId, streamId);
-            dataConfig.setSyncSend(inlongStreamEntity.getSyncSend());
+            InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+            dataConfig.setSyncSend(streamEntity.getSyncSend());
             dataConfigs.add(dataConfig);
         }
         // Query pending special commands

@@ -49,16 +49,24 @@ public class BinlogSourceDTO {
     @ApiModelProperty("Hostname of the DB server")
     private String hostname;
 
-    @ApiModelProperty("Exposed port the DB server")
+    @ApiModelProperty("Exposed port of the DB server")
     private int port;
 
+    @ApiModelProperty("Whether include schema, default is 'false'")
+    private String includeSchema;
+
     @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions, "
-            + "separate them with commas, for example: db1.tb1,db2.tb2",
-            notes = "DBs not in this list are excluded. By default, all DBs are monitored")
-    private String whitelist;
+            + "separate them with commas, for example: db1,test_db*",
+            notes = "DBs not in this list are excluded. If not set, all DBs are monitored")
+    private String databaseWhiteList;
+
+    @ApiModelProperty(value = "List of tables to be collected, supporting regular expressions, "
+            + "separate them with commas, for example: tb1,user*",
+            notes = "Tables not in this list are excluded. By default, all tables are monitored")
+    private String tableWhiteList;
 
     @ApiModelProperty("Database time zone, Default is UTC")
-    private String timeZone;
+    private String serverTimezone;
 
     @ApiModelProperty("The interval for recording an offset")
     private String intervalMs;
@@ -81,13 +89,19 @@ public class BinlogSourceDTO {
     @ApiModelProperty("Snapshot mode, supports: initial, when_needed, never, schema_only, schema_only_recovery")
     private String snapshotMode;
 
+    @ApiModelProperty("The file path to store offset info")
+    private String offsetFilename;
+
     @ApiModelProperty("The file path to store history info")
-    private String storeHistoryFilename;
+    private String historyFilename;
+
+    @ApiModelProperty("Whether to monitor the DDL, default is 'false'")
+    private String monitoredDdl;
 
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
     private String timestampFormatStandard = "SQL";
 
-    @ApiModelProperty("Need transfer total database")
+    @ApiModelProperty("Whether to migrate all databases")
     private boolean allMigration;
 
     /**
@@ -96,15 +110,19 @@ public class BinlogSourceDTO {
     public static BinlogSourceDTO getFromRequest(BinlogSourceRequest request) {
         return BinlogSourceDTO.builder()
                 .user(request.getUser())
-                .port(request.getPort())
                 .password(request.getPassword())
                 .hostname(request.getHostname())
-                .whitelist(request.getWhitelist())
-                .timeZone(request.getTimeZone())
+                .port(request.getPort())
+                .includeSchema(request.getIncludeSchema())
+                .databaseWhiteList(request.getDatabaseWhiteList())
+                .tableWhiteList(request.getTableWhiteList())
+                .serverTimezone(request.getServerTimezone())
                 .intervalMs(request.getIntervalMs())
                 .snapshotMode(request.getSnapshotMode())
+                .offsetFilename(request.getOffsetFilename())
+                .historyFilename(request.getHistoryFilename())
+                .monitoredDdl(request.getMonitoredDdl())
                 .allMigration(request.isAllMigration())
-                .storeHistoryFilename(request.getStoreHistoryFilename())
                 .build();
     }
 
