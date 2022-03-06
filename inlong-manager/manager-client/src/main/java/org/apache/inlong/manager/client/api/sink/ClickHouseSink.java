@@ -15,28 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink.ck;
+package org.apache.inlong.manager.client.api.sink;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.manager.client.api.StreamField;
+import org.apache.inlong.manager.client.api.StreamSink;
+import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.enums.SinkType;
 
-/**
- * Response of the ClickHouse sink
- */
+import java.util.List;
+import java.util.Map;
+
 @Data
-@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Response of the ClickHouse sink")
-public class ClickHouseSinkResponse extends SinkResponse {
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Clickhouse sink configuration")
+public class ClickHouseSink extends StreamSink {
 
-    public ClickHouseSinkResponse() {
-        this.sinkType = Constant.SINK_CLICKHOUSE;
-    }
+    @ApiModelProperty(value = "Sink type", required = true)
+    private SinkType sinkType = SinkType.CLICKHOUSE;
 
     @ApiModelProperty("ClickHouse JDBC URL")
     private String jdbcUrl;
@@ -47,11 +51,8 @@ public class ClickHouseSinkResponse extends SinkResponse {
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @ApiModelProperty("Username for JDBC URL")
-    private String username;
-
-    @ApiModelProperty("User password")
-    private String password;
+    @ApiModelProperty("Authentication for clickhouse")
+    private DefaultAuthentication authentication;
 
     @ApiModelProperty("Whether distributed table")
     private Boolean distributedTable;
@@ -74,4 +75,17 @@ public class ClickHouseSinkResponse extends SinkResponse {
     @ApiModelProperty("Write max retry times")
     private Integer writeMaxRetryTimes;
 
+    @ApiModelProperty("Create topic or not")
+    private boolean needCreated;
+
+    @ApiModelProperty("Field definitions for kafka")
+    private List<StreamField> streamFields;
+
+    @ApiModelProperty("Other properties if need")
+    private Map<String, String> properties;
+
+    @Override
+    public DataFormat getDataFormat() {
+        return DataFormat.NONE;
+    }
 }

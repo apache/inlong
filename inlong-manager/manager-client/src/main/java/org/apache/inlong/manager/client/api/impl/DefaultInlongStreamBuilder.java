@@ -19,7 +19,6 @@ package org.apache.inlong.manager.client.api.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -44,6 +43,8 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+
+import java.util.List;
 
 public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
@@ -182,7 +183,9 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     private int initOrUpdateSink(SinkRequest sinkRequest) {
         String sinkType = sinkRequest.getSinkType();
-        if (SinkType.HIVE.name().equals(sinkType) || SinkType.KAFKA.name().equals(sinkType)) {
+        boolean flag = SinkType.HIVE.name().equals(sinkType) || SinkType.KAFKA.name().equals(sinkType)
+                || SinkType.CLICKHOUSE.name().equals(sinkType);
+        if (flag) {
             List<SinkListResponse> responses = managerClient.listSinks(sinkRequest.getInlongGroupId(),
                     sinkRequest.getInlongStreamId(), sinkRequest.getSinkType());
             if (CollectionUtils.isEmpty(responses)) {

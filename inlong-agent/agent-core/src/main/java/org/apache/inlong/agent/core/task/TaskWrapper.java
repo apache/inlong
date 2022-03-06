@@ -91,6 +91,7 @@ public class TaskWrapper extends AbstractStateWrapper {
                     isException(), task.isReadFinished());
             // write end message
             task.getChannel().push(new EndMessage());
+            task.getReader().destroy();
         }, executorService);
     }
 
@@ -149,7 +150,7 @@ public class TaskWrapper extends AbstractStateWrapper {
      */
     void destroyTask() {
         LOGGER.info("destroy task id is {}", task.getTaskId());
-        task.getReader().destroy();
+        task.getReader().finishRead();
     }
 
     /**

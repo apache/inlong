@@ -144,8 +144,7 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
      * Adds this instance's identifier as a prefix to the passed <code>str</code>
      *
      * @param str String to amend.
-     * @return A new string with this instance's identifier as prefix: e.g. if passed 'hello world',
-     * the returned string could be
+     * @return A new string with this instance's identifier as prefix
      */
     public String prefix(final String str) {
         return this.toString() + " " + str;

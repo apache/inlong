@@ -30,10 +30,12 @@ public class InlongStreamTransfer {
     public static InlongStreamInfo createStreamInfo(InlongStreamConf streamConf, InlongGroupInfo groupInfo) {
         InlongStreamInfo dataStreamInfo = new InlongStreamInfo();
         dataStreamInfo.setInlongGroupId(groupInfo.getInlongGroupId());
-        dataStreamInfo.setInlongStreamId("b_" + streamConf.getName());
+        final String streamId = "b_" + streamConf.getName();
+        dataStreamInfo.setInlongStreamId(streamId);
         dataStreamInfo.setName(streamConf.getName());
         dataStreamInfo.setDataEncoding(streamConf.getCharset().name());
-        dataStreamInfo.setMqResourceObj(groupInfo.getMqResourceObj() + "_" + streamConf.getName());
+        dataStreamInfo.setMqResourceObj(streamId);
+        dataStreamInfo.setSyncSend(streamConf.isStrictlyOrdered() ? 1 : 0);
         dataStreamInfo.setDataSeparator(String.valueOf(streamConf.getDataSeparator().getAsciiCode()));
         dataStreamInfo.setDescription(streamConf.getDescription());
         dataStreamInfo.setCreator(groupInfo.getCreator());

@@ -18,18 +18,13 @@
 package org.apache.inlong.manager.service.thirdparty.sort.util;
 
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
@@ -41,12 +36,20 @@ import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
+import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
+import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo.PartitionStrategy;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFileFormat;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HivePartitionInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveTimePartitionInfo;
 import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class SinkInfoUtils {
 
@@ -75,21 +78,57 @@ public class SinkInfoUtils {
     public static SinkInfo createSinkInfo(InlongStreamInfo inlongStreamInfo, SourceResponse sourceResponse,
             SinkResponse sinkResponse) {
         String sinkType = sinkResponse.getSinkType();
+        SinkInfo sinkInfo;
         if (SinkType.forType(sinkType) == SinkType.HIVE) {
-            return createHiveSinkInfo(sourceResponse, (HiveSinkResponse) sinkResponse);
+            sinkInfo = createHiveSinkInfo(sourceResponse, (HiveSinkResponse) sinkResponse);
         } else if (SinkType.forType(sinkType) == SinkType.KAFKA) {
-            return createKafkaSinkInfo(inlongStreamInfo, sourceResponse, (KafkaSinkResponse) sinkResponse);
+            sinkInfo = createKafkaSinkInfo(inlongStreamInfo, sourceResponse, (KafkaSinkResponse) sinkResponse);
+        } else if (SinkType.forType(sinkType) == SinkType.CLICKHOUSE) {
+            sinkInfo = createClickhouseSinkInfo((ClickHouseSinkResponse) sinkResponse);
         } else {
-            //todo clickhouse and iceberg is wait to support
             throw new RuntimeException(
                     String.format("SinkType:{} not support in CreateSortConfigListener", sinkType));
         }
+        return sinkInfo;
+    }
+
+    private static ClickHouseSinkInfo createClickhouseSinkInfo(ClickHouseSinkResponse sinkResponse) {
+        if (StringUtils.isEmpty(sinkResponse.getJdbcUrl())) {
+            throw new RuntimeException(String.format("clickHouseSink={} server url cannot be empty", sinkResponse));
+        } else if (CollectionUtils.isEmpty(sinkResponse.getFieldList())) {
+            throw new RuntimeException(String.format("clickHouseSink={} fields cannot be empty", sinkResponse));
+        } else if (StringUtils.isEmpty(sinkResponse.getTableName())) {
+            throw new RuntimeException(String.format("clickHouseSink={} table name cannot be empty", sinkResponse));
+        } else if (StringUtils.isEmpty(sinkResponse.getDatabaseName())) {
+            throw new RuntimeException(String.format("clickHouseSink={} database name cannot be empty", sinkResponse));
+        }
+        if (sinkResponse.getDistributedTable() == null) {
+            throw new RuntimeException(
+                    String.format("clickHouseSink={} distribute is or not cannot be empty", sinkResponse));
+        }
+        ClickHouseSinkInfo.PartitionStrategy partitionStrategy;
+        if (PartitionStrategy.BALANCE.name().equalsIgnoreCase(sinkResponse.getPartitionStrategy())) {
+            partitionStrategy = PartitionStrategy.BALANCE;
+        } else if (PartitionStrategy.HASH.name().equalsIgnoreCase(sinkResponse.getPartitionStrategy())) {
+            partitionStrategy = PartitionStrategy.HASH;
+        } else if (PartitionStrategy.RANDOM.name().equalsIgnoreCase(sinkResponse.getPartitionStrategy())) {
+            partitionStrategy = PartitionStrategy.RANDOM;
+        } else {
+            partitionStrategy = PartitionStrategy.RANDOM;
+        }
+        List<FieldInfo> fieldInfoList = getClickHouseSinkFields(sinkResponse.getFieldList());
+        return new ClickHouseSinkInfo(sinkResponse.getJdbcUrl(), sinkResponse.getDatabaseName(),
+                sinkResponse.getTableName(), sinkResponse.getUsername(), sinkResponse.getPassword(),
+                sinkResponse.getDistributedTable(), partitionStrategy, sinkResponse.getPartitionKey(),
+                fieldInfoList.toArray(new FieldInfo[0]), sinkResponse.getKeyFieldNames(),
+                sinkResponse.getFlushInterval(), sinkResponse.getFlushRecordNumber(),
+                sinkResponse.getWriteMaxRetryTimes());
     }
 
     private static KafkaSinkInfo createKafkaSinkInfo(InlongStreamInfo inlongStreamInfo, SourceResponse sourceResponse,
             KafkaSinkResponse kafkaSinkResponse) {
         List<FieldInfo> fieldInfoList = Lists.newArrayList();
-        if (SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
+        if (SourceInfoUtils.isBinlogMigrationSource(sourceResponse)) {
             fieldInfoList.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE,
                     BuiltInField.MYSQL_METADATA_DATA));
         } else {
@@ -159,7 +198,7 @@ public class SinkInfoUtils {
 
         // Get the sink field, if there is no partition field in the source field, add the partition field to the end
         List<FieldInfo> fieldInfoList = Lists.newArrayList();
-        if (SourceType.DATABASE_MIGRATION.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
+        if (SourceInfoUtils.isBinlogMigrationSource(sourceResponse)) {
             fieldInfoList.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE,
                     BuiltInField.MYSQL_METADATA_DATA));
         } else {
@@ -189,6 +228,17 @@ public class SinkInfoUtils {
         if (!duplicate && StringUtils.isNotEmpty(partitionField)) {
             FieldInfo fieldInfo = new FieldInfo(partitionField, new TimestampFormatInfo("MILLIS"));
             fieldInfoList.add(0, fieldInfo);
+        }
+        return fieldInfoList;
+    }
+
+    private static List<FieldInfo> getClickHouseSinkFields(List<SinkFieldResponse> fieldList) {
+        List<FieldInfo> fieldInfoList = new ArrayList<>();
+        for (SinkFieldResponse field : fieldList) {
+            String fieldName = field.getFieldName();
+            FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(field.getFieldType().toLowerCase());
+            FieldInfo fieldInfo = new FieldInfo(fieldName, formatInfo);
+            fieldInfoList.add(fieldInfo);
         }
         return fieldInfoList;
     }

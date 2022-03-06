@@ -1224,9 +1224,9 @@ public class WebParameterUtils {
      * @param fieldDef     the parameter field definition
      * @param paramValue   the parameter value
      * @param hasMinVal    whether there is a minimum
-     * param minValue      the parameter min value
+     * @param minValue      the parameter min value
      * @param hasMaxVal    whether there is a maximum
-     * param maxValue      the parameter max value
+     * @param maxValue      the parameter max value
      * @param sBuffer      string buffer
      * @param result   process result
      * @return check result for string value of parameter

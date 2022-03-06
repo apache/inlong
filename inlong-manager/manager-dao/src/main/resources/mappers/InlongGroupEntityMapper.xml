@@ -98,8 +98,12 @@
         <include refid="Base_Column_List"/>
         from inlong_group
         <where>
-            is_deleted = 0 and (creator = #{currentUser,jdbcType=VARCHAR} or find_in_set(
-            #{currentUser,jdbcType=VARCHAR},in_charges))
+            is_deleted = 0
+            <if test="currentUser != null and currentUser != ''">
+                and (
+                creator = #{currentUser, jdbcType=VARCHAR} or find_in_set(#{currentUser, jdbcType=VARCHAR}, in_charges)
+                )
+            </if>
             <if test="keyWord != null and keyWord != ''">
                 and (inlong_group_id like CONCAT('%',#{keyWord},'%') or id like CONCAT('%',#{keyWord},'%'))
             </if>

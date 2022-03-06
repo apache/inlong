@@ -19,12 +19,16 @@ package org.apache.inlong.manager.common.enums;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Inlong group related status
+ */
 public enum GroupState {
-    // Inlong group related status
+
     GROUP_DRAFT(0, "draft"),
     GROUP_WAIT_SUBMIT(100, "waiting for submit"),
     GROUP_WAIT_APPROVAL(101, "waiting for approval"),
@@ -39,12 +43,12 @@ public enum GroupState {
     GROUP_RESTART(150, "restart"),
     GROUP_DELETE_ING(41, "deleting"),
     GROUP_DELETE(40, "delete"),
-    //GROUP_FINISH is used for batch task.
+    // GROUP_FINISH is used for batch task.
     GROUP_FINISH(131, "finish");
 
     private static final Map<GroupState, Set<GroupState>> GROUP_FINITE_STATE_AUTOMATON = Maps.newHashMap();
 
-    /**
+    /*
      * Init group finite state automaton
      */
     static {
@@ -61,10 +65,10 @@ public enum GroupState {
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_CONFIG_ING,
                 Sets.newHashSet(GROUP_CONFIG_ING, GROUP_CONFIG_FAILED, GROUP_CONFIG_SUCCESSFUL));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_CONFIG_FAILED,
-                Sets.newHashSet(GROUP_CONFIG_FAILED, GROUP_WAIT_APPROVAL, GROUP_DELETE_ING));
+                Sets.newHashSet(GROUP_CONFIG_FAILED, GROUP_CONFIG_SUCCESSFUL, GROUP_WAIT_APPROVAL, GROUP_DELETE_ING));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_CONFIG_SUCCESSFUL,
                 Sets.newHashSet(GROUP_CONFIG_SUCCESSFUL, GROUP_WAIT_APPROVAL, GROUP_SUSPEND_ING, GROUP_FINISH,
-                        GROUP_DELETE_ING));
+                        GROUP_DELETE_ING, GROUP_SUSPEND));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_SUSPEND_ING,
                 Sets.newHashSet(GROUP_SUSPEND_ING, GROUP_SUSPEND));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_SUSPEND,
@@ -79,6 +83,14 @@ public enum GroupState {
                 Sets.newHashSet(GROUP_DELETE_ING, GROUP_DELETE));
         GROUP_FINITE_STATE_AUTOMATON.put(GROUP_DELETE,
                 Sets.newHashSet(GROUP_DELETE));
+    }
+
+    private final Integer code;
+    private final String description;
+
+    GroupState(Integer code, String description) {
+        this.code = code;
+        this.description = description;
     }
 
     public static GroupState forCode(int code) {
@@ -102,14 +114,6 @@ public enum GroupState {
 
     public static boolean isAllowedLogicDel(GroupState state) {
         return state == GroupState.GROUP_DRAFT || state == GroupState.GROUP_WAIT_SUBMIT;
-    }
-
-    private final Integer code;
-    private final String description;
-
-    GroupState(Integer code, String description) {
-        this.code = code;
-        this.description = description;
     }
 
     public Integer getCode() {

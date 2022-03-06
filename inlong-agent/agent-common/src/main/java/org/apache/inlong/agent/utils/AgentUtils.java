@@ -337,8 +337,7 @@ public class AgentUtils {
      * check agent ip from manager
      */
     public static String fetchLocalIp() {
-        String localIp = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_IP, DEFAULT_LOCAL_IP);
-        return localIp;
+        return AgentConfiguration.getAgentConf().get(AGENT_LOCAL_IP, DEFAULT_LOCAL_IP);
     }
 
     /**
@@ -346,8 +345,7 @@ public class AgentUtils {
      */
     public static String  fetchLocalUuid() {
         String result = ExcuteLinux.exeCmd("dmidecode | grep UUID");
-        String  uuid = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_UUID, result);
-        return uuid;
+        return AgentConfiguration.getAgentConf().get(AGENT_LOCAL_UUID, result);
     }
 
     /**

@@ -18,21 +18,26 @@
 package org.apache.inlong.dataproxy.sink.pulsar;
 
 import com.google.common.base.Preconditions;
+import io.netty.buffer.ByteBuf;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.reporpter.ConfigLogTypeEnum;
 import org.apache.inlong.common.reporpter.StreamConfigLogMetric;
+import org.apache.inlong.dataproxy.base.OrderEvent;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.ThirdPartyClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.sink.EventStat;
+import org.apache.inlong.dataproxy.source.MsgType;
+import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.ClientBuilder;
+import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
@@ -95,7 +100,7 @@ public class PulsarClientService {
         sendTimeout = pulsarConfig.getSendTimeoutMs();
         retryIntervalWhenSendMsgError = pulsarConfig.getRetryIntervalWhenSendErrorMs();
         clientTimeout = pulsarConfig.getClientTimeoutSecond();
-        logger.debug("PulsarClientService " + sendTimeout);
+
         Preconditions.checkArgument(sendTimeout > 0, "sendTimeout must be > 0");
 
         pulsarClientIoThreads = pulsarConfig.getPulsarClientIoThreads();
@@ -177,22 +182,60 @@ public class PulsarClientService {
         proMap.put(inlongStreamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
 
         TopicProducerInfo forCallBackP = producer;
-        forCallBackP.getProducer().newMessage().properties(proMap).value(event.getBody())
-                .sendAsync().thenAccept((msgId) -> {
-            AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
-            forCallBackP.setCanUseSend(true);
-            sendMessageCallBack.handleMessageSendSuccess(topic, (MessageIdImpl) msgId, es);
-        }).exceptionally((e) -> {
-            if (streamConfigLogMetric != null) {
-                streamConfigLogMetric.updateConfigLog(inlongGroupId,
-                        inlongStreamId, StreamConfigLogMetric.CONFIG_LOG_PULSAR_PRODUCER,
-                        ConfigLogTypeEnum.ERROR, e.toString());
+
+        if (MessageUtils.isSyncSendForOrder(event) && (event instanceof OrderEvent)) {
+            String partitionKey = event.getHeaders().get(AttributeConstants.MESSAGE_PARTITION_KEY);
+            try {
+                MessageId msgId = forCallBackP.getProducer().newMessage().key(partitionKey)
+                        .properties(proMap).value(event.getBody())
+                        .send();
+                sendResponse((OrderEvent)event);
+                sendMessageCallBack.handleMessageSendSuccess(topic, msgId, es);
+                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
+                forCallBackP.setCanUseSend(true);
+            } catch (PulsarClientException ex) {
+                if (streamConfigLogMetric != null) {
+                    streamConfigLogMetric.updateConfigLog(inlongGroupId,
+                            inlongStreamId, StreamConfigLogMetric.CONFIG_LOG_PULSAR_PRODUCER,
+                            ConfigLogTypeEnum.ERROR, ex.toString());
+                }
+                forCallBackP.setCanUseSend(false);
+                sendMessageCallBack.handleMessageSendException(topic, es, ex);
             }
-            forCallBackP.setCanUseSend(false);
-            sendMessageCallBack.handleMessageSendException(topic, es, e);
-            return null;
-        });
+
+        } else {
+            forCallBackP.getProducer().newMessage().properties(proMap).value(event.getBody())
+                    .sendAsync().thenAccept((msgId) -> {
+                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
+                forCallBackP.setCanUseSend(true);
+                sendMessageCallBack.handleMessageSendSuccess(topic, (MessageIdImpl) msgId, es);
+            }).exceptionally((e) -> {
+                if (streamConfigLogMetric != null) {
+                    streamConfigLogMetric.updateConfigLog(inlongGroupId,
+                            inlongStreamId, StreamConfigLogMetric.CONFIG_LOG_PULSAR_PRODUCER,
+                            ConfigLogTypeEnum.ERROR, e.toString());
+                }
+                forCallBackP.setCanUseSend(false);
+                sendMessageCallBack.handleMessageSendException(topic, es, e);
+                return null;
+            });
+        }
         return true;
+    }
+
+    /**
+     * send Response
+     * @param orderEvent orderEvent
+     */
+    private void sendResponse(OrderEvent orderEvent) {
+        if (orderEvent.getCtx() != null && orderEvent.getCtx().channel().isActive()) {
+            orderEvent.getCtx().channel().eventLoop().execute(() -> {
+                ByteBuf binBuffer = MessageUtils.getResponsePackage("",
+                        MsgType.MSG_BIN_MULTI_BODY,
+                        orderEvent.getHeaders().get(AttributeConstants.UNIQ_ID));
+                orderEvent.getCtx().writeAndFlush(binBuffer);
+            });
+        }
     }
 
     /**

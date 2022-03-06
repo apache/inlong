@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
+import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.CmdConfig;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
@@ -40,6 +41,7 @@ import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo.CommandInfoBean;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
+import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceDTO;
 import org.apache.inlong.manager.dao.entity.DataSourceCmdConfigEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
@@ -52,12 +54,17 @@ import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperation;
+import org.apache.inlong.manager.service.source.binlog.BinlogStreamSourceOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -69,8 +76,10 @@ import java.util.stream.Collectors;
 public class AgentServiceImpl implements AgentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentServiceImpl.class);
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final int UNISSUED_STATUS = 2;
     private static final int ISSUED_STATUS = 3;
+    private static final int MODULUS_100 = 100;
 
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
@@ -84,6 +93,8 @@ public class AgentServiceImpl implements AgentService {
     private InlongStreamFieldEntityMapper streamFieldMapper;
     @Autowired
     private InlongStreamEntityMapper streamMapper;
+    @Autowired
+    private BinlogStreamSourceOperation binlogStreamSourceOperation;
 
     /**
      * If the reported task time and the modification time in the database exceed this value,
@@ -111,41 +122,6 @@ public class AgentServiceImpl implements AgentService {
     }
 
     /**
-     * Get task result by the request
-     */
-    private TaskResult getTaskResult(TaskRequest request) {
-        // Query all tasks with status in 20x
-        String agentIp = request.getAgentIp();
-        String uuid = request.getUuid();
-        List<DataConfig> dataConfigs = Lists.newArrayList();
-        List<StreamSourceEntity> entityList = sourceMapper.selectByIpAndUuid(agentIp, uuid);
-        for (StreamSourceEntity entity : entityList) {
-            DataConfig dataConfig = new DataConfig();
-            dataConfig.setTaskId(entity.getId());
-            SourceType sourceType = SourceType.forType(entity.getSourceType());
-            dataConfig.setTaskType(sourceType.getTaskType().getType());
-            dataConfig.setTaskName(entity.getSourceName());
-            dataConfig.setOp(String.valueOf(entity.getStatus() % 100));
-            dataConfig.setIp(entity.getAgentIp());
-            dataConfig.setUuid(entity.getUuid());
-            dataConfig.setExtParams(entity.getExtParams());
-            dataConfig.setSnapshot(entity.getSnapshot());
-
-            String groupId = entity.getInlongGroupId();
-            String streamId = entity.getInlongStreamId();
-            dataConfig.setInlongGroupId(groupId);
-            dataConfig.setInlongStreamId(streamId);
-            InlongStreamEntity inlongStreamEntity = streamMapper.selectByIdentifier(groupId, streamId);
-            dataConfig.setSyncSend(inlongStreamEntity.getSyncSend());
-            dataConfigs.add(dataConfig);
-        }
-        // Query pending special commands
-        List<CmdConfig> cmdConfigs = getAgentCmdConfigs(request);
-
-        return TaskResult.builder().dataConfigs(dataConfigs).cmdConfigs(cmdConfigs).build();
-    }
-
-    /**
      * Update the task status by the request
      */
     private void updateTaskStatus(TaskRequest request) {
@@ -161,7 +137,9 @@ public class AgentServiceImpl implements AgentService {
                 continue;
             }
 
-            if (current.getModifyTime().getTime() - command.getDeliveryTime().getTime() > maxModifyTime) {
+            LocalDateTime localDateTime = LocalDateTime.parse(command.getDeliveryTime(), TIME_FORMATTER);
+            Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+            if (current.getModifyTime().getTime() - instant.toEpochMilli() > maxModifyTime) {
                 LOGGER.warn("task {} receive result delay more than {} ms, skip it", taskId, maxModifyTime);
                 continue;
             }
@@ -169,7 +147,8 @@ public class AgentServiceImpl implements AgentService {
             int result = command.getCommandResult();
             int previousStatus = current.getStatus();
             int nextStatus = SourceState.SOURCE_NORMAL.getCode();
-            if (previousStatus / 100 == UNISSUED_STATUS) {
+            // Change the status from 30x to normal / disable / frozen
+            if (previousStatus / MODULUS_100 == ISSUED_STATUS) {
                 if (Constants.RESULT_SUCCESS == result) {
                     if (SourceState.TEMP_TO_NORMAL.contains(previousStatus)) {
                         nextStatus = SourceState.SOURCE_NORMAL.getCode();
@@ -183,6 +162,70 @@ public class AgentServiceImpl implements AgentService {
                 }
 
                 sourceMapper.updateStatus(taskId, nextStatus);
+            }
+            // Other tasks with status 20x will change to 30x in next getTaskResult method
+        }
+    }
+
+    /**
+     * Get task result by the request
+     */
+    private TaskResult getTaskResult(TaskRequest request) {
+        // Query all tasks with status in 20x
+        String agentIp = request.getAgentIp();
+        String uuid = request.getUuid();
+        List<DataConfig> dataConfigs = Lists.newArrayList();
+        List<StreamSourceEntity> entityList = sourceMapper.selectByIpAndUuid(agentIp, uuid);
+        for (StreamSourceEntity entity : entityList) {
+            // Change 20x to 30x
+            int id = entity.getId();
+            int status = entity.getStatus();
+            int op = status % MODULUS_100;
+            if (status / MODULUS_100 == UNISSUED_STATUS) {
+                sourceMapper.updateStatus(id, ISSUED_STATUS * MODULUS_100 + op);
+            } else {
+                LOGGER.info("skip task status not in 20x, id={}", id);
+                continue;
+            }
+
+            DataConfig dataConfig = new DataConfig();
+            dataConfig.setIp(entity.getAgentIp());
+            dataConfig.setUuid(entity.getUuid());
+            dataConfig.setOp(String.valueOf(op));
+            dataConfig.setTaskId(entity.getId());
+            dataConfig.setTaskType(getTaskType(entity));
+            dataConfig.setTaskName(entity.getSourceName());
+            dataConfig.setSnapshot(entity.getSnapshot());
+            dataConfig.setExtParams(entity.getExtParams());
+            LocalDateTime dateTime = LocalDateTime.ofInstant(entity.getModifyTime().toInstant(),
+                    ZoneId.systemDefault());
+            dataConfig.setDeliveryTime(dateTime.format(TIME_FORMATTER));
+
+            String groupId = entity.getInlongGroupId();
+            String streamId = entity.getInlongStreamId();
+            dataConfig.setInlongGroupId(groupId);
+            dataConfig.setInlongStreamId(streamId);
+            InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+            dataConfig.setSyncSend(streamEntity.getSyncSend());
+            dataConfigs.add(dataConfig);
+        }
+        // Query pending special commands
+        List<CmdConfig> cmdConfigs = getAgentCmdConfigs(request);
+
+        return TaskResult.builder().dataConfigs(dataConfigs).cmdConfigs(cmdConfigs).build();
+    }
+
+    private int getTaskType(StreamSourceEntity sourceEntity) {
+        SourceType sourceType = SourceType.forType(sourceEntity.getSourceType());
+        if (sourceType != SourceType.BINLOG) {
+            return sourceType.getTaskType().getType();
+        } else {
+            BinlogSourceDTO binlogSourceDTO = binlogStreamSourceOperation.getFromEntity(sourceEntity,
+                    BinlogSourceDTO::new);
+            if (binlogSourceDTO.isAllMigration()) {
+                return TaskTypeEnum.DATABASE_MIGRATION.getType();
+            } else {
+                return sourceType.getTaskType().getType();
             }
         }
     }

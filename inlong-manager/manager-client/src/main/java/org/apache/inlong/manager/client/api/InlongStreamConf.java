@@ -39,6 +39,9 @@ public class InlongStreamConf {
     @ApiModelProperty("Inlong stream description")
     private String description;
 
+    @ApiModelProperty("Is Inlong stream strictly ordered")
+    private boolean strictlyOrdered = false;
+
     @ApiModelProperty("Stream source field list")
     private List<StreamField> streamFields;
 

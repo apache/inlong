@@ -167,8 +167,8 @@ public class ProxySink extends AbstractSink {
                                     result.getValue(), 0, sendTime);
                             }
                             LOGGER.info("send group id {} with message size {}, the job id is {}, read source is {}"
-                                            + "sendTime is {}", inlongGroupId, result.getRight().size(),
-                                    jobInstanceId, sourceName, sendTime);
+                                            + "sendTime is {} syncSend {}", inlongGroupId, result.getRight().size(),
+                                    jobInstanceId, sourceName, sendTime, syncSend);
                         }
 
                     });

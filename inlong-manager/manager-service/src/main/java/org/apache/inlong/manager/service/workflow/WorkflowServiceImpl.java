@@ -87,9 +87,14 @@ public class WorkflowServiceImpl implements WorkflowService {
     private void init() {
         LOGGER.info("start init workflow service");
         workflowDefinitions.forEach(definition -> {
-            workflowEngine.processDefinitionService().register(definition.defineProcess());
-            LOGGER.info("success register workflow definition: {}", definition.getProcessName());
+            try {
+                workflowEngine.processDefinitionService().register(definition.defineProcess());
+                LOGGER.info("success register workflow definition: {}", definition.getProcessName());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
+
         LOGGER.info("success init workflow service");
     }
 

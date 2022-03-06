@@ -17,19 +17,24 @@
 
 package org.apache.inlong.sort.protocol;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
 
-public class FieldInfoTest {
-    @Test
-    public void testSerialize() throws JsonProcessingException {
-        FieldInfo fieldInfo = new FieldInfo("field_name", StringFormatInfo.INSTANCE);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String expected = "{\"type\":\"base\",\"name\":\"field_name\",\"format_info\":{\"type\":\"string\"}}";
-        assertEquals(expected, objectMapper.writeValueAsString(fieldInfo));
+public class BuiltInFieldInfoTest extends ProtocolBaseTest {
+
+    @Override
+    public void init() {
+        expectedObject = new BuiltInFieldInfo("f1", StringFormatInfo.INSTANCE, BuiltInFieldInfo.BuiltInField.DATA_TIME);
+        expectedJson = "{\n"
+                + "    \"type\":\"builtin\",\n"
+                + "    \"name\":\"f1\",\n"
+                + "    \"format_info\":{\n"
+                + "        \"type\":\"string\"\n"
+                + "    },\n"
+                + "    \"builtin_field\":\"DATA_TIME\"\n"
+                + "}";
+
+        equalObj1 = expectedObject;
+        equalObj2 = new BuiltInFieldInfo("f1", StringFormatInfo.INSTANCE, BuiltInFieldInfo.BuiltInField.DATA_TIME);
+        unequalObj = new BuiltInFieldInfo("f2", StringFormatInfo.INSTANCE, BuiltInFieldInfo.BuiltInField.DATA_TIME);
     }
 }

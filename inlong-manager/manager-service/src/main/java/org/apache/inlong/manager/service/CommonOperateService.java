@@ -60,8 +60,8 @@ public class CommonOperateService {
     /**
      * query some third-party-cluster info according key, such as "pulsar_adminUrl", "cluster_tube_manager", etc.
      *
-     * @param key
-     * @return the value of key in database
+     * @param key Param name.
+     * @return Value of key in database.
      */
     public String getSpecifiedParam(String key) {
         String result = "";
@@ -99,27 +99,37 @@ public class CommonOperateService {
     }
 
     /**
-     * @param type third-party-cluster type, such as TUBE, PULSAR
-     * @return
+     * Get third party cluster by type.
+     *
+     * TODO Add more condition for query.
+     *
+     * @param type Cluster type, such as TUBE, PULSAR, etc.
      */
     private ThirdPartyClusterEntity getThirdPartyCluster(String type) {
         InlongGroupPageRequest request = new InlongGroupPageRequest();
         request.setMiddlewareType(type);
         List<InlongGroupEntity> groupEntities = groupMapper.selectByCondition(request);
         if (groupEntities.isEmpty()) {
-            LOGGER.warn("no inlongGroup item of type {}", type);
+            LOGGER.warn("no inlong group found by type={}", type);
             return null;
         }
-        DataProxyClusterEntity dataProxyCluster = dataProxyClusterMapper
-                .selectByPrimaryKey(groupEntities.get(0).getProxyClusterId());
-        ClusterRequest mqNameRequest = ClusterRequest.builder().mqSetName(dataProxyCluster.getMqSetName()).build();
+
+        Integer clusterId = groupEntities.get(0).getProxyClusterId();
+        DataProxyClusterEntity dataProxyCluster = dataProxyClusterMapper.selectByPrimaryKey(clusterId);
+        if (dataProxyCluster == null) {
+            LOGGER.warn("no data proxy cluster found with id={}", clusterId);
+            return null;
+        }
+
+        String mqSetName = dataProxyCluster.getMqSetName();
+        ClusterRequest mqNameRequest = ClusterRequest.builder().mqSetName(mqSetName).build();
         List<ThirdPartyClusterEntity> thirdPartyClusters = thirdPartyClusterMapper.selectByCondition(mqNameRequest);
         if (thirdPartyClusters.isEmpty()) {
-            LOGGER.warn("no related third-party-cluster of type {}", type);
+            LOGGER.warn("no related third-party-cluster by type={} and mq set name={}", type, mqSetName);
             return null;
         }
-        return thirdPartyClusters.get(0);
 
+        return thirdPartyClusters.get(0);
     }
 
     /**

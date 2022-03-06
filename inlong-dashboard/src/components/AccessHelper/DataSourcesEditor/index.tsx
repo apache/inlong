@@ -22,7 +22,8 @@ import { Button, Table, Modal, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import request from '@/utils/request';
 import { useUpdateEffect, usePrevious } from '@/hooks';
-import { tableColumns as fileColumns } from '@/components/MetaData/DataSourcesFile';
+import { dataSourcesDbColumns as dbColumns } from '@/components/MetaData/DataSourcesDb';
+import { dataSourcesFileColumns as fileColumns } from '@/components/MetaData/DataSourcesFile';
 import CreateModal from './CreateModal';
 
 export interface DataSourcesEditorProps {
@@ -157,7 +158,7 @@ const Comp = ({
     setData(newData);
   };
 
-  const columns = fileColumns.concat(
+  const columns = (type === 'DB' ? dbColumns : fileColumns).concat(
     readonly
       ? []
       : [
@@ -187,6 +188,9 @@ const Comp = ({
         columns={columns}
         rowKey="_etid"
         size="small"
+        scroll={{
+          y: 520,
+        }}
         footer={
           readonly
             ? null

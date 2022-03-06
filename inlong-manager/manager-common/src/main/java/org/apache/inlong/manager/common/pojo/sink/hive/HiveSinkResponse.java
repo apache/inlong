@@ -34,7 +34,9 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 @ApiModel(value = "Response of the Hive sink")
 public class HiveSinkResponse extends SinkResponse {
 
-    private String sinkType = Constant.SINK_HIVE;
+    public HiveSinkResponse() {
+        this.sinkType = Constant.SINK_HIVE;
+    }
 
     @ApiModelProperty("Hive JDBC URL")
     private String jdbcUrl;

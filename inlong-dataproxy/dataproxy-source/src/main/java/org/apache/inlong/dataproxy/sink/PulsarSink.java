@@ -158,6 +158,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
 
     private static final String SEPARATOR = "#";
     private boolean isNewMetricOn = true;
+    private boolean keepOrder = false;
 
 
     private MonitorIndex monitorIndex;
@@ -218,6 +219,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
     public void configure(Context context) {
         logger.info("PulsarSink started and context = {}", context.toString());
         isNewMetricOn = context.getBoolean("new-metric-on", true);
+        keepOrder = context.getBoolean("keep-order", false);
         maxMonitorCnt = context.getInteger("max-monitor-cnt", 300000);
 
         configManager = ConfigManager.getInstance();
@@ -266,7 +268,13 @@ public class PulsarSink extends AbstractSink implements Configurable,
         resendQueue = new LinkedBlockingQueue<EventStat>(badEventQueueSize);
 
         Preconditions.checkArgument(pulsarConfig.getThreadNum() > 0, "threadNum must be > 0");
-        sinkThreadPool = new Thread[pulsarConfig.getThreadNum()];
+        if (keepOrder) {
+            logger.info("This is order pulsar sink!");
+            sinkThreadPool = new Thread[1];
+        } else {
+            sinkThreadPool = new Thread[pulsarConfig.getThreadNum()];
+        }
+
         eventQueueSize = pulsarConfig.getEventQueueSize();
         eventQueue = new LinkedBlockingQueue<Event>(eventQueueSize);
 
@@ -557,12 +565,14 @@ public class PulsarSink extends AbstractSink implements Configurable,
                     }
 
                     if (keyPostfix != null && !keyPostfix.equals("")) {
-                        monitorIndex.addAndGet(new String(newbase), 0, 0, 0, (int) tMsgCounterL);
+                        monitorIndex.addAndGet(new String(newbase), 0, 0,
+                                0, (int) tMsgCounterL);
                         if (logPrinterB.shouldPrint()) {
                             logger.warn("error cannot send event, {} event size is {}", topic, messageSize);
                         }
                     } else {
-                        monitorIndex.addAndGet(new String(newbase), (int) tMsgCounterL, 1, messageSize, 0);
+                        monitorIndex.addAndGet(new String(newbase), (int) tMsgCounterL,
+                                1, messageSize, 0);
                     }
                 }
             }
@@ -582,7 +592,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
     }
 
     @Override
-    public void handleMessageSendSuccess(String topic, Object result,  EventStat eventStat) {
+    public void handleMessageSendSuccess(String topic, Object result, EventStat eventStat) {
         /*
          * Statistics pulsar performance
          */

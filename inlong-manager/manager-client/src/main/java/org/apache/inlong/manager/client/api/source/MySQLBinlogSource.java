@@ -19,16 +19,19 @@ package org.apache.inlong.manager.client.api.source;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.StreamSource;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.SourceType;
 
+import java.util.List;
+
 @Data
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel("Base configuration for MySQL binlog collection")
@@ -46,20 +49,46 @@ public class MySQLBinlogSource extends StreamSource {
     @ApiModelProperty("Auth for binlog")
     private DefaultAuthentication authentication;
 
+    @ApiModelProperty("Whether include schema, default is 'false'")
+    private String includeSchema;
+
     @ApiModelProperty("Hostname of the DB server, for example: 127.0.0.1")
     private String hostname;
 
-    @ApiModelProperty("Exposed port the DB server")
+    @ApiModelProperty("Exposed port of the DB server")
     private int port = 3306;
 
-    @ApiModelProperty(value = "List of DBs to be collected, for example: db1.tb1,db2.tb2"
-            + ",if all tables in db are collected , use db.*",
-            notes = "DBs not in this list are excluded. By default, all DBs are monitored")
+    @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions, "
+            + "separate them with commas, for example: db1,test_db*",
+            notes = "DBs not in this list are excluded. If not set, all DBs are monitored")
     private List<String> dbNames;
 
+    @ApiModelProperty(value = "List of tables to be collected, supporting regular expressions, "
+            + "separate them with commas, for example: tb1,user*",
+            notes = "Tables not in this list are excluded. By default, all tables are monitored")
+    private List<String> tableNames;
+
     @ApiModelProperty("Database time zone, Default is UTC")
-    private String timeZone = "UTF";
+    private String serverTimezone = "UTF";
+
+    @ApiModelProperty("The interval for recording an offset")
+    private String intervalMs;
+
+    @ApiModelProperty("Snapshot mode, supports: initial, when_needed, never, schema_only, schema_only_recovery")
+    private String snapshotMode;
+
+    @ApiModelProperty("The file path to store offset info")
+    private String offsetFilename;
+
+    @ApiModelProperty("The file path to store history info")
+    private String historyFilename;
+
+    @ApiModelProperty("Whether to monitor the DDL, default is 'false'")
+    private String monitoredDdl;
 
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
     private String timestampFormatStandard = "SQL";
+
+    @ApiModelProperty("Need transfer total database")
+    private boolean allMigration = false;
 }

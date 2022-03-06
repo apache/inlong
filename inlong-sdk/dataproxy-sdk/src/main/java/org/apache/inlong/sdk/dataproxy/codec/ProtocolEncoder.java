@@ -46,7 +46,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
     private static final Logger logger = LoggerFactory
             .getLogger(ProtocolEncoder.class);
 
-    protected void encode(ChannelHandlerContext var1,
+    protected void encode(ChannelHandlerContext ctx,
             EncodeObject message, List<Object> out) throws Exception {
         ByteBuf buf = null;
         try {

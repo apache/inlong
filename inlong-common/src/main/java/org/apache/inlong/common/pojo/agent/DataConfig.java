@@ -17,10 +17,7 @@
 
 package org.apache.inlong.common.pojo.agent;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-
-import java.util.Date;
 
 /**
  * The task config for agent.
@@ -39,8 +36,10 @@ public class DataConfig {
     private String snapshot;
     private Integer syncSend;
     private String extParams;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date deliveryTime;
+    /**
+     * The task delivery time, format is 'yyyy-MM-dd HH:mm:ss'.
+     */
+    private String deliveryTime;
 
     public boolean isValid() {
         return true;
