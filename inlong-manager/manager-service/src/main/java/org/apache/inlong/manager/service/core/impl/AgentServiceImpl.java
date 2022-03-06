@@ -79,6 +79,7 @@ public class AgentServiceImpl implements AgentService {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final int UNISSUED_STATUS = 2;
     private static final int ISSUED_STATUS = 3;
+    private static final int MODULUS_100 = 100;
 
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
@@ -147,7 +148,7 @@ public class AgentServiceImpl implements AgentService {
             int previousStatus = current.getStatus();
             int nextStatus = SourceState.SOURCE_NORMAL.getCode();
             // Change the status from 30x to normal / disable / frozen
-            if (previousStatus / 100 == ISSUED_STATUS) {
+            if (previousStatus / MODULUS_100 == ISSUED_STATUS) {
                 if (Constants.RESULT_SUCCESS == result) {
                     if (SourceState.TEMP_TO_NORMAL.contains(previousStatus)) {
                         nextStatus = SourceState.SOURCE_NORMAL.getCode();
@@ -179,9 +180,9 @@ public class AgentServiceImpl implements AgentService {
             // Change 20x to 30x
             int id = entity.getId();
             int status = entity.getStatus();
-            int op = status % 100;
-            if (status / 100 == UNISSUED_STATUS) {
-                sourceMapper.updateStatus(id, ISSUED_STATUS * 100 + op);
+            int op = status % MODULUS_100;
+            if (status / MODULUS_100 == UNISSUED_STATUS) {
+                sourceMapper.updateStatus(id, ISSUED_STATUS * MODULUS_100 + op);
             } else {
                 LOGGER.info("skip task status not in 20x, id={}", id);
                 continue;
