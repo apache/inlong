@@ -23,6 +23,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROU
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BYTE_SPEED_LIMIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_RECORD_SPEED_LIMIT;
 
 import java.nio.charset.StandardCharsets;
@@ -89,6 +90,7 @@ public class KafkaReader<K, V> implements Reader {
     private String inlongStreamId;
     private String snapshot;
     private boolean isFinished = false;
+    private boolean destroyed = false;
 
     /**
      * init attribute
@@ -137,7 +139,7 @@ public class KafkaReader<K, V> implements Reader {
                 // commit offset
                 consumer.commitAsync();
                 // commit succeed,then record current offset
-                snapshot = String.valueOf(record.offset());
+                snapshot = record.partition() + JOB_KAFKA_PARTITION_OFFSET_DELIMITER + record.offset();
                 DefaultMessage message = new DefaultMessage(recordValue.getBytes(StandardCharsets.UTF_8), headerMap);
                 recordReadLimit(1L, message.getBody().length);
                 return message;
@@ -190,8 +192,12 @@ public class KafkaReader<K, V> implements Reader {
 
     @Override
     public void destroy() {
-        isFinished = true;
-        consumer.close();
+        synchronized (this) {
+            if (!destroyed) {
+                consumer.close();
+                destroyed = true;
+            }
+        }
     }
 
     private void initReadTimeout(JobProfile jobConf) {
@@ -220,6 +226,11 @@ public class KafkaReader<K, V> implements Reader {
     @Override
     public String getSnapshot() {
         return snapshot;
+    }
+
+    @Override
+    public void finishRead() {
+        isFinished = true;
     }
 
     private boolean fetchData(long fetchDataTimeout) {

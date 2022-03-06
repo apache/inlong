@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.core;
 
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
@@ -26,10 +27,8 @@ import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.HttpManager;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,8 +41,8 @@ import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VI
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
+import static org.apache.inlong.agent.core.task.TaskPositionManager.DEFAULT_FLUSH_TIMEOUT;
 
-@Component
 public class HeartbeatManager  extends AbstractDaemon {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatManager.class);
@@ -72,14 +71,10 @@ public class HeartbeatManager  extends AbstractDaemon {
      * @return
      */
     private TaskSnapshotRequest getHeartBeat() {
-        AgentManager agentManager = new AgentManager();
-        HeartbeatManager heartbeatManager = new HeartbeatManager(agentManager);
-        JobManager jobManager = agentManager.getJobManager();
-        Map<String, JobWrapper> jobWrapperMap = jobManager.getJobs();
+        Map<String, JobWrapper> jobWrapperMap = jobmanager.getJobs();
 
         List<TaskSnapshotMessage> taskSnapshotMessageList = new ArrayList<>();
         TaskSnapshotRequest taskSnapshotRequest = new TaskSnapshotRequest();
-        TaskSnapshotMessage snapshotMessage = new TaskSnapshotMessage();
 
         Date date = new Date(System.currentTimeMillis());
 
@@ -90,31 +85,16 @@ public class HeartbeatManager  extends AbstractDaemon {
             }
             String offset = entry.getValue().getSnapshot();
             String jobId = entry.getKey();
+            TaskSnapshotMessage snapshotMessage = new TaskSnapshotMessage();
             snapshotMessage.setSnapshot(offset);
             snapshotMessage.setJobId(Integer.valueOf(jobId));
             taskSnapshotMessageList.add(snapshotMessage);
-
         }
         taskSnapshotRequest.setSnapshotList(taskSnapshotMessageList);
         taskSnapshotRequest.setReportTime(date);
         taskSnapshotRequest.setAgentIp(AgentUtils.fetchLocalIp());
         taskSnapshotRequest.setUuid(AgentUtils.fetchLocalUuid());
         return taskSnapshotRequest;
-    }
-
-    /**
-     * report heartbeat (default : per minute)
-     */
-    @Scheduled(cron = "${agent.scheduled.snapshotreport:0 0/1 * * * ? *}")
-    private  void sendHeartBeat() {
-        TaskSnapshotRequest taskSnapshotRequest = getHeartBeat();
-        try {
-            String returnStr = httpManager.doSentPost(reportSnapshotUrl,taskSnapshotRequest);
-            LOGGER.info(" {} report to manager",taskSnapshotRequest);
-        } catch (Throwable e) {
-            LOGGER.error(" sendHeartBeat to" + reportSnapshotUrl
-                    + " exception {}, {}", e.toString(), e.getStackTrace());
-        }
     }
 
     /**
@@ -135,11 +115,27 @@ public class HeartbeatManager  extends AbstractDaemon {
 
     @Override
     public void start() throws Exception {
+        submitWorker(heartBeatReportThread());
+    }
 
+    private Runnable heartBeatReportThread() {
+        return () -> {
+            while (isRunnable()) {
+                try {
+                    TaskSnapshotRequest taskSnapshotRequest = getHeartBeat();
+                    httpManager.doSentPost(reportSnapshotUrl,taskSnapshotRequest);
+                    LOGGER.info(" {} report to manager",taskSnapshotRequest);
+                    TimeUnit.SECONDS.sleep(DEFAULT_FLUSH_TIMEOUT);
+                } catch (Exception ex) {
+                    LOGGER.error("error caught", ex);
+                }
+            }
+        };
     }
 
     @Override
     public void stop() throws Exception {
-
+        waitForTerminate();
     }
+
 }
