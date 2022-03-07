@@ -45,7 +45,12 @@ public class InlongGroupContext implements Serializable {
     private Map<String, String> extensions;
 
     /**
-     * Error message for Inlong group, taskName->logs.
+     * Logs for Inlong group, taskName->logs.
+     */
+    private Map<String, List<String>> groupLogs;
+
+    /**
+     * Error message for Inlong group, taskName->exceptionMsg.
      */
     private Map<String, List<String>> errMsgs;
 
@@ -64,6 +69,7 @@ public class InlongGroupContext implements Serializable {
         this.groupConf = streamGroupConf;
         this.inlongStreamMap = groupContext.getStreamMap();
         this.errMsgs = Maps.newHashMap();
+        this.groupLogs = Maps.newHashMap();
         this.state = InlongGroupState.parseByBizStatus(groupInfo.getStatus());
         this.extensions = Maps.newHashMap();
         List<InlongGroupExtInfo> extInfos = groupInfo.getExtList();

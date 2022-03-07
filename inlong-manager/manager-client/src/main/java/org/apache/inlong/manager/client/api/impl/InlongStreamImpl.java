@@ -25,6 +25,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.compress.utils.Lists;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.StreamField;
 import org.apache.inlong.manager.client.api.StreamField.FieldType;
@@ -50,20 +51,22 @@ public class InlongStreamImpl extends InlongStream {
 
     private Map<String, StreamSink> streamSinks = Maps.newHashMap();
 
-    private List<StreamField> streamFields;
+    private List<StreamField> streamFields = Lists.newArrayList();
 
     public InlongStreamImpl(FullStreamResponse fullStreamResponse) {
         InlongStreamInfo streamInfo = fullStreamResponse.getStreamInfo();
         this.name = streamInfo.getName();
         List<InlongStreamFieldInfo> streamFieldInfos = streamInfo.getFieldList();
-        this.streamFields = streamFieldInfos.stream().map(streamFieldInfo -> {
-            return new StreamField(streamFieldInfo.getId(),
-                    FieldType.forName(streamFieldInfo.getFieldType()),
-                    streamFieldInfo.getFieldName(),
-                    streamFieldInfo.getFieldComment(),
-                    streamFieldInfo.getFieldValue()
-            );
-        }).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(streamFieldInfos)) {
+            this.streamFields = streamFieldInfos.stream().map(streamFieldInfo -> {
+                return new StreamField(streamFieldInfo.getId(),
+                        FieldType.forName(streamFieldInfo.getFieldType()),
+                        streamFieldInfo.getFieldName(),
+                        streamFieldInfo.getFieldComment(),
+                        streamFieldInfo.getFieldValue()
+                );
+            }).collect(Collectors.toList());
+        }
         List<SinkResponse> sinkList = fullStreamResponse.getSinkInfo();
         if (CollectionUtils.isNotEmpty(sinkList)) {
             this.streamSinks = sinkList.stream()
