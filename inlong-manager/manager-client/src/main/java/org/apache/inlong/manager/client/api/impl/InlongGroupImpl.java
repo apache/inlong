@@ -200,17 +200,26 @@ public class InlongGroupImpl implements InlongGroup {
         }
         //Create group context
         InlongGroupContext inlongGroupContext = new InlongGroupContext(groupContext, groupConf);
+        //Fetch group logs
         List<EventLogView> logViews = managerClient.getInlongGroupError(inlongGroupId);
         if (CollectionUtils.isNotEmpty(logViews)) {
             Map<String, List<String>> errMsgs = Maps.newHashMap();
+            Map<String, List<String>> groupLogs = Maps.newHashMap();
             logViews.stream()
-                    .filter(x -> null != x.getElementName() && null != x.getException())
+                    .filter(x -> StringUtils.isNotEmpty(x.getElementName()))
                     .forEach(eventLogView -> {
                         String taskName = eventLogView.getElementName();
-                        errMsgs.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getException());
+                        if (StringUtils.isNotEmpty(eventLogView.getException())) {
+                            errMsgs.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getException());
+                        }
+                        if (StringUtils.isNotEmpty(eventLogView.getRemark())) {
+                            groupLogs.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getRemark());
+                        }
                     });
             inlongGroupContext.setErrMsgs(errMsgs);
+            inlongGroupContext.setGroupLogs(groupLogs);
         }
+        //Fetch stream logs
         Map<String, InlongStream> streams = inlongGroupContext.getInlongStreamMap();
         streams.keySet().stream().forEach(streamName -> {
             String inlongStreamId = "b_" + streamName;
