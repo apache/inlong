@@ -125,11 +125,11 @@ public class FetchCallback implements ReadCallback {
     /**
      * The callback function that SortSDK invoke when fetch messages batch
      *
-     * @param messageRecord {@link List<MessageRecord>}
+     * @param messageRecordList {@link List<MessageRecord>}
      */
     @Override
-    public void onFinishedBatch(List<MessageRecord> messageRecord) {
-        //TODO
+    public void onFinishedBatch(List<MessageRecord> messageRecordList) {
+        messageRecordList.forEach(this::onFinished);
     }
 
     /**
