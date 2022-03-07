@@ -277,13 +277,26 @@
             </if>
         </where>
     </select>
+    <select id="selectByStatusForUpdate" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            and status in
+            <foreach item="item" index="index" collection="list" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+            limit 2 for update
+        </where>
+    </select>
     <select id="selectByIpAndUuid" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source
         <where>
             is_deleted = 0
-            and status >= 200 and status &lt; 300
+            and status >= 200 and status &lt; 300 and status not in (200, 205)
             and agent_ip = #{agentIp, jdbcType=VARCHAR}
             <if test="uuid != null and uuid != ''">
                 and uuid = #{uuid, jdbcType=VARCHAR}
@@ -417,6 +430,13 @@
                 and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
             </if>
         </where>
+    </update>
+    <update id="updateIpAndUuid">
+        update stream_source
+        set agent_ip    = #{agentIp,jdbcType=VARCHAR},
+            uuid        = #{uuid,jdbcType=VARCHAR},
+            modify_time = modify_time
+        where id = #{id, jdbcType=INTEGER}
     </update>
     <update id="updateSnapshot" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         update stream_source

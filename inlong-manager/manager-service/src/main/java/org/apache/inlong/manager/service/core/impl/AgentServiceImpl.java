@@ -60,12 +60,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -170,12 +173,20 @@ public class AgentServiceImpl implements AgentService {
     /**
      * Get task result by the request
      */
-    private TaskResult getTaskResult(TaskRequest request) {
-        // Query all tasks with status in 20x
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    TaskResult getTaskResult(TaskRequest request) {
+        // Query the tasks that needed to add or active - without agentIp and uuid
+        List<Integer> statusList = Arrays.asList(SourceState.TO_BE_ISSUED_ADD.getCode(),
+                SourceState.TO_BE_ISSUED_ACTIVE.getCode());
+        List<StreamSourceEntity> addList = sourceMapper.selectByStatusForUpdate(statusList);
+
+        // Query other tasks by agentIp and uuid - not included status with TO_BE_ISSUED_ADD and TO_BE_ISSUED_ACTIVE
         String agentIp = request.getAgentIp();
         String uuid = request.getUuid();
-        List<DataConfig> dataConfigs = Lists.newArrayList();
         List<StreamSourceEntity> entityList = sourceMapper.selectByIpAndUuid(agentIp, uuid);
+        entityList.addAll(addList);
+
+        List<DataConfig> dataConfigs = Lists.newArrayList();
         for (StreamSourceEntity entity : entityList) {
             // Change 20x to 30x
             int id = entity.getId();
@@ -188,31 +199,44 @@ public class AgentServiceImpl implements AgentService {
                 continue;
             }
 
-            DataConfig dataConfig = new DataConfig();
-            dataConfig.setIp(entity.getAgentIp());
-            dataConfig.setUuid(entity.getUuid());
-            dataConfig.setOp(String.valueOf(op));
-            dataConfig.setTaskId(entity.getId());
-            dataConfig.setTaskType(getTaskType(entity));
-            dataConfig.setTaskName(entity.getSourceName());
-            dataConfig.setSnapshot(entity.getSnapshot());
-            dataConfig.setExtParams(entity.getExtParams());
-            LocalDateTime dateTime = LocalDateTime.ofInstant(entity.getModifyTime().toInstant(),
-                    ZoneId.systemDefault());
-            dataConfig.setDeliveryTime(dateTime.format(TIME_FORMATTER));
-
-            String groupId = entity.getInlongGroupId();
-            String streamId = entity.getInlongStreamId();
-            dataConfig.setInlongGroupId(groupId);
-            dataConfig.setInlongStreamId(streamId);
-            InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
-            dataConfig.setSyncSend(streamEntity.getSyncSend());
+            DataConfig dataConfig = getDataConfig(entity, op);
             dataConfigs.add(dataConfig);
         }
         // Query pending special commands
         List<CmdConfig> cmdConfigs = getAgentCmdConfigs(request);
 
+        // Update agentIp and uuid for the added and active tasks
+        for (StreamSourceEntity entity : addList) {
+            sourceMapper.updateIpAndUuid(entity.getId(), agentIp, uuid);
+        }
+
         return TaskResult.builder().dataConfigs(dataConfigs).cmdConfigs(cmdConfigs).build();
+    }
+
+    /**
+     * Get the DataConfig from the stream source entity
+     */
+    private DataConfig getDataConfig(StreamSourceEntity entity, int op) {
+        DataConfig dataConfig = new DataConfig();
+        dataConfig.setIp(entity.getAgentIp());
+        dataConfig.setUuid(entity.getUuid());
+        dataConfig.setOp(String.valueOf(op));
+        dataConfig.setTaskId(entity.getId());
+        dataConfig.setTaskType(getTaskType(entity));
+        dataConfig.setTaskName(entity.getSourceName());
+        dataConfig.setSnapshot(entity.getSnapshot());
+        dataConfig.setExtParams(entity.getExtParams());
+        LocalDateTime dateTime = LocalDateTime.ofInstant(entity.getModifyTime().toInstant(),
+                ZoneId.systemDefault());
+        dataConfig.setDeliveryTime(dateTime.format(TIME_FORMATTER));
+
+        String groupId = entity.getInlongGroupId();
+        String streamId = entity.getInlongStreamId();
+        dataConfig.setInlongGroupId(groupId);
+        dataConfig.setInlongStreamId(streamId);
+        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+        dataConfig.setSyncSend(streamEntity.getSyncSend());
+        return dataConfig;
     }
 
     private int getTaskType(StreamSourceEntity sourceEntity) {
