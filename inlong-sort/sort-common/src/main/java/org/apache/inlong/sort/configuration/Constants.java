@@ -331,6 +331,11 @@ public class Constants {
                     .noDefaultValue()
                     .withDescription("The file which contains dataflow info for a single tenant job");
 
+    public static final ConfigOption<Boolean> JOB_ORDERLY_OUTPUT =
+            key("job.orderly.output")
+                    .defaultValue(false)
+                    .withDescription("Whether to ensure orderly output or not");
+
     // ------------------------------------------------------------------------
     //  File format and compression related
     // ------------------------------------------------------------------------

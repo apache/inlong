@@ -15,26 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.server.common.offsetstorage.zookeeper;
+package org.apache.inlong.sort.standalone.sink.cls;
 
-/**
- * Interface to support the aborting of a given server or client.
- *
- * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
- */
-public interface Abortable {
-    /**
-     * Abort the server or client.
-     *
-     * @param why Why we're aborting.
-     * @param e   Throwable that caused abort. Can be null.
-     */
-    void abort(String why, Throwable e);
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-    /**
-     * Check if the server or client was aborted.
-     *
-     * @return true if the server or client was aborted, false otherwise
-     */
-    boolean isAborted();
+import java.util.List;
+
+@RunWith(PowerMockRunner.class)
+@PowerMockIgnore("javax.management.*")
+public class TestClsIdConfig {
+
+    @Test
+    public void testGetFieldList() {
+        ClsIdConfig idConfig = new ClsIdConfig();
+        String testFieldName = "1 2 3 4 5 6 7";
+        idConfig.setFieldNames(testFieldName);
+        List<String> fieldList = idConfig.getFieldList();
+        Assert.assertEquals(7, fieldList.size());
+    }
 }

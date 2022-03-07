@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.server.common.offsetstorage;
+package org.apache.inlong.tubemq.server.broker.offset.offsetstorage;
 
 import java.net.BindException;
 import java.util.Collection;
@@ -29,8 +29,8 @@ import org.apache.inlong.tubemq.server.broker.exception.OffsetStoreException;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fileconfig.ZKConfig;
-import org.apache.inlong.tubemq.server.common.offsetstorage.zookeeper.ZKUtil;
-import org.apache.inlong.tubemq.server.common.offsetstorage.zookeeper.ZooKeeperWatcher;
+import org.apache.inlong.tubemq.server.common.zookeeper.ZKUtil;
+import org.apache.inlong.tubemq.server.common.zookeeper.ZooKeeperWatcher;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,13 +69,13 @@ public class ZkOffsetStorage implements OffsetStorage {
     private ZooKeeperWatcher zkw;
 
     /**
-     * Initial ZooKeeper offset storage ojbect
+     * Initial ZooKeeper offset storage object
      *
      * @param zkConfig   the ZooKeeper configure
      * @param isBroker   whether used in broker node
      * @param brokerId   the broker id
      */
-    public ZkOffsetStorage(final ZKConfig zkConfig, boolean isBroker, int brokerId) {
+    public ZkOffsetStorage(ZKConfig zkConfig, boolean isBroker, int brokerId) {
         this.zkConfig = zkConfig;
         this.isBroker = isBroker;
         this.brokerId = brokerId;
@@ -105,8 +105,8 @@ public class ZkOffsetStorage implements OffsetStorage {
     }
 
     @Override
-    public void commitOffset(final String group,
-                             final Collection<OffsetStorageInfo> offsetInfoList,
+    public void commitOffset(String group,
+                             Collection<OffsetStorageInfo> offsetInfoList,
                              boolean isFailRetry) {
         if (this.zkw == null
                 || offsetInfoList == null
@@ -140,14 +140,14 @@ public class ZkOffsetStorage implements OffsetStorage {
     }
 
     @Override
-    public OffsetStorageInfo loadOffset(final String group, final String topic, int partitionId) {
-        String znode = new StringBuilder(512).append(this.consumerZkDir).append("/")
+    public OffsetStorageInfo loadOffset(String group, String topic, int partitionId) {
+        String zkNode = new StringBuilder(512).append(this.consumerZkDir).append("/")
                 .append(group).append("/offsets/").append(topic).append("/")
                 .append(brokerId).append(TokenConstants.HYPHEN)
                 .append(partitionId).toString();
         String offsetZkInfo;
         try {
-            offsetZkInfo = ZKUtil.readDataMaybeNull(this.zkw, znode);
+            offsetZkInfo = ZKUtil.readDataMaybeNull(this.zkw, zkNode);
         } catch (KeeperException e) {
             BrokerSrvStatsHolder.incZKExcCnt();
             logger.error("KeeperException during load offsets from ZooKeeper", e);
@@ -163,8 +163,8 @@ public class ZkOffsetStorage implements OffsetStorage {
 
     }
 
-    private void cfmOffset(final StringBuilder sb, final String group,
-                           final Collection<OffsetStorageInfo> infoList) throws OffsetStoreException {
+    private void cfmOffset(StringBuilder sb, String group,
+                           Collection<OffsetStorageInfo> infoList) throws OffsetStoreException {
         sb.delete(0, sb.length());
         for (final OffsetStorageInfo info : infoList) {
             long newOffset = -1;
@@ -210,16 +210,16 @@ public class ZkOffsetStorage implements OffsetStorage {
     @Override
     public Map<Integer, Long> queryGroupOffsetInfo(String group, String topic,
                                                   Set<Integer> partitionIds) {
-        StringBuilder sBuider = new StringBuilder(512);
-        String basePath = sBuider.append(this.consumerZkDir).append("/")
+        StringBuilder strBuff = new StringBuilder(512);
+        String basePath = strBuff.append(this.consumerZkDir).append("/")
                 .append(group).append("/offsets/").append(topic).append("/")
                 .append(brokerId).append(TokenConstants.HYPHEN).toString();
-        sBuider.delete(0, sBuider.length());
-        String offsetZkInfo = null;
+        strBuff.delete(0, strBuff.length());
+        String offsetZkInfo;
         Map<Integer, Long> offsetMap = new HashMap<>(partitionIds.size());
         for (Integer partitionId : partitionIds) {
-            String offsetNode = sBuider.append(basePath).append(partitionId).toString();
-            sBuider.delete(0, sBuider.length());
+            String offsetNode = strBuff.append(basePath).append(partitionId).toString();
+            strBuff.delete(0, strBuff.length());
             try {
                 offsetZkInfo = ZKUtil.readDataMaybeNull(this.zkw, offsetNode);
                 if (offsetZkInfo == null) {
@@ -246,29 +246,29 @@ public class ZkOffsetStorage implements OffsetStorage {
     public Map<String, Set<String>> queryZKGroupTopicInfo(List<String> groupSet) {
         String qryBrokerId;
         Map<String, Set<String>> groupTopicMap = new HashMap<>();
-        StringBuilder sBuider = new StringBuilder(512);
+        StringBuilder strBuff = new StringBuilder(512);
         if (groupSet == null || groupSet.isEmpty()) {
             return groupTopicMap;
         }
         // build path base
-        String groupNode = sBuider.append(this.consumerZkDir).toString();
-        sBuider.delete(0, sBuider.length());
+        String groupNode = strBuff.append(this.consumerZkDir).toString();
+        strBuff.delete(0, strBuff.length());
         // get the group managed by this broker
         for (String group : groupSet) {
-            String topicNode = sBuider.append(groupNode)
+            String topicNode = strBuff.append(groupNode)
                     .append("/").append(group).append("/offsets").toString();
             List<String> consumeTopics = ZKUtil.getChildren(this.zkw, topicNode);
-            sBuider.delete(0, sBuider.length());
+            strBuff.delete(0, strBuff.length());
             Set<String> topicSet = new HashSet<>();
             if (consumeTopics != null) {
                 for (String topic : consumeTopics) {
                     if (topic == null) {
                         continue;
                     }
-                    String brokerNode = sBuider.append(topicNode)
+                    String brokerNode = strBuff.append(topicNode)
                             .append("/").append(topic).toString();
                     List<String> brokerIds = ZKUtil.getChildren(this.zkw, brokerNode);
-                    sBuider.delete(0, sBuider.length());
+                    strBuff.delete(0, strBuff.length());
                     if (brokerIds != null) {
                         for (String idStr : brokerIds) {
                             if (idStr != null) {
@@ -300,9 +300,9 @@ public class ZkOffsetStorage implements OffsetStorage {
      */
     @Override
     public Map<String, Set<String>> queryZkAllGroupTopicInfos() {
-        StringBuilder sBuider = new StringBuilder(512);
         // get all booked groups name
-        String groupNode = sBuider.append(this.consumerZkDir).toString();
+        String groupNode = new StringBuilder(512)
+                .append(this.consumerZkDir).toString();
         List<String> bookedGroups = ZKUtil.getChildren(this.zkw, groupNode);
         return queryZKGroupTopicInfo(bookedGroups);
     }
@@ -315,7 +315,7 @@ public class ZkOffsetStorage implements OffsetStorage {
     @Override
     public void deleteGroupOffsetInfo(
             Map<String, Map<String, Set<Integer>>> groupTopicPartMap) {
-        StringBuilder sBuider = new StringBuilder(512);
+        StringBuilder strBuff = new StringBuilder(512);
         for (Map.Entry<String, Map<String, Set<Integer>>> entry
                 : groupTopicPartMap.entrySet()) {
             if (entry.getKey() == null
@@ -323,9 +323,9 @@ public class ZkOffsetStorage implements OffsetStorage {
                     || entry.getValue().isEmpty()) {
                 continue;
             }
-            String basePath = sBuider.append(this.consumerZkDir).append("/")
+            String basePath = strBuff.append(this.consumerZkDir).append("/")
                     .append(entry.getKey()).append("/offsets").toString();
-            sBuider.delete(0, sBuider.length());
+            strBuff.delete(0, strBuff.length());
             Map<String, Set<Integer>> topicPartMap = entry.getValue();
             for (Map.Entry<String, Set<Integer>> topicEntry : topicPartMap.entrySet()) {
                 if (topicEntry.getKey() == null
@@ -335,22 +335,22 @@ public class ZkOffsetStorage implements OffsetStorage {
                 }
                 Set<Integer> partIdSet = topicEntry.getValue();
                 for (Integer partitionId : partIdSet) {
-                    String offsetNode = sBuider.append(basePath).append("/")
+                    String offsetNode = strBuff.append(basePath).append("/")
                             .append(topicEntry.getKey()).append("/")
                             .append(brokerId).append(TokenConstants.HYPHEN)
                             .append(partitionId).toString();
-                    sBuider.delete(0, sBuider.length());
+                    strBuff.delete(0, strBuff.length());
                     ZKUtil.delZNode(this.zkw, offsetNode);
                 }
-                String parentNode = sBuider.append(basePath).append("/")
+                String parentNode = strBuff.append(basePath).append("/")
                         .append(topicEntry.getKey()).toString();
-                sBuider.delete(0, sBuider.length());
+                strBuff.delete(0, strBuff.length());
                 chkAndRmvBlankParentNode(parentNode);
             }
             chkAndRmvBlankParentNode(basePath);
-            String parentNode = sBuider.append(this.consumerZkDir)
+            String parentNode = strBuff.append(this.consumerZkDir)
                     .append("/").append(entry.getKey()).toString();
-            sBuider.delete(0, sBuider.length());
+            strBuff.delete(0, strBuff.length());
             chkAndRmvBlankParentNode(parentNode);
         }
     }
@@ -362,7 +362,7 @@ public class ZkOffsetStorage implements OffsetStorage {
         }
     }
 
-    private String normalize(final String root) {
+    private String normalize(String root) {
         if (root.startsWith("/")) {
             return this.removeLastSlash(root);
         } else {
@@ -370,7 +370,7 @@ public class ZkOffsetStorage implements OffsetStorage {
         }
     }
 
-    private String removeLastSlash(final String root) {
+    private String removeLastSlash(String root) {
         if (root.endsWith("/")) {
             return root.substring(0, root.lastIndexOf("/"));
         } else {

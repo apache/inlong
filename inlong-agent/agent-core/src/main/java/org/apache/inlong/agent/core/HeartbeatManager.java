@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.core;
 
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
@@ -34,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
@@ -43,7 +44,7 @@ import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MA
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 import static org.apache.inlong.agent.core.task.TaskPositionManager.DEFAULT_FLUSH_TIMEOUT;
 
-public class HeartbeatManager  extends AbstractDaemon {
+public class HeartbeatManager extends AbstractDaemon {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatManager.class);
 
@@ -53,6 +54,7 @@ public class HeartbeatManager  extends AbstractDaemon {
     private final HttpManager httpManager;
     private final String baseManagerUrl;
     private final String reportSnapshotUrl;
+    private final Pattern numberPattern = Pattern.compile("^[-+]?[\\d]*$");
 
     /**
      * Init heartbeat manager.
@@ -68,25 +70,27 @@ public class HeartbeatManager  extends AbstractDaemon {
 
     /**
      * fetch heartbeat of job
-     * @return
      */
     private TaskSnapshotRequest getHeartBeat() {
         Map<String, JobWrapper> jobWrapperMap = jobmanager.getJobs();
-
         List<TaskSnapshotMessage> taskSnapshotMessageList = new ArrayList<>();
         TaskSnapshotRequest taskSnapshotRequest = new TaskSnapshotRequest();
 
         Date date = new Date(System.currentTimeMillis());
-
-        for (Map.Entry<String, JobWrapper> entry:jobWrapperMap.entrySet()) {
+        for (Map.Entry<String, JobWrapper> entry : jobWrapperMap.entrySet()) {
             if (StringUtils.isBlank(entry.getKey()) || entry.getValue() == null) {
-                LOGGER.info(" key : {}, value : {} exits null",entry.getKey(),entry.getValue());
+                LOGGER.info("key: {} or value: {} is null", entry.getKey(), entry.getValue());
                 continue;
             }
             String offset = entry.getValue().getSnapshot();
             String jobId = entry.getKey();
             TaskSnapshotMessage snapshotMessage = new TaskSnapshotMessage();
             snapshotMessage.setSnapshot(offset);
+
+            // TODO Need to make sure the jobId is an Integer
+            if (!numberPattern.matcher(jobId).matches()) {
+                continue;
+            }
             snapshotMessage.setJobId(Integer.valueOf(jobId));
             taskSnapshotMessageList.add(snapshotMessage);
         }
@@ -100,7 +104,7 @@ public class HeartbeatManager  extends AbstractDaemon {
     /**
      * build base url for manager according to config
      *
-     * @example - http://127.0.0.1:8080/api/inlong/manager/openapi
+     * example - http://127.0.0.1:8080/api/inlong/manager/openapi
      */
     private String buildBaseUrl() {
         return "http://" + conf.get(AGENT_MANAGER_VIP_HTTP_HOST)
@@ -123,8 +127,8 @@ public class HeartbeatManager  extends AbstractDaemon {
             while (isRunnable()) {
                 try {
                     TaskSnapshotRequest taskSnapshotRequest = getHeartBeat();
-                    httpManager.doSentPost(reportSnapshotUrl,taskSnapshotRequest);
-                    LOGGER.info(" {} report to manager",taskSnapshotRequest);
+                    httpManager.doSentPost(reportSnapshotUrl, taskSnapshotRequest);
+                    LOGGER.info(" {} report to manager", taskSnapshotRequest);
                     TimeUnit.SECONDS.sleep(DEFAULT_FLUSH_TIMEOUT);
                 } catch (Exception ex) {
                     LOGGER.error("error caught", ex);

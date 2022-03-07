@@ -87,6 +87,7 @@ public class InlongStreamSourceTransfer {
         kafkaSource.setConsumerGroup(kafkaSourceResponse.getGroupId());
         DataFormat dataFormat = DataFormat.forName(kafkaSourceResponse.getSerializationType());
         kafkaSource.setDataFormat(dataFormat);
+        kafkaSource.setAgentIp(kafkaSourceResponse.getAgentIp());
         kafkaSource.setTopic(kafkaSourceResponse.getTopic());
         kafkaSource.setBootstrapServers(kafkaSourceResponse.getBootstrapServers());
         kafkaSource.setByteSpeedLimit(kafkaSourceResponse.getByteSpeedLimit());
@@ -117,6 +118,7 @@ public class InlongStreamSourceTransfer {
         binlogSource.setHostname(response.getHostname());
         binlogSource.setDataFormat(DataFormat.NONE);
         binlogSource.setPort(response.getPort());
+        binlogSource.setAgentIp(response.getAgentIp());
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
                 response.getUser(),
                 response.getPassword());
@@ -167,6 +169,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         sourceRequest.setSourceType(kafkaSource.getSourceType().name());
+        sourceRequest.setAgentIp(kafkaSource.getAgentIp());
         sourceRequest.setBootstrapServers(kafkaSource.getBootstrapServers());
         sourceRequest.setTopic(kafkaSource.getTopic());
         sourceRequest.setRecordSpeedLimit(kafkaSource.getRecordSpeedLimit());
@@ -184,6 +187,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         sourceRequest.setSourceType(binlogSource.getSourceType().name());
+        sourceRequest.setAgentIp(binlogSource.getAgentIp());
         DefaultAuthentication authentication = binlogSource.getAuthentication();
         sourceRequest.setUser(authentication.getUserName());
         sourceRequest.setPassword(authentication.getPassword());

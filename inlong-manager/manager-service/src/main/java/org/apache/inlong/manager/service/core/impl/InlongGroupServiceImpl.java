@@ -82,11 +82,11 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     public String save(InlongGroupRequest groupInfo, String operator) {
         LOGGER.debug("begin to save inlong group info={}", groupInfo);
         Preconditions.checkNotNull(groupInfo, "inlong group info is empty");
-        String bizName = groupInfo.getName();
-        Preconditions.checkNotNull(bizName, "inlong group name is empty");
+        String groupName = groupInfo.getName();
+        Preconditions.checkNotNull(groupName, "inlong group name is empty");
 
         // groupId=b_name, cannot update
-        String groupId = "b_" + bizName.toLowerCase(Locale.ROOT);
+        String groupId = "b_" + groupName.toLowerCase(Locale.ROOT);
         Integer count = groupMapper.selectIdentifierExist(groupId);
         if (count >= 1) {
             LOGGER.error("groupId [{}] has already exists", groupId);

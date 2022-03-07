@@ -35,9 +35,9 @@ import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
-import org.apache.inlong.tubemq.server.common.offsetstorage.OffsetStorage;
-import org.apache.inlong.tubemq.server.common.offsetstorage.OffsetStorageInfo;
-import org.apache.inlong.tubemq.server.common.offsetstorage.ZkOffsetStorage;
+import org.apache.inlong.tubemq.server.broker.offset.offsetstorage.OffsetStorage;
+import org.apache.inlong.tubemq.server.broker.offset.offsetstorage.OffsetStorageInfo;
+import org.apache.inlong.tubemq.server.broker.offset.offsetstorage.ZkOffsetStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -252,7 +252,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     @Override
     public long commitOffset(final String group, final String topic,
                              int partitionId, boolean isConsumed) {
-        long updatedOffset = -1;
+        long updatedOffset;
         String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
         long tmpOffset = getAndResetTmpOffset(group, offsetCacheKey);
         if (!isConsumed) {
@@ -508,10 +508,10 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     public boolean modifyGroupOffset(Set<String> groups,
                                      List<Tuple3<String, Integer, Long>> topicPartOffsets,
                                      String modifier) {
-        long oldOffset = -1;
+        long oldOffset;
         boolean changed = false;
-        String offsetCacheKey = null;
-        StringBuilder strBuidler = new StringBuilder(512);
+        String offsetCacheKey;
+        StringBuilder strBuff = new StringBuilder(512);
         // set offset by group
         for (String group : groups) {
             for (Tuple3<String, Integer, Long> tuple3 : topicPartOffsets) {
@@ -528,14 +528,14 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                         tuple3.getF0(), tuple3.getF1(), offsetCacheKey, 0);
                 oldOffset = regInfo.getAndSetOffset(tuple3.getF2());
                 changed = true;
-                logger.info(strBuidler
+                logger.info(strBuff
                         .append("[Offset Manager] Update offset by modifier=")
                         .append(modifier).append(",resetOffset=").append(tuple3.getF2())
                         .append(",loadedOffset=").append(oldOffset)
                         .append(",currentOffset=").append(regInfo.getOffset())
                         .append(",group=").append(group)
                         .append(",topic-part=").append(offsetCacheKey).toString());
-                strBuidler.delete(0, strBuidler.length());
+                strBuff.delete(0, strBuff.length());
             }
         }
         return changed;
@@ -553,7 +553,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                                   Map<String, Map<String, Set<Integer>>> groupTopicPartMap,
                                   String modifier) {
         String printBase;
-        StringBuilder strBuidler = new StringBuilder(512);
+        StringBuilder strBuff = new StringBuilder(512);
         for (Map.Entry<String, Map<String, Set<Integer>>> entry
                 : groupTopicPartMap.entrySet()) {
             if (entry.getKey() == null
@@ -564,16 +564,16 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
             rmvOffset(entry.getKey(), entry.getValue());
         }
         if (onlyMemory) {
-            printBase = strBuidler
+            printBase = strBuff
                     .append("[Offset Manager] delete offset from memory by modifier=")
                     .append(modifier).toString();
         } else {
             zkOffsetStorage.deleteGroupOffsetInfo(groupTopicPartMap);
-            printBase = strBuidler
+            printBase = strBuff
                     .append("[Offset Manager] delete offset from memory and zk by modifier=")
                     .append(modifier).toString();
         }
-        strBuidler.delete(0, strBuidler.length());
+        strBuff.delete(0, strBuff.length());
         // print log
         for (Map.Entry<String, Map<String, Set<Integer>>> entry
                 : groupTopicPartMap.entrySet()) {
@@ -582,9 +582,9 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                     || entry.getValue().isEmpty()) {
                 continue;
             }
-            logger.info(strBuidler.append(printBase).append(",group=").append(entry.getKey())
+            logger.info(strBuff.append(printBase).append(",group=").append(entry.getKey())
                     .append(",topic-partId-map=").append(entry.getValue()).toString());
-            strBuidler.delete(0, strBuidler.length());
+            strBuff.delete(0, strBuff.length());
         }
     }
 

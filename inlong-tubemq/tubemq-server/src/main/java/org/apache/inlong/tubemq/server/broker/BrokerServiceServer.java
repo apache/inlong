@@ -77,7 +77,7 @@ import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.heartbeat.HeartbeatManager;
 import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutInfo;
 import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutListener;
-import org.apache.inlong.tubemq.server.common.offsetstorage.OffsetStorageInfo;
+import org.apache.inlong.tubemq.server.broker.offset.offsetstorage.OffsetStorageInfo;
 import org.apache.inlong.tubemq.server.common.paramcheck.PBParameterUtils;
 import org.apache.inlong.tubemq.server.common.utils.AppendResult;
 import org.apache.inlong.tubemq.server.common.utils.RowLock;

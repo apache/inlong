@@ -74,8 +74,8 @@ public class CreatePulsarGroupForStreamTaskListener implements QueueOperateListe
         String groupId = form.getInlongGroupId();
         String streamId = form.getInlongStreamId();
 
-        InlongGroupInfo bizInfo = groupService.get(groupId);
-        if (bizInfo == null) {
+        InlongGroupInfo groupInfo = groupService.get(groupId);
+        if (groupInfo == null) {
             log.error("inlong group not found with groupId={}", groupId);
             throw new WorkflowListenerException("inlong group not found with groupId=" + groupId);
         }
@@ -87,7 +87,7 @@ public class CreatePulsarGroupForStreamTaskListener implements QueueOperateListe
         }
 
         try (PulsarAdmin globalPulsarAdmin = PulsarUtils
-                .getPulsarAdmin(bizInfo, commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL))) {
+                .getPulsarAdmin(groupInfo, commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL))) {
             // Query data sink info based on groupId and streamId
             List<String> sinkTypeList = sinkService.getSinkTypeList(groupId, streamId);
             if (sinkTypeList == null || sinkTypeList.size() == 0) {
@@ -98,17 +98,17 @@ public class CreatePulsarGroupForStreamTaskListener implements QueueOperateListe
 
             PulsarTopicBean topicBean = new PulsarTopicBean();
             topicBean.setTenant(clusterBean.getDefaultTenant());
-            topicBean.setNamespace(bizInfo.getMqResourceObj());
+            topicBean.setNamespace(groupInfo.getMqResourceObj());
             String topic = streamEntity.getMqResourceObj();
             topicBean.setTopicName(topic);
             List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
 
             // Create a subscription in the Pulsar cluster (cross-region), you need to ensure that the Topic exists
             String tenant = clusterBean.getDefaultTenant();
-            String namespace = bizInfo.getMqResourceObj();
+            String namespace = groupInfo.getMqResourceObj();
             for (String cluster : pulsarClusters) {
                 String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
-                try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(bizInfo, serviceUrl)) {
+                try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(groupInfo, serviceUrl)) {
                     boolean exist = pulsarOptService.topicIsExists(pulsarAdmin, tenant, namespace, topic);
                     if (!exist) {
                         String fullTopic = tenant + "/" + namespace + "/" + topic;
@@ -121,7 +121,7 @@ public class CreatePulsarGroupForStreamTaskListener implements QueueOperateListe
                     pulsarOptService.createSubscription(pulsarAdmin, topicBean, subscription);
 
                     // Insert the consumption data into the consumption table
-                    consumptionService.saveSortConsumption(bizInfo, topic, subscription);
+                    consumptionService.saveSortConsumption(groupInfo, topic, subscription);
                 }
             }
         } catch (Exception e) {
