@@ -71,9 +71,15 @@ public interface StreamSourceEntityMapper {
             @Param("sourceType") String sourceType);
 
     /**
+     * Query the tasks that need to be added.
+     */
+    List<StreamSourceEntity> selectByStatusForUpdate(@Param("list") List<Integer> list);
+
+    /**
      * Query the sources with status 20x by the given agent IP and agent UUID.
      */
-    List<StreamSourceEntity> selectByIpAndUuid(@Param("agentIp") String agentIp, @Param("uuid") String uuid);
+    List<StreamSourceEntity> selectByStatusAndIp(@Param("list") List<Integer> list,
+            @Param("agentIp") String agentIp, @Param("uuid") String uuid);
 
     /**
      * Get the distinct source type from the given groupId and streamId
@@ -105,6 +111,13 @@ public interface StreamSourceEntityMapper {
      */
     int updateStatusByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("nextStatus") Integer nextStatus);
+
+    /**
+     * Update the agentIp and uuid.
+     *
+     * @apiNote Should not change the modify_time
+     */
+    int updateIpAndUuid(@Param("id") Integer id, @Param("agentIp") String agentIp, @Param("uuid") String uuid);
 
     int updateSnapshot(StreamSourceEntity entity);
 
