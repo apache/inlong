@@ -95,8 +95,6 @@ import org.apache.inlong.tubemq.server.common.exception.HeartbeatException;
 import org.apache.inlong.tubemq.server.common.heartbeat.HeartbeatManager;
 import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutInfo;
 import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutListener;
-import org.apache.inlong.tubemq.server.common.offsetstorage.OffsetStorage;
-import org.apache.inlong.tubemq.server.common.offsetstorage.ZkOffsetStorage;
 import org.apache.inlong.tubemq.server.common.paramcheck.PBParameterUtils;
 import org.apache.inlong.tubemq.server.common.paramcheck.ParamCheckResult;
 import org.apache.inlong.tubemq.server.common.utils.ClientSyncInfo;
@@ -151,7 +149,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private final MasterConfig masterConfig;                    //master config
     private final NodeAddrInfo masterAddInfo;                   //master address info
     private final HeartbeatManager heartbeatManager;            //heartbeat manager
-    private final OffsetStorage zkOffsetStorage;                //zookeeper offset manager
     private final ShutdownHook shutdownHook;                    //shutdown hook
     private final CertificateMasterHandler serverAuthHandler;           //server auth handler
     private AtomicBoolean shutdownHooked = new AtomicBoolean(false);
@@ -186,8 +183,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         this.visitTokenManager = new SimpleVisitTokenManager(this.masterConfig);
         this.serverAuthHandler = new SimpleCertificateMasterHandler(this.masterConfig);
         this.heartbeatManager = new HeartbeatManager();
-        this.zkOffsetStorage = new ZkOffsetStorage(this.masterConfig.getZkConfig(),
-                false, TBaseConstants.META_VALUE_UNDEFINED);
         this.producerHolder = new ProducerInfoHolder();
         this.consumerHolder = new ConsumerInfoHolder(this);
         this.consumerEventManager = new ConsumerEventManager(consumerHolder);
@@ -2012,12 +2007,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // choose different load balance strategy
         if (isFirstReb) {
             finalSubInfoMap =  this.loadBalancer.resetBukAssign(consumerHolder,
-                    brokerRunManager, groups, this.zkOffsetStorage,
-                    this.defMetaDataManager, strBuffer);
+                    brokerRunManager, groups, this.defMetaDataManager, strBuffer);
         } else {
             finalSubInfoMap = this.loadBalancer.resetBalanceCluster(currentSubInfo,
-                    consumerHolder, brokerRunManager, groups, this.zkOffsetStorage,
-                    this.defMetaDataManager, strBuffer);
+                    consumerHolder, brokerRunManager, groups, this.defMetaDataManager, strBuffer);
         }
         // filter
         for (Map.Entry<String, Map<String, Map<String, Partition>>> entry
@@ -2480,7 +2473,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             cltExecutor.shutdown();
             stopChores();
             heartbeatManager.stop();
-            zkOffsetStorage.close();
             defMetaDataManager.stop();
             visitTokenManager.stop();
             if (!shutdownHooked.get()) {

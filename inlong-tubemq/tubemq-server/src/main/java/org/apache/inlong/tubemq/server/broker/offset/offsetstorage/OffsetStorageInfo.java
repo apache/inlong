@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.server.common.offsetstorage;
+package org.apache.inlong.tubemq.server.broker.offset.offsetstorage;
 
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
