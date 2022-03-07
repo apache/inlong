@@ -82,6 +82,7 @@ public class InlongStreamSourceTransfer {
         kafkaSource.setConsumerGroup(kafkaSourceResponse.getGroupId());
         DataFormat dataFormat = DataFormat.forName(kafkaSourceResponse.getSerializationType());
         kafkaSource.setDataFormat(dataFormat);
+        kafkaSource.setAgentIp(kafkaSourceResponse.getAgentIp());
         kafkaSource.setTopic(kafkaSourceResponse.getTopic());
         kafkaSource.setBootstrapServers(kafkaSourceResponse.getBootstrapServers());
         kafkaSource.setByteSpeedLimit(kafkaSourceResponse.getByteSpeedLimit());
@@ -112,6 +113,7 @@ public class InlongStreamSourceTransfer {
         binlogSource.setHostname(binlogSourceResponse.getHostname());
         binlogSource.setDataFormat(DataFormat.NONE);
         binlogSource.setPort(binlogSourceResponse.getPort());
+        binlogSource.setAgentIp(binlogSourceResponse.getAgentIp());
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
                 binlogSourceResponse.getUser(),
                 binlogSourceResponse.getPassword());
@@ -148,6 +150,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         sourceRequest.setSourceType(kafkaSource.getSourceType().name());
+        sourceRequest.setAgentIp(kafkaSource.getAgentIp());
         sourceRequest.setBootstrapServers(kafkaSource.getBootstrapServers());
         sourceRequest.setTopic(kafkaSource.getTopic());
         sourceRequest.setRecordSpeedLimit(kafkaSource.getRecordSpeedLimit());
@@ -165,6 +168,7 @@ public class InlongStreamSourceTransfer {
         binlogSourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         binlogSourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         binlogSourceRequest.setSourceType(binlogSource.getSourceType().name());
+        binlogSourceRequest.setAgentIp(binlogSource.getAgentIp());
         DefaultAuthentication authentication = binlogSource.getAuthentication();
         binlogSourceRequest.setUser(authentication.getUserName());
         binlogSourceRequest.setPassword(authentication.getPassword());

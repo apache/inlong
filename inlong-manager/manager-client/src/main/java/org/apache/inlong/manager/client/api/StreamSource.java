@@ -33,6 +33,12 @@ public abstract class StreamSource {
     @ApiModelProperty(value = "DataSource name", required = true)
     private String sourceName;
 
+    @ApiModelProperty("Ip of the agent running the task")
+    private String agentIp;
+
+    @ApiModelProperty("Mac uuid of the agent running the task")
+    private String uuid = "";
+
     public abstract SourceType getSourceType();
 
     public abstract SyncType getSyncType();
