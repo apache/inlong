@@ -18,9 +18,6 @@
 package org.apache.inlong.manager.service.thirdparty.sort;
 
 import com.google.common.collect.Lists;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -48,8 +45,11 @@ import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class DisableZkForSortTest extends WorkflowServiceImplTest {
 
@@ -112,7 +112,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         return kafkaSourceRequest;
     }
 
-    @Test
+    //    @Test
     public void testCreateSortConfigInCreateWorkflow() {
         InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test21");
         groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
