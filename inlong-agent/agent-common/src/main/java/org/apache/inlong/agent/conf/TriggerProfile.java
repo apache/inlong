@@ -56,7 +56,7 @@ public class TriggerProfile extends JobProfile {
 
     @Override
     public boolean allRequiredKeyExist() {
-        return hasKey(JobConstants.JOB_TRIGGER) && super.allRequiredKeyExist();
+        return super.allRequiredKeyExist();
     }
 
     public String getTriggerId() {

@@ -23,8 +23,8 @@ import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.DataSchemaInfo;
 import org.apache.inlong.manager.service.core.DataSchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -42,7 +42,7 @@ public class BasicInfoController {
     private DataSchemaService schemaService;
 
     @ApiOperation(value = "Query data format list")
-    @RequestMapping(value = "/schema/listAll", method = RequestMethod.GET)
+    @GetMapping(value = "/schema/listAll")
     public Response<List<DataSchemaInfo>> dataSchemaList() {
         return Response.success(schemaService.listAllDataSchema());
     }

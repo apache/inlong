@@ -61,7 +61,7 @@ public class BinlogJob {
         private  String password;
         private  String hostname;
         private  String port;
-        private  String schema;
+        private  String includeSchema;
 
         private  String databaseWhiteList;
         private  String tableWhiteList;
@@ -69,8 +69,8 @@ public class BinlogJob {
         private  String intervalMs;
         private  String offsetFilename;
         private  String historyFilename;
-        private  String mode;
-        private  String ddl;
+        private  String snapshotMode;
+        private  String monitoredDdl;
     }
 
 }

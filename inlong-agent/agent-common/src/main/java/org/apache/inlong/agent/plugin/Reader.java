@@ -58,4 +58,9 @@ public interface Reader extends Stage {
      * @return
      */
     String getSnapshot();
+
+    /**
+     * finish read
+     */
+    void finishRead();
 }

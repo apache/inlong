@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.client.api.util;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import java.util.List;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.StreamSource;
 import org.apache.inlong.manager.client.api.StreamSource.SyncType;
@@ -38,6 +38,11 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
+import java.util.Arrays;
+
+/**
+ * Transfer the inlong stream source.
+ */
 public class InlongStreamSourceTransfer {
 
     public static SourceRequest createSourceRequest(StreamSource streamSource, InlongStreamInfo streamInfo) {
@@ -107,40 +112,54 @@ public class InlongStreamSourceTransfer {
         return kafkaSource;
     }
 
-    private static MySQLBinlogSource parseMySQLBinlogSource(BinlogSourceResponse binlogSourceResponse) {
+    private static MySQLBinlogSource parseMySQLBinlogSource(BinlogSourceResponse response) {
         MySQLBinlogSource binlogSource = new MySQLBinlogSource();
-        binlogSource.setSourceName(binlogSourceResponse.getSourceName());
-        binlogSource.setHostname(binlogSourceResponse.getHostname());
+        binlogSource.setSourceName(response.getSourceName());
+        binlogSource.setHostname(response.getHostname());
         binlogSource.setDataFormat(DataFormat.NONE);
-        binlogSource.setPort(binlogSourceResponse.getPort());
-        binlogSource.setAgentIp(binlogSourceResponse.getAgentIp());
+        binlogSource.setPort(response.getPort());
+        binlogSource.setAgentIp(response.getAgentIp());
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
-                binlogSourceResponse.getUser(),
-                binlogSourceResponse.getPassword());
-        binlogSource.setAllMigration(binlogSourceResponse.isAllMigration());
+                response.getUser(),
+                response.getPassword());
         binlogSource.setAuthentication(defaultAuthentication);
-        binlogSource.setTimeZone(binlogSourceResponse.getTimeZone());
-        binlogSource.setTimestampFormatStandard(binlogSourceResponse.getTimestampFormatStandard());
-        List<String> dbs = Splitter.on(",").splitToList(binlogSourceResponse.getWhitelist());
-        binlogSource.setDbNames(dbs);
+        binlogSource.setIncludeSchema(response.getIncludeSchema());
+        binlogSource.setServerTimezone(response.getServerTimezone());
+        binlogSource.setMonitoredDdl(response.getMonitoredDdl());
+        binlogSource.setTimestampFormatStandard(response.getTimestampFormatStandard());
+        binlogSource.setAllMigration(response.isAllMigration());
+
+        if (StringUtils.isNotBlank(response.getDatabaseWhiteList())) {
+            binlogSource.setDbNames(Arrays.asList(response.getDatabaseWhiteList().split(",")));
+        }
+        if (StringUtils.isNotBlank(response.getTableWhiteList())) {
+            binlogSource.setTableNames(Arrays.asList(response.getTableWhiteList().split(",")));
+        }
         return binlogSource;
     }
 
-    private static MySQLBinlogSource parseMySQLBinlogSource(BinlogSourceListResponse binlogSourceResponse) {
+    private static MySQLBinlogSource parseMySQLBinlogSource(BinlogSourceListResponse response) {
         MySQLBinlogSource binlogSource = new MySQLBinlogSource();
-        binlogSource.setSourceName(binlogSourceResponse.getSourceName());
-        binlogSource.setHostname(binlogSourceResponse.getHostname());
+        binlogSource.setSourceName(response.getSourceName());
+        binlogSource.setHostname(response.getHostname());
         binlogSource.setDataFormat(DataFormat.NONE);
-        binlogSource.setPort(binlogSourceResponse.getPort());
+        binlogSource.setPort(response.getPort());
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
-                binlogSourceResponse.getUser(),
-                binlogSourceResponse.getPassword());
+                response.getUser(),
+                response.getPassword());
         binlogSource.setAuthentication(defaultAuthentication);
-        binlogSource.setAllMigration(binlogSourceResponse.isAllMigration());
-        binlogSource.setTimeZone(binlogSourceResponse.getTimeZone());
-        binlogSource.setTimestampFormatStandard(binlogSourceResponse.getTimestampFormatStandard());
-        List<String> dbs = Splitter.on(",").splitToList(binlogSourceResponse.getWhitelist());
-        binlogSource.setDbNames(dbs);
+        binlogSource.setIncludeSchema(response.getIncludeSchema());
+        binlogSource.setServerTimezone(response.getServerTimezone());
+        binlogSource.setMonitoredDdl(response.getMonitoredDdl());
+        binlogSource.setTimestampFormatStandard(response.getTimestampFormatStandard());
+        binlogSource.setAllMigration(response.isAllMigration());
+
+        if (StringUtils.isNotBlank(response.getDatabaseWhiteList())) {
+            binlogSource.setDbNames(Arrays.asList(response.getDatabaseWhiteList().split(",")));
+        }
+        if (StringUtils.isNotBlank(response.getTableWhiteList())) {
+            binlogSource.setTableNames(Arrays.asList(response.getTableWhiteList().split(",")));
+        }
         return binlogSource;
     }
 
@@ -163,24 +182,32 @@ public class InlongStreamSourceTransfer {
 
     private static BinlogSourceRequest createBinlogSourceRequest(MySQLBinlogSource binlogSource,
             InlongStreamInfo streamInfo) {
-        BinlogSourceRequest binlogSourceRequest = new BinlogSourceRequest();
-        binlogSourceRequest.setSourceName(binlogSource.getSourceName());
-        binlogSourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
-        binlogSourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
-        binlogSourceRequest.setSourceType(binlogSource.getSourceType().name());
-        binlogSourceRequest.setAgentIp(binlogSource.getAgentIp());
+        BinlogSourceRequest sourceRequest = new BinlogSourceRequest();
+        sourceRequest.setSourceName(binlogSource.getSourceName());
+        sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
+        sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+        sourceRequest.setSourceType(binlogSource.getSourceType().name());
+        sourceRequest.setAgentIp(binlogSource.getAgentIp());
         DefaultAuthentication authentication = binlogSource.getAuthentication();
-        binlogSourceRequest.setUser(authentication.getUserName());
-        binlogSourceRequest.setPassword(authentication.getPassword());
-        binlogSourceRequest.setHostname(binlogSource.getHostname());
-        binlogSourceRequest.setPort(binlogSource.getPort());
-        binlogSourceRequest.setAllMigration(binlogSource.isAllMigration());
-        String dbNames = Joiner.on(",").join(binlogSource.getDbNames());
-        binlogSourceRequest.setWhitelist(dbNames);
-        binlogSourceRequest.setTimestampFormatStandard(binlogSource.getTimestampFormatStandard());
-        binlogSourceRequest.setTimeZone(binlogSource.getTimeZone());
-        binlogSourceRequest.setSnapshotMode("initial");
-        binlogSourceRequest.setIntervalMs("500");
-        return binlogSourceRequest;
+        sourceRequest.setUser(authentication.getUserName());
+        sourceRequest.setPassword(authentication.getPassword());
+        sourceRequest.setHostname(binlogSource.getHostname());
+        sourceRequest.setPort(binlogSource.getPort());
+        sourceRequest.setIncludeSchema(binlogSource.getIncludeSchema());
+        sourceRequest.setServerTimezone(binlogSource.getServerTimezone());
+        sourceRequest.setMonitoredDdl(binlogSource.getMonitoredDdl());
+        sourceRequest.setAllMigration(binlogSource.isAllMigration());
+        if (CollectionUtils.isNotEmpty(binlogSource.getDbNames())) {
+            String dbNames = Joiner.on(",").join(binlogSource.getDbNames());
+            sourceRequest.setDatabaseWhiteList(dbNames);
+        }
+        if (CollectionUtils.isNotEmpty(binlogSource.getTableNames())) {
+            String tableNames = Joiner.on(",").join(binlogSource.getTableNames());
+            sourceRequest.setTableWhiteList(tableNames);
+        }
+        sourceRequest.setSnapshotMode("initial");
+        sourceRequest.setIntervalMs("500");
+        sourceRequest.setTimestampFormatStandard(binlogSource.getTimestampFormatStandard());
+        return sourceRequest;
     }
 }

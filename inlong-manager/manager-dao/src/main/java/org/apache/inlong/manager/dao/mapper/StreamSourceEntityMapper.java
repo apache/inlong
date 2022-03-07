@@ -71,7 +71,7 @@ public interface StreamSourceEntityMapper {
             @Param("sourceType") String sourceType);
 
     /**
-     * Query the source list by the given agent ip and agent uuid.
+     * Query the sources with status 20x by the given agent IP and agent UUID.
      */
     List<StreamSourceEntity> selectByIpAndUuid(@Param("agentIp") String agentIp, @Param("uuid") String uuid);
 

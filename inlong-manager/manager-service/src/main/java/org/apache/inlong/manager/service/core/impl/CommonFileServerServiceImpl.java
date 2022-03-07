@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonFileServerInfo;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonFileServerListVo;
@@ -82,7 +83,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
                 info.getUsername(),
                 info.getIp(),
                 info.getPort());
-        if (entities != null && entities.size() > 0) {
+        if (CollectionUtils.isNotEmpty(entities)) {
             for (CommonFileServerEntity entry : entities) {
                 // Have the same normal entry
                 if (entry.getIsDeleted() == 0) {
