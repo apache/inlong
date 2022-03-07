@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.web.controller;
+package org.apache.inlong.manager.web.controller.openapi;
 
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -89,48 +89,6 @@ public class ClusterController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        return Response.success(thirdPartyClusterService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName()));
-    }
-
-    @Deprecated
-    @PostMapping(value = "/thirdparty/save")
-    @ApiOperation(value = "Add a cluster info")
-    @OperationLog(operation = OperationType.CREATE)
-    public Response<Integer> saveClusterV1(@RequestBody ClusterInfo clusterInfo) {
-        String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
-        return Response.success(thirdPartyClusterService.save(clusterInfo, currentUser));
-    }
-
-    @Deprecated
-    @GetMapping(value = "/thirdparty/get/{id}")
-    @ApiOperation(value = "Query third party cluster information of the common")
-    @ApiImplicitParam(name = "id", value = "common cluster ID", dataTypeClass = Integer.class, required = true)
-    public Response<ClusterInfo> getClusterV1(@PathVariable Integer id) {
-        return Response.success(thirdPartyClusterService.get(id));
-    }
-
-    @Deprecated
-    @PostMapping(value = "/thirdparty/list")
-    @ApiOperation(value = "Query the list of general clusters based on conditions")
-    public Response<List<ClusterInfo>> listV1(@RequestBody ClusterRequest request) {
-        return Response.success(thirdPartyClusterService.list(request));
-    }
-
-    @Deprecated
-    @RequestMapping(value = "/thirdparty/update", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Modify third party cluster information of the common")
-    public Response<Boolean> updateClusterV1(@RequestBody ClusterInfo clusterInfo) {
-        String username = LoginUserUtils.getLoginUserDetail().getUserName();
-        return Response.success(thirdPartyClusterService.update(clusterInfo, username));
-    }
-
-    @Deprecated
-    @RequestMapping(value = "/thirdparty/delete/{id}", method = RequestMethod.DELETE)
-    @ApiOperation(value = "Delete third party cluster information")
-    @OperationLog(operation = OperationType.DELETE)
-    @ApiImplicitParam(name = "id", value = "DataProxy cluster id", dataTypeClass = Integer.class, required = true)
-    public Response<Boolean> deleteV1(@PathVariable Integer id) {
         return Response.success(thirdPartyClusterService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName()));
     }
 
