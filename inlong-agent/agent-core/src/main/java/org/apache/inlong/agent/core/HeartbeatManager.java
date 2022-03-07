@@ -54,7 +54,7 @@ public class HeartbeatManager extends AbstractDaemon {
     private final HttpManager httpManager;
     private final String baseManagerUrl;
     private final String reportSnapshotUrl;
-    private final Pattern NUMBER_PATTERN = Pattern.compile("^[-+]?[\\d]*$");
+    private final Pattern numberPattern = Pattern.compile("^[-+]?[\\d]*$");
 
     /**
      * Init heartbeat manager.
@@ -88,7 +88,7 @@ public class HeartbeatManager extends AbstractDaemon {
             snapshotMessage.setSnapshot(offset);
 
             // TODO Need to make sure the jobId is an Integer
-            if (!NUMBER_PATTERN.matcher(jobId).matches()) {
+            if (!numberPattern.matcher(jobId).matches()) {
                 continue;
             }
             snapshotMessage.setJobId(Integer.valueOf(jobId));
