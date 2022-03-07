@@ -101,16 +101,16 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     private final String metaDataPath;
     // bdb replication configure
     private final MasterReplicationConfig replicationConfig;
-    private Listener listener = new Listener();
+    private final Listener listener = new Listener();
     private ExecutorService executorService = null;
-    private List<AliveObserver> eventObservers = new ArrayList<>();
+    private final List<AliveObserver> eventObservers = new ArrayList<>();
     // service status
     // 0 stopped, 1 starting, 2 started, 3 stopping
-    private AtomicInteger srvStatus = new AtomicInteger(0);
+    private final AtomicInteger srvStatus = new AtomicInteger(0);
     // master role flag
     private volatile boolean isMaster = false;
     // time since node become active
-    private AtomicLong masterSinceTime = new AtomicLong(Long.MAX_VALUE);
+    private final AtomicLong masterSinceTime = new AtomicLong(Long.MAX_VALUE);
     // master node name
     private String masterNodeName;
     // node connect failure count
@@ -127,9 +127,9 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     // bdb replicated environment
     private ReplicatedEnvironment repEnv;
     // bdb data store configure
-    private StoreConfig storeConfig = new StoreConfig();
+    private final StoreConfig storeConfig = new StoreConfig();
     // bdb replication group admin info
-    private ReplicationGroupAdmin replicationGroupAdmin;
+    private final ReplicationGroupAdmin replicationGroupAdmin;
 
     // cluster default setting
     private ClusterConfigMapper clusterConfigMapper;
@@ -929,7 +929,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     /**
      * Get master start time
      *
-     * @return
+     * @return the since time
      */
     @Override
     public long getMasterSinceTime() {
@@ -939,7 +939,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     /**
      * Check if primary node is active
      *
-     * @return
+     * @return whether is active
      */
     @Override
     public boolean isPrimaryNodeActive() {
@@ -982,7 +982,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     /**
      * Get current master address
      *
-     * @return
+     * @return  the current master address
      */
     @Override
     public InetSocketAddress getMasterAddress() {
@@ -1011,7 +1011,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     /**
      * Get group address info
      *
-     * @return
+     * @return  the group address inforamtion
      */
     @Override
     public ClusterGroupVO getGroupAddressStrInfo() {
@@ -1041,8 +1041,8 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     /**
      * Get master group status
      *
-     * @param isFromHeartbeat
-     * @return
+     * @param isFromHeartbeat   whether called by hb thread
+     * @return    the master group status
      */
     @Override
     public MasterGroupStatus getMasterGroupStatus(boolean isFromHeartbeat) {
@@ -1233,7 +1233,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
      * clear cached data in alive event observers.
      *
      * */
-    private void relaodRunData() {
+    private void reloadRunData() {
         for (AliveObserver observer : eventObservers) {
             observer.reloadCacheData();
         }
@@ -1358,7 +1358,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         topicCtrlMapper.loadConfig();
         groupResCtrlMapper.loadConfig();
         groupConsumeCtrlMapper.loadConfig();
-        relaodRunData();
+        reloadRunData();
     }
 
     private ReplicationGroup getCurrReplicationGroup() {
@@ -1376,7 +1376,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
      * Query replication group nodes status and translate to ClusterNodeVO type
      *
      * @return if has master, replication nodes info
-     * @throws InterruptedException if the operation was interrupted
+     * @throws InterruptedException  if the operation was interrupted
      */
     private Tuple2<Boolean, List<ClusterNodeVO>> transReplicateNodes(
             ReplicationGroup replicationGroup) {

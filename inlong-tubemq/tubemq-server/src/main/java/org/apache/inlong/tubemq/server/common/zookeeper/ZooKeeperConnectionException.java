@@ -15,26 +15,39 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.server.common.offsetstorage.zookeeper;
+package org.apache.inlong.tubemq.server.common.zookeeper;
+
+import java.io.IOException;
 
 /**
- * Interface to support the aborting of a given server or client.
- *
+ * Thrown if the client can't connect to zookeeper
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
-public interface Abortable {
-    /**
-     * Abort the server or client.
-     *
-     * @param why Why we're aborting.
-     * @param e   Throwable that caused abort. Can be null.
-     */
-    void abort(String why, Throwable e);
+public class ZooKeeperConnectionException extends IOException {
+    private static final long serialVersionUID = 1L << 23 - 1L;
 
     /**
-     * Check if the server or client was aborted.
-     *
-     * @return true if the server or client was aborted, false otherwise
+     * default constructor
      */
-    boolean isAborted();
+    public ZooKeeperConnectionException() {
+        super();
+    }
+
+    /**
+     * Constructor
+     *
+     * @param s message
+     */
+    public ZooKeeperConnectionException(String s) {
+        super(s);
+    }
+
+    /**
+     * Constructor taking another exception.
+     *
+     * @param e Exception to grab data from.
+     */
+    public ZooKeeperConnectionException(String message, Exception e) {
+        super(message, e);
+    }
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.server.common.offsetstorage.zookeeper;
+package org.apache.inlong.tubemq.server.common.zookeeper;
 
 import java.util.concurrent.TimeUnit;
 
