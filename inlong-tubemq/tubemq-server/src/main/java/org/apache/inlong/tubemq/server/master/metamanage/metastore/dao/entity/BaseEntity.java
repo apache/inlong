@@ -160,9 +160,9 @@ public class BaseEntity implements Serializable, Cloneable {
         return attributes;
     }
 
-    public void setCreateInfo(String creater, Date createDate) {
-        if (TStringUtils.isNotBlank(creater)) {
-            this.createUser = creater;
+    public void setCreateInfo(String creator, Date createDate) {
+        if (TStringUtils.isNotBlank(creator)) {
+            this.createUser = creator;
         }
         setCreateDate(createDate);
     }

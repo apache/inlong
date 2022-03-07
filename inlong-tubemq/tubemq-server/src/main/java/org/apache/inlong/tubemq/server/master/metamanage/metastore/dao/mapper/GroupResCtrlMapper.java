@@ -24,9 +24,11 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Gr
 
 public interface GroupResCtrlMapper extends AbstractMapper {
 
-    boolean addGroupResCtrlConf(GroupResCtrlEntity entity, ProcessResult result);
+    boolean addGroupResCtrlConf(GroupResCtrlEntity entity,
+                                StringBuilder strBuff, ProcessResult result);
 
-    boolean updGroupResCtrlConf(GroupResCtrlEntity entity, ProcessResult result);
+    boolean updGroupResCtrlConf(GroupResCtrlEntity entity,
+                                StringBuilder strBuff, ProcessResult result);
 
     boolean delGroupResCtrlConf(String groupName, ProcessResult result);
 

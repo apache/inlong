@@ -286,7 +286,7 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
      * @param sBuilder   build container
      * @param isLongName if return field key is long name
      * @param fullFormat if return full format json
-     * @return
+     * @return  the serialized content
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
                                       boolean isLongName,

@@ -24,9 +24,11 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Br
 
 public interface BrokerConfigMapper extends AbstractMapper {
 
-    boolean addBrokerConf(BrokerConfEntity memEntity, ProcessResult result);
+    boolean addBrokerConf(BrokerConfEntity memEntity,
+                          StringBuilder strBuff, ProcessResult result);
 
-    boolean updBrokerConf(BrokerConfEntity memEntity, ProcessResult result);
+    boolean updBrokerConf(BrokerConfEntity memEntity,
+                          StringBuilder strBuff, ProcessResult result);
 
     boolean delBrokerConf(int brokerId, ProcessResult result);
 

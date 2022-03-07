@@ -170,7 +170,7 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
      * @param consumeEnable     new consume enable status
      * @param disableRsn        new disable reason
      * @param filterEnable      new filter enable status
-     * @param filterCondStr     new fliter condition configure
+     * @param filterCondStr     new filter condition configure
      *
      * @return    whether data is changed
      */

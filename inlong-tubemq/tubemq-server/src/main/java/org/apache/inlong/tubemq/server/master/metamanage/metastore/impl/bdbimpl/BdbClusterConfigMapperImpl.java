@@ -24,7 +24,6 @@ import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.exception.LoadMetaException;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
@@ -41,7 +40,7 @@ public class BdbClusterConfigMapperImpl implements ClusterConfigMapper {
             LoggerFactory.getLogger(BdbClusterConfigMapperImpl.class);
 
     private EntityStore clsDefSettingStore;
-    private PrimaryIndex<String, BdbClusterSettingEntity> clsDefSettingIndex;
+    private final PrimaryIndex<String, BdbClusterSettingEntity> clsDefSettingIndex;
     Map<String, ClusterSettingEntity> metaDataCache = new ConcurrentHashMap<>();
 
     public BdbClusterConfigMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
@@ -98,17 +97,19 @@ public class BdbClusterConfigMapperImpl implements ClusterConfigMapper {
      * Put cluster setting info into bdb store
      *
      * @param memEntity need add record
+     * @param strBuff   the string buffer
      * @param result process result with old value
-     * @return
+     * @return  the process result
      */
     @Override
-    public boolean addClusterConfig(ClusterSettingEntity memEntity, ProcessResult result) {
+    public boolean addClusterConfig(ClusterSettingEntity memEntity,
+                                    StringBuilder strBuff, ProcessResult result) {
         if (!metaDataCache.isEmpty()) {
             result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
                     "The cluster setting already exists, please delete or update!");
             return result.isSuccess();
         }
-        if (putClusterConfig2Bdb(memEntity, result)) {
+        if (putClusterConfig2Bdb(memEntity, strBuff, result)) {
             metaDataCache.put(memEntity.getRecordKey(), memEntity);
         }
         return result.isSuccess();
@@ -118,11 +119,13 @@ public class BdbClusterConfigMapperImpl implements ClusterConfigMapper {
      * Update cluster setting info in bdb store
      *
      * @param memEntity need add record
+     * @param strBuff   the string buffer
      * @param result process result with old value
-     * @return
+     * @return  the process result
      */
     @Override
-    public boolean updClusterConfig(ClusterSettingEntity memEntity, ProcessResult result) {
+    public boolean updClusterConfig(ClusterSettingEntity memEntity,
+                                    StringBuilder strBuff, ProcessResult result) {
         if (metaDataCache.isEmpty()) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
                     "The cluster setting is null, please add record first!");
@@ -134,7 +137,7 @@ public class BdbClusterConfigMapperImpl implements ClusterConfigMapper {
                     "The cluster settings have not changed!");
             return result.isSuccess();
         }
-        if (putClusterConfig2Bdb(memEntity, result)) {
+        if (putClusterConfig2Bdb(memEntity, strBuff, result)) {
             metaDataCache.put(memEntity.getRecordKey(), memEntity);
             result.setSuccResult(curEntity);
         }
@@ -143,6 +146,7 @@ public class BdbClusterConfigMapperImpl implements ClusterConfigMapper {
 
     /**
      * get current cluster setting from bdb store
+     *
      * @return current cluster setting, null or object, only read
      */
     @Override
@@ -152,7 +156,9 @@ public class BdbClusterConfigMapperImpl implements ClusterConfigMapper {
 
     /**
      * delete current cluster setting from bdb store
-     * @return if success
+     *
+     * @param result the process result
+     * @return  the process result
      */
     @Override
     public boolean delClusterConfig(ProcessResult result) {
@@ -168,7 +174,8 @@ public class BdbClusterConfigMapperImpl implements ClusterConfigMapper {
         return true;
     }
 
-    private boolean putClusterConfig2Bdb(ClusterSettingEntity memEntity, ProcessResult result) {
+    private boolean putClusterConfig2Bdb(ClusterSettingEntity memEntity,
+                                         StringBuilder strBuff, ProcessResult result) {
         BdbClusterSettingEntity bdbEntity =
                 memEntity.buildBdbClsDefSettingEntity();
         try {
@@ -176,9 +183,9 @@ public class BdbClusterConfigMapperImpl implements ClusterConfigMapper {
         } catch (Throwable e) {
             logger.error("[BDB Impl] put cluster configure failure ", e);
             result.setFailResult(DataOpErrCode.DERR_STORE_ABNORMAL.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("Put cluster configure failure: ")
+                    strBuff.append("Put cluster configure failure: ")
                             .append(e.getMessage()).toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
         result.setSuccResult(null);

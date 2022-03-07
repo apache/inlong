@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.KeyBuilderUtils;
@@ -49,15 +48,15 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
 
     // Topic configure store
     private EntityStore topicConfStore;
-    private PrimaryIndex<String/* recordKey */, BdbTopicConfEntity> topicConfIndex;
+    private final PrimaryIndex<String/* recordKey */, BdbTopicConfEntity> topicConfIndex;
     // data cache
-    private ConcurrentHashMap<String/* recordKey */, TopicDeployEntity> topicConfCache =
-            new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>>
+    private final ConcurrentHashMap<String/* recordKey */, TopicDeployEntity>
+            topicConfCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>>
             brokerIdCacheIndex = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String/* topicName */, ConcurrentHashSet<String>>
+    private final ConcurrentHashMap<String/* topicName */, ConcurrentHashSet<String>>
             topicNameCacheIndex = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>>
+    private final ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>>
             brokerId2TopicCacheIndex = new ConcurrentHashMap<>();
 
     public BdbTopicDeployMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
@@ -108,44 +107,46 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
     }
 
     @Override
-    public boolean addTopicConf(TopicDeployEntity memEntity, ProcessResult result) {
+    public boolean addTopicConf(TopicDeployEntity memEntity,
+                                StringBuilder strBuff, ProcessResult result) {
         TopicDeployEntity curEntity =
                 topicConfCache.get(memEntity.getRecordKey());
         if (curEntity != null) {
             result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("The topic configure ").append(memEntity.getRecordKey())
+                    strBuff.append("The topic configure ").append(memEntity.getRecordKey())
                             .append("'s configure already exists, please delete it first!")
                             .toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        if (putTopicConfig2Bdb(memEntity, result)) {
+        if (putTopicConfig2Bdb(memEntity, strBuff, result)) {
             addOrUpdCacheRecord(memEntity);
         }
         return result.isSuccess();
     }
 
     @Override
-    public boolean updTopicConf(TopicDeployEntity memEntity, ProcessResult result) {
+    public boolean updTopicConf(TopicDeployEntity memEntity,
+                                StringBuilder strBuff, ProcessResult result) {
         TopicDeployEntity curEntity =
                 topicConfCache.get(memEntity.getRecordKey());
         if (curEntity == null) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("The topic configure ").append(memEntity.getRecordKey())
+                    strBuff.append("The topic configure ").append(memEntity.getRecordKey())
                             .append("'s configure is not exists, please add record first!")
                             .toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
         if (curEntity.equals(memEntity)) {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("The topic configure ").append(memEntity.getRecordKey())
+                    strBuff.append("The topic configure ").append(memEntity.getRecordKey())
                             .append("'s configure have not changed, please delete it first!")
                             .toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        if (putTopicConfig2Bdb(memEntity, result)) {
+        if (putTopicConfig2Bdb(memEntity, strBuff, result)) {
             addOrUpdCacheRecord(memEntity);
             result.setSuccResult(curEntity);
         }
@@ -196,17 +197,17 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public List<TopicDeployEntity> getTopicConf(TopicDeployEntity qryEntity) {
-        List<TopicDeployEntity> retEntitys = new ArrayList<>();
+        List<TopicDeployEntity> retEntities = new ArrayList<>();
         if (qryEntity == null) {
-            retEntitys.addAll(topicConfCache.values());
+            retEntities.addAll(topicConfCache.values());
         } else {
             for (TopicDeployEntity entity : topicConfCache.values()) {
                 if (entity != null && entity.isMatched(qryEntity)) {
-                    retEntitys.add(entity);
+                    retEntities.add(entity);
                 }
             }
         }
-        return retEntitys;
+        return retEntities;
     }
 
     @Override
@@ -409,21 +410,22 @@ public class BdbTopicDeployMapperImpl implements TopicDeployMapper {
      * Put topic configure info into bdb store
      *
      * @param memEntity need add record
+     * @param strBuff   the string buffer
      * @param result process result with old value
-     * @return
+     * @return  the process result
      */
-    private boolean putTopicConfig2Bdb(TopicDeployEntity memEntity, ProcessResult result) {
-        BdbTopicConfEntity retData = null;
+    private boolean putTopicConfig2Bdb(TopicDeployEntity memEntity,
+                                       StringBuilder strBuff, ProcessResult result) {
         BdbTopicConfEntity bdbEntity =
                 memEntity.buildBdbTopicConfEntity();
         try {
-            retData = topicConfIndex.put(bdbEntity);
+            topicConfIndex.put(bdbEntity);
         } catch (Throwable e) {
             logger.error("[BDB Impl] put topic configure failure ", e);
             result.setFailResult(DataOpErrCode.DERR_STORE_ABNORMAL.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("Put topic configure failure: ")
+                    strBuff.append("Put topic configure failure: ")
                             .append(e.getMessage()).toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
         result.setSuccResult(null);

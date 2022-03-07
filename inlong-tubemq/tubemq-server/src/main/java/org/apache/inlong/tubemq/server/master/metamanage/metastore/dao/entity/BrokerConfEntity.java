@@ -61,7 +61,7 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
     }
 
     /**
-     * Initial Broker Conigure entity by BdbBrokerConfEntity
+     * Initial Broker Configure entity by BdbBrokerConfEntity
      *
      * @param bdbEntity   need initialed BdbBrokerConfEntity information
      */
@@ -383,11 +383,10 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
     /**
      * Get broker config string
      *
-     * @return config string
+     * @param strBuff  the string buffer
      */
-    public String getBrokerDefaultConfInfo() {
-        return new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                .append(topicProps.getNumPartitions()).append(TokenConstants.ATTR_SEP)
+    public void getBrokerDefaultConfInfo(StringBuilder strBuff) {
+        strBuff.append(topicProps.getNumPartitions()).append(TokenConstants.ATTR_SEP)
                 .append(topicProps.isAcceptPublish()).append(TokenConstants.ATTR_SEP)
                 .append(topicProps.isAcceptSubscribe()).append(TokenConstants.ATTR_SEP)
                 .append(topicProps.getUnflushThreshold()).append(TokenConstants.ATTR_SEP)
@@ -398,7 +397,7 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
                 .append(topicProps.getUnflushDataHold()).append(TokenConstants.ATTR_SEP)
                 .append(topicProps.getMemCacheMsgSizeInMB()).append(TokenConstants.ATTR_SEP)
                 .append(topicProps.getMemCacheMsgCntInK()).append(TokenConstants.ATTR_SEP)
-                .append(topicProps.getMemCacheFlushIntvl()).toString();
+                .append(topicProps.getMemCacheFlushIntvl());
     }
 
     /**

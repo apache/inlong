@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.server.common.exception.LoadMetaException;
@@ -45,13 +44,13 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
 
     // broker config store
     private EntityStore brokerConfStore;
-    private PrimaryIndex<Integer/* brokerId */, BdbBrokerConfEntity> brokerConfIndex;
-    private ConcurrentHashMap<Integer/* brokerId */, BrokerConfEntity> brokerConfCache =
-            new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String/* brokerIP */, Integer/* brokerId */> brokerIpIndexCache =
-            new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Integer/* regionId */, ConcurrentHashSet<Integer>> regionIndexCache =
-            new ConcurrentHashMap<>();
+    private final PrimaryIndex<Integer/* brokerId */, BdbBrokerConfEntity> brokerConfIndex;
+    private final ConcurrentHashMap<Integer/* brokerId */, BrokerConfEntity>
+            brokerConfCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* brokerIP */, Integer/* brokerId */>
+            brokerIpIndexCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer/* regionId */, ConcurrentHashSet<Integer>>
+            regionIndexCache = new ConcurrentHashMap<>();
 
     public BdbBrokerConfigMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
         brokerConfStore = new EntityStore(repEnv,
@@ -104,53 +103,55 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
     }
 
     @Override
-    public boolean addBrokerConf(BrokerConfEntity memEntity, ProcessResult result) {
+    public boolean addBrokerConf(BrokerConfEntity memEntity,
+                                 StringBuilder strBuff, ProcessResult result) {
         BrokerConfEntity curEntity =
                 brokerConfCache.get(memEntity.getBrokerId());
         if (curEntity != null) {
             result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("The broker's brokerId ").append(memEntity.getBrokerId())
+                    strBuff.append("The broker's brokerId ").append(memEntity.getBrokerId())
                             .append(" has already exists, the value must be unique!")
                             .toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
         Integer curBrokerId = brokerIpIndexCache.get(memEntity.getBrokerIp());
         if (curBrokerId != null) {
             result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("The broker's brokerIp ").append(memEntity.getBrokerIp())
+                    strBuff.append("The broker's brokerIp ").append(memEntity.getBrokerIp())
                             .append(" has already exists, the value must be unique!")
                             .toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        if (putBrokerConfig2Bdb(memEntity, result)) {
+        if (putBrokerConfig2Bdb(memEntity, strBuff, result)) {
             addOrUpdCacheRecord(memEntity);
         }
         return result.isSuccess();
     }
 
     @Override
-    public boolean updBrokerConf(BrokerConfEntity memEntity, ProcessResult result) {
+    public boolean updBrokerConf(BrokerConfEntity memEntity,
+                                 StringBuilder strBuff, ProcessResult result) {
         BrokerConfEntity curEntity =
                 brokerConfCache.get(memEntity.getBrokerId());
         if (curEntity == null) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("The broker ").append(memEntity.getBrokerIp())
+                    strBuff.append("The broker ").append(memEntity.getBrokerIp())
                             .append("'s configure is not exists, please add record first!")
                             .toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
         if (curEntity.equals(memEntity)) {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("The broker ").append(memEntity.getBrokerIp())
+                    strBuff.append("The broker ").append(memEntity.getBrokerIp())
                             .append("'s configure have not changed, please delete it first!")
                             .toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        if (putBrokerConfig2Bdb(memEntity, result)) {
+        if (putBrokerConfig2Bdb(memEntity, strBuff, result)) {
             addOrUpdCacheRecord(memEntity);
             result.setSuccResult(curEntity);
         }
@@ -159,7 +160,10 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
 
     /**
      * delete broker configure info from bdb store
-     * @return
+     *
+     * @param brokerId  the broker id to be deleted
+     * @param result    the process result
+     * @return          whether success
      */
     @Override
     public boolean delBrokerConf(int brokerId, ProcessResult result) {
@@ -177,6 +181,8 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
 
     /**
      * get broker configure info from bdb store
+     *
+     * @param qryEntity    the query conditions
      * @return result, only read
      */
     @Override
@@ -280,6 +286,8 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
 
     /**
      * get broker configure info from bdb store
+     *
+     * @param brokerId  the broker id to be queried
      * @return result, only read
      */
     @Override
@@ -289,6 +297,8 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
 
     /**
      * get broker configure info from bdb store
+     *
+     * @param brokerIp   the broker ip to be queried
      * @return result, only read
      */
     @Override
@@ -324,21 +334,22 @@ public class BdbBrokerConfigMapperImpl implements BrokerConfigMapper {
      * Put cluster setting info into bdb store
      *
      * @param memEntity need add record
+     * @param strBuff   the string buffer
      * @param result process result with old value
-     * @return
+     * @return the process result
      */
-    private boolean putBrokerConfig2Bdb(BrokerConfEntity memEntity, ProcessResult result) {
-        BdbBrokerConfEntity retData = null;
+    private boolean putBrokerConfig2Bdb(BrokerConfEntity memEntity,
+                                        StringBuilder strBuff, ProcessResult result) {
         BdbBrokerConfEntity bdbEntity =
                 memEntity.buildBdbBrokerConfEntity();
         try {
-            retData = brokerConfIndex.put(bdbEntity);
+            brokerConfIndex.put(bdbEntity);
         } catch (Throwable e) {
             logger.error("[BDB Impl] put broker configure failure ", e);
             result.setFailResult(DataOpErrCode.DERR_STORE_ABNORMAL.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("Put broker configure failure: ")
+                    strBuff.append("Put broker configure failure: ")
                             .append(e.getMessage()).toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
         result.setSuccResult(null);
