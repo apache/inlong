@@ -18,8 +18,7 @@
     under the License.
 -->
 
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
@@ -70,8 +69,7 @@
         select count(*) as total, status
         from inlong_group
         where is_deleted = 0
-          and (creator = #{username,jdbcType=VARCHAR} or
-               find_in_set(#{username,jdbcType=VARCHAR}, in_charges))
+          and (creator = #{username,jdbcType=VARCHAR} or find_in_set(#{username,jdbcType=VARCHAR}, in_charges))
         group by status
     </select>
     <select id="selectByGroupId" resultMap="BaseResultMap">
@@ -104,13 +102,11 @@
             is_deleted = 0
             <if test="currentUser != null and currentUser != ''">
                 and (
-                creator = #{currentUser, jdbcType=VARCHAR} or
-                find_in_set(#{currentUser, jdbcType=VARCHAR}, in_charges)
+                creator = #{currentUser, jdbcType=VARCHAR} or find_in_set(#{currentUser, jdbcType=VARCHAR}, in_charges)
                 )
             </if>
             <if test="keyWord != null and keyWord != ''">
-                and (inlong_group_id like CONCAT('%',#{keyWord},'%') or id like
-                CONCAT('%',#{keyWord},'%'))
+                and (inlong_group_id like CONCAT('%',#{keyWord},'%') or id like CONCAT('%',#{keyWord},'%'))
             </if>
             <if test="middlewareType != null and middlewareType != ''">
                 and middleware_type = #{middlewareType, jdbcType=VARCHAR}
@@ -121,8 +117,7 @@
         </where>
         order by modify_time desc
     </select>
-    <select id="selectDataProxyConfig"
-            resultType="org.apache.inlong.common.pojo.dataproxy.DataProxyConfig">
+    <select id="selectDataProxyConfig" resultType="org.apache.inlong.common.pojo.dataproxy.DataProxyConfig">
         select biz.inlong_group_id as inlongGroupId, biz.mq_resource_obj as topic, d.sort_type as m
         from inlong_group biz,
              data_schema d
@@ -130,8 +125,7 @@
           and biz.is_deleted = 0
           and biz.schema_name = d.name
     </select>
-    <select id="selectGroupIdByProxyId" parameterType="java.lang.Integer"
-            resultType="java.lang.String">
+    <select id="selectGroupIdByProxyId" parameterType="java.lang.Integer" resultType="java.lang.String">
         select inlong_group_id
         from inlong_group
         where proxy_cluster_id = #{proxyClusterId,jdbcType=INTEGER}
@@ -151,22 +145,15 @@
                                   peak_records, max_length, schema_name,
                                   in_charges, followers, status,
                                   is_deleted, creator, modifier,
-                                  create_time, modify_time, temp_view, zookeeper_enabled,
-                                  proxy_cluster_id)
+                                  create_time, modify_time, temp_view, zookeeper_enabled, proxy_cluster_id)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
-                #{cnName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
-                #{middlewareType,jdbcType=VARCHAR},
+                #{cnName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{middlewareType,jdbcType=VARCHAR},
                 #{queueModule,jdbcType=VARCHAR}, #{topicPartitionNum,jdbcType=INTEGER},
-                #{mqResourceObj,jdbcType=VARCHAR}, #{dailyRecords,jdbcType=INTEGER},
-                #{dailyStorage,jdbcType=INTEGER},
-                #{peakRecords,jdbcType=INTEGER}, #{maxLength,jdbcType=INTEGER},
-                #{schemaName,jdbcType=VARCHAR},
-                #{inCharges,jdbcType=VARCHAR}, #{followers,jdbcType=VARCHAR},
-                #{status,jdbcType=INTEGER},
-                #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
-                #{modifier,jdbcType=VARCHAR},
-                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP},
-                #{tempView,jdbcType=LONGVARCHAR},
+                #{mqResourceObj,jdbcType=VARCHAR}, #{dailyRecords,jdbcType=INTEGER}, #{dailyStorage,jdbcType=INTEGER},
+                #{peakRecords,jdbcType=INTEGER}, #{maxLength,jdbcType=INTEGER}, #{schemaName,jdbcType=VARCHAR},
+                #{inCharges,jdbcType=VARCHAR}, #{followers,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+                #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
+                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, #{tempView,jdbcType=LONGVARCHAR},
                 #{zookeeperEnabled,jdbcType=INTEGER}), #{proxyClusterId,jdbcType=INTEGER})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
@@ -327,8 +314,7 @@
             </if>
         </trim>
     </insert>
-    <update id="updateByPrimaryKeySelective"
-            parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
         update inlong_group
         <set>
             <if test="inlongGroupId != null">
@@ -406,8 +392,7 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByIdentifierSelective"
-            parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
+    <update id="updateByIdentifierSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
         update inlong_group
         <set>
             <if test="name != null">
@@ -478,8 +463,7 @@
         and is_deleted = 0
     </update>
 
-    <update id="updateByPrimaryKey"
-            parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
         update inlong_group
         set inlong_group_id     = #{inlongGroupId,jdbcType=VARCHAR},
             name                = #{name,jdbcType=VARCHAR},
