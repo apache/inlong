@@ -70,8 +70,14 @@ public class CommonOperateService {
         Map<String, String> params;
 
         switch (key) {
-            case Constant.PULSAR_ADMINURL:
             case Constant.PULSAR_SERVICEURL: {
+                clusterEntity = getThirdPartyCluster(Constant.MIDDLEWARE_PULSAR);
+                if (clusterEntity != null) {
+                    result = clusterEntity.getUrl();
+                }
+                break;
+            }
+            case Constant.PULSAR_ADMINURL: {
                 clusterEntity = getThirdPartyCluster(Constant.MIDDLEWARE_PULSAR);
                 if (clusterEntity != null) {
                     params = gson.fromJson(clusterEntity.getExtParams(), Map.class);
