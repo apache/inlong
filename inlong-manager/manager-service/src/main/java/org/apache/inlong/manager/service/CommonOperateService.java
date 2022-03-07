@@ -18,12 +18,14 @@
 package org.apache.inlong.manager.service;
 
 import com.google.gson.Gson;
+import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -70,8 +72,14 @@ public class CommonOperateService {
         Map<String, String> params;
 
         switch (key) {
-            case Constant.PULSAR_ADMINURL:
             case Constant.PULSAR_SERVICEURL: {
+                clusterEntity = getThirdPartyCluster(Constant.MIDDLEWARE_PULSAR);
+                if (clusterEntity != null) {
+                    result = clusterEntity.getUrl();
+                }
+                break;
+            }
+            case Constant.PULSAR_ADMINURL: {
                 clusterEntity = getThirdPartyCluster(Constant.MIDDLEWARE_PULSAR);
                 if (clusterEntity != null) {
                     params = gson.fromJson(clusterEntity.getExtParams(), Map.class);
@@ -130,6 +138,24 @@ public class CommonOperateService {
         }
 
         return thirdPartyClusters.get(0);
+    }
+
+    /**
+     * get pulsar cluster info
+     *
+     * @return
+     */
+    public PulsarClusterInfo getPulsarClusterInfo() {
+        ThirdPartyClusterEntity thirdPartyClusterEntity = getThirdPartyCluster(Constant.MIDDLEWARE_PULSAR);
+        Preconditions.checkNotNull(thirdPartyClusterEntity.getExtParams(), "pulsar extParam is empty, check"
+                + "third party cluster table");
+        Map<String, String> configParams = JsonUtils.parse(thirdPartyClusterEntity.getExtParams(), Map.class);
+        PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder().brokerServiceUrl(
+                thirdPartyClusterEntity.getUrl()).token(thirdPartyClusterEntity.getToken()).build();
+        String adminUrl = configParams.get(Constant.PULSAR_ADMINURL);
+        Preconditions.checkNotNull(adminUrl, "adminUrl is empty, check third party cluster table");
+        pulsarClusterInfo.setAdminUrl(adminUrl);
+        return pulsarClusterInfo;
     }
 
     /**

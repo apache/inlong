@@ -33,7 +33,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.plugin.Message;
@@ -101,6 +103,7 @@ public class BinlogReader implements Reader {
     private boolean destroyed = false;
     private boolean enableReportConfigLog;
     private StreamConfigLogMetric streamConfigLogMetric;
+    private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
 
     private String inlongGroupId;
     private String inlongStreamId;
@@ -137,10 +140,10 @@ public class BinlogReader implements Reader {
         databaseWhiteList = jobConf.get(JOB_DATABASE_WHITELIST, "");
         serverTimeZone = jobConf.get(JOB_DATABASE_SERVER_TIME_ZONE, "");
         offsetFlushIntervalMs = jobConf.get(JOB_DATABASE_STORE_OFFSET_INTERVAL_MS, "1000");
-        databaseStoreHistoryName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME)
-            + "history.dat" + jobConf.getInstanceId();
-        offsetStoreFileName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME)
-            + "offset.dat" + jobConf.getInstanceId();
+        databaseStoreHistoryName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
+            tryToInitAndGetHistoryPath()) + "/history.dat" + jobConf.getInstanceId();
+        offsetStoreFileName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
+            tryToInitAndGetHistoryPath()) + "/offset.dat" + jobConf.getInstanceId();
         snapshotMode = jobConf.get(JOB_DATABASE_SNAPSHOT_MODE, "");
         includeSchemaChanges = jobConf.get(JOB_DATABASE_INCLUDE_SCHEMA_CHANGES, "false");
         historyMonitorDdl = jobConf.get(JOB_DATABASE_HISTORY_MONITOR_DDL, "false");
@@ -284,6 +287,14 @@ public class BinlogReader implements Reader {
     @Override
     public void finishRead() {
         finished = true;
+    }
+
+    private String tryToInitAndGetHistoryPath() {
+        String historyPath = agentConf.get(
+            AgentConstants.AGENT_HISTORY_PATH, AgentConstants.DEFAULT_AGENT_HISTORY_PATH);
+        String parentPath = agentConf.get(
+            AgentConstants.AGENT_HOME, AgentConstants.DEFAULT_AGENT_HOME);
+        return AgentUtils.makeDirsIfNotExist(historyPath, parentPath).getAbsolutePath();
     }
 
 }

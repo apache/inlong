@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.CommonConstants;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.db.CommandEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,14 +100,7 @@ public class BerkeleyDbImp implements Db {
             AgentConstants.AGENT_LOCAL_STORE_PATH, AgentConstants.DEFAULT_AGENT_LOCAL_STORE_PATH);
         String parentPath = agentConf.get(
             AgentConstants.AGENT_HOME, AgentConstants.DEFAULT_AGENT_HOME);
-        File finalPath = new File(parentPath, storePath);
-        try {
-            boolean result = finalPath.mkdirs();
-            LOGGER.info("try to create local path {}, result is {}", finalPath, result);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-        return finalPath;
+        return AgentUtils.makeDirsIfNotExist(storePath, parentPath);
     }
 
     /**

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.server.common.offsetstorage.zookeeper;
+package org.apache.inlong.tubemq.server.common.zookeeper;
 
 /**
  * Base class for internal listeners of ZooKeeper events.

@@ -20,7 +20,9 @@ package org.apache.inlong.manager.dao.mapper;
 import java.util.List;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogPageRequest;
 import org.apache.inlong.manager.dao.entity.StreamConfigLogEntity;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface StreamConfigLogEntityMapper {
 
     int insertOrUpdateAll(List<StreamConfigLogEntity> records);

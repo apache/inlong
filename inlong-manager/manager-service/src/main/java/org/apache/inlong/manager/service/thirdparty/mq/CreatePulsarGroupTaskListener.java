@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.thirdparty.mq;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
@@ -82,9 +82,8 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
             log.warn("inlong stream is empty for groupId={}, skip to create pulsar subscription", groupId);
             return ListenerResult.success();
         }
-
-        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(bizInfo,
-                commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL))) {
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo();
+        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             String tenant = clusterBean.getDefaultTenant();
             String namespace = bizInfo.getMqResourceObj();
 
@@ -98,14 +97,16 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
 
                 // Create a subscription in the Pulsar cluster (cross-region), you need to ensure that the Topic exists
                 for (String cluster : pulsarClusters) {
-                    String url = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
-                    try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(bizInfo, url)) {
+                    String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
+                    PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder()
+                            .token(globalCluster.getToken()).adminUrl(serviceUrl).build();
+                    try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
                         boolean exist = pulsarOptService.topicIsExists(pulsarAdmin, tenant, namespace, topic);
 
                         if (!exist) {
                             String topicFull = tenant + "/" + namespace + "/" + topic;
-                            log.error("topic={} not exists in {}", topicFull, url);
-                            throw new WorkflowListenerException("topic=" + topicFull + " not exists in " + url);
+                            log.error("topic={} not exists in {}", topicFull, serviceUrl);
+                            throw new WorkflowListenerException("topic=" + topicFull + " not exists in " + serviceUrl);
                         }
 
                         // Consumer naming rules: sortAppName_topicName_consumer_group

@@ -24,7 +24,7 @@ import java.util.Set;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.corebase.utils.Tuple3;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
-import org.apache.inlong.tubemq.server.common.offsetstorage.OffsetStorageInfo;
+import org.apache.inlong.tubemq.server.broker.offset.offsetstorage.OffsetStorageInfo;
 
 /**
  * Offset manager service interface.

@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.api.util;
 
 import com.google.common.base.Joiner;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.StreamSource;
@@ -86,6 +87,7 @@ public class InlongStreamSourceTransfer {
         kafkaSource.setConsumerGroup(kafkaSourceResponse.getGroupId());
         DataFormat dataFormat = DataFormat.forName(kafkaSourceResponse.getSerializationType());
         kafkaSource.setDataFormat(dataFormat);
+        kafkaSource.setAgentIp(kafkaSourceResponse.getAgentIp());
         kafkaSource.setTopic(kafkaSourceResponse.getTopic());
         kafkaSource.setBootstrapServers(kafkaSourceResponse.getBootstrapServers());
         kafkaSource.setByteSpeedLimit(kafkaSourceResponse.getByteSpeedLimit());
@@ -116,6 +118,7 @@ public class InlongStreamSourceTransfer {
         binlogSource.setHostname(response.getHostname());
         binlogSource.setDataFormat(DataFormat.NONE);
         binlogSource.setPort(response.getPort());
+        binlogSource.setAgentIp(response.getAgentIp());
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
                 response.getUser(),
                 response.getPassword());
@@ -166,6 +169,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         sourceRequest.setSourceType(kafkaSource.getSourceType().name());
+        sourceRequest.setAgentIp(kafkaSource.getAgentIp());
         sourceRequest.setBootstrapServers(kafkaSource.getBootstrapServers());
         sourceRequest.setTopic(kafkaSource.getTopic());
         sourceRequest.setRecordSpeedLimit(kafkaSource.getRecordSpeedLimit());
@@ -183,6 +187,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         sourceRequest.setSourceType(binlogSource.getSourceType().name());
+        sourceRequest.setAgentIp(binlogSource.getAgentIp());
         DefaultAuthentication authentication = binlogSource.getAuthentication();
         sourceRequest.setUser(authentication.getUserName());
         sourceRequest.setPassword(authentication.getPassword());
@@ -192,10 +197,14 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setServerTimezone(binlogSource.getServerTimezone());
         sourceRequest.setMonitoredDdl(binlogSource.getMonitoredDdl());
         sourceRequest.setAllMigration(binlogSource.isAllMigration());
-        String dbNames = Joiner.on(",").join(binlogSource.getDbNames());
-        sourceRequest.setDatabaseWhiteList(dbNames);
-        String tableNames = Joiner.on(",").join(binlogSource.getTableNames());
-        sourceRequest.setTableWhiteList(tableNames);
+        if (CollectionUtils.isNotEmpty(binlogSource.getDbNames())) {
+            String dbNames = Joiner.on(",").join(binlogSource.getDbNames());
+            sourceRequest.setDatabaseWhiteList(dbNames);
+        }
+        if (CollectionUtils.isNotEmpty(binlogSource.getTableNames())) {
+            String tableNames = Joiner.on(",").join(binlogSource.getTableNames());
+            sourceRequest.setTableWhiteList(tableNames);
+        }
         sourceRequest.setSnapshotMode("initial");
         sourceRequest.setIntervalMs("500");
         sourceRequest.setTimestampFormatStandard(binlogSource.getTimestampFormatStandard());

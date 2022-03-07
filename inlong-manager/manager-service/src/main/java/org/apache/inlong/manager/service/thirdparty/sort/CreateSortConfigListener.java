@@ -18,15 +18,12 @@
 package org.apache.inlong.manager.service.thirdparty.sort;
 
 import com.google.common.collect.Lists;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
@@ -66,6 +63,11 @@ import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -199,10 +201,9 @@ public class CreateSortConfigListener implements SortOperateListener {
             DeserializationInfo deserializationInfo,
             List<FieldInfo> fieldInfos) {
         String topicName = streamInfo.getMqResourceObj();
-        String pulsarAdminUrl = commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL);
-        String pulsarServiceUrl = commonOperateService.getSpecifiedParam(Constant.PULSAR_SERVICEURL);
+        PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo();
         return SourceInfoUtils.createPulsarSourceInfo(groupInfo, topicName, deserializationInfo,
-                fieldInfos, clusterBean.getAppName(), clusterBean.getDefaultTenant(), pulsarAdminUrl, pulsarServiceUrl);
+                fieldInfos, clusterBean.getAppName(), clusterBean.getDefaultTenant(), pulsarClusterInfo);
     }
 
     private TubeSourceInfo createTubeSourceInfo(InlongGroupInfo groupInfo,

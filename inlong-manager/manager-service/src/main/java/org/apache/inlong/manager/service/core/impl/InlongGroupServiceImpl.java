@@ -22,6 +22,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -82,11 +83,11 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     public String save(InlongGroupRequest groupInfo, String operator) {
         LOGGER.debug("begin to save inlong group info={}", groupInfo);
         Preconditions.checkNotNull(groupInfo, "inlong group info is empty");
-        String bizName = groupInfo.getName();
-        Preconditions.checkNotNull(bizName, "inlong group name is empty");
+        String groupName = groupInfo.getName();
+        Preconditions.checkNotNull(groupName, "inlong group name is empty");
 
         // groupId=b_name, cannot update
-        String groupId = "b_" + bizName.toLowerCase(Locale.ROOT);
+        String groupId = "b_" + groupName.toLowerCase(Locale.ROOT);
         Integer count = groupMapper.selectIdentifierExist(groupId);
         if (count >= 1) {
             LOGGER.error("groupId [{}] has already exists", groupId);
@@ -184,8 +185,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             if (Constant.MIDDLEWARE_TUBE.equalsIgnoreCase(middlewareType)) {
                 groupInfo.setTubeMaster(commonOperateService.getSpecifiedParam(Constant.TUBE_MASTER_URL));
             } else if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
-                groupInfo.setPulsarAdminUrl(commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL));
-                groupInfo.setPulsarServiceUrl(commonOperateService.getSpecifiedParam(Constant.PULSAR_SERVICEURL));
+                PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo();
+                groupInfo.setPulsarAdminUrl(pulsarClusterInfo.getAdminUrl());
+                groupInfo.setPulsarServiceUrl(pulsarClusterInfo.getBrokerServiceUrl());
             }
         }
 

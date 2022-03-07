@@ -19,9 +19,6 @@ package org.apache.inlong.manager.client.api.util;
 
 import com.google.common.collect.Lists;
 import com.google.gson.reflect.TypeToken;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +43,10 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public class InlongGroupTransfer {
 
     public static InlongGroupConf parseGroupResponse(InlongGroupResponse groupResponse) {
@@ -58,6 +59,7 @@ public class InlongGroupTransfer {
         inlongGroupConf.setPeakRecords(Long.valueOf(groupResponse.getPeakRecords()));
         inlongGroupConf.setMqBaseConf(parseMqBaseConf(groupResponse));
         inlongGroupConf.setSortBaseConf(parseSortBaseConf(groupResponse));
+        inlongGroupConf.setProxyClusterId(groupResponse.getProxyClusterId());
         return inlongGroupConf;
     }
 
@@ -187,6 +189,7 @@ public class InlongGroupTransfer {
         groupInfo.setDailyRecords(groupConf.getDailyRecords().intValue());
         groupInfo.setPeakRecords(groupConf.getPeakRecords().intValue());
         groupInfo.setMaxLength(groupConf.getMaxLength());
+        groupInfo.setProxyClusterId(groupConf.getProxyClusterId());
         MqBaseConf mqConf = groupConf.getMqBaseConf();
         MqType mqType = mqConf.getType();
         groupInfo.setMiddlewareType(mqType.name());

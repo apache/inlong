@@ -31,7 +31,6 @@ import java.util.TreeMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
-import org.apache.inlong.tubemq.server.common.offsetstorage.OffsetStorage;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
@@ -555,7 +554,6 @@ public class DefaultLoadBalancer implements LoadBalancer {
      * @param consumerHolder
      * @param brokerRunManager
      * @param groupSet
-     * @param zkOffsetStorage
      * @param metaDataManager
      * @param strBuffer
      * @return
@@ -563,10 +561,10 @@ public class DefaultLoadBalancer implements LoadBalancer {
     @Override
     public Map<String, Map<String, Map<String, Partition>>> resetBukAssign(
             ConsumerInfoHolder consumerHolder, BrokerRunManager brokerRunManager,
-            List<String> groupSet, OffsetStorage zkOffsetStorage,
-            MetaDataManager metaDataManager, final StringBuilder strBuffer) {
+            List<String> groupSet, MetaDataManager metaDataManager,
+            final StringBuilder strBuffer) {
         return inReBalanceCluster(false, consumerHolder,
-                brokerRunManager, groupSet, zkOffsetStorage, metaDataManager, strBuffer);
+                brokerRunManager, groupSet, metaDataManager, strBuffer);
     }
 
     /**
@@ -576,7 +574,6 @@ public class DefaultLoadBalancer implements LoadBalancer {
      * @param consumerHolder
      * @param brokerRunManager
      * @param groupSet
-     * @param zkOffsetStorage
      * @param metaDataManager
      * @param strBuffer
      * @return
@@ -585,10 +582,9 @@ public class DefaultLoadBalancer implements LoadBalancer {
     public Map<String, Map<String, Map<String, Partition>>> resetBalanceCluster(
             Map<String, Map<String, Map<String, Partition>>> clusterState,
             ConsumerInfoHolder consumerHolder, BrokerRunManager brokerRunManager,
-            List<String> groupSet, OffsetStorage zkOffsetStorage,
-            MetaDataManager metaDataManager, StringBuilder strBuffer) {
+            List<String> groupSet, MetaDataManager metaDataManager, StringBuilder strBuffer) {
         return inReBalanceCluster(true, consumerHolder,
-                brokerRunManager, groupSet, zkOffsetStorage, metaDataManager, strBuffer);
+                brokerRunManager, groupSet, metaDataManager, strBuffer);
     }
 
     // #lizard forgives
@@ -597,7 +593,6 @@ public class DefaultLoadBalancer implements LoadBalancer {
             ConsumerInfoHolder consumerHolder,
             BrokerRunManager brokerRunManager,
             List<String> groupSet,
-            OffsetStorage zkOffsetStorage,
             MetaDataManager metaDataManager,
             StringBuilder strBuffer) {
         // band consume reset offset

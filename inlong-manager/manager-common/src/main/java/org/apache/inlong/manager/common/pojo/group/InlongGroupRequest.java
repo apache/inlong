@@ -117,6 +117,9 @@ public class InlongGroupRequest {
     @ApiModelProperty(value = "Temporary view, string in JSON format")
     private String tempView;
 
+    @ApiModelProperty(value = "data proxy cluster id")
+    private Integer proxyClusterId;
+
     @ApiModelProperty(value = "Inlong group Extension properties")
     private List<InlongGroupExtInfo> extList;
 
