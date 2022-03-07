@@ -176,14 +176,18 @@ public class AgentServiceImpl implements AgentService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     TaskResult getTaskResult(TaskRequest request) {
         // Query the tasks that needed to add or active - without agentIp and uuid
-        List<Integer> statusList = Arrays.asList(SourceState.TO_BE_ISSUED_ADD.getCode(),
+        List<Integer> addedStatusList = Arrays.asList(SourceState.TO_BE_ISSUED_ADD.getCode(),
                 SourceState.TO_BE_ISSUED_ACTIVE.getCode());
-        List<StreamSourceEntity> addList = sourceMapper.selectByStatusForUpdate(statusList);
+        List<StreamSourceEntity> addList = sourceMapper.selectByStatusForUpdate(addedStatusList);
 
         // Query other tasks by agentIp and uuid - not included status with TO_BE_ISSUED_ADD and TO_BE_ISSUED_ACTIVE
+        List<Integer> statusList = Arrays.asList(SourceState.TO_BE_ISSUED_DELETE.getCode(),
+                SourceState.TO_BE_ISSUED_RETRY.getCode(), SourceState.TO_BE_ISSUED_BACKTRACK.getCode(),
+                SourceState.TO_BE_ISSUED_FROZEN.getCode(), SourceState.TO_BE_ISSUED_CHECK.getCode(),
+                SourceState.TO_BE_ISSUED_REDO_METRIC.getCode(), SourceState.TO_BE_ISSUED_MAKEUP.getCode());
         String agentIp = request.getAgentIp();
         String uuid = request.getUuid();
-        List<StreamSourceEntity> entityList = sourceMapper.selectByIpAndUuid(agentIp, uuid);
+        List<StreamSourceEntity> entityList = sourceMapper.selectByStatusAndIp(statusList, agentIp, uuid);
         entityList.addAll(addList);
 
         List<DataConfig> dataConfigs = Lists.newArrayList();
