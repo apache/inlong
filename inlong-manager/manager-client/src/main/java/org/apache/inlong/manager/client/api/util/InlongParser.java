@@ -49,6 +49,7 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListRespons
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
@@ -241,6 +242,14 @@ public class InlongParser {
         String pageInfoJson = GsonUtil.toJson(data);
         return GsonUtil.fromJson(pageInfoJson,
                 new TypeToken<PageInfo<EventLogView>>() {
+                }.getType());
+    }
+
+    public static PageInfo<InlongStreamConfigLogListResponse> parseStreamLogList(Response response) {
+        Object data = response.getData();
+        String pageInfoJson = GsonUtil.toJson(data);
+        return GsonUtil.fromJson(pageInfoJson,
+                new TypeToken<PageInfo<InlongStreamConfigLogListResponse>>() {
                 }.getType());
     }
 
