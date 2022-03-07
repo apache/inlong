@@ -58,4 +58,7 @@ public class InlongGroupConf {
 
     @ApiModelProperty("Need zookeeper support")
     private boolean zookeeperEnabled = true;
+
+    @ApiModelProperty("data proxy cluster id")
+    private Integer proxyClusterId;
 }

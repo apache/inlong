@@ -54,7 +54,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, inlong_group_id, name, cn_name, description, middleware_type, queue_module, topic_partition_num,
+        id
+        , inlong_group_id, name, cn_name, description, middleware_type, queue_module, topic_partition_num,
         mq_resource_obj, daily_records, daily_storage, peak_records, max_length, schema_name, in_charges, followers,
         status, is_deleted, creator, modifier, create_time, modify_time, temp_view, zookeeper_enabled, proxy_cluster_id
     </sql>
@@ -231,6 +232,9 @@
             <if test="zookeeperEnabled != null">
                 zookeeper_enabled,
             </if>
+            <if test="proxyClusterId != null">
+                proxy_cluster_id,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -304,6 +308,9 @@
             </if>
             <if test="zookeeperEnabled != null">
                 #{zookeeperEnabled,jdbcType=INTEGER},
+            </if>
+            <if test="proxyClusterId != null">
+                #{proxyClusterId,jdbcType=INTEGER},
             </if>
         </trim>
     </insert>
@@ -379,6 +386,9 @@
             <if test="zookeeperEnabled != null">
                 zookeeper_enabled = #{zookeeperEnabled,jdbcType=INTEGER},
             </if>
+            <if test="proxyClusterId != null">
+                proxy_cluster_id = #{proxyClusterId,jdbcType=INTEGER},
+            </if>
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
@@ -444,6 +454,9 @@
             </if>
             <if test="zookeeperEnabled != null">
                 zookeeper_enabled = #{zookeeperEnabled,jdbcType=INTEGER},
+            </if>
+            <if test="proxyClusterId != null">
+                proxy_cluster_id = #{proxyClusterId,jdbcType=INTEGER},
             </if>
         </set>
         where inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}

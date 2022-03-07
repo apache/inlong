@@ -17,35 +17,21 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
-import java.util.HashMap;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.Map;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class PulsarClusterInfo {
-    private String url;
+
+    private String adminUrl;
     private String token;
-    private Map<String, String> params = new HashMap<>();
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public Map<String, String> getParams() {
-        return params;
-    }
-
-    public void setParams(Map<String, String> params) {
-        this.params = params;
-    }
+    private String brokerServiceUrl;
+    private Map<String, String> ext;
 }
