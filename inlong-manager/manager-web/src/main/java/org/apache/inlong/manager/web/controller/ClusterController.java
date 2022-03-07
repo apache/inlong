@@ -32,6 +32,7 @@ import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,7 +56,7 @@ public class ClusterController {
     @Autowired
     private DataProxyClusterService dataProxyClusterService;
 
-    @RequestMapping(value = "/save", method = RequestMethod.GET)
+    @PostMapping(value = "/save")
     @ApiOperation(value = "Save cluster info")
     @OperationLog(operation = OperationType.CREATE)
     public Response<Integer> save(@RequestBody ClusterInfo clusterInfo) {
@@ -84,7 +85,7 @@ public class ClusterController {
         return Response.success(thirdPartyClusterService.update(clusterInfo, username));
     }
 
-    @RequestMapping(value = "/delete/{id}", method = {RequestMethod.POST, RequestMethod.DELETE})
+    @DeleteMapping(value = "/delete/{id}")
     @ApiOperation(value = "Delete cluster info by id")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
