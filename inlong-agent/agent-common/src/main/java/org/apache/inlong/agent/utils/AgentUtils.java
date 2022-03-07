@@ -53,6 +53,8 @@ import org.slf4j.LoggerFactory;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID_OPEN;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_UUID_OPEN;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_LOCAL_IP;
 
 public class AgentUtils {
@@ -343,8 +345,12 @@ public class AgentUtils {
     /**
      * check agent uuid from manager
      */
-    public static String  fetchLocalUuid() {
+    public static String fetchLocalUuid() {
         String uuid = "";
+        if (!AgentConfiguration.getAgentConf()
+            .getBoolean(AGENT_LOCAL_UUID_OPEN, DEFAULT_AGENT_LOCAL_UUID_OPEN)) {
+            return uuid;
+        }
         try {
             String localUuid = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_UUID);
             if (StringUtils.isNotEmpty(localUuid)) {
@@ -403,6 +409,17 @@ public class AgentUtils {
             LOGGER.error("convert time string {} to millSec error", time);
         }
         return System.currentTimeMillis();
+    }
+
+    public static File makeDirsIfNotExist(String childPath, String parentPath) {
+        File finalPath = new File(parentPath, childPath);
+        try {
+            boolean result = finalPath.mkdirs();
+            LOGGER.info("try to create local path {}, result is {}", finalPath, result);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        return finalPath;
     }
 
 }

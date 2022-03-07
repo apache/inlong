@@ -164,6 +164,9 @@ public class AgentConstants {
 
     public static final String AGENT_LOCAL_UUID = "agent.local.uuid";
 
+    public static final String AGENT_LOCAL_UUID_OPEN = "agent.local.uuid.open";
+    public static final Boolean DEFAULT_AGENT_LOCAL_UUID_OPEN = false;
+
     public static final String PROMETHEUS_ENABLE = "agent.prometheus.enable";
     public static final boolean DEFAULT_PROMETHEUS_ENABLE = false;
 
@@ -175,5 +178,8 @@ public class AgentConstants {
 
     public static final String AUDIT_KEY_PROXYS = "audit.proxys";
     public static final String DEFAULT_AUDIT_PROXYS = "";
+
+    public static final String AGENT_HISTORY_PATH = "agent.history.path";
+    public static final String DEFAULT_AGENT_HISTORY_PATH = ".history";
 
 }
