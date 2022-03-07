@@ -217,53 +217,51 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     // cluster default configure api
     @Override
     public boolean addClusterConfig(ClusterSettingEntity entity,
-                                    StringBuilder strBuffer,
-                                    ProcessResult result) {
+                                    StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (clusterConfigMapper.addClusterConfig(entity, result)) {
-            strBuffer.append("[addClusterConfig], ")
+        if (clusterConfigMapper.addClusterConfig(entity, strBuff, result)) {
+            strBuff.append("[addClusterConfig], ")
                     .append(entity.getCreateUser())
                     .append(" added cluster setting record :")
                     .append(entity.toString());
-            logger.info(strBuffer.toString());
+            logger.info(strBuff.toString());
         } else {
-            strBuffer.append("[addClusterConfig], ")
+            strBuff.append("[addClusterConfig], ")
                     .append("failure to add cluster setting record : ")
                     .append(result.getErrMsg());
-            logger.warn(strBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
     @Override
     public boolean updClusterConfig(ClusterSettingEntity entity,
-                                    StringBuilder strBuffer,
-                                    ProcessResult result) {
+                                    StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (clusterConfigMapper.updClusterConfig(entity, result)) {
+        if (clusterConfigMapper.updClusterConfig(entity, strBuff, result)) {
             ClusterSettingEntity oldEntity =
                     (ClusterSettingEntity) result.getRetData();
             ClusterSettingEntity curEntity =
                     clusterConfigMapper.getClusterConfig();
-            strBuffer.append("[updClusterConfig], ")
+            strBuff.append("[updClusterConfig], ")
                     .append(entity.getModifyUser())
                     .append(" updated record from :").append(oldEntity.toString())
                     .append(" to ").append(curEntity.toString());
-            logger.info(strBuffer.toString());
+            logger.info(strBuff.toString());
         } else {
-            strBuffer.append("[updClusterConfig], ")
+            strBuff.append("[updClusterConfig], ")
                     .append("failure to update record : ")
                     .append(result.getErrMsg());
-            logger.warn(strBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
@@ -274,8 +272,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
 
     @Override
     public boolean delClusterConfig(String operator,
-                                    StringBuilder strBuffer,
-                                    ProcessResult result) {
+                                    StringBuilder strBuff, ProcessResult result) {
         if (!checkStoreStatus(true, result)) {
             return false;
         }
@@ -283,71 +280,69 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             ClusterSettingEntity entity =
                     (ClusterSettingEntity) result.getRetData();
             if (entity != null) {
-                strBuffer.append("[delClusterConfig], ").append(operator)
+                strBuff.append("[delClusterConfig], ").append(operator)
                         .append(" deleted cluster setting record :").append(entity.toString());
-                logger.info(strBuffer.toString());
+                logger.info(strBuff.toString());
             }
         } else {
-            strBuffer.append("[delClusterConfig], ")
+            strBuff.append("[delClusterConfig], ")
                     .append("failure to delete cluster setting record : ")
                     .append(result.getErrMsg());
-            logger.warn(strBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
     // broker configure api
     @Override
     public boolean addBrokerConf(BrokerConfEntity entity,
-                                 StringBuilder strBuffer,
-                                 ProcessResult result) {
+                                 StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (brokerConfigMapper.addBrokerConf(entity, result)) {
-            strBuffer.append("[addBrokerConf], ")
+        if (brokerConfigMapper.addBrokerConf(entity, strBuff, result)) {
+            strBuff.append("[addBrokerConf], ")
                     .append(entity.getCreateUser())
                     .append(" added broker configure record :")
                     .append(entity.toString());
-            logger.info(strBuffer.toString());
+            logger.info(strBuff.toString());
         } else {
-            strBuffer.append("[addBrokerConf], ")
+            strBuff.append("[addBrokerConf], ")
                     .append("failure to add broker configure record : ")
                     .append(result.getErrMsg());
-            logger.warn(strBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
     @Override
     public boolean updBrokerConf(BrokerConfEntity entity,
-                                 StringBuilder strBuffer,
-                                 ProcessResult result) {
+                                 StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (brokerConfigMapper.updBrokerConf(entity, result)) {
+        if (brokerConfigMapper.updBrokerConf(entity, strBuff, result)) {
             BrokerConfEntity oldEntity =
                     (BrokerConfEntity) result.getRetData();
             BrokerConfEntity curEntity =
                     brokerConfigMapper.getBrokerConfByBrokerId(entity.getBrokerId());
-            strBuffer.append("[updBrokerConf], ")
+            strBuff.append("[updBrokerConf], ")
                     .append(entity.getModifyUser())
                     .append(" updated broker configure record from :")
                     .append(oldEntity.toString())
                     .append(" to ").append(curEntity.toString());
-            logger.info(strBuffer.toString());
+            logger.info(strBuff.toString());
         } else {
-            strBuffer.append("[updBrokerConf], ")
+            strBuff.append("[updBrokerConf], ")
                     .append("failure to update broker configure record : ")
                     .append(result.getErrMsg());
-            logger.warn(strBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
@@ -362,7 +357,8 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             BrokerConfEntity entity = (BrokerConfEntity) result.getRetData();
             if (entity != null) {
                 strBuffer.append("[delBrokerConf], ").append(operator)
-                        .append(" deleted broker configure record :").append(entity.toString());
+                        .append(" deleted broker configure record :")
+                        .append(entity.toString());
                 logger.info(strBuffer.toString());
             }
         } else {
@@ -400,62 +396,58 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     // topic configure api
     @Override
     public boolean addTopicConf(TopicDeployEntity entity,
-                                StringBuilder strBuffer,
-                                ProcessResult result) {
+                                StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (topicDeployMapper.addTopicConf(entity, result)) {
-            strBuffer.append("[addTopicConf], ")
+        if (topicDeployMapper.addTopicConf(entity, strBuff, result)) {
+            strBuff.append("[addTopicConf], ")
                     .append(entity.getCreateUser())
                     .append(" added topic configure record :")
                     .append(entity.toString());
-            logger.info(strBuffer.toString());
+            logger.info(strBuff.toString());
         } else {
-            strBuffer.append("[addTopicConf], ")
+            strBuff.append("[addTopicConf], ")
                     .append("failure to add topic configure record : ")
                     .append(result.getErrMsg());
-            logger.warn(strBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
     @Override
     public boolean updTopicConf(TopicDeployEntity entity,
-                                StringBuilder strBuffer,
-                                ProcessResult result) {
+                                StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (topicDeployMapper.updTopicConf(entity, result)) {
+        if (topicDeployMapper.updTopicConf(entity, strBuff, result)) {
             TopicDeployEntity oldEntity =
                     (TopicDeployEntity) result.getRetData();
             TopicDeployEntity curEntity =
                     topicDeployMapper.getTopicConfByeRecKey(entity.getRecordKey());
-            strBuffer.append("[updTopicConf], ")
+            strBuff.append("[updTopicConf], ")
                     .append(entity.getModifyUser())
                     .append(" updated record from :")
                     .append(oldEntity.toString())
                     .append(" to ").append(curEntity.toString());
-            logger.info(strBuffer.toString());
+            logger.info(strBuff.toString());
         } else {
-            strBuffer.append("[updTopicConf], ")
+            strBuff.append("[updTopicConf], ")
                     .append("failure to update topic configure record : ")
                     .append(result.getErrMsg());
-            logger.warn(strBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
     @Override
-    public boolean delTopicConf(String operator,
-                                String recordKey,
-                                StringBuilder strBuffer,
-                                ProcessResult result) {
+    public boolean delTopicConf(String operator, String recordKey,
+                                StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
@@ -464,43 +456,41 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             GroupResCtrlEntity entity =
                     (GroupResCtrlEntity) result.getRetData();
             if (entity != null) {
-                strBuffer.append("[delTopicConf], ").append(operator)
+                strBuff.append("[delTopicConf], ").append(operator)
                         .append(" deleted topic configure record :")
                         .append(entity.toString());
-                logger.info(strBuffer.toString());
+                logger.info(strBuff.toString());
             }
         } else {
-            strBuffer.append("[delTopicConf], ")
+            strBuff.append("[delTopicConf], ")
                     .append("failure to delete topic configure record : ")
                     .append(result.getErrMsg());
-            logger.warn(strBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
     @Override
-    public boolean delTopicConfByBrokerId(String operator,
-                                          int brokerId,
-                                          StringBuilder strBuffer,
-                                          ProcessResult result) {
+    public boolean delTopicConfByBrokerId(String operator, int brokerId,
+                                          StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
         if (topicDeployMapper.delTopicConfByBrokerId(brokerId, result)) {
-            strBuffer.append("[delTopicConfByBrokerId], ")
+            strBuff.append("[delTopicConfByBrokerId], ")
                     .append(operator)
                     .append(" deleted topic deploy record :")
                     .append(brokerId);
-            logger.info(strBuffer.toString());
+            logger.info(strBuff.toString());
         } else {
-            strBuffer.append("[delTopicConfByBrokerId], ")
+            strBuff.append("[delTopicConfByBrokerId], ")
                     .append("failure to delete topic deploy record : ")
                     .append(brokerId).append(result.getErrMsg());
-            logger.warn(strBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
@@ -570,61 +560,57 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     // topic control api
     @Override
     public boolean addTopicCtrlConf(TopicCtrlEntity entity,
-                                    StringBuilder sBuffer,
-                                    ProcessResult result) {
+                                    StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (topicCtrlMapper.addTopicCtrlConf(entity, result)) {
-            sBuffer.append("[addTopicCtrlConf], ")
+        if (topicCtrlMapper.addTopicCtrlConf(entity, strBuff, result)) {
+            strBuff.append("[addTopicCtrlConf], ")
                     .append(entity.getCreateUser())
                     .append(" added topic control record :")
                     .append(entity.toString());
-            logger.info(sBuffer.toString());
+            logger.info(strBuff.toString());
         } else {
-            sBuffer.append("[addTopicCtrlConf], ")
+            strBuff.append("[addTopicCtrlConf], ")
                     .append("failure to add topic control record : ")
                     .append(result.getErrMsg());
-            logger.warn(sBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        sBuffer.delete(0, sBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
     @Override
     public boolean updTopicCtrlConf(TopicCtrlEntity entity,
-                                    StringBuilder sBuffer,
-                                    ProcessResult result) {
+                                    StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (topicCtrlMapper.updTopicCtrlConf(entity, result)) {
+        if (topicCtrlMapper.updTopicCtrlConf(entity, strBuff, result)) {
             TopicCtrlEntity oldEntity =
                     (TopicCtrlEntity) result.getRetData();
             TopicCtrlEntity curEntity =
                     topicCtrlMapper.getTopicCtrlConf(entity.getTopicName());
-            sBuffer.append("[updTopicCtrlConf], ")
+            strBuff.append("[updTopicCtrlConf], ")
                     .append(entity.getModifyUser())
                     .append(" updated record from :").append(oldEntity.toString())
                     .append(" to ").append(curEntity.toString());
-            logger.info(sBuffer.toString());
+            logger.info(strBuff.toString());
         } else {
-            sBuffer.append("[updTopicCtrlConf], ")
+            strBuff.append("[updTopicCtrlConf], ")
                     .append("failure to update topic control record : ")
                     .append(result.getErrMsg());
-            logger.warn(sBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        sBuffer.delete(0, sBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
     @Override
-    public boolean delTopicCtrlConf(String operator,
-                                    String topicName,
-                                    StringBuilder sBuffer,
-                                    ProcessResult result) {
+    public boolean delTopicCtrlConf(String operator, String topicName,
+                                    StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
@@ -633,17 +619,17 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             TopicCtrlEntity entity =
                     (TopicCtrlEntity) result.getRetData();
             if (entity != null) {
-                sBuffer.append("[delTopicCtrlConf], ").append(operator)
+                strBuff.append("[delTopicCtrlConf], ").append(operator)
                         .append(" deleted topic control record :").append(entity.toString());
-                logger.info(sBuffer.toString());
+                logger.info(strBuff.toString());
             }
         } else {
-            sBuffer.append("[delTopicCtrlConf], ")
+            strBuff.append("[delTopicCtrlConf], ")
                     .append("failure to delete topic control record : ")
                     .append(result.getErrMsg());
-            logger.warn(sBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        sBuffer.delete(0, sBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
@@ -666,62 +652,58 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     // group configure api
     @Override
     public boolean addGroupResCtrlConf(GroupResCtrlEntity entity,
-                                       StringBuilder strBuffer,
-                                       ProcessResult result) {
+                                       StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (groupResCtrlMapper.addGroupResCtrlConf(entity, result)) {
-            strBuffer.append("[addGroupResCtrlConf], ")
+        if (groupResCtrlMapper.addGroupResCtrlConf(entity, strBuff, result)) {
+            strBuff.append("[addGroupResCtrlConf], ")
                     .append(entity.getCreateUser())
                     .append(" added group resource control record :")
                     .append(entity.toString());
-            logger.info(strBuffer.toString());
+            logger.info(strBuff.toString());
         } else {
-            strBuffer.append("[addGroupResCtrlConf], ")
+            strBuff.append("[addGroupResCtrlConf], ")
                     .append("failure to add group resource control record : ")
                     .append(result.getErrMsg());
-            logger.warn(strBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
     @Override
     public boolean updGroupResCtrlConf(GroupResCtrlEntity entity,
-                                       StringBuilder strBuffer,
-                                       ProcessResult result) {
+                                       StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (groupResCtrlMapper.updGroupResCtrlConf(entity, result)) {
+        if (groupResCtrlMapper.updGroupResCtrlConf(entity, strBuff, result)) {
             GroupResCtrlEntity oldEntity =
                     (GroupResCtrlEntity) result.getRetData();
             GroupResCtrlEntity curEntity =
                     groupResCtrlMapper.getGroupResCtrlConf(entity.getGroupName());
-            strBuffer.append("[updGroupResCtrlConf], ")
+            strBuff.append("[updGroupResCtrlConf], ")
                     .append(entity.getModifyUser())
                     .append(" updated record from :")
                     .append(oldEntity.toString())
                     .append(" to ").append(curEntity.toString());
-            logger.info(strBuffer.toString());
+            logger.info(strBuff.toString());
         } else {
-            strBuffer.append("[updGroupResCtrlConf], ")
+            strBuff.append("[updGroupResCtrlConf], ")
                     .append("failure to update group resource control record : ")
                     .append(result.getErrMsg());
-            logger.warn(strBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
     @Override
-    public boolean delGroupResCtrlConf(String operator,
-                                       String groupName,
-                                       StringBuilder strBuffer,
-                                       ProcessResult result) {
+    public boolean delGroupResCtrlConf(String operator, String groupName,
+                                       StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
@@ -730,18 +712,18 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             GroupResCtrlEntity entity =
                     (GroupResCtrlEntity) result.getRetData();
             if (entity != null) {
-                strBuffer.append("[delGroupResCtrlConf], ").append(operator)
+                strBuff.append("[delGroupResCtrlConf], ").append(operator)
                         .append(" deleted group resource control record :")
                         .append(entity.toString());
-                logger.info(strBuffer.toString());
+                logger.info(strBuff.toString());
             }
         } else {
-            strBuffer.append("[delGroupResCtrlConf], ")
+            strBuff.append("[delGroupResCtrlConf], ")
                     .append("failure to delete group resource control record : ")
                     .append(result.getErrMsg());
-            logger.warn(strBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
@@ -758,61 +740,57 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
 
     @Override
     public boolean addGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                           StringBuilder strBuffer,
-                                           ProcessResult result) {
+                                           StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (groupConsumeCtrlMapper.addGroupConsumeCtrlConf(entity, result)) {
-            strBuffer.append("[addGroupConsumeCtrlConf], ")
+        if (groupConsumeCtrlMapper.addGroupConsumeCtrlConf(entity, strBuff, result)) {
+            strBuff.append("[addGroupConsumeCtrlConf], ")
                     .append(entity.getCreateUser())
                     .append(" added group consume control record :")
                     .append(entity.toString());
-            logger.info(strBuffer.toString());
+            logger.info(strBuff.toString());
         } else {
-            strBuffer.append("[addGroupConsumeCtrlConf], ")
+            strBuff.append("[addGroupConsumeCtrlConf], ")
                     .append("failure to add group consume control record : ")
                     .append(result.getErrMsg());
-            logger.warn(strBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
     @Override
     public boolean updGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                           StringBuilder strBuffer,
-                                           ProcessResult result) {
+                                           StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (groupConsumeCtrlMapper.updGroupConsumeCtrlConf(entity, result)) {
+        if (groupConsumeCtrlMapper.updGroupConsumeCtrlConf(entity, strBuff, result)) {
             GroupConsumeCtrlEntity oldEntity =
                     (GroupConsumeCtrlEntity) result.getRetData();
             GroupConsumeCtrlEntity curEntity =
                     groupConsumeCtrlMapper.getGroupConsumeCtrlConfByRecKey(entity.getRecordKey());
-            strBuffer.append("[updGroupConsumeCtrlConf], ")
+            strBuff.append("[updGroupConsumeCtrlConf], ")
                     .append(entity.getModifyUser())
                     .append(" updated record from :").append(oldEntity.toString())
                     .append(" to ").append(curEntity.toString());
-            logger.info(strBuffer.toString());
+            logger.info(strBuff.toString());
         } else {
-            strBuffer.append("[updGroupConsumeCtrlConf], ")
+            strBuff.append("[updGroupConsumeCtrlConf], ")
                     .append("failure to update group consume control record : ")
                     .append(result.getErrMsg());
-            logger.warn(strBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
     @Override
-    public boolean delGroupConsumeCtrlConf(String operator,
-                                           String groupName,
-                                           String topicName,
-                                           StringBuilder sBuffer,
+    public boolean delGroupConsumeCtrlConf(String operator, String groupName,
+                                           String topicName, StringBuilder strBuff,
                                            ProcessResult result) {
         // check current status
         if (groupName == null && topicName == null) {
@@ -823,26 +801,24 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             return result.isSuccess();
         }
         if (groupConsumeCtrlMapper.delGroupConsumeCtrlConf(groupName, topicName, result)) {
-            sBuffer.append("[delGroupConsumeCtrlConf], ").append(operator)
+            strBuff.append("[delGroupConsumeCtrlConf], ").append(operator)
                     .append(" deleted group consume control record by index : ")
                     .append("groupName=").append(groupName)
                     .append(", topicName=").append(topicName);
-            logger.info(sBuffer.toString());
+            logger.info(strBuff.toString());
         } else {
-            sBuffer.append("[delGroupConsumeCtrlConf], ")
+            strBuff.append("[delGroupConsumeCtrlConf], ")
                     .append("failure to delete group consume control record : ")
                     .append(result.getErrMsg());
-            logger.warn(sBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        sBuffer.delete(0, sBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
     @Override
-    public boolean delGroupConsumeCtrlConf(String operator,
-                                           String recordKey,
-                                           StringBuilder strBuffer,
-                                           ProcessResult result) {
+    public boolean delGroupConsumeCtrlConf(String operator, String recordKey,
+                                           StringBuilder strBuff, ProcessResult result) {
         if (recordKey == null) {
             result.setSuccResult(null);
             return result.isSuccess();
@@ -852,17 +828,17 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             return result.isSuccess();
         }
         if (groupConsumeCtrlMapper.delGroupConsumeCtrlConf(recordKey, result)) {
-            strBuffer.append("[delGroupConsumeCtrlConf], ").append(operator)
+            strBuff.append("[delGroupConsumeCtrlConf], ").append(operator)
                     .append(" deleted group consume control record by index : ")
                     .append("recordKey=").append(recordKey);
-            logger.info(strBuffer.toString());
+            logger.info(strBuff.toString());
         } else {
-            strBuffer.append("[delGroupConsumeCtrlConf], ")
+            strBuff.append("[delGroupConsumeCtrlConf], ")
                     .append("failure to delete group consume control record : ")
                     .append(result.getErrMsg());
-            logger.warn(strBuffer.toString());
+            logger.warn(strBuff.toString());
         }
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         return result.isSuccess();
     }
 
@@ -953,7 +929,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     /**
      * Transfer master role to other replica node
      *
-     * @throws Exception
+     * @throws Exception the exception information
      */
     @Override
     public void transferMaster() throws Exception {
@@ -1011,7 +987,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     /**
      * Get group address info
      *
-     * @return  the group address inforamtion
+     * @return  the group address information
      */
     @Override
     public ClusterGroupVO getGroupAddressStrInfo() {
@@ -1024,11 +1000,11 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             return clusterGroupVO;
         }
         // translate replication group info to ClusterGroupVO structure
-        Tuple2<Boolean, List<ClusterNodeVO>>  transReult =
+        Tuple2<Boolean, List<ClusterNodeVO>>  transResult =
                 transReplicateNodes(replicationGroup);
-        clusterGroupVO.setNodeData(transReult.getF1());
+        clusterGroupVO.setNodeData(transResult.getF1());
         clusterGroupVO.setPrimaryNodeActive(isPrimaryNodeActive());
-        if (transReult.getF0()) {
+        if (transResult.getF0()) {
             if (isPrimaryNodeActive()) {
                 clusterGroupVO.setGroupStatus("Running-ReadOnly");
             } else {
@@ -1173,44 +1149,40 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
                 logger.error("[BDB Impl] found  executorService is null while doWork!");
                 return;
             }
-            executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    ProcessResult result = new ProcessResult();
-                    StringBuilder sBuilder =
-                            new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
-                    switch (stateChangeEvent.getState()) {
-                        case MASTER:
-                            if (!isMaster) {
-                                try {
-                                    reloadMetaStore();
-                                    isMaster = true;
-                                    masterSinceTime.set(System.currentTimeMillis());
-                                    masterNodeName = stateChangeEvent.getMasterNodeName();
-                                    logger.info(sBuilder.append("[BDB Impl] ")
-                                            .append(currentNode)
-                                            .append(" is a master.").toString());
-                                } catch (Throwable e) {
-                                    isMaster = false;
-                                    logger.error("[BDB Impl] fatal error when Reloading Info ", e);
-                                }
+            executorService.submit(() -> {
+                StringBuilder sBuilder =
+                        new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
+                switch (stateChangeEvent.getState()) {
+                    case MASTER:
+                        if (!isMaster) {
+                            try {
+                                reloadMetaStore();
+                                isMaster = true;
+                                masterSinceTime.set(System.currentTimeMillis());
+                                masterNodeName = stateChangeEvent.getMasterNodeName();
+                                logger.info(sBuilder.append("[BDB Impl] ")
+                                        .append(currentNode)
+                                        .append(" is a master.").toString());
+                            } catch (Throwable e) {
+                                isMaster = false;
+                                logger.error("[BDB Impl] fatal error when Reloading Info ", e);
                             }
-                            break;
-                        case REPLICA:
-                            isMaster = false;
-                            masterNodeName = stateChangeEvent.getMasterNodeName();
-                            logger.info(sBuilder.append("[BDB Impl] ")
-                                    .append(currentNode).append(" is a slave.").toString());
-                            break;
-                        default:
-                            isMaster = false;
-                            logger.info(sBuilder.append("[BDB Impl] ")
-                                    .append(currentNode).append(" is Unknown state ")
-                                    .append(stateChangeEvent.getState().name()).toString());
-                            break;
-                    }
-                    sBuilder.delete(0, sBuilder.length());
+                        }
+                        break;
+                    case REPLICA:
+                        isMaster = false;
+                        masterNodeName = stateChangeEvent.getMasterNodeName();
+                        logger.info(sBuilder.append("[BDB Impl] ")
+                                .append(currentNode).append(" is a slave.").toString());
+                        break;
+                    default:
+                        isMaster = false;
+                        logger.info(sBuilder.append("[BDB Impl] ")
+                                .append(currentNode).append(" is Unknown state ")
+                                .append(stateChangeEvent.getState().name()).toString());
+                        break;
                 }
+                sBuilder.delete(0, sBuilder.length());
             });
         }
     }
@@ -1362,7 +1334,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     }
 
     private ReplicationGroup getCurrReplicationGroup() {
-        ReplicationGroup replicationGroup = null;
+        ReplicationGroup replicationGroup;
         try {
             replicationGroup = repEnv.getGroup();
         } catch (Throwable e) {
@@ -1375,8 +1347,8 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     /**
      * Query replication group nodes status and translate to ClusterNodeVO type
      *
+     * @param replicationGroup  the replication group
      * @return if has master, replication nodes info
-     * @throws InterruptedException  if the operation was interrupted
      */
     private Tuple2<Boolean, List<ClusterNodeVO>> transReplicateNodes(
             ReplicationGroup replicationGroup) {

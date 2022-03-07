@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.KeyBuilderUtils;
@@ -48,13 +47,13 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
             LoggerFactory.getLogger(BdbGroupConsumeCtrlMapperImpl.class);
     // consumer group consume control store
     private EntityStore groupConsumeStore;
-    private PrimaryIndex<String/* recordKey */, BdbGroupFilterCondEntity> groupConsumeIndex;
+    private final PrimaryIndex<String/* recordKey */, BdbGroupFilterCondEntity> groupConsumeIndex;
     // configure cache
-    private ConcurrentHashMap<String/* recordKey */, GroupConsumeCtrlEntity>
+    private final ConcurrentHashMap<String/* recordKey */, GroupConsumeCtrlEntity>
             grpConsumeCtrlCache = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String/* topicName */, ConcurrentHashSet<String>>
+    private final ConcurrentHashMap<String/* topicName */, ConcurrentHashSet<String>>
             grpConsumeCtrlTopicCache = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String/* groupName */, ConcurrentHashSet<String>>
+    private final ConcurrentHashMap<String/* groupName */, ConcurrentHashSet<String>>
             grpConsumeCtrlGroupCache = new ConcurrentHashMap<>();
 
     public BdbGroupConsumeCtrlMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
@@ -108,44 +107,46 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
     }
 
     @Override
-    public boolean addGroupConsumeCtrlConf(GroupConsumeCtrlEntity memEntity, ProcessResult result) {
+    public boolean addGroupConsumeCtrlConf(GroupConsumeCtrlEntity memEntity,
+                                           StringBuilder strBuff, ProcessResult result) {
         GroupConsumeCtrlEntity curEntity =
                 grpConsumeCtrlCache.get(memEntity.getRecordKey());
         if (curEntity != null) {
             result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("The group consume ").append(memEntity.getRecordKey())
+                    strBuff.append("The group consume ").append(memEntity.getRecordKey())
                             .append("'s configure already exists, please delete it first!")
                             .toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        if (putGroupConsumeCtrlConfig2Bdb(memEntity, result)) {
+        if (putGroupConsumeCtrlConfig2Bdb(memEntity, strBuff, result)) {
             addOrUpdCacheRecord(memEntity);
         }
         return result.isSuccess();
     }
 
     @Override
-    public boolean updGroupConsumeCtrlConf(GroupConsumeCtrlEntity memEntity, ProcessResult result) {
+    public boolean updGroupConsumeCtrlConf(GroupConsumeCtrlEntity memEntity,
+                                           StringBuilder strBuff, ProcessResult result) {
         GroupConsumeCtrlEntity curEntity =
                 grpConsumeCtrlCache.get(memEntity.getRecordKey());
         if (curEntity == null) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("The group consume ").append(memEntity.getRecordKey())
+                    strBuff.append("The group consume ").append(memEntity.getRecordKey())
                             .append("'s configure is not exists, please add record first!")
                             .toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
         if (curEntity.equals(memEntity)) {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("The group consume ").append(memEntity.getRecordKey())
+                    strBuff.append("The group consume ").append(memEntity.getRecordKey())
                             .append("'s configure have not changed, please delete it first!")
                             .toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        if (putGroupConsumeCtrlConfig2Bdb(memEntity, result)) {
+        if (putGroupConsumeCtrlConfig2Bdb(memEntity, strBuff, result)) {
             addOrUpdCacheRecord(memEntity);
             result.setSuccResult(curEntity);
         }
@@ -299,18 +300,19 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
     }
 
     @Override
-    public List<GroupConsumeCtrlEntity> getGroupConsumeCtrlConf(GroupConsumeCtrlEntity qryEntity) {
-        List<GroupConsumeCtrlEntity> retEntitys = new ArrayList<>();
+    public List<GroupConsumeCtrlEntity> getGroupConsumeCtrlConf(
+            GroupConsumeCtrlEntity qryEntity) {
+        List<GroupConsumeCtrlEntity> retEntities = new ArrayList<>();
         if (qryEntity == null) {
-            retEntitys.addAll(grpConsumeCtrlCache.values());
+            retEntities.addAll(grpConsumeCtrlCache.values());
         } else {
             for (GroupConsumeCtrlEntity entity : grpConsumeCtrlCache.values()) {
                 if (entity != null && entity.isMatched(qryEntity)) {
-                    retEntitys.add(entity);
+                    retEntities.add(entity);
                 }
             }
         }
-        return retEntitys;
+        return retEntities;
     }
 
     @Override
@@ -369,22 +371,22 @@ public class BdbGroupConsumeCtrlMapperImpl implements GroupConsumeCtrlMapper {
      * Put Group consume configure info into bdb store
      *
      * @param memEntity need add record
+     * @param strBuff   the string buffer
      * @param result process result with old value
-     * @return true sucess, false failue
+     * @return true success, false failure
      */
-    private boolean putGroupConsumeCtrlConfig2Bdb(
-            GroupConsumeCtrlEntity memEntity, ProcessResult result) {
-        BdbGroupFilterCondEntity retData = null;
+    private boolean putGroupConsumeCtrlConfig2Bdb(GroupConsumeCtrlEntity memEntity,
+                                                  StringBuilder strBuff, ProcessResult result) {
         BdbGroupFilterCondEntity bdbEntity =
                 memEntity.buildBdbGroupFilterCondEntity();
         try {
-            retData = groupConsumeIndex.put(bdbEntity);
+            groupConsumeIndex.put(bdbEntity);
         } catch (Throwable e) {
             logger.error("[BDB Impl] put consume configure failure ", e);
             result.setFailResult(DataOpErrCode.DERR_STORE_ABNORMAL.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("Put filter configure failure: ")
+                    strBuff.append("Put filter configure failure: ")
                             .append(e.getMessage()).toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
         result.setSuccResult(null);

@@ -227,8 +227,9 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
             sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
-        String brokerConfInfo =
-                brokerEntry.getBrokerDefaultConfInfo();
+        brokerEntry.getBrokerDefaultConfInfo(sBuffer);
+        String brokerConfInfo = sBuffer.toString();
+        sBuffer.delete(0, sBuffer.length());
         Map<String, String> topicConfInfoMap =
                 metaDataManager.getBrokerTopicStrConfigInfo(brokerEntry, sBuffer);
         //
@@ -330,7 +331,9 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
         BrokerConfEntity brokerConfEntity =
                 metaDataManager.getBrokerConfByBrokerId(brokerId);
         if (brokerConfEntity != null) {
-            brokerConfInfo = brokerConfEntity.getBrokerDefaultConfInfo();
+            brokerConfEntity.getBrokerDefaultConfInfo(sBuffer);
+            brokerConfInfo = sBuffer.toString();
+            sBuffer.delete(0, sBuffer.length());
             manageStatus = brokerConfEntity.getManageStatus();
         }
         Map<String, String> brokerTopicSetConfInfo =

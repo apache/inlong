@@ -25,9 +25,11 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.To
 
 public interface TopicDeployMapper extends AbstractMapper {
 
-    boolean addTopicConf(TopicDeployEntity entity, ProcessResult result);
+    boolean addTopicConf(TopicDeployEntity entity,
+                         StringBuilder strBuff, ProcessResult result);
 
-    boolean updTopicConf(TopicDeployEntity entity, ProcessResult result);
+    boolean updTopicConf(TopicDeployEntity entity,
+                         StringBuilder strBuff, ProcessResult result);
 
     boolean delTopicConf(String recordKey, ProcessResult result);
 

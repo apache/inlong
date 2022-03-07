@@ -41,27 +41,23 @@ public interface MetaStoreService extends KeepAlive, Server {
      * Add or update cluster default setting
      *
      * @param entity     the cluster default setting entity will be add
-     * @param strBuffer  the print info string buffer
+     * @param strBuff  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
-     * @throws Exception
      */
     boolean addClusterConfig(ClusterSettingEntity entity,
-                             StringBuilder strBuffer,
-                             ProcessResult result);
+                             StringBuilder strBuff, ProcessResult result);
 
     /**
      * Update cluster default setting
      *
      * @param entity     the cluster default setting entity will be add
-     * @param strBuffer  the print info string buffer
+     * @param strBuff  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
-     * @throws Exception
      */
     boolean updClusterConfig(ClusterSettingEntity entity,
-                             StringBuilder strBuffer,
-                             ProcessResult result);
+                             StringBuilder strBuff, ProcessResult result);
 
     ClusterSettingEntity getClusterConfig();
 
@@ -69,52 +65,47 @@ public interface MetaStoreService extends KeepAlive, Server {
      * Delete cluster default setting
      *
      * @param operator   operator
-     * @param strBuffer  the print info string buffer
+     * @param strBuff  the print info string buffer
      * @param result     the process result return
      * @return true if success
      */
     boolean delClusterConfig(String operator,
-                             StringBuilder strBuffer,
-                             ProcessResult result);
+                             StringBuilder strBuff, ProcessResult result);
 
     // broker configure api
     /**
      * Add broker configure information
      *
      * @param entity     the broker configure entity will be add
-     * @param strBuffer  the print information string buffer
+     * @param strBuff  the print information string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
     boolean addBrokerConf(BrokerConfEntity entity,
-                          StringBuilder strBuffer,
-                          ProcessResult result);
+                          StringBuilder strBuff, ProcessResult result);
 
     /**
      * Modify broker configure information
      *
      * @param entity     the broker configure entity will be update
-     * @param strBuffer  the print information string buffer
+     * @param strBuff  the print information string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
     boolean updBrokerConf(BrokerConfEntity entity,
-                          StringBuilder strBuffer,
-                          ProcessResult result);
+                          StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete broker configure information
      *
      * @param operator  operator
      * @param brokerId  need deleted broker id
-     * @param strBuffer  the print information string buffer
+     * @param strBuff  the print information string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    boolean delBrokerConf(String operator,
-                          int brokerId,
-                          StringBuilder strBuffer,
-                          ProcessResult result);
+    boolean delBrokerConf(String operator, int brokerId,
+                          StringBuilder strBuff, ProcessResult result);
 
     Map<Integer, BrokerConfEntity> getBrokerConfInfo(BrokerConfEntity qryEntity);
 
@@ -128,22 +119,16 @@ public interface MetaStoreService extends KeepAlive, Server {
 
     // topic configure api
     boolean addTopicConf(TopicDeployEntity entity,
-                         StringBuilder strBuffer,
-                         ProcessResult result);
+                         StringBuilder strBuff, ProcessResult result);
 
     boolean updTopicConf(TopicDeployEntity entity,
-                         StringBuilder strBuffer,
-                         ProcessResult result);
+                         StringBuilder strBuff, ProcessResult result);
 
-    boolean delTopicConf(String operator,
-                         String recordKey,
-                         StringBuilder strBuffer,
-                         ProcessResult result);
+    boolean delTopicConf(String operator, String recordKey,
+                         StringBuilder strBuff, ProcessResult result);
 
-    boolean delTopicConfByBrokerId(String operator,
-                                   int brokerId,
-                                   StringBuilder strBuffer,
-                                   ProcessResult result);
+    boolean delTopicConfByBrokerId(String operator, int brokerId,
+                                   StringBuilder strBuff, ProcessResult result);
 
     boolean hasConfiguredTopics(int brokerId);
 
@@ -177,39 +162,35 @@ public interface MetaStoreService extends KeepAlive, Server {
      * Add topic control configure info
      *
      * @param entity     the topic control info entity will be add
-     * @param sBuffer    the print info string buffer
+     * @param strBuff    the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
     boolean addTopicCtrlConf(TopicCtrlEntity entity,
-                             StringBuilder sBuffer,
-                             ProcessResult result);
+                             StringBuilder strBuff, ProcessResult result);
 
     /**
      * Update topic control configure
      *
      * @param entity     the topic control info entity will be update
-     * @param sBuffer    the print info string buffer
+     * @param strBuff    the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
     boolean updTopicCtrlConf(TopicCtrlEntity entity,
-                             StringBuilder sBuffer,
-                             ProcessResult result);
+                             StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete topic control configure
      *
      * @param operator   operator
      * @param topicName  the topicName will be deleted
-     * @param sBuffer  the print info string buffer
+     * @param strBuff  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    boolean delTopicCtrlConf(String operator,
-                             String topicName,
-                             StringBuilder sBuffer,
-                             ProcessResult result);
+    boolean delTopicCtrlConf(String operator, String topicName,
+                             StringBuilder strBuff, ProcessResult result);
 
     TopicCtrlEntity getTopicCtrlConf(String topicName);
 
@@ -223,39 +204,35 @@ public interface MetaStoreService extends KeepAlive, Server {
      * Add group resource control configure info
      *
      * @param entity     the group resource control info entity will be add
-     * @param strBuffer  the print info string buffer
+     * @param strBuff  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
     boolean addGroupResCtrlConf(GroupResCtrlEntity entity,
-                                StringBuilder strBuffer,
-                                ProcessResult result);
+                                StringBuilder strBuff, ProcessResult result);
 
     /**
      * Update group reource control configure
      *
      * @param entity     the group resource control info entity will be update
-     * @param strBuffer  the print info string buffer
+     * @param strBuff  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
     boolean updGroupResCtrlConf(GroupResCtrlEntity entity,
-                                StringBuilder strBuffer,
-                                ProcessResult result);
+                                StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete group resource control configure
      *
      * @param operator   operator
      * @param groupName the group will be deleted
-     * @param strBuffer  the print info string buffer
+     * @param strBuff  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    boolean delGroupResCtrlConf(String operator,
-                                String groupName,
-                                StringBuilder strBuffer,
-                                ProcessResult result);
+    boolean delGroupResCtrlConf(String operator, String groupName,
+                                StringBuilder strBuff, ProcessResult result);
 
     GroupResCtrlEntity getGroupResCtrlConf(String groupName);
 
@@ -267,25 +244,23 @@ public interface MetaStoreService extends KeepAlive, Server {
      * Add group consume control configure
      *
      * @param entity     the group consume control info entity will be add
-     * @param strBuffer  the print info string buffer
+     * @param strBuff  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
     boolean addGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                    StringBuilder strBuffer,
-                                    ProcessResult result);
+                                    StringBuilder strBuff, ProcessResult result);
 
     /**
      * Modify group consume control configure
      *
      * @param entity     the group consume control info entity will be update
-     * @param strBuffer  the print info string buffer
+     * @param strBuff  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
     boolean updGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                    StringBuilder strBuffer,
-                                    ProcessResult result);
+                                    StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete group consume control configure
@@ -295,27 +270,25 @@ public interface MetaStoreService extends KeepAlive, Server {
      * @param topicName the blacklist record related to topic
      *                  allow groupName or topicName is null,
      *                  but not all null
+     * @param strBuff   the string buffer
+     * @param result    the process result
      * @return true if success
      */
     boolean delGroupConsumeCtrlConf(String operator,
-                                    String groupName,
-                                    String topicName,
-                                    StringBuilder sBuffer,
-                                    ProcessResult result);
+                                    String groupName, String topicName,
+                                    StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete group consume control configure
      *
      * @param operator  operator
      * @param recordKey the record key to group consume control record
-     * @param strBuffer  the print info string buffer
+     * @param strBuff  the print info string buffer
      * @param result     the process result return
      * @return true if success
      */
-    boolean delGroupConsumeCtrlConf(String operator,
-                                    String recordKey,
-                                    StringBuilder strBuffer,
-                                    ProcessResult result);
+    boolean delGroupConsumeCtrlConf(String operator, String recordKey,
+                                    StringBuilder strBuff, ProcessResult result);
 
     void registerObserver(AliveObserver eventObserver);
 

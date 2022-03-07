@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.exception.LoadMetaException;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
@@ -42,9 +41,9 @@ public class BdbGroupResCtrlMapperImpl implements GroupResCtrlMapper {
             LoggerFactory.getLogger(BdbGroupResCtrlMapperImpl.class);
     // consumer group configure store
     private EntityStore groupConfStore;
-    private PrimaryIndex<String/* groupName */, BdbGroupFlowCtrlEntity> groupBaseCtrlIndex;
-    private ConcurrentHashMap<String/* groupName */, GroupResCtrlEntity> groupBaseCtrlCache =
-            new ConcurrentHashMap<>();
+    private final PrimaryIndex<String/* groupName */, BdbGroupFlowCtrlEntity> groupBaseCtrlIndex;
+    private final ConcurrentHashMap<String/* groupName */, GroupResCtrlEntity>
+            groupBaseCtrlCache = new ConcurrentHashMap<>();
 
     public BdbGroupResCtrlMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
         groupConfStore = new EntityStore(repEnv,
@@ -97,44 +96,46 @@ public class BdbGroupResCtrlMapperImpl implements GroupResCtrlMapper {
     }
 
     @Override
-    public boolean addGroupResCtrlConf(GroupResCtrlEntity memEntity, ProcessResult result) {
+    public boolean addGroupResCtrlConf(GroupResCtrlEntity memEntity,
+                                       StringBuilder strBuff, ProcessResult result) {
         GroupResCtrlEntity curEntity =
                 groupBaseCtrlCache.get(memEntity.getGroupName());
         if (curEntity != null) {
             result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("The group ").append(memEntity.getGroupName())
+                    strBuff.append("The group ").append(memEntity.getGroupName())
                             .append("'s resource control already exists, please delete it first!")
                             .toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        if (putGroupConfigConfig2Bdb(memEntity, result)) {
+        if (putGroupConfigConfig2Bdb(memEntity, strBuff, result)) {
             groupBaseCtrlCache.put(memEntity.getGroupName(), memEntity);
         }
         return result.isSuccess();
     }
 
     @Override
-    public boolean updGroupResCtrlConf(GroupResCtrlEntity memEntity, ProcessResult result) {
+    public boolean updGroupResCtrlConf(GroupResCtrlEntity memEntity,
+                                       StringBuilder strBuff, ProcessResult result) {
         GroupResCtrlEntity curEntity =
                 groupBaseCtrlCache.get(memEntity.getGroupName());
         if (curEntity == null) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("The group ").append(memEntity.getGroupName())
+                    strBuff.append("The group ").append(memEntity.getGroupName())
                             .append("'s resource control is not exists, please add record first!")
                             .toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
         if (curEntity.equals(memEntity)) {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("The group ").append(memEntity.getGroupName())
+                    strBuff.append("The group ").append(memEntity.getGroupName())
                             .append("'s resource control have not changed, please delete it first!")
                             .toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        if (putGroupConfigConfig2Bdb(memEntity, result)) {
+        if (putGroupConfigConfig2Bdb(memEntity, strBuff, result)) {
             groupBaseCtrlCache.put(memEntity.getGroupName(), memEntity);
             result.setSuccResult(curEntity);
         }
@@ -188,21 +189,22 @@ public class BdbGroupResCtrlMapperImpl implements GroupResCtrlMapper {
      * Put Group configure info into bdb store
      *
      * @param memEntity need add record
+     * @param strBuff   the string buffer
      * @param result process result with old value
-     * @return
+     * @return  the process result
      */
-    private boolean putGroupConfigConfig2Bdb(GroupResCtrlEntity memEntity, ProcessResult result) {
-        BdbGroupFlowCtrlEntity retData = null;
+    private boolean putGroupConfigConfig2Bdb(GroupResCtrlEntity memEntity,
+                                             StringBuilder strBuff, ProcessResult result) {
         BdbGroupFlowCtrlEntity bdbEntity =
                 memEntity.buildBdbGroupFlowCtrlEntity();
         try {
-            retData = groupBaseCtrlIndex.put(bdbEntity);
+            groupBaseCtrlIndex.put(bdbEntity);
         } catch (Throwable e) {
             logger.error("[BDB Impl] put group resource control failure ", e);
             result.setFailResult(DataOpErrCode.DERR_STORE_ABNORMAL.getCode(),
-                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("Put group resource control failure: ")
+                    strBuff.append("Put group resource control failure: ")
                             .append(e.getMessage()).toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
         result.setSuccResult(null);

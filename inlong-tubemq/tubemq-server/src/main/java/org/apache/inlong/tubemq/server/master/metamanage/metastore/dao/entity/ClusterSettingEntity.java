@@ -33,7 +33,7 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstan
  */
 public class ClusterSettingEntity extends BaseEntity implements Cloneable {
 
-    private String recordKey =
+    private final String recordKey =
             TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING;
     // broker tcp port
     private int brokerPort = TBaseConstants.META_VALUE_UNDEFINED;
@@ -271,7 +271,6 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
                 && maxMsgSizeInB == other.maxMsgSizeInB
                 && qryPriorityId == other.qryPriorityId
                 && gloFlowCtrlRuleCnt == other.gloFlowCtrlRuleCnt
-                && recordKey.equals(other.recordKey)
                 && Objects.equals(clsDefTopicProps, other.clsDefTopicProps)
                 && gloFlowCtrlStatus == other.gloFlowCtrlStatus
                 && Objects.equals(gloFlowCtrlRuleInfo, other.gloFlowCtrlRuleInfo);
@@ -283,7 +282,7 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
      * @param sBuilder   build container
      * @param isLongName if return field key is long name
      * @param fullFormat if return full format json
-     * @return
+     * @return  the serialized result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
                                       boolean isLongName,

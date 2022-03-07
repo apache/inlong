@@ -25,9 +25,11 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.To
 
 public interface TopicCtrlMapper extends AbstractMapper {
 
-    boolean addTopicCtrlConf(TopicCtrlEntity entity, ProcessResult result);
+    boolean addTopicCtrlConf(TopicCtrlEntity entity,
+                             StringBuilder strBuff, ProcessResult result);
 
-    boolean updTopicCtrlConf(TopicCtrlEntity entity, ProcessResult result);
+    boolean updTopicCtrlConf(TopicCtrlEntity entity,
+                             StringBuilder strBuff, ProcessResult result);
 
     boolean delTopicCtrlConf(String topicName, ProcessResult result);
 
