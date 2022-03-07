@@ -109,16 +109,24 @@ public class Entrance {
             Map<String, Object> properties) {
         final String sourceType = checkNotNull(config.getString(Constants.SOURCE_TYPE));
         final int sourceParallelism = config.getInteger(Constants.SOURCE_PARALLELISM);
+        final boolean orderlyOutput = config.getBoolean(Constants.JOB_ORDERLY_OUTPUT);
 
         if (sourceType.equals(Constants.SOURCE_TYPE_PULSAR)) {
             checkState(sourceInfo instanceof PulsarSourceInfo);
             PulsarSourceInfo pulsarSourceInfo = (PulsarSourceInfo) sourceInfo;
 
-            return env.addSource(buildPulsarSource(pulsarSourceInfo, config, properties))
-                    .uid(Constants.SOURCE_UID)
-                    .name("Pulsar source")
-                    .setParallelism(sourceParallelism)
-                    .rebalance();
+            DataStream<SerializedRecord> sourceStream =
+                    env.addSource(buildPulsarSource(pulsarSourceInfo, config, properties))
+                            .uid(Constants.SOURCE_UID)
+                            .name("Pulsar source")
+                            .setParallelism(sourceParallelism);
+
+            if (orderlyOutput) {
+                return sourceStream.forward();
+            } else {
+                return sourceStream.rebalance();
+            }
+
         } else {
             throw new IllegalArgumentException("Unsupported source type " + sourceType);
         }
@@ -129,6 +137,7 @@ public class Entrance {
             SourceInfo sourceInfo,
             Configuration config
     ) throws IOException, ClassNotFoundException {
+        final boolean orderlyOutput = config.getBoolean(Constants.JOB_ORDERLY_OUTPUT);
         FieldInfo[] sourceFields = sourceInfo.getFields();
         DeserializationSchema<Row> schema = DeserializationSchemaFactory.build(
                 sourceFields, sourceInfo.getDeserializationInfo());
@@ -138,22 +147,30 @@ public class Entrance {
                 schema,
                 fieldMappingTransformer,
                 !(sourceInfo.getDeserializationInfo() instanceof DebeziumDeserializationInfo));
-        return sourceStream.process(function)
+
+        DataStream<Row> deserializedStream = sourceStream.process(function)
                 .uid(Constants.DESERIALIZATION_SCHEMA_UID)
                 .name("Deserialization")
                 .setParallelism(config.getInteger(Constants.DESERIALIZATION_PARALLELISM));
+
+        if (orderlyOutput) {
+            return deserializedStream.forward();
+        }
+
+        return deserializedStream;
     }
 
     private static DataStream<Row> buildTransformationStream(
             DataStream<Row> deserializationStream,
             DataFlowInfo dataFlowInfo,
             Configuration config) {
+        final boolean orderlyOutput = config.getBoolean(Constants.JOB_ORDERLY_OUTPUT);
         TransformationInfo transformationInfo = dataFlowInfo.getTransformationInfo();
         if (transformationInfo == null) {
             return deserializationStream;
         }
 
-        return deserializationStream
+        DataStream<Row> transformationStream = deserializationStream
                 .process(new Transformer(
                         transformationInfo,
                         dataFlowInfo.getSourceInfo().getFields(),
@@ -161,6 +178,12 @@ public class Entrance {
                        .uid(Constants.TRANSFORMATION_UID)
                        .name("Transformation")
                        .setParallelism(config.getInteger(Constants.TRANSFORMATION_PARALLELISM));
+
+        if (orderlyOutput) {
+            return transformationStream.forward();
+        }
+
+        return transformationStream;
     }
 
     private static void buildSinkStream(
