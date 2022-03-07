@@ -173,7 +173,7 @@ public class AgentServiceImpl implements AgentService {
     /**
      * Get task result by the request
      */
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     TaskResult getTaskResult(TaskRequest request) {
         // Query the tasks that needed to add or active - without agentIp and uuid
         List<Integer> addedStatusList = Arrays.asList(SourceState.TO_BE_ISSUED_ADD.getCode(),
