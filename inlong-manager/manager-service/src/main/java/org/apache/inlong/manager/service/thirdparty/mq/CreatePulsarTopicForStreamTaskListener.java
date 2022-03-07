@@ -17,10 +17,9 @@
 
 package org.apache.inlong.manager.service.thirdparty.mq;
 
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
@@ -37,6 +36,8 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * Create task listener for Pulsar Topic
@@ -75,13 +76,15 @@ public class CreatePulsarTopicForStreamTaskListener implements QueueOperateListe
         }
 
         log.info("begin to create pulsar topic for groupId={}, streamId={}", groupId, streamId);
-        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(groupInfo,
-                commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL))) {
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo();
+        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
             for (String cluster : pulsarClusters) {
                 String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
+                PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder()
+                        .token(globalCluster.getToken()).adminUrl(serviceUrl).build();
                 String pulsarTopic = streamEntity.getMqResourceObj();
-                this.createTopic(groupInfo, pulsarTopic, serviceUrl);
+                this.createTopic(groupInfo, pulsarTopic, pulsarClusterInfo);
             }
         } catch (Exception e) {
             log.error("create pulsar topic error for groupId={}, streamId={}", groupId, streamId, e);
@@ -93,14 +96,15 @@ public class CreatePulsarTopicForStreamTaskListener implements QueueOperateListe
         return ListenerResult.success();
     }
 
-    private void createTopic(InlongGroupInfo bizInfo, String pulsarTopic, String serviceHttpUrl) throws Exception {
+    private void createTopic(InlongGroupInfo bizInfo, String pulsarTopic, PulsarClusterInfo pulsarClusterInfo)
+            throws Exception {
         Integer partitionNum = bizInfo.getTopicPartitionNum();
         int partition = 0;
         if (partitionNum != null && partitionNum > 0) {
             partition = partitionNum;
         }
 
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(bizInfo, serviceHttpUrl)) {
+        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
             PulsarTopicBean topicBean = PulsarTopicBean.builder()
                     .tenant(clusterBean.getDefaultTenant())
                     .namespace(bizInfo.getMqResourceObj())

@@ -17,10 +17,9 @@
 
 package org.apache.inlong.manager.service.thirdparty.mq;
 
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -40,6 +39,8 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * Create a subscription group for a single inlong stream
@@ -85,9 +86,8 @@ public class CreatePulsarGroupForStreamTaskListener implements QueueOperateListe
             log.warn("inlong stream is empty for group={}, stream={}, skip to create pulsar group", groupId, streamId);
             return ListenerResult.success();
         }
-
-        try (PulsarAdmin globalPulsarAdmin = PulsarUtils
-                .getPulsarAdmin(groupInfo, commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL))) {
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo();
+        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             // Query data sink info based on groupId and streamId
             List<String> sinkTypeList = sinkService.getSinkTypeList(groupId, streamId);
             if (sinkTypeList == null || sinkTypeList.size() == 0) {
@@ -108,7 +108,9 @@ public class CreatePulsarGroupForStreamTaskListener implements QueueOperateListe
             String namespace = groupInfo.getMqResourceObj();
             for (String cluster : pulsarClusters) {
                 String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
-                try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(groupInfo, serviceUrl)) {
+                PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder()
+                        .token(globalCluster.getToken()).adminUrl(serviceUrl).build();
+                try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
                     boolean exist = pulsarOptService.topicIsExists(pulsarAdmin, tenant, namespace, topic);
                     if (!exist) {
                         String fullTopic = tenant + "/" + namespace + "/" + topic;

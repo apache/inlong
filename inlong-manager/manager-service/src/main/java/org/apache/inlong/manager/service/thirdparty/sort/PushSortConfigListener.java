@@ -17,9 +17,8 @@
 
 package org.apache.inlong.manager.service.thirdparty.sort;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
@@ -55,6 +54,9 @@ import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -149,7 +151,7 @@ public class PushSortConfigListener implements SortOperateListener {
      * Get source info
      */
     private SourceInfo getSourceInfo(InlongGroupInfo groupInfo,
-                                     SinkResponse hiveResponse, List<StreamSinkFieldEntity> fieldList) {
+            SinkResponse hiveResponse, List<StreamSinkFieldEntity> fieldList) {
         DeserializationInfo deserializationInfo = null;
         String groupId = groupInfo.getInlongGroupId();
         String streamId = hiveResponse.getInlongStreamId();
@@ -187,11 +189,10 @@ public class PushSortConfigListener implements SortOperateListener {
             sourceInfo = new TubeSourceInfo(topic, masterAddress, consumerGroup,
                     deserializationInfo, sourceFields.toArray(new FieldInfo[0]));
         } else if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middleWare)) {
-            String pulsarAdminUrl = commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL);
-            String pulsarServiceUrl = commonOperateService.getSpecifiedParam(Constant.PULSAR_SERVICEURL);
+            PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo();
             sourceInfo = SourceInfoUtils.createPulsarSourceInfo(groupInfo, streamInfo.getMqResourceObj(),
                     deserializationInfo, sourceFields, clusterBean.getAppName(), clusterBean.getDefaultTenant(),
-                    pulsarAdminUrl, pulsarServiceUrl);
+                    pulsarClusterInfo);
         }
         return sourceInfo;
     }

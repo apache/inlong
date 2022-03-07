@@ -17,17 +17,17 @@
 
 package org.apache.inlong.manager.service.thirdparty.mq.util;
 
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.PulsarClientException;
+
+import java.util.List;
 
 /**
  * Pulsar connection utils
@@ -41,36 +41,18 @@ public class PulsarUtils {
     /**
      * Get pulsar admin info
      */
-    public static PulsarAdmin getPulsarAdmin(InlongGroupInfo groupInfo, String defaultServiceUrl)
+    public static PulsarAdmin getPulsarAdmin(PulsarClusterInfo pulsarClusterInfo)
             throws PulsarClientException {
-        if (CollectionUtils.isEmpty(groupInfo.getExtList())) {
-            return getPulsarAdmin(defaultServiceUrl);
-        }
-        List<InlongGroupExtInfo> groupExtInfoList = groupInfo.getExtList();
-        String pulsarServiceUrl = null;
-        String pulsarAuthentication = null;
-        String pulsarAuthenticationType = InlongGroupSettings.DEFAULT_PULSAR_AUTHENTICATION_TYPE;
-        for (InlongGroupExtInfo extInfo : groupExtInfoList) {
-            if (InlongGroupSettings.PULSAR_ADMIN_URL.equals(extInfo.getKeyName())
-                    && StringUtils.isNotEmpty(extInfo.getKeyValue())) {
-                pulsarServiceUrl = extInfo.getKeyValue();
-            }
-            if (InlongGroupSettings.PULSAR_AUTHENTICATION_TYPE.equals(extInfo.getKeyName())
-                    && StringUtils.isNotEmpty(extInfo.getKeyValue())) {
-                pulsarAuthenticationType = extInfo.getKeyValue();
-            }
-            if (InlongGroupSettings.PULSAR_AUTHENTICATION.equals(extInfo.getKeyName())
-                    && StringUtils.isNotEmpty(extInfo.getKeyValue())) {
-                pulsarAuthentication = extInfo.getKeyValue();
-            }
-        }
-        if (StringUtils.isEmpty(pulsarServiceUrl) && StringUtils.isEmpty(pulsarAuthentication)) {
-            return getPulsarAdmin(defaultServiceUrl);
-        } else if (StringUtils.isEmpty(pulsarAuthentication)) {
-            return getPulsarAdmin(pulsarServiceUrl);
+        Preconditions.checkNotNull(pulsarClusterInfo.getAdminUrl(), "pulsar adminUrl is empty, "
+                + "check third party cluster table");
+        PulsarAdmin pulsarAdmin;
+        if (StringUtils.isEmpty(pulsarClusterInfo.getToken())) {
+            pulsarAdmin = getPulsarAdmin(pulsarClusterInfo.getAdminUrl());
         } else {
-            return getPulsarAdmin(pulsarServiceUrl, pulsarAuthentication, pulsarAuthenticationType);
+            pulsarAdmin = getPulsarAdmin(pulsarClusterInfo.getAdminUrl(), pulsarClusterInfo.getToken(),
+                    InlongGroupSettings.DEFAULT_PULSAR_AUTHENTICATION_TYPE);
         }
+        return pulsarAdmin;
     }
 
     /**
@@ -80,7 +62,7 @@ public class PulsarUtils {
         return PulsarAdmin.builder().serviceHttpUrl(serviceHttpUrl).build();
     }
 
-    public static PulsarAdmin getPulsarAdmin(String serviceHttpUrl, String authentication, String authenticationType)
+    private static PulsarAdmin getPulsarAdmin(String serviceHttpUrl, String authentication, String authenticationType)
             throws PulsarClientException {
         if (InlongGroupSettings.DEFAULT_PULSAR_AUTHENTICATION_TYPE.equals(authenticationType)) {
             return PulsarAdmin.builder().serviceHttpUrl(serviceHttpUrl)

@@ -18,8 +18,6 @@
 package org.apache.inlong.manager.service.thirdparty.mq.util;
 
 import com.google.common.collect.Lists;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
@@ -31,6 +29,9 @@ import org.apache.pulsar.client.impl.auth.AuthenticationDisabled;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 public class PulsarUtilsTest {
 
@@ -51,7 +52,7 @@ public class PulsarUtilsTest {
         groupInfo.setExtList(groupExtInfoList);
         final String defaultServiceUrl = "http://127.0.0.1:10080";
         try {
-            PulsarAdmin admin = PulsarUtils.getPulsarAdmin(groupInfo, defaultServiceUrl);
+            PulsarAdmin admin = PulsarUtils.getPulsarAdmin(defaultServiceUrl);
             Assert.assertEquals("http://127.0.0.1:8080", admin.getServiceUrl());
             Field auth = ReflectionUtils.findField(PulsarAdminImpl.class, "auth");
             assert auth != null;
@@ -66,7 +67,7 @@ public class PulsarUtilsTest {
             groupExtInfo3.setKeyValue("token1");
             groupExtInfoList.add(groupExtInfo3);
             try {
-                admin = PulsarUtils.getPulsarAdmin(groupInfo, defaultServiceUrl);
+                admin = PulsarUtils.getPulsarAdmin(defaultServiceUrl);
             } catch (Exception e) {
                 if (e instanceof IllegalArgumentException) {
                     Assert.assertTrue(e.getMessage().contains("illegal authentication type"));
@@ -75,7 +76,7 @@ public class PulsarUtilsTest {
 
             groupExtInfoList = new ArrayList<>();
             groupInfo.setExtList(groupExtInfoList);
-            admin = PulsarUtils.getPulsarAdmin(groupInfo, defaultServiceUrl);
+            admin = PulsarUtils.getPulsarAdmin(defaultServiceUrl);
             Assert.assertEquals("http://127.0.0.1:10080", admin.getServiceUrl());
             auth = ReflectionUtils.findField(PulsarAdminImpl.class, "auth");
             assert auth != null;
