@@ -352,14 +352,13 @@ public class AgentUtils {
                 return uuid;
             }
             String result = ExcuteLinux.exeCmd("dmidecode | grep UUID");
-            if (!StringUtils.isEmpty(result)
-                    && StringUtils.containsIgnoreCase(result,"UUID")) {
-                    uuid = result.split(":")[1].trim();
-                    return uuid;
-                }
+            if (StringUtils.isNotEmpty(result)
+                    && StringUtils.containsIgnoreCase(result, "UUID")) {
+                uuid = result.split(":")[1].trim();
+                return uuid;
+            }
         } catch (Exception e) {
             LOGGER.error("fetch uuid  error", e);
-            e.printStackTrace();
         }
         return uuid;
     }
