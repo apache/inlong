@@ -20,7 +20,7 @@
 #
 cd "$(dirname "$0")"/../conf || exit
 
-for i in {mx.properties,transfer.properties,weight.properties,common.properties,blacklist.properties,groupid_mapping.properties,dc_mapping.properties,topics.properties,tube_switch.properties,thrid_party_cluster.properties}
+for i in {mx.properties,transfer.properties,weight.properties,common.properties,blacklist.properties,groupid_mapping.properties,dc_mapping.properties,topics.properties,tube_switch.properties,third_party_cluster.properties}
 do
   if [ ! -f "$i" ]; then
     touch "$i"
