@@ -44,7 +44,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -66,6 +65,7 @@ public class ClsSinkContext extends SinkContext {
     private static final String KEY_MAX_RETRY_BACKOFF_MS = "maxRetryBackoffMs";
     private static final String KEY_MAX_KEYWORD_LENGTH = "maxKeywordLength";
     private static final String KEY_EVENT_LOG_ITEM_HANDLER = "logItemHandler";
+    public static final String KEY_TOPIC_ID = "topicId";
 
     private static final int DEFAULT_KEYWORD_MAX_LENGTH = 32 * 1024 - 1;
     private int keywordMaxLength = DEFAULT_KEYWORD_MAX_LENGTH;
@@ -74,9 +74,6 @@ public class ClsSinkContext extends SinkContext {
     private List<AsyncProducerClient> deletingClients;
     private Context sinkContext;
     private Map<String, ClsIdConfig> idConfigMap = new ConcurrentHashMap<>();
-    private AtomicLong offerCounter = new AtomicLong(0);
-    private AtomicLong takeCounter = new AtomicLong(0);
-    private AtomicLong backCounter = new AtomicLong(0);
     private IEvent2LogItemHandler event2LogItemHandler;
 
     /**
@@ -331,5 +328,15 @@ public class ClsSinkContext extends SinkContext {
      */
     public IEvent2LogItemHandler getLogItemHandler() {
         return event2LogItemHandler;
+    }
+
+    /**
+     * Get cls client.
+     *
+     * @param secretId ID of client.
+     * @return Client instance.
+     */
+    public AsyncProducerClient getClient(String secretId) {
+        return clientMap.get(secretId);
     }
 }
