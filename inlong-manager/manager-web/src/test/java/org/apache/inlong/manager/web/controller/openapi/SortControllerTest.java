@@ -24,7 +24,6 @@ import org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortTaskIdParamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortTaskSinkParamEntityMapper;
 import org.apache.inlong.manager.web.WebBaseTest;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
@@ -53,7 +52,7 @@ public class SortControllerTest extends WebBaseTest {
     @Autowired
     private SortClusterConfgiEntityMapper sortClusterConfgiEntityMapper;
 
-    @Before
+//    @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         taskIdParamEntityMapper.insert(this.prepareIdParamsEntity("testTask1", 1));
