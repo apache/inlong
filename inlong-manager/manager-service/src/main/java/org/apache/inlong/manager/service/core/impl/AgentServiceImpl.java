@@ -23,7 +23,6 @@ import com.google.gson.GsonBuilder;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
-import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.CmdConfig;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
@@ -41,7 +40,6 @@ import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo.CommandInfoBean;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceDTO;
 import org.apache.inlong.manager.dao.entity.DataSourceCmdConfigEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
@@ -245,17 +243,7 @@ public class AgentServiceImpl implements AgentService {
 
     private int getTaskType(StreamSourceEntity sourceEntity) {
         SourceType sourceType = SourceType.forType(sourceEntity.getSourceType());
-        if (sourceType != SourceType.BINLOG) {
-            return sourceType.getTaskType().getType();
-        } else {
-            BinlogSourceDTO binlogSourceDTO = binlogStreamSourceOperation.getFromEntity(sourceEntity,
-                    BinlogSourceDTO::new);
-            if (binlogSourceDTO.isAllMigration()) {
-                return TaskTypeEnum.DATABASE_MIGRATION.getType();
-            } else {
-                return sourceType.getTaskType().getType();
-            }
-        }
+        return sourceType.getTaskType().getType();
     }
 
     private List<CmdConfig> getAgentCmdConfigs(TaskRequest taskRequest) {

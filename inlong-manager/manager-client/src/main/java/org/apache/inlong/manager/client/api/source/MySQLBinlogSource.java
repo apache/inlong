@@ -69,7 +69,7 @@ public class MySQLBinlogSource extends StreamSource {
     private List<String> tableNames;
 
     @ApiModelProperty("Database time zone, Default is UTC")
-    private String serverTimezone = "UTF";
+    private String serverTimezone = "UTC";
 
     @ApiModelProperty("The interval for recording an offset")
     private String intervalMs;
