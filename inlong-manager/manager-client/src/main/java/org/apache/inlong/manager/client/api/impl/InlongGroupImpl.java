@@ -17,10 +17,13 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
@@ -43,6 +46,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
@@ -198,11 +202,31 @@ public class InlongGroupImpl implements InlongGroup {
         InlongGroupContext inlongGroupContext = new InlongGroupContext(groupContext, groupConf);
         List<EventLogView> logViews = managerClient.getInlongGroupError(inlongGroupId);
         if (CollectionUtils.isNotEmpty(logViews)) {
-            Map<String, String> errMsgs = logViews.stream()
-                    .filter(x -> null != x.getEvent() && null != x.getException())
-                    .collect(Collectors.toMap(EventLogView::getEvent, EventLogView::getException));
-            inlongGroupContext.setErrMsg(errMsgs);
+            Map<String, List<String>> errMsgs = Maps.newHashMap();
+            logViews.stream()
+                    .filter(x -> null != x.getElementName() && null != x.getException())
+                    .forEach(eventLogView -> {
+                        String taskName = eventLogView.getElementName();
+                        errMsgs.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getException());
+                    });
+            inlongGroupContext.setErrMsgs(errMsgs);
         }
+        Map<String, InlongStream> streams = inlongGroupContext.getInlongStreamMap();
+        streams.keySet().stream().forEach(streamName -> {
+            String inlongStreamId = "b_" + streamName;
+            List<InlongStreamConfigLogListResponse> logList = managerClient.getStreamLogs(inlongGroupId,
+                    inlongStreamId);
+            if (CollectionUtils.isNotEmpty(logList)) {
+                Map<String, List<String>> streamLogs = Maps.newHashMap();
+                logList.stream().filter(x -> StringUtils.isNotEmpty(x.getComponentName()))
+                        .forEach(streamLog -> {
+                            String componentName = streamLog.getComponentName();
+                            String log = GsonUtil.toJson(streamLog);
+                            streamLogs.computeIfAbsent(componentName, Lists::newArrayList).add(log);
+                        });
+                inlongGroupContext.getStreamLogs().put(streamName, streamLogs);
+            }
+        });
         return inlongGroupContext;
     }
 

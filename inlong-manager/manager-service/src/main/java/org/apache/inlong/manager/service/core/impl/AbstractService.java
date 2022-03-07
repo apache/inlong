@@ -58,6 +58,7 @@ public abstract class AbstractService<T> implements AutoCloseable, InitializingB
 
     /**
      * batch insert entities
+     *
      * @param entryList entryList
      * @return boolean true/false
      */
@@ -65,6 +66,7 @@ public abstract class AbstractService<T> implements AutoCloseable, InitializingB
 
     /**
      * put Data
+     *
      * @param data data
      * @return boolean true/false
      */
@@ -80,6 +82,7 @@ public abstract class AbstractService<T> implements AutoCloseable, InitializingB
         isClose = true;
     }
 
+    @Override
     public void afterPropertiesSet() {
         dataQueue = new LinkedBlockingQueue(queueSize);
         pool = new ThreadPoolExecutor(corePoolSize, maximumPoolSize,
@@ -91,7 +94,8 @@ public abstract class AbstractService<T> implements AutoCloseable, InitializingB
     }
 
     class Task implements Runnable {
-        public  void run() {
+        @Override
+        public void run() {
             while (!isClose) {
                 try {
                     List<T> entryList = new ArrayList<>();

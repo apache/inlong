@@ -48,6 +48,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
@@ -655,6 +656,37 @@ public class InnerInlongManagerClient {
             return pageInfo.getList();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Get inlong group error messages failed: %s", e.getMessage()), e);
+        }
+    }
+
+    /**
+     * get inlong group error messages
+     *
+     * @param inlongGroupId
+     * @return
+     */
+    public List<InlongStreamConfigLogListResponse> getStreamLogs(String inlongGroupId, String inlongStreamId) {
+        final String path = HTTP_PATH + "/stream/config/log/list";
+        String url = formatUrl(path);
+        url = url + "&inlongGroupId=" + inlongGroupId + "&inlongStreamId=" + inlongStreamId;
+        Request request = new Request.Builder()
+                .get()
+                .url(url)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            Response response = call.execute();
+            assert response.body() != null;
+            String body = response.body().string();
+            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
+            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed: %s", responseBody.getErrMsg()));
+            PageInfo<InlongStreamConfigLogListResponse> pageInfo = InlongParser.parseStreamLogList(responseBody);
+            return pageInfo.getList();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Get inlong stream log failed: %s", e.getMessage()), e);
         }
     }
 
