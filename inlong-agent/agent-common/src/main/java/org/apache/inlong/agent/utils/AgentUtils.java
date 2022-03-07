@@ -347,7 +347,7 @@ public class AgentUtils {
         String uuid = "";
         try {
             String localUuid = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_UUID);
-            if (!StringUtils.isEmpty(localUuid)) {
+            if (StringUtils.isNotEmpty(localUuid)) {
                 uuid = localUuid;
                 return uuid;
             }
