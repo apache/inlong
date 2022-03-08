@@ -17,16 +17,21 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse;
 import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse;
+import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse.CacheZone;
+import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse.SortSourceConfig;
 import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.SinkType;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.SortTaskConfig;
 import org.apache.inlong.manager.service.core.SortClusterConfigService;
+import org.apache.inlong.manager.service.core.SortSourceService;
 import org.apache.inlong.manager.service.core.SortTaskIdParamService;
 import org.apache.inlong.manager.service.core.SortService;
 import org.apache.inlong.manager.service.core.SortTaskSinkParamService;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,11 +47,18 @@ public class SortServiceImpl implements SortService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortServiceImpl.class);
 
+    private static final int RESPONSE_CODE_SUCCESS = 0;
+    private static final int RESPONSE_CODE_NO_UPDATE = 1;
+    private static final int RESPONSE_CODE_FAIL = -1;
+    private static final int RESPONSE_CODE_REQ_PARAMS_ERROR = -101;
+
     @Autowired private SortClusterConfigService sortClusterConfigService;
 
     @Autowired private SortTaskIdParamService sortTaskIdParamService;
 
     @Autowired private SortTaskSinkParamService sortTaskSinkParamService;
+
+    @Autowired private SortSourceService sortSourceService;
 
     @Override
     public SortClusterConfigResponse getClusterConfig(String clusterName, String md5) {
@@ -81,11 +93,6 @@ public class SortServiceImpl implements SortService {
         return SortClusterConfigResponse.builder().tasks(taskConfigs).msg("success").build();
     }
 
-    @Override
-    public SortSourceConfigResponse getSourceConfig(String clusterName, String sortTaskId, String md5) {
-        return null;
-    }
-
     private SortTaskConfig getTaskConfig(SortClusterConfigEntity clusterConfig) {
         SinkType sinkType = SinkType.valueOf(clusterConfig.getSinkType().toUpperCase());
         List<Map<String, String>> idParams =
@@ -98,6 +105,70 @@ public class SortServiceImpl implements SortService {
                 .sinkType(sinkType)
                 .idParams(idParams)
                 .sinkParams(sinkParams)
+                .build();
+    }
+
+    @Override
+    public SortSourceConfigResponse getSourceConfig(String clusterName, String sortTaskId, String md5) {
+
+        // check if clusterName and sortTaskId are null.
+        if (StringUtils.isBlank(clusterName) || StringUtils.isBlank(sortTaskId)) {
+            String errMsg = "Blank cluster name or task id, return nothing";
+            return SortSourceConfigResponse.builder()
+                    .msg(errMsg)
+                    .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
+                    .build();
+        }
+
+        // get cacheZones
+        Map<String, CacheZone> cacheZones;
+        try {
+            cacheZones = sortSourceService.getCacheZones(clusterName, sortTaskId);
+        } catch (Exception e) {
+            String errMsg = "Got exception when get cache zones. " + e.getMessage();
+            LOGGER.error(errMsg, e);
+            return SortSourceConfigResponse.builder()
+                    .msg(errMsg)
+                    .code(RESPONSE_CODE_FAIL)
+                    .build();
+        }
+
+        // if there is not any cacheZones;
+        if (cacheZones.isEmpty()) {
+            String errMsg = "There is not any cacheZones of cluster: " + clusterName
+                    + " , task: " + sortTaskId
+                    + " , please check the params";
+            LOGGER.error(errMsg);
+            return SortSourceConfigResponse.builder()
+                    .msg(errMsg)
+                    .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
+                    .build();
+        }
+
+        SortSourceConfig data = SortSourceConfig.builder()
+                .sortClusterName(clusterName)
+                .sortTaskId(sortTaskId)
+                .cacheZones(cacheZones)
+                .build();
+
+        // no update
+        JSONObject jo = new JSONObject(data);
+        String localMd5 = DigestUtils.md5Hex(jo.toString());
+        if (md5.equals(localMd5)) {
+            String msg = "Same md5, no update";
+            return SortSourceConfigResponse.builder()
+                    .msg(msg)
+                    .code(RESPONSE_CODE_NO_UPDATE)
+                    .md5(md5)
+                    .build();
+        }
+
+        // normal response.
+        return SortSourceConfigResponse.builder()
+                .msg("success")
+                .code(RESPONSE_CODE_SUCCESS)
+                .data(data)
+                .md5(localMd5)
                 .build();
     }
 }

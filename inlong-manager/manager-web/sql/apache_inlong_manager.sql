@@ -1138,7 +1138,7 @@ CREATE TABLE `sort_source_config`
     `cluster_name`  varchar(128)  NOT NULL COMMENT 'Cluster name',
     `task_name`     varchar(128)  NOT NULL COMMENT 'Task name',
     `zone_name`     varchar(128)  NOT NULL COMMENT 'Cache zone name',
-    `topic`         varchar(128)  DEFAULT NULL COMMENT 'Topic',
+    `topic`         varchar(128)  DEFAULT '' COMMENT 'Topic',
     `ext_params`    text          DEFAULT NULL COMMENT 'Another fields, will saved as JSON type',
     PRIMARY KEY (`id`),
     KEY `index_sort_source_config` (`cluster_name`, `task_name`)

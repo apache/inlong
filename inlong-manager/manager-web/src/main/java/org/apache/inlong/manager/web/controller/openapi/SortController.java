@@ -50,7 +50,7 @@ public class SortController {
             @RequestParam String clusterName,
             @RequestParam String sortTaskId,
             @RequestParam String md5) {
-        return null;
+        return sortService.getSourceConfig(clusterName, sortTaskId, md5);
     }
 
 }
