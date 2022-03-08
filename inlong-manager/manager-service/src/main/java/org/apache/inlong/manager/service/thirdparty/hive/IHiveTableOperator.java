@@ -22,7 +22,6 @@ import java.util.List;
 import org.apache.inlong.manager.common.pojo.sink.SinkForSortDTO;
 
 /**
- * 
  * IHiveTableOperator
  */
 public interface IHiveTableOperator {

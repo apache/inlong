@@ -30,11 +30,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 /**
- * 
- * SpringContextUtils
- */
-/**
- * 
  * SpringContextUtils
  */
 public class SpringContextUtils {
@@ -73,7 +68,7 @@ public class SpringContextUtils {
      * 
      * @param  beanName
      * @param  defaultClass
-     * @return Object
+     * @return              Object
      */
     public static Object getBean(String beanName, String defaultClass) {
         Object obj = null;
