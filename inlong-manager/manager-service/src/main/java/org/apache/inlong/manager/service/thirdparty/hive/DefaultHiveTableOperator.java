@@ -17,16 +17,21 @@
 
 package org.apache.inlong.manager.service.thirdparty.hive;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
-import org.apache.inlong.manager.common.pojo.sink.SinkForSortDTO;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkDTO;
 import org.apache.inlong.manager.common.pojo.query.ColumnInfoBean;
 import org.apache.inlong.manager.common.pojo.query.DatabaseQueryBean;
 import org.apache.inlong.manager.common.pojo.query.hive.HiveColumnQueryBean;
 import org.apache.inlong.manager.common.pojo.query.hive.HiveTableQueryBean;
+import org.apache.inlong.manager.common.pojo.sink.SinkForSortDTO;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkDTO;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.core.DataSourceService;
@@ -34,12 +39,6 @@ import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * Create hive table operation
