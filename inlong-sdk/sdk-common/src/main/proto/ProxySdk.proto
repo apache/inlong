@@ -34,12 +34,13 @@ message MapFieldEntry {
 message MessagePackHeader {
   required string inlongGroupId = 1;  //inlongGroupId 
   required string inlongStreamId = 2;  //inlongStreamId 
-  required int64 packTime = 3; //pack time, milliseconds
-  required int32 msgCount = 4;	//message count
-  required int32 srcLength = 5;	//total length of raw messages body
-  required int32 compressLen = 6;	//compress length of messages
-  required INLONG_COMPRESSED_TYPE compressType = 7;  //compress type
-  repeated MapFieldEntry params = 8;     //additional parameters
+  required int64 packId = 3; //pack id
+  required int64 packTime = 4; //pack time, milliseconds
+  required int32 msgCount = 5;	//message count
+  required int32 srcLength = 6;	//total length of raw messages body
+  required int32 compressLen = 7;	//compress length of messages
+  required INLONG_COMPRESSED_TYPE compressType = 8;  //compress type
+  repeated MapFieldEntry params = 9;     //additional parameters
 }
 
 message MessageObj {
@@ -70,4 +71,5 @@ enum ResultCode{
 
 message ResponseInfo {
   required ResultCode result = 1;	//response result
+  required int64 packId = 2;	//pack id
 }
