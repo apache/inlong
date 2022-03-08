@@ -65,6 +65,9 @@ public class InlongGroupTransfer {
 
     public static MqBaseConf parseMqBaseConf(InlongGroupResponse inlongGroupResponse) {
         InlongGroupMqExtBase mqExtBase = inlongGroupResponse.getMqExtInfo();
+        if (null == mqExtBase || StringUtils.isBlank(mqExtBase.getMiddlewareType())) {
+            return null;
+        }
         String middleWare = mqExtBase.getMiddlewareType();
         MqType mqType = MqType.forType(middleWare);
         switch (mqType) {
@@ -191,8 +194,11 @@ public class InlongGroupTransfer {
         groupInfo.setMaxLength(groupConf.getMaxLength());
         groupInfo.setProxyClusterId(groupConf.getProxyClusterId());
         MqBaseConf mqConf = groupConf.getMqBaseConf();
-        MqType mqType = mqConf.getType();
-        groupInfo.setMiddlewareType(mqType.name());
+        MqType mqType = MqType.NONE;
+        if (null != mqConf) {
+            mqType = mqConf.getType();
+            groupInfo.setMiddlewareType(mqType.name());
+        }
         groupInfo.setInCharges(groupConf.getOperator());
         groupInfo.setExtList(Lists.newArrayList());
         groupInfo.setCreator(groupConf.getOperator());
