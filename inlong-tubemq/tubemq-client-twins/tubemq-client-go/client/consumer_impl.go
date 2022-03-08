@@ -134,8 +134,10 @@ func (c *consumer) register2Master(needChange bool) error {
 		if err != nil || !rsp.GetSuccess() {
 			if err != nil {
 				log.Errorf("[CONSUMER]register2Master error %s", err.Error())
-			} else if rsp.GetErrCode() == errs.RetConsumeGroupForbidden || rsp.GetErrCode() == errs.RetConsumeContentForbidden {
-				log.Warnf("[CONSUMER] register2master(%s) failure exist register, client=%s, error: %s", c.master.Address, c.clientID, rsp.GetErrMsg())
+			} else if rsp.GetErrCode() == errs.RetConsumeGroupForbidden ||
+				rsp.GetErrCode() == errs.RetConsumeContentForbidden {
+				log.Warnf("[CONSUMER] register2master(%s) failure exist register, client=%s, error: %s",
+					c.master.Address, c.clientID, rsp.GetErrMsg())
 				return errs.New(rsp.GetErrCode(), rsp.GetErrMsg())
 			}
 
@@ -144,12 +146,14 @@ func (c *consumer) register2Master(needChange bool) error {
 					return err
 				}
 				if rsp != nil {
-					log.Errorf("[CONSUMER] register2master(%s) failure exist register, client=%s, error: %s", c.master.Address, c.clientID, rsp.GetErrMsg())
+					log.Errorf("[CONSUMER] register2master(%s) failure exist register, client=%s, error: %s",
+						c.master.Address, c.clientID, rsp.GetErrMsg())
 				}
 				break
 			}
 			retryCount++
-			log.Warnf("[CONSUMER] register2master(%s) failure, client=%s, retry count=%d", c.master.Address, c.clientID, retryCount)
+			log.Warnf("[CONSUMER] register2master(%s) failure, client=%s, retry count=%d",
+				c.master.Address, c.clientID, retryCount)
 			if c.master, err = c.selector.Select(c.config.Consumer.Masters); err != nil {
 				return err
 			}
@@ -243,7 +247,8 @@ func (c *consumer) GetMessage() (*ConsumerResult, error) {
 	rsp, err := c.client.GetMessageRequestC2B(ctx, m, c.subInfo, c.rmtDataCache)
 	if err != nil {
 		log.Infof("[CONSUMER]GetMessage error %s", err.Error())
-		if err := c.rmtDataCache.ReleasePartition(true, isFiltered, confirmContext, false); err != nil {
+		if err := c.rmtDataCache.ReleasePartition(true,
+			isFiltered, confirmContext, false); err != nil {
 			log.Errorf("[CONSUMER]GetMessage release partition error %s", err.Error())
 			return nil, err
 		}
@@ -266,7 +271,8 @@ func (c *consumer) GetMessage() (*ConsumerResult, error) {
 func (c *consumer) Confirm(confirmContext string, consumed bool) (*ConfirmResult, error) {
 	partitionKey, bookedTime, err := util.ParseConfirmContext(confirmContext)
 	if err != nil {
-		return nil, errs.New(errs.RetBadRequest, "illegel confirm_context content: unregular confirm_context value format")
+		return nil, errs.New(errs.RetBadRequest,
+			"illegel confirm_context content: unregular confirm_context value format")
 	}
 	topic, err := parsePartitionKeyToTopic(partitionKey)
 	if err != nil {
@@ -306,7 +312,8 @@ func (c *consumer) Confirm(confirmContext string, consumed bool) (*ConfirmResult
 	return cr, err
 }
 
-func (c *consumer) sendConfirmReq2Broker(partition *metadata.Partition, consumed bool) (*protocol.CommitOffsetResponseB2C, error) {
+func (c *consumer) sendConfirmReq2Broker(partition *metadata.Partition,
+	consumed bool) (*protocol.CommitOffsetResponseB2C, error) {
 	m := &metadata.Metadata{}
 	node := &metadata.Node{}
 	node.SetHost(util.GetLocalHost())
@@ -402,7 +409,8 @@ func (c *consumer) disconnect2Broker(event *metadata.ConsumerEvent) {
 	subscribeInfo := event.GetSubscribeInfo()
 	if len(subscribeInfo) > 0 {
 		removedPartitions := make(map[*metadata.Node][]*metadata.Partition)
-		c.rmtDataCache.RemoveAndGetPartition(subscribeInfo, c.config.Consumer.RollbackIfConfirmTimeout, removedPartitions)
+		c.rmtDataCache.RemoveAndGetPartition(subscribeInfo,
+			c.config.Consumer.RollbackIfConfirmTimeout, removedPartitions)
 		if len(removedPartitions) > 0 {
 			c.unregister2Broker(removedPartitions)
 		}
@@ -448,7 +456,8 @@ func (c *consumer) sendUnregisterReq2Broker(partition *metadata.Partition) {
 		return
 	}
 	if !rsp.GetSuccess() {
-		log.Errorf("[CONSUMER] fail to unregister partition %s, err code: %d, error msg %s", partition, rsp.GetErrCode(), rsp.GetErrMsg())
+		log.Errorf("[CONSUMER] fail to unregister partition %s, err code: %d, error msg %s",
+			partition, rsp.GetErrCode(), rsp.GetErrMsg())
 	}
 }
 
@@ -482,7 +491,8 @@ func (c *consumer) connect2Broker(event *metadata.ConsumerEvent) {
 	log.Tracef("[connect2Broker] connect event finished, client ID=%s", c.clientID)
 }
 
-func (c *consumer) sendRegisterReq2Broker(partition *metadata.Partition, node *metadata.Node) (*protocol.RegisterResponseB2C, error) {
+func (c *consumer) sendRegisterReq2Broker(partition *metadata.Partition,
+	node *metadata.Node) (*protocol.RegisterResponseB2C, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.config.Net.ReadTimeout)
 	defer cancel()
 
@@ -587,7 +597,8 @@ func (c *consumer) checkPartitionErr() error {
 	}
 }
 
-func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partition *metadata.Partition, confirmContext string, rsp *protocol.GetMessageResponseB2C) ([]*Message, error) {
+func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partition *metadata.Partition,
+	confirmContext string, rsp *protocol.GetMessageResponseB2C) ([]*Message, error) {
 	limitDlt := int64(300)
 	escLimit := rsp.GetEscFlowCtrl()
 	now := time.Now().UnixNano() / int64(time.Millisecond)
@@ -607,11 +618,13 @@ func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partitio
 		}
 		msgSize, msgs := c.convertMessages(filtered, partition.GetTopic(), rsp)
 		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), currOffset, maxOffset)
-		cd := metadata.NewConsumeData(now, 200, escLimit, int32(msgSize), 0, dataDleVal, rsp.GetRequireSlow())
+		cd := metadata.NewConsumeData(now, 200, escLimit, int32(msgSize), 0,
+			dataDleVal, rsp.GetRequireSlow())
 		c.rmtDataCache.BookConsumeData(partition.GetPartitionKey(), cd)
 		pi.CurrOffset = currOffset
 		pi.MaxOffset = maxOffset
-		log.Tracef("[CONSUMER] getMessage count=%ld, from %s, client=%s", len(msgs), partition.GetPartitionKey(), c.clientID)
+		log.Tracef("[CONSUMER] getMessage count=%ld, from %s, client=%s", len(msgs),
+			partition.GetPartitionKey(), c.clientID)
 		return msgs, nil
 	case errs.RetErrHBNoNode, errs.RetCertificateFailure, errs.RetErrDuplicatePartition:
 		partitionKey, _, err := util.ParseConfirmContext(confirmContext)
@@ -625,7 +638,8 @@ func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partitio
 		if defDltTime == 0 {
 			defDltTime = c.config.Consumer.MsgNotFoundWait.Milliseconds()
 		}
-		cd := metadata.NewConsumeData(now, rsp.GetErrCode(), false, 0, limitDlt, defDltTime, rsp.GetRequireSlow())
+		cd := metadata.NewConsumeData(now, rsp.GetErrCode(), false, 0,
+			limitDlt, defDltTime, rsp.GetRequireSlow())
 		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), util.InvalidValue, util.InvalidValue)
 		c.rmtDataCache.BookConsumeData(partition.GetPartitionKey(), cd)
 		c.rmtDataCache.ReleasePartition(true, filtered, confirmContext, false)
@@ -639,7 +653,8 @@ func (c *consumer) processGetMessageRspB2C(pi *PeerInfo, filtered bool, partitio
 	case errs.RetErrServiceUnavailable:
 	}
 	if rsp.GetErrCode() != errs.RetSuccess {
-		cd := metadata.NewConsumeData(now, rsp.GetErrCode(), false, 0, limitDlt, util.InvalidValue, rsp.GetRequireSlow())
+		cd := metadata.NewConsumeData(now, rsp.GetErrCode(), false, 0,
+			limitDlt, util.InvalidValue, rsp.GetRequireSlow())
 		c.rmtDataCache.BookPartitionInfo(partition.GetPartitionKey(), util.InvalidValue, util.InvalidValue)
 		c.rmtDataCache.BookConsumeData(partition.GetPartitionKey(), cd)
 		c.rmtDataCache.ReleasePartition(true, filtered, confirmContext, false)
@@ -736,7 +751,8 @@ func (c *consumer) close2Master() {
 		return
 	}
 	if !rsp.GetSuccess() {
-		log.Errorf("[CONSUMER] fail to close master, error code: %d, error msg: %s", rsp.GetErrCode(), rsp.GetErrMsg())
+		log.Errorf("[CONSUMER] fail to close master, error code: %d, error msg: %s",
+			rsp.GetErrCode(), rsp.GetErrMsg())
 		return
 	}
 	log.Infof("[CONSUMER] close2Master finished, client=%s", c.clientID)

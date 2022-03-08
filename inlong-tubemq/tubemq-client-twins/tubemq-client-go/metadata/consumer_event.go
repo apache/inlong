@@ -40,6 +40,7 @@ type ConsumerEvent struct {
 	subscribeInfo []*SubscribeInfo
 }
 
+// NewEvent returns a new consumer event.
 func NewEvent(rebalanceID int64, eventType int32, subscribeInfo []*SubscribeInfo) *ConsumerEvent {
 	return &ConsumerEvent{
 		rebalanceID:   rebalanceID,

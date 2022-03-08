@@ -167,6 +167,7 @@ func NewDefaultConfig() *Config {
 	return c
 }
 
+// New returns a config by the options.
 func New(opts ...Option) *Config {
 	c := NewDefaultConfig()
 	for _, o := range opts {
@@ -175,6 +176,7 @@ func New(opts ...Option) *Config {
 	return c
 }
 
+// String returns the config as a string.
 func (c *Config) String() string {
 	bytes, err := json.Marshal(c)
 	if err != nil {
@@ -183,6 +185,7 @@ func (c *Config) String() string {
 	return string(bytes)
 }
 
+// ValidateConsumer validates the config of the consumer.
 func (c *Config) ValidateConsumer() error {
 	if c.Net.Auth.Enable {
 		if len(c.Net.Auth.UserName) == 0 {
@@ -246,7 +249,8 @@ func (c *Config) validateSessionKey() error {
 		return errs.New(errs.RetInvalidConfig, "illegal parameter: session key is empty")
 	}
 	if len(c.Consumer.SessionKey) > MaxSessionKeyLen {
-		return errs.New(errs.RetInvalidConfig, fmt.Sprintf("illegal parameter: session_key's length over max length %d", MaxSessionKeyLen))
+		return errs.New(errs.RetInvalidConfig,
+			fmt.Sprintf("illegal parameter: session_key's length over max length %d", MaxSessionKeyLen))
 	}
 	return nil
 }
@@ -255,16 +259,20 @@ func (c *Config) validatePartOffset() error {
 	for partition, offset := range c.Consumer.PartitionOffset {
 		s := strings.Split(partition, ":")
 		if len(s) != 3 {
-			return errs.New(errs.RetInvalidConfig, fmt.Sprintf("illegal parameter: partOffset's key %s which should be a:b:c", partition))
+			return errs.New(errs.RetInvalidConfig,
+				fmt.Sprintf("illegal parameter: partOffset's key %s which should be a:b:c", partition))
 		}
 		if _, ok := c.Consumer.TopicFilters[s[1]]; !ok {
-			return errs.New(errs.RetInvalidConfig, fmt.Sprintf("illegal parameter: %s topic %s not included in topicFilter's topic list", partition, s[1]))
+			return errs.New(errs.RetInvalidConfig,
+				fmt.Sprintf("illegal parameter: %s topic %s not included in topicFilter's topic list", partition, s[1]))
 		}
 		if strings.Index(partition, ",") != -1 {
-			return errs.New(errs.RetInvalidConfig, fmt.Sprintf("illegal parameter: key %s include ,", partition))
+			return errs.New(errs.RetInvalidConfig,
+				fmt.Sprintf("illegal parameter: key %s include ,", partition))
 		}
 		if offset < 0 {
-			return errs.New(errs.RetInvalidConfig, fmt.Sprintf("illegal parameter: partition %s's offset must >= 0, value is %d", partition, offset))
+			return errs.New(errs.RetInvalidConfig,
+				fmt.Sprintf("illegal parameter: partition %s's offset must >= 0, value is %d", partition, offset))
 		}
 	}
 	return nil
@@ -273,24 +281,28 @@ func (c *Config) validatePartOffset() error {
 func (c *Config) validateTopicFilters() error {
 	for topic, filters := range c.Consumer.TopicFilters {
 		if len(topic) > MaxTopicLen {
-			return errs.New(errs.RetInvalidConfig, fmt.Sprintf("Check parameter topicFilters error: topic's length over max length %d", MaxTopicLen))
+			return errs.New(errs.RetInvalidConfig,
+				fmt.Sprintf("Check parameter topicFilters error: topic's length over max length %d", MaxTopicLen))
 		}
 		if valid, err := util.IsValidString(topic); !valid {
 			return errs.New(errs.RetInvalidConfig, err.Error())
 		}
 		for _, filter := range filters {
 			if len(filter) == 0 {
-				return errs.New(errs.RetInvalidConfig, fmt.Sprintf("Checassert.Nil(t, c.ValidateConsumer())k parameter topicFilters error: topic %s's filter is empty", topic))
+				return errs.New(errs.RetInvalidConfig,
+					fmt.Sprintf("Checassert.Nil(t, c.ValidateConsumer())k parameter topicFilters error: topic %s's filter is empty", topic))
 			}
 			if len(filter) > MaxFilterLen {
-				return errs.New(errs.RetInvalidConfig, fmt.Sprintf("Check parameter topicFilters error: topic %s's filter's length over max length %d", topic, MaxFilterLen))
+				return errs.New(errs.RetInvalidConfig,
+					fmt.Sprintf("Check parameter topicFilters error: topic %s's filter's length over max length %d", topic, MaxFilterLen))
 			}
 			if valid, err := util.IsValidFilterItem(filter); !valid {
 				return errs.New(errs.RetInvalidConfig, err.Error())
 			}
 		}
 		if len(filters) > MaxFilterLen {
-			return errs.New(errs.RetInvalidConfig, fmt.Sprintf("Check parameter topicFilters error: topic %s's filter item over max item count %d", topic, MaxFilterLen))
+			return errs.New(errs.RetInvalidConfig,
+				fmt.Sprintf("Check parameter topicFilters error: topic %s's filter item over max item count %d", topic, MaxFilterLen))
 		}
 	}
 	return nil
@@ -301,7 +313,8 @@ func (c *Config) validateGroup(group string) error {
 		return errs.New(errs.RetInvalidConfig, "group name is empty")
 	}
 	if len(group) > MaxGroupLen {
-		return errs.New(errs.RetInvalidConfig, fmt.Sprintf("illegal parameter: %s over max length, the max allowed length is %d", group, MaxGroupLen))
+		return errs.New(errs.RetInvalidConfig,
+			fmt.Sprintf("illegal parameter: %s over max length, the max allowed length is %d", group, MaxGroupLen))
 	}
 	if valid, err := util.IsValidString(group); !valid {
 		return errs.New(errs.RetInvalidConfig, err.Error())
@@ -311,7 +324,8 @@ func (c *Config) validateGroup(group string) error {
 
 func (c *Config) validateConsumePosition() error {
 	if c.Consumer.ConsumePosition < ConsumeFromFirstOffset || c.Consumer.ConsumePosition > ConsumeFromMaxOffsetAlways {
-		return errs.New(errs.RetInvalidConfig, fmt.Sprintf("consumePosition should be only in (-1, 0, 1), while %d is passed", c.Consumer.ConsumePosition))
+		return errs.New(errs.RetInvalidConfig,
+			fmt.Sprintf("consumePosition should be only in (-1, 0, 1), while %d is passed", c.Consumer.ConsumePosition))
 	}
 	return nil
 }
