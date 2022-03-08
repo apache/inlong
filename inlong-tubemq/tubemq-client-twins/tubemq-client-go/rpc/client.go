@@ -40,21 +40,29 @@ const (
 // RPCClient is the rpc level client to interact with TubeMQ.
 type RPCClient interface {
 	// RegisterRequestC2B is the rpc request for a consumer to register to a broker.
-	RegisterRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo, r *remote.RmtDataCache) (*protocol.RegisterResponseB2C, error)
+	RegisterRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo,
+		r *remote.RmtDataCache) (*protocol.RegisterResponseB2C, error)
 	// UnregisterRequestC2B is the rpc request for a consumer to unregister to a broker.
-	UnregisterRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo) (*protocol.RegisterResponseB2C, error)
+	UnregisterRequestC2B(ctx context.Context, metadata *metadata.Metadata,
+		sub *sub.SubInfo) (*protocol.RegisterResponseB2C, error)
 	// GetMessageRequestC2B is the rpc request for a consumer to get message from a broker.
-	GetMessageRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo, r *remote.RmtDataCache) (*protocol.GetMessageResponseB2C, error)
+	GetMessageRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo,
+		r *remote.RmtDataCache) (*protocol.GetMessageResponseB2C, error)
 	// CommitOffsetRequestC2B is the rpc request for a consumer to commit offset to a broker.
-	CommitOffsetRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo) (*protocol.CommitOffsetResponseB2C, error)
+	CommitOffsetRequestC2B(ctx context.Context, metadata *metadata.Metadata,
+		sub *sub.SubInfo) (*protocol.CommitOffsetResponseB2C, error)
 	// HeartbeatRequestC2B is the rpc request for a consumer to send heartbeat to a broker.
-	HeartbeatRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo, r *remote.RmtDataCache) (*protocol.HeartBeatResponseB2C, error)
+	HeartbeatRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo,
+		r *remote.RmtDataCache) (*protocol.HeartBeatResponseB2C, error)
 	// RegisterRequestC2M is the rpc request for a consumer to register request to master.
-	RegisterRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo, r *remote.RmtDataCache) (*protocol.RegisterResponseM2C, error)
+	RegisterRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo,
+		r *remote.RmtDataCache) (*protocol.RegisterResponseM2C, error)
 	// HeartRequestC2M is the rpc request for a consumer to send heartbeat to master.
-	HeartRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo, r *remote.RmtDataCache) (*protocol.HeartResponseM2C, error)
+	HeartRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo,
+		r *remote.RmtDataCache) (*protocol.HeartResponseM2C, error)
 	// CloseRequestC2M is the rpc request for a consumer to be closed to master.
-	CloseRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo) (*protocol.CloseResponseM2C, error)
+	CloseRequestC2M(ctx context.Context, metadata *metadata.Metadata,
+		sub *sub.SubInfo) (*protocol.CloseResponseM2C, error)
 	// Close will close the rpc client and release the resource.
 	Close()
 }
@@ -79,7 +87,8 @@ func (c *rpcClient) Close() {
 	c.pool.Close()
 }
 
-func (c *rpcClient) doRequest(ctx context.Context, address string, req codec.RPCRequest) (*protocol.RspResponseBody, error) {
+func (c *rpcClient) doRequest(ctx context.Context, address string,
+	req codec.RPCRequest) (*protocol.RspResponseBody, error) {
 	rsp, err := c.client.DoRequest(ctx, address, req)
 	if err != nil {
 		return nil, errs.New(errs.RetRequestFailure, err.Error())

@@ -185,7 +185,7 @@ func (r *RmtDataCache) UpdateGroupFlowCtrlInfo(qryPriorityID int32, flowCtrlID i
 	}
 }
 
-// OfferEventAndNotify offers an consumer event and notifies the consumer method and notify the consumer to consume.
+// OfferEventAndNotify offers a consumer event and notifies the consumer method and notify the consumer to consume.
 func (r *RmtDataCache) OfferEventAndNotify(event *metadata.ConsumerEvent) {
 	r.eventReadMu.Lock()
 	defer r.eventReadMu.Unlock()
@@ -202,7 +202,7 @@ func (r *RmtDataCache) ClearEvent() {
 	r.rebalanceResults = r.rebalanceResults[:0]
 }
 
-// OfferEventResult offers an consumer event.
+// OfferEventResult offers a consumer event.
 func (r *RmtDataCache) OfferEventResult(event *metadata.ConsumerEvent) {
 	r.eventWriteMu.Lock()
 	defer r.eventWriteMu.Unlock()
@@ -211,7 +211,8 @@ func (r *RmtDataCache) OfferEventResult(event *metadata.ConsumerEvent) {
 }
 
 // RemoveAndGetPartition removes the given partitions.
-func (r *RmtDataCache) RemoveAndGetPartition(subscribeInfos []*metadata.SubscribeInfo, processingRollback bool, partitions map[*metadata.Node][]*metadata.Partition) {
+func (r *RmtDataCache) RemoveAndGetPartition(subscribeInfos []*metadata.SubscribeInfo,
+	processingRollback bool, partitions map[*metadata.Node][]*metadata.Partition) {
 	if len(subscribeInfos) == 0 {
 		return
 	}
@@ -411,7 +412,9 @@ func (r *RmtDataCache) SelectPartition() (*metadata.Partition, int64, error) {
 	}
 }
 
-func (r *RmtDataCache) ReleasePartition(checkDelay bool, filterConsume bool, confirmContext string, isConsumed bool) error {
+// ReleasePartition releases a booked partition.
+func (r *RmtDataCache) ReleasePartition(checkDelay bool, filterConsume bool,
+	confirmContext string, isConsumed bool) error {
 	partitionKey, bookedTime, err := util.ParseConfirmContext(confirmContext)
 	if err != nil {
 		return err
@@ -470,6 +473,7 @@ func (r *RmtDataCache) removeFromIndexPartitions(partitionKey string) {
 	r.indexPartitions = append(r.indexPartitions[:pos], r.indexPartitions[pos+1:]...)
 }
 
+// BookPartitionInfo books a given partition of offset.
 func (r *RmtDataCache) BookPartitionInfo(partitionKey string, currOffset int64, maxOffset int64) {
 	r.dataBookMu.Lock()
 	defer r.dataBookMu.Unlock()
@@ -495,6 +499,7 @@ func (r *RmtDataCache) BookPartitionInfo(partitionKey string, currOffset int64, 
 	}
 }
 
+// BookConsumeData books a given partition.
 func (r *RmtDataCache) BookConsumeData(partitionKey string, data *metadata.ConsumeData) {
 	r.metaMu.Lock()
 	defer r.metaMu.Unlock()
@@ -503,6 +508,7 @@ func (r *RmtDataCache) BookConsumeData(partitionKey string, data *metadata.Consu
 	}
 }
 
+// IsPartitionInUse returns whether the given partition is in use.
 func (r *RmtDataCache) IsPartitionInUse(partitionKey string, bookedTime int64) bool {
 	r.metaMu.Lock()
 	defer r.metaMu.Unlock()
@@ -517,6 +523,7 @@ func (r *RmtDataCache) IsPartitionInUse(partitionKey string, bookedTime int64) b
 	return true
 }
 
+// GetPartition returns the partition of the given key.
 func (r *RmtDataCache) GetPartition(key string) *metadata.Partition {
 	r.metaMu.Lock()
 	defer r.metaMu.Unlock()

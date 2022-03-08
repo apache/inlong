@@ -46,7 +46,7 @@ import "github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tub
 
 Create a Consumer by parsing address:
 ```go
-cfg, err := config.ParseAddress("9.23.27.160:8099?topic=test_1&group=test_group")
+cfg, err := config.ParseAddress("127.0.0.1:8099?topic=test_1&group=test_group")
 if err != nil {
 	fmt.Errorf("Failed to parse address %s", err.Error())
 	panic(err)

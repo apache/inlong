@@ -33,6 +33,7 @@ import (
 	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/util"
 )
 
+// RuleHandler represents the flow control handler.
 type RuleHandler struct {
 	lastUpdate         int64
 	flowCtrlInfo       string

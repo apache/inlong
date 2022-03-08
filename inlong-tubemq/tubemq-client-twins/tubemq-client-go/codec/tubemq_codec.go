@@ -50,7 +50,7 @@ const (
 
 var serialNo uint32
 
-func NewSerialNo() uint32 {
+func newSerialNo() uint32 {
 	return atomic.AddUint32(&serialNo, 1)
 }
 
@@ -152,9 +152,10 @@ type TubeMQRPCRequest struct {
 	Body          proto.Message
 }
 
+// NewRPCRequest returns a new TubeMQRPCRequest
 func NewRPCRequest() *TubeMQRPCRequest {
 	return &TubeMQRPCRequest{
-		serialNo: NewSerialNo(),
+		serialNo: newSerialNo(),
 	}
 }
 
