@@ -136,13 +136,15 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
         text?.length ? (
           <Popover
             content={
-              <Timeline mode={'left'} style={{ margin: 20 }}>
+              <Timeline mode={'left'} style={{ marginBottom: -20 }}>
                 {text.map(item => (
-                  <Timeline.Item key={item.id}>{item.description}</Timeline.Item>
+                  <Timeline.Item key={item.id} color={item.state === -1 ? 'red' : 'blue'}>
+                    {item.description}
+                  </Timeline.Item>
                 ))}
               </Timeline>
             }
-            overlayStyle={{ maxWidth: 750 }}
+            overlayStyle={{ maxWidth: 750, maxHeight: 300, overflow: 'auto' }}
           >
             <div style={{ height: 45, overflow: 'hidden' }}>{text[0]?.description}</div>
           </Popover>
