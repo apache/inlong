@@ -44,10 +44,9 @@ import static java.util.stream.Collectors.toList;
 /**
  * Create hive table operation
  */
-@Component
-public class HiveTableOperator {
+public class DefaultHiveTableOperator implements IHiveTableOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HiveTableOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHiveTableOperator.class);
 
     @Autowired
     private StreamSinkService sinkService;

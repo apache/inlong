@@ -17,9 +17,11 @@
 
 package org.apache.inlong.manager.web;
 
+import org.apache.inlong.manager.service.utils.SpringContextUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -31,7 +33,7 @@ public class InLongWebApplication {
 
     public static void main(String[] args) {
         System.setProperty("spring.devtools.restart.enabled", "false");
-        SpringApplication.run(InLongWebApplication.class, args);
+        ConfigurableApplicationContext applicationContext = SpringApplication.run(InLongWebApplication.class, args);
+        SpringContextUtils.setApplicationContext(applicationContext);
     }
-
 }
