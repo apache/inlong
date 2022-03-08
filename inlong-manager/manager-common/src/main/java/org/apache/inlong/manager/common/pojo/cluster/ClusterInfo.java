@@ -31,20 +31,20 @@ public class ClusterInfo {
     @ApiModelProperty(value = "Incremental primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "cluster name")
+    @ApiModelProperty(value = "Cluster name")
     private String name;
 
-    @ApiModelProperty(value = "Cluster type, including TUBE, ZK, etc.")
+    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, etc.")
     private String type;
 
-    @ApiModelProperty(value = "Cluster IP address")
+    @ApiModelProperty(value = "Cluster IP")
     private String ip;
 
-    @ApiModelProperty(value = "Cluster port number")
+    @ApiModelProperty(value = "Cluster port")
     private Integer port;
 
-    @ApiModelProperty(value = "Name of in charges, separated by commas")
-    private String inCharges;
+    @ApiModelProperty(value = "Cluster token")
+    private String token;
 
     @ApiModelProperty(value = "Cluster URL address")
     private String url;
@@ -52,13 +52,16 @@ public class ClusterInfo {
     @ApiModelProperty(value = "Whether it is a backup cluster, 0: no, 1: yes")
     private Integer isBackup;
 
-    @ApiModelProperty(value = "Cluster status")
-    private Integer status;
-
     @ApiModelProperty(value = "MQ set name")
     private String mqSetName;
 
     @ApiModelProperty(value = "MQ config info")
     private String extParams;
+
+    @ApiModelProperty(value = "Name of in charges, separated by commas")
+    private String inCharges;
+
+    @ApiModelProperty(value = "Cluster status")
+    private Integer status;
 
 }
