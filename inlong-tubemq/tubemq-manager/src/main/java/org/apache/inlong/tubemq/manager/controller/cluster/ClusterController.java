@@ -160,10 +160,14 @@ public class ClusterController {
      */
     public TubeMQResult deleteCluster(DeleteClusterReq req) {
         // 1. validate params
-        if (req.getClusterId() == null || StringUtils.isEmpty(req.getModifyUser())) {
-            return TubeMQResult.errorResult("please input clusterId and modifyUser");
+        if (req.getClusterId() == null || StringUtils.isEmpty(req.getToken())) {
+            return TubeMQResult.errorResult("please input clusterId and token");
         }
         // 2. delete cluster
+        MasterEntry masterNode = masterService.getMasterNode(req.getClusterId());
+        if (!req.getToken().equals(masterNode.getToken())) {
+            return TubeMQResult.errorResult("please enter the correct token");
+        }
         clusterService.deleteCluster(req.getClusterId());
         return new TubeMQResult();
     }
