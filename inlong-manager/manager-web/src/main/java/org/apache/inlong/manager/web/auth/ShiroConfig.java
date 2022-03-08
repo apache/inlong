@@ -17,10 +17,8 @@
 
 package org.apache.inlong.manager.web.auth;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import javax.servlet.Filter;
-import org.apache.inlong.manager.service.core.UserService;
+import javax.annotation.Resource;
+import org.apache.inlong.manager.common.auth.InLongShiro;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -29,7 +27,6 @@ import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.mgt.WebSecurityManager;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,12 +34,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ShiroConfig {
 
-    @Autowired
-    private UserService userService;
+    @Resource
+    private InLongShiro inLongShiro;
 
     @Bean
     public AuthorizingRealm shiroRealm(HashedCredentialsMatcher matcher) {
-        AuthorizingRealm authorizingRealm = new WebAuthorizingRealm(userService);
+        AuthorizingRealm authorizingRealm = inLongShiro.getShiroRealm();
         authorizingRealm.setCredentialsMatcher(matcher);
         return authorizingRealm;
     }
@@ -50,23 +47,22 @@ public class ShiroConfig {
     @Bean
     public WebSecurityManager securityManager(@Qualifier("hashedCredentialsMatcher")
             HashedCredentialsMatcher matcher) {
-        DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
+        DefaultWebSecurityManager securityManager = (DefaultWebSecurityManager) inLongShiro.getWebSecurityManager();
         securityManager.setRealm(shiroRealm(matcher));
         return securityManager;
     }
 
     @Bean
     public DefaultWebSessionManager sessionManager() {
-        DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
+        DefaultWebSessionManager sessionManager = (DefaultWebSessionManager) inLongShiro.getWebSessionManager();
         sessionManager.setGlobalSessionTimeout(1000 * 60 * 60);
         return sessionManager;
     }
 
     @Bean(name = "hashedCredentialsMatcher")
     public HashedCredentialsMatcher hashedCredentialsMatcher() {
-        HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
-        hashedCredentialsMatcher.setHashAlgorithmName("MD5");
-        hashedCredentialsMatcher.setHashIterations(1024);
+        HashedCredentialsMatcher hashedCredentialsMatcher = (HashedCredentialsMatcher) inLongShiro
+                .getCredentialsMatcher();
         return hashedCredentialsMatcher;
     }
 
@@ -75,30 +71,7 @@ public class ShiroConfig {
      */
     @Bean
     public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
-        ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
-        shiroFilterFactoryBean.setSecurityManager(securityManager);
-
-        // anon: can be accessed by anyone, authc: only authentication is successful can be accessed
-        Map<String, Filter> filters = new LinkedHashMap<>();
-        filters.put("authc", new AuthenticationFilter());
-        shiroFilterFactoryBean.setFilters(filters);
-        Map<String, String> pathDefinitions = new LinkedHashMap<>();
-        // login, register request
-        pathDefinitions.put("/anno/**/*", "anon");
-
-        // swagger api
-        pathDefinitions.put("/doc.html", "anon");
-        pathDefinitions.put("/v2/api-docs/**/**", "anon");
-        pathDefinitions.put("/webjars/**/*", "anon");
-        pathDefinitions.put("/swagger-resources/**/*", "anon");
-        pathDefinitions.put("/swagger-resources", "anon");
-
-        // openapi
-        pathDefinitions.put("/openapi/**/*", "anon");
-
-        pathDefinitions.put("/**", "authc");
-
-        shiroFilterFactoryBean.setFilterChainDefinitionMap(pathDefinitions);
+        ShiroFilterFactoryBean shiroFilterFactoryBean = inLongShiro.getShiroFilter(securityManager);
         return shiroFilterFactoryBean;
     }
 
