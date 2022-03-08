@@ -158,10 +158,12 @@ public class TestClusterController {
     public void testAddCluster() throws Exception {
 
         AddClusterReq req = new AddClusterReq();
+        req.setId(4);
         req.setClusterName("test");
-        req.setMasterIps(Collections.singletonList("127.0.0.1"));
-        req.setMasterWebPort(8080);
-        req.setMasterPort(8089);
+        MasterEntry masterEntry = new MasterEntry();
+        masterEntry.setIp("127.0.0.1");
+        masterEntry.setPort(8089);
+        masterEntry.setWebPort(8080);
         req.setToken("abc");
 
         ClusterEntry entry = getOneClusterEntry();

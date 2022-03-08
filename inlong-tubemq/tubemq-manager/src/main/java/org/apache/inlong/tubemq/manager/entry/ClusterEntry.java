@@ -36,7 +36,6 @@ import lombok.Data;
 @Data
 public class ClusterEntry {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long clusterId;
 
     private String clusterName;

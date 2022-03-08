@@ -49,6 +49,9 @@ public class ClusterServiceImpl implements ClusterService {
     @Transactional(rollbackOn = Exception.class)
     public void addClusterAndMasterNode(AddClusterReq req) {
         ClusterEntry entry = new ClusterEntry();
+        if (req.getId() != null) {
+            entry.setClusterId(req.getId());
+        }
         entry.setCreateTime(new Date());
         entry.setCreateUser(req.getCreateUser());
         entry.setClusterName(req.getClusterName());
@@ -95,12 +98,11 @@ public class ClusterServiceImpl implements ClusterService {
         if (clusterEntry == null) {
             return;
         }
-        for (String masterIp : req.getMasterIps()) {
-            MasterEntry masterEntry = new MasterEntry();
-            masterEntry.setPort(req.getMasterPort());
-            masterEntry.setClusterId(clusterEntry.getClusterId());
-            masterEntry.setWebPort(req.getMasterWebPort());
-            masterEntry.setIp(masterIp);
+        for (MasterEntry masterEntry : req.getMasterEntries()) {
+            masterEntry.setPort(masterEntry.getPort());
+            masterEntry.setClusterId(req.getId());
+            masterEntry.setWebPort(masterEntry.getWebPort());
+            masterEntry.setIp(masterEntry.getIp());
             masterEntry.setToken(req.getToken());
             nodeService.addNode(masterEntry);
         }

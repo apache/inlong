@@ -98,9 +98,9 @@ public class ClusterController {
         if (!req.legal()) {
             return TubeMQResult.errorResult(TubeMQErrorConst.PARAM_ILLEGAL);
         }
-        List<String> masterIps = req.getMasterIps();
-        for (String masterIp : masterIps) {
-            TubeMQResult checkResult = masterService.checkMasterNodeStatus(masterIp, req.getMasterWebPort());
+        List<MasterEntry> masterEntries = req.getMasterEntries();
+        for (MasterEntry masterEntry : masterEntries) {
+            TubeMQResult checkResult = masterService.checkMasterNodeStatus(masterEntry.getIp(), masterEntry.getWebPort());
             if (checkResult.getErrCode() != SUCCESS_CODE) {
                 return TubeMQResult.errorResult("please check master ip and webPort");
             }
