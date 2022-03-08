@@ -129,6 +129,7 @@ CREATE TABLE `inlong_group_pulsar`
     `is_deleted`          int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `create_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `enable_create_resource` tinyint(2) DEFAULT '1' COMMENT 'Whether to enable create mq resource? 0: disable, 1: enable. default is 1',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Pulsar info table';

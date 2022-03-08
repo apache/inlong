@@ -191,7 +191,7 @@ public class PushSortConfigListener implements SortOperateListener {
         } else if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middleWare)) {
             PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo();
             sourceInfo = SourceInfoUtils.createPulsarSourceInfo(groupInfo, streamInfo.getMqResourceObj(),
-                    deserializationInfo, sourceFields, clusterBean.getAppName(), clusterBean.getDefaultTenant(),
+                    deserializationInfo, sourceFields, clusterBean.getAppName(),
                     pulsarClusterInfo);
         }
         return sourceInfo;

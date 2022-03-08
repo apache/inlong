@@ -239,7 +239,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         List<ThirdPartyClusterInfo> mqSet = new ArrayList<>();
         List<DataProxyConfig> topicList = new ArrayList<>();
 
-        DataProxyClusterEntity dataProxyClusterEntity = dataProxyClusterMapper.selectByName(dataproxyClusterName);
+        final DataProxyClusterEntity dataProxyClusterEntity = dataProxyClusterMapper.selectByName(dataproxyClusterName);
 
         // TODO Optimize query conditions use dataProxyClusterId
         List<InlongGroupEntity> groupEntities = groupMapper.selectAll(EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode());
@@ -256,7 +256,6 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
 //        if (!groupIdList.isEmpty()) {
 //            middlewareType = groupMapper.selectByGroupId(groupIdList.get(0)).getMiddlewareType();
 //        }
-        String tenant = clusterBean.getDefaultTenant();
 
         // based on group id, get topic list
         for (InlongGroupEntity inlongGroupEntity : groupEntities) {
@@ -269,6 +268,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
                     DataProxyConfig topicConfig = new DataProxyConfig();
                     String streamId = stream.getInlongStreamId();
                     String topic = stream.getMqResourceObj();
+                    String tenant = dataProxyClusterEntity.getMqSetName();
                     topicConfig.setInlongGroupId(groupId + "/" + streamId);
                     topicConfig.setTopic("persistent://" + tenant + "/" + mqResource + "/" + topic);
                     topicList.add(topicConfig);

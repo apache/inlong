@@ -203,7 +203,7 @@ public class CreateSortConfigListener implements SortOperateListener {
         String topicName = streamInfo.getMqResourceObj();
         PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo();
         return SourceInfoUtils.createPulsarSourceInfo(groupInfo, topicName, deserializationInfo,
-                fieldInfos, clusterBean.getAppName(), clusterBean.getDefaultTenant(), pulsarClusterInfo);
+                fieldInfos, clusterBean.getAppName(), pulsarClusterInfo);
     }
 
     private TubeSourceInfo createTubeSourceInfo(InlongGroupInfo groupInfo,

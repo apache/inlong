@@ -38,11 +38,14 @@ public class SourceInfoUtils {
         return false;
     }
 
-    public static PulsarSourceInfo createPulsarSourceInfo(InlongGroupInfo groupInfo, String pulsarTopic,
+    public static PulsarSourceInfo createPulsarSourceInfo(InlongGroupInfo groupInfo,
+            String pulsarTopic,
             DeserializationInfo deserializationInfo,
-            List<FieldInfo> fieldInfos, String appName, String tenant,
+            List<FieldInfo> fieldInfos,
+            String appName,
             PulsarClusterInfo pulsarClusterInfo) {
         final String namespace = groupInfo.getMqResourceObj();
+        final String tenant = pulsarClusterInfo.getTenant();
         // Full name of Topic in Pulsar
         final String fullTopicName = "persistent://" + tenant + "/" + namespace + "/" + pulsarTopic;
         final String consumerGroup = appName + "_" + pulsarTopic + "_consumer_group";

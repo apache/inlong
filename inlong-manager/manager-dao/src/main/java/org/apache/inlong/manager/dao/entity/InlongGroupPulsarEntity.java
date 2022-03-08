@@ -37,5 +37,5 @@ public class InlongGroupPulsarEntity implements Serializable {
     private Integer retentionSize;
     private String retentionSizeUnit;
     private Integer isDeleted;
-
+    private Integer enableCreateResource;
 }
