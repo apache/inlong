@@ -93,7 +93,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
         pageNum: 1,
       }));
     }
-  }, [modalProps.visible, options]);
+  }, [modalProps.visible]);
 
   const columns = [
     {
