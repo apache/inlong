@@ -22,10 +22,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * Common cluster information
+ * Cluster info
  */
 @Data
-@ApiModel("Common cluster information")
+@ApiModel("Cluster info")
 public class ClusterInfo {
 
     @ApiModelProperty(value = "Incremental primary key")
@@ -60,6 +60,9 @@ public class ClusterInfo {
 
     @ApiModelProperty(value = "Name of in charges, separated by commas")
     private String inCharges;
+
+    @ApiModelProperty(value = "Name of in creator")
+    private String creator;
 
     @ApiModelProperty(value = "Cluster status")
     private Integer status;
