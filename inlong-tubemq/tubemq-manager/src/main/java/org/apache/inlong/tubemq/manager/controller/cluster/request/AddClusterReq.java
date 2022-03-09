@@ -31,6 +31,7 @@ public class AddClusterReq {
     private List<MasterEntry> masterEntries;
     private String createUser;
     private String token;
+    private int reloadSize;
 
     public boolean legal() {
         return CollectionUtils.isNotEmpty(masterEntries) && StringUtils.isNotBlank(token);
