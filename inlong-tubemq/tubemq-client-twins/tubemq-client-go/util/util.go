@@ -120,7 +120,8 @@ func SplitToMap(source string, step1 string, step2 string) map[string]string {
 func IsValidString(s string) (bool, error) {
 	if matched, _ := regexp.Match("^[a-zA-Z]\\w+$", []byte(s)); !matched {
 		return false,
-			errors.New(fmt.Sprintf("illegal parameter: %s must begin with a letter,can only contain characters,numbers,and underscores", s))
+			errors.New(fmt.Sprintf("illegal parameter: %s must begin with a letter, " +
+				"can only contain characters,numbers,and underscores", s))
 	}
 	return true, nil
 }
