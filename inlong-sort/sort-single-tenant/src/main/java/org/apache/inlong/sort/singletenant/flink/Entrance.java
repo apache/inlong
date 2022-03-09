@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.apache.inlong.sort.singletenant.flink.kafka.KafkaSinkBuilder.buildKafkaSink;
 import static org.apache.inlong.sort.singletenant.flink.pulsar.PulsarSourceBuilder.buildPulsarSource;
+import static org.apache.inlong.sort.singletenant.flink.pulsar.PulsarSourceBuilder.buildTDMQPulsarSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +49,7 @@ import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
+import org.apache.inlong.sort.protocol.source.TDMQPulsarSourceInfo;
 import org.apache.inlong.sort.protocol.transformation.TransformationInfo;
 import org.apache.inlong.sort.singletenant.flink.clickhouse.ClickhouseRowSinkFunction;
 import org.apache.inlong.sort.singletenant.flink.deserialization.DeserializationFunction;
@@ -110,25 +112,35 @@ public class Entrance {
         final String sourceType = checkNotNull(config.getString(Constants.SOURCE_TYPE));
         final int sourceParallelism = config.getInteger(Constants.SOURCE_PARALLELISM);
         final boolean orderlyOutput = config.getBoolean(Constants.JOB_ORDERLY_OUTPUT);
+        DataStream<SerializedRecord> sourceStream;
 
         if (sourceType.equals(Constants.SOURCE_TYPE_PULSAR)) {
             checkState(sourceInfo instanceof PulsarSourceInfo);
             PulsarSourceInfo pulsarSourceInfo = (PulsarSourceInfo) sourceInfo;
 
-            DataStream<SerializedRecord> sourceStream =
+            sourceStream =
                     env.addSource(buildPulsarSource(pulsarSourceInfo, config, properties))
                             .uid(Constants.SOURCE_UID)
                             .name("Pulsar source")
                             .setParallelism(sourceParallelism);
 
-            if (orderlyOutput) {
-                return sourceStream.forward();
-            } else {
-                return sourceStream.rebalance();
-            }
+        } else if (sourceType.equals(Constants.SOURCE_TYPE_TDMQ_PULSAR)) {
+            checkState(sourceInfo instanceof TDMQPulsarSourceInfo);
+            TDMQPulsarSourceInfo tdmqPulsarSourceInfo = (TDMQPulsarSourceInfo) sourceInfo;
 
+            sourceStream =
+                    env.addSource(buildTDMQPulsarSource(tdmqPulsarSourceInfo, config, properties))
+                            .uid(Constants.SOURCE_UID)
+                            .name("TDMQ Pulsar source")
+                            .setParallelism(sourceParallelism);
         } else {
             throw new IllegalArgumentException("Unsupported source type " + sourceType);
+        }
+
+        if (orderlyOutput) {
+            return sourceStream.forward();
+        } else {
+            return sourceStream.rebalance();
         }
     }
 

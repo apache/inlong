@@ -46,7 +46,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -158,10 +159,15 @@ public class TestClusterController {
     public void testAddCluster() throws Exception {
 
         AddClusterReq req = new AddClusterReq();
+        req.setId(4);
         req.setClusterName("test");
-        req.setMasterIps(Collections.singletonList("127.0.0.1"));
-        req.setMasterWebPort(8080);
-        req.setMasterPort(8089);
+        MasterEntry masterEntry = new MasterEntry();
+        masterEntry.setIp("127.0.0.1");
+        masterEntry.setPort(8089);
+        masterEntry.setWebPort(8080);
+        List<MasterEntry> masterEntries = new ArrayList<>();
+        masterEntries.add(masterEntry);
+        req.setMasterEntries(masterEntries);
         req.setToken("abc");
 
         ClusterEntry entry = getOneClusterEntry();
