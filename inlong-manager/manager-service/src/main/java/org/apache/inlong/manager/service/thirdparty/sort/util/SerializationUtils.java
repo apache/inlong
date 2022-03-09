@@ -38,62 +38,76 @@ import org.apache.inlong.sort.protocol.serialization.JsonSerializationInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 import org.springframework.util.Assert;
 
+/**
+ * Utils for Serialization and Deserialization info
+ */
 public class SerializationUtils {
 
+    /**
+     * Create deserialization info
+     */
     public static DeserializationInfo createDeserializationInfo(SourceResponse sourceResponse,
             InlongStreamInfo streamInfo) {
         SourceType sourceType = SourceType.forType(sourceResponse.getSourceType());
         switch (sourceType) {
             case BINLOG:
-                return forBinlog((BinlogSourceResponse) sourceResponse, streamInfo);
+                return deserializeForBinlog((BinlogSourceResponse) sourceResponse);
             case KAFKA:
-                return forKafka((KafkaSourceResponse) sourceResponse, streamInfo);
+                return deserializeForKafka((KafkaSourceResponse) sourceResponse, streamInfo);
             case FILE:
-                return forFile(sourceResponse, streamInfo);
+                return deserializeForFile(sourceResponse, streamInfo);
             default:
-                throw new IllegalArgumentException(String.format("Unsupport sourceType for Inlong:%s", sourceType));
+                throw new IllegalArgumentException(String.format("Unsupported sourceType: %s", sourceType));
         }
     }
 
-    public static SerializationInfo createSerializationInfo(SourceResponse sourceResponse, SinkResponse sinkResponse,
-            InlongStreamInfo inlongStreamInfo) {
+    /**
+     * Create serialization info
+     */
+    public static SerializationInfo createSerializationInfo(SourceResponse sourceResponse, SinkResponse sinkResponse) {
         SinkType sinkType = SinkType.forType(sinkResponse.getSinkType());
         switch (sinkType) {
             case HIVE:
                 return null;
             case KAFKA:
-                return forKafka(sourceResponse, (KafkaSinkResponse) sinkResponse, inlongStreamInfo);
+                return serializeForKafka(sourceResponse, (KafkaSinkResponse) sinkResponse);
             default:
-                throw new IllegalArgumentException(String.format("Unsupport sinkType for Inlong:%s", sinkType));
+                throw new IllegalArgumentException(String.format("Unsupported sinkType: %s", sinkType));
         }
     }
 
-    public static DeserializationInfo forBinlog(BinlogSourceResponse binlogSourceResponse,
-            InlongStreamInfo streamInfo) {
-        return new DebeziumDeserializationInfo(true, binlogSourceResponse.getTimestampFormatStandard());
+    /**
+     * Get serialization info for Binlog
+     */
+    private static DeserializationInfo deserializeForBinlog(BinlogSourceResponse sourceResponse) {
+        return new DebeziumDeserializationInfo(true, sourceResponse.getTimestampFormatStandard());
     }
 
-    public static DeserializationInfo forKafka(KafkaSourceResponse kafkaSourceResponse,
-            InlongStreamInfo streamInfo) {
-        String serializationType = kafkaSourceResponse.getSerializationType();
+    /**
+     * Get deserialization info for Kafka
+     */
+    private static DeserializationInfo deserializeForKafka(KafkaSourceResponse source, InlongStreamInfo stream) {
+        String serializationType = source.getSerializationType();
         DataTypeEnum dataType = DataTypeEnum.forName(serializationType);
         switch (dataType) {
             case CSV:
-                char seperator = streamInfo.getDataSeparator().toCharArray()[0];
-                return new CsvDeserializationInfo(seperator);
+                char separator = stream.getDataSeparator().toCharArray()[0];
+                return new CsvDeserializationInfo(separator);
             case AVRO:
                 return new AvroDeserializationInfo();
             case JSON:
                 return new JsonDeserializationInfo();
             default:
                 throw new IllegalArgumentException(
-                        String.format("Unsupport serializationType for Kafka source:%s", serializationType));
+                        String.format("Unsupported serializationType for Kafka source: %s", serializationType));
         }
     }
 
-    public static SerializationInfo forKafka(SourceResponse sourceResponse, KafkaSinkResponse kafkaSinkResponse,
-            InlongStreamInfo streamInfo) {
-        String serializationType = kafkaSinkResponse.getSerializationType();
+    /**
+     * Get serialization info for Kafka
+     */
+    private static SerializationInfo serializeForKafka(SourceResponse sourceResponse, KafkaSinkResponse sinkResponse) {
+        String serializationType = sinkResponse.getSerializationType();
         DataTypeEnum dataType = DataTypeEnum.forName(serializationType);
         switch (dataType) {
             case AVRO:
@@ -104,31 +118,33 @@ public class SerializationUtils {
                 return new CanalSerializationInfo();
             case DEBEZIUM_JSON:
                 Assert.isInstanceOf(BinlogSourceResponse.class, sourceResponse,
-                        "Unsupport serializationType for Kafka;");
-                BinlogSourceResponse binlogSourceResponse = (BinlogSourceResponse) sourceResponse;
-                return new DebeziumSerializationInfo(binlogSourceResponse.getTimestampFormatStandard(),
+                        "Unsupported serializationType for Kafka");
+                BinlogSourceResponse binlogSource = (BinlogSourceResponse) sourceResponse;
+                return new DebeziumSerializationInfo(binlogSource.getTimestampFormatStandard(),
                         "FAIL", "", false);
             default:
                 throw new IllegalArgumentException(
-                        String.format("Unsupport serializationType for Kafka sink:%s", serializationType));
+                        String.format("Unsupported serializationType for Kafka sink: %s", serializationType));
         }
     }
 
-    public static DeserializationInfo forFile(SourceResponse sourceResponse,
-            InlongStreamInfo streamInfo) {
+    /**
+     * Get deserialization info for File
+     */
+    private static DeserializationInfo deserializeForFile(SourceResponse sourceResponse, InlongStreamInfo streamInfo) {
         String serializationType = sourceResponse.getSerializationType();
         DataTypeEnum dataType = DataTypeEnum.forName(serializationType);
         switch (dataType) {
             case CSV:
-                char seperator = streamInfo.getDataSeparator().toCharArray()[0];
-                return new CsvDeserializationInfo(seperator);
+                char separator = streamInfo.getDataSeparator().toCharArray()[0];
+                return new CsvDeserializationInfo(separator);
             case AVRO:
                 return new AvroDeserializationInfo();
             case JSON:
                 return new JsonDeserializationInfo();
             default:
                 throw new IllegalArgumentException(
-                        String.format("Unsupport type for File source:%s", serializationType));
+                        String.format("Unsupported type for File source:%s", serializationType));
         }
     }
 }

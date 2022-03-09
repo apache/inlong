@@ -20,10 +20,11 @@ package org.apache.inlong.manager.common.pojo.stream;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Date;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Inlong stream info
@@ -52,7 +53,7 @@ public class InlongStreamInfo extends InlongStreamBaseInfo {
     @ApiModelProperty(value = "Data storage period, unit: day (required when dataSourceType=AUTO_PUSH)")
     private Integer storagePeriod;
 
-    @ApiModelProperty(value = "Data type, only support: TEXT")
+    @ApiModelProperty(value = "Data type, including: TEXT, KV, etc.")
     private String dataType;
 
     @ApiModelProperty(value = "Data encoding format: UTF-8, GBK (required when dataSourceType=FILE, AUTO_PUSH)")
