@@ -28,6 +28,8 @@ public class Constants {
 
     public static final String SOURCE_TYPE_PULSAR = "pulsar";
 
+    public static final String SOURCE_TYPE_TDMQ_PULSAR = "tdmq_pulsar";
+
     public static final String SINK_TYPE_CLICKHOUSE = "clickhouse";
 
     public static final String SINK_TYPE_DORIS = "doris";
