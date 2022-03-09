@@ -23,6 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.auth.Authentication;
+import org.apache.inlong.manager.common.enums.MqType;
 
 @Data
 @AllArgsConstructor
@@ -38,6 +39,9 @@ public class PulsarBaseConf extends MqBaseConf {
 
     @ApiModelProperty("Pulsar service URL")
     private String pulsarServiceUrl;
+
+    @ApiModelProperty("Pulsar tenant")
+    private String tenant;
 
     @ApiModelProperty("Pulsar namespace")
     private String namespace;

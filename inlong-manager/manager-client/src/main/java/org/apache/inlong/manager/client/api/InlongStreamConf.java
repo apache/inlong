@@ -36,6 +36,9 @@ public class InlongStreamConf {
     @ApiModelProperty(value = "Inlong stream name", required = true)
     private String name;
 
+    @ApiModelProperty(value = "Topic name for stream. default: b_${name}")
+    private String topic;
+
     @ApiModelProperty("Inlong stream description")
     private String description;
 

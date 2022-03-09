@@ -18,12 +18,14 @@
 package org.apache.inlong.manager.service.thirdparty.sort;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
@@ -190,9 +192,14 @@ public class PushSortConfigListener implements SortOperateListener {
                     deserializationInfo, sourceFields.toArray(new FieldInfo[0]));
         } else if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middleWare)) {
             PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo();
+            String tenant = clusterBean.getDefaultTenant();
+            InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) groupInfo.getMqExtInfo();
+            if (StringUtils.isNotEmpty(pulsarInfo.getTenant())) {
+                tenant = pulsarInfo.getTenant();
+            }
             sourceInfo = SourceInfoUtils.createPulsarSourceInfo(groupInfo, streamInfo.getMqResourceObj(),
-                    deserializationInfo, sourceFields, clusterBean.getAppName(), clusterBean.getDefaultTenant(),
-                    pulsarClusterInfo);
+                    deserializationInfo, sourceFields, clusterBean.getAppName(),
+                    pulsarClusterInfo, tenant);
         }
         return sourceInfo;
     }

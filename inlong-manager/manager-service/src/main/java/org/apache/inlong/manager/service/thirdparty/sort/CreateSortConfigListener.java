@@ -18,6 +18,10 @@
 package org.apache.inlong.manager.service.thirdparty.sort;
 
 import com.google.common.collect.Lists;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +32,7 @@ import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
@@ -58,16 +63,10 @@ import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
-import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -196,14 +195,19 @@ public class CreateSortConfigListener implements SortOperateListener {
 
     }
 
-    private PulsarSourceInfo createPulsarSourceInfo(InlongGroupInfo groupInfo,
+    private SourceInfo createPulsarSourceInfo(InlongGroupInfo groupInfo,
             InlongStreamInfo streamInfo,
             DeserializationInfo deserializationInfo,
             List<FieldInfo> fieldInfos) {
         String topicName = streamInfo.getMqResourceObj();
         PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo();
+        InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) groupInfo.getMqExtInfo();
+        String tenant = clusterBean.getDefaultTenant();
+        if (StringUtils.isNotEmpty(pulsarInfo.getTenant())) {
+            tenant = pulsarInfo.getTenant();
+        }
         return SourceInfoUtils.createPulsarSourceInfo(groupInfo, topicName, deserializationInfo,
-                fieldInfos, clusterBean.getAppName(), clusterBean.getDefaultTenant(), pulsarClusterInfo);
+                fieldInfos, clusterBean.getAppName(), pulsarClusterInfo, tenant);
     }
 
     private TubeSourceInfo createTubeSourceInfo(InlongGroupInfo groupInfo,

@@ -17,7 +17,10 @@
 
 package org.apache.inlong.manager.service.thirdparty.sort.util;
 
+import java.util.Locale;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
@@ -27,6 +30,8 @@ import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
 import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 
 import java.util.List;
+import org.apache.inlong.sort.protocol.source.SourceInfo;
+import org.apache.inlong.sort.protocol.source.TDMQPulsarSourceInfo;
 
 public class SourceInfoUtils {
 
@@ -38,16 +43,27 @@ public class SourceInfoUtils {
         return false;
     }
 
-    public static PulsarSourceInfo createPulsarSourceInfo(InlongGroupInfo groupInfo, String pulsarTopic,
+    public static SourceInfo createPulsarSourceInfo(InlongGroupInfo groupInfo,
+            String pulsarTopic,
             DeserializationInfo deserializationInfo,
-            List<FieldInfo> fieldInfos, String appName, String tenant,
-            PulsarClusterInfo pulsarClusterInfo) {
+            List<FieldInfo> fieldInfos,
+            String appName,
+            PulsarClusterInfo pulsarClusterInfo,
+            String tenant) {
         final String namespace = groupInfo.getMqResourceObj();
         // Full name of Topic in Pulsar
         final String fullTopicName = "persistent://" + tenant + "/" + namespace + "/" + pulsarTopic;
         final String consumerGroup = appName + "_" + pulsarTopic + "_consumer_group";
-        return new PulsarSourceInfo(pulsarClusterInfo.getAdminUrl(), pulsarClusterInfo.getBrokerServiceUrl(),
-                fullTopicName, consumerGroup, deserializationInfo, fieldInfos.toArray(new FieldInfo[0]),
-                pulsarClusterInfo.getToken());
+        String type = pulsarClusterInfo.getType();
+        if (StringUtils.isNotEmpty(type) && type.toUpperCase(Locale.ROOT).contains(Constant.MIDDLEWARE_TDMQ)) {
+            return new TDMQPulsarSourceInfo(pulsarClusterInfo.getBrokerServiceUrl(),
+                    fullTopicName, consumerGroup, pulsarClusterInfo.getToken(), deserializationInfo,
+                    fieldInfos.toArray(new FieldInfo[0]));
+        } else {
+            return new PulsarSourceInfo(pulsarClusterInfo.getAdminUrl(), pulsarClusterInfo.getBrokerServiceUrl(),
+                    fullTopicName, consumerGroup, deserializationInfo, fieldInfos.toArray(new FieldInfo[0]),
+                    pulsarClusterInfo.getToken());
+        }
+
     }
 }
