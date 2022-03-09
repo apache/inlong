@@ -24,8 +24,6 @@ import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,24 +42,21 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/openapi/cluster")
-@Api(tags = "Cluster Config")
+@Api(tags = "Open-Cluster-API")
 public class OpenClusterController {
 
     @Autowired
     private ThirdPartyClusterService thirdPartyClusterService;
-    @Autowired
-    private DataProxyClusterService dataProxyClusterService;
 
     @PostMapping(value = "/save")
     @ApiOperation(value = "Save cluster info")
     @OperationLog(operation = OperationType.CREATE)
     public Response<Integer> save(@RequestBody ClusterInfo clusterInfo) {
-        String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
-        return Response.success(thirdPartyClusterService.save(clusterInfo, currentUser));
+        return Response.success(thirdPartyClusterService.save(clusterInfo, null));
     }
 
     @GetMapping(value = "/get/{id}")
-    @ApiOperation(value = "Get cluster info by id")
+    @ApiOperation(value = "Get cluster by id")
     @ApiImplicitParam(name = "id", value = "common cluster ID", dataTypeClass = Integer.class, required = true)
     public Response<ClusterInfo> get(@PathVariable Integer id) {
         return Response.success(thirdPartyClusterService.get(id));
@@ -77,16 +72,15 @@ public class OpenClusterController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster info")
     public Response<Boolean> update(@RequestBody ClusterInfo clusterInfo) {
-        String username = LoginUserUtils.getLoginUserDetail().getUserName();
-        return Response.success(thirdPartyClusterService.update(clusterInfo, username));
+        return Response.success(thirdPartyClusterService.update(clusterInfo, null));
     }
 
     @DeleteMapping(value = "/delete/{id}")
-    @ApiOperation(value = "Delete cluster info by id")
+    @ApiOperation(value = "Delete cluster by id")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        return Response.success(thirdPartyClusterService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName()));
+        return Response.success(thirdPartyClusterService.delete(id, null));
     }
 
 }
