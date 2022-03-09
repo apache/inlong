@@ -21,7 +21,12 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
 import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
@@ -41,10 +46,12 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
 import org.apache.inlong.manager.dao.mapper.DataProxyClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupPulsarEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterEntityMapper;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
@@ -54,11 +61,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * DataProxy cluster service layer implementation class
@@ -73,6 +75,8 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
     private DataProxyClusterEntityMapper dataProxyClusterMapper;
     @Autowired
     private InlongGroupEntityMapper groupMapper;
+    @Autowired
+    private InlongGroupPulsarEntityMapper inlongGroupPulsarEntityMapper;
     @Autowired
     private InlongStreamEntityMapper streamMapper;
     @Autowired
@@ -253,6 +257,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
         if (!groupEntities.isEmpty()) {
             middlewareType = groupEntities.get(0).getMiddlewareType();
         }
+
 //        if (!groupIdList.isEmpty()) {
 //            middlewareType = groupMapper.selectByGroupId(groupIdList.get(0)).getMiddlewareType();
 //        }
@@ -268,11 +273,14 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
                     DataProxyConfig topicConfig = new DataProxyConfig();
                     String streamId = stream.getInlongStreamId();
                     String topic = stream.getMqResourceObj();
-                    String tenant = dataProxyClusterEntity.getMqSetName();
+                    String tenant = clusterBean.getDefaultTenant();
+                    InlongGroupPulsarEntity pulsarEntity = inlongGroupPulsarEntityMapper.selectByGroupId(groupId);
+                    if (pulsarEntity!=null && StringUtils.isNotEmpty(pulsarEntity.getTenant())){
+                        tenant = pulsarEntity.getTenant();
+                    }
                     topicConfig.setInlongGroupId(groupId + "/" + streamId);
                     topicConfig.setTopic("persistent://" + tenant + "/" + mqResource + "/" + topic);
                     topicList.add(topicConfig);
-
                 }
             } else if (Constant.MIDDLEWARE_TUBE.equals(middlewareType)) {
                 DataProxyConfig topicConfig = new DataProxyConfig();

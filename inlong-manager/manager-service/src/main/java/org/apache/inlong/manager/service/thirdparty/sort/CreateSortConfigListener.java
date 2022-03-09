@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
@@ -202,8 +203,13 @@ public class CreateSortConfigListener implements SortOperateListener {
             List<FieldInfo> fieldInfos) {
         String topicName = streamInfo.getMqResourceObj();
         PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo();
+        InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) groupInfo.getMqExtInfo();
+        String tenant = clusterBean.getDefaultTenant();
+        if (StringUtils.isNotEmpty(pulsarInfo.getTenant())) {
+            tenant = pulsarInfo.getTenant();
+        }
         return SourceInfoUtils.createPulsarSourceInfo(groupInfo, topicName, deserializationInfo,
-                fieldInfos, clusterBean.getAppName(), pulsarClusterInfo);
+                fieldInfos, clusterBean.getAppName(), pulsarClusterInfo, tenant);
     }
 
     private TubeSourceInfo createTubeSourceInfo(InlongGroupInfo groupInfo,

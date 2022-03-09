@@ -155,7 +155,6 @@ public class CommonOperateService {
         String adminUrl = configParams.get(Constant.PULSAR_ADMINURL);
         Preconditions.checkNotNull(adminUrl, "adminUrl is empty, check third party cluster table");
         pulsarClusterInfo.setAdminUrl(adminUrl);
-        pulsarClusterInfo.setTenant(thirdPartyClusterEntity.getMqSetName());
         return pulsarClusterInfo;
     }
 

@@ -43,9 +43,9 @@ public class SourceInfoUtils {
             DeserializationInfo deserializationInfo,
             List<FieldInfo> fieldInfos,
             String appName,
-            PulsarClusterInfo pulsarClusterInfo) {
+            PulsarClusterInfo pulsarClusterInfo,
+            String tenant) {
         final String namespace = groupInfo.getMqResourceObj();
-        final String tenant = pulsarClusterInfo.getTenant();
         // Full name of Topic in Pulsar
         final String fullTopicName = "persistent://" + tenant + "/" + namespace + "/" + pulsarTopic;
         final String consumerGroup = appName + "_" + pulsarTopic + "_consumer_group";

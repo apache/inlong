@@ -30,7 +30,6 @@ import java.util.Map;
 @Builder
 public class PulsarClusterInfo {
 
-    private String tenant;
     private String adminUrl;
     private String token;
     private String brokerServiceUrl;

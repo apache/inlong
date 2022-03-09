@@ -147,10 +147,12 @@ public class InlongGroupTransfer {
         pulsarBaseConf.setWriteQuorum(inlongGroupPulsarInfo.getWriteQuorum());
         pulsarBaseConf.setEnsemble(inlongGroupPulsarInfo.getEnsemble());
         pulsarBaseConf.setTtl(inlongGroupPulsarInfo.getTtl());
+        pulsarBaseConf.setTenant(inlongGroupPulsarInfo.getTenant());
         pulsarBaseConf.setRetentionTime(inlongGroupPulsarInfo.getRetentionTime());
         pulsarBaseConf.setRetentionSize(inlongGroupPulsarInfo.getRetentionSize());
         pulsarBaseConf.setRetentionSizeUnit(inlongGroupPulsarInfo.getRetentionSizeUnit());
         pulsarBaseConf.setRetentionTimeUnit(inlongGroupPulsarInfo.getRetentionTimeUnit());
+        pulsarBaseConf.setEnableCreateResource(inlongGroupPulsarInfo.getEnableCreateResource() == 1 ? true : false);
         List<InlongGroupExtInfo> groupExtInfos = groupResponse.getExtList();
         for (InlongGroupExtInfo extInfo : groupExtInfos) {
             if (extInfo.getKeyName().equals(InlongGroupSettings.PULSAR_ADMIN_URL)) {
@@ -240,6 +242,7 @@ public class InlongGroupTransfer {
         pulsarInfo.setEnableCreateResource(pulsarBaseConf.isEnableCreateResource() ? 1 : 0);
         pulsarInfo.setWriteQuorum(pulsarBaseConf.getWriteQuorum());
         pulsarInfo.setRetentionSize(pulsarBaseConf.getRetentionSize());
+        pulsarInfo.setTenant(pulsarBaseConf.getTenant());
         pulsarInfo.setRetentionTime(pulsarBaseConf.getRetentionTime());
         pulsarInfo.setRetentionSizeUnit(pulsarBaseConf.getRetentionSizeUnit());
         pulsarInfo.setRetentionTimeUnit(pulsarBaseConf.getRetentionTimeUnit());

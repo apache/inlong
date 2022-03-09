@@ -27,6 +27,7 @@ public class InlongGroupPulsarEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     private Integer id;
     private String inlongGroupId;
+    private String tenant;
     private Integer ensemble;
     private Integer writeQuorum;
     private Integer ackQuorum;

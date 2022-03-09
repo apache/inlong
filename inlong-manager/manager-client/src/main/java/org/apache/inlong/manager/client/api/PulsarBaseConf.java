@@ -40,6 +40,9 @@ public class PulsarBaseConf extends MqBaseConf {
     @ApiModelProperty("Pulsar service URL")
     private String pulsarServiceUrl;
 
+    @ApiModelProperty("Pulsar tenant")
+    private String tenant;
+
     @ApiModelProperty("Pulsar namespace")
     private String namespace;
 
