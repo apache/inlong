@@ -275,7 +275,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
                     String topic = stream.getMqResourceObj();
                     String tenant = clusterBean.getDefaultTenant();
                     InlongGroupPulsarEntity pulsarEntity = inlongGroupPulsarEntityMapper.selectByGroupId(groupId);
-                    if (pulsarEntity!=null && StringUtils.isNotEmpty(pulsarEntity.getTenant())){
+                    if (pulsarEntity != null && StringUtils.isNotEmpty(pulsarEntity.getTenant())) {
                         tenant = pulsarEntity.getTenant();
                     }
                     topicConfig.setInlongGroupId(groupId + "/" + streamId);

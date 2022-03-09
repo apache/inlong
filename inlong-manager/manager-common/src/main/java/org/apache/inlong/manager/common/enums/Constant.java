@@ -64,6 +64,8 @@ public class Constant {
 
     public static final String MIDDLEWARE_NONE = "NONE";
 
+    public static final String MIDDLEWARE_TDMQ = "TDMQ";
+
     public static final String SCHEMA_M0_DAY = "m0_day";
 
     public static final String CLUSTER_HIVE_TOPO = "HIVE_TOPO";
