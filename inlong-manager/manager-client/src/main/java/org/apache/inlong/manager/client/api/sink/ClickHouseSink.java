@@ -77,7 +77,7 @@ public class ClickHouseSink extends StreamSink {
     @ApiModelProperty("Create topic or not")
     private boolean needCreated;
 
-    @ApiModelProperty("Field definitions for kafka")
+    @ApiModelProperty("Field definitions for clickhouse")
     private List<SinkField> sinkFields;
 
     @ApiModelProperty("Other properties if need")

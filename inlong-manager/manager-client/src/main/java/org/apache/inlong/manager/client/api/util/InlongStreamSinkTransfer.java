@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.client.api.util;
 
-import java.nio.charset.Charset;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.inlong.manager.client.api.DataFormat;
@@ -45,6 +42,10 @@ import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class InlongStreamSinkTransfer {
 
