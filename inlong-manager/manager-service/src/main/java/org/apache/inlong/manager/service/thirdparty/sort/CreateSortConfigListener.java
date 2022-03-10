@@ -17,13 +17,13 @@
 
 package org.apache.inlong.manager.service.thirdparty.sort;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
@@ -38,6 +38,7 @@ import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
@@ -90,6 +91,13 @@ public class CreateSortConfigListener implements SortOperateListener {
     public ListenerResult listen(WorkflowContext context) throws Exception {
         LOGGER.info("Create sort config for context={}", context);
         ProcessForm form = context.getProcessForm();
+        if (form instanceof UpdateGroupProcessForm) {
+            UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) form;
+            OperateType operateType = updateGroupProcessForm.getOperateType();
+            if (operateType == OperateType.SUSPEND || operateType == OperateType.DELETE) {
+                return ListenerResult.success();
+            }
+        }
         InlongGroupInfo groupInfo = this.getGroupInfo(form);
         String groupId = groupInfo.getInlongGroupId();
         if (StringUtils.isEmpty(groupId)) {
