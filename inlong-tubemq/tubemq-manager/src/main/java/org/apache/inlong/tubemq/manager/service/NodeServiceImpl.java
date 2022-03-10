@@ -262,7 +262,7 @@ public class NodeServiceImpl implements NodeService {
         int begin = 0;
         int end = 0;
         do {
-            end = Math.min(clusterEntry.getReloadSize() + begin, needReloadList.size());
+            end = Math.min(clusterEntry.getReloadBrokerSize() + begin, needReloadList.size());
             List<Integer> brokerIdList = needReloadList.subList(begin, end);
             String brokerStr = StringUtils.join(brokerIdList, ",");
             String url = TubeConst.SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()

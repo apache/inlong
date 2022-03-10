@@ -44,5 +44,5 @@ public class ClusterEntry {
 
     private String createUser;
 
-    private int reloadSize;
+    private int reloadBrokerSize;
 }

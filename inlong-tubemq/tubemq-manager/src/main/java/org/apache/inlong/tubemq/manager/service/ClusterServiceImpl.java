@@ -55,7 +55,7 @@ public class ClusterServiceImpl implements ClusterService {
         entry.setCreateTime(new Date());
         entry.setCreateUser(req.getCreateUser());
         entry.setClusterName(req.getClusterName());
-        entry.setReloadSize(req.getReloadSize());
+        entry.setReloadBrokerSize(req.getReloadBrokerSize());
         ClusterEntry retEntry = clusterRepository.saveAndFlush(entry);
         // add master node
         addMasterNode(req, retEntry);
