@@ -113,7 +113,8 @@ public enum GroupState {
     }
 
     public static boolean isAllowedLogicDel(GroupState state) {
-        return state == GroupState.GROUP_DRAFT || state == GroupState.GROUP_WAIT_SUBMIT;
+        return state == GroupState.GROUP_DRAFT || state == GroupState.GROUP_WAIT_SUBMIT
+                || state == GroupState.GROUP_DELETE;
     }
 
     public Integer getCode() {
