@@ -140,14 +140,14 @@ public class TaskServiceImpl implements TaskService {
             if (ValidateUtils.isNull(brokerInfoList)) {
                 continue;
             }
-            doReloadBrokers(clusterId, masterEntry, brokerInfoList);
+            doReloadBrokers(clusterId, masterEntry, brokerInfoList, cluster);
         }
     }
 
     @Async("asyncExecutor")
     public void doReloadBrokers(long clusterId, MasterEntry masterEntry,
-                                TubeHttpBrokerInfoList brokerInfoList) {
-        nodeService.handleReloadBroker(masterEntry, brokerInfoList.getNeedReloadList());
+                                TubeHttpBrokerInfoList brokerInfoList, ClusterEntry clusterEntry) {
+        nodeService.handleReloadBroker(masterEntry, brokerInfoList.getNeedReloadList(), clusterEntry);
         updateCreateTopicTaskStatus(clusterId);
     }
 

@@ -43,4 +43,6 @@ public class ClusterEntry {
     private Date modifyTime;
 
     private String createUser;
+
+    private int reloadBrokerSize;
 }

@@ -169,6 +169,7 @@ public class TestClusterController {
         masterEntries.add(masterEntry);
         req.setMasterEntries(masterEntries);
         req.setToken("abc");
+        req.setReloadBrokerSize(2);
 
         ClusterEntry entry = getOneClusterEntry();
         TubeMQResult successResult = new TubeMQResult();
