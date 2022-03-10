@@ -30,7 +30,6 @@ import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.SinkType;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -80,9 +79,6 @@ public class ClickHouseSink extends StreamSink {
 
     @ApiModelProperty("Field definitions for clickhouse")
     private List<SinkField> sinkFields;
-
-    @ApiModelProperty("Other properties if need")
-    private Map<String, String> properties;
 
     @Override
     public DataFormat getDataFormat() {

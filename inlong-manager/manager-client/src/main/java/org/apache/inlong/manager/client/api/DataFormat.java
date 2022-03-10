@@ -17,13 +17,15 @@
 
 package org.apache.inlong.manager.client.api;
 
-import java.util.Locale;
 import lombok.Getter;
+
+import java.util.Locale;
 
 public enum DataFormat {
     CSV("csv"),
     AVRO("avro"),
     CANAL("canal"),
+    JSON("json"),
     NONE("none");
 
     @Getter

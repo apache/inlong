@@ -17,15 +17,11 @@
 
 package org.apache.inlong.manager.client.api.util;
 
-import static org.apache.inlong.manager.common.enums.SourceType.BINLOG;
-import static org.apache.inlong.manager.common.enums.SourceType.KAFKA;
-
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.Constant;
@@ -53,6 +49,11 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListRes
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+
+import java.util.List;
+
+import static org.apache.inlong.manager.common.enums.SourceType.BINLOG;
+import static org.apache.inlong.manager.common.enums.SourceType.KAFKA;
 
 /**
  * Parser for Inlong entity

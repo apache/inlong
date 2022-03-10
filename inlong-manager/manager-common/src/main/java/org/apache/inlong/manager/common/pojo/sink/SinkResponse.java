@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.sink;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
 import lombok.Data;
 
 import java.util.Date;
@@ -78,5 +79,8 @@ public class SinkResponse {
 
     @ApiModelProperty("Sink field list")
     private List<SinkFieldResponse> fieldList;
+
+    @ApiModelProperty("Properties for sink")
+    private Map<String, Object> properties;
 
 }

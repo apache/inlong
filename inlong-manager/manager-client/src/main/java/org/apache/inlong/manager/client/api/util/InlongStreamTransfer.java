@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.client.api.util;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
@@ -26,6 +24,9 @@ import org.apache.inlong.manager.client.api.StreamField;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class InlongStreamTransfer {
 

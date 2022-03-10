@@ -61,7 +61,7 @@ public class KafkaSourceDTO {
             notes = "For example, '0#100_1#10' means the offset of partition 0 is 100, the offset of partition 1 is 10")
     private String topicPartitionOffset;
 
-    @ApiModelProperty("Data Serialization, support: Json, Canal, Avro, etc")
+    @ApiModelProperty("Data Serialization, support: json, canal, avro, etc")
     private String serializationType;
 
     /**

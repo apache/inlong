@@ -29,7 +29,6 @@ import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.common.enums.SinkType;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -55,7 +54,4 @@ public class KafkaSink extends StreamSink {
 
     @ApiModelProperty("Field definitions for kafka")
     private List<SinkField> sinkFields;
-
-    @ApiModelProperty("Other properties if need")
-    private Map<String, String> properties;
 }

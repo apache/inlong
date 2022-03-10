@@ -18,10 +18,11 @@
 package org.apache.inlong.manager.client.api.auth;
 
 import com.alibaba.fastjson.JSONObject;
-import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+
+import java.util.Map;
 
 @NoArgsConstructor
 public class SecretTokenAuthentication extends SecretAuthentication {

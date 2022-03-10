@@ -103,10 +103,10 @@ public class InlongStreamSinkTransfer {
         clickHouseSinkRequest.setKeyFieldNames(clickHouseSink.getKeyFieldNames());
         clickHouseSinkRequest.setPartitionKey(clickHouseSink.getPartitionKey());
         clickHouseSinkRequest.setPartitionStrategy(clickHouseSink.getPartitionStrategy());
-        clickHouseSinkRequest.setPartitionKey(clickHouseSink.getPartitionKey());
         clickHouseSinkRequest.setWriteMaxRetryTimes(clickHouseSink.getWriteMaxRetryTimes());
         clickHouseSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         clickHouseSinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+        clickHouseSinkRequest.setProperties(clickHouseSink.getProperties());
         clickHouseSinkRequest.setEnableCreateResource(clickHouseSink.isNeedCreated() ? 1 : 0);
         if (CollectionUtils.isNotEmpty(clickHouseSink.getSinkFields())) {
             List<SinkFieldRequest> fieldRequests = createSinkFieldRequests(streamSink.getSinkFields());
@@ -138,7 +138,7 @@ public class InlongStreamSinkTransfer {
             clickHouseSink.setWriteMaxRetryTimes(sinkResponse.getWriteMaxRetryTimes());
             clickHouseSink.setDistributedTable(sinkResponse.getDistributedTable());
         }
-
+        clickHouseSink.setProperties(sinkResponse.getProperties());
         clickHouseSink.setNeedCreated(sinkResponse.getEnableCreateResource() == 1);
         if (CollectionUtils.isNotEmpty(sinkResponse.getFieldList())) {
             clickHouseSink.setSinkFields(convertToSinkFields(sinkResponse.getFieldList()));
@@ -167,6 +167,7 @@ public class InlongStreamSinkTransfer {
         kafkaSinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         kafkaSinkRequest.setSerializationType(kafkaSink.getDataFormat().name());
         kafkaSinkRequest.setEnableCreateResource(kafkaSink.isNeedCreated() ? 1 : 0);
+        kafkaSinkRequest.setProperties(kafkaSink.getProperties());
         if (CollectionUtils.isNotEmpty(kafkaSink.getSinkFields())) {
             List<SinkFieldRequest> fieldRequests = createSinkFieldRequests(kafkaSink.getSinkFields());
             kafkaSinkRequest.setFieldList(fieldRequests);
@@ -190,6 +191,7 @@ public class InlongStreamSinkTransfer {
             kafkaSink.setTopicName(sinkResponse.getTopicName());
             kafkaSink.setDataFormat(DataFormat.forName(sinkResponse.getSerializationType()));
         }
+        kafkaSink.setProperties(sinkResponse.getProperties());
         kafkaSink.setNeedCreated(sinkResponse.getEnableCreateResource() == 1);
         if (CollectionUtils.isNotEmpty(sinkResponse.getFieldList())) {
             kafkaSink.setSinkFields(convertToSinkFields(sinkResponse.getFieldList()));
@@ -220,6 +222,7 @@ public class InlongStreamSinkTransfer {
         hiveSinkRequest.setPassword(defaultAuthentication.getPassword());
         hiveSinkRequest.setPrimaryPartition(hiveSink.getPrimaryPartition());
         hiveSinkRequest.setSecondaryPartition(hiveSink.getSecondaryPartition());
+        hiveSinkRequest.setProperties(hiveSink.getProperties());
         if (CollectionUtils.isNotEmpty(hiveSink.getSinkFields())) {
             List<SinkFieldRequest> fieldRequests = createSinkFieldRequests(streamSink.getSinkFields());
             hiveSinkRequest.setFieldList(fieldRequests);
@@ -275,7 +278,7 @@ public class InlongStreamSinkTransfer {
             hiveSink.setSecondaryPartition(sinkResponse.getSecondaryPartition());
             hiveSink.setPrimaryPartition(sinkResponse.getPrimaryPartition());
         }
-
+        hiveSink.setProperties(sinkResponse.getProperties());
         hiveSink.setSinkType(SinkType.HIVE);
         hiveSink.setNeedCreated(sinkResponse.getEnableCreateResource() == 1);
         if (CollectionUtils.isNotEmpty(sinkResponse.getFieldList())) {
