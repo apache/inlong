@@ -30,8 +30,14 @@ public interface GroupResCtrlMapper extends AbstractMapper {
     boolean updGroupResCtrlConf(GroupResCtrlEntity entity,
                                 StringBuilder strBuff, ProcessResult result);
 
-    boolean delGroupResCtrlConf(String groupName, ProcessResult result);
+    boolean delGroupResCtrlConf(String groupName, StringBuilder strBuff, ProcessResult result);
 
+    /**
+     * Get group resource control entity by group name
+     *
+     * @param groupName  need query group name
+     * @return  group resource control info by groupName's key
+     */
     GroupResCtrlEntity getGroupResCtrlConf(String groupName);
 
     /**

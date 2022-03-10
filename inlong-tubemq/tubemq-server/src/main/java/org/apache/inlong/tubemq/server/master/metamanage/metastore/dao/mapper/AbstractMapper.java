@@ -23,6 +23,5 @@ public interface AbstractMapper {
 
     void close();
 
-    void loadConfig() throws LoadMetaException;
-
+    void loadConfig(StringBuilder strBuff) throws LoadMetaException;
 }

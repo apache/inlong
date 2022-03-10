@@ -25,15 +25,47 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.To
 
 public interface TopicDeployMapper extends AbstractMapper {
 
+    /**
+     * Add a new topic deploy configure info from store
+     *
+     * @param entity   the record to be added
+     * @param strBuff  the string buffer
+     * @param result   the process result
+     * @return         whether success
+     */
     boolean addTopicConf(TopicDeployEntity entity,
                          StringBuilder strBuff, ProcessResult result);
 
+    /**
+     * Update the topic deploy configure info from store
+     *
+     * @param entity   the record to be updated
+     * @param strBuff  the string buffer
+     * @param result   the process result
+     * @return         whether success
+     */
     boolean updTopicConf(TopicDeployEntity entity,
                          StringBuilder strBuff, ProcessResult result);
 
-    boolean delTopicConf(String recordKey, ProcessResult result);
+    /**
+     * delete topic deploy configure info from store
+     *
+     * @param recordKey  the record key to be deleted
+     * @param strBuff    the string buffer
+     * @param result     the process result
+     * @return           whether success
+     */
+    boolean delTopicConf(String recordKey, StringBuilder strBuff, ProcessResult result);
 
-    boolean delTopicConfByBrokerId(Integer brokerId, ProcessResult result);
+    /**
+     * delete topic deploy configure info from store
+     *
+     * @param brokerId   the broker id to be deleted
+     * @param strBuff    the string buffer
+     * @param result     the process result
+     * @return           whether success
+     */
+    boolean delTopicConfByBrokerId(Integer brokerId, StringBuilder strBuff, ProcessResult result);
 
     boolean hasConfiguredTopics(int brokerId);
 

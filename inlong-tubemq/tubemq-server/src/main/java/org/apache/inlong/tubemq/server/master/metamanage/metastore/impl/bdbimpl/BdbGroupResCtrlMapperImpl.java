@@ -22,30 +22,20 @@ import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.exception.LoadMetaException;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.GroupResCtrlMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsGroupResCtrlMapperImpl;
 
-public class BdbGroupResCtrlMapperImpl implements GroupResCtrlMapper {
-
-    private static final Logger logger =
-            LoggerFactory.getLogger(BdbGroupResCtrlMapperImpl.class);
+public class BdbGroupResCtrlMapperImpl extends AbsGroupResCtrlMapperImpl {
     // consumer group configure store
     private EntityStore groupConfStore;
     private final PrimaryIndex<String/* groupName */, BdbGroupFlowCtrlEntity> groupBaseCtrlIndex;
-    private final ConcurrentHashMap<String/* groupName */, GroupResCtrlEntity>
-            groupBaseCtrlCache = new ConcurrentHashMap<>();
 
     public BdbGroupResCtrlMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
+        super();
         groupConfStore = new EntityStore(repEnv,
                 TBDBStoreTables.BDB_GROUP_FLOW_CONTROL_STORE_NAME, storeConfig);
         groupBaseCtrlIndex =
@@ -54,155 +44,57 @@ public class BdbGroupResCtrlMapperImpl implements GroupResCtrlMapper {
 
     @Override
     public void close() {
-        groupBaseCtrlCache.clear();
+        clearCachedData();
         if (groupConfStore != null) {
             try {
                 groupConfStore.close();
                 groupConfStore = null;
             } catch (Throwable e) {
-                logger.error("[BDB Impl] close group resource control failure ", e);
+                logger.error("[BDB Impl] close group control configure failure ", e);
             }
         }
+        logger.info("[BDB Impl] group control configure closed!");
     }
 
     @Override
-    public void loadConfig() throws LoadMetaException {
-        long count = 0L;
+    public void loadConfig(StringBuilder strBuff) throws LoadMetaException {
+        long totalCnt = 0L;
         EntityCursor<BdbGroupFlowCtrlEntity> cursor = null;
-        logger.info("[BDB Impl] load group resource control start...");
+        logger.info("[BDB Impl] load group control configure start...");
+        clearCachedData();
         try {
-            groupBaseCtrlCache.clear();
             cursor = groupBaseCtrlIndex.entities();
             for (BdbGroupFlowCtrlEntity bdbEntity : cursor) {
                 if (bdbEntity == null) {
-                    logger.warn("[BDB Impl] null data while loading group resource control!");
+                    logger.warn("[BDB Impl] null data while loading group control configure!");
                     continue;
                 }
-                GroupResCtrlEntity memEntity =
-                        new GroupResCtrlEntity(bdbEntity);
-                groupBaseCtrlCache.put(memEntity.getGroupName(), memEntity);
-                count++;
+                addOrUpdCacheRecord(new GroupResCtrlEntity(bdbEntity));
+                totalCnt++;
             }
-            logger.info("[BDB Impl] total group resource control records are {}", count);
         } catch (Exception e) {
-            logger.error("[BDB Impl] load group resource control failure ", e);
+            logger.error("[BDB Impl] load group control configure failure ", e);
             throw new LoadMetaException(e.getMessage());
         } finally {
             if (cursor != null) {
                 cursor.close();
             }
         }
-        logger.info("[BDB Impl] load group resource configure successfully...");
+        logger.info(strBuff.append("[BDB Impl] loaded ").append(totalCnt)
+                .append(" group control configure successfully...").toString());
+        strBuff.delete(0, strBuff.length());
     }
 
-    @Override
-    public boolean addGroupResCtrlConf(GroupResCtrlEntity memEntity,
-                                       StringBuilder strBuff, ProcessResult result) {
-        GroupResCtrlEntity curEntity =
-                groupBaseCtrlCache.get(memEntity.getGroupName());
-        if (curEntity != null) {
-            result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    strBuff.append("The group ").append(memEntity.getGroupName())
-                            .append("'s resource control already exists, please delete it first!")
-                            .toString());
-            strBuff.delete(0, strBuff.length());
-            return result.isSuccess();
-        }
-        if (putGroupConfigConfig2Bdb(memEntity, strBuff, result)) {
-            groupBaseCtrlCache.put(memEntity.getGroupName(), memEntity);
-        }
-        return result.isSuccess();
-    }
-
-    @Override
-    public boolean updGroupResCtrlConf(GroupResCtrlEntity memEntity,
-                                       StringBuilder strBuff, ProcessResult result) {
-        GroupResCtrlEntity curEntity =
-                groupBaseCtrlCache.get(memEntity.getGroupName());
-        if (curEntity == null) {
-            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    strBuff.append("The group ").append(memEntity.getGroupName())
-                            .append("'s resource control is not exists, please add record first!")
-                            .toString());
-            strBuff.delete(0, strBuff.length());
-            return result.isSuccess();
-        }
-        if (curEntity.equals(memEntity)) {
-            result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                    strBuff.append("The group ").append(memEntity.getGroupName())
-                            .append("'s resource control have not changed, please delete it first!")
-                            .toString());
-            strBuff.delete(0, strBuff.length());
-            return result.isSuccess();
-        }
-        if (putGroupConfigConfig2Bdb(memEntity, strBuff, result)) {
-            groupBaseCtrlCache.put(memEntity.getGroupName(), memEntity);
-            result.setSuccResult(curEntity);
-        }
-        return result.isSuccess();
-    }
-
-    @Override
-    public boolean delGroupResCtrlConf(String groupName, ProcessResult result) {
-        GroupResCtrlEntity curEntity =
-                groupBaseCtrlCache.get(groupName);
-        if (curEntity == null) {
-            result.setSuccResult(null);
-            return true;
-        }
-        delGroupConfigConfigFromBdb(groupName);
-        groupBaseCtrlCache.remove(groupName);
-        result.setSuccResult(curEntity);
-        return true;
-    }
-
-    @Override
-    public GroupResCtrlEntity getGroupResCtrlConf(String groupName) {
-        return groupBaseCtrlCache.get(groupName);
-    }
-
-    @Override
-    public Map<String, GroupResCtrlEntity> getGroupResCtrlConf(Set<String> groupNameSet,
-                                                               GroupResCtrlEntity qryEntry) {
-        Map<String, GroupResCtrlEntity> retMap = new HashMap<>();
-        if (groupNameSet == null || groupNameSet.isEmpty()) {
-            for (GroupResCtrlEntity entry : groupBaseCtrlCache.values()) {
-                if (entry == null || (qryEntry != null && !entry.isMatched(qryEntry))) {
-                    continue;
-                }
-                retMap.put(entry.getGroupName(), entry);
-            }
-        } else {
-            GroupResCtrlEntity entry;
-            for (String groupName : groupNameSet) {
-                entry = groupBaseCtrlCache.get(groupName);
-                if (entry == null || (qryEntry != null && !entry.isMatched(qryEntry))) {
-                    continue;
-                }
-                retMap.put(entry.getGroupName(), entry);
-            }
-        }
-        return retMap;
-    }
-
-    /**
-     * Put Group configure info into bdb store
-     *
-     * @param memEntity need add record
-     * @param strBuff   the string buffer
-     * @param result process result with old value
-     * @return  the process result
-     */
-    private boolean putGroupConfigConfig2Bdb(GroupResCtrlEntity memEntity,
-                                             StringBuilder strBuff, ProcessResult result) {
+    protected boolean putConfig2Persistent(GroupResCtrlEntity entity,
+                                           StringBuilder strBuff, ProcessResult result) {
         BdbGroupFlowCtrlEntity bdbEntity =
-                memEntity.buildBdbGroupFlowCtrlEntity();
+                entity.buildBdbGroupFlowCtrlEntity();
         try {
             groupBaseCtrlIndex.put(bdbEntity);
         } catch (Throwable e) {
-            logger.error("[BDB Impl] put group resource control failure ", e);
+            logger.error("[BDB Impl] put group control configure failure ", e);
             result.setFailResult(DataOpErrCode.DERR_STORE_ABNORMAL.getCode(),
-                    strBuff.append("Put group resource control failure: ")
+                    strBuff.append("Put group control configure failure: ")
                             .append(e.getMessage()).toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
@@ -211,14 +103,13 @@ public class BdbGroupResCtrlMapperImpl implements GroupResCtrlMapper {
         return result.isSuccess();
     }
 
-    private boolean delGroupConfigConfigFromBdb(String recordKey) {
+    protected boolean delConfigFromPersistent(String recordKey, StringBuilder strBuff) {
         try {
             groupBaseCtrlIndex.delete(recordKey);
         } catch (Throwable e) {
-            logger.error("[BDB Impl] delete group resource control failure ", e);
+            logger.error("[BDB Impl] delete control configure failure ", e);
             return false;
         }
         return true;
     }
-
 }

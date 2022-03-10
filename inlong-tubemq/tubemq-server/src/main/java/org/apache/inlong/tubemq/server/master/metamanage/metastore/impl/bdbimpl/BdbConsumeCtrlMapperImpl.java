@@ -24,60 +24,56 @@ import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.exception.LoadMetaException;
-import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
+import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsClusterConfigMapperImpl;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsConsumeCtrlMapperImpl;
 
-public class BdbClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
-    // bdb store
-    private EntityStore clsDefSettingStore;
-    private final PrimaryIndex<String, BdbClusterSettingEntity> clsDefSettingIndex;
+public class BdbConsumeCtrlMapperImpl extends AbsConsumeCtrlMapperImpl {
+    // consume control store
+    private EntityStore groupConsumeStore;
+    private final PrimaryIndex<String/* recordKey */, BdbGroupFilterCondEntity> groupConsumeIndex;
 
-    public BdbClusterConfigMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
+    public BdbConsumeCtrlMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
         super();
-        clsDefSettingStore = new EntityStore(repEnv,
-                TBDBStoreTables.BDB_CLUSTER_SETTING_STORE_NAME, storeConfig);
-        clsDefSettingIndex =
-                clsDefSettingStore.getPrimaryIndex(String.class, BdbClusterSettingEntity.class);
+        groupConsumeStore = new EntityStore(repEnv,
+                TBDBStoreTables.BDB_GROUP_FILTER_COND_STORE_NAME, storeConfig);
+        groupConsumeIndex =
+                groupConsumeStore.getPrimaryIndex(String.class, BdbGroupFilterCondEntity.class);
     }
 
     @Override
     public void close() {
-        // clear cached data
         clearCachedData();
-        // release bdb resource
-        if (clsDefSettingStore != null) {
+        if (groupConsumeStore != null) {
             try {
-                clsDefSettingStore.close();
-                clsDefSettingStore = null;
+                groupConsumeStore.close();
+                groupConsumeStore = null;
             } catch (Throwable e) {
-                logger.error("[BDB Impl] close cluster configure failure ", e);
+                logger.error("[BDB Impl] close consume control configure failure ", e);
             }
         }
-        logger.info("[BDB Impl] cluster configure closed!");
+        logger.info("[BDB Impl] consume control configure closed!");
     }
 
     @Override
     public void loadConfig(StringBuilder strBuff) throws LoadMetaException {
         long totalCnt = 0L;
-        EntityCursor<BdbClusterSettingEntity> cursor = null;
-        logger.info("[BDB Impl] load cluster configure start...");
-        // clear cached data
-        clearCachedData();
-        // load data from bdb
+        EntityCursor<BdbGroupFilterCondEntity> cursor = null;
+        logger.info("[BDB Impl] load consume control configure start...");
         try {
-            cursor = clsDefSettingIndex.entities();
-            for (BdbClusterSettingEntity bdbEntity : cursor) {
+            clearCachedData();
+            cursor = groupConsumeIndex.entities();
+            for (BdbGroupFilterCondEntity bdbEntity : cursor) {
                 if (bdbEntity == null) {
-                    logger.warn("[BDB Impl] found Null data while loading cluster configure!");
+                    logger.warn("[BDB Impl] found Null data while loading consume control configure!");
                     continue;
                 }
-                addOrUpdCacheRecord(new ClusterSettingEntity(bdbEntity));
+                addOrUpdCacheRecord(new GroupConsumeCtrlEntity(bdbEntity));
                 totalCnt++;
             }
         } catch (Exception e) {
-            logger.error("[BDB Impl] load cluster configure failure ", e);
+            logger.error("[BDB Impl] load consume control configure failure ", e);
             throw new LoadMetaException(e.getMessage());
         } finally {
             if (cursor != null) {
@@ -85,20 +81,20 @@ public class BdbClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
             }
         }
         logger.info(strBuff.append("[BDB Impl] loaded ").append(totalCnt)
-                .append(" cluster configure successfully...").toString());
+                .append(" consume control configure successfully...").toString());
         strBuff.delete(0, strBuff.length());
     }
 
-    protected boolean putConfig2Persistent(ClusterSettingEntity entity,
+    protected boolean putConfig2Persistent(GroupConsumeCtrlEntity entity,
                                            StringBuilder strBuff, ProcessResult result) {
-        BdbClusterSettingEntity bdbEntity =
-                entity.buildBdbClsDefSettingEntity();
+        BdbGroupFilterCondEntity bdbEntity =
+                entity.buildBdbGroupFilterCondEntity();
         try {
-            clsDefSettingIndex.put(bdbEntity);
+            groupConsumeIndex.put(bdbEntity);
         } catch (Throwable e) {
-            logger.error("[BDB Impl] put cluster configure failure ", e);
+            logger.error("[BDB Impl] put consume control configure failure ", e);
             result.setFailResult(DataOpErrCode.DERR_STORE_ABNORMAL.getCode(),
-                    strBuff.append("Put cluster configure failure: ")
+                    strBuff.append("Put consume control  configure failure: ")
                             .append(e.getMessage()).toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
@@ -107,11 +103,11 @@ public class BdbClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
         return result.isSuccess();
     }
 
-    protected boolean delConfigFromPersistent(StringBuilder strBuff, String key) {
+    protected boolean delConfigFromPersistent(String recordKey, StringBuilder strBuff) {
         try {
-            clsDefSettingIndex.delete(key);
+            groupConsumeIndex.delete(recordKey);
         } catch (Throwable e) {
-            logger.error("[BDB Impl] delete cluster configure failure ", e);
+            logger.error("[BDB Impl] delete consume control configure failure ", e);
             return false;
         }
         return true;
