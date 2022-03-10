@@ -59,13 +59,13 @@ public interface StreamSinkEntityMapper {
             @Param("streamId") String streamId);
 
     /**
-     * According to the inlong group id and inlong stream id, query valid sink information
+     * Query valid sink list by the given group id and stream id.
      *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
-     * @return Sink entity list
+     * @param groupId Inlong group id.
+     * @param streamId Inlong stream id.
+     * @return Sink entity list.
      */
-    List<StreamSinkEntity> selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    List<StreamSinkEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
      * According to the group id, stream id and sink type, query valid sink entity list.

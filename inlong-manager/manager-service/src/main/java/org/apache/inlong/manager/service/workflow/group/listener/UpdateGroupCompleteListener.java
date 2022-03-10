@@ -51,20 +51,21 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
         String username = context.getApplicant();
         OperateType operateType = form.getOperateType();
         InlongGroupInfo groupInfo = form.getGroupInfo();
+        Integer nextStatus;
         switch (operateType) {
             case RESTART:
-                groupInfo.setStatus(GroupState.GROUP_RESTART.getCode());
+                nextStatus = GroupState.GROUP_RESTART.getCode();
                 break;
             case SUSPEND:
-                groupInfo.setStatus(GroupState.GROUP_SUSPEND.getCode());
+                nextStatus = GroupState.GROUP_SUSPEND.getCode();
                 break;
             case DELETE:
-                groupInfo.setStatus(GroupState.GROUP_DELETE.getCode());
+                nextStatus = GroupState.GROUP_DELETE.getCode();
                 break;
             default:
-                throw new RuntimeException(String.format("Unsupport operation=%s for Inlong group", operateType));
+                throw new RuntimeException(String.format("Unsupported operation=%s for Inlong group", operateType));
         }
-        groupService.update(groupInfo.genRequest(), username);
+        groupService.updateStatus(groupInfo.getInlongGroupId(), nextStatus, username);
         return ListenerResult.success();
     }
 

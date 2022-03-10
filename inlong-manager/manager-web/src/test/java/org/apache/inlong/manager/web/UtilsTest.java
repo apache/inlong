@@ -20,18 +20,18 @@ package org.apache.inlong.manager.web;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.junit.Assert;
+import org.junit.Test;
+import org.springframework.beans.BeanUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Assert;
-import org.junit.Test;
-import org.springframework.beans.BeanUtils;
 
 /**
  * Tool testing
- *
  */
 public class UtilsTest {
 
@@ -45,19 +45,13 @@ public class UtilsTest {
         entity.setCreateTime(new Date());
         entity.setModifyTime(null);
 
-        InlongGroupRequest info = new InlongGroupRequest();
-        info.setInlongGroupId("info");
-        info.setCreator("");
-        info.setModifier("user2");
-        info.setCreateTime(null);
-        info.setModifyTime(new Date());
+        InlongGroupRequest request = new InlongGroupRequest();
+        request.setInlongGroupId("info");
 
-        BeanUtils.copyProperties(info, entity);
-        Assert.assertNull(entity.getStatus());
-        Assert.assertEquals("", entity.getCreator());
-        Assert.assertEquals("user2", entity.getModifier());
-        Assert.assertNull(entity.getCreateTime());
-        Assert.assertNotNull(entity.getModifyTime());
+        BeanUtils.copyProperties(request, entity);
+        Assert.assertEquals(1, (int) entity.getStatus());
+        Assert.assertNotNull(entity.getCreateTime());
+        Assert.assertNull(entity.getModifyTime());
     }
 
     @Test
@@ -70,19 +64,13 @@ public class UtilsTest {
         entity.setCreateTime(new Date());
         entity.setModifyTime(null);
 
-        InlongGroupRequest info = new InlongGroupRequest();
-        info.setInlongGroupId("info");
-        info.setCreator("");
-        info.setModifier("user2");
-        info.setCreateTime(null);
-        info.setModifyTime(new Date());
+        InlongGroupRequest request = new InlongGroupRequest();
+        request.setInlongGroupId("info");
 
-        CommonBeanUtils.copyProperties(info, entity, true);
+        CommonBeanUtils.copyProperties(request, entity, true);
         Assert.assertEquals(1, (int) entity.getStatus());
-        Assert.assertEquals("", entity.getCreator());
-        Assert.assertEquals("user2", entity.getModifier());
         Assert.assertNotNull(entity.getCreateTime());
-        Assert.assertNotNull(entity.getModifyTime());
+        Assert.assertNull(entity.getModifyTime());
     }
 
     @Test
