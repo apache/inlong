@@ -88,7 +88,6 @@ public class InlongStreamSinkTransfer {
         ClickHouseSinkRequest clickHouseSinkRequest = new ClickHouseSinkRequest();
         ClickHouseSink clickHouseSink = (ClickHouseSink) streamSink;
         clickHouseSinkRequest.setSinkName(clickHouseSink.getSinkName());
-        clickHouseSinkRequest.setProperties(clickHouseSink.getProperties());
         clickHouseSinkRequest.setDatabaseName(clickHouseSink.getDatabaseName());
         clickHouseSinkRequest.setSinkType(clickHouseSink.getSinkType().name());
         clickHouseSinkRequest.setJdbcUrl(clickHouseSink.getJdbcUrl());
