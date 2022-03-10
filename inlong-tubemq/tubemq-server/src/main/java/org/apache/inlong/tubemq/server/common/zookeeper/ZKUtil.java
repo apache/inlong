@@ -504,4 +504,27 @@ public class ZKUtil {
         }
     }
 
+    /**
+     * Normalize ZooKeeper path string.
+     * The ZooKeeper path must start with "/" and not end with "/"
+     *
+     * @param root   the ZooKeeper path string
+     * @return    the normalized ZooKeeper path string
+     */
+    public static String normalizePath(String root) {
+        if (root.startsWith("/")) {
+            return removeLastSlash(root);
+        } else {
+            return "/" + removeLastSlash(root);
+        }
+    }
+
+    private static String removeLastSlash(String root) {
+        if (root.endsWith("/")) {
+            return root.substring(0, root.lastIndexOf("/"));
+        } else {
+            return root;
+        }
+    }
+
 }

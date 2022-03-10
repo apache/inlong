@@ -23,7 +23,7 @@ import java.util.Set;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 
-public interface GroupConsumeCtrlMapper extends AbstractMapper {
+public interface ConsumeCtrlMapper extends AbstractMapper {
 
     boolean addGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
                                     StringBuilder strBuff, ProcessResult result);
@@ -31,11 +31,10 @@ public interface GroupConsumeCtrlMapper extends AbstractMapper {
     boolean updGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
                                     StringBuilder strBuff, ProcessResult result);
 
-    boolean delGroupConsumeCtrlConf(String recordKey, ProcessResult result);
+    boolean delGroupConsumeCtrlConf(String recordKey, StringBuilder strBuff, ProcessResult result);
 
-    boolean delGroupConsumeCtrlConf(String groupName,
-                                    String topicName,
-                                    ProcessResult result);
+    boolean delGroupConsumeCtrlConf(String groupName, String topicName,
+                                    StringBuilder strBuff, ProcessResult result);
 
     boolean isTopicNameInUsed(String topicName);
 

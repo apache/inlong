@@ -56,7 +56,7 @@ public class DefaultBrokerRcvQltyStatsTest {
         // Test getAllowedBrokerPartitions
         Map<Integer, List<Partition>> brokerPartList = new HashMap<>();
         List<Partition> partitions = new ArrayList<>();
-        partitions.add(new Partition(new BrokerInfo("0:192.168.0.1:18080"), "test_topic", 1));
+        partitions.add(new Partition(new BrokerInfo("0:127.0.0.1:18080"), "test_topic", 1));
         brokerPartList.put(0, partitions);
 
         List<Partition> actualPartitions = stats.getAllowedBrokerPartitions(brokerPartList);
