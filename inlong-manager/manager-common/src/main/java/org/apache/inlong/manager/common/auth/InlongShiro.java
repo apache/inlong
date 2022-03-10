@@ -24,7 +24,7 @@ import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.WebSecurityManager;
 import org.apache.shiro.web.session.mgt.WebSessionManager;
 
-public interface InLongShiro {
+public interface InlongShiro {
 
     WebSecurityManager getWebSecurityManager();
 

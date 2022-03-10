@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.web.auth;
 
 import javax.annotation.Resource;
-import org.apache.inlong.manager.common.auth.InLongShiro;
+import org.apache.inlong.manager.common.auth.InlongShiro;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -35,7 +35,7 @@ import org.springframework.context.annotation.Configuration;
 public class ShiroConfig {
 
     @Resource
-    private InLongShiro inLongShiro;
+    private InlongShiro inLongShiro;
 
     @Bean
     public AuthorizingRealm shiroRealm(HashedCredentialsMatcher matcher) {

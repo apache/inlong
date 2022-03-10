@@ -20,7 +20,7 @@ package org.apache.inlong.manager.web.auth.impl;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.servlet.Filter;
-import org.apache.inlong.manager.common.auth.InLongShiro;
+import org.apache.inlong.manager.common.auth.InlongShiro;
 import org.apache.inlong.manager.service.core.UserService;
 import org.apache.inlong.manager.web.auth.AuthenticationFilter;
 import org.apache.inlong.manager.web.auth.WebAuthorizingRealm;
@@ -39,7 +39,7 @@ import org.springframework.stereotype.Component;
 
 @ConditionalOnProperty(name = "type", prefix = "inlong.auth", havingValue = "default")
 @Component
-public class InLongShiroImpl implements InLongShiro {
+public class InlongShiroImpl implements InlongShiro {
 
     @Autowired
     private UserService userService;
