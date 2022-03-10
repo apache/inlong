@@ -29,7 +29,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.DataSeparator;
-import org.apache.inlong.manager.client.api.StreamField;
+import org.apache.inlong.manager.client.api.SinkField;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.SinkType;
@@ -94,7 +94,7 @@ public class HiveSink extends StreamSink {
     private String secondaryPartition;
 
     @ApiModelProperty("Field definitions for hive")
-    private List<StreamField> streamFields;
+    private List<SinkField> sinkFields;
 
     @ApiModelProperty("Other properties if need")
     private Map<String, String> properties;

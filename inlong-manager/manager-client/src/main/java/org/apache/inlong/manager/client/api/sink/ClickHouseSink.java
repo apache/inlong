@@ -19,18 +19,17 @@ package org.apache.inlong.manager.client.api.sink;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.DataFormat;
-import org.apache.inlong.manager.client.api.StreamField;
+import org.apache.inlong.manager.client.api.SinkField;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.SinkType;
-
-import java.util.List;
-import java.util.Map;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -79,7 +78,7 @@ public class ClickHouseSink extends StreamSink {
     private boolean needCreated;
 
     @ApiModelProperty("Field definitions for kafka")
-    private List<StreamField> streamFields;
+    private List<SinkField> sinkFields;
 
     @ApiModelProperty("Other properties if need")
     private Map<String, String> properties;
