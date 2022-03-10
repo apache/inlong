@@ -83,7 +83,7 @@ spec:
           {{- end }}
           env:
             - name: MANAGER_OPENAPI_IP
-              value: {{ include "inlong.tubemqManager.hostname" . | quote }}
+              value: {{ include "inlong.manager.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
               value: {{ .Values.agent.ports.managerOpenApi }}
             - name: DATAPROXY_IP
