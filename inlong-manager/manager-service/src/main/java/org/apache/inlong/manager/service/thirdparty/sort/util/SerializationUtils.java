@@ -46,7 +46,7 @@ public class SerializationUtils {
     /**
      * Create deserialization info
      */
-    public static DeserializationInfo createDeserializationInfo(SourceResponse sourceResponse,
+    public static DeserializationInfo createDeserialInfo(SourceResponse sourceResponse,
             InlongStreamInfo streamInfo) {
         SourceType sourceType = SourceType.forType(sourceResponse.getSourceType());
         switch (sourceType) {
@@ -64,7 +64,7 @@ public class SerializationUtils {
     /**
      * Create serialization info
      */
-    public static SerializationInfo createSerializationInfo(SourceResponse sourceResponse, SinkResponse sinkResponse) {
+    public static SerializationInfo createSerialInfo(SourceResponse sourceResponse, SinkResponse sinkResponse) {
         SinkType sinkType = SinkType.forType(sinkResponse.getSinkType());
         switch (sinkType) {
             case HIVE:
