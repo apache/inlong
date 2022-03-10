@@ -73,6 +73,9 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         groupContext.setStreamContext(streamContext);
         this.streamContext = streamContext;
         this.inlongStream = new InlongStreamImpl(streamInfo.getName());
+        if (CollectionUtils.isNotEmpty(streamConf.getStreamFields())) {
+            this.inlongStream.setStreamFields(streamConf.getStreamFields());
+        }
         groupContext.setStream(this.inlongStream);
     }
 
