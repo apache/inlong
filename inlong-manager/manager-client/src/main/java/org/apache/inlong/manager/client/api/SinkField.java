@@ -20,21 +20,23 @@ package org.apache.inlong.manager.client.api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.enums.SinkType;
-
-import java.util.List;
+import lombok.NoArgsConstructor;
 
 @Data
-@ApiModel("Stream sink configuration")
-public abstract class StreamSink {
+@NoArgsConstructor
+@ApiModel("Sink field configuration")
+public class SinkField extends StreamField {
 
-    @ApiModelProperty(value = "DataSink name", required = true)
-    private String sinkName;
+    @ApiModelProperty("Source field name")
+    private String sourceFieldName;
 
-    public abstract SinkType getSinkType();
+    @ApiModelProperty("Source field type")
+    private String sourceFieldType;
 
-    public abstract List<SinkField> getSinkFields();
-
-    public abstract DataFormat getDataFormat();
-
+    public SinkField(int index, FieldType fieldType, String fieldName, String fieldComment,
+            String fieldValue, String sourceFieldName, String sourceFieldType) {
+        super(index, fieldType, fieldName, fieldComment, fieldValue);
+        this.sourceFieldName = sourceFieldName;
+        this.sourceFieldType = sourceFieldType;
+    }
 }

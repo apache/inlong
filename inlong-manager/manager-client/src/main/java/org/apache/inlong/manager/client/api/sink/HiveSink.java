@@ -19,20 +19,21 @@ package org.apache.inlong.manager.client.api.sink;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.DataSeparator;
-import org.apache.inlong.manager.client.api.StreamField;
+import org.apache.inlong.manager.client.api.SinkField;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.SinkType;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -67,6 +68,20 @@ public class HiveSink extends StreamSink {
 
     @ApiModelProperty("Data separator, stored as ASCII code")
     private DataSeparator dataSeparator = DataSeparator.SOH;
+    @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
+    private FileFormat fileFormat;
+    @ApiModelProperty("Create table or not")
+    private boolean needCreated;
+    @ApiModelProperty("Primary partition field, default null")
+    private String primaryPartition;
+    @ApiModelProperty("Secondary partition field, default null")
+    private String secondaryPartition;
+    @ApiModelProperty("Field definitions for hive")
+    private List<SinkField> sinkFields;
+    @ApiModelProperty("Other properties if need")
+    private Map<String, String> properties;
+    @ApiModelProperty("Data format type for stream sink")
+    private DataFormat dataFormat;
 
     public enum FileFormat {
         TextFile, RCFile, SequenceFile, Avro;
@@ -80,26 +95,5 @@ public class HiveSink extends StreamSink {
             throw new IllegalArgumentException(String.format("Unsupport FileFormat:%s", name));
         }
     }
-
-    @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
-    private FileFormat fileFormat;
-
-    @ApiModelProperty("Create table or not")
-    private boolean needCreated;
-
-    @ApiModelProperty("Primary partition field, default null")
-    private String primaryPartition;
-
-    @ApiModelProperty("Secondary partition field, default null")
-    private String secondaryPartition;
-
-    @ApiModelProperty("Field definitions for hive")
-    private List<StreamField> streamFields;
-
-    @ApiModelProperty("Other properties if need")
-    private Map<String, String> properties;
-
-    @ApiModelProperty("Data format type for stream sink")
-    private DataFormat dataFormat;
 }
 

@@ -34,44 +34,33 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 @ApiModel(value = "Response of the ClickHouse sink")
 public class ClickHouseSinkResponse extends SinkResponse {
 
+    @ApiModelProperty("ClickHouse JDBC URL")
+    private String jdbcUrl;
+    @ApiModelProperty("Target database name")
+    private String databaseName;
+    @ApiModelProperty("Target table name")
+    private String tableName;
+    @ApiModelProperty("Username for JDBC URL")
+    private String username;
+    @ApiModelProperty("User password")
+    private String password;
+    @ApiModelProperty("Whether distributed table")
+    private Boolean distributedTable;
+    @ApiModelProperty("Partition strategy,support: BALANCE, RANDOM, HASH")
+    private String partitionStrategy;
+    @ApiModelProperty("Partition key")
+    private String partitionKey;
+    @ApiModelProperty("Key field names")
+    private String[] keyFieldNames;
+    @ApiModelProperty("Flush interval")
+    private Integer flushInterval;
+    @ApiModelProperty("Flush record number")
+    private Integer flushRecordNumber;
+    @ApiModelProperty("Write max retry times")
+    private Integer writeMaxRetryTimes;
+
     public ClickHouseSinkResponse() {
         this.sinkType = Constant.SINK_CLICKHOUSE;
     }
-
-    @ApiModelProperty("ClickHouse JDBC URL")
-    private String jdbcUrl;
-
-    @ApiModelProperty("Target database name")
-    private String databaseName;
-
-    @ApiModelProperty("Target table name")
-    private String tableName;
-
-    @ApiModelProperty("Username for JDBC URL")
-    private String username;
-
-    @ApiModelProperty("User password")
-    private String password;
-
-    @ApiModelProperty("Whether distributed table")
-    private Boolean distributedTable;
-
-    @ApiModelProperty("Partition strategy,support: BALANCE, RANDOM, HASH")
-    private String partitionStrategy;
-
-    @ApiModelProperty("Partition key")
-    private String partitionKey;
-
-    @ApiModelProperty("Key field names")
-    private String[] keyFieldNames;
-
-    @ApiModelProperty("Flush interval")
-    private Integer flushInterval;
-
-    @ApiModelProperty("Flush record number")
-    private Integer flushRecordNumber;
-
-    @ApiModelProperty("Write max retry times")
-    private Integer writeMaxRetryTimes;
 
 }
