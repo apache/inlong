@@ -65,15 +65,7 @@ public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
         StartEvent startEvent = new StartEvent();
         process.setStartEvent(startEvent);
 
-        //stop datasource
-        ServiceTask restartDataSourceTask = new ServiceTask();
-        restartDataSourceTask.setName("restartSource");
-        restartDataSourceTask.setDisplayName("Group-RestartSource");
-        restartDataSourceTask.addServiceTaskType(ServiceTaskType.RESTART_SOURCE);
-        restartDataSourceTask.addListenerProvider(serviceTaskListenerFactory);
-        process.addTask(restartDataSourceTask);
-
-        //stop sort
+        //restart sort
         ServiceTask restartSortTask = new ServiceTask();
         restartSortTask.setName("restartSort");
         restartSortTask.setDisplayName("Group-RestartSort");
@@ -81,13 +73,21 @@ public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
         restartSortTask.addListenerProvider(serviceTaskListenerFactory);
         process.addTask(restartSortTask);
 
+        //restart datasource
+        ServiceTask restartDataSourceTask = new ServiceTask();
+        restartDataSourceTask.setName("restartSource");
+        restartDataSourceTask.setDisplayName("Group-RestartSource");
+        restartDataSourceTask.addServiceTaskType(ServiceTaskType.RESTART_SOURCE);
+        restartDataSourceTask.addListenerProvider(serviceTaskListenerFactory);
+        process.addTask(restartDataSourceTask);
+
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
-        startEvent.addNext(restartDataSourceTask);
-        restartDataSourceTask.addNext(restartSortTask);
-        restartSortTask.addNext(endEvent);
+        startEvent.addNext(restartSortTask);
+        restartSortTask.addNext(restartDataSourceTask);
+        restartDataSourceTask.addNext(endEvent);
 
         return process;
     }

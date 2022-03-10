@@ -83,9 +83,14 @@ public class SourceInfoUtils {
     /**
      * Get all migration built-in field for binlog source.
      */
-    public static BuiltInFieldInfo getAllMigrationBuiltInField() {
-        return new BuiltInFieldInfo("data", StringFormatInfo.INSTANCE,
-                BuiltInField.MYSQL_METADATA_DATA);
+    public static List<FieldInfo> getAllMigrationBuiltInField() {
+        List<FieldInfo> list = Lists.newArrayList();
+        list.add(new BuiltInFieldInfo("data", StringFormatInfo.INSTANCE,
+                BuiltInField.MYSQL_METADATA_DATA));
+        for (Map.Entry<String, BuiltInField> entry : BUILT_IN_FIELD_MAP.entrySet()) {
+            list.add(new BuiltInFieldInfo(entry.getKey(), StringFormatInfo.INSTANCE, entry.getValue()));
+        }
+        return list;
     }
 
     /**
@@ -98,7 +103,7 @@ public class SourceInfoUtils {
         List<FieldInfo> fieldInfos = Lists.newArrayList();
         boolean isAllMigration = SourceInfoUtils.isBinlogAllMigration(sourceResponse);
         if (isAllMigration) {
-            fieldInfos.add(SourceInfoUtils.getAllMigrationBuiltInField());
+            fieldInfos = SourceInfoUtils.getAllMigrationBuiltInField();
         } else {
             if (CollectionUtils.isNotEmpty(streamInfo.getFieldList())) {
                 fieldInfos = getSourceFields(sinkResponse.getFieldList());

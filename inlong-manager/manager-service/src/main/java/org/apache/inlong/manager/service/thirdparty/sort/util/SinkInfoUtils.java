@@ -120,7 +120,7 @@ public class SinkInfoUtils {
             KafkaSinkResponse sinkResponse) {
         List<FieldInfo> fieldInfoList = Lists.newArrayList();
         if (isAllMigration) {
-            fieldInfoList.add(SourceInfoUtils.getAllMigrationBuiltInField());
+            fieldInfoList = SourceInfoUtils.getAllMigrationBuiltInField();
         } else {
             fieldInfoList = getSinkFields(sinkResponse.getFieldList(), null);
         }
@@ -192,7 +192,7 @@ public class SinkInfoUtils {
         // Get the sink field, if there is no partition field in the source field, add the partition field to the end
         List<FieldInfo> fieldInfoList = Lists.newArrayList();
         if (isAllMigration) {
-            fieldInfoList.add(SourceInfoUtils.getAllMigrationBuiltInField());
+            fieldInfoList = SourceInfoUtils.getAllMigrationBuiltInField();
         } else {
             fieldInfoList = getSinkFields(hiveInfo.getFieldList(), hiveInfo.getPrimaryPartition());
         }
