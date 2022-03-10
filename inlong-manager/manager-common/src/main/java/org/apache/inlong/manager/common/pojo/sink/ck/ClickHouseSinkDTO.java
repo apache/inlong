@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.sink.ck;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -76,6 +77,9 @@ public class ClickHouseSinkDTO {
     @ApiModelProperty("Write max retry times")
     private Integer writeMaxRetryTimes;
 
+    @ApiModelProperty("Properties for clickhouse")
+    private Map<String, Object> properties;
+
     /**
      * Get the dto instance from the request
      */
@@ -93,6 +97,7 @@ public class ClickHouseSinkDTO {
                 .flushInterval(request.getFlushInterval())
                 .flushRecordNumber(request.getFlushRecordNumber())
                 .writeMaxRetryTimes(request.getWriteMaxRetryTimes())
+                .properties(request.getProperties())
                 .build();
     }
 

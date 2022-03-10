@@ -24,6 +24,7 @@ public enum DataFormat {
     CSV("csv"),
     AVRO("avro"),
     CANAL("canal"),
+    JSON("json"),
     NONE("none");
 
     @Getter

@@ -72,6 +72,6 @@ public class SourceRequest {
     @ApiModelProperty("Snapshot of the source task")
     private String snapshot;
 
-    @ApiModelProperty("Data Serialization, support: Json, Canal, Avro, etc")
+    @ApiModelProperty("Data Serialization, support: json, canal, avro, etc")
     private String serializationType;
 }

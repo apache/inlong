@@ -19,7 +19,9 @@ package org.apache.inlong.manager.service.thirdparty.sort;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
@@ -155,7 +157,11 @@ public class CreateSortConfigListener implements SortOperateListener {
         // Get sink info
         SinkInfo sinkInfo = SinkInfoUtils.createSinkInfo(sourceResponse, sinkResponse);
 
-        return new DataFlowInfo(sinkId, sourceInfo, sinkInfo);
+        Map<String, Object> properties = Maps.newHashMap();
+        if (MapUtils.isNotEmpty(sinkResponse.getProperties())) {
+            properties.putAll(sinkResponse.getProperties());
+        }
+        return new DataFlowInfo(sinkId, sourceInfo, sinkInfo, properties);
     }
 
     private InlongGroupInfo getGroupInfo(ProcessForm processForm) {

@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.sink.hive;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -85,6 +86,9 @@ public class HiveSinkDTO {
     @ApiModelProperty("Data field separator")
     private String dataSeparator;
 
+    @ApiModelProperty("Properties for hive")
+    private Map<String, Object> properties;
+
     /**
      * Get the dto instance from the request
      */
@@ -105,6 +109,7 @@ public class HiveSinkDTO {
                 .fileFormat(request.getFileFormat())
                 .dataEncoding(request.getDataEncoding())
                 .dataSeparator(request.getDataSeparator())
+                .properties(request.getProperties())
                 .build();
     }
 

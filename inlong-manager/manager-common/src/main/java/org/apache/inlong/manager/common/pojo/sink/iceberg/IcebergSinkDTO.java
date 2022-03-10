@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.sink.iceberg;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -43,12 +44,16 @@ public class IcebergSinkDTO {
     @ApiModelProperty("table Location like hdfs://")
     private String tableLocation;
 
+    @ApiModelProperty("Properties for iceberg")
+    private Map<String, Object> properties;
+
     /**
      * Get the dto instance from the request
      */
     public static IcebergSinkDTO getFromRequest(IcebergSinkRequest request) {
         return IcebergSinkDTO.builder()
                 .tableLocation(request.getTableLocation())
+                .properties(request.getProperties())
                 .build();
     }
 

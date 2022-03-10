@@ -44,7 +44,7 @@ public class KafkaSinkResponse extends SinkResponse {
     @ApiModelProperty("Kafka topicName")
     private String topicName;
 
-    @ApiModelProperty("Data Serialization, support: Json, Canal, Avro")
+    @ApiModelProperty("Data Serialization, support: json, canal, avro")
     private String serializationType;
 
 }

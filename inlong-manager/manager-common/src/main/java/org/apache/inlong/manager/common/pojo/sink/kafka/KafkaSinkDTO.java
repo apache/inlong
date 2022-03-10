@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.sink.kafka;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -46,8 +47,11 @@ public class KafkaSinkDTO {
     @ApiModelProperty("Kafka topicName")
     private String topicName;
 
-    @ApiModelProperty("Data Serialization, support: Json, Canal, Avro")
+    @ApiModelProperty("Data Serialization, support: json, canal, avro")
     private String serializationType;
+
+    @ApiModelProperty("Properties for kafka")
+    private Map<String, Object> properties;
 
     /**
      * Get the dto instance from the request
@@ -57,6 +61,7 @@ public class KafkaSinkDTO {
                 .address(request.getAddress())
                 .topicName(request.getTopicName())
                 .serializationType(request.getSerializationType())
+                .properties(request.getProperties())
                 .build();
     }
 
