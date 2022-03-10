@@ -29,7 +29,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Builder
 public class PulsarClusterInfo {
-
+    private String type;
     private String adminUrl;
     private String token;
     private String brokerServiceUrl;

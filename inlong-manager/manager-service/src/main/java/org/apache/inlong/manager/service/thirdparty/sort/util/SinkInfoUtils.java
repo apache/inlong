@@ -28,12 +28,8 @@ import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
-import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
-import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
@@ -67,45 +63,39 @@ public class SinkInfoUtils {
         PARTITION_TIME_UNIT_MAP.put("I", TimeUnit.MINUTES);
     }
 
-    public static SinkInfo createSinkInfo(SinkResponse sinkResponse) {
-        return createSinkInfo(null, null, sinkResponse);
-    }
-
+    /**
+     * Create sink info for DataFlowInfo.
+     */
     public static SinkInfo createSinkInfo(SourceResponse sourceResponse, SinkResponse sinkResponse) {
-        return createSinkInfo(null, sourceResponse, sinkResponse);
-    }
-
-    public static SinkInfo createSinkInfo(InlongStreamInfo inlongStreamInfo, SourceResponse sourceResponse,
-            SinkResponse sinkResponse) {
+        boolean isAllMigration = SourceInfoUtils.isBinlogAllMigration(sourceResponse);
         String sinkType = sinkResponse.getSinkType();
         SinkInfo sinkInfo;
         if (SinkType.forType(sinkType) == SinkType.HIVE) {
-            sinkInfo = createHiveSinkInfo(sourceResponse, (HiveSinkResponse) sinkResponse);
+            sinkInfo = createHiveSinkInfo(isAllMigration, (HiveSinkResponse) sinkResponse);
         } else if (SinkType.forType(sinkType) == SinkType.KAFKA) {
-            sinkInfo = createKafkaSinkInfo(inlongStreamInfo, sourceResponse, (KafkaSinkResponse) sinkResponse);
+            sinkInfo = createKafkaSinkInfo(isAllMigration, sourceResponse, (KafkaSinkResponse) sinkResponse);
         } else if (SinkType.forType(sinkType) == SinkType.CLICKHOUSE) {
             sinkInfo = createClickhouseSinkInfo((ClickHouseSinkResponse) sinkResponse);
         } else {
-            throw new RuntimeException(
-                    String.format("SinkType:{} not support in CreateSortConfigListener", sinkType));
+            throw new RuntimeException(String.format("Unsupported SinkType {%s}", sinkType));
         }
         return sinkInfo;
     }
 
     private static ClickHouseSinkInfo createClickhouseSinkInfo(ClickHouseSinkResponse sinkResponse) {
         if (StringUtils.isEmpty(sinkResponse.getJdbcUrl())) {
-            throw new RuntimeException(String.format("clickHouseSink={} server url cannot be empty", sinkResponse));
+            throw new RuntimeException(String.format("ClickHouse={%s} server url cannot be empty", sinkResponse));
         } else if (CollectionUtils.isEmpty(sinkResponse.getFieldList())) {
-            throw new RuntimeException(String.format("clickHouseSink={} fields cannot be empty", sinkResponse));
+            throw new RuntimeException(String.format("ClickHouse={%s} fields cannot be empty", sinkResponse));
         } else if (StringUtils.isEmpty(sinkResponse.getTableName())) {
-            throw new RuntimeException(String.format("clickHouseSink={} table name cannot be empty", sinkResponse));
+            throw new RuntimeException(String.format("ClickHouse={%s} table name cannot be empty", sinkResponse));
         } else if (StringUtils.isEmpty(sinkResponse.getDatabaseName())) {
-            throw new RuntimeException(String.format("clickHouseSink={} database name cannot be empty", sinkResponse));
+            throw new RuntimeException(String.format("ClickHouse={%s} database name cannot be empty", sinkResponse));
         }
         if (sinkResponse.getDistributedTable() == null) {
-            throw new RuntimeException(
-                    String.format("clickHouseSink={} distribute is or not cannot be empty", sinkResponse));
+            throw new RuntimeException(String.format("ClickHouse={%s} distribute cannot be empty", sinkResponse));
         }
+
         ClickHouseSinkInfo.PartitionStrategy partitionStrategy;
         if (PartitionStrategy.BALANCE.name().equalsIgnoreCase(sinkResponse.getPartitionStrategy())) {
             partitionStrategy = PartitionStrategy.BALANCE;
@@ -116,6 +106,7 @@ public class SinkInfoUtils {
         } else {
             partitionStrategy = PartitionStrategy.RANDOM;
         }
+
         List<FieldInfo> fieldInfoList = getClickHouseSinkFields(sinkResponse.getFieldList());
         return new ClickHouseSinkInfo(sinkResponse.getJdbcUrl(), sinkResponse.getDatabaseName(),
                 sinkResponse.getTableName(), sinkResponse.getUsername(), sinkResponse.getPassword(),
@@ -125,28 +116,30 @@ public class SinkInfoUtils {
                 sinkResponse.getWriteMaxRetryTimes());
     }
 
-    private static KafkaSinkInfo createKafkaSinkInfo(InlongStreamInfo inlongStreamInfo, SourceResponse sourceResponse,
-            KafkaSinkResponse kafkaSinkResponse) {
+    private static KafkaSinkInfo createKafkaSinkInfo(boolean isAllMigration, SourceResponse sourceResponse,
+            KafkaSinkResponse sinkResponse) {
         List<FieldInfo> fieldInfoList = Lists.newArrayList();
-        if (SourceInfoUtils.isBinlogMigrationSource(sourceResponse)) {
-            fieldInfoList.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE,
-                    BuiltInField.MYSQL_METADATA_DATA));
+        if (isAllMigration) {
+            fieldInfoList.add(SourceInfoUtils.getAllMigrationBuiltInField());
         } else {
-            fieldInfoList = getSinkFields(kafkaSinkResponse.getFieldList(), null);
+            fieldInfoList = getSinkFields(sinkResponse.getFieldList(), null);
         }
-        String addressUrl = kafkaSinkResponse.getAddress();
-        String topicName = kafkaSinkResponse.getTopicName();
+        String addressUrl = sinkResponse.getAddress();
+        String topicName = sinkResponse.getTopicName();
         SerializationInfo serializationInfo = SerializationUtils.createSerializationInfo(sourceResponse,
-                kafkaSinkResponse, inlongStreamInfo);
+                sinkResponse);
         return new KafkaSinkInfo(fieldInfoList.toArray(new FieldInfo[0]), addressUrl, topicName, serializationInfo);
     }
 
-    private static HiveSinkInfo createHiveSinkInfo(SourceResponse sourceResponse, HiveSinkResponse hiveInfo) {
+    /**
+     * Create Hive sink info.
+     */
+    private static HiveSinkInfo createHiveSinkInfo(boolean isAllMigration, HiveSinkResponse hiveInfo) {
         if (hiveInfo.getJdbcUrl() == null) {
-            throw new RuntimeException(String.format("hiveSink={} server url cannot be empty", hiveInfo));
+            throw new RuntimeException(String.format("HiveSink={%s} server url cannot be empty", hiveInfo));
         }
         if (CollectionUtils.isEmpty(hiveInfo.getFieldList())) {
-            throw new RuntimeException(String.format("hiveSink={} fields cannot be empty", hiveInfo));
+            throw new RuntimeException(String.format("HiveSink={%s} fields cannot be empty", hiveInfo));
         }
         // Use the field separator in Hive, the default is TextFile
         Character separator = (char) Integer.parseInt(hiveInfo.getDataSeparator());
@@ -198,9 +191,8 @@ public class SinkInfoUtils {
 
         // Get the sink field, if there is no partition field in the source field, add the partition field to the end
         List<FieldInfo> fieldInfoList = Lists.newArrayList();
-        if (SourceInfoUtils.isBinlogMigrationSource(sourceResponse)) {
-            fieldInfoList.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE,
-                    BuiltInField.MYSQL_METADATA_DATA));
+        if (isAllMigration) {
+            fieldInfoList.add(SourceInfoUtils.getAllMigrationBuiltInField());
         } else {
             fieldInfoList = getSinkFields(hiveInfo.getFieldList(), hiveInfo.getPrimaryPartition());
         }

@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.thirdparty.mq;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
@@ -36,7 +37,8 @@ public class PulsarEventSelector implements EventSelector {
         GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
         String middlewareType = form.getGroupInfo().getMiddlewareType();
         if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
-            return true;
+            InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) form.getGroupInfo().getMqExtInfo();
+            return pulsarInfo.getEnableCreateResource() == 1;
         }
         log.warn("no need to create pulsar subscription group for groupId={}, as the middlewareType={}",
                 form.getInlongGroupId(), middlewareType);

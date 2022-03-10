@@ -17,15 +17,15 @@
 
 package org.apache.inlong.manager.service.thirdparty.sort;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
@@ -37,48 +37,43 @@ import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessF
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
-import org.apache.inlong.manager.service.thirdparty.sort.util.SerializationUtils;
 import org.apache.inlong.manager.service.thirdparty.sort.util.SinkInfoUtils;
-import org.apache.inlong.manager.service.thirdparty.sort.util.SortFieldFormatUtils;
 import org.apache.inlong.manager.service.thirdparty.sort.util.SourceInfoUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
-import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
-import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
-import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
-import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
-import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
-import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Slf4j
+/**
+ * Create sort config when disable the ZooKeeper
+ */
 @Component
 public class CreateSortConfigListener implements SortOperateListener {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateSortConfigListener.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
     @Autowired
     private CommonOperateService commonOperateService;
     @Autowired
     private ClusterBean clusterBean;
     @Autowired
-    private InlongStreamService inlongStreamService;
+    private InlongStreamService streamService;
     @Autowired
     private StreamSinkService streamSinkService;
     @Autowired
@@ -91,33 +86,28 @@ public class CreateSortConfigListener implements SortOperateListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
-        log.info("Create sort config for context={}", context);
+        LOGGER.info("Create sort config for context={}", context);
         ProcessForm form = context.getProcessForm();
-        InlongGroupInfo groupInfo = getGroupInfo(form);
+        InlongGroupInfo groupInfo = this.getGroupInfo(form);
         String groupId = groupInfo.getInlongGroupId();
         if (StringUtils.isEmpty(groupId)) {
-            log.warn("GroupId is null for context={}", context);
-            return ListenerResult.success();
-        }
-        List<StreamBriefResponse> streamBriefResponses = inlongStreamService.getBriefList(groupId);
-        if (CollectionUtils.isEmpty(streamBriefResponses)) {
-            log.warn("Stream not found by groupId={}", groupId);
+            LOGGER.warn("GroupId is null for context={}", context);
             return ListenerResult.success();
         }
 
-        Map<String, DataFlowInfo> dataFlowInfoMap = streamBriefResponses.stream().map(streamBriefResponse -> {
-                            DataFlowInfo flowInfo = createDataFlow(streamBriefResponse, groupInfo);
-                            if (flowInfo != null) {
-                                return Pair.of(streamBriefResponse.getInlongStreamId(), flowInfo);
-                            } else {
-                                return null;
-                            }
-                        }
-                ).filter(pair -> pair != null)
-                .collect(Collectors.toMap(pair -> pair.getKey(),
-                        pair -> pair.getValue()));
-        final ObjectMapper objectMapper = new ObjectMapper();
-        String dataFlows = objectMapper.writeValueAsString(dataFlowInfoMap);
+        List<StreamBriefResponse> streamBriefResponses = streamService.getBriefList(groupId);
+        if (CollectionUtils.isEmpty(streamBriefResponses)) {
+            LOGGER.warn("Stream not found by groupId={}", groupId);
+            return ListenerResult.success();
+        }
+
+        Map<String, DataFlowInfo> dataFlowInfoMap = streamBriefResponses.stream().map(streamResponse -> {
+                    DataFlowInfo flowInfo = createDataFlow(streamResponse, groupInfo);
+                    return Pair.of(streamResponse.getInlongStreamId(), flowInfo);
+                }
+        ).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+
+        String dataFlows = OBJECT_MAPPER.writeValueAsString(dataFlowInfoMap);
         InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
         extInfo.setInlongGroupId(groupId);
         extInfo.setKeyName(InlongGroupSettings.DATA_FLOW);
@@ -126,96 +116,46 @@ public class CreateSortConfigListener implements SortOperateListener {
             groupInfo.setExtList(Lists.newArrayList());
         }
         upsertDataFlow(groupInfo, extInfo);
+
         return ListenerResult.success();
     }
 
     private void upsertDataFlow(InlongGroupInfo groupInfo, InlongGroupExtInfo extInfo) {
-        Iterator<InlongGroupExtInfo> inlongGroupExtInfoIterator = groupInfo.getExtList().iterator();
-        while (inlongGroupExtInfoIterator.hasNext()) {
-            InlongGroupExtInfo inlongGroupExtInfo = inlongGroupExtInfoIterator.next();
-            if (InlongGroupSettings.DATA_FLOW.equals(inlongGroupExtInfo.getKeyName())) {
-                inlongGroupExtInfoIterator.remove();
-            }
-        }
+        groupInfo.getExtList().removeIf(ext -> InlongGroupSettings.DATA_FLOW.equals(ext.getKeyName()));
         groupInfo.getExtList().add(extInfo);
     }
 
-    private DataFlowInfo createDataFlow(StreamBriefResponse streamBriefResponse,
-            InlongGroupInfo inlongGroupInfo) {
-        //TODO only support one source and one sink
-        final String groupId = streamBriefResponse.getInlongGroupId();
-        final String streamId = streamBriefResponse.getInlongStreamId();
-        final InlongStreamInfo streamInfo = inlongStreamService.get(groupId, streamId);
+    private DataFlowInfo createDataFlow(StreamBriefResponse streamResponse, InlongGroupInfo groupInfo) {
+        // TODO only support one source and one sink
+        final String groupId = streamResponse.getInlongGroupId();
+        final String streamId = streamResponse.getInlongStreamId();
+        final InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
         List<SourceResponse> sourceResponses = streamSourceService.listSource(groupId, streamId);
         if (CollectionUtils.isEmpty(sourceResponses)) {
-            throw new RuntimeException(String.format("No source found by stream=%s", streamBriefResponse));
+            throw new WorkflowListenerException(String.format("Source not found by groupId=%s and streamId=%s",
+                    groupId, streamId));
         }
         final SourceResponse sourceResponse = sourceResponses.get(0);
-        List<SinkBriefResponse> sinkBriefResponses = streamBriefResponse.getSinkList();
+        List<SinkBriefResponse> sinkBriefResponses = streamResponse.getSinkList();
         if (CollectionUtils.isEmpty(sinkBriefResponses)) {
-            throw new RuntimeException(String.format("No sink found by stream=%s", streamBriefResponse));
+            throw new WorkflowListenerException(String.format("Sink not found by groupId=%s and streamId=%s",
+                    groupId, streamId));
         }
+
         final SinkBriefResponse sinkBriefResponse = sinkBriefResponses.get(0);
         String sinkType = sinkBriefResponse.getSinkType();
         int sinkId = sinkBriefResponse.getId();
         final SinkResponse sinkResponse = streamSinkService.get(sinkId, sinkType);
-        SourceInfo sourceInfo = createSourceInfo(inlongGroupInfo, streamInfo, sourceResponse);
-        SinkInfo sinkInfo = SinkInfoUtils.createSinkInfo(streamInfo, sourceResponse, sinkResponse);
-        return new DataFlowInfo(sinkId, sourceInfo, sinkInfo);
-    }
 
-    private SourceInfo createSourceInfo(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            SourceResponse sourceResponse) {
-        String middleWareType = groupInfo.getMiddlewareType();
-
-        List<FieldInfo> fieldInfos = Lists.newArrayList();
-        if (SourceInfoUtils.isBinlogMigrationSource(sourceResponse)) {
-            fieldInfos.add(new BuiltInFieldInfo("DATABASE_MIGRATION", StringFormatInfo.INSTANCE,
-                    BuiltInField.MYSQL_METADATA_DATA));
-
-        } else {
-            if (CollectionUtils.isNotEmpty(streamInfo.getFieldList())) {
-                fieldInfos = streamInfo.getFieldList().stream().map(inlongStreamFieldInfo -> {
-                    FormatInfo formatInfo = SortFieldFormatUtils.convertFieldFormat(
-                            inlongStreamFieldInfo.getFieldType().toLowerCase());
-                    return new FieldInfo(inlongStreamFieldInfo.getFieldName(), formatInfo);
-                }).collect(Collectors.toList());
-            }
-        }
-
-        DeserializationInfo deserializationInfo = SerializationUtils.createDeserializationInfo(sourceResponse,
-                streamInfo);
-        if (Constant.MIDDLEWARE_PULSAR.equals(middleWareType)) {
-            return createPulsarSourceInfo(groupInfo, streamInfo, deserializationInfo, fieldInfos);
-        } else if (Constant.MIDDLEWARE_TUBE.equals(middleWareType)) {
-            return createTubeSourceInfo(groupInfo, deserializationInfo, fieldInfos);
-        } else {
-            throw new RuntimeException(
-                    String.format("MiddleWare:{} not support in CreateSortConfigListener", middleWareType));
-        }
-
-    }
-
-    private PulsarSourceInfo createPulsarSourceInfo(InlongGroupInfo groupInfo,
-            InlongStreamInfo streamInfo,
-            DeserializationInfo deserializationInfo,
-            List<FieldInfo> fieldInfos) {
-        String topicName = streamInfo.getMqResourceObj();
-        PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo();
-        return SourceInfoUtils.createPulsarSourceInfo(groupInfo, topicName, deserializationInfo,
-                fieldInfos, clusterBean.getAppName(), clusterBean.getDefaultTenant(), pulsarClusterInfo);
-    }
-
-    private TubeSourceInfo createTubeSourceInfo(InlongGroupInfo groupInfo,
-            DeserializationInfo deserializationInfo,
-            List<FieldInfo> fieldInfos) {
+        // Get source info
         String masterAddress = commonOperateService.getSpecifiedParam(Constant.TUBE_MASTER_URL);
-        Preconditions.checkNotNull(masterAddress, "tube cluster address cannot be empty");
-        String topic = groupInfo.getMqResourceObj();
-        // The consumer group name is: taskName_topicName_consumer_group
-        String consumerGroup = clusterBean.getAppName() + "_" + topic + "_consumer_group";
-        return new TubeSourceInfo(topic, masterAddress, consumerGroup,
-                deserializationInfo, fieldInfos.toArray(new FieldInfo[0]));
+        PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo();
+        SourceInfo sourceInfo = SourceInfoUtils.createSourceInfo(pulsarCluster, masterAddress, clusterBean, groupInfo,
+                streamInfo, sourceResponse, sinkResponse);
+        // Get sink info
+        SinkInfo sinkInfo = SinkInfoUtils.createSinkInfo(sourceResponse, sinkResponse);
+
+        return new DataFlowInfo(sinkId, sourceInfo, sinkInfo);
     }
 
     private InlongGroupInfo getGroupInfo(ProcessForm processForm) {
@@ -226,9 +166,9 @@ public class CreateSortConfigListener implements SortOperateListener {
             UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
             return updateGroupProcessForm.getGroupInfo();
         } else {
-            log.error("Illegal ProcessForm {} to get inlong group info", processForm.getFormName());
-            throw new RuntimeException(String.format("Unsupport ProcessForm {} in CreateSortConfigListener",
-                    processForm.getFormName()));
+            LOGGER.error("Illegal ProcessForm {} to get inlong group info", processForm.getFormName());
+            throw new WorkflowListenerException(
+                    String.format("Unsupported ProcessForm {%s}", processForm.getFormName()));
         }
     }
 

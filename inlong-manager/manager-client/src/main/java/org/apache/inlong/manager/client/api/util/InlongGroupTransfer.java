@@ -19,13 +19,15 @@ package org.apache.inlong.manager.client.api.util;
 
 import com.google.common.collect.Lists;
 import com.google.gson.reflect.TypeToken;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.FlinkSortBaseConf;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.MqBaseConf;
-import org.apache.inlong.manager.client.api.MqBaseConf.MqType;
 import org.apache.inlong.manager.client.api.PulsarBaseConf;
 import org.apache.inlong.manager.client.api.SortBaseConf;
 import org.apache.inlong.manager.client.api.SortBaseConf.SortType;
@@ -35,6 +37,7 @@ import org.apache.inlong.manager.client.api.auth.Authentication;
 import org.apache.inlong.manager.client.api.auth.Authentication.AuthType;
 import org.apache.inlong.manager.client.api.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.client.api.auth.TokenAuthentication;
+import org.apache.inlong.manager.common.enums.MqType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupMqExtBase;
@@ -42,10 +45,6 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.JsonUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class InlongGroupTransfer {
 
@@ -148,10 +147,12 @@ public class InlongGroupTransfer {
         pulsarBaseConf.setWriteQuorum(inlongGroupPulsarInfo.getWriteQuorum());
         pulsarBaseConf.setEnsemble(inlongGroupPulsarInfo.getEnsemble());
         pulsarBaseConf.setTtl(inlongGroupPulsarInfo.getTtl());
+        pulsarBaseConf.setTenant(inlongGroupPulsarInfo.getTenant());
         pulsarBaseConf.setRetentionTime(inlongGroupPulsarInfo.getRetentionTime());
         pulsarBaseConf.setRetentionSize(inlongGroupPulsarInfo.getRetentionSize());
         pulsarBaseConf.setRetentionSizeUnit(inlongGroupPulsarInfo.getRetentionSizeUnit());
         pulsarBaseConf.setRetentionTimeUnit(inlongGroupPulsarInfo.getRetentionTimeUnit());
+        pulsarBaseConf.setEnableCreateResource(inlongGroupPulsarInfo.getEnableCreateResource() == 1 ? true : false);
         List<InlongGroupExtInfo> groupExtInfos = groupResponse.getExtList();
         for (InlongGroupExtInfo extInfo : groupExtInfos) {
             if (extInfo.getKeyName().equals(InlongGroupSettings.PULSAR_ADMIN_URL)) {
@@ -238,8 +239,10 @@ public class InlongGroupTransfer {
         pulsarInfo.setMiddlewareType(pulsarBaseConf.getType().name());
         pulsarInfo.setEnsemble(pulsarBaseConf.getEnsemble());
         pulsarInfo.setAckQuorum(pulsarBaseConf.getAckQuorum());
+        pulsarInfo.setEnableCreateResource(pulsarBaseConf.isEnableCreateResource() ? 1 : 0);
         pulsarInfo.setWriteQuorum(pulsarBaseConf.getWriteQuorum());
         pulsarInfo.setRetentionSize(pulsarBaseConf.getRetentionSize());
+        pulsarInfo.setTenant(pulsarBaseConf.getTenant());
         pulsarInfo.setRetentionTime(pulsarBaseConf.getRetentionTime());
         pulsarInfo.setRetentionSizeUnit(pulsarBaseConf.getRetentionSizeUnit());
         pulsarInfo.setRetentionTimeUnit(pulsarBaseConf.getRetentionTimeUnit());

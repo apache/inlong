@@ -37,6 +37,9 @@ public class InlongGroupPulsarInfo extends InlongGroupMqExtBase {
         this.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
     }
 
+    @ApiModelProperty(value = "Tenant name of Inlong group")
+    private String tenant;
+
     @ApiModelProperty(value = "Ledger's number of writable nodes")
     private Integer ensemble = 3;
 

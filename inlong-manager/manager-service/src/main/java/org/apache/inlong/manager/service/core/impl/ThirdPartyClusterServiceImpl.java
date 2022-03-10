@@ -19,8 +19,9 @@ package org.apache.inlong.manager.service.core.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
@@ -40,7 +41,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Implementation of cluster information service layer interface
+ * Implementation of cluster service
  */
 @Service
 @Slf4j
@@ -86,10 +87,12 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
     public Integer save(ClusterInfo clusterInfo, String operator) {
         LOGGER.info("begin to insert a cluster info cluster={}", clusterInfo);
         Preconditions.checkNotNull(clusterInfo, "cluster is empty");
-        ThirdPartyClusterEntity entity =
-                CommonBeanUtils.copyProperties(clusterInfo, ThirdPartyClusterEntity::new);
-        entity.setCreator(operator);
+        ThirdPartyClusterEntity entity = CommonBeanUtils.copyProperties(clusterInfo, ThirdPartyClusterEntity::new);
+        if (operator != null) {
+            entity.setCreator(operator);
+        }
         entity.setCreateTime(new Date());
+        entity.setIsDeleted(Constant.UN_DELETED);
         thirdPartyClusterEntityMapper.insert(entity);
         LOGGER.info("success to add a cluster");
         return entity.getId();
@@ -122,7 +125,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
             LOGGER.error("cluster not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
-        entity.setIsDeleted(EntityStatus.IS_DELETED.getCode());
+        entity.setIsDeleted(id);
         entity.setStatus(EntityStatus.DELETED.getCode());
         entity.setModifier(operator);
         thirdPartyClusterEntityMapper.updateByPrimaryKey(entity);

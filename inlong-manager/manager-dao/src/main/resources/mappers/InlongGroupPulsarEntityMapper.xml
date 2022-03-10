@@ -33,10 +33,13 @@
         <result column="retention_size" jdbcType="INTEGER" property="retentionSize"/>
         <result column="retention_size_unit" jdbcType="VARCHAR" property="retentionSizeUnit"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="enable_create_resource" jdbcType="INTEGER" property="enableCreateResource"/>
+        <result column="tenant" jdbcType="VARCHAR" property="tenant"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, inlong_group_id, ensemble, write_quorum, ack_quorum, retention_time, retention_time_unit,
-        ttl, ttl_unit, retention_size, retention_size_unit, is_deleted
+        id
+        , inlong_group_id, ensemble, write_quorum, ack_quorum, retention_time, retention_time_unit,
+        ttl, ttl_unit, retention_size, retention_size_unit, is_deleted, enable_create_resource, tenant
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
@@ -70,11 +73,13 @@
         insert into inlong_group_pulsar (id, inlong_group_id, ensemble,
                                          write_quorum, ack_quorum, retention_time,
                                          retention_time_unit, ttl, ttl_unit,
-                                         retention_size, retention_size_unit, is_deleted)
+                                         retention_size, retention_size_unit,
+                                         is_deleted, enable_create_resource, tenant)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{ensemble,jdbcType=INTEGER},
                 #{writeQuorum,jdbcType=INTEGER}, #{ackQuorum,jdbcType=INTEGER}, #{retentionTime,jdbcType=INTEGER},
                 #{retentionTimeUnit,jdbcType=CHAR}, #{ttl,jdbcType=INTEGER}, #{ttlUnit,jdbcType=VARCHAR},
-                #{retentionSize,jdbcType=INTEGER}, #{retentionSizeUnit,jdbcType=VARCHAR}, #{isDeleted,jdbcType=INTEGER})
+                #{retentionSize,jdbcType=INTEGER}, #{retentionSizeUnit,jdbcType=VARCHAR}, #{isDeleted,jdbcType=INTEGER},
+                #{enableCreateResource,jdbcType=INTEGER}, #{tenant,jdbcType=VARCHAR})
     </insert>
     <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity">
         insert into inlong_group_pulsar
@@ -115,6 +120,12 @@
             <if test="isDeleted != null">
                 is_deleted,
             </if>
+            <if test="enableCreateResource != null">
+                enable_create_resource,
+            </if>
+            <if test="tenant != null">
+                tenant,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -153,9 +164,16 @@
             <if test="isDeleted != null">
                 #{isDeleted,jdbcType=INTEGER},
             </if>
+            <if test="enableCreateResource != null">
+                #{enableCreateResource,jdbcType=INTEGER},
+            </if>
+            <if test="tenant != null">
+                #{tenant,jdbcType=VARCHAR},
+            </if>
         </trim>
     </insert>
-    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity">
+    <update id="updateByPrimaryKeySelective"
+            parameterType="org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity">
         update inlong_group_pulsar
         <set>
             <if test="inlongGroupId != null">
@@ -191,6 +209,12 @@
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted,jdbcType=INTEGER},
             </if>
+            <if test="enableCreateResource != null">
+                enable_create_resource = #{enableCreateResource,jdbcType=INTEGER},
+            </if>
+            <if test="tenant != null">
+                tenant = #{tenant,jdbcType=VARCHAR},
+            </if>
         </set>
         where id = #{id,jdbcType=INTEGER} and is_deleted=0
     </update>
@@ -206,11 +230,14 @@
             ttl_unit            = #{ttlUnit,jdbcType=VARCHAR},
             retention_size      = #{retentionSize,jdbcType=INTEGER},
             retention_size_unit = #{retentionSizeUnit,jdbcType=VARCHAR},
-            is_deleted          = #{isDeleted,jdbcType=INTEGER}
+            is_deleted          = #{isDeleted,jdbcType=INTEGER},
+            enable_create_resource  = #{enableCreateResource,jdbcType=INTEGER},
+            tenant              = #{tenant,jdbcType=VARCHAR}
         where id = #{id,jdbcType=INTEGER}
           and is_deleted = 0
     </update>
-    <update id="updateByIdentifierSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity">
+    <update id="updateByIdentifierSelective"
+            parameterType="org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity">
         update inlong_group_pulsar
         <set>
             <if test="ensemble != null">
@@ -242,6 +269,12 @@
             </if>
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="enableCreateResource != null">
+                enable_create_resource = #{enableCreateResource,jdbcType=INTEGER},
+            </if>
+            <if test="tenant != null">
+                tenant = #{tenant,jdbcType=VARCHAR},
             </if>
         </set>
         where inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}

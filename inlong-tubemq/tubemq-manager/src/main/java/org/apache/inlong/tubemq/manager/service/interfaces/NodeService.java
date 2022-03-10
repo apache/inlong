@@ -27,6 +27,7 @@ import org.apache.inlong.tubemq.manager.controller.node.request.AddTopicReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.BatchAddTopicReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneBrokersReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneTopicReq;
+import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpBrokerInfoList;
 
@@ -82,7 +83,7 @@ public interface NodeService {
     boolean configBrokersForTopics(MasterEntry masterEntry,
                                    Set<String> topics, List<Integer> brokerList, int maxBrokers);
 
-    void handleReloadBroker(MasterEntry masterEntry, List<Integer> needReloadList);
+    void handleReloadBroker(MasterEntry masterEntry, List<Integer> needReloadList, ClusterEntry clusterEntry);
 
     void close() throws IOException;
 
