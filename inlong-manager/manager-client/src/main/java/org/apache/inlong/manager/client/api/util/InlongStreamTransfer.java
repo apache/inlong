@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api.util;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.client.api.StreamField;
@@ -48,6 +49,9 @@ public class InlongStreamTransfer {
         dataStreamInfo.setDailyStorage(streamConf.getDailyStorage());
         dataStreamInfo.setPeakRecords(streamConf.getPeakRecords());
         dataStreamInfo.setHavePredefinedFields(0);
+        if (CollectionUtils.isNotEmpty(streamConf.getStreamFields())) {
+            dataStreamInfo.setFieldList(createStreamFields(streamConf.getStreamFields(), dataStreamInfo));
+        }
         return dataStreamInfo;
     }
 
