@@ -27,6 +27,7 @@ public class TokenConstants {
     public static final String EQ = "=";
     public static final String HYPHEN = "-";
     public static final String BLANK = " ";
+    public static final String SLASH = "/";
 
     public static final String TOKEN_MSG_TYPE = "$msgType$";
     public static final String TOKEN_MSG_TIME = "$msgTime$";
