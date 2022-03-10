@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.thirdparty.sort;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
@@ -26,8 +25,10 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 import org.springframework.stereotype.Component;
 
+/**
+ * Event selector for whether ZooKeeper is enabled.
+ */
 @Component
-@Slf4j
 public class ZkEnabledEventSelector implements EventSelector {
 
     @Override

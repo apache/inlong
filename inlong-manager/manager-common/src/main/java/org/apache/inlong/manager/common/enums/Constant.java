@@ -23,6 +23,7 @@ package org.apache.inlong.manager.common.enums;
 public class Constant {
 
     public static final Integer UN_DELETED = 0;
+    public static final Integer IS_DELETED = 1;
 
     public static final String SOURCE_FILE = "FILE";
 
@@ -63,6 +64,8 @@ public class Constant {
     public static final String MIDDLEWARE_PULSAR = "PULSAR";
 
     public static final String MIDDLEWARE_NONE = "NONE";
+
+    public static final String MIDDLEWARE_TDMQ = "TDMQ";
 
     public static final String SCHEMA_M0_DAY = "m0_day";
 

@@ -282,7 +282,8 @@ func (c *Config) validateTopicFilters() error {
 	for topic, filters := range c.Consumer.TopicFilters {
 		if len(topic) > MaxTopicLen {
 			return errs.New(errs.RetInvalidConfig,
-				fmt.Sprintf("Check parameter topicFilters error: topic's length over max length %d", MaxTopicLen))
+				fmt.Sprintf("Check parameter topicFilters error: topic's length " +
+					"over max length %d", MaxTopicLen))
 		}
 		if valid, err := util.IsValidString(topic); !valid {
 			return errs.New(errs.RetInvalidConfig, err.Error())
@@ -290,11 +291,12 @@ func (c *Config) validateTopicFilters() error {
 		for _, filter := range filters {
 			if len(filter) == 0 {
 				return errs.New(errs.RetInvalidConfig,
-					fmt.Sprintf("Checassert.Nil(t, c.ValidateConsumer())k parameter topicFilters error: topic %s's filter is empty", topic))
+					fmt.Sprintf("Check parameter topicFilters error: topic %s's filter is empty", topic))
 			}
 			if len(filter) > MaxFilterLen {
 				return errs.New(errs.RetInvalidConfig,
-					fmt.Sprintf("Check parameter topicFilters error: topic %s's filter's length over max length %d", topic, MaxFilterLen))
+					fmt.Sprintf("Check parameter topicFilters error: topic %s's filter's " +
+						"length over max length %d", topic, MaxFilterLen))
 			}
 			if valid, err := util.IsValidFilterItem(filter); !valid {
 				return errs.New(errs.RetInvalidConfig, err.Error())
@@ -302,7 +304,8 @@ func (c *Config) validateTopicFilters() error {
 		}
 		if len(filters) > MaxFilterLen {
 			return errs.New(errs.RetInvalidConfig,
-				fmt.Sprintf("Check parameter topicFilters error: topic %s's filter item over max item count %d", topic, MaxFilterLen))
+				fmt.Sprintf("Check parameter topicFilters error: topic %s's filter item " +
+					"over max item count %d", topic, MaxFilterLen))
 		}
 	}
 	return nil

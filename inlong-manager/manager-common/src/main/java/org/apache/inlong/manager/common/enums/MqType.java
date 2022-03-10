@@ -15,30 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.manager.common.enums;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import java.io.Serializable;
-import lombok.Data;
-import org.apache.inlong.manager.common.enums.MqType;
+public enum MqType {
+    PULSAR,
+    TUBE,
+    NONE;
 
-@Data
-@ApiModel("Base configuration for message queue")
-public abstract class MqBaseConf implements Serializable {
-
-    public static final MqBaseConf BLANK_MQ_CONF = new MqBaseConf() {
-        @Override
-        public MqType getType() {
-            return MqType.NONE;
+    public static MqType forType(String type) {
+        for (MqType mqType : values()) {
+            if (mqType.name().equals(type)) {
+                return mqType;
+            }
         }
-    };
-
-    @ApiModelProperty("The number of partitions of Topic, 1-20")
-    private int topicPartitionNum = 3;
-
-    @ApiModelProperty("Is need create for mq resources")
-    private boolean enableCreateResource = true;
-
-    public abstract MqType getType();
+        throw new IllegalArgumentException(String.format("Unsupport queue=%s for Inlong", type));
+    }
 }

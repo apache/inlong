@@ -70,13 +70,13 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.To
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.BrokerConfigMapper;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.ClusterConfigMapper;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.GroupConsumeCtrlMapper;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.ConsumeCtrlMapper;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.GroupResCtrlMapper;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.TopicCtrlMapper;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.TopicDeployMapper;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbBrokerConfigMapperImpl;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbClusterConfigMapperImpl;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbGroupConsumeCtrlMapperImpl;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbConsumeCtrlMapperImpl;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbGroupResCtrlMapperImpl;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbTopicCtrlMapperImpl;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbTopicDeployMapperImpl;
@@ -142,7 +142,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     // group resource control configure
     private GroupResCtrlMapper groupResCtrlMapper;
     // group consume control configure
-    private GroupConsumeCtrlMapper groupConsumeCtrlMapper;
+    private ConsumeCtrlMapper consumeCtrlMapper;
 
     public BdbMetaStoreServiceImpl(String nodeHost, String metaDataPath,
                                    MasterReplicationConfig replicationConfig) {
@@ -195,7 +195,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         topicDeployMapper.close();
         groupResCtrlMapper.close();
         topicCtrlMapper.close();
-        groupConsumeCtrlMapper.close();
+        consumeCtrlMapper.close();
         clusterConfigMapper.close();
         /* evn close */
         if (repEnv != null) {
@@ -276,7 +276,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return false;
         }
-        if (clusterConfigMapper.delClusterConfig(result)) {
+        if (clusterConfigMapper.delClusterConfig(strBuff, result)) {
             ClusterSettingEntity entity =
                     (ClusterSettingEntity) result.getRetData();
             if (entity != null) {
@@ -353,7 +353,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (brokerConfigMapper.delBrokerConf(brokerId, result)) {
+        if (brokerConfigMapper.delBrokerConf(brokerId, strBuffer, result)) {
             BrokerConfEntity entity = (BrokerConfEntity) result.getRetData();
             if (entity != null) {
                 strBuffer.append("[delBrokerConf], ").append(operator)
@@ -452,7 +452,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (topicDeployMapper.delTopicConf(recordKey, result)) {
+        if (topicDeployMapper.delTopicConf(recordKey, strBuff, result)) {
             GroupResCtrlEntity entity =
                     (GroupResCtrlEntity) result.getRetData();
             if (entity != null) {
@@ -478,7 +478,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (topicDeployMapper.delTopicConfByBrokerId(brokerId, result)) {
+        if (topicDeployMapper.delTopicConfByBrokerId(brokerId, strBuff, result)) {
             strBuff.append("[delTopicConfByBrokerId], ")
                     .append(operator)
                     .append(" deleted topic deploy record :")
@@ -615,7 +615,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (topicCtrlMapper.delTopicCtrlConf(topicName, result)) {
+        if (topicCtrlMapper.delTopicCtrlConf(topicName, strBuff, result)) {
             TopicCtrlEntity entity =
                     (TopicCtrlEntity) result.getRetData();
             if (entity != null) {
@@ -708,7 +708,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (groupResCtrlMapper.delGroupResCtrlConf(groupName, result)) {
+        if (groupResCtrlMapper.delGroupResCtrlConf(groupName, strBuff, result)) {
             GroupResCtrlEntity entity =
                     (GroupResCtrlEntity) result.getRetData();
             if (entity != null) {
@@ -745,7 +745,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (groupConsumeCtrlMapper.addGroupConsumeCtrlConf(entity, strBuff, result)) {
+        if (consumeCtrlMapper.addGroupConsumeCtrlConf(entity, strBuff, result)) {
             strBuff.append("[addGroupConsumeCtrlConf], ")
                     .append(entity.getCreateUser())
                     .append(" added group consume control record :")
@@ -768,11 +768,11 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (groupConsumeCtrlMapper.updGroupConsumeCtrlConf(entity, strBuff, result)) {
+        if (consumeCtrlMapper.updGroupConsumeCtrlConf(entity, strBuff, result)) {
             GroupConsumeCtrlEntity oldEntity =
                     (GroupConsumeCtrlEntity) result.getRetData();
             GroupConsumeCtrlEntity curEntity =
-                    groupConsumeCtrlMapper.getGroupConsumeCtrlConfByRecKey(entity.getRecordKey());
+                    consumeCtrlMapper.getGroupConsumeCtrlConfByRecKey(entity.getRecordKey());
             strBuff.append("[updGroupConsumeCtrlConf], ")
                     .append(entity.getModifyUser())
                     .append(" updated record from :").append(oldEntity.toString())
@@ -800,7 +800,8 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (groupConsumeCtrlMapper.delGroupConsumeCtrlConf(groupName, topicName, result)) {
+        if (consumeCtrlMapper.delGroupConsumeCtrlConf(groupName,
+                topicName, strBuff, result)) {
             strBuff.append("[delGroupConsumeCtrlConf], ").append(operator)
                     .append(" deleted group consume control record by index : ")
                     .append("groupName=").append(groupName)
@@ -827,7 +828,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (groupConsumeCtrlMapper.delGroupConsumeCtrlConf(recordKey, result)) {
+        if (consumeCtrlMapper.delGroupConsumeCtrlConf(recordKey, strBuff, result)) {
             strBuff.append("[delGroupConsumeCtrlConf], ").append(operator)
                     .append(" deleted group consume control record by index : ")
                     .append("recordKey=").append(recordKey);
@@ -844,50 +845,50 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
 
     @Override
     public boolean isTopicNameInUsed(String topicName) {
-        return groupConsumeCtrlMapper.isTopicNameInUsed(topicName);
+        return consumeCtrlMapper.isTopicNameInUsed(topicName);
     }
 
     @Override
     public boolean hasGroupConsumeCtrlConf(String groupName) {
-        return groupConsumeCtrlMapper.hasGroupConsumeCtrlConf(groupName);
+        return consumeCtrlMapper.hasGroupConsumeCtrlConf(groupName);
     }
 
     @Override
     public GroupConsumeCtrlEntity getGroupConsumeCtrlConfByRecKey(String recordKey) {
-        return groupConsumeCtrlMapper.getGroupConsumeCtrlConfByRecKey(recordKey);
+        return consumeCtrlMapper.getGroupConsumeCtrlConfByRecKey(recordKey);
     }
 
     @Override
     public List<GroupConsumeCtrlEntity> getConsumeCtrlByTopicName(String topicName) {
-        return groupConsumeCtrlMapper.getConsumeCtrlByTopicName(topicName);
+        return consumeCtrlMapper.getConsumeCtrlByTopicName(topicName);
     }
 
     @Override
     public List<GroupConsumeCtrlEntity> getConsumeCtrlByGroupName(String groupName) {
-        return groupConsumeCtrlMapper.getConsumeCtrlByGroupName(groupName);
+        return consumeCtrlMapper.getConsumeCtrlByGroupName(groupName);
     }
 
     @Override
     public GroupConsumeCtrlEntity getConsumeCtrlByGroupAndTopic(
             String groupName, String topicName) {
-        return groupConsumeCtrlMapper.getConsumeCtrlByGroupAndTopic(groupName, topicName);
+        return consumeCtrlMapper.getConsumeCtrlByGroupAndTopic(groupName, topicName);
     }
 
     @Override
     public Map<String/* group */, List<GroupConsumeCtrlEntity>> getConsumeCtrlInfoMap(
             Set<String> groupSet, Set<String> topicSet, GroupConsumeCtrlEntity qryEntry) {
-        return groupConsumeCtrlMapper.getConsumeCtrlInfoMap(groupSet, topicSet, qryEntry);
+        return consumeCtrlMapper.getConsumeCtrlInfoMap(groupSet, topicSet, qryEntry);
     }
 
     @Override
     public List<GroupConsumeCtrlEntity> getGroupConsumeCtrlConf(GroupConsumeCtrlEntity qryEntity) {
-        return groupConsumeCtrlMapper.getGroupConsumeCtrlConf(qryEntity);
+        return consumeCtrlMapper.getGroupConsumeCtrlConf(qryEntity);
     }
 
     @Override
     public Set<String> getMatchedKeysByGroupAndTopicSet(Set<String> groupSet,
                                                         Set<String> topicSet) {
-        return groupConsumeCtrlMapper.getMatchedRecords(groupSet, topicSet);
+        return consumeCtrlMapper.getMatchedRecords(groupSet, topicSet);
     }
 
     @Override
@@ -1156,7 +1157,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
                     case MASTER:
                         if (!isMaster) {
                             try {
-                                reloadMetaStore();
+                                reloadMetaStore(sBuilder);
                                 isMaster = true;
                                 masterSinceTime.set(System.currentTimeMillis());
                                 masterNodeName = stateChangeEvent.getMasterNodeName();
@@ -1318,18 +1319,18 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         topicDeployMapper =  new BdbTopicDeployMapperImpl(repEnv, storeConfig);
         groupResCtrlMapper = new BdbGroupResCtrlMapperImpl(repEnv, storeConfig);
         topicCtrlMapper = new BdbTopicCtrlMapperImpl(repEnv, storeConfig);
-        groupConsumeCtrlMapper = new BdbGroupConsumeCtrlMapperImpl(repEnv, storeConfig);
+        consumeCtrlMapper = new BdbConsumeCtrlMapperImpl(repEnv, storeConfig);
     }
 
     /* reload metadata */
-    private void reloadMetaStore() {
+    private void reloadMetaStore(StringBuilder strBuff) {
         clearCachedRunData();
-        clusterConfigMapper.loadConfig();
-        brokerConfigMapper.loadConfig();
-        topicDeployMapper.loadConfig();
-        topicCtrlMapper.loadConfig();
-        groupResCtrlMapper.loadConfig();
-        groupConsumeCtrlMapper.loadConfig();
+        clusterConfigMapper.loadConfig(strBuff);
+        brokerConfigMapper.loadConfig(strBuff);
+        topicDeployMapper.loadConfig(strBuff);
+        topicCtrlMapper.loadConfig(strBuff);
+        groupResCtrlMapper.loadConfig(strBuff);
+        consumeCtrlMapper.loadConfig(strBuff);
         reloadRunData();
     }
 

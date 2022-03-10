@@ -32,7 +32,7 @@ agent.prometheus.enable=true
 agent.prometheus.exporter.port=8080
 EOF
 # start
-sh ${file_path}/bin/agent.sh start
+bash +x ${file_path}/bin/agent.sh start
 sleep 3
 # keep alive
 tail -F ${file_path}/logs/agent.log
