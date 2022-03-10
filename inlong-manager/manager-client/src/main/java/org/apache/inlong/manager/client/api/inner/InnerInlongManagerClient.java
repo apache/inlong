@@ -62,15 +62,11 @@ public class InnerInlongManagerClient {
 
     private static final String HTTP_PATH = "api/inlong/manager";
 
-    private OkHttpClient httpClient;
-
-    private String host;
-
-    private int port;
-
-    private String uname;
-
-    private String passwd;
+    private final OkHttpClient httpClient;
+    private final String host;
+    private final int port;
+    private final String uname;
+    private final String passwd;
 
     public InnerInlongManagerClient(InlongClientImpl inlongClient) {
         ClientConfiguration configuration = inlongClient.getConfiguration();
@@ -207,16 +203,14 @@ public class InnerInlongManagerClient {
      *
      * @return groupId && errMsg
      */
-    public Pair<String, String> updateGroup(InlongGroupRequest groupInfo) {
-        groupInfo.setCreateTime(null);
-        groupInfo.setModifyTime(null);
+    public Pair<String, String> updateGroup(InlongGroupRequest groupRequest) {
         String path = HTTP_PATH + "/group/update";
-        final String biz = GsonUtil.toJson(groupInfo);
-        final RequestBody bizBody = RequestBody.create(MediaType.parse("application/json"), biz);
+        final String group = GsonUtil.toJson(groupRequest);
+        final RequestBody groupBody = RequestBody.create(MediaType.parse("application/json"), group);
         final String url = formatUrl(path);
         Request request = new Request.Builder()
                 .url(url)
-                .method("POST", bizBody)
+                .method("POST", groupBody)
                 .build();
 
         Call call = httpClient.newCall(request);
@@ -631,9 +625,6 @@ public class InnerInlongManagerClient {
 
     /**
      * get inlong group error messages
-     *
-     * @param inlongGroupId
-     * @return
      */
     public List<EventLogView> getInlongGroupError(String inlongGroupId) {
         final String path = HTTP_PATH + "/workflow/event/list";
@@ -662,9 +653,6 @@ public class InnerInlongManagerClient {
 
     /**
      * get inlong group error messages
-     *
-     * @param inlongGroupId
-     * @return
      */
     public List<InlongStreamConfigLogListResponse> getStreamLogs(String inlongGroupId, String inlongStreamId) {
         final String path = HTTP_PATH + "/stream/config/log/list";

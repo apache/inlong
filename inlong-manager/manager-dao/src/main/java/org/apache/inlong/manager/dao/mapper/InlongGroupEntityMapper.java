@@ -41,6 +41,8 @@ public interface InlongGroupEntityMapper {
 
     InlongGroupEntity selectByGroupId(String groupId);
 
+    InlongGroupEntity selectByGroupIdForUpdate(String groupId);
+
     Integer selectIdentifierExist(String groupId);
 
     List<InlongGroupEntity> selectByCondition(InlongGroupPageRequest request);

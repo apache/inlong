@@ -52,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
@@ -213,10 +214,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public String update(InlongGroupRequest groupInfo, String operator) {
-        LOGGER.debug("begin to update inlong group={}", groupInfo);
-        Preconditions.checkNotNull(groupInfo, "inlong group is empty");
-        String groupId = groupInfo.getInlongGroupId();
+    public String update(InlongGroupRequest groupRequest, String operator) {
+        LOGGER.debug("begin to update inlong group={}", groupRequest);
+        Preconditions.checkNotNull(groupRequest, "inlong group is empty");
+        String groupId = groupRequest.getInlongGroupId();
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
 
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
@@ -226,20 +227,21 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
 
         // Check whether the current status can be modified
-        this.checkGroupCanUpdate(entity, groupInfo, operator);
-
-        CommonBeanUtils.copyProperties(groupInfo, entity, true);
-        entity.setStatus(groupInfo.getStatus());
+        this.checkGroupCanUpdate(entity, groupRequest, operator);
+        CommonBeanUtils.copyProperties(groupRequest, entity, true);
+        if (GroupState.GROUP_CONFIG_FAILED.getCode().equals(entity.getStatus())) {
+            entity.setStatus(GroupState.GROUP_WAIT_SUBMIT.getCode());
+        }
 
         entity.setModifier(operator);
         groupMapper.updateByIdentifierSelective(entity);
 
         // Save extended information
-        this.saveOrUpdateExt(groupId, groupInfo.getExtList());
+        this.saveOrUpdateExt(groupId, groupRequest.getExtList());
 
         // Update the Pulsar info
-        if (Constant.MIDDLEWARE_PULSAR.equals(groupInfo.getMiddlewareType())) {
-            InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) groupInfo.getMqExtInfo();
+        if (Constant.MIDDLEWARE_PULSAR.equals(groupRequest.getMiddlewareType())) {
+            InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) groupRequest.getMqExtInfo();
             Preconditions.checkNotNull(pulsarInfo, "Pulsar info cannot be empty, as the middleware is Pulsar");
             Integer writeQuorum = pulsarInfo.getWriteQuorum();
             Integer ackQuorum = pulsarInfo.getAckQuorum();
@@ -281,46 +283,35 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
         // Check whether the current state supports modification
         GroupState curState = GroupState.forCode(entity.getStatus());
-        if (groupInfo.getStatus() != null) {
-            GroupState nextState = GroupState.forCode(groupInfo.getStatus());
-            if (!GroupState.isAllowedTransition(curState, nextState)) {
-                String errMsg = String.format("Current state=%s is not allowed to transfer to state=%s",
-                        curState, nextState);
-                LOGGER.error(errMsg);
-                throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
-            }
-        } else {
-            if (!GroupState.isAllowedUpdate(curState)) {
-                String errMsg = String.format("Current state=%s is not allowed to update",
-                        curState);
-                LOGGER.error(errMsg);
-                throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
-            }
+        if (!GroupState.isAllowedUpdate(curState)) {
+            String errMsg = String.format("Current state=%s is not allowed to update", curState);
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
         }
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public boolean updateStatus(String groupId, Integer status, String operator) {
-        LOGGER.debug("begin to update inlong group status, groupId={}, status={}, username={}", groupId, status,
-                operator);
+        LOGGER.info("begin to update group status to [{}] by groupId={}, username={}", status, groupId, operator);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        InlongGroupEntity entity = groupMapper.selectByGroupIdForUpdate(groupId);
         if (entity == null) {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
         GroupState curState = GroupState.forCode(entity.getStatus());
         GroupState nextState = GroupState.forCode(status);
-        if (GroupState.isAllowedTransition(curState, nextState)) {
-            groupMapper.updateStatus(groupId, status, operator);
-            LOGGER.info("success to update inlong group status for groupId={}", groupId);
-            return true;
-        } else {
-            String warnMsg = String.format("Current state=%s is not allowed to transfer to state=%s",
+        if (!GroupState.isAllowedTransition(curState, nextState)) {
+            String errorMsg = String.format("Current state=%s is not allowed to transfer to state=%s",
                     curState, nextState);
-            LOGGER.warn(warnMsg);
-            return false;
+            LOGGER.error(errorMsg);
+            throw new BusinessException(errorMsg);
         }
+
+        groupMapper.updateStatus(groupId, status, operator);
+        LOGGER.info("success to update inlong group status to [{}] for groupId={}", status, groupId);
+        return true;
     }
 
     @Transactional(rollbackFor = Throwable.class)
@@ -452,8 +443,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         return true;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void saveOrUpdateExt(String groupId, List<InlongGroupExtInfo> infoList) {
         LOGGER.debug("begin to save or update inlong group ext info, groupId={}, ext={}", groupId, infoList);
 
