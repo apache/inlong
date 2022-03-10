@@ -99,8 +99,6 @@ public class InlongGroupRequest {
     @ApiModelProperty(value = "Name of followers, separated by commas")
     private String followers;
 
-    private Integer status;
-
     @ApiModelProperty(value = "is deleted? 0: deleted, 1: not deleted")
     private Integer isDeleted = 0;
 
