@@ -88,6 +88,9 @@ public class SourceInfoUtils {
         list.add(new BuiltInFieldInfo("data", StringFormatInfo.INSTANCE,
                 BuiltInField.MYSQL_METADATA_DATA));
         for (Map.Entry<String, BuiltInField> entry : BUILT_IN_FIELD_MAP.entrySet()) {
+            if (entry.getKey().equals("data_time")) {
+                continue;
+            }
             list.add(new BuiltInFieldInfo(entry.getKey(), StringFormatInfo.INSTANCE, entry.getValue()));
         }
         return list;
