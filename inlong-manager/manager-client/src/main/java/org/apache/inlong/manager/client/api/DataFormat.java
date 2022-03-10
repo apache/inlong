@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.client.api;
 
-import java.util.Locale;
 import lombok.Getter;
+
+import java.util.Locale;
 
 public enum DataFormat {
     CSV("csv"),

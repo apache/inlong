@@ -18,8 +18,6 @@
 package org.apache.inlong.manager.client.api.inner;
 
 import com.google.common.collect.Maps;
-import java.util.List;
-import java.util.Map;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.MapUtils;
@@ -30,6 +28,9 @@ import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
+
+import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor

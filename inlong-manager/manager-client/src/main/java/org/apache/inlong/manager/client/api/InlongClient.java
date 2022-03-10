@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.client.api;
 
-import java.util.List;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
+
+import java.util.List;
 
 /**
  * An interface to manipulate Inlong Cluster
@@ -47,7 +48,7 @@ public interface InlongClient {
     /**
      * Create inlong client.
      *
-     * @param serviceUrl    the service url
+     * @param serviceUrl the service url
      * @param configuration the configuration
      * @return the inlong client
      */

@@ -19,10 +19,11 @@ package org.apache.inlong.manager.client.api;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
-import java.util.Map;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.SinkType;
+
+import java.util.List;
+import java.util.Map;
 
 @Data
 @ApiModel("Stream sink configuration")

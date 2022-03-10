@@ -23,9 +23,9 @@ public enum DataSeparator {
     COLON(":", 58),
     SEMICOLON(";", 59),
     DASH("-", 45),
-    SOH("\001",1),
-    STX("\002",2),
-    ETX("\003",3);
+    SOH("\001", 1),
+    STX("\002", 2),
+    ETX("\003", 3);
 
     private String seperator;
 

@@ -18,15 +18,16 @@
 package org.apache.inlong.manager.client.api;
 
 import com.google.common.collect.Maps;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 @Data
 public class InlongGroupContext implements Serializable {

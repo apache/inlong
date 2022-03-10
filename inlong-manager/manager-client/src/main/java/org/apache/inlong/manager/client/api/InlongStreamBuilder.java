@@ -31,6 +31,7 @@ public abstract class InlongStreamBuilder {
     /**
      * create sink in stream.
      * *
+     *
      * @return inlong stream builder
      */
     public abstract InlongStreamBuilder sink(StreamSink sink);

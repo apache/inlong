@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.client.api.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Collection;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 
 public class AssertUtil {
 
