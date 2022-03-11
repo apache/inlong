@@ -176,7 +176,7 @@ public class InlongGroupImpl implements InlongGroup {
                 groupContext.getGroupId());
         boolean isDeleted = managerClient.deleteInlongGroup(groupResponse.getInlongGroupId());
         if (isDeleted) {
-            groupResponse.setStatus(GroupState.GROUP_DELETE.getCode());
+            groupResponse.setStatus(GroupState.DELETED.getCode());
         }
         return generateSnapshot();
     }

@@ -68,7 +68,7 @@ public class GroupPassTaskListener implements TaskEventListener {
         if (entity == null) {
             throw new WorkflowListenerException("inlong group not found with group id=" + groupId);
         }
-        if (!Objects.equals(GroupState.GROUP_WAIT_APPROVAL.getCode(), entity.getStatus())) {
+        if (!Objects.equals(GroupState.TO_BE_APPROVAL.getCode(), entity.getStatus())) {
             throw new WorkflowListenerException("inlong group status is [wait_approval], not allowed to approve again");
         }
 

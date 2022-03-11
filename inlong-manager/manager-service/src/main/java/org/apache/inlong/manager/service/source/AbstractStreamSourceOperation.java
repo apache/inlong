@@ -92,7 +92,7 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     @Override
     public Integer saveOpt(SourceRequest request, Integer groupStatus, String operator) {
         StreamSourceEntity entity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        if (GroupState.forCode(groupStatus).equals(GroupState.GROUP_CONFIG_SUCCESSFUL)) {
+        if (GroupState.forCode(groupStatus).equals(GroupState.CONFIG_SUCCESSFUL)) {
             entity.setStatus(SourceState.TO_BE_ISSUED_ADD.getCode());
         } else {
             entity.setStatus(SourceState.SOURCE_NEW.getCode());

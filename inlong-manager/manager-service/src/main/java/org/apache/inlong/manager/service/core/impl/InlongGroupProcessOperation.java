@@ -65,7 +65,7 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult startProcess(String groupId, String operator) {
         LOGGER.info("begin to start approve process, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.GROUP_WAIT_APPROVAL.getCode(), operator);
+        groupService.updateStatus(groupId, GroupState.TO_BE_APPROVAL.getCode(), operator);
         // Initiate the approval process
         NewGroupProcessForm form = genNewGroupProcessForm(groupId);
         return workflowService.start(ProcessName.NEW_GROUP_PROCESS, operator, form);
@@ -80,7 +80,7 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult suspendProcess(String groupId, String operator) {
         LOGGER.info("begin to suspend process, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.GROUP_SUSPEND_ING.getCode(), operator);
+        groupService.updateStatus(groupId, GroupState.SUSPENDING.getCode(), operator);
         UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.SUSPEND);
         return workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form);
     }
@@ -93,7 +93,7 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult restartProcess(String groupId, String operator) {
         LOGGER.info("begin to restart process, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.GROUP_RESTART_ING.getCode(), operator);
+        groupService.updateStatus(groupId, GroupState.RESTARTING.getCode(), operator);
         UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.RESTART);
         return workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form);
     }
