@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.protocol.transformation;
 
 import java.io.Serializable;
+import java.util.Objects;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -36,5 +38,22 @@ public class TransformationInfo implements Serializable {
     @JsonProperty("transform_rule")
     public TransformationRule getTransformRule() {
         return transformRule;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        TransformationInfo that = (TransformationInfo) o;
+        return Objects.equals(transformRule, that.transformRule);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(transformRule);
     }
 }
