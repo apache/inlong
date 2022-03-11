@@ -26,6 +26,7 @@ import org.apache.inlong.manager.client.api.StreamSource.SyncType;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.source.KafkaSource;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
+import org.apache.inlong.manager.common.enums.KafkaOffset;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
@@ -97,17 +98,21 @@ public class InlongStreamSourceTransfer {
         return kafkaSource;
     }
 
-    private static KafkaSource parseKafkaSource(KafkaSourceListResponse kafkaSourceResponse) {
+    private static KafkaSource parseKafkaSource(KafkaSourceListResponse kafkaResponse) {
         KafkaSource kafkaSource = new KafkaSource();
-        kafkaSource.setSourceName(kafkaSourceResponse.getSourceName());
-        kafkaSource.setConsumerGroup(kafkaSourceResponse.getGroupId());
-        DataFormat dataFormat = DataFormat.forName(kafkaSourceResponse.getSerializationType());
+        kafkaSource.setSourceName(kafkaResponse.getSourceName());
+        kafkaSource.setConsumerGroup(kafkaResponse.getGroupId());
+
+        DataFormat dataFormat = DataFormat.forName(kafkaResponse.getSerializationType());
         kafkaSource.setDataFormat(dataFormat);
-        kafkaSource.setTopic(kafkaSourceResponse.getTopic());
-        kafkaSource.setBootstrapServers(kafkaSourceResponse.getBootstrapServers());
-        kafkaSource.setByteSpeedLimit(kafkaSourceResponse.getByteSpeedLimit());
-        kafkaSource.setTopicPartitionOffset(kafkaSourceResponse.getTopicPartitionOffset());
-        kafkaSource.setRecordSpeedLimit(kafkaSourceResponse.getRecordSpeedLimit());
+        kafkaSource.setTopic(kafkaResponse.getTopic());
+        kafkaSource.setBootstrapServers(kafkaResponse.getBootstrapServers());
+        kafkaSource.setByteSpeedLimit(kafkaResponse.getByteSpeedLimit());
+        kafkaSource.setTopicPartitionOffset(kafkaResponse.getTopicPartitionOffset());
+
+        KafkaOffset offset = KafkaOffset.forName(kafkaResponse.getAutoOffsetReset());
+        kafkaSource.setAutoOffsetReset(offset);
+        kafkaSource.setRecordSpeedLimit(kafkaResponse.getRecordSpeedLimit());
         kafkaSource.setSyncType(SyncType.FULL);
         return kafkaSource;
     }
@@ -175,7 +180,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setRecordSpeedLimit(kafkaSource.getRecordSpeedLimit());
         sourceRequest.setByteSpeedLimit(kafkaSource.getByteSpeedLimit());
         sourceRequest.setTopicPartitionOffset(kafkaSource.getTopicPartitionOffset());
-        sourceRequest.setAutoOffsetReset(kafkaSource.getAutoOffsetReset());
+        sourceRequest.setAutoOffsetReset(kafkaSource.getAutoOffsetReset().getName());
         sourceRequest.setGroupId(kafkaSource.getConsumerGroup());
         sourceRequest.setSerializationType(kafkaSource.getDataFormat().getName());
         return sourceRequest;

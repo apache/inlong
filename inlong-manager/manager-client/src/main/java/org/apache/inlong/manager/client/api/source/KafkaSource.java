@@ -25,6 +25,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.StreamSource;
+import org.apache.inlong.manager.common.enums.KafkaOffset;
 import org.apache.inlong.manager.common.enums.SourceType;
 
 @Data
@@ -64,8 +65,7 @@ public class KafkaSource extends StreamSource {
             notes = "For example, '0#100_1#10' means the offset of partition 0 is 100, the offset of partition 1 is 10")
     private String topicPartitionOffset;
 
-    @ApiModelProperty(value = "The strategy of auto offset reset",
-            notes = "including earliest, latest (the default), none")
-    private String autoOffsetReset;
+    @ApiModelProperty(value = "The strategy of auto offset reset")
+    private KafkaOffset autoOffsetReset;
 
 }
