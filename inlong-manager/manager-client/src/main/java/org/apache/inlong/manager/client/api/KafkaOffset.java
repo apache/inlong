@@ -22,29 +22,28 @@ import lombok.Getter;
 import java.util.Locale;
 
 /**
- * Enum of data format.
+ * Enum of auto offset reset strategy of Kafka.
  */
-public enum DataFormat {
+public enum KafkaOffset {
 
-    CSV("csv"),
-    AVRO("avro"),
-    CANAL("canal"),
-    JSON("json"),
+    EARLIEST("earliest"),
+    LATEST("latest"),
     NONE("none");
 
     @Getter
     private final String name;
 
-    DataFormat(String name) {
+    KafkaOffset(String name) {
         this.name = name;
     }
 
-    public static DataFormat forName(String name) {
-        for (DataFormat dataFormat : values()) {
+    public static KafkaOffset forName(String name) {
+        for (KafkaOffset dataFormat : values()) {
             if (dataFormat.getName().equals(name.toLowerCase(Locale.ROOT))) {
                 return dataFormat;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupported DataFormat=%s for Inlong", name));
+        throw new IllegalArgumentException(String.format("Unsupported KafkaOffset=%s for Inlong", name));
     }
+
 }

@@ -52,4 +52,9 @@ public class KafkaSourceListResponse extends SourceListResponse {
     @ApiModelProperty(value = "Topic partition offset",
             notes = "For example, '0#100_1#10' means the offset of partition 0 is 100, the offset of partition 1 is 10")
     private String topicPartitionOffset;
+
+    @ApiModelProperty(value = "The strategy of auto offset reset",
+            notes = "including earliest, latest (the default), none")
+    private String autoOffsetReset;
+
 }

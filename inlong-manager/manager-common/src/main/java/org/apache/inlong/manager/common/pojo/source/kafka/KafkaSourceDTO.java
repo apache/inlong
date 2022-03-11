@@ -61,6 +61,13 @@ public class KafkaSourceDTO {
             notes = "For example, '0#100_1#10' means the offset of partition 0 is 100, the offset of partition 1 is 10")
     private String topicPartitionOffset;
 
+    /**
+     * @see <a href="https://docs.confluent.io/platform/current/clients/consumer.html">Kafka_consumer_config</a>
+     */
+    @ApiModelProperty(value = "The strategy of auto offset reset",
+            notes = "including earliest, latest (the default), none")
+    private String autoOffsetReset;
+
     @ApiModelProperty("Data Serialization, support: json, canal, avro, etc")
     private String serializationType;
 
@@ -75,6 +82,7 @@ public class KafkaSourceDTO {
                 .recordSpeedLimit(request.getRecordSpeedLimit())
                 .byteSpeedLimit(request.getByteSpeedLimit())
                 .topicPartitionOffset(request.getTopicPartitionOffset())
+                .autoOffsetReset(request.getAutoOffsetReset())
                 .serializationType(request.getSerializationType())
                 .build();
     }
