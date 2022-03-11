@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.StreamSource;
-import org.apache.inlong.manager.common.enums.KafkaOffset;
+import org.apache.inlong.manager.client.api.KafkaOffset;
 import org.apache.inlong.manager.common.enums.SourceType;
 
 @Data
