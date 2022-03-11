@@ -117,6 +117,7 @@
         <logback.version>1.2.10</logback.version>
         <junit.version>4.13.2</junit.version>
         <je.version>7.3.7</je.version>
+        <postgres.version>42.2.25</postgres.version>
     </properties>
 
     <dependencyManagement>

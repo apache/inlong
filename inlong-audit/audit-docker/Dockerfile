@@ -24,6 +24,8 @@ ENV JDBC_URL='jdbc:mysql:\/\/127.0.0.1:3306\/apache_inlong_audit?useSSL=false\&a
 ENV USERNAME=root
 ENV PASSWORD=inlong
 WORKDIR /opt/inlong-audit
+# add mysql connector
+RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.26/mysql-connector-java-8.0.26.jar
 ADD audit-docker.sh bin/
 RUN chmod +x bin/audit-docker.sh
 CMD ["bin/audit-docker.sh"]
