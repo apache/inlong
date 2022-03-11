@@ -68,7 +68,7 @@ public class SpringContextUtils {
      * 
      * @param  beanName
      * @param  defaultClass
-     * @return              Object
+     * @return Object
      */
     public static Object getBean(String beanName, String defaultClass) {
         Object obj = null;
