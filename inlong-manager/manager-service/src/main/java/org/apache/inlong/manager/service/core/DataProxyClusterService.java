@@ -17,94 +17,16 @@
 
 package org.apache.inlong.manager.service.core;
 
-import com.github.pagehelper.PageInfo;
-import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
-import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
-import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterInfo;
-import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterPageRequest;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpRequest;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyIpResponse;
-
-import java.util.List;
-
 /**
  * DataProxy cluster service layer interface
  */
 public interface DataProxyClusterService {
 
     /**
-     * Save DataProxy cluster information
-     *
-     * @param clusterInfo Cluster information
-     * @param operator Current operator
-     * @return ID after saving
-     */
-    Integer save(DataProxyClusterInfo clusterInfo, String operator);
-
-    /**
-     * Save DataProxy cluster information
-     *
-     * @param id Cluster ID
-     * @return Cluster information succeed
-     */
-    DataProxyClusterInfo get(Integer id);
-
-    /**
-     * Query DataProxy cluster list according to conditions
-     *
-     * @param request Query conditions
-     * @return DataProxy cluster list
-     */
-    PageInfo<DataProxyClusterInfo> listByCondition(DataProxyClusterPageRequest request);
-
-    /**
-     * Change DataProxy cluster information
-     *
-     * @param clusterInfo The information to be modified
-     * @param operator Current operator
-     * @return Whether succeed
-     */
-    Boolean update(DataProxyClusterInfo clusterInfo, String operator);
-
-    /**
-     * Delete DataProxy cluster information
-     *
-     * @param id Cluster ID to be deleted
-     * @param operator Current operator
-     * @return Whether succeed
-     */
-    Boolean delete(Integer id, String operator);
-
-    /**
-     * Query data proxy ip list
-     *
-     * @param request query request param
-     * @return data proxy ip list
-     */
-    List<DataProxyIpResponse> getIpList(DataProxyIpRequest request);
-
-    /**
      * query data proxy config by cluster id
      *
-     * @return data proxy config
-     */
-    List<DataProxyConfig> getConfig();
-
-    /**
-     * query data proxy config by cluster id
-     *
-     * @param clusterName
-     * @param setName
-     * @param md5
      * @return data proxy config
      */
     String getAllConfig(String clusterName, String setName, String md5);
 
-    /**
-     * query data proxy config by cluster id, result includes pulsar cluster configs and topic etc
-     *
-     * @param dataproxyClusterName
-     * @return
-     */
-    ThirdPartyClusterDTO getConfigV2(String dataproxyClusterName);
 }

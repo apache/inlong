@@ -48,14 +48,9 @@
         from data_proxy_cluster
         where id = #{id,jdbcType=INTEGER}
     </select>
-    <select id="selectAll" resultType="org.apache.inlong.manager.dao.entity.DataProxyClusterEntity">
-        select
-        <include refid="Base_Column_List"/>
-        from data_proxy_cluster
-        where is_deleted = 0
-    </select>
+
     <select id="selectByCondition" resultType="org.apache.inlong.manager.dao.entity.DataProxyClusterEntity"
-            parameterType="org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterPageRequest">
+            parameterType="org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest">
         select
         <include refid="Base_Column_List"/>
         from data_proxy_cluster

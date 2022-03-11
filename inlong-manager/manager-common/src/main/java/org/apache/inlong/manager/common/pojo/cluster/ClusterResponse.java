@@ -25,11 +25,11 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * DataProxy cluster information
+ * Cluster response
  */
 @Data
-@ApiModel("DataProxy cluster information")
-public class DataProxyClusterInfo {
+@ApiModel("Cluster response")
+public class ClusterResponse {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
@@ -37,29 +37,41 @@ public class DataProxyClusterInfo {
     @ApiModelProperty(value = "Cluster name")
     private String name;
 
-    @ApiModelProperty(value = "Cluster description")
-    private String description;
+    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, etc.")
+    private String type;
 
-    @ApiModelProperty(value = "Cluster address")
-    private String address;
+    @ApiModelProperty(value = "Cluster IP")
+    private String ip;
 
-    @ApiModelProperty(value = "Access port number, multiple ports are separated by a comma")
-    private String port;
+    @ApiModelProperty(value = "Cluster port")
+    private Integer port;
+
+    @ApiModelProperty(value = "Cluster token")
+    private String token;
+
+    @ApiModelProperty(value = "Cluster URL address")
+    private String url;
 
     @ApiModelProperty(value = "Whether it is a backup cluster, 0: no, 1: yes")
     private Integer isBackup;
 
-    @ApiModelProperty(value = "Name of its mqSetName")
+    @ApiModelProperty(value = "MQ set name")
     private String mqSetName;
 
-    @ApiModelProperty(value = "Extended params, string in JSON format")
+    @ApiModelProperty(value = "MQ config info")
     private String extParams;
 
-    @ApiModelProperty(value = "Name of responsible person, separated by commas")
+    @ApiModelProperty(value = "Name of in charges, separated by commas")
     private String inCharges;
 
     @ApiModelProperty(value = "Cluster status")
     private Integer status;
+
+    @ApiModelProperty(value = "Name of in creator")
+    private String creator;
+
+    @ApiModelProperty(value = "Name of in modifier")
+    private String modifier;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;

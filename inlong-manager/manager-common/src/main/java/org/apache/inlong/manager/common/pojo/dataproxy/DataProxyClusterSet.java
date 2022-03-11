@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -46,9 +46,9 @@ public class DataProxyClusterSet {
     private Map<String, Set<String>> proxy2Cache = new HashMap<>();
     //
     private String defaultConfigJson;
-    // Map<proxyClusterName, jsonString>
+    // key: proxyClusterName, value: jsonString
     private Map<String, String> proxyConfigJson = new HashMap<>();
-    // Map<proxyClusterName, md5>
+    // key: proxyClusterName, value: md5
     private Map<String, String> md5Map = new HashMap<>();
 
     /**
@@ -215,16 +215,9 @@ public class DataProxyClusterSet {
 
     /**
      * addProxy2Cache
-     *
-     * @param proxyClusterName
-     * @param cacheClusterName
      */
     public void addProxy2Cache(String proxyClusterName, String cacheClusterName) {
-        Set<String> cacheNameSet = this.proxy2Cache.get(proxyClusterName);
-        if (cacheNameSet == null) {
-            cacheNameSet = new HashSet<>();
-            this.proxy2Cache.put(proxyClusterName, cacheNameSet);
-        }
+        Set<String> cacheNameSet = this.proxy2Cache.computeIfAbsent(proxyClusterName, k -> new HashSet<>());
         cacheNameSet.add(cacheClusterName);
     }
 

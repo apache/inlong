@@ -15,29 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.cluster;
+package org.apache.inlong.manager.common.pojo.dataproxy;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.beans.PageRequest;
 
-/**
- * DataProxy cluster paging query conditions
- */
 @Data
-@EqualsAndHashCode(callSuper = false)
-@ApiModel("DataProxy cluster paging query conditions")
-public class DataProxyClusterPageRequest extends PageRequest {
+@ApiModel("DataProxy response")
+public class DataProxyResponse {
 
-    @ApiModelProperty(value = "Keywords, name, description, etc.")
-    private String keyWord;
+    @ApiModelProperty(value = "Cluster id")
+    private Integer id;
 
-    @ApiModelProperty(value = "Status")
-    private Integer status;
+    @ApiModelProperty(value = "Cluster IP")
+    private String ip;
 
-    @ApiModelProperty(value = "Current user", hidden = true)
-    private String currentUser;
+    @ApiModelProperty(value = "Cluster port")
+    private Integer port;
+
+    @ApiModelProperty(value = "Cluster ip type, default: all")
+    private String netTag;
 
 }
