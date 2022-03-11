@@ -22,19 +22,13 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-@ApiModel("DataProxy IP response")
-public class DataProxyIpResponse {
+@ApiModel("DataProxy request")
+public class DataProxyRequest {
 
-    @ApiModelProperty(value = "cluster id")
-    private Integer id;
+    @ApiModelProperty(value = "IP of the data proxy")
+    String ip = "";
 
-    @ApiModelProperty(value = "cluster instance ip")
-    private String ip;
-
-    @ApiModelProperty(value = "cluster instance port")
-    private String port;
-
-    @ApiModelProperty(value = "cluster ip type, default: all")
-    private String netTag;
+    @ApiModelProperty(value = "Net tag of the data proxy, default: all")
+    String netTag;
 
 }

@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
@@ -141,9 +141,9 @@ public class CommonOperateService {
      * @param type Cluster type, such as TUBE, PULSAR, etc.
      */
     private ThirdPartyClusterEntity getThirdPartyCluster(String type) {
-        InlongGroupPageRequest request = new InlongGroupPageRequest();
-        request.setMiddlewareType(type);
-        List<InlongGroupEntity> groupEntities = groupMapper.selectByCondition(request);
+        InlongGroupPageRequest groupPageRequest = new InlongGroupPageRequest();
+        groupPageRequest.setMiddlewareType(type);
+        List<InlongGroupEntity> groupEntities = groupMapper.selectByCondition(groupPageRequest);
         if (groupEntities.isEmpty()) {
             LOGGER.warn("no inlong group found by type={}", type);
             return null;
@@ -157,9 +157,10 @@ public class CommonOperateService {
         }
 
         String mqSetName = dataProxyCluster.getMqSetName();
-        ClusterRequest mqNameRequest = ClusterRequest.builder().mqSetName(mqSetName).build();
-        List<ThirdPartyClusterEntity> thirdPartyClusters = thirdPartyClusterMapper.selectByCondition(mqNameRequest);
-        if (thirdPartyClusters.isEmpty()) {
+        ClusterPageRequest clusterRequest = new ClusterPageRequest();
+        clusterRequest.setMqSetName(mqSetName);
+        List<ThirdPartyClusterEntity> thirdPartyClusters = thirdPartyClusterMapper.selectByCondition(clusterRequest);
+        if (CollectionUtils.isEmpty(thirdPartyClusters)) {
             LOGGER.warn("no related third-party-cluster by type={} and mq set name={}", type, mqSetName);
             return null;
         }

@@ -312,9 +312,6 @@ CREATE TABLE `data_proxy_cluster`
     UNIQUE KEY `cluster_name` (`name`, `is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='DataProxy cluster table';
--- add default data proxy address
-insert into data_proxy_cluster (name, address, port, status, is_deleted, creator, create_time, modify_time)
-values ("default_dataproxy", "dataproxy", 46801, 0, 0, "admin", now(), now());
 
 -- ----------------------------
 -- Table structure for data_schema

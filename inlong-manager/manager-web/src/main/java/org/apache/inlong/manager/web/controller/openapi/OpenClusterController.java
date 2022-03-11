@@ -17,13 +17,15 @@
 
 package org.apache.inlong.manager.web.controller.openapi;
 
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterResponse;
 import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +36,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * Cluster controller
@@ -51,28 +51,28 @@ public class OpenClusterController {
     @PostMapping(value = "/save")
     @ApiOperation(value = "Save cluster info")
     @OperationLog(operation = OperationType.CREATE)
-    public Response<Integer> save(@RequestBody ClusterInfo clusterInfo) {
-        return Response.success(thirdPartyClusterService.save(clusterInfo, null));
+    public Response<Integer> save(@RequestBody ClusterRequest request) {
+        return Response.success(thirdPartyClusterService.save(request, null));
     }
 
     @GetMapping(value = "/get/{id}")
     @ApiOperation(value = "Get cluster by id")
     @ApiImplicitParam(name = "id", value = "common cluster ID", dataTypeClass = Integer.class, required = true)
-    public Response<ClusterInfo> get(@PathVariable Integer id) {
+    public Response<ClusterResponse> get(@PathVariable Integer id) {
         return Response.success(thirdPartyClusterService.get(id));
     }
 
     @PostMapping(value = "/list")
-    @ApiOperation(value = "List clusters by condition")
-    public Response<List<ClusterInfo>> list(@RequestBody ClusterRequest request) {
+    @ApiOperation(value = "Get clusters by paginating")
+    public Response<PageInfo<ClusterResponse>> list(@RequestBody ClusterPageRequest request) {
         return Response.success(thirdPartyClusterService.list(request));
     }
 
     @PostMapping(value = "/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster info")
-    public Response<Boolean> update(@RequestBody ClusterInfo clusterInfo) {
-        return Response.success(thirdPartyClusterService.update(clusterInfo, null));
+    public Response<Boolean> update(@RequestBody ClusterRequest request) {
+        return Response.success(thirdPartyClusterService.update(request, null));
     }
 
     @DeleteMapping(value = "/delete/{id}")

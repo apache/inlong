@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
 import org.springframework.stereotype.Repository;
 
@@ -27,20 +27,24 @@ import java.util.List;
 @Repository
 public interface ThirdPartyClusterEntityMapper {
 
-    int deleteByPrimaryKey(Integer id);
-
     int insert(ThirdPartyClusterEntity record);
 
     int insertSelective(ThirdPartyClusterEntity record);
 
     ThirdPartyClusterEntity selectByPrimaryKey(Integer id);
 
+    List<ThirdPartyClusterEntity> selectByCondition(ClusterPageRequest request);
+
     List<ThirdPartyClusterEntity> selectByIdList(@Param("idList") List<Integer> idList);
+
+    List<ThirdPartyClusterEntity> selectByType(@Param("type") String type);
+
+    ThirdPartyClusterEntity selectByName(@Param("name") String name);
 
     int updateByPrimaryKeySelective(ThirdPartyClusterEntity record);
 
     int updateByPrimaryKey(ThirdPartyClusterEntity record);
 
-    List<ThirdPartyClusterEntity> selectByCondition(ClusterRequest request);
+    int deleteByPrimaryKey(Integer id);
 
 }

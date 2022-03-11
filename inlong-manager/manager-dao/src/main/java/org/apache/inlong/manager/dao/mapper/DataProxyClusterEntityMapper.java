@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.common.pojo.cluster.DataProxyClusterPageRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
 import org.springframework.stereotype.Repository;
 
@@ -34,9 +34,7 @@ public interface DataProxyClusterEntityMapper {
 
     DataProxyClusterEntity selectByPrimaryKey(Integer id);
 
-    List<DataProxyClusterEntity> selectAll();
-
-    List<DataProxyClusterEntity> selectByCondition(DataProxyClusterPageRequest request);
+    List<DataProxyClusterEntity> selectByCondition(ClusterPageRequest request);
 
     int updateByPrimaryKeySelective(DataProxyClusterEntity record);
 
