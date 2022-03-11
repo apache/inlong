@@ -118,7 +118,7 @@ public class MessageDeserializer implements Deserializer {
      * transform MessageObjs to SortSdkMessage
      *
      * @param messageObjs {@link MessageObjs}
-     * @return {@link List<InLongMessage>}
+     * @return {@link List}
      */
     private List<InLongMessage> transformMessageObjs(ClientContext context, InLongTopic inLongTopic,
             MessageObjs messageObjs, String inlongGroupId,

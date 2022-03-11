@@ -23,7 +23,7 @@ package org.apache.inlong.agent.plugin;
 public interface Validator {
 
     /**
-     *
+     * validate
      * @param messageLine
      * @return
      */

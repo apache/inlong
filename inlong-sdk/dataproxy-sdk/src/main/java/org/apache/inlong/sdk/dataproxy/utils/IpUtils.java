@@ -40,6 +40,7 @@ public class IpUtils {
      * getLocalAddress
      * 
      * @return
+     *
      * @throws Exception
      */
     public static String getLocalAddress() {
@@ -90,6 +91,7 @@ public class IpUtils {
      * getLocalAddressBytes
      * 
      * @return
+     *
      * @throws Exception
      */
     public static byte[] getLocalAddressBytes() throws Exception {

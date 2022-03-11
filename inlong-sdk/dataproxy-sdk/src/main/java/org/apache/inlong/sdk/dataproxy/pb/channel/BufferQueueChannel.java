@@ -57,8 +57,6 @@ public class BufferQueueChannel extends AbstractChannel {
 
     /**
      * Constructor
-     * 
-     * @param context
      */
     public BufferQueueChannel() {
     }

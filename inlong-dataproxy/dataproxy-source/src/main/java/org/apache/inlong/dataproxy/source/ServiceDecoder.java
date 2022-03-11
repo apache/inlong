@@ -30,6 +30,7 @@ public interface ServiceDecoder {
      * @param cb
      * @param channel
      * @return
+     *
      * @throws
      */
     Map<String, Object> extractData(ByteBuf cb, Channel channel) throws Exception;

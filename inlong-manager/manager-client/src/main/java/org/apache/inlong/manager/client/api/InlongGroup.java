@@ -32,6 +32,7 @@ public interface InlongGroup {
      * Create snapshot for Inlong group
      *
      * @return
+     *
      * @throws Exception
      */
     InlongGroupContext context() throws Exception;
@@ -49,6 +50,7 @@ public interface InlongGroup {
      * Update Inlong group on updated conf
      *
      * @return
+     *
      * @throws Exception
      */
     void update(InlongGroupConf conf) throws Exception;
