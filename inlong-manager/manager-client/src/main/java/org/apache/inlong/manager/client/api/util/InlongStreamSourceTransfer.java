@@ -53,7 +53,7 @@ public class InlongStreamSourceTransfer {
             case BINLOG:
                 return createBinlogSourceRequest((MySQLBinlogSource) streamSource, streamInfo);
             default:
-                throw new RuntimeException(String.format("Unsupport source=%s for Inlong", sourceType));
+                throw new RuntimeException(String.format("Unsupported source=%s for Inlong", sourceType));
         }
     }
 
@@ -66,7 +66,7 @@ public class InlongStreamSourceTransfer {
         if (sourceType == SourceType.BINLOG && sourceResponse instanceof BinlogSourceResponse) {
             return parseMySQLBinlogSource((BinlogSourceResponse) sourceResponse);
         }
-        throw new IllegalArgumentException(String.format("Unsupport source type : %s for Inlong", sourceType));
+        throw new IllegalArgumentException(String.format("Unsupported source type : %s for Inlong", sourceType));
     }
 
     public static StreamSource parseStreamSource(SourceListResponse sourceListResponse) {
@@ -78,7 +78,7 @@ public class InlongStreamSourceTransfer {
         if (sourceType == SourceType.BINLOG && sourceListResponse instanceof BinlogSourceListResponse) {
             return parseMySQLBinlogSource((BinlogSourceListResponse) sourceListResponse);
         }
-        throw new IllegalArgumentException(String.format("Unsupport source type : %s for Inlong", sourceType));
+        throw new IllegalArgumentException(String.format("Unsupported source type : %s for Inlong", sourceType));
     }
 
     private static KafkaSource parseKafkaSource(KafkaSourceResponse kafkaSourceResponse) {
@@ -175,6 +175,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setRecordSpeedLimit(kafkaSource.getRecordSpeedLimit());
         sourceRequest.setByteSpeedLimit(kafkaSource.getByteSpeedLimit());
         sourceRequest.setTopicPartitionOffset(kafkaSource.getTopicPartitionOffset());
+        sourceRequest.setAutoOffsetReset(kafkaSource.getAutoOffsetReset());
         sourceRequest.setGroupId(kafkaSource.getConsumerGroup());
         sourceRequest.setSerializationType(kafkaSource.getDataFormat().getName());
         return sourceRequest;

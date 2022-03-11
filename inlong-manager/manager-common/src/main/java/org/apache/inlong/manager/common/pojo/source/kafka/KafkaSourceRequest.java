@@ -37,10 +37,6 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = Constant.SOURCE_KAFKA)
 public class KafkaSourceRequest extends SourceRequest {
 
-    public KafkaSourceRequest() {
-        this.setSourceType(SourceType.KAFKA.toString());
-    }
-
     @ApiModelProperty("Kafka topic")
     private String topic;
 
@@ -61,5 +57,13 @@ public class KafkaSourceRequest extends SourceRequest {
     @ApiModelProperty(value = "Topic partition offset",
             notes = "For example, '0#100_1#10' means the offset of partition 0 is 100, the offset of partition 1 is 10")
     private String topicPartitionOffset;
+
+    @ApiModelProperty(value = "The strategy of auto offset reset",
+            notes = "including earliest, latest (the default), none")
+    private String autoOffsetReset;
+
+    public KafkaSourceRequest() {
+        this.setSourceType(SourceType.KAFKA.toString());
+    }
 
 }

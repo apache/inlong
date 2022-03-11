@@ -21,7 +21,11 @@ import lombok.Getter;
 
 import java.util.Locale;
 
+/**
+ * Enum of data format.
+ */
 public enum DataFormat {
+
     CSV("csv"),
     AVRO("avro"),
     CANAL("canal"),
@@ -29,7 +33,7 @@ public enum DataFormat {
     NONE("none");
 
     @Getter
-    private String name;
+    private final String name;
 
     DataFormat(String name) {
         this.name = name;
@@ -41,6 +45,6 @@ public enum DataFormat {
                 return dataFormat;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupport dataformat=%s for Inlong", name));
+        throw new IllegalArgumentException(String.format("Unsupported DataFormat=%s for Inlong", name));
     }
 }

@@ -34,10 +34,6 @@ import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 @ApiModel(value = "Response of the kafka source")
 public class KafkaSourceResponse extends SourceResponse {
 
-    public KafkaSourceResponse() {
-        this.setSourceType(SourceType.KAFKA.name());
-    }
-
     @ApiModelProperty("Kafka topic")
     private String topic;
 
@@ -55,5 +51,12 @@ public class KafkaSourceResponse extends SourceResponse {
 
     @ApiModelProperty("Topic partition offset")
     private String topicPartitionOffset;
+
+    @ApiModelProperty(value = "The strategy of auto offset reset")
+    private String autoOffsetReset;
+
+    public KafkaSourceResponse() {
+        this.setSourceType(SourceType.KAFKA.name());
+    }
 
 }
