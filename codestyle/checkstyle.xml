@@ -85,7 +85,7 @@
         </module>
         <module name="AvoidStarImport">
             <property name="severity" value="error"/>
-        </module>		
+        </module>
         <module name="OneTopLevelClass"/>
         <module name="NoLineWrap">
             <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT"/>
@@ -400,16 +400,6 @@
             <property name="scope" value="public"/>
             <property name="allowMissingParamTags" value="true"/>
             <property name="allowMissingReturnTag" value="true"/>
-            <property name="allowedAnnotations" value="Override, Test"/>
-            <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF"/>
-        </module>
-        <module name="MissingJavadocMethod">
-            <property name="severity" value="info"/>
-            <property name="scope" value="public"/>
-            <!--
-            <property name="minLineCount" value="2"/>
-            -->
-            <property name="minLineCount" value="15"/>
             <property name="allowedAnnotations" value="Override, Test"/>
             <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF"/>
         </module>

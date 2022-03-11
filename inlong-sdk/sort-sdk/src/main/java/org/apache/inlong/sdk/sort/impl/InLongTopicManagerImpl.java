@@ -305,7 +305,7 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
     /**
      * offline inlong topic which not belong the sortTaskId
      *
-     * @param oldInLongTopics {@link List<String>}
+     * @param oldInLongTopics {@link List}
      */
     private void offlineRmovedTopic(List<String> oldInLongTopics) {
         for (String fetchKey : oldInLongTopics) {

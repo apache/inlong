@@ -78,6 +78,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * @param channel
      * @param totalDataLen
      * @return
+     *
      * @throws
      */
     private Map<String, Object> extractNewBinHB(Map<String, Object> resultMap,
@@ -234,6 +235,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * @param totalDataLen
      * @param msgType
      * @return
+     *
      * @throws Exception
      */
     private Map<String, Object> extractNewBinData(Map<String, Object> resultMap,
@@ -354,6 +356,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * @param totalDataLen
      * @param msgType
      * @return
+     *
      * @throws Exception
      */
     private Map<String, Object> extractDefaultData(Map<String, Object> resultMap,

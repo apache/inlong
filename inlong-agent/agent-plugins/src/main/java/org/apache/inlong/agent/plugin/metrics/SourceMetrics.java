@@ -22,7 +22,7 @@ package org.apache.inlong.agent.plugin.metrics;
 public interface SourceMetrics {
 
     /**
-     * @return The tag name of source metrics.
+     *  The tag name of source metrics.
      */
     String getTagName();
 
@@ -32,7 +32,7 @@ public interface SourceMetrics {
     void incSourceSuccessCount();
 
     /**
-     * @return Count of the source success metric.
+     *  Count of the source success metric.
      */
     long getSourceSuccessCount();
 
@@ -42,7 +42,7 @@ public interface SourceMetrics {
     void incSourceFailCount();
 
     /**
-     * @return Count of the source fail metric.
+     *  Count of the source fail metric.
      */
     long getSourceFailCount();
 

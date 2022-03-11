@@ -37,7 +37,7 @@ import java.util.List;
  * InlongStreamBuilder builder = group.createStream(streamConf);
  * StreamSource source = ..
  * StreamSink sink = ..
- * List<StreamField> fields = ..
+ * List StreamField fields = ..
  * InlongStream stream = builder.source(source).sink(sink).fields(fields).init();
  * group.init();
  * </code>

@@ -35,9 +35,7 @@ public class ProxyMessage implements Message {
     private final Map<String, String> header;
     private final String inlongGroupId;
     private final String inlongStreamId;
-    /**x
-     * determine the group key when making batch
-     */
+    // determine the group key when making batch
     private final String batchKey;
     private String dataKey;
 
@@ -47,9 +45,7 @@ public class ProxyMessage implements Message {
         this.inlongGroupId = header.get(PROXY_KEY_GROUP_ID);
         this.inlongStreamId = header.getOrDefault(PROXY_KEY_STREAM_ID, DEFAULT_INLONG_STREAM_ID);
         this.dataKey = header.getOrDefault(PROXY_KEY_DATA, "");
-        /**
-         * use the batch key of user and inlongStreamId to determine one batch
-         */
+        // use the batch key of user and inlongStreamId to determine one batch
         this.batchKey = dataKey + inlongStreamId;
     }
 

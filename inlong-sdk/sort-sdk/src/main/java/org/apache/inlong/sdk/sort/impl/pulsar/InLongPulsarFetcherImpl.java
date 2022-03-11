@@ -228,7 +228,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
         /**
          * put the received msg to onFinished method
          *
-         * @param messageRecords {@link List<MessageRecord>}
+         * @param messageRecords {@link List}
          */
         private void handleAndCallbackMsg(List<MessageRecord> messageRecords) {
             long start = System.currentTimeMillis();

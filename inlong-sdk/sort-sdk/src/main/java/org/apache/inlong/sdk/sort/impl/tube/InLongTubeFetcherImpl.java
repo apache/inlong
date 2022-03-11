@@ -222,7 +222,7 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
          * @param splitter {@link Splitter}
          * @param attr String
          * @param entrySplitterStr String
-         * @return {@link Map<String,String>}
+         * @return {@link Map}
          */
         private Map<String, String> parseAttr(Splitter splitter, String attr, String entrySplitterStr) {
             Map<String, String> map = new HashMap<>();

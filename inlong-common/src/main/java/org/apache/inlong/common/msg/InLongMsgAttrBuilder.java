@@ -143,6 +143,7 @@ public class InLongMsgAttrBuilder {
         /**
          * buildAttr
          * @return
+         *
          * @throws Exception
          */
         public String buildAttr() throws Exception {
@@ -241,6 +242,7 @@ public class InLongMsgAttrBuilder {
         /**
          * buildAttr
          * @return
+         *
          * @throws Exception
          */
         public String buildAttr() throws Exception {

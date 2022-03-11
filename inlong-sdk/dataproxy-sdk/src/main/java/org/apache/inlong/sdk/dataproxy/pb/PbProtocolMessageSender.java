@@ -56,7 +56,7 @@ public class PbProtocolMessageSender implements MessageSender, Configurable {
     /**
      * Constructor
      * 
-     * @param context
+     * @param name
      */
     public PbProtocolMessageSender(String name) {
         lifecycleState = LifecycleState.IDLE;

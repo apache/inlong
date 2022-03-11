@@ -58,8 +58,8 @@ public class MockUtils {
 
     /**
      * mockChannel
-     * 
      * @return
+     *
      * @throws Exception
      */
     public static Channel mockChannel() throws Exception {
@@ -77,8 +77,8 @@ public class MockUtils {
 
     /**
      * mockEvent
-     * 
      * @return
+     *
      * @throws Exception
      */
     public static Event mockEvent() throws Exception {
@@ -96,8 +96,8 @@ public class MockUtils {
 
     /**
      * mockPulsarClient
-     * 
      * @return
+     *
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
@@ -143,8 +143,8 @@ public class MockUtils {
 
     /**
      * mockProducer
-     * 
      * @return
+     *
      * @throws Exception
      */
     @SuppressWarnings({"unchecked"})
