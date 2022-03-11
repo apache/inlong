@@ -18,19 +18,14 @@
 package org.apache.inlong.manager.service.thirdparty.sort;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
@@ -39,8 +34,6 @@ import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
-import org.apache.inlong.manager.service.thirdparty.sort.util.SinkInfoUtils;
-import org.apache.inlong.manager.service.thirdparty.sort.util.SourceInfoUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
@@ -49,7 +42,6 @@ import org.apache.inlong.sort.ZkTools;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.InLongMsgCsvDeserializationInfo;
-import org.apache.inlong.sort.protocol.sink.SinkInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +57,6 @@ import java.util.List;
 public class PushSortConfigListener implements SortOperateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PushSortConfigListener.class);
-    private static final String DATA_FLOW_GROUP_ID_KEY = "inlong.group.id";
 
     @Autowired
     private CommonOperateService commonOperateService;
@@ -104,16 +95,18 @@ public class PushSortConfigListener implements SortOperateListener {
 
         // if streamId not null, just push the config belongs to the groupId and the streamId
         String streamId = form.getInlongStreamId();
-        List<SinkResponse> sinkResponses = streamSinkService.listSink(groupId, streamId);
+        List<SinkResponse> sinkResponseList = streamSinkService.listSink(groupId, streamId);
+        if (CollectionUtils.isEmpty(sinkResponseList)) {
+            LOGGER.warn("Sink not found by groupId={}", groupId);
+            return ListenerResult.success();
+        }
 
-        for (SinkResponse sinkResponse : sinkResponses) {
+        for (SinkResponse sinkResponse : sinkResponseList) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("sink info: {}", sinkResponse);
             }
 
-            DataFlowInfo dataFlowInfo = getDataFlowInfo(groupInfo, sinkResponse);
-            // add extra properties for flow info
-            dataFlowInfo.getProperties().put(DATA_FLOW_GROUP_ID_KEY, groupId);
+            DataFlowInfo dataFlowInfo = commonOperateService.createDataFlow(groupInfo, sinkResponse);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("try to push config to sort: {}", JsonUtils.toJson(dataFlowInfo));
             }
@@ -134,33 +127,6 @@ public class PushSortConfigListener implements SortOperateListener {
         }
 
         return ListenerResult.success();
-    }
-
-    private DataFlowInfo getDataFlowInfo(InlongGroupInfo groupInfo, SinkResponse sinkResponse) {
-        String groupId = sinkResponse.getInlongGroupId();
-        String streamId = sinkResponse.getInlongStreamId();
-        List<StreamSinkFieldEntity> fieldList = streamSinkFieldMapper.selectFields(groupId, streamId);
-
-        if (fieldList == null || fieldList.size() == 0) {
-            throw new WorkflowListenerException(
-                    String.format("no fields for groupId=%s streamId=%s", groupId, streamId));
-        }
-
-        List<SourceResponse> sourceList = streamSourceService.listSource(groupId, streamId);
-        if (CollectionUtils.isEmpty(sourceList)) {
-            throw new WorkflowListenerException(String.format("Source not found by groupId=%s and streamId=%s",
-                    groupId, streamId));
-        }
-
-        String masterAddress = commonOperateService.getSpecifiedParam(Constant.TUBE_MASTER_URL);
-        PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo();
-        InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
-        final SourceResponse sourceResponse = sourceList.get(0);
-        SourceInfo sourceInfo = SourceInfoUtils.createSourceInfo(pulsarCluster, masterAddress, clusterBean, groupInfo,
-                streamInfo, sourceResponse, sinkResponse);
-
-        SinkInfo sinkInfo = SinkInfoUtils.createSinkInfo(sourceResponse, sinkResponse);
-        return new DataFlowInfo(sinkResponse.getId(), sourceInfo, sinkInfo);
     }
 
     /**
@@ -192,30 +158,7 @@ public class PushSortConfigListener implements SortOperateListener {
         }
 
         // The number and order of the source fields must be the same as the target fields
-        SourceInfo sourceInfo = null;
-        // Get the source field, if there is no partition field in source, add the partition field to the end
-        // List<FieldInfo> sourceFields = getSourceFields(fieldList);
-        String middleWare = groupInfo.getMiddlewareType();
-        if (Constant.MIDDLEWARE_TUBE.equalsIgnoreCase(middleWare)) {
-            String masterAddress = commonOperateService.getSpecifiedParam(Constant.TUBE_MASTER_URL);
-            Preconditions.checkNotNull(masterAddress, "tube cluster address cannot be empty");
-            String topic = groupInfo.getMqResourceObj();
-            // The consumer group name is: taskName_topicName_consumer_group
-            String consumerGroup = clusterBean.getAppName() + "_" + topic + "_consumer_group";
-            // sourceInfo = new TubeSourceInfo(topic, masterAddress, consumerGroup,
-            //         deserializationInfo, sourceFields.toArray(new FieldInfo[0]));
-        } else if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middleWare)) {
-            PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo();
-            String tenant = clusterBean.getDefaultTenant();
-            InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) groupInfo.getMqExtInfo();
-            if (StringUtils.isNotEmpty(pulsarInfo.getTenant())) {
-                tenant = pulsarInfo.getTenant();
-            }
-            // sourceInfo = SourceInfoUtils.createPulsarSourceInfo(groupInfo, streamInfo.getMqResourceObj(),
-            //         deserializationInfo, sourceFields, clusterBean.getAppName(),
-            //         pulsarClusterInfo, tenant);
-        }
-        return sourceInfo;
+        return null;
     }
 
     @Override

@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.client.api;
 
-import java.io.Serializable;
-import java.util.concurrent.TimeUnit;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.auth.Authentication;
+
+import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A simple class to hold client configuration values.

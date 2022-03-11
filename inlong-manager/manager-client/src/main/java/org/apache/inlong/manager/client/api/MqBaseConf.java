@@ -19,9 +19,10 @@ package org.apache.inlong.manager.client.api;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.io.Serializable;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.MqType;
+
+import java.io.Serializable;
 
 @Data
 @ApiModel("Base configuration for message queue")

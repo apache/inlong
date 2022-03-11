@@ -17,6 +17,16 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = FieldMappingRule.class, name = "field_mapping")
+})
 public interface TransformationRule {
 
 }

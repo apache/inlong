@@ -18,16 +18,23 @@
 package org.apache.inlong.sort.protocol.transformation;
 
 import com.google.common.base.Preconditions;
+
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Objects;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.inlong.sort.protocol.FieldInfo;
 
 public class FieldMappingRule implements TransformationRule, Serializable {
 
+    private static final long serialVersionUID = -3285027125865704371L;
+
     @JsonProperty("field_mapping_units")
     private final FieldMappingUnit[] fieldMappingUnits;
 
+    @JsonCreator
     public FieldMappingRule(
             @JsonProperty("field_mapping_units") FieldMappingUnit[] fieldMappingUnits) {
         this.fieldMappingUnits = fieldMappingUnits;
@@ -38,7 +45,26 @@ public class FieldMappingRule implements TransformationRule, Serializable {
         return fieldMappingUnits;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        FieldMappingRule that = (FieldMappingRule) o;
+        return Arrays.equals(fieldMappingUnits, that.fieldMappingUnits);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(fieldMappingUnits);
+    }
+
     public static class FieldMappingUnit implements Serializable {
+
+        private static final long serialVersionUID = 1525401917124693789L;
 
         @JsonProperty("source_field")
         private final FieldInfo sourceFieldInfo;
@@ -62,6 +88,24 @@ public class FieldMappingRule implements TransformationRule, Serializable {
         @JsonProperty("sink_field")
         public FieldInfo getSinkFieldInfo() {
             return sinkFieldInfo;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            FieldMappingUnit that = (FieldMappingUnit) o;
+            return Objects.equals(sourceFieldInfo, that.sourceFieldInfo) && Objects.equals(sinkFieldInfo,
+                    that.sinkFieldInfo);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(sourceFieldInfo, sinkFieldInfo);
         }
     }
 }
