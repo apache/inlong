@@ -245,7 +245,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         // Check if it can be deleted
         InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
         Integer nextStatus;
-        if (GroupState.GROUP_CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
+        if (GroupState.CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
             nextStatus = SourceState.TO_BE_ISSUED_DELETE.getCode();
         } else {
             nextStatus = SourceState.SOURCE_DISABLE.getCode();

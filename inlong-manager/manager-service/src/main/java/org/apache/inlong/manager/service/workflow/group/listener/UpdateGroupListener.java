@@ -54,16 +54,13 @@ public class UpdateGroupListener implements ProcessEventListener {
         if (groupInfo != null) {
             switch (operateType) {
                 case SUSPEND:
-                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupState.GROUP_SUSPEND_ING.getCode(),
-                            username);
+                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupState.SUSPENDING.getCode(), username);
                     break;
                 case RESTART:
-                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupState.GROUP_RESTART_ING.getCode(),
-                            username);
+                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupState.RESTARTING.getCode(), username);
                     break;
                 case DELETE:
-                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupState.GROUP_DELETE_ING.getCode(),
-                            username);
+                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupState.DELETING.getCode(), username);
                     break;
                 default:
                     break;

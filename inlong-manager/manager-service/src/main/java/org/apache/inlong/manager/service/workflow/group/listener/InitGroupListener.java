@@ -50,7 +50,7 @@ public class InitGroupListener implements ProcessEventListener {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         InlongGroupInfo groupInfo = groupService.get(context.getProcessForm().getInlongGroupId());
         if (groupInfo != null) {
-            final int status = GroupState.GROUP_CONFIG_ING.getCode();
+            final int status = GroupState.CONFIG_ING.getCode();
             final String username = context.getApplicant();
             groupService.updateStatus(groupInfo.getInlongGroupId(), status, username);
             form.setGroupInfo(groupInfo);

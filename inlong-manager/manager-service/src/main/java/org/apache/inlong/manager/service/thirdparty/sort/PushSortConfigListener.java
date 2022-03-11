@@ -26,14 +26,11 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
-import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
+import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
@@ -63,15 +60,11 @@ public class PushSortConfigListener implements SortOperateListener {
     @Autowired
     private ClusterBean clusterBean;
     @Autowired
-    private InlongGroupEntityMapper groupMapper;
+    private InlongGroupService groupService;
     @Autowired
     private InlongStreamService streamService;
     @Autowired
-    private StreamSourceService streamSourceService;
-    @Autowired
     private StreamSinkService streamSinkService;
-    @Autowired
-    private StreamSinkFieldEntityMapper streamSinkFieldMapper;
 
     @Override
     public TaskEvent event() {
@@ -85,13 +78,8 @@ public class PushSortConfigListener implements SortOperateListener {
         }
 
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-        InlongGroupInfo groupInfo = form.getGroupInfo();
-        String groupId = groupInfo.getInlongGroupId();
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
-        if (groupEntity == null || Constant.IS_DELETED.equals(groupEntity.getIsDeleted())) {
-            LOGGER.warn("skip to push sort config for groupId={}, as biz not exists or has been deleted", groupId);
-            return ListenerResult.success();
-        }
+        String groupId = form.getGroupInfo().getInlongGroupId();
+        InlongGroupInfo groupInfo = groupService.get(groupId);
 
         // if streamId not null, just push the config belongs to the groupId and the streamId
         String streamId = form.getInlongStreamId();

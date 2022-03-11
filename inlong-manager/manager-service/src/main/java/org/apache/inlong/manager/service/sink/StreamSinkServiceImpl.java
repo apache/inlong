@@ -116,7 +116,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         // If the inlong group status is [Configuration Successful], then asynchronously initiate
         // the [Single inlong stream Resource Creation] workflow
-        if (GroupState.GROUP_CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
+        if (GroupState.CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
             executorService.execute(new WorkflowStartRunnable(operator, groupEntity, streamId));
         }
 

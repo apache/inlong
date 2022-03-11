@@ -57,13 +57,13 @@ public class GroupCancelProcessListener implements ProcessEventListener {
         if (entity == null) {
             throw new WorkflowListenerException("inlong group not found with group id=" + groupId);
         }
-        if (!Objects.equals(GroupState.GROUP_WAIT_APPROVAL.getCode(), entity.getStatus())) {
+        if (!Objects.equals(GroupState.TO_BE_APPROVAL.getCode(), entity.getStatus())) {
             throw new WorkflowListenerException("current status was not allowed to cancel business");
         }
 
         // After canceling the approval, the status becomes [Waiting to submit]
         String username = context.getApplicant();
-        groupMapper.updateStatus(groupId, GroupState.GROUP_WAIT_SUBMIT.getCode(), username);
+        groupMapper.updateStatus(groupId, GroupState.TO_BE_SUBMIT.getCode(), username);
 
         return ListenerResult.success();
     }

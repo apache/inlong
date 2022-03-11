@@ -62,7 +62,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
     @Test
     public void testFrozenSource() {
         groupInfo = initGroupForm("PULSAR");
-        groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
+        groupInfo.setStatus(GroupState.CONFIG_SUCCESSFUL.getCode());
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
         final int sourceId = createBinlogSource(groupInfo);
@@ -89,9 +89,9 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
     public void testRestartSource() {
         // testFrozenSource();
         groupInfo = initGroupForm("PULSAR");
-        groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
+        groupInfo.setStatus(GroupState.CONFIG_SUCCESSFUL.getCode());
         groupService.update(groupInfo.genRequest(), OPERATOR);
-        groupInfo.setStatus(GroupState.GROUP_SUSPEND.getCode());
+        groupInfo.setStatus(GroupState.SUSPENDED.getCode());
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
         final int sourceId = createBinlogSource(groupInfo);

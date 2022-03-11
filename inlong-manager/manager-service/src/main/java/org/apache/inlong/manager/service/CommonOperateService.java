@@ -202,7 +202,7 @@ public class CommonOperateService {
 
         GroupState state = GroupState.forCode(inlongGroupEntity.getStatus());
         // Add/modify/delete is not allowed under certain group state
-        if (!GroupState.isAllowedUpdate(state)) {
+        if (GroupState.notAllowedUpdate(state)) {
             LOGGER.error("inlong group status was not allowed to add/update/delete related info");
             throw new BusinessException(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS);
         }

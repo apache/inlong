@@ -54,13 +54,13 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
         Integer nextStatus;
         switch (operateType) {
             case RESTART:
-                nextStatus = GroupState.GROUP_RESTART.getCode();
+                nextStatus = GroupState.RESTARTED.getCode();
                 break;
             case SUSPEND:
-                nextStatus = GroupState.GROUP_SUSPEND.getCode();
+                nextStatus = GroupState.SUSPENDED.getCode();
                 break;
             case DELETE:
-                nextStatus = GroupState.GROUP_DELETE.getCode();
+                nextStatus = GroupState.DELETED.getCode();
                 break;
             default:
                 throw new RuntimeException(String.format("Unsupported operation=%s for Inlong group", operateType));
