@@ -23,7 +23,7 @@
 # constants
 ################################
 
-FLUME_AGENT_CLASS="org.apache.inlong.dataproxy.node.Application"
+DATA_PROXY_AGENT_CLASS="org.apache.inlong.dataproxy.node.Application"
 FLUME_AVRO_CLIENT_CLASS="org.apache.flume.client.avro.AvroCLIClient"
 FLUME_VERSION_CLASS="org.apache.flume.tools.VersionInfo"
 
@@ -57,9 +57,9 @@ error() {
   fi
 }
 
-# If avail, add Hadoop paths to the FLUME_CLASSPATH and to the
+# If avail, add Hadoop paths to the DATAPROXY_CLASSPATH and to the
 # FLUME_JAVA_LIBRARY_PATH env vars.
-# Requires Flume jars to already be on FLUME_CLASSPATH.
+# Requires Flume jars to already be on DATAPROXY_CLASSPATH.
 add_hadoop_paths() {
   local HADOOP_IN_PATH=$(PATH="${HADOOP_HOME:-${HADOOP_PREFIX}}/bin:$PATH" \
       which hadoop 2>/dev/null)
@@ -69,7 +69,7 @@ add_hadoop_paths() {
 
     # determine hadoop java.library.path and use that for flume
     local HADOOP_CLASSPATH=""
-    local HADOOP_JAVA_LIBRARY_PATH=$(HADOOP_CLASSPATH="$FLUME_CLASSPATH" \
+    local HADOOP_JAVA_LIBRARY_PATH=$(HADOOP_CLASSPATH="$DATAPROXY_CLASSPATH" \
         ${HADOOP_IN_PATH} org.apache.flume.tools.GetJavaProperty \
         java.library.path)
 
@@ -102,7 +102,7 @@ add_hadoop_paths() {
           info "Excluding $PIECE from classpath"
           continue
         else
-          FLUME_CLASSPATH="$FLUME_CLASSPATH:$PIECE"
+          DATAPROXY_CLASSPATH="$DATAPROXY_CLASSPATH:$PIECE"
         fi
       done
     done
@@ -118,7 +118,7 @@ add_HBASE_paths() {
 
     # determine HBASE java.library.path and use that for flume
     local HBASE_CLASSPATH=""
-    local HBASE_JAVA_LIBRARY_PATH=$(HBASE_CLASSPATH="$FLUME_CLASSPATH" \
+    local HBASE_JAVA_LIBRARY_PATH=$(HBASE_CLASSPATH="$DATAPROXY_CLASSPATH" \
         ${HBASE_IN_PATH} org.apache.flume.tools.GetJavaProperty \
         java.library.path)
 
@@ -151,11 +151,11 @@ add_HBASE_paths() {
           info "Excluding $PIECE from classpath"
           continue
         else
-          FLUME_CLASSPATH="$FLUME_CLASSPATH:$PIECE"
+          DATAPROXY_CLASSPATH="$DATAPROXY_CLASSPATH:$PIECE"
         fi
       done
     done
-    FLUME_CLASSPATH="$FLUME_CLASSPATH:$HBASE_HOME/conf"
+    DATAPROXY_CLASSPATH="$DATAPROXY_CLASSPATH:$HBASE_HOME/conf"
 
   fi
 }
@@ -216,7 +216,7 @@ run_flume() {
   if [ ${CLEAN_FLAG} -ne 0 ]; then
     set -x
   fi
-  $EXEC $JAVA_HOME/bin/java $JAVA_OPTS -cp "$FLUME_CLASSPATH" \
+  $EXEC $JAVA_HOME/bin/java $JAVA_OPTS -cp "$DATAPROXY_CLASSPATH" \
       -Djava.library.path=$FLUME_JAVA_LIBRARY_PATH "$FLUME_APPLICATION_CLASS" $*
 }
 
@@ -225,7 +225,7 @@ run_flume() {
 ################################
 
 # set default params
-FLUME_CLASSPATH=""
+DATAPROXY_CLASSPATH=""
 
 # Extra options to be passed to the jvm
 DATA_PROXY_MEM=${DATA_PROXY_MEM:-"-Xms2g -Xmx2g -XX:MaxDirectMemorySize=4g"}
@@ -335,22 +335,22 @@ fi
 
 # prepend command-line classpath to env script classpath
 if [ -n "${opt_classpath}" ]; then
-  if [ -n "${FLUME_CLASSPATH}" ]; then
-    FLUME_CLASSPATH="${opt_classpath}:${FLUME_CLASSPATH}"
+  if [ -n "${DATAPROXY_CLASSPATH}" ]; then
+    DATAPROXY_CLASSPATH="${opt_classpath}:${DATAPROXY_CLASSPATH}"
   else
-    FLUME_CLASSPATH="${opt_classpath}"
+    DATAPROXY_CLASSPATH="${opt_classpath}"
   fi
 fi
 
-if [ -z "${FLUME_HOME}" ]; then
-  FLUME_HOME=$(cd $(dirname $0)/..; pwd)
+if [ -z "${DATAPROXY_HOME}" ]; then
+  DATAPROXY_HOME=$(cd $(dirname $0)/..; pwd)
 fi
 
-# prepend $FLUME_HOME/lib jars to the specified classpath (if any)
-if [ -n "${FLUME_CLASSPATH}" ] ; then
-  FLUME_CLASSPATH="${FLUME_HOME}/lib/*:$FLUME_CLASSPATH"
+# prepend $DATAPROXY_HOME/lib jars to the specified classpath (if any)
+if [ -n "${DATAPROXY_CLASSPATH}" ] ; then
+  DATAPROXY_CLASSPATH="${DATAPROXY_HOME}/lib/*:$DATAPROXY_CLASSPATH"
 else
-  FLUME_CLASSPATH="${FLUME_HOME}/lib/*"
+  DATAPROXY_CLASSPATH="${DATAPROXY_HOME}/lib/*"
 fi
 
 # find java
@@ -377,7 +377,7 @@ fi
 
 # prepend conf dir to classpath
 if [ -n "$opt_conf" ]; then
-  FLUME_CLASSPATH="$opt_conf:$FLUME_CLASSPATH"
+  DATAPROXY_CLASSPATH="$opt_conf:$DATAPROXY_CLASSPATH"
 fi
 
 set_LD_LIBRARY_PATH
@@ -390,7 +390,7 @@ fi
 echo "LD_LIBRARY_PATH:$LD_LIBRARY_PATH"
 # finally, invoke the appropriate command
 if [ -n "$opt_agent" ] ; then
-  run_flume $FLUME_AGENT_CLASS $args
+  run_flume $DATA_PROXY_AGENT_CLASS $args
 elif [ -n "$opt_avro_client" ] ; then
   run_flume $FLUME_AVRO_CLIENT_CLASS $args
 elif [ -n "${opt_version}" ] ; then
