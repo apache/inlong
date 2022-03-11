@@ -60,16 +60,15 @@ public class Constant {
     public static final String FILE_FORMAT_PARQUET = "Parquet";
 
     public static final String MIDDLEWARE_TUBE = "TUBE";
-
     public static final String MIDDLEWARE_PULSAR = "PULSAR";
-
+    public static final String MIDDLEWARE_TDMQ_PULSAR = "TDMQ_PULSAR";
     public static final String MIDDLEWARE_NONE = "NONE";
-
-    public static final String MIDDLEWARE_TDMQ = "TDMQ";
 
     public static final String SCHEMA_M0_DAY = "m0_day";
 
+    public static final String CLUSTER_TUBE = "TUBE";
     public static final String CLUSTER_PULSAR = "PULSAR";
+    public static final String CLUSTER_TDMQ_PULSAR = "TDMQ_PULSAR";
     public static final String CLUSTER_DATA_PROXY = "DATA_PROXY";
 
     public static final String ID_IS_EMPTY = "primary key is empty";

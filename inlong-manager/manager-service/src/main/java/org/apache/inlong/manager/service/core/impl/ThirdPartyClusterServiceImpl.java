@@ -55,6 +55,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +85,9 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
     public Integer save(ClusterRequest request, String operator) {
         LOGGER.info("begin to insert a cluster info cluster={}", request);
         Preconditions.checkNotNull(request, "cluster is empty");
+        ThirdPartyClusterEntity exist = thirdPartyClusterMapper.selectByName(request.getName());
+        Preconditions.checkTrue(exist == null, "cluster name already exist");
+
         ThirdPartyClusterEntity entity = CommonBeanUtils.copyProperties(request, ThirdPartyClusterEntity::new);
         if (operator != null) {
             entity.setCreator(operator);
@@ -279,9 +283,10 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
 
         // construct pulsarSet info
         List<ThirdPartyClusterInfo> mqSet = new ArrayList<>();
-        ClusterPageRequest request = new ClusterPageRequest();
-        request.setMqSetName(clusterEntity.getMqSetName());
-        List<ThirdPartyClusterEntity> clusterList = thirdPartyClusterMapper.selectByCondition(request);
+        List<String> clusterType = Arrays.asList(Constant.CLUSTER_TUBE, Constant.CLUSTER_PULSAR,
+                Constant.CLUSTER_TDMQ_PULSAR);
+        List<ThirdPartyClusterEntity> clusterList = thirdPartyClusterMapper.selectMqCluster(
+                clusterEntity.getMqSetName(), clusterType);
         for (ThirdPartyClusterEntity cluster : clusterList) {
             ThirdPartyClusterInfo clusterInfo = new ThirdPartyClusterInfo();
             clusterInfo.setUrl(cluster.getUrl());

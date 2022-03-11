@@ -37,7 +37,6 @@ import org.apache.inlong.sort.protocol.source.TDMQPulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Utils for source info
@@ -100,7 +99,7 @@ public class SourceInfoUtils {
         final String consumerGroup = clusterBean.getAppName() + "_" + topicName + "_consumer_group";
         FieldInfo[] fieldInfosArr = fieldInfos.toArray(new FieldInfo[0]);
         String type = pulsarCluster.getType();
-        if (StringUtils.isNotEmpty(type) && type.toUpperCase(Locale.ROOT).contains(Constant.MIDDLEWARE_TDMQ)) {
+        if (StringUtils.isNotEmpty(type) && Constant.MIDDLEWARE_TDMQ_PULSAR.equals(type)) {
             return new TDMQPulsarSourceInfo(pulsarCluster.getBrokerServiceUrl(),
                     fullTopicName, consumerGroup, pulsarCluster.getToken(), deserializationInfo, fieldInfosArr);
         } else {

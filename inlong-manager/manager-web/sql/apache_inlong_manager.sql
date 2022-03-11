@@ -176,9 +176,10 @@ CREATE TABLE `third_party_cluster`
     `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_cluster_name` (`name`, `is_deleted`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='MQ Cluster Information Table';
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Cluster Information Table';
 
 -- ----------------------------
 -- Table structure for common_db_server
