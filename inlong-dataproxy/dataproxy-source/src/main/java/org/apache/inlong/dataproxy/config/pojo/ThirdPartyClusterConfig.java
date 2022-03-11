@@ -42,6 +42,9 @@ public class ThirdPartyClusterConfig extends Context {
     private static final String ENABLE_BATCH = "enable_batch";
     private static final String BLOCK_IF_QUEUE_FULL = "block_if_queue_full";
     private static final String MAX_PENDING_MESSAGES = "max_pending_messages";
+    private static final String MAX_PENDING_MESSAGES_ACROSS_PARTITIONS =
+            "max_pending_messages_across_partitions";
+    private static final String COMPRESSION_TYPE = "compression_type";
     private static final String MAX_BATCHING_MESSAGES = "max_batching_messages";
     private static final String RETRY_INTERVAL_WHEN_SEND_ERROR_MILL = "retry_interval_when_send_error_ms";
     private static final String SINK_THREAD_NUM = "thread_num";
@@ -93,6 +96,8 @@ public class ThirdPartyClusterConfig extends Context {
     private static final boolean DEFAULT_ENABLE_BATCH = true;
     private static final boolean DEFAULT_BLOCK_IF_QUEUE_FULL = true;
     private static final int DEFAULT_MAX_PENDING_MESSAGES = 10000;
+    private static final int DEFAULT_MAX_PENDING_MESSAGES_ACROSS_PARTITIONS = 500000;
+    private static final String DEFAULT_COMPRESSION_TYPE = "NONE";
     private static final int DEFAULT_MAX_BATCHING_MESSAGES = 1000;
     private static final int DEFAULT_MAX_BATCHING_BYTES = 128 * 1024;
     private static final long DEFAULT_MAX_BATCHING_PUBLISH_DELAY_MILLIS = 1L;
@@ -203,6 +208,15 @@ public class ThirdPartyClusterConfig extends Context {
         return getInteger(MAX_PENDING_MESSAGES, DEFAULT_MAX_PENDING_MESSAGES);
     }
 
+    public int getMaxPendingMessagesAcrossPartitions() {
+        return getInteger(MAX_PENDING_MESSAGES_ACROSS_PARTITIONS,
+                DEFAULT_MAX_PENDING_MESSAGES_ACROSS_PARTITIONS);
+    }
+
+    public String getCompressionType() {
+        return getString(COMPRESSION_TYPE, DEFAULT_COMPRESSION_TYPE);
+    }
+
     public int getMaxBatchingMessages() {
         return getInteger(MAX_BATCHING_MESSAGES, DEFAULT_MAX_BATCHING_MESSAGES);
     }
@@ -211,7 +225,7 @@ public class ThirdPartyClusterConfig extends Context {
         return getLong(RETRY_INTERVAL_WHEN_SEND_ERROR_MILL, DEFAULT_RETRY_INTERVAL_WHEN_SEND_ERROR_MILL);
     }
 
-    public int getRetyCnt() {
+    public int getRetryCnt() {
         return getInteger(RETRY_CNT, DEFAULT_RETRY_CNT);
     }
 

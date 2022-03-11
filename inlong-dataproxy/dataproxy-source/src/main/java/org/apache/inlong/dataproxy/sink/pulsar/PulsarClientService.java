@@ -37,6 +37,7 @@ import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.ClientBuilder;
+import org.apache.pulsar.client.api.CompressionType;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
@@ -74,6 +75,8 @@ public class PulsarClientService {
     private boolean enableBatch = true;
     private boolean blockIfQueueFull = true;
     private int maxPendingMessages = 10000;
+    private int maxPendingMessagesAcrossPartitions = 500000;
+    private CompressionType compressionType;
     private int maxBatchingBytes = 128 * 1024;
     private int maxBatchingMessages = 1000;
     private long maxBatchingPublishDelayMillis = 1;
@@ -87,15 +90,17 @@ public class PulsarClientService {
     private String localIp = "127.0.0.1";
 
     private StreamConfigLogMetric streamConfigLogMetric;
+    private int sinkThreadPoolSize;
 
     /**
      * PulsarClientService
      *
      * @param pulsarConfig
      */
-    public PulsarClientService(ThirdPartyClusterConfig pulsarConfig) {
+    public PulsarClientService(ThirdPartyClusterConfig pulsarConfig, int sinkThreadPoolSize) {
 
-//        String pulsarServerUrlList = context.getString(PULSAR_SERVER_URL_LIST);
+        this.sinkThreadPoolSize = sinkThreadPoolSize;
+
         authType = pulsarConfig.getAuthType();
         sendTimeout = pulsarConfig.getSendTimeoutMs();
         retryIntervalWhenSendMsgError = pulsarConfig.getRetryIntervalWhenSendErrorMs();
@@ -109,6 +114,13 @@ public class PulsarClientService {
         enableBatch = pulsarConfig.getEnableBatch();
         blockIfQueueFull = pulsarConfig.getBlockIfQueueFull();
         maxPendingMessages = pulsarConfig.getMaxPendingMessages();
+        maxPendingMessagesAcrossPartitions = pulsarConfig.getMaxPendingMessagesAcrossPartitions();
+        String compressionTypeStr = pulsarConfig.getCompressionType();
+        if (StringUtils.isNotEmpty(compressionTypeStr)) {
+            compressionType = CompressionType.valueOf(compressionTypeStr);
+        } else {
+            compressionType = CompressionType.NONE;
+        }
         maxBatchingMessages = pulsarConfig.getMaxBatchingMessages();
         maxBatchingBytes = pulsarConfig.getMaxBatchingBytes();
         maxBatchingPublishDelayMillis = pulsarConfig.getMaxBatchingPublishDelayMillis();
@@ -133,19 +145,20 @@ public class PulsarClientService {
     /**
      * send message
      *
+     * @param poolIndex
      * @param topic
      * @param event
      * @param sendMessageCallBack
      * @param es
      * @return
      */
-    public boolean sendMessage(String topic, Event event,
+    public boolean sendMessage(int poolIndex, String topic, Event event,
                                SendMessageCallBack sendMessageCallBack, EventStat es) {
-        TopicProducerInfo producer = null;
+        TopicProducerInfo producerInfo = null;
         final String inlongStreamId = getInlongStreamId(event);
         final String inlongGroupId = getInlongGroupId(event);
         try {
-            producer = getProducer(topic, inlongGroupId, inlongStreamId);
+            producerInfo = getProducerInfo(poolIndex, topic, inlongGroupId, inlongStreamId);
         } catch (Exception e) {
             if (logPrinterA.shouldPrint()) {
                 /*
@@ -165,15 +178,15 @@ public class PulsarClientService {
          * If the producer is a null value,\ it means that the topic is not yet
          * ready, and it needs to be played back into the file channel
          */
-        if (producer == null) {
+        if (producerInfo == null) {
             /*
              * Data within 30s is placed in the exception channel to
              * prevent frequent checks
              * After 30s, reopen the topic check, if it is still a null value,
              *  put it back into the illegal map
              */
-            sendMessageCallBack.handleMessageSendException(topic, es, new Exception("producer is "
-                    + "null"));
+            sendMessageCallBack.handleMessageSendException(topic, es, new Exception("producer "
+                    + " info is null"));
             return false;
         }
 
@@ -181,12 +194,17 @@ public class PulsarClientService {
         proMap.put("data_proxy_ip", localIp);
         proMap.put(inlongStreamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
 
-        TopicProducerInfo forCallBackP = producer;
-
+        TopicProducerInfo forCallBackP = producerInfo;
+        Producer producer = producerInfo.getProducer(poolIndex);
+        if (producer == null) {
+            sendMessageCallBack.handleMessageSendException(topic, es, new Exception("producer is "
+                    + "null"));
+            return false;
+        }
         if (MessageUtils.isSyncSendForOrder(event) && (event instanceof OrderEvent)) {
             String partitionKey = event.getHeaders().get(AttributeConstants.MESSAGE_PARTITION_KEY);
             try {
-                MessageId msgId = forCallBackP.getProducer().newMessage().key(partitionKey)
+                MessageId msgId = producer.newMessage().key(partitionKey)
                         .properties(proMap).value(event.getBody())
                         .send();
                 sendResponse((OrderEvent)event);
@@ -204,7 +222,7 @@ public class PulsarClientService {
             }
 
         } else {
-            forCallBackP.getProducer().newMessage().properties(proMap).value(event.getBody())
+            producer.newMessage().properties(proMap).value(event.getBody())
                     .sendAsync().thenAccept((msgId) -> {
                 AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
                 forCallBackP.setCanUseSend(true);
@@ -306,7 +324,8 @@ public class PulsarClientService {
             if (pulsarClients != null) {
                 newList = new ArrayList<>();
                 for (PulsarClient pulsarClient : pulsarClients.values()) {
-                    TopicProducerInfo info = new TopicProducerInfo(pulsarClient, topic);
+                    TopicProducerInfo info = new TopicProducerInfo(pulsarClient,
+                            sinkThreadPoolSize, topic);
                     info.initProducer(inlongGroupId, inlongStreamId);
                     if (info.isCanUseToSendMessage()) {
                         newList.add(info);
@@ -325,7 +344,7 @@ public class PulsarClientService {
         return initTopicProducer(topic, null, null);
     }
 
-    private TopicProducerInfo getProducer(String topic, String inlongGroupId,
+    private TopicProducerInfo getProducerInfo(int poolIndex, String topic, String inlongGroupId,
             String inlongStreamId) {
         List<TopicProducerInfo> producerList =
                 initTopicProducer(topic, inlongGroupId, inlongStreamId);
@@ -341,7 +360,8 @@ public class PulsarClientService {
         do {
             int index = (int) (topicIndex.getAndIncrement() % maxTryToGetProducer);
             p = producerList.get(index);
-            if (p.isCanUseToSendMessage() && p.getProducer().isConnected()) {
+            if (p.isCanUseToSendMessage() && p.getProducer(poolIndex) != null
+                    && p.getProducer(poolIndex).isConnected()) {
                 break;
             }
             retryTime++;
@@ -422,7 +442,8 @@ public class PulsarClientService {
 
                 //create related topicProducers
                 for (String topic : topicSet) {
-                    TopicProducerInfo info = new TopicProducerInfo(client, topic);
+                    TopicProducerInfo info = new TopicProducerInfo(client, sinkThreadPoolSize,
+                            topic);
                     info.initProducer();
                     if (info.isCanUseToSendMessage()) {
                         producerInfoMap.computeIfAbsent(topic, k -> new ArrayList<>()).add(info);
@@ -473,9 +494,11 @@ public class PulsarClientService {
     class TopicProducerInfo {
         private long lastSendMsgErrorTime;
 
-        private Producer producer;
+        private Producer[] producers;
 
         private PulsarClient pulsarClient;
+
+        private int sinkThreadPoolSize;
 
         private String topic;
 
@@ -483,29 +506,33 @@ public class PulsarClientService {
 
         private volatile Boolean isFinishInit = false;
 
-        public TopicProducerInfo(PulsarClient pulsarClient,
+        public TopicProducerInfo(PulsarClient pulsarClient, int sinkThreadPoolSize,
                                  String topic) {
             this.pulsarClient = pulsarClient;
+            this.sinkThreadPoolSize = sinkThreadPoolSize;
             this.topic = topic;
+            this.producers = new Producer[sinkThreadPoolSize];
+        }
+
+        public void initProducer() {
+            initProducer(null, null);
         }
 
         public void initProducer(String inlongGroupId, String inlongStreamId) {
             try {
-                producer = pulsarClient.newProducer().sendTimeout(sendTimeout,
-                        TimeUnit.MILLISECONDS)
-                        .topic(topic)
-                        .enableBatching(enableBatch)
-                        .blockIfQueueFull(blockIfQueueFull)
-                        .maxPendingMessages(maxPendingMessages)
-                        .batchingMaxMessages(maxBatchingMessages)
-                        .batchingMaxBytes(maxBatchingBytes)
-                        .batchingMaxPublishDelay(maxBatchingPublishDelayMillis, TimeUnit.MILLISECONDS)
-                        .create();
+                for (int i = 0; i < sinkThreadPoolSize; i++) {
+                    producers[i] = createProducer();
+                }
                 isFinishInit = true;
             } catch (PulsarClientException e) {
                 logger.error("create pulsar client has error e = {} inlongGroupId = {}, "
                         + "inlongStreamId= {}", e, inlongGroupId, inlongStreamId);
                 isFinishInit = false;
+                for (int i = 0; i < sinkThreadPoolSize; i++) {
+                    if (producers[i] != null) {
+                        producers[i].closeAsync();
+                    }
+                }
                 if (streamConfigLogMetric != null
                         && StringUtils.isNotEmpty(inlongGroupId)
                         && StringUtils.isNotEmpty(inlongStreamId)) {
@@ -516,8 +543,19 @@ public class PulsarClientService {
             }
         }
 
-        public void initProducer() {
-            initProducer(null, null);
+        private Producer createProducer() throws PulsarClientException {
+            return pulsarClient.newProducer().sendTimeout(sendTimeout,
+                    TimeUnit.MILLISECONDS)
+                    .topic(topic)
+                    .enableBatching(enableBatch)
+                    .blockIfQueueFull(blockIfQueueFull)
+                    .maxPendingMessages(maxPendingMessages)
+                    .maxPendingMessagesAcrossPartitions(maxPendingMessagesAcrossPartitions)
+                    .compressionType(compressionType)
+                    .batchingMaxMessages(maxBatchingMessages)
+                    .batchingMaxBytes(maxBatchingBytes)
+                    .batchingMaxPublishDelay(maxBatchingPublishDelayMillis, TimeUnit.MILLISECONDS)
+                    .create();
         }
 
         public void setCanUseSend(Boolean isCanUseSend) {
@@ -540,14 +578,21 @@ public class PulsarClientService {
 
         public void close() {
             try {
-                producer.close();
+                for (int i = 0; i < sinkThreadPoolSize; i++) {
+                    if (producers[i] != null) {
+                        producers[i].close();
+                    }
+                }
             } catch (PulsarClientException e) {
                 logger.error("close pulsar producer has error e = {}", e);
             }
         }
 
-        public Producer getProducer() {
-            return producer;
+        public Producer getProducer(int poolIndex) {
+            if (poolIndex >= sinkThreadPoolSize || producers[poolIndex] == null) {
+                return producers[0];
+            }
+            return producers[poolIndex];
         }
 
         public PulsarClient getPulsarClient() {
