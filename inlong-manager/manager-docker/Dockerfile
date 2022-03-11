@@ -25,7 +25,8 @@ ENV JDBC_URL=127.0.0.1:3306
 ENV USERNAME=root
 ENV PASSWORD=inlong
 ENV ZK_URL=127.0.0.1:2181
-
+# support download plugins from remote address.
+ENV PLUGINS_URL=default
 WORKDIR /opt/inlong-manager
 
 # add tarball from manager output

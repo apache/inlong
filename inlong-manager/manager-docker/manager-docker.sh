@@ -38,6 +38,13 @@ sed -i "s/cluster.zk.url=.*$/cluster.zk.url=${ZK_URL}/g" "${conf_file}"
 # startup the application
 JAVA_OPTS="-Dspring.profiles.active=${ACTIVE_PROFILE}"
 
+# get plugins from remote address.
+if [[ "${PLUGINS_URL}" =~ ^http* ]]; then
+    wget ${PLUGINS_URL} -O plugins.tar.gz
+    tar -zxvf plugins.tar.gz -C "${file_path}"/
+    rm plugins.tar.gz
+fi
+
 sh "${file_path}"/bin/startup.sh "${JAVA_OPTS}"
 sleep 3
 # keep alive
