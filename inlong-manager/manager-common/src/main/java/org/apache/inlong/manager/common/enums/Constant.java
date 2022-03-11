@@ -111,4 +111,6 @@ public class Constant {
 
     public static final String TUBE_MASTER_URL = "tube_masterUrl";
 
+    public static final String DATA_FLOW_GROUP_ID_KEY = "inlong.group.id";
+
 }
