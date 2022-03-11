@@ -172,10 +172,6 @@ start_inlong_dataproxy() {
   cd $INLONG_HOME/inlong-dataproxy/bin
   chmod 755 *.sh
   ./dataproxy-start.sh
-  echo "update cluster information into data_proxy_cluster table"
-  update_db_sql="UPDATE apache_inlong_manager.data_proxy_cluster SET address='"$dataproxy_ip"' WHERE name='default_dataproxy'"
-  mysql -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} -e "${update_db_sql}"
-  echo "cluster information updated"
 }
 
 start_inlong_agent() {
