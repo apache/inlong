@@ -18,12 +18,12 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionListVo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionSummary;
-import org.apache.inlong.manager.service.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 
 /**
  * Data consumption interface
@@ -93,13 +93,13 @@ public interface ConsumptionService {
      *
      * @param id Data consumption id
      * @param operator Operator
-     * @return Process information
+     * @return WorkflowProcess information
      */
     WorkflowResult startProcess(Integer id, String operator);
 
     /**
      * Save the consumer group info for Sort to the database
      */
-    void saveSortConsumption(BusinessInfo bizInfo, String topic, String consumerGroup);
+    void saveSortConsumption(InlongGroupInfo bizInfo, String topic, String consumerGroup);
 
 }

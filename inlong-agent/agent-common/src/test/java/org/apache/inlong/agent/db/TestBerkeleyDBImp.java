@@ -17,13 +17,14 @@
 
 package org.apache.inlong.agent.db;
 
-import java.util.List;
-
 import org.apache.inlong.agent.AgentBaseTestsHelper;
+import org.apache.inlong.common.db.CommandEntity;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.List;
 
 public class TestBerkeleyDBImp {
 
@@ -37,7 +38,7 @@ public class TestBerkeleyDBImp {
     }
 
     @AfterClass
-    public static void teardown() throws Exception {
+    public static void teardown() {
         db.close();
         helper.teardownAgentHome();
     }
@@ -79,7 +80,7 @@ public class TestBerkeleyDBImp {
 
     @Test
     public void testCommandDb() {
-        CommandEntity commandEntity = new CommandEntity("1", 0, false, "1", "");
+        CommandEntity commandEntity = new CommandEntity("1", 0, false, 1, "1");
         db.putCommand(commandEntity);
         CommandEntity command = db.getCommand("1");
         Assert.assertEquals("1", command.getId());

@@ -70,16 +70,18 @@ public class NettyClient implements Client {
             new ConcurrentHashMap<>();
     private final AtomicInteger serialNoGenerator =
             new AtomicInteger(0);
-    private AtomicBoolean released = new AtomicBoolean(false);
+    private final AtomicBoolean released = new AtomicBoolean(false);
     private NodeAddrInfo addressInfo;
-    private ClientFactory clientFactory;
+    private final ClientFactory clientFactory;
     private Channel channel;
-    private long connectTimeout;
-    private volatile AtomicBoolean closed = new AtomicBoolean(true);
+    private final long connectTimeout;
+    private final AtomicBoolean closed = new AtomicBoolean(true);
 
     /**
-     * @param clientFactory
-     * @param connectTimeout
+     * Initial a netty client object
+     *
+     * @param clientFactory    the client factory
+     * @param connectTimeout   the connection timeout
      */
     public NettyClient(ClientFactory clientFactory, long connectTimeout) {
         this.clientFactory = clientFactory;
@@ -94,8 +96,10 @@ public class NettyClient implements Client {
     }
 
     /**
-     * @param channel
-     * @param addressInfo
+     * Set a channel
+     *
+     * @param channel      the channel
+     * @param addressInfo   the address of the channel
      */
     public void setChannel(Channel channel, final NodeAddrInfo addressInfo) {
         this.channel = channel;
@@ -226,6 +230,8 @@ public class NettyClient implements Client {
      * remove clientFactory cache
      * handler unfinished callbacks
      * and close the channel
+     *
+     * @param removeParent    whether remove the object from client factory
      */
     @Override
     public void close(boolean removeParent) {
@@ -275,11 +281,13 @@ public class NettyClient implements Client {
      */
     public class NettyClientHandler extends SimpleChannelUpstreamHandler {
 
-        @Override
         /**
-         * Invoked when a message object (e.g: {@link ChannelBuffer}) was received
-         * from a remote peer.
+         * Invoked when a message object was received from a remote peer.
+         *
+         * @param ctx     the channel handler context
+         * @param e       the message event
          */
+        @Override
         public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
             if (e.getMessage() instanceof RpcDataPack) {
                 RpcDataPack dataPack = (RpcDataPack) e.getMessage();
@@ -366,8 +374,10 @@ public class NettyClient implements Client {
         }
 
         /**
-         * Invoked when an exception was raised by an I/O thread or a
-         * {@link ChannelHandler}.
+         * Invoked when an exception was raised by an I/O thread or a {@link ChannelHandler}.
+         *
+         * @param ctx   the channel handler context
+         * @param e     the exception object
          */
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
@@ -386,11 +396,13 @@ public class NettyClient implements Client {
             }
         }
 
-        @Override
         /**
-         * Invoked when a {@link Channel} was closed and all its related resources
-         * were released.
+         * Invoked when a {@link Channel} was closed and all its related resources were released.
+         *
+         * @param ctx   the channel handler context
+         * @param e     the channel state event
          */
+        @Override
         public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
             NettyClient.this.close();
         }
@@ -401,7 +413,7 @@ public class NettyClient implements Client {
      */
     public class TimeoutTask implements TimerTask {
 
-        private int serialNo;
+        private final int serialNo;
 
         public TimeoutTask(int serialNo) {
             this.serialNo = serialNo;

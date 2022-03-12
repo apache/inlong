@@ -23,12 +23,14 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
+import org.apache.inlong.sort.protocol.transformation.TransformationInfo;
 
 /**
  * Data flow protocol.
@@ -41,6 +43,9 @@ public class DataFlowInfo implements Serializable {
 
     private final SourceInfo sourceInfo;
 
+    @JsonInclude(Include.NON_NULL)
+    private final TransformationInfo transformationInfo;
+
     private final SinkInfo sinkInfo;
 
     @JsonInclude(Include.NON_NULL)
@@ -50,19 +55,26 @@ public class DataFlowInfo implements Serializable {
     public DataFlowInfo(
             @JsonProperty("id") long id,
             @JsonProperty("source_info") SourceInfo sourceInfo,
+            @JsonProperty("transformation_info") @Nullable TransformationInfo transformationInfo,
             @JsonProperty("sink_info") SinkInfo sinkInfo,
             @JsonProperty("properties") Map<String, Object> properties) {
         this.id = id;
         this.sourceInfo = checkNotNull(sourceInfo);
+        this.transformationInfo = transformationInfo;
         this.sinkInfo = checkNotNull(sinkInfo);
         this.properties = properties == null ? new HashMap<>() : properties;
     }
 
+    public DataFlowInfo(
+            @JsonProperty("id") long id,
+            @JsonProperty("source_info") SourceInfo sourceInfo,
+            @JsonProperty("sink_info") SinkInfo sinkInfo,
+            @JsonProperty("properties") Map<String, Object> properties) {
+        this(id, sourceInfo, null, sinkInfo, properties);
+    }
+
     public DataFlowInfo(long id, SourceInfo sourceInfo, SinkInfo sinkInfo) {
-        this.id = id;
-        this.sourceInfo = sourceInfo;
-        this.sinkInfo = sinkInfo;
-        this.properties = new HashMap<>();
+        this(id, sourceInfo, sinkInfo, new HashMap<>());
     }
 
     @JsonProperty("id")
@@ -73,6 +85,12 @@ public class DataFlowInfo implements Serializable {
     @JsonProperty("source_info")
     public SourceInfo getSourceInfo() {
         return sourceInfo;
+    }
+
+    @Nullable
+    @JsonProperty("transformation_info")
+    public TransformationInfo getTransformationInfo() {
+        return transformationInfo;
     }
 
     @JsonProperty("sink_info")

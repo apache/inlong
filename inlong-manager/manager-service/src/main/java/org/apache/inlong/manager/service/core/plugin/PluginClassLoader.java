@@ -21,6 +21,11 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.workflow.plugin.PluginDefinition;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,10 +42,6 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.plugin.PluginDefinition;
 
 @Slf4j
 public class PluginClassLoader extends URLClassLoader {
@@ -51,14 +52,11 @@ public class PluginClassLoader extends URLClassLoader {
      * plugin.yaml should less than 1k
      */
     public static final int PLUGIN_DEF_CAPACITY = 1024;
-
+    private final File pluginDirectory;
     /**
      * pluginName -> pluginDefinition
      */
     private Map<String, PluginDefinition> pluginDefinitionMap = new HashMap<>();
-
-    private File pluginDirectory;
-
     private ObjectMapper yamlMapper;
 
     private PluginClassLoader(URL url, ClassLoader parent) throws IOException {
@@ -78,6 +76,28 @@ public class PluginClassLoader extends URLClassLoader {
                 return new PluginClassLoader(new URL("file://" + url), parent);
             }
         });
+    }
+
+    private static void checkClassLoader(ClassLoader classLoader) {
+        if (classLoader == null) {
+            throw new RuntimeException("parent classLoader should not be null");
+        }
+    }
+
+    private static void checkUrl(String url) {
+        if (StringUtils.isBlank(url)) {
+            throw new IllegalArgumentException("url should not be empty");
+        }
+        File pluginDirectory = new File(url);
+        if (!pluginDirectory.exists()) {
+            throw new RuntimeException(String.format("pluginDirectory '%s' is not exists", pluginDirectory));
+        }
+        if (!pluginDirectory.isDirectory()) {
+            throw new RuntimeException(String.format("pluginDirectory '%s' should be directory", pluginDirectory));
+        }
+        if (!pluginDirectory.canRead()) {
+            throw new RuntimeException(String.format("pluginDirectory '%s' is not readable", pluginDirectory));
+        }
     }
 
     public Map<String, PluginDefinition> getPluginDefinitions() {
@@ -104,7 +124,7 @@ public class PluginClassLoader extends URLClassLoader {
             }
             JarFile pluginJar = new JarFile(jarFile);
             String pluginDef = readPluginDef(pluginJar);
-            pluginDef = pluginDef.replaceAll("[\\x00]+","");
+            pluginDef = pluginDef.replaceAll("[\\x00]+", "");
             PluginDefinition definition = yamlMapper.readValue(pluginDef, PluginDefinition.class);
             addURL(new URL("file://" + jarFile.getAbsolutePath()));
             checkPluginValid(jarFile, definition);
@@ -150,28 +170,6 @@ public class PluginClassLoader extends URLClassLoader {
             }
         }
         return new String(buffer.array(), StandardCharsets.UTF_8);
-    }
-
-    private static void checkClassLoader(ClassLoader classLoader) {
-        if (classLoader == null) {
-            throw new RuntimeException("parent classLoader should not be null");
-        }
-    }
-
-    private static void checkUrl(String url) {
-        if (StringUtils.isBlank(url)) {
-            throw new IllegalArgumentException("url should not be empty");
-        }
-        File pluginDirectory = new File(url);
-        if (!pluginDirectory.exists()) {
-            throw new RuntimeException(String.format("pluginDirectory '%s' is not exists", pluginDirectory));
-        }
-        if (!pluginDirectory.isDirectory()) {
-            throw new RuntimeException(String.format("pluginDirectory '%s' should be directory", pluginDirectory));
-        }
-        if (!pluginDirectory.canRead()) {
-            throw new RuntimeException(String.format("pluginDirectory '%s' is not readable", pluginDirectory));
-        }
     }
 
 }

@@ -25,14 +25,14 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.beans.PageRequest;
 
 /**
- * File data source query conditions
+ * File source query conditions
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel("File data source query conditions")
+@ApiModel("File source query conditions")
 public class CommonFileServerPageRequest extends PageRequest {
 
-    @ApiModelProperty(value = "Data source IP")
+    @ApiModelProperty(value = "Source IP")
     private String ip;
 
     @ApiModelProperty(value = "Status")

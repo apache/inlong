@@ -34,9 +34,6 @@ import org.apache.inlong.audit.file.holder.PropertiesConfigHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class ConfigManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigManager.class);

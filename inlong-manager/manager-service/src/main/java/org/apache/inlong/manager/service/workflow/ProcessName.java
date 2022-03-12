@@ -18,44 +18,49 @@
 package org.apache.inlong.manager.service.workflow;
 
 /**
- * Process name
+ * WorkflowProcess name
  */
 public enum ProcessName {
 
     /**
-     * New business access application process
+     * New inlong group application process
      */
-    NEW_BUSINESS_WORKFLOW("New-Business-Access"),
+    NEW_GROUP_PROCESS("New-Group"),
 
     /**
-     * Suspend business application process
+     * Startup inlong group application process
      */
-    SUSPEND_BUSINESS_WORKFLOW("Suspend-Business"),
+    STARTUP_GROUP_PROCESS("Startup-Group"),
 
     /**
-     * Restart business application process
+     * Suspend inlong group application process
      */
-    RESTART_BUSINESS_WORKFLOW("Restart-Business"),
+    SUSPEND_GROUP_PROCESS("Suspend-Group"),
 
     /**
-     * Delete business application process
+     * Restart inlong group application process
      */
-    DELETE_BUSINESS_WORKFLOW("Delete-Business"),
+    RESTART_GROUP_PROCESS("Restart-Group"),
 
     /**
-     * New data consumption application process
+     * Delete inlong group application process
      */
-    NEW_CONSUMPTION_WORKFLOW("New-Data-Consumption"),
+    DELETE_GROUP_PROCESS("Delete-Group"),
 
     /**
-     * New business resource creation
+     * New consumption application process
      */
-    CREATE_BUSINESS_RESOURCE("Business-Access-Resource"),
+    NEW_CONSUMPTION_PROCESS("New-Consumption"),
 
     /**
-     * Single data stream resource creation
+     * New inlong group resource creation
      */
-    CREATE_DATASTREAM_RESOURCE("Data-Stream-Resource");
+    CREATE_GROUP_RESOURCE("Group-Resource"),
+
+    /**
+     * Single inlong stream resource creation
+     */
+    CREATE_STREAM_RESOURCE("Stream-Resource");
 
     private final String displayName;
 
@@ -66,4 +71,5 @@ public enum ProcessName {
     public String getDisplayName() {
         return displayName;
     }
+
 }

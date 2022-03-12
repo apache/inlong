@@ -17,33 +17,36 @@
 
 package org.apache.inlong.manager.service.workflow.consumption.listener;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
+import org.apache.inlong.manager.common.beans.ClusterBean;
+import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.ConsumptionStatus;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
+import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
+import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
+import org.apache.inlong.manager.service.CommonOperateService;
+import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.thirdparty.mq.PulsarOptService;
+import org.apache.inlong.manager.service.thirdparty.mq.TubeMqOptService;
+import org.apache.inlong.manager.service.thirdparty.mq.util.PulsarUtils;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
+import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
+import org.apache.pulsar.client.admin.PulsarAdmin;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.enums.BizConstant;
-import org.apache.inlong.manager.common.enums.ConsumptionStatus;
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.process.ProcessEvent;
-import org.apache.inlong.manager.common.event.process.ProcessEventListener;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.model.WorkflowContext;
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
-import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
-import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
-import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
-import org.apache.inlong.manager.service.core.BusinessService;
-import org.apache.inlong.manager.service.thirdpart.mq.PulsarOptService;
-import org.apache.inlong.manager.service.thirdpart.mq.TubeMqOptService;
-import org.apache.inlong.manager.service.thirdpart.mq.util.PulsarUtils;
-import org.apache.inlong.manager.service.workflow.consumption.NewConsumptionWorkflowForm;
-import org.apache.pulsar.client.admin.PulsarAdmin;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * Added data consumption process complete archive event listener
@@ -57,7 +60,9 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
     @Autowired
     private ClusterBean clusterBean;
     @Autowired
-    private BusinessService businessService;
+    private CommonOperateService commonOperateService;
+    @Autowired
+    private InlongGroupService groupService;
     @Autowired
     private ConsumptionEntityMapper consumptionMapper;
     @Autowired
@@ -70,7 +75,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        NewConsumptionWorkflowForm consumptionForm = (NewConsumptionWorkflowForm) context.getProcessForm();
+        NewConsumptionProcessForm consumptionForm = (NewConsumptionProcessForm) context.getProcessForm();
 
         // Real-time query of consumption information
         Integer consumptionId = consumptionForm.getConsumptionInfo().getId();
@@ -80,10 +85,10 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         }
 
         String middlewareType = entity.getMiddlewareType();
-        if (BizConstant.MIDDLEWARE_TUBE.equalsIgnoreCase(middlewareType)) {
+        if (Constant.MIDDLEWARE_TUBE.equalsIgnoreCase(middlewareType)) {
             this.createTubeConsumerGroup(entity);
             return ListenerResult.success("Create Tube consumer group successful");
-        } else if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
+        } else if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
             this.createPulsarTopicMessage(entity);
         } else {
             throw new WorkflowListenerException("middleware type [" + middlewareType + "] not supported");
@@ -110,12 +115,12 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
      */
     private void createPulsarTopicMessage(ConsumptionEntity entity) {
         String groupId = entity.getInlongGroupId();
-        BusinessInfo businessInfo = businessService.get(groupId);
-        Preconditions.checkNotNull(businessInfo, "business not found for groupId=" + groupId);
-        String mqResourceObj = businessInfo.getMqResourceObj();
+        InlongGroupInfo groupInfo = groupService.get(groupId);
+        Preconditions.checkNotNull(groupInfo, "inlong group not found for groupId=" + groupId);
+        String mqResourceObj = groupInfo.getMqResourceObj();
         Preconditions.checkNotNull(mqResourceObj, "mq resource cannot empty for groupId=" + groupId);
-
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(businessInfo, clusterBean.getPulsarAdminUrl())) {
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo();
+        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             PulsarTopicBean topicMessage = new PulsarTopicBean();
             String tenant = clusterBean.getDefaultTenant();
             topicMessage.setTenant(tenant);
@@ -125,7 +130,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
             String consumerGroup = entity.getConsumerGroupId();
             List<String> clusters = PulsarUtils.getPulsarClusters(pulsarAdmin);
             List<String> topics = Arrays.asList(entity.getTopic().split(","));
-            this.createPulsarSubscription(pulsarAdmin, consumerGroup, topicMessage, clusters, topics, businessInfo);
+            this.createPulsarSubscription(pulsarAdmin, consumerGroup, topicMessage, clusters, topics, globalCluster);
         } catch (Exception e) {
             log.error("create pulsar topic failed", e);
             throw new WorkflowListenerException("failed to create pulsar topic for groupId=" + groupId + ", reason: "
@@ -134,11 +139,13 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
     }
 
     private void createPulsarSubscription(PulsarAdmin globalPulsarAdmin, String subscription, PulsarTopicBean topicBean,
-            List<String> clusters, List<String> topics, BusinessInfo businessInfo) {
+            List<String> clusters, List<String> topics, PulsarClusterInfo globalCluster) {
         try {
             for (String cluster : clusters) {
                 String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
-                try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(businessInfo, serviceUrl)) {
+                PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder()
+                        .token(globalCluster.getToken()).adminUrl(serviceUrl).build();
+                try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
                     pulsarMqOptService.createSubscriptions(pulsarAdmin, subscription, topicBean, topics);
                 }
             }

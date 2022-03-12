@@ -329,13 +329,13 @@
 1.3.1 inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/Bytes.java
       inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HashedBytes.java
       inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HasThread.java
-      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/RecoverableZooKeeper.java
-      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperWatcher.java
-      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperListener.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/zookeeper/RecoverableZooKeeper.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/zookeeper/ZooKeeperWatcher.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/zookeeper/ZooKeeperListener.java
       inlong-tubemq/tubemq-core/src/main/java/org/apache/tubemq/corebase/utils/ThreadUtils.java
-      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZooKeeperConnectionException.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/zookeeper/ZooKeeperConnectionException.java
       inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/master/utils/Chore.java
-      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/offsetstorage/zookeeper/ZKUtil.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/zookeeper/ZKUtil.java
       inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/RowLock.java
  Source  : hbase 0.94.27 (Please note that the software have been modified.)
  License : https://github.com/apache/hbase/blob/rel/0.94.27/LICENSE.txt

@@ -17,28 +17,27 @@
 
 package org.apache.inlong.dataproxy.sink;
 
-import static org.apache.inlong.dataproxy.sink.MetaSink.agentIdMap;
-import static org.apache.inlong.dataproxy.sink.MetaSink.idCleanerStarted;
-
-import java.util.Map;
-
 import org.apache.flume.Sink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+
+import static org.apache.inlong.dataproxy.sink.TubeSink.agentIdMap;
+import static org.apache.inlong.dataproxy.sink.TubeSink.idCleanerStarted;
 
 public class IdCacheCleaner extends Thread {
 
     private static final Logger logger = LoggerFactory.getLogger(IdCacheCleaner.class);
     private final long maxSurvivedTime;
     private final int maxSurvivedSize;
+    private Sink sink;
 
     public IdCacheCleaner(Sink sink, long maxSurvivedTime, int maxSurvivedSize) {
         this.sink = sink;
         this.maxSurvivedSize = maxSurvivedSize;
         this.maxSurvivedTime = maxSurvivedTime;
     }
-
-    private Sink sink;
 
     @Override
     public synchronized void start() {

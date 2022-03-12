@@ -27,12 +27,13 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonFileServerInfo;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonFileServerListVo;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonFileServerPageRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.CommonFileServerEntity;
 import org.apache.inlong.manager.dao.mapper.CommonFileServerEntityMapper;
@@ -82,7 +83,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
                 info.getUsername(),
                 info.getIp(),
                 info.getPort());
-        if (entities != null && entities.size() > 0) {
+        if (CollectionUtils.isNotEmpty(entities)) {
             for (CommonFileServerEntity entry : entities) {
                 // Have the same normal entry
                 if (entry.getIsDeleted() == 0) {
@@ -98,7 +99,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
             record.setAccessType("Agent");
         }
 
-        String userName = LoginUserUtil.getLoginUserDetail().getUserName();
+        String userName = LoginUserUtils.getLoginUserDetail().getUserName();
         record.setStatus(0);
         record.setCreator(userName);
         record.setModifier(userName);
@@ -166,7 +167,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
         Preconditions.checkNotNull(entity, "CommonFileServerEntity not found by id=" + id);
         Preconditions.checkTrue(entity.getIsDeleted() == 0, "CommonFileServerEntity has been deleted, id=" + id);
 
-        String userName = LoginUserUtil.getLoginUserDetail().getUserName();
+        String userName = LoginUserUtils.getLoginUserDetail().getUserName();
         if (checkVisible(userName, entity)) {
             return CommonBeanUtils.copyProperties(entity, CommonFileServerInfo::new);
         } else {
@@ -177,7 +178,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
 
     @Override
     public void delete(int id) throws Exception {
-        String userName = LoginUserUtil.getLoginUserDetail().getUserName();
+        String userName = LoginUserUtils.getLoginUserDetail().getUserName();
         LOGGER.info("user={} delete CommonFileServer id={} ", userName, id);
 
         CommonFileServerEntity entity = commonFileServerMapper.selectByPrimaryKey(id);
@@ -202,7 +203,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
     @Override
     public CommonFileServerInfo update(CommonFileServerInfo commonFileServerInfo)
             throws Exception {
-        String userName = LoginUserUtil.getLoginUserDetail().getUserName();
+        String userName = LoginUserUtils.getLoginUserDetail().getUserName();
         LOGGER.info("user={} update CommonFileServer info=[{}].", userName, commonFileServerInfo);
 
         CommonFileServerEntity entity =
@@ -253,7 +254,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
 
     @Override
     public CommonFileServerInfo freeze(int id) {
-        String userName = LoginUserUtil.getLoginUserDetail().getUserName();
+        String userName = LoginUserUtils.getLoginUserDetail().getUserName();
         LOGGER.info("user={} freeze CommonFileServer id=[{}].", userName, id);
 
         CommonFileServerEntity entity = commonFileServerMapper.selectByPrimaryKey(id);
@@ -280,7 +281,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
 
     @Override
     public CommonFileServerInfo unfreeze(int id) {
-        String userName = LoginUserUtil.getLoginUserDetail().getUserName();
+        String userName = LoginUserUtils.getLoginUserDetail().getUserName();
         LOGGER.info("user={} unfreeze CommonFileServer id=[{}].", userName, id);
 
         CommonFileServerEntity entity = commonFileServerMapper.selectByPrimaryKey(id);
@@ -352,7 +353,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
 
     @Override
     public CommonFileServerInfo addVisiblePerson(Integer id, String visiblePerson) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
         LOGGER.info("user={}, add visible person, id={}, visible group={}", username, id, visiblePerson);
 
         CommonFileServerEntity entity = commonFileServerMapper.selectByPrimaryKey(id);
@@ -396,7 +397,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
 
     @Override
     public CommonFileServerInfo deleteVisiblePerson(Integer id, String visiblePerson) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
         LOGGER.info("user={}, delete visible person, id={}, visible group={}", username, id, visiblePerson);
 
         CommonFileServerEntity entity =
@@ -434,7 +435,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
 
     @Override
     public CommonFileServerInfo addVisibleGroup(Integer id, String visibleGroup) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
         LOGGER.info("user={}, add visible group, id={}, visible group={}", username, id, visibleGroup);
 
         CommonFileServerEntity entity = commonFileServerMapper.selectByPrimaryKey(id);
@@ -477,7 +478,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
 
     @Override
     public CommonFileServerInfo deleteVisibleGroup(Integer id, String visibleGroup) {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
         LOGGER.info("user={}, delete visible group, id={}, visible group={}", username, id, visibleGroup);
 
         CommonFileServerEntity entity =
@@ -515,7 +516,7 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
     @Override
     public PageInfo<CommonFileServerListVo> listByCondition(CommonFileServerPageRequest request)
             throws Exception {
-        String username = LoginUserUtil.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUserName();
 
         request.setCurrentUser(username);
         LOGGER.debug("{} begin to list CommonFileServer info by {}", username, request);

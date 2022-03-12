@@ -32,13 +32,13 @@ import org.apache.flume.ChannelException;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.Event;
-import org.apache.inlong.commons.monitor.CounterGroup;
-import org.apache.inlong.commons.monitor.CounterGroupExt;
-import org.apache.inlong.commons.monitor.MonitorIndex;
-import org.apache.inlong.commons.monitor.MonitorIndexExt;
-import org.apache.inlong.commons.monitor.StatConstants;
-import org.apache.inlong.commons.msg.InLongMsg;
-import org.apache.inlong.commons.util.NetworkUtils;
+import org.apache.inlong.common.monitor.CounterGroup;
+import org.apache.inlong.common.monitor.CounterGroupExt;
+import org.apache.inlong.common.monitor.MonitorIndex;
+import org.apache.inlong.common.monitor.MonitorIndexExt;
+import org.apache.inlong.common.monitor.StatConstants;
+import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
@@ -104,7 +104,7 @@ public class SimpleMessageHandler
         StringBuffer newAttrBuffer = new StringBuffer(attr);
 
         String groupId = (String) context.get(HttpSourceConstants.GROUP_ID);
-        String streamId = (String) context.get(HttpSourceConstants.INTERFACE_ID);
+        String streamId = (String) context.get(HttpSourceConstants.STREAM_ID);
         String dt = (String) context.get(HttpSourceConstants.DATA_TIME);
 
         String value = getTopic(groupId, streamId);
@@ -143,7 +143,7 @@ public class SimpleMessageHandler
         Map<String, String> headers = new HashMap<String, String>();
         headers.put(HttpSourceConstants.DATA_TIME, dt);
         headers.put(ConfigConstants.TOPIC_KEY, topicValue);
-        headers.put(AttributeConstants.INTERFACE_ID, streamId);
+        headers.put(AttributeConstants.STREAM_ID, streamId);
         headers.put(ConfigConstants.REMOTE_IP_KEY, strRemoteIP);
         headers.put(ConfigConstants.REMOTE_IDC_KEY, DEFAULT_REMOTE_IDC_VALUE);
         headers.put(ConfigConstants.MSG_COUNTER_KEY, msgCount);

@@ -21,8 +21,44 @@ import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.RateLimiter;
+import io.netty.handler.codec.TooLongFrameException;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
+import org.apache.flume.Event;
+import org.apache.flume.EventDeliveryException;
+import org.apache.flume.Transaction;
+import org.apache.flume.conf.Configurable;
+import org.apache.flume.instrumentation.SinkCounter;
+import org.apache.flume.sink.AbstractSink;
+import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.monitor.LogCounter;
+import org.apache.inlong.common.monitor.MonitorIndex;
+import org.apache.inlong.common.monitor.MonitorIndexExt;
+import org.apache.inlong.common.reporpter.StreamConfigLogMetric;
 import org.apache.inlong.dataproxy.base.HighPriorityThreadFactory;
+import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
+import org.apache.inlong.dataproxy.config.pojo.ThirdPartyClusterConfig;
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
+import org.apache.inlong.dataproxy.sink.pulsar.CreatePulsarClientCallBack;
+import org.apache.inlong.dataproxy.sink.pulsar.PulsarClientService;
+import org.apache.inlong.dataproxy.sink.pulsar.SendMessageCallBack;
+import org.apache.inlong.dataproxy.utils.FailoverChannelProcessorHolder;
+import org.apache.inlong.dataproxy.utils.NetworkUtils;
+import org.apache.pulsar.client.api.PulsarClientException;
+import org.apache.pulsar.client.api.PulsarClientException.AlreadyClosedException;
+import org.apache.pulsar.client.api.PulsarClientException.ProducerQueueIsFullError;
+import org.apache.pulsar.client.api.PulsarClientException.TopicTerminatedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -32,35 +68,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
-import org.apache.flume.Event;
-import org.apache.flume.EventDeliveryException;
-import org.apache.flume.Transaction;
-import org.apache.flume.conf.Configurable;
-
-import org.apache.flume.instrumentation.SinkCounter;
-import org.apache.flume.sink.AbstractSink;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
-import org.apache.inlong.dataproxy.sink.pulsar.CreatePulsarClientCallBack;
-import org.apache.inlong.dataproxy.sink.pulsar.PulsarClientService;
-import org.apache.inlong.dataproxy.sink.pulsar.SendMessageCallBack;
-import org.apache.inlong.dataproxy.utils.FailoverChannelProcessorHolder;
-import org.apache.inlong.commons.monitor.LogCounter;
-import org.apache.inlong.commons.monitor.MonitorIndex;
-import org.apache.inlong.commons.monitor.MonitorIndexExt;
-import org.apache.inlong.dataproxy.utils.NetworkUtils;
-import org.apache.pulsar.client.api.PulsarClientException;
-import org.apache.pulsar.client.api.PulsarClientException.AlreadyClosedException;
-import org.apache.pulsar.client.api.PulsarClientException.NotConnectedException;
-import org.apache.pulsar.client.api.PulsarClientException.ProducerQueueIsFullError;
-import org.apache.pulsar.client.api.PulsarClientException.TopicTerminatedException;
-import org.jboss.netty.handler.codec.frame.TooLongFrameException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * use pulsarSink need adding such config, if these ara not config in flume.conf, PulsarSink will
@@ -91,27 +98,10 @@ public class PulsarSink extends AbstractSink implements Configurable,
     /*
      * default value
      */
-    private static int BAD_EVENT_QUEUE_SIZE = 10000;
     private static int BATCH_SIZE = 10000;
-    private static final int DEFAULT_RETRY_CNT = -1;
-    private static final int DEFAULT_LOG_EVERY_N_EVENTS = 100000;
-    private static final int DEFAULT_STAT_INTERVAL_SEC = 60;
-
-    /*
-     * properties for stat
-     */
-    private static String LOG_EVERY_N_EVENTS = "log-every-n-events";
-
-    private static String CLIENT_ID_CACHE = "client_id_cache";
-
-    private static String RETRY_CNT = "retry_currentSuccSendedCnt";
-
-    private static String STAT_INTERVAL_SEC = "stat_interval_sec";
     /*
      * for log
      */
-    private Integer logEveryNEvents;
-    private long diskIORatePerSec;
     private RateLimiter diskRateLimiter;
 
     /*
@@ -126,19 +116,15 @@ public class PulsarSink extends AbstractSink implements Configurable,
     /*
      * for control
      */
-    private static int retryCnt = DEFAULT_RETRY_CNT;
     private boolean overflow = false;
 
     private LinkedBlockingQueue<EventStat> resendQueue;
 
     private int maxMonitorCnt = 300000;
 
-    private int statIntervalSec = DEFAULT_STAT_INTERVAL_SEC;
     private long logCounter = 0;
 
     private final AtomicLong currentInFlightCount = new AtomicLong(0);
-
-    private boolean clientIdCache = false;
 
     private static ConcurrentHashMap<String, Long> illegalTopicMap =
             new ConcurrentHashMap<String, Long>();
@@ -160,27 +146,41 @@ public class PulsarSink extends AbstractSink implements Configurable,
     private static final LogCounter logPrinterB = new LogCounter(10, 100000, 60 * 1000);
     private static final LogCounter logPrinterC = new LogCounter(10, 100000, 60 * 1000);
 
-
-    private static final String SINK_THREAD_NUM = "thread-num";
-    private static int EVENT_QUEUE_SIZE = 1000;
-    private int threadNum;
-
+    private int eventQueueSize = 10000;
+    private int badEventQueueSize = 10000;
 
     /*
      * send thread pool
      */
     private Thread[] sinkThreadPool;
+    private int sinkThreadPoolSize;
+    private PulsarClientService pulsarClientService;
     private LinkedBlockingQueue<Event> eventQueue;
 
     private static final String SEPARATOR = "#";
     private boolean isNewMetricOn = true;
+    private boolean keepOrder = false;
+
+
     private MonitorIndex monitorIndex;
     private MonitorIndexExt monitorIndexExt;
     private SinkCounter sinkCounter;
+
+    private StreamConfigLogMetric streamConfigLogMetric;
+    private String localIp;
+
+    /*
+     *  metric
+     */
+    private Map<String, String> dimensions;
+    private DataProxyMetricItemSet metricItemSet;
+
     private ConfigManager configManager;
+    private Map<String, String> commonProperties;
     private Map<String, String> topicProperties;
 
-    private PulsarClientService pulsarClientService;
+    private Map<String, String> pulsarCluster;
+    private ThirdPartyClusterConfig pulsarConfig;
 
     private static final Long PRINT_INTERVAL = 30L;
 
@@ -202,68 +202,98 @@ public class PulsarSink extends AbstractSink implements Configurable,
         /*
          * stat pulsar performance
          */
-        logger.info("PulsarPerformanceTask!!!!!!");
+        logger.info("pulsarPerformanceTask!!!!!!");
         scheduledExecutorService.scheduleWithFixedDelay(pulsarPerformanceTask, 0L,
                 PRINT_INTERVAL, TimeUnit.SECONDS);
     }
 
     public PulsarSink() {
         super();
-        logger.info("new instance of PulsarSink!");
+        logger.debug("new instance of PulsarSink!");
     }
 
     /**
      * configure
      * @param context
      */
+    @Override
     public void configure(Context context) {
         logger.info("PulsarSink started and context = {}", context.toString());
         isNewMetricOn = context.getBoolean("new-metric-on", true);
-        maxMonitorCnt = context.getInteger("max-monitor-cnt",300000);
+        keepOrder = context.getBoolean("keep-order", false);
+        maxMonitorCnt = context.getInteger("max-monitor-cnt", 300000);
 
         configManager = ConfigManager.getInstance();
         topicProperties = configManager.getTopicProperties();
+        pulsarCluster = configManager.getThirdPartyClusterUrl2Token();
+        pulsarConfig = configManager.getThirdPartyClusterConfig(); //pulsar common config
+        commonProperties = configManager.getCommonProperties();
+        if (keepOrder) {
+            logger.info("This is order pulsar sink!");
+            sinkThreadPoolSize = 1;
+        } else {
+            sinkThreadPoolSize = pulsarConfig.getThreadNum();
+        }
+        if (sinkThreadPoolSize <= 0) {
+            sinkThreadPoolSize = 1;
+        }
+        pulsarClientService = new PulsarClientService(pulsarConfig, sinkThreadPoolSize);
+        boolean enableReportConfigLog =
+                Boolean.parseBoolean(commonProperties
+                        .getOrDefault(StreamConfigLogMetric.CONFIG_LOG_REPORT_ENABLE,"true"));
+        localIp = NetworkUtils.getLocalIp();
+        if (enableReportConfigLog) {
+            String reportConfigServerUrl = commonProperties
+                    .getOrDefault(StreamConfigLogMetric.CONFIG_LOG_REPORT_SERVER_URL, "");
+            String reportConfigLogInterval = commonProperties
+                    .getOrDefault(StreamConfigLogMetric.CONFIG_LOG_REPORT_INTERVAL, "60000");
+            String clientVersion = commonProperties
+                    .getOrDefault(StreamConfigLogMetric.CONFIG_LOG_REPORT_CLIENT_VERSION, "");
+            streamConfigLogMetric = new StreamConfigLogMetric(ConfigConstants.COMPONENT_NAME,
+                    reportConfigServerUrl, Long.parseLong(reportConfigLogInterval),
+                    localIp, clientVersion);
+            pulsarClientService.setConfigLogMetric(streamConfigLogMetric);
+        }
+
         configManager.getTopicConfig().addUpdateCallback(new ConfigUpdateCallback() {
             @Override
             public void update() {
-                diffSetPublish(new HashSet<String>(topicProperties.values()),
-                        new HashSet<String>(configManager.getTopicProperties().values()));
+                if (pulsarClientService != null) {
+                    diffSetPublish(pulsarClientService,
+                            new HashSet<>(topicProperties.values()),
+                            new HashSet<>(configManager.getTopicProperties().values()));
+                }
             }
         });
+        configManager.getThirdPartyClusterHolder().addUpdateCallback(new ConfigUpdateCallback() {
+            @Override
+            public void update() {
+                if (pulsarClientService != null) {
+                    diffUpdatePulsarClient(pulsarClientService, pulsarCluster,
+                            configManager.getThirdPartyClusterUrl2Token());
+                }
+            }
+        });
+        badEventQueueSize = pulsarConfig.getBadEventQueueSize();
+        resendQueue = new LinkedBlockingQueue<EventStat>(badEventQueueSize);
 
-        retryCnt = context.getInteger(RETRY_CNT, DEFAULT_RETRY_CNT);
-        logger.debug(this.getName() + " " + RETRY_CNT + " " + retryCnt);
+        Preconditions.checkArgument(pulsarConfig.getThreadNum() > 0, "threadNum must be > 0");
 
-        statIntervalSec = context.getInteger(STAT_INTERVAL_SEC, DEFAULT_STAT_INTERVAL_SEC);
-        logger.debug(this.getName() + " " + STAT_INTERVAL_SEC + " " + statIntervalSec);
+        sinkThreadPool = new Thread[sinkThreadPoolSize];
 
-        logEveryNEvents = context.getInteger(LOG_EVERY_N_EVENTS, DEFAULT_LOG_EVERY_N_EVENTS);
-        logger.debug(this.getName() + " " + LOG_EVERY_N_EVENTS + " " + logEveryNEvents);
-        Preconditions.checkArgument(logEveryNEvents > 0, "logEveryNEvents must be > 0");
-        Preconditions.checkArgument(statIntervalSec >= 0, "statIntervalSec must be >= 0");
+        eventQueueSize = pulsarConfig.getEventQueueSize();
+        eventQueue = new LinkedBlockingQueue<Event>(eventQueueSize);
 
-        clientIdCache = context.getBoolean(CLIENT_ID_CACHE, clientIdCache);
-
-        resendQueue = new LinkedBlockingQueue<EventStat>(BAD_EVENT_QUEUE_SIZE);
-
-        String sinkThreadNum = context.getString(SINK_THREAD_NUM, "4");
-        threadNum = Integer.parseInt(sinkThreadNum);
-        Preconditions.checkArgument(threadNum > 0, "threadNum must be > 0");
-        sinkThreadPool = new Thread[threadNum];
-        eventQueue = new LinkedBlockingQueue<Event>(EVENT_QUEUE_SIZE);
-
-        diskIORatePerSec = context.getLong("disk-io-rate-per-sec",0L);
-        if (diskIORatePerSec != 0) {
-            diskRateLimiter = RateLimiter.create(diskIORatePerSec);
+        if (pulsarConfig.getDiskIoRatePerSec() != 0) {
+            diskRateLimiter = RateLimiter.create(pulsarConfig.getDiskIoRatePerSec());
         }
-        pulsarClientService = new PulsarClientService(context);
 
         if (sinkCounter == null) {
             sinkCounter = new SinkCounter(getName());
         }
     }
 
-    private void initTopicSet(Set<String> topicSet) throws Exception {
+    private void initTopicSet(PulsarClientService pulsarClientService, Set<String> topicSet) {
         long startTime = System.currentTimeMillis();
         if (topicSet != null) {
             for (String topic : topicSet) {
@@ -281,8 +311,8 @@ public class PulsarSink extends AbstractSink implements Configurable,
      * @param originalSet
      * @param endSet
      */
-    public void diffSetPublish(Set<String> originalSet, Set<String> endSet) {
-
+    public void diffSetPublish(PulsarClientService pulsarClientService, Set<String> originalSet,
+            Set<String> endSet) {
         boolean changed = false;
         for (String s : endSet) {
             if (!originalSet.contains(s)) {
@@ -300,11 +330,50 @@ public class PulsarSink extends AbstractSink implements Configurable,
         }
     }
 
+    /**
+     * When pulsarURLList change, close and restart
+     *
+     * @param originalCluster
+     * @param endCluster
+     */
+    public void diffUpdatePulsarClient(PulsarClientService pulsarClientService, Map<String, String> originalCluster,
+                                       Map<String, String> endCluster) {
+        MapDifference<String, String> mapDifference = Maps.difference(originalCluster, endCluster);
+        if (mapDifference.areEqual()) {
+            return;
+        }
+
+        logger.info("pulsarConfig has changed, close unused url clients and start new url clients");
+        Map<String, String> needToStart = new HashMap<>();
+        Map<String, String> needToClose = new HashMap<>();
+        needToClose.putAll(mapDifference.entriesOnlyOnLeft());
+        needToStart.putAll(mapDifference.entriesOnlyOnRight());
+        Map<String, MapDifference.ValueDifference<String>> differentToken = mapDifference.entriesDiffering();
+        for (String url : differentToken.keySet()) {
+            needToClose.put(url, originalCluster.get(url));
+            needToStart.put(url, endCluster.get(url));//token changed
+        }
+
+        pulsarClientService.updatePulsarClients(this, needToClose, needToStart,
+                new HashSet<>(topicProperties.values()));
+
+        pulsarCluster = configManager.getThirdPartyClusterUrl2Token();
+    }
+
     @Override
     public void start() {
         logger.info("pulsar sink starting...");
+        this.dimensions = new HashMap<>();
+        this.dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
+        this.dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());
+        //register metrics
+        this.metricItemSet = new DataProxyMetricItemSet(this.getName());
+        MetricRegister.register(metricItemSet);
+
         sinkCounter.start();
         pulsarClientService.initCreateConnection(this);
+        int statIntervalSec = pulsarConfig.getStatIntervalSec();
+        Preconditions.checkArgument(statIntervalSec >= 0, "statIntervalSec must be >= 0");
         if (statIntervalSec > 0) {
             /*
              * switch for lots of metrics
@@ -321,15 +390,15 @@ public class PulsarSink extends AbstractSink implements Configurable,
         this.canTake = true;
 
         try {
-            initTopicSet(new HashSet<String>(topicProperties.values()));
+            initTopicSet(pulsarClientService,
+                    new HashSet<String>(topicProperties.values()));
         } catch (Exception e) {
-            logger.info("pulsar sink start publish topic fail.",e);
+            logger.info("pulsar sink start publish topic fail.", e);
         }
 
         for (int i = 0; i < sinkThreadPool.length; i++) {
-            sinkThreadPool[i] = new Thread(new SinkTask(), getName()
-                    + "_pulsar_sink_sender-"
-                    + i);
+            sinkThreadPool[i] = new Thread(new SinkTask(pulsarClientService, i), getName()
+                    + "_pulsar_sink_sender-" + i);
             sinkThreadPool[i].start();
         }
         logger.debug("pulsar sink started");
@@ -338,7 +407,6 @@ public class PulsarSink extends AbstractSink implements Configurable,
     @Override
     public void stop() {
         logger.info("pulsar sink stopping");
-        pulsarClientService.close();
         this.canTake = false;
         int waitCount = 0;
         while (eventQueue.size() != 0 && waitCount++ < 10) {
@@ -350,12 +418,15 @@ public class PulsarSink extends AbstractSink implements Configurable,
             }
         }
         this.canSend = false;
-        if (statIntervalSec > 0) {
+        if (pulsarConfig.getStatIntervalSec() > 0) {
             try {
                 monitorIndex.shutDown();
             } catch (Exception e) {
                 logger.warn("stat runner interrupted");
             }
+        }
+        if (pulsarClientService != null) {
+            pulsarClientService.close();
         }
         if (sinkThreadPool != null) {
             for (Thread thread : sinkThreadPool) {
@@ -365,6 +436,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
             }
             sinkThreadPool = null;
         }
+
         super.stop();
         if (!scheduledExecutorService.isShutdown()) {
             scheduledExecutorService.shutdown();
@@ -394,8 +466,26 @@ public class PulsarSink extends AbstractSink implements Configurable,
                             + "--> pulsar,Check if pulsar server or network is ok.(if this situation "
                             + "last long time it will cause memoryChannel full and fileChannel write.)", getName());
                     tx.rollback();
+                    // metric
+                    if (event.getHeaders().containsKey(TOPIC)) {
+                        dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, event.getHeaders().get(TOPIC));
+                    } else {
+                        dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, "");
+                    }
+                    DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
+                    metricItem.readFailCount.incrementAndGet();
+                    metricItem.readFailSize.addAndGet(event.getBody().length);
                 } else {
                     tx.commit();
+                    // metric
+                    if (event.getHeaders().containsKey(TOPIC)) {
+                        dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, event.getHeaders().get(TOPIC));
+                    } else {
+                        dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, "");
+                    }
+                    DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
+                    metricItem.readSuccessCount.incrementAndGet();
+                    metricItem.readFailSize.addAndGet(event.getBody().length);
                 }
             } else {
                 status = Status.BACKOFF;
@@ -406,7 +496,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
             try {
                 tx.rollback();
             } catch (Throwable e) {
-                logger.error("pulsar sink transaction rollback exception",e);
+                logger.error("pulsar sink transaction rollback exception", e);
 
             }
         } finally {
@@ -423,8 +513,8 @@ public class PulsarSink extends AbstractSink implements Configurable,
             if (event.getHeaders().containsKey(TOPIC)) {
                 topic = event.getHeaders().get(TOPIC);
             }
-            if (event.getHeaders().containsKey(AttributeConstants.INTERFACE_ID)) {
-                streamId = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
+            if (event.getHeaders().containsKey(AttributeConstants.STREAM_ID)) {
+                streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
             } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
                 streamId = event.getHeaders().get(AttributeConstants.INAME);
             }
@@ -441,7 +531,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
              * Compatible agent
              */
             if (event.getHeaders().containsKey("time")) {
-                event.getHeaders().put(AttributeConstants.DATA_TIME,event.getHeaders().get("time"));
+                event.getHeaders().put(AttributeConstants.DATA_TIME, event.getHeaders().get("time"));
                 event.getHeaders().remove("time");
             }
 
@@ -481,12 +571,14 @@ public class PulsarSink extends AbstractSink implements Configurable,
                     }
 
                     if (keyPostfix != null && !keyPostfix.equals("")) {
-                        monitorIndex.addAndGet(new String(newbase), 0, 0, 0, (int) tMsgCounterL);
+                        monitorIndex.addAndGet(new String(newbase), 0, 0,
+                                0, (int) tMsgCounterL);
                         if (logPrinterB.shouldPrint()) {
                             logger.warn("error cannot send event, {} event size is {}", topic, messageSize);
                         }
                     } else {
-                        monitorIndex.addAndGet(new String(newbase), (int) tMsgCounterL, 1, messageSize, 0);
+                        monitorIndex.addAndGet(new String(newbase), (int) tMsgCounterL,
+                                1, messageSize, 0);
                     }
                 }
             }
@@ -506,7 +598,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
     }
 
     @Override
-    public void handleMessageSendSuccess(String topic, Object result,  EventStat eventStat) {
+    public void handleMessageSendSuccess(String topic, Object result, EventStat eventStat) {
         /*
          * Statistics pulsar performance
          */
@@ -520,6 +612,9 @@ public class PulsarSink extends AbstractSink implements Configurable,
         currentSuccessSendCnt.incrementAndGet();
         long nowCnt = currentSuccessSendCnt.get();
         long oldCnt = lastSuccessSendCnt.get();
+        long logEveryNEvents = pulsarConfig.getLogEveryNEvents();
+        Preconditions.checkArgument(logEveryNEvents > 0, "logEveryNEvents must be > 0");
+
         if (nowCnt % logEveryNEvents == 0 && nowCnt != lastSuccessSendCnt.get()) {
             lastSuccessSendCnt.set(nowCnt);
             t2 = System.currentTimeMillis();
@@ -529,8 +624,16 @@ public class PulsarSink extends AbstractSink implements Configurable,
             });
             t1 = t2;
         }
+        Map<String, String> dimensions =  getNewDimension(DataProxyMetricItem.KEY_SINK_DATA_ID,
+                topic);
+        DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
+        metricItem.sendSuccessCount.incrementAndGet();
+        metricItem.sendSuccessSize.addAndGet(eventStat.getEvent().getBody().length);
+        metricItem.sendCount.incrementAndGet();
+        metricItem.sendSize.addAndGet(eventStat.getEvent().getBody().length);
         monitorIndexExt.incrementAndGet("PULSAR_SINK_SUCCESS");
         editStatistic(eventStat.getEvent(), null, result.toString());
+
     }
 
     @Override
@@ -541,7 +644,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
         } else if (e instanceof ProducerQueueIsFullError) {
             PulsarSink.this.overflow = true;
         } else if (!(e instanceof AlreadyClosedException
-                || e instanceof NotConnectedException
+                || e instanceof PulsarClientException.NotConnectedException
                 || e instanceof TopicTerminatedException)) {
             if (logPrinterB.shouldPrint()) {
                 logger.error("Send failed!{}{}", getName(), e);
@@ -551,6 +654,11 @@ public class PulsarSink extends AbstractSink implements Configurable,
             }
         }
         eventStat.incRetryCnt();
+        Map<String, String> dimensions =  getNewDimension(DataProxyMetricItem.KEY_SINK_DATA_ID,
+                topic);
+        DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
+        metricItem.sendFailCount.incrementAndGet();
+        metricItem.sendFailSize.addAndGet(eventStat.getEvent().getBody().length);
         resendEvent(eventStat, true);
     }
 
@@ -571,7 +679,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
              * If the failure requires retransmission to pulsar,
              * the sid needs to be removed before retransmission.
              */
-            if (clientIdCache) {
+            if (pulsarConfig.getClientIdCache()) {
                 String clientId = es.getEvent().getHeaders().get(ConfigConstants.SEQUENCE_ID);
                 if (clientId != null && agentIdCache.asMap().containsKey(clientId)) {
                     agentIdCache.invalidate(clientId);
@@ -599,6 +707,14 @@ public class PulsarSink extends AbstractSink implements Configurable,
         }
     }
 
+    private Map getNewDimension(String otherKey, String value) {
+        Map dimensions = new HashMap<>();
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
+        dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());
+        dimensions.put(otherKey, value);
+        return dimensions;
+    }
+
     static class PulsarPerformanceTask implements Runnable {
         @Override
         public void run() {
@@ -623,6 +739,16 @@ public class PulsarSink extends AbstractSink implements Configurable,
     }
 
     class SinkTask implements Runnable {
+
+        private PulsarClientService pulsarClientService;
+
+        private int poolIndex = 0;
+
+        public SinkTask(PulsarClientService pulsarClientService, int poolIndex) {
+            this.pulsarClientService = pulsarClientService;
+            this.poolIndex = poolIndex;
+        }
+
         @Override
         public void run() {
             logger.info("Sink task {} started.", Thread.currentThread().getName());
@@ -660,7 +786,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
                                 logger.info(getName()
                                                 + " currentInFlightCount={} resendQueue"
                                                 + ".size={}",
-                                        currentInFlightCount.get(),resendQueue.size());
+                                        currentInFlightCount.get(), resendQueue.size());
                             }
                             if (logCounter > Long.MAX_VALUE - 10) {
                                 logCounter = 0;
@@ -674,8 +800,9 @@ public class PulsarSink extends AbstractSink implements Configurable,
                         }
                     }
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Event is {}, topic = {} ",event, topic);
+                        logger.debug("Event is {}, topic = {} ", event, topic);
                     }
+
                     if (event == null) {
                         continue;
                     }
@@ -706,22 +833,22 @@ public class PulsarSink extends AbstractSink implements Configurable,
                     final EventStat es = eventStat;
 
                     boolean hasKey = false;
-                    if (clientIdCache && clientId != null) {
+                    if (pulsarConfig.getClientIdCache() && clientId != null) {
                         hasKey = agentIdCache.asMap().containsKey(clientId);
                     }
 
-                    if (clientIdCache && clientId != null && hasKey) {
+                    if (pulsarConfig.getClientIdCache() && clientId != null && hasKey) {
                         agentIdCache.put(clientId, System.currentTimeMillis());
                         if (logPrinterA.shouldPrint()) {
                             logger.info("{} agent package {} existed,just discard.",
                                     getName(), clientId);
                         }
                     } else {
-                        if (clientId != null) {
+                        if (pulsarConfig.getClientIdCache() && clientId != null) {
                             agentIdCache.put(clientId, System.currentTimeMillis());
                         }
-                        boolean sendResult = pulsarClientService.sendMessage(topic, event,
-                                PulsarSink.this, es);
+                        boolean sendResult = pulsarClientService.sendMessage(poolIndex, topic,
+                                event, PulsarSink.this, es);
                         /*
                          * handle producer is current is null
                          */

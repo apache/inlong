@@ -17,13 +17,8 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constants.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
-
-import static org.apache.inlong.agent.constants.JobConstants.DEFAULT_JOB_FILE_MAX_WAIT;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -32,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
@@ -40,19 +34,14 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Validator;
 import org.apache.inlong.agent.plugin.except.FileException;
-import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
-import org.apache.inlong.agent.plugin.metrics.PluginMetric;
-import org.apache.inlong.agent.plugin.metrics.PluginPrometheusMetric;
 import org.apache.inlong.agent.plugin.validator.PatternValidator;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TextFileReader implements Reader {
+public class TextFileReader extends AbstractReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextFileReader.class);
 
@@ -60,19 +49,23 @@ public class TextFileReader implements Reader {
 
     public static final int NEVER_STOP_SIGN = -1;
 
-    private String inlongGroupId;
-    private String inlongStreamId;
     private final File file;
+
     private final int position;
+
     private final String md5;
+
     private Iterator<String> iterator;
+
     private Stream<String> stream;
+
     private long timeout;
+
     private long waitTimeout;
+
     private long lastTime = 0;
-    private final PluginMetric textFileMetric;
+
     private List<Validator> validators = new ArrayList<>();
-    private static AtomicLong metricsIndex = new AtomicLong(0);
 
     public TextFileReader(File file, int position) {
         this(file, position, "");
@@ -82,14 +75,6 @@ public class TextFileReader implements Reader {
         this.file = file;
         this.position = position;
         this.md5 = md5;
-
-        if (ConfigUtil.isPrometheusEnabled()) {
-            textFileMetric = new PluginPrometheusMetric(AgentUtils.getUniqId(
-                    TEXT_FILE_READER_TAG_NAME, metricsIndex.incrementAndGet()));
-        } else {
-            textFileMetric = new PluginJmxMetric(AgentUtils.getUniqId(
-                    TEXT_FILE_READER_TAG_NAME, metricsIndex.incrementAndGet()));
-        }
     }
 
     public TextFileReader(File file) {
@@ -103,7 +88,10 @@ public class TextFileReader implements Reader {
             if (validateMessage(message)) {
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
-                textFileMetric.incReadNum();
+                if (streamMetric != null) {
+                    readerMetric.incReadNum();
+                    streamMetric.incReadNum();
+                }
                 return new DefaultMessage(message.getBytes(StandardCharsets.UTF_8));
             }
         }
@@ -152,6 +140,16 @@ public class TextFileReader implements Reader {
         waitTimeout = millis;
     }
 
+    @Override
+    public String getSnapshot() {
+        return StringUtils.EMPTY;
+    }
+
+    @Override
+    public void finishRead() {
+        destroy();
+    }
+
     public void addPatternValidator(String pattern) {
         if (pattern.isEmpty()) {
             return;
@@ -162,6 +160,8 @@ public class TextFileReader implements Reader {
     @Override
     public void init(JobProfile jobConf) {
         try {
+            super.init(jobConf);
+            intMetric(TEXT_FILE_READER_TAG_NAME);
             initReadTimeout(jobConf);
             String md5 = AgentUtils.getFileMd5(file);
             if (StringUtils.isNotBlank(this.md5) && !this.md5.equals(md5)) {
@@ -170,8 +170,6 @@ public class TextFileReader implements Reader {
             LOGGER.info("file name for task is {}, md5 is {}", file, md5);
             stream = Files.newBufferedReader(file.toPath()).lines().skip(position);
             iterator = stream.iterator();
-            inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
-            inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
         } catch (Exception ex) {
             throw new FileException("error init stream for " + file.getPath(), ex);
         }
@@ -191,6 +189,6 @@ public class TextFileReader implements Reader {
     public void destroy() {
         AgentUtils.finallyClose(stream);
         LOGGER.info("destroy reader with read {} num {}",
-                textFileMetric.getTagName(), textFileMetric.getReadNum());
+                streamMetric.getTagName(), streamMetric.getReadNum());
     }
 }

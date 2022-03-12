@@ -144,6 +144,16 @@ public class TestTaskWrapper {
 
         }
 
+        @Override
+        public String getSnapshot() {
+            return null;
+        }
+
+        @Override
+        public void finishRead() {
+
+        }
+
         public int getCount() {
             return count;
         }

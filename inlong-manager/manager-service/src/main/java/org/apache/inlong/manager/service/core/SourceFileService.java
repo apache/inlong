@@ -18,15 +18,17 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceFileBasicInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceFileDetailInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceFileDetailListVO;
+import org.apache.inlong.manager.common.pojo.source.SourceFileDetailPageRequest;
+
 import java.util.List;
-import org.apache.inlong.manager.common.pojo.datasource.SourceFileBasicInfo;
-import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailInfo;
-import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailListVO;
-import org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailPageRequest;
 
 /**
  * File data source service layer interface
  */
+@Deprecated
 public interface SourceFileService {
 
     /**
@@ -39,10 +41,10 @@ public interface SourceFileService {
     Integer saveBasic(SourceFileBasicInfo basicInfo, String operator);
 
     /**
-     * Query the basic information of the data source based on the data stream id
+     * Query the basic information of the data source based on the inlong stream id
      *
-     * @param groupId Business group id
-     * @param streamId Data stream id
+     * @param groupId Inlong group id
+     * @param streamId Inlong stream id
      * @return Basic data source information
      */
     SourceFileBasicInfo getBasicByIdentifier(String groupId, String streamId);
@@ -83,10 +85,10 @@ public interface SourceFileService {
     SourceFileDetailInfo getDetailById(Integer id);
 
     /**
-     * Query a detailed list of file data sources based on business group id and data stream id
+     * Query a detailed list of file data sources based on inlong group id and inlong stream id
      *
-     * @param groupId Business group id
-     * @param streamId Data stream id, can be null
+     * @param groupId Inlong group id
+     * @param streamId Inlong stream id, can be null
      * @return Data source details
      */
     List<SourceFileDetailInfo> listDetailByIdentifier(String groupId, String streamId);
@@ -120,8 +122,8 @@ public interface SourceFileService {
     /**
      * Physically delete the basic and detailed information of the data source
      *
-     * @param groupId The business group id to which the data source belongs
-     * @param streamId The data stream id to which the data source belongs
+     * @param groupId The inlong group id to which the data source belongs
+     * @param streamId The inlong stream id to which the data source belongs
      * @return Whether succeed
      */
     boolean deleteAllByIdentifier(String groupId, String streamId);
@@ -129,8 +131,8 @@ public interface SourceFileService {
     /**
      * Tombstone data source basic information and detailed information
      *
-     * @param groupId The business group id to which the data source belongs
-     * @param streamId The data stream id to which the data source belongs
+     * @param groupId The inlong group id to which the data source belongs
+     * @param streamId The inlong stream id to which the data source belongs
      * @param operator Operator name
      * @return Whether succeed
      */

@@ -21,7 +21,7 @@ import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constants.AgentConstants;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.db.JobProfileDb;
 import org.apache.inlong.agent.db.StateSearchKey;
@@ -38,14 +38,14 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL;
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_JOB_DB_CACHE_TIME;
-import static org.apache.inlong.agent.constants.AgentConstants.JOB_DB_CACHE_CHECK_INTERVAL;
-import static org.apache.inlong.agent.constants.AgentConstants.JOB_DB_CACHE_TIME;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_ID_PREFIX;
-import static org.apache.inlong.agent.constants.JobConstants.SQL_JOB_ID;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_INSTANCE_ID;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_DB_CACHE_TIME;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_DB_CACHE_CHECK_INTERVAL;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_DB_CACHE_TIME;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID_PREFIX;
+import static org.apache.inlong.agent.constant.JobConstants.SQL_JOB_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 
 /**
  * JobManager maintains lots of jobs, and communicate between server and task manager.
@@ -128,13 +128,26 @@ public class JobManager extends AbstractDaemon {
      * @param profile - job profile.
      */
     public boolean submitFileJobProfile(JobProfile profile) {
+        return submitJobProfile(profile, false);
+    }
+
+    /**
+     * add file job profile
+     *
+     * @param profile - job profile.
+     */
+    public boolean submitJobProfile(JobProfile profile, boolean singleJob) {
         if (profile == null || !profile.allRequiredKeyExist()) {
             LOGGER.error("profile is null or not all required key exists {}", profile == null ? null
                     : profile.toJsonStr());
             return false;
         }
         String jobId = profile.get(JOB_ID);
-        profile.set(JOB_INSTANCE_ID, AgentUtils.getUniqId(JOB_ID_PREFIX, jobId, index.incrementAndGet()));
+        if (singleJob) {
+            profile.set(JOB_INSTANCE_ID, jobId);
+        } else {
+            profile.set(JOB_INSTANCE_ID, AgentUtils.getUniqId(JOB_ID_PREFIX, jobId, index.incrementAndGet()));
+        }
         LOGGER.info("submit job profile {}", profile.toJsonStr());
         getJobConfDb().storeJobFirstTime(profile);
         addJob(new Job(profile));
@@ -164,20 +177,23 @@ public class JobManager extends AbstractDaemon {
      *
      * @param jobInstancId
      */
-    public void deleteJob(String jobInstancId) {
+    public boolean deleteJob(String jobInstancId) {
+        LOGGER.info("start to delete job, job id set {}", jobs.keySet());
         JobWrapper jobWrapper = jobs.remove(jobInstancId);
         if (jobWrapper != null) {
             LOGGER.info("delete job instance with job id {}", jobInstancId);
             jobWrapper.cleanup();
             getJobConfDb().deleteJob(jobInstancId);
+            return true;
         }
+        return false;
     }
 
     /**
      * start all accepted jobs.
      */
     private void startJobs() {
-        List<JobProfile> profileList = getJobConfDb().getAcceptedJobs();
+        List<JobProfile> profileList = getJobConfDb().getRestartJobs();
         for (JobProfile profile : profileList) {
             LOGGER.info("init starting job from db {}", profile.toJsonStr());
             addJob(new Job(profile));

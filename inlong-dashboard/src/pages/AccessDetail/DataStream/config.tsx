@@ -148,9 +148,9 @@ export const genFormContent = (
             </Divider>
           ),
         },
-        'dataStorage',
-        'dataStorageHIVE',
-        'dataStorageCLICK_HOUSE',
+        'streamSink',
+        'streamSinkHIVE',
+        'streamSinkCLICK_HOUSE',
       ],
       currentValues,
       extraParams,
@@ -158,7 +158,7 @@ export const genFormContent = (
   ].map(item => {
     if (
       (editingId === true && currentValues?.id === undefined) ||
-      (item.name === 'dataStorage' && !readonly)
+      (item.name === 'streamSink' && !readonly)
     ) {
       return item;
     }

@@ -37,8 +37,8 @@ import java.util.stream.Stream;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.constants.AgentConstants;
-import org.apache.inlong.agent.constants.JobConstants;
+import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Trigger;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.slf4j.Logger;
@@ -265,8 +265,9 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
             String timeOffset = this.profile.get(JobConstants.JOB_FILE_TIME_OFFSET, "");
             if (timeOffset.isEmpty()) {
                 register(pathPattern);
+            } else {
+                register(pathPattern, timeOffset);
             }
-            register(pathPattern, timeOffset);
         }
     }
 

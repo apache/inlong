@@ -22,7 +22,7 @@ bin_dir=$(dirname $0)
 base_dir=`cd -P $bin_dir/..;pwd`
 cd ..
 
-PID=$(ps -ef | grep "inlong-audit" | grep -v grep | awk '{ print $2}')
+PID=$(ps -ef | grep "audit-store" | grep -v grep | awk '{ print $2}')
 
 if [ -n "$PID" ]; then
  echo "Application has already started."

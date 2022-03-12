@@ -31,7 +31,7 @@ import org.apache.inlong.manager.common.pojo.user.UserDetailListVO;
 import org.apache.inlong.manager.common.pojo.user.UserDetailPageRequest;
 import org.apache.inlong.manager.common.pojo.user.UserInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.util.SmallTools;
 import org.apache.inlong.manager.dao.entity.UserEntity;
@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
         entity.setAccountType(userInfo.getType());
         entity.setPassword(SmallTools.passwordMd5(userInfo.getPassword()));
         entity.setDueDate(getOverDueDate(userInfo.getValidDays()));
-        entity.setCreateBy(LoginUserUtil.getLoginUserDetail().getUserName());
+        entity.setCreateBy(LoginUserUtils.getLoginUserDetail().getUserName());
         entity.setName(username);
         entity.setCreateTime(new Date());
         Preconditions.checkTrue(userMapper.insert(entity) > 0, "Create user failed");

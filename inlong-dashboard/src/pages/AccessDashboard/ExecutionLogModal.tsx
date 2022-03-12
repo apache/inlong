@@ -47,7 +47,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
       params: {
         ...options,
         inlongGroupId: inlongGroupId,
-        processNames: 'CREATE_BUSINESS_RESOURCE,CREATE_DATASTREAM_RESOURCE',
+        processNames: 'CREATE_GROUP_RESOURCE,CREATE_STREAM_RESOURCE',
         taskType: 'ServiceTask',
       },
     },
@@ -65,12 +65,12 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
   }, []);
 
   const reRun = useCallback(
-    ({ taskInstId }) => {
+    ({ taskId }) => {
       Modal.confirm({
         title: t('pages.AccessDashboard.ExecutionLogModal.ConfirmThatItIsRe-executed'),
         onOk: async () => {
           await request({
-            url: `/workflow/complete/` + taskInstId,
+            url: `/workflow/complete/` + taskId,
             method: 'POST',
             data: {
               remark: '',
@@ -93,7 +93,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
         pageNum: 1,
       }));
     }
-  }, [modalProps.visible, options]);
+  }, [modalProps.visible]);
 
   const columns = [
     {
@@ -102,18 +102,18 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
     },
     {
       title: t('pages.AccessDashboard.ExecutionLogModal.RunResults'),
-      dataIndex: 'state',
+      dataIndex: 'status',
       render: (text, record) => (
         <>
           <div>
-            {record.state === 'COMPLETED' ? (
+            {record.status === 'COMPLETED' ? (
               <StatusTag
                 type={'success'}
                 title={t('pages.AccessDashboard.ExecutionLogModal.Success')}
               />
-            ) : record.state === 'FAILED' ? (
+            ) : record.status === 'FAILED' ? (
               <StatusTag type={'error'} title={t('pages.AccessDashboard.ExecutionLogModal.Fail')} />
-            ) : record.state === 'SKIPPED' ? (
+            ) : record.status === 'SKIPPED' ? (
               <StatusTag
                 type={'primary'}
                 title={t('pages.AccessDashboard.ExecutionLogModal.Skip')}
@@ -136,13 +136,15 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
         text?.length ? (
           <Popover
             content={
-              <Timeline mode={'left'} style={{ margin: 20 }}>
+              <Timeline mode={'left'} style={{ marginBottom: -20 }}>
                 {text.map(item => (
-                  <Timeline.Item key={item.id}>{item.description}</Timeline.Item>
+                  <Timeline.Item key={item.id} color={item.state === -1 ? 'red' : 'blue'}>
+                    {item.description}
+                  </Timeline.Item>
                 ))}
               </Timeline>
             }
-            overlayStyle={{ maxWidth: 750 }}
+            overlayStyle={{ maxWidth: 750, maxHeight: 300, overflow: 'auto' }}
           >
             <div style={{ height: 45, overflow: 'hidden' }}>{text[0]?.description}</div>
           </Popover>
@@ -158,7 +160,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
       dataIndex: 'actions',
       render: (text, record) => (
         <>
-          {record?.state && record.state === 'FAILED' && (
+          {record?.status && record.status === 'FAILED' && (
             <Button type="link" onClick={() => reRun(record)}>
               {t('pages.AccessDashboard.ExecutionLogModal.CarriedOut')}
             </Button>
@@ -176,13 +178,13 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
     >
       {data?.list?.length ? (
         <>
-          <Collapse accordion defaultActiveKey={[data.list[0]?.processInstId]}>
+          <Collapse accordion defaultActiveKey={[data.list[0]?.processId]}>
             {data.list.map(item => (
-              <Panel header={item.processDisplayName} key={item.processInstId}>
+              <Panel header={item.processDisplayName} key={item.processId}>
                 <HighTable
                   table={{
                     columns,
-                    rowKey: 'taskInstId',
+                    rowKey: 'taskId',
                     size: 'small',
                     dataSource: item.taskExecutorLogs,
                   }}

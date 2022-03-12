@@ -72,7 +72,7 @@
         where id = #{id,jdbcType=INTEGER}
     </select>
     <select id="selectByCondition" resultMap="BaseResultMap"
-            parameterType="org.apache.inlong.manager.common.pojo.datasource.SourceFileDetailPageRequest">
+            parameterType="org.apache.inlong.manager.common.pojo.source.SourceFileDetailPageRequest">
         select
         <include refid="Base_Column_List"/>
         from source_file_detail
@@ -404,9 +404,9 @@
                stream.data_separator
         from source_file_basic basic,
              source_file_detail detail,
-             business biz,
+             inlong_group biz,
              data_schema ds,
-             data_stream stream
+             inlong_stream stream
         where detail.ip = #{ip,jdbcType=VARCHAR}
           and detail.is_deleted = 0
           and (floor(detail.STATUS / 100) = 2)
@@ -434,9 +434,9 @@
                stream.data_separator
         from source_file_basic basic,
              source_file_detail detail,
-             business biz,
+             inlong_group biz,
              data_schema ds,
-             data_stream stream
+             inlong_stream stream
         where detail.ip = #{ip,jdbcType=VARCHAR}
           and detail.is_deleted = 0
           and basic.inlong_group_id = detail.inlong_group_id

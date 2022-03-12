@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.flink.hive.formats.parquet;
 
+import static org.apache.inlong.sort.flink.hive.formats.parquet.ParquetRowWriter.ARRAY_FIELD_NAME;
+import static org.apache.inlong.sort.flink.hive.formats.parquet.ParquetRowWriter.MAP_ENTITY_FIELD_NAME;
+import static org.apache.inlong.sort.flink.hive.formats.parquet.ParquetRowWriter.MAP_KEY_FIELD_NAME;
+import static org.apache.inlong.sort.flink.hive.formats.parquet.ParquetRowWriter.MAP_VALUE_FIELD_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -27,12 +31,16 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.flink.core.fs.local.LocalDataOutputStream;
 import org.apache.flink.formats.parquet.ParquetBulkWriter;
 import org.apache.flink.types.Row;
 import org.apache.hadoop.fs.Path;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.flink.hive.HiveSinkHelper;
+import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
 import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
 import org.apache.inlong.sort.formats.common.ByteFormatInfo;
 import org.apache.inlong.sort.formats.common.DateFormatInfo;
@@ -41,6 +49,7 @@ import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
+import org.apache.inlong.sort.formats.common.MapFormatInfo;
 import org.apache.inlong.sort.formats.common.ShortFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
@@ -65,9 +74,17 @@ public class ParquetBulkWriterTest {
     @Test
     public void testAllSupportedTypes() throws IOException {
         File testFile = temporaryFolder.newFile("test.parquet");
-        ParquetBulkWriter<Row> parquetBulkWriter = (ParquetBulkWriter<Row>) HiveSinkHelper
+        final ParquetBulkWriter<Row> parquetBulkWriter = (ParquetBulkWriter<Row>) HiveSinkHelper
                 .createBulkWriterFactory(prepareHiveSinkInfo(), new Configuration())
                 .create(new LocalDataOutputStream(testFile));
+
+        final int[] testArray = new int[] {1, 2, 3};
+        Map<String, Double> testMap = new HashMap<>();
+        testMap.put("key1", 1.0);
+        testMap.put("key2", 2.0);
+        testMap.put("key3", 3.0);
+        final Integer[] testEmptyArray = new Integer[] {};
+        final Map<String, Double> testEmptyMap = new HashMap<>();
         parquetBulkWriter.addElement(Row.of(
                 "string",
                 false,
@@ -80,7 +97,11 @@ public class ParquetBulkWriterTest {
                 new BigDecimal("123456789123456789"),
                 new Date(0),
                 new Time(0),
-                new Timestamp(0)
+                new Timestamp(0),
+                testArray,
+                testMap,
+                testEmptyArray,
+                testEmptyMap
         ));
         parquetBulkWriter.finish();
 
@@ -102,6 +123,22 @@ public class ParquetBulkWriterTest {
         assertEquals(0, line.getInteger(9, 0));
         assertEquals(0, line.getInteger(10, 0));
         assertEquals(0, line.getLong(11, 0));
+
+        Group f13 = line.getGroup("f13", 0);
+        assertEquals(1, f13.getGroup(ARRAY_FIELD_NAME, 0).getInteger(0, 0));
+        assertEquals(2, f13.getGroup(ARRAY_FIELD_NAME, 1).getInteger(0, 0));
+        assertEquals(3, f13.getGroup(ARRAY_FIELD_NAME, 2).getInteger(0, 0));
+
+        Group f14 = line.getGroup("f14", 0);
+        assertEquals("key1", f14.getGroup(MAP_ENTITY_FIELD_NAME, 0).getString(MAP_KEY_FIELD_NAME, 0));
+        assertEquals(1.0, f14.getGroup(MAP_ENTITY_FIELD_NAME, 0).getDouble(MAP_VALUE_FIELD_NAME, 0), 0.01);
+        assertEquals("key2", f14.getGroup(MAP_ENTITY_FIELD_NAME, 1).getString(MAP_KEY_FIELD_NAME, 0));
+        assertEquals(2.0, f14.getGroup(MAP_ENTITY_FIELD_NAME, 1).getDouble(MAP_VALUE_FIELD_NAME, 0), 0.01);
+        assertEquals("key3", f14.getGroup(MAP_ENTITY_FIELD_NAME, 2).getString(MAP_KEY_FIELD_NAME, 0));
+        assertEquals(3.0, f14.getGroup(MAP_ENTITY_FIELD_NAME, 2).getDouble(MAP_VALUE_FIELD_NAME, 0), 0.01);
+
+        assertEquals("", line.getGroup("f15", 0).toString());
+        assertEquals("", line.getGroup("f16", 0).toString());
     }
 
     private HiveSinkInfo prepareHiveSinkInfo() {
@@ -118,7 +155,11 @@ public class ParquetBulkWriterTest {
                         new FieldInfo("f9", DecimalFormatInfo.INSTANCE),
                         new FieldInfo("f10", new DateFormatInfo()),
                         new FieldInfo("f11", new TimeFormatInfo()),
-                        new FieldInfo("f12", new TimestampFormatInfo())
+                        new FieldInfo("f12", new TimestampFormatInfo()),
+                        new FieldInfo("f13", new ArrayFormatInfo(IntFormatInfo.INSTANCE)),
+                        new FieldInfo("f14", new MapFormatInfo(StringFormatInfo.INSTANCE, DoubleFormatInfo.INSTANCE)),
+                        new FieldInfo("f15", new ArrayFormatInfo(IntFormatInfo.INSTANCE)),
+                        new FieldInfo("f16", new MapFormatInfo(StringFormatInfo.INSTANCE, DoubleFormatInfo.INSTANCE))
                 },
                 "jdbc:mysql://127.0.0.1:3306/testDatabaseName",
                 "testDatabaseName",
@@ -126,7 +167,7 @@ public class ParquetBulkWriterTest {
                 "testUsername",
                 "testPassword",
                 "/path",
-                new HivePartitionInfo[]{
+                new HivePartitionInfo[] {
                         new HiveFieldPartitionInfo("f13"),
                 },
                 new ParquetFileFormat()

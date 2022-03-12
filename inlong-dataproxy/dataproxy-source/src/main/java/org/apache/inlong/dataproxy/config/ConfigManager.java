@@ -18,13 +18,7 @@
 package org.apache.inlong.dataproxy.config;
 
 import com.google.gson.Gson;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
@@ -33,13 +27,23 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.dataproxy.config.RemoteConfigJson.DataItem;
-import org.apache.inlong.dataproxy.config.holder.GroupIdPropertiesHolder;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterInfo;
 import org.apache.inlong.dataproxy.config.holder.FileConfigHolder;
+import org.apache.inlong.dataproxy.config.holder.GroupIdPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.MxPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.PropertiesConfigHolder;
+import org.apache.inlong.dataproxy.config.holder.ThirdPartyClusterConfigHolder;
+import org.apache.inlong.dataproxy.config.pojo.ThirdPartyClusterConfig;
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class ConfigManager {
 
@@ -53,6 +57,8 @@ public class ConfigManager {
             new PropertiesConfigHolder("common.properties");
     private final PropertiesConfigHolder topicConfig =
             new PropertiesConfigHolder("topics.properties");
+    private final ThirdPartyClusterConfigHolder thirdPartyClusterConfigHolder =
+            new ThirdPartyClusterConfigHolder("third_party_cluster.properties");
     private final MxPropertiesHolder mxConfig = new MxPropertiesHolder("mx.properties");
     private final GroupIdPropertiesHolder groupIdConfig =
             new GroupIdPropertiesHolder("groupid_mapping.properties");
@@ -69,6 +75,7 @@ public class ConfigManager {
 
     /**
      * get instance for manager
+     *
      * @return
      */
     public static ConfigManager getInstance() {
@@ -104,21 +111,27 @@ public class ConfigManager {
     /**
      * update old maps, reload local files if changed.
      *
-     * @param result        - map pending to be added
-     * @param holder        - property holder
+     * @param result - map pending to be added
+     * @param holder - property holder
      * @param addElseRemove - if add(true) else remove(false)
      * @return true if changed else false.
      */
-    private boolean updatePropertiesHolder(Map<String, String> result,
-                                           PropertiesConfigHolder holder, boolean addElseRemove) {
+    private boolean updatePropertiesHolder(Map<String, String> result, PropertiesConfigHolder holder,
+            boolean addElseRemove) {
         Map<String, String> tmpHolder = holder.forkHolder();
         boolean changed = false;
+
         for (Map.Entry<String, String> entry : result.entrySet()) {
-            String oldValue = addElseRemove
-                    ? tmpHolder.put(entry.getKey(), entry.getValue()) : tmpHolder.remove(entry.getKey());
-            // if addElseRemove is false, that means removing item, changed is true.
-            if (oldValue == null || !oldValue.equals(entry.getValue()) || !addElseRemove) {
-                changed = true;
+            if (addElseRemove) {
+                String oldValue = tmpHolder.put(entry.getKey(), entry.getValue());
+                if (!ObjectUtils.equals(oldValue, entry.getValue())) {
+                    changed = true;
+                }
+            } else {
+                String oldValue = tmpHolder.remove(entry.getKey());
+                if (oldValue != null) {
+                    changed = true;
+                }
             }
         }
 
@@ -135,6 +148,10 @@ public class ConfigManager {
 
     public boolean deleteTopicProperties(Map<String, String> result) {
         return updatePropertiesHolder(result, topicConfig, false);
+    }
+
+    public boolean updateThirdPartyClusterProperties(Map<String, String> result) {
+        return updatePropertiesHolder(result, thirdPartyClusterConfigHolder, true);
     }
 
     public Map<String, String> getMxProperties() {
@@ -183,6 +200,18 @@ public class ConfigManager {
 
     public PropertiesConfigHolder getTopicConfig() {
         return topicConfig;
+    }
+
+    public ThirdPartyClusterConfigHolder getThirdPartyClusterHolder() {
+        return thirdPartyClusterConfigHolder;
+    }
+
+    public ThirdPartyClusterConfig getThirdPartyClusterConfig() {
+        return thirdPartyClusterConfigHolder.getClusterConfig();
+    }
+
+    public Map<String, String> getThirdPartyClusterUrl2Token() {
+        return thirdPartyClusterConfigHolder.getUrl2token();
     }
 
     /**
@@ -244,10 +273,15 @@ public class ConfigManager {
             }
         }
 
-        private boolean checkWithManager(String host) {
+        private boolean checkWithManager(String host, String proxyClusterName) {
             HttpGet httpGet = null;
             try {
-                String url = "http://" + host + "/api/inlong/manager/openapi/dataproxy/getConfig";
+                if (StringUtils.isEmpty(proxyClusterName)) {
+                    LOG.error("proxyClusterName is null");
+                    return false;
+                }
+                String url = "http://" + host + "/api/inlong/manager/openapi/dataproxy/getConfig_v2?clusterName="
+                        + proxyClusterName;
                 LOG.info("start to request {} to get config info", url);
                 httpGet = new HttpGet(url);
                 httpGet.addHeader(HttpHeaders.CONNECTION, "close");
@@ -260,14 +294,50 @@ public class ConfigManager {
                 RemoteConfigJson configJson = gson.fromJson(returnStr, RemoteConfigJson.class);
                 Map<String, String> groupIdToTopic = new HashMap<String, String>();
                 Map<String, String> groupIdToMValue = new HashMap<String, String>();
+                Map<String, String> mqConfig = new HashMap<>();// include url2token and other params
 
-                if (configJson.getErrCode() == 0) {
-                    for (DataItem item : configJson.getData()) {
-                        groupIdToMValue.put(item.getGroupId(), item.getM());
-                        groupIdToTopic.put(item.getGroupId(), item.getTopic());
+                if (configJson.isSuccess() && configJson.getData() != null) { //success get config
+                    LOG.info("getConfig_v2 result: {}", returnStr);
+                    /*
+                     * get mqUrls <->token maps;
+                     * if mq is pulsar, store format: third-party-cluster.index1=cluster1url1,cluster1url2=token
+                     * if mq is tubemq, token is "", store format: third-party-cluster.index1=cluster1url1,cluster1url2=
+                     */
+                    int index = 1;
+                    List<ThirdPartyClusterInfo> clusterSet = configJson.getData().getMqSet();
+                    if (clusterSet == null || clusterSet.isEmpty()) {
+                        LOG.error("getConfig from manager: no available mq config");
+                        return false;
+                    }
+                    for (ThirdPartyClusterInfo mqCluster : clusterSet) {
+                        String key = ThirdPartyClusterConfigHolder.URL_STORE_PREFIX + index;
+                        String value = mqCluster.getUrl() + AttributeConstants.KEY_VALUE_SEPARATOR
+                                + mqCluster.getToken();
+                        mqConfig.put(key, value);
+                        ++index;
+                    }
+
+                    // mq other params
+                    mqConfig.putAll(clusterSet.get(0).getParams());
+
+                    for (DataProxyConfig topic : configJson.getData().getTopicList()) {
+                        if (!StringUtils.isEmpty(topic.getM())) {
+                            groupIdToMValue.put(topic.getInlongGroupId(), topic.getM());
+                        }
+                        if (!StringUtils.isEmpty(topic.getTopic())) {
+                            groupIdToTopic.put(topic.getInlongGroupId(), topic.getTopic());
+                        }
                     }
                     configManager.addMxProperties(groupIdToMValue);
                     configManager.addTopicProperties(groupIdToTopic);
+                    configManager.updateThirdPartyClusterProperties(mqConfig);
+
+                    // store mq common configs and url2token
+                    configManager.getThirdPartyClusterConfig().putAll(mqConfig);
+                    configManager.getThirdPartyClusterHolder()
+                            .setUrl2token(configManager.getThirdPartyClusterHolder().getUrl2token());
+                } else {
+                    LOG.error("getConfig from manager: {}", configJson.getErrMsg());
                 }
             } catch (Exception ex) {
                 LOG.error("exception caught", ex);
@@ -284,10 +354,11 @@ public class ConfigManager {
 
             try {
                 String managerHosts = configManager.getCommonProperties().get("manager_hosts");
+                String proxyClusterName = configManager.getCommonProperties().get("proxy_cluster_name");
                 String[] hostList = StringUtils.split(managerHosts, ",");
                 for (String host : hostList) {
 
-                    if (checkWithManager(host)) {
+                    if (checkWithManager(host, proxyClusterName)) {
                         break;
                     }
                 }

@@ -20,7 +20,7 @@ package org.apache.inlong.agent.core.job;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constants.JobConstants;
+import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.core.task.Task;
 import org.apache.inlong.agent.plugin.Channel;
 import org.apache.inlong.agent.plugin.Reader;
@@ -80,10 +80,10 @@ public class Job {
         int index = 0;
         try {
             LOGGER.info("job id: {}, source: {}, channel: {}, sink: {}",
-                getJobInstanceId(), jobConf.get(JobConstants.JOB_SOURCE),
+                getJobInstanceId(), jobConf.get(JobConstants.JOB_SOURCE_CLASS),
                 jobConf.get(JobConstants.JOB_CHANNEL),
                 jobConf.get(JobConstants.JOB_SINK));
-            Source source = (Source) Class.forName(jobConf.get(JobConstants.JOB_SOURCE)).newInstance();
+            Source source = (Source) Class.forName(jobConf.get(JobConstants.JOB_SOURCE_CLASS)).newInstance();
             for (Reader reader : source.split(jobConf)) {
                 Sink writer = (Sink) Class.forName(jobConf.get(JobConstants.JOB_SINK)).newInstance();
                 writer.setSourceName(reader.getReadSource());
@@ -92,7 +92,7 @@ public class Job {
                 taskList.add(new Task(taskId, reader, writer, channel, getJobConf()));
             }
         } catch (Exception ex) {
-            LOGGER.error("create taks fail", ex);
+            LOGGER.error("create task failed", ex);
             throw new RuntimeException(ex);
         }
         return taskList;

@@ -63,10 +63,10 @@
 
         <!-- package InLong-Sort-->
         <fileSet>
-            <directory>../inlong-sort/sort-core/target</directory>
+            <directory>../inlong-sort/sort-dist/target</directory>
             <outputDirectory>inlong-sort</outputDirectory>
             <includes>
-                <include>sort-core-${project.version}.jar</include>
+                <include>sort-dist-${project.version}.jar</include>
             </includes>
         </fileSet>
 
@@ -85,6 +85,21 @@
         <fileSet>
             <directory>../conf</directory>
             <outputDirectory>conf</outputDirectory>
+        </fileSet>
+        <!-- package InLong docker -->
+        <fileSet>
+            <directory>../docker</directory>
+            <outputDirectory>docker</outputDirectory>
+        </fileSet>
+        <!-- package sql file for docker compose-->
+        <fileSet>
+            <directory>../inlong-audit/audit-release/target/apache-inlong-audit-${project.version}-bin/sql</directory>
+            <outputDirectory>../docker/sql</outputDirectory>
+        </fileSet>
+        <!-- package sql file for docker compose-->
+        <fileSet>
+            <directory>../inlong-manager/manager-web/target/apache-inlong-manager-web-${project.version}-bin/sql</directory>
+            <outputDirectory>../docker/sql</outputDirectory>
         </fileSet>
     </fileSets>
 

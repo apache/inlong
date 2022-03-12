@@ -31,6 +31,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>inlong-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <exclusions>
@@ -43,10 +49,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -167,11 +169,9 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-common</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-spring</artifactId>
         </dependency>
     </dependencies>
 

@@ -43,6 +43,7 @@ import org.apache.inlong.tubemq.manager.controller.node.request.BatchAddTopicReq
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneBrokersReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneTopicReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.QueryBrokerCfgReq;
+import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
 import org.apache.inlong.tubemq.manager.repository.MasterRepository;
 import org.apache.inlong.tubemq.manager.service.interfaces.MasterService;
@@ -253,7 +254,7 @@ public class NodeServiceImpl implements NodeService {
      * @param needReloadList
      */
     @Override
-    public void handleReloadBroker(MasterEntry masterEntry, List<Integer> needReloadList) {
+    public void handleReloadBroker(MasterEntry masterEntry, List<Integer> needReloadList, ClusterEntry clusterEntry) {
         // reload without exceed max broker.
         if (needReloadList.isEmpty()) {
             return;
@@ -261,7 +262,7 @@ public class NodeServiceImpl implements NodeService {
         int begin = 0;
         int end = 0;
         do {
-            end = Math.min(maxConfigurableBrokerSize + begin, needReloadList.size());
+            end = Math.min(clusterEntry.getReloadBrokerSize() + begin, needReloadList.size());
             List<Integer> brokerIdList = needReloadList.subList(begin, end);
             String brokerStr = StringUtils.join(brokerIdList, ",");
             String url = TubeConst.SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()

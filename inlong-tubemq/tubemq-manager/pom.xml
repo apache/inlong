@@ -104,13 +104,11 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.10</version>
         </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.2.10</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -120,13 +118,12 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.10</version>
         </dependency>
 
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.15</version>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgres.version}</version>
         </dependency>
 
         <dependency>
@@ -138,7 +135,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.200</version>
+            <version>2.1.210</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -179,7 +176,7 @@
                     </descriptors>
                     <archive>
                         <manifest>
-                            <mainClass>com.cyy.MvnPackageApplication</mainClass>
+                            <mainClass>org.apache.inlong.tubemq.manager.TubeMQManager</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

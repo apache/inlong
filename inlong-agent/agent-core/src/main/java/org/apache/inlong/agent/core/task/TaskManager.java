@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.constants.AgentConstants;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ConfigUtil;
@@ -126,6 +126,8 @@ public class TaskManager extends AbstractDaemon {
                 }
             }
             taskMetrics.incRunningTaskCount();
+        } else {
+            LOGGER.warn("task cannot be repeated added taskId {}", wrapper.getTask().getTaskId());
         }
     }
 
@@ -188,7 +190,7 @@ public class TaskManager extends AbstractDaemon {
         taskMetrics.decRunningTaskCount();
         TaskWrapper taskWrapper = tasks.remove(taskId);
         if (taskWrapper != null) {
-            taskWrapper.waitForFinish();
+            taskWrapper.destroyTask();
         }
     }
 

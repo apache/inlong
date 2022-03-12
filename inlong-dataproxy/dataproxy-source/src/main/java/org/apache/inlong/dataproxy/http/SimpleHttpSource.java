@@ -19,14 +19,13 @@ package org.apache.inlong.dataproxy.http;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
-import org.apache.inlong.commons.monitor.CounterGroup;
-import org.apache.inlong.commons.monitor.CounterGroupExt;
+import org.apache.inlong.common.monitor.CounterGroup;
+import org.apache.inlong.common.monitor.CounterGroupExt;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 import org.apache.flume.Context;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.inlong.dataproxy.config.remote.ConfigMessageServlet;
-import org.apache.inlong.dataproxy.metrics.WaterMarkServlet;
 import org.apache.inlong.dataproxy.source.ServiceDecoder;
 import org.apache.flume.source.http.HTTPSource;
 import org.apache.flume.source.http.HTTPSourceConfigurationConstants;
@@ -157,8 +156,6 @@ public class SimpleHttpSource
                     "/dataproxy/*");
             servletContext.addServlet(new ServletHolder(new ConfigMessageServlet()),
                     "/dataproxy/config/*");
-            servletContext.addServlet(new ServletHolder(new WaterMarkServlet()),
-                    "/dataproxy/tcp/watermark/*");
             srv.start();
             Preconditions.checkArgument(srv.getHandler().equals(servletContext));
         } catch (ClassNotFoundException ex) {

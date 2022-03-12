@@ -170,7 +170,7 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
      * @param consumeEnable     new consume enable status
      * @param disableRsn        new disable reason
      * @param filterEnable      new filter enable status
-     * @param filterCondStr     new fliter condition configure
+     * @param filterCondStr     new filter condition configure
      *
      * @return    whether data is changed
      */
@@ -283,7 +283,8 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
      * @return if equals
      */
     public boolean isDataEquals(GroupConsumeCtrlEntity other) {
-        return recordKey.equals(other.recordKey)
+        return super.isDataEquals(other)
+                && recordKey.equals(other.recordKey)
                 && Objects.equals(topicName, other.topicName)
                 && Objects.equals(groupName, other.groupName)
                 && consumeEnable == other.consumeEnable

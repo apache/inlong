@@ -47,7 +47,7 @@ export CLASSPATH=$CLASSPATH:$BASE_DIR/conf:$(ls $BASE_DIR/lib/*.jar | tr '\n' :)
 
 JMX_ENABLED=$(grep -c "agent.prometheus.enable=false" $BASE_DIR/conf/agent.properties)
 if [[ $JMX_ENABLED == 1 ]]; then
-  export AGENT_ARGS="$AGENT_JVM_ARGS $AGENT_RMI_ARGS -cp $CLASSPATH -Dagent.home=$BASE_DIR -Dlog4j.configuration=file:$BASE_DIR/conf/log4j.properties"
+  export AGENT_ARGS="$AGENT_JVM_ARGS $AGENT_RMI_ARGS -cp $CLASSPATH -Dagent.home=$BASE_DIR"
 else
-  export AGENT_ARGS="$AGENT_JVM_ARGS -cp $CLASSPATH -Dagent.home=$BASE_DIR -Dlog4j.configuration=file:$BASE_DIR/conf/log4j.properties"
+  export AGENT_ARGS="$AGENT_JVM_ARGS -cp $CLASSPATH -Dagent.home=$BASE_DIR"
 fi

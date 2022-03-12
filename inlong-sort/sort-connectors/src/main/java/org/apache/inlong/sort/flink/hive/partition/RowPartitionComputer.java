@@ -20,6 +20,7 @@ package org.apache.inlong.sort.flink.hive.partition;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -103,12 +104,14 @@ public class RowPartitionComputer implements PartitionComputer<Row> {
         }
     }
 
-    interface PartitionValueTransformer {
+    interface PartitionValueTransformer extends Serializable {
 
         String transform(Object fieldValue);
     }
 
     private static class FieldPartitionValueTransformer implements PartitionValueTransformer {
+
+        private static final long serialVersionUID = 4704634852937539161L;
 
         @Override
         public String transform(Object fieldValue) {
@@ -117,6 +120,8 @@ public class RowPartitionComputer implements PartitionComputer<Row> {
     }
 
     private static class TimeFieldPartitionValueTransformer implements PartitionValueTransformer {
+
+        private static final long serialVersionUID = -6757777703443121967L;
 
         private final SimpleDateFormat dateFormat;
 

@@ -18,11 +18,15 @@
 package org.apache.inlong.sort.protocol;
 
 import com.google.common.base.Preconditions;
+
+import java.io.Serializable;
 import java.util.Objects;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-public class DataFlowStorageInfo {
+public class DataFlowStorageInfo implements Serializable {
+
+    private static final long serialVersionUID = -2785142086976967367L;
 
     public enum StorageType {
         ZK,

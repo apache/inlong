@@ -17,11 +17,12 @@
 
 package org.apache.inlong.tubemq.client.config;
 
+import org.apache.inlong.tubemq.client.common.StatsConfig;
+import org.apache.inlong.tubemq.client.common.StatsLevel;
 import org.apache.inlong.tubemq.client.common.TClientConstants;
 import org.apache.inlong.tubemq.corebase.cluster.MasterInfo;
 import org.apache.inlong.tubemq.corebase.config.TLSConfig;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
-import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corerpc.RpcConstants;
 
@@ -55,12 +56,8 @@ public class TubeClientConfig {
     private long heartbeatPeriodAfterFail = TClientConstants.CFG_DEFAULT_HEARTBEAT_PERIOD_AFTER_RETRY_FAIL;
     // Link statistic check duration in ms.
     private long linkStatsDurationMs = RpcConstants.CFG_LQ_STATS_DURATION_MS;
-    // Enable metric information print
-    private boolean enableMetricPrint = true;
-    // Metric print period in ms.
-    private long metricInfoPrintPeriodMs = TClientConstants.METRIC_PRINT_DEFAULT_PERIOD_MS;
-    // Metric reset value period in ms.
-    private long metricForcedResetPeriodMs = TClientConstants.METRIC_RESET_DEFAULT_PERIOD_MS;
+    // statistics setting
+    private final StatsConfig statsConfig = new StatsConfig();
 
     // The following 5 configuration parameters are used in broker exception process.
     //
@@ -469,34 +466,14 @@ public class TubeClientConfig {
         return usrPassWord;
     }
 
-    public boolean isEnableMetricPrint() {
-        return enableMetricPrint;
+    public StatsConfig getStatsConfig() {
+        return this.statsConfig;
     }
 
-    public void setEnableMetricPrint(boolean enableMetricPrint) {
-        this.enableMetricPrint = enableMetricPrint;
-    }
-
-    public long getMetricInfoPrintPeriodMs() {
-        return metricInfoPrintPeriodMs;
-    }
-
-    public void setMetricInfoPrintPeriodMs(long metricInfoPrintPeriodMs) {
-        this.metricInfoPrintPeriodMs =
-                MixedUtils.mid(metricInfoPrintPeriodMs,
-                        TClientConstants.METRIC_PRINT_MIN_PERIOD_MS,
-                        TClientConstants.METRIC_PRINT_MAX_PERIOD_MS);
-    }
-
-    public long getMetricForcedResetPeriodMs() {
-        return metricForcedResetPeriodMs;
-    }
-
-    public void setMetricForcedResetPeriodMs(long metricForcedResetPeriodMs) {
-        this.metricForcedResetPeriodMs =
-                MixedUtils.mid(metricForcedResetPeriodMs,
-                        TClientConstants.METRIC_RESET_MIN_PERIOD_MS,
-                        TClientConstants.METRIC_RESET_MAX_PERIOD_MS);
+    public void setStatsConfig(StatsLevel statsLevel, boolean enableSelfPrint,
+                               long selfPrintPeriodMs, long forcedResetPeriodMs) {
+        this.statsConfig.updateStatsConfig(statsLevel,
+                enableSelfPrint, selfPrintPeriodMs, forcedResetPeriodMs);
     }
 
     @Override
@@ -591,13 +568,7 @@ public class TubeClientConfig {
         if (!this.tlsConfig.equals(that.tlsConfig)) {
             return false;
         }
-        if (this.enableMetricPrint != that.enableMetricPrint) {
-            return false;
-        }
-        if (this.metricInfoPrintPeriodMs != that.metricInfoPrintPeriodMs) {
-            return false;
-        }
-        if (this.metricForcedResetPeriodMs != that.metricForcedResetPeriodMs) {
+        if (!this.statsConfig.equals(that.statsConfig)) {
             return false;
         }
         return masterInfo.equals(that.masterInfo);
@@ -625,36 +596,34 @@ public class TubeClientConfig {
             sBuilder.append("\"").append(item).append("\"");
         }
         return sBuilder.append("],\"rpcReadTimeoutMs\":").append(this.rpcReadTimeoutMs)
-            .append(",\"rpcConnProcessorCnt\":").append(this.rpcConnProcessorCnt)
-            .append(",\"rpcNettyWorkMemorySize\":").append(this.rpcNettyWorkMemorySize)
-            .append(",\"rpcRspCallBackThreadCnt\":").append(this.rpcRspCallBackThreadCnt)
-            .append(",\"nettyWriteBufferHighWaterMark\":").append(this.nettyWriteBufferHighWaterMark)
-            .append(",\"nettyWriteBufferLowWaterMark\":").append(this.nettyWriteBufferLowWaterMark)
-            .append(",\"maxRegisterRetryTimes\":").append(this.maxRegisterRetryTimes)
-            .append(",\"regFailWaitPeriodMs\":").append(this.regFailWaitPeriodMs)
-            .append(",\"maxHeartBeatRetryTimes\":").append(this.maxHeartBeatRetryTimes)
-            .append(",\"heartbeatPeriodMs\":").append(this.heartbeatPeriodMs)
-            .append(",\"heartbeatPeriodAfterFail\":").append(this.heartbeatPeriodAfterFail)
-            .append(",\"linkStatsDurationMs\":").append(this.linkStatsDurationMs)
-            .append(",\"linkStatsForbiddenDurationMs\":").append(this.linkStatsForbiddenDurationMs)
-            .append(",\"linkStatsMaxAllowedFailTimes\":").append(this.linkStatsMaxAllowedFailTimes)
-            .append(",\"linkStatsMaxForbiddenRate\":").append(this.linkStatsMaxForbiddenRate)
-            .append(",\"maxSentForbiddenRate\":").append(this.maxSentForbiddenRate)
-            .append(",\"maxForbiddenCheckDuration\":").append(this.maxForbiddenCheckDuration)
-            .append(",\"sessionStatisticCheckDuration\":").append(this.sessionStatisticCheckDuration)
-            .append(",\"sessionWarnForbiddenRate\":").append(this.sessionWarnForbiddenRate)
-            .append(",\"sessionWarnDelayedMsgCount\":").append(this.sessionWarnDelayedMsgCount)
-            .append(",\"linkMaxAllowedDelayedMsgCount\":").append(this.linkMaxAllowedDelayedMsgCount)
-            .append(",\"sessionMaxAllowedDelayedMsgCount\":").append(this.sessionMaxAllowedDelayedMsgCount)
-            .append(",\"unAvailableFbdDurationMs\":").append(this.unAvailableFbdDurationMs)
-            .append(",\"enableUserAuthentic\":").append(this.enableUserAuthentic)
-            .append(",\"enableMetricPrint\":").append(this.enableMetricPrint)
-            .append(",\"metricInfoPrintPeriodMs\":").append(this.metricInfoPrintPeriodMs)
-            .append(",\"metricResetPeriodMs\":").append(this.metricForcedResetPeriodMs)
-            .append(",\"usrName\":\"").append(this.usrName)
-            .append("\",\"usrPassWord\":\"").append(this.usrPassWord)
-            .append("\",\"localAddress\":\"").append(localAddress)
-            .append("\",").append(this.tlsConfig.toString())
-            .append("}").toString();
+                .append(",\"rpcConnProcessorCnt\":").append(this.rpcConnProcessorCnt)
+                .append(",\"rpcNettyWorkMemorySize\":").append(this.rpcNettyWorkMemorySize)
+                .append(",\"rpcRspCallBackThreadCnt\":").append(this.rpcRspCallBackThreadCnt)
+                .append(",\"nettyWriteBufferHighWaterMark\":").append(this.nettyWriteBufferHighWaterMark)
+                .append(",\"nettyWriteBufferLowWaterMark\":").append(this.nettyWriteBufferLowWaterMark)
+                .append(",\"maxRegisterRetryTimes\":").append(this.maxRegisterRetryTimes)
+                .append(",\"regFailWaitPeriodMs\":").append(this.regFailWaitPeriodMs)
+                .append(",\"maxHeartBeatRetryTimes\":").append(this.maxHeartBeatRetryTimes)
+                .append(",\"heartbeatPeriodMs\":").append(this.heartbeatPeriodMs)
+                .append(",\"heartbeatPeriodAfterFail\":").append(this.heartbeatPeriodAfterFail)
+                .append(",\"linkStatsDurationMs\":").append(this.linkStatsDurationMs)
+                .append(",\"linkStatsForbiddenDurationMs\":").append(this.linkStatsForbiddenDurationMs)
+                .append(",\"linkStatsMaxAllowedFailTimes\":").append(this.linkStatsMaxAllowedFailTimes)
+                .append(",\"linkStatsMaxForbiddenRate\":").append(this.linkStatsMaxForbiddenRate)
+                .append(",\"maxSentForbiddenRate\":").append(this.maxSentForbiddenRate)
+                .append(",\"maxForbiddenCheckDuration\":").append(this.maxForbiddenCheckDuration)
+                .append(",\"sessionStatisticCheckDuration\":").append(this.sessionStatisticCheckDuration)
+                .append(",\"sessionWarnForbiddenRate\":").append(this.sessionWarnForbiddenRate)
+                .append(",\"sessionWarnDelayedMsgCount\":").append(this.sessionWarnDelayedMsgCount)
+                .append(",\"linkMaxAllowedDelayedMsgCount\":").append(this.linkMaxAllowedDelayedMsgCount)
+                .append(",\"sessionMaxAllowedDelayedMsgCount\":").append(this.sessionMaxAllowedDelayedMsgCount)
+                .append(",\"unAvailableFbdDurationMs\":").append(this.unAvailableFbdDurationMs)
+                .append(",\"enableUserAuthentic\":").append(this.enableUserAuthentic)
+                .append(",").append(this.statsConfig.toString())
+                .append(",\"usrName\":\"").append(this.usrName)
+                .append("\",\"usrPassWord\":\"").append(this.usrPassWord)
+                .append("\",\"localAddress\":\"").append(localAddress)
+                .append("\",").append(this.tlsConfig.toString())
+                .append("}").toString();
     }
 }

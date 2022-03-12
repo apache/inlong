@@ -23,6 +23,7 @@ import java.util.Set;
 /**
  * Entity status enum
  */
+@Deprecated
 public enum EntityStatus {
 
     UN_DELETED(0, "not deleted"),
@@ -35,30 +36,36 @@ public enum EntityStatus {
     CANCELED(30, "canceled"),
     DELETED(40, "deleted"),
 
-    // Business related status
-    BIZ_WAIT_SUBMIT(100, "waiting for submit"),
-    BIZ_WAIT_APPROVAL(101, "waiting for approval"),
-    BIZ_APPROVE_REJECTED(102, "approval rejected"),
-    BIZ_APPROVE_PASSED(103, "approval passed"),
-    BIZ_CONFIG_ING(110, "in configure"),
-    BIZ_CONFIG_FAILED(120, "configuration failed"),
-    BIZ_CONFIG_SUCCESSFUL(130, "configuration successful"),
-    BIZ_SUSPEND(140, "suspend"),
-    BIZ_RESTART(150, "restart"),
+    // Inlong group related status
+    GROUP_WAIT_SUBMIT(100, "waiting for submit"),
+    GROUP_WAIT_APPROVAL(101, "waiting for approval"),
+    GROUP_APPROVE_REJECTED(102, "approval rejected"),
+    GROUP_APPROVE_PASSED(103, "approval passed"),
+    GROUP_CONFIG_ING(110, "in configure"),
+    GROUP_CONFIG_FAILED(120, "configuration failed"),
+    GROUP_CONFIG_SUCCESSFUL(130, "configuration successful"),
+    GROUP_SUSPEND(140, "suspend"),
+    GROUP_RESTART(150, "restart"),
 
-    // Data stream related status
-    DATA_STREAM_NEW(100, "new"),
-    DATA_STREAM_CONFIG_ING(110, "in configure"),
-    DATA_STREAM_CONFIG_FAILED(120, "configuration failed"),
-    DATA_STREAM_CONFIG_SUCCESSFUL(130, "configuration successful"),
+    // Inlong stream related status
+    STREAM_NEW(100, "new"),
+    STREAM_CONFIG_ING(110, "in configure"),
+    STREAM_CONFIG_FAILED(120, "configuration failed"),
+    STREAM_CONFIG_SUCCESSFUL(130, "configuration successful"),
 
-    // Data storage related status
-    DATA_STORAGE_NEW(100, "new"),
-    DATA_STORAGE_CONFIG_ING(110, "in configure"),
-    DATA_STORAGE_CONFIG_FAILED(120, "configuration failed"),
-    DATA_STORAGE_CONFIG_SUCCESSFUL(130, "configuration successful"),
+    // Stream source related status
+    SOURCE_NEW(100, "new"),
+    SOURCE_CONFIG_ING(110, "in configure"),
+    SOURCE_CONFIG_FAILED(120, "configuration failed"),
+    SOURCE_CONFIG_SUCCESSFUL(130, "configuration successful"),
 
-    // Data source (or Agent) related status
+    // Stream sink related status
+    SINK_NEW(100, "new"),
+    SINK_CONFIG_ING(110, "in configure"),
+    SINK_CONFIG_FAILED(120, "configuration failed"),
+    SINK_CONFIG_SUCCESSFUL(130, "configuration successful"),
+
+    // Stream source (or Agent) related status
     AGENT_DISABLE(99, "disable"),
     AGENT_NORMAL(101, "normal"),
     AGENT_FREEZE(102, "stopped"),
@@ -66,59 +73,51 @@ public enum EntityStatus {
 
     // ADD(0), DEL(1), RETRY(2), BACKTRACK(3), FROZEN(4), ACTIVE(5), CHECK(6), REDOMETRIC(7), MAKEUP(8);
     AGENT_ADD(200, "wait add"),
-    AGENT_DELETE(201, "wait delete"),
-
-    ;
+    AGENT_DELETE(201, "wait delete");
 
     /**
-     * The status of the business that can initiate the approval process:
-     * <p/>[BIZ_WAIT_SUBMIT] [BIZ_APPROVE_REJECTED] [BIZ_CONFIG_FAILED] [BIZ_CONFIG_SUCCESSFUL]
+     * The status of the inlong group that can initiate the approval process:
+     * <p/>[GROUP_WAIT_SUBMIT] [GROUP_APPROVE_REJECTED] [GROUP_CONFIG_FAILED] [GROUP_CONFIG_SUCCESSFUL]
      */
     public static final Set<Integer> ALLOW_START_WORKFLOW_STATUS = ImmutableSet.of(
-            BIZ_WAIT_SUBMIT.getCode(), BIZ_APPROVE_REJECTED.getCode(), BIZ_CONFIG_FAILED.getCode(),
-            BIZ_CONFIG_SUCCESSFUL.getCode());
+            GROUP_WAIT_SUBMIT.getCode(), GROUP_APPROVE_REJECTED.getCode(), GROUP_CONFIG_FAILED.getCode(),
+            GROUP_CONFIG_SUCCESSFUL.getCode());
 
     /**
-     * The status of the business that can be modified:
-     * <p/>[DRAFT] [BIZ_WAIT_SUBMIT] [BIZ_APPROVE_REJECTED] [BIZ_CONFIG_FAILED]
-     * [BIZ_CONFIG_SUCCESSFUL] [BIZ_RESTART] [BIZ_SUSPEND] [BIZ_APPROVE_PASSED]
+     * The status of the inlong group that can be modified:
+     * <p/>[DRAFT] [GROUP_WAIT_SUBMIT] [GROUP_APPROVE_REJECTED] [GROUP_CONFIG_FAILED]
+     * [GROUP_CONFIG_SUCCESSFUL] [GROUP_RESTART] [GROUP_SUSPEND] [GROUP_APPROVE_PASSED]
      *
-     * <p/>[BIZ_CONFIG_ING] status cannot be modified
+     * <p/>[GROUP_CONFIG_ING] status cannot be modified
      */
-    public static final Set<Integer> ALLOW_UPDATE_BIZ_STATUS = ImmutableSet.of(
-            DRAFT.getCode(), BIZ_WAIT_SUBMIT.getCode(), BIZ_APPROVE_REJECTED.getCode(),
-            BIZ_CONFIG_FAILED.getCode(), BIZ_CONFIG_SUCCESSFUL.getCode(),
-            BIZ_RESTART.getCode(), BIZ_SUSPEND.getCode(), BIZ_APPROVE_PASSED.getCode());
+    public static final Set<Integer> ALLOW_UPDATE_GROUP_STATUS = ImmutableSet.of(
+            DRAFT.getCode(), GROUP_WAIT_SUBMIT.getCode(), GROUP_APPROVE_REJECTED.getCode(),
+            GROUP_CONFIG_FAILED.getCode(), GROUP_CONFIG_SUCCESSFUL.getCode(),
+            GROUP_RESTART.getCode(), GROUP_SUSPEND.getCode(), GROUP_APPROVE_PASSED.getCode());
 
     /**
      * The status of the service that can be deleted - all status
-     * <p/>[DRAFT] [BIZ_WAIT_SUBMIT] [BIZ_APPROVE_REJECTED] [BIZ_CONFIG_ING] [BIZ_CONFIG_FAILED]
-     * [BIZ_CONFIG_SUCCESSFUL] [BIZ_RESTART] [BIZ_SUSPEND] [BIZ_APPROVE_PASSED]
+     * <p/>[DRAFT] [GROUP_WAIT_SUBMIT] [GROUP_APPROVE_REJECTED] [GROUP_CONFIG_ING] [GROUP_CONFIG_FAILED]
+     * [GROUP_CONFIG_SUCCESSFUL] [GROUP_RESTART] [GROUP_SUSPEND] [GROUP_APPROVE_PASSED]
      *
-     * <p/>[BIZ_WAIT_APPROVAL] [BIZ_APPROVE_PASSED] status cannot be deleted
+     * <p/>[GROUP_WAIT_APPROVAL] [GROUP_APPROVE_PASSED] status cannot be deleted
      */
-    public static final Set<Integer> ALLOW_DELETE_BIZ_STATUS = ImmutableSet.of(
-            DRAFT.getCode(), BIZ_WAIT_SUBMIT.getCode(), BIZ_APPROVE_REJECTED.getCode(),
-            BIZ_CONFIG_ING.getCode(), BIZ_CONFIG_FAILED.getCode(), BIZ_CONFIG_SUCCESSFUL.getCode(),
-            BIZ_RESTART.getCode(), BIZ_SUSPEND.getCode(), BIZ_APPROVE_PASSED.getCode());
+    public static final Set<Integer> ALLOW_DELETE_GROUP_STATUS = ImmutableSet.of(
+            DRAFT.getCode(), GROUP_WAIT_SUBMIT.getCode(), GROUP_APPROVE_REJECTED.getCode(),
+            GROUP_CONFIG_ING.getCode(), GROUP_CONFIG_FAILED.getCode(), GROUP_CONFIG_SUCCESSFUL.getCode(),
+            GROUP_RESTART.getCode(), GROUP_SUSPEND.getCode(), GROUP_APPROVE_PASSED.getCode());
 
     /**
-     * The business can cascade to delete the status of the associated data:
+     * The inlong group can cascade to delete the status of the associated data:
      */
-    public static final Set<Integer> ALLOW_DELETE_BIZ_CASCADE_STATUS = ImmutableSet.of(
-            DRAFT.getCode(), BIZ_WAIT_SUBMIT.getCode());
+    public static final Set<Integer> ALLOW_DELETE_GROUP_CASCADE_STATUS = ImmutableSet.of(
+            DRAFT.getCode(), GROUP_WAIT_SUBMIT.getCode());
 
     /**
-     * Status of business approval
+     * Temporary inlong group status, adding, deleting and modifying operations are not allowed
      */
-    public static final Set<Integer> BIZ_APPROVE_PASS_STATUS = ImmutableSet.of(
-            BIZ_CONFIG_FAILED.getCode(), BIZ_CONFIG_SUCCESSFUL.getCode());
-
-    /**
-     * Temporary business status, adding, deleting and modifying operations are not allowed
-     */
-    public static final ImmutableSet<Integer> BIZ_TEMP_STATUS = ImmutableSet.of(
-            BIZ_WAIT_APPROVAL.getCode(), BIZ_CONFIG_ING.getCode());
+    public static final ImmutableSet<Integer> GROUP_TEMP_STATUS = ImmutableSet.of(
+            GROUP_WAIT_APPROVAL.getCode(), GROUP_CONFIG_ING.getCode());
 
     private final Integer code;
     private final String description;

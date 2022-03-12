@@ -28,7 +28,7 @@ public class FileAgentCMDConfig {
     @ApiModelProperty(value = "Operation id")
     private int id;
 
-    @ApiModelProperty(value = "Task id")
+    @ApiModelProperty(value = "WorkflowTask id")
     private int taskId;
 
     @ApiModelProperty(value = "Operation")

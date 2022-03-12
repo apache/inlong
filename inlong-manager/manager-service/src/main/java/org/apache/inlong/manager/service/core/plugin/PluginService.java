@@ -17,51 +17,69 @@
 
 package org.apache.inlong.manager.service.core.plugin;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.inlong.manager.common.plugin.Plugin;
-import org.apache.inlong.manager.common.plugin.PluginBinder;
-import org.apache.inlong.manager.common.plugin.PluginDefinition;
+import org.apache.inlong.manager.workflow.plugin.Plugin;
+import org.apache.inlong.manager.workflow.plugin.PluginBinder;
+import org.apache.inlong.manager.workflow.plugin.PluginDefinition;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * PluginService is designed to load all plugin from ${BASE_PATH}/plugins
+ * this service must be initialized after all other beans.
+ */
 @Service
 @Slf4j
-public class PluginService {
+@Order(Ordered.LOWEST_PRECEDENCE)
+public class PluginService implements InitializingBean {
 
-    public static final String DEFAULT_PLUGIN_LOC = "/plugins";
+
+    public static final String DEFAULT_PLUGIN_LOC = "plugins";
+
+    @Getter
+    private final List<Plugin> plugins = new ArrayList<>();
 
     @Setter
     @Getter
-    @Value("${plugin.location?:''}")
+    @Value("${plugin.location?:}")
     private String pluginLoc;
 
     @Getter
     @Autowired
     private List<PluginBinder> pluginBinders;
 
-    @Getter
-    private final List<Plugin> plugins = new ArrayList<>();
-
     public PluginService() {
-        if (StringUtils.isBlank(pluginLoc)) {
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if (StringUtils.isEmpty(pluginLoc)) {
             pluginLoc = DEFAULT_PLUGIN_LOC;
         }
+        log.info("pluginLoc:{}", pluginLoc);
         pluginReload();
     }
 
+    /**
+     * Reload the plugin from the plugin path
+     */
     public void pluginReload() {
         Path path = Paths.get(pluginLoc).toAbsolutePath();
-        log.info("search for plugin in {}", pluginLoc);
+        log.info("search for plugin in {}", path);
         if (!path.toFile().exists()) {
             log.warn("plugin directory not found");
             return;
@@ -87,8 +105,11 @@ public class PluginService {
         this.plugins.addAll(plugins);
         for (PluginBinder pluginBinder : pluginBinders) {
             for (Plugin plugin : plugins) {
+                log.info(String.format("PluginBinder:%s load Plugin:%s",
+                        pluginBinder.getClass().getSimpleName(), plugin.getClass().getSimpleName()));
                 pluginBinder.acceptPlugin(plugin);
             }
         }
     }
+
 }

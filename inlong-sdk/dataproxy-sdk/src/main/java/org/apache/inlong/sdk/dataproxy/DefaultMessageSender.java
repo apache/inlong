@@ -21,6 +21,7 @@ package org.apache.inlong.sdk.dataproxy;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -34,12 +35,13 @@ import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.apache.inlong.sdk.dataproxy.threads.IndexCollectThread;
 import org.apache.inlong.sdk.dataproxy.threads.ManagerFetcherThread;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
-import org.jboss.netty.channel.ChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DefaultMessageSender implements MessageSender {
     private static final Logger logger = LoggerFactory.getLogger(DefaultMessageSender.class);
+    private static final long DEFAULT_SEND_TIMEOUT = 100;
+    private static final TimeUnit DEFAULT_SEND_TIMEUNIT = TimeUnit.MILLISECONDS;
     private final Sender sender;
     private final SequentialID idGenerator;
     private String groupId;
@@ -121,7 +123,7 @@ public class DefaultMessageSender implements MessageSender {
         this(configure, null);
     }
 
-    public DefaultMessageSender(ProxyClientConfig configure, ChannelFactory selfDefineFactory) throws Exception {
+    public DefaultMessageSender(ProxyClientConfig configure, ThreadFactory selfDefineFactory) throws Exception {
         ProxyUtils.validClientConfig(configure);
         sender = new Sender(configure, selfDefineFactory);
         idGenerator = new SequentialID(Utils.getLocalIp());
@@ -158,7 +160,7 @@ public class DefaultMessageSender implements MessageSender {
      * @return - sender
      */
     public static DefaultMessageSender generateSenderByClusterId(ProxyClientConfig configure,
-                                                                 ChannelFactory selfDefineFactory) throws Exception {
+            ThreadFactory selfDefineFactory) throws Exception {
         ProxyConfigManager proxyConfigManager = new ProxyConfigManager(configure,
                 Utils.getLocalIp(), null);
         proxyConfigManager.setGroupId(configure.getGroupId());
@@ -454,6 +456,38 @@ public class DefaultMessageSender implements MessageSender {
             }
         }
 
+    }
+
+    /**
+     * asyncSendMessage
+     * 
+     * @param  inlongGroupId
+     * @param  inlongStreamId
+     * @param  body
+     * @param  callback
+     * @throws ProxysdkException
+     */
+    @Override
+    public void asyncSendMessage(String inlongGroupId, String inlongStreamId, byte[] body,
+            SendMessageCallback callback) throws ProxysdkException {
+        this.asyncSendMessage(callback, body, inlongGroupId, inlongStreamId, System.currentTimeMillis(),
+                idGenerator.getNextId(), DEFAULT_SEND_TIMEOUT, DEFAULT_SEND_TIMEUNIT);
+    }
+
+    /**
+     * asyncSendMessage
+     * 
+     * @param  inlongGroupId
+     * @param  inlongStreamId
+     * @param  bodyList
+     * @param  callback
+     * @throws ProxysdkException
+     */
+    @Override
+    public void asyncSendMessage(String inlongGroupId, String inlongStreamId, List<byte[]> bodyList,
+            SendMessageCallback callback) throws ProxysdkException {
+        this.asyncSendMessage(callback, bodyList, inlongGroupId, inlongStreamId, System.currentTimeMillis(),
+                idGenerator.getNextId(), DEFAULT_SEND_TIMEOUT, DEFAULT_SEND_TIMEUNIT);
     }
 
     private void addIndexCnt(String groupId, String streamId, long cnt) {

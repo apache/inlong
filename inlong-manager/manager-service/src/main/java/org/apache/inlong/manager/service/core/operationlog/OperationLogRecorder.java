@@ -25,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.pojo.user.UserDetail;
 import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.NetworkUtils;
 import org.apache.inlong.manager.dao.entity.OperationLogEntity;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -52,7 +52,7 @@ public class OperationLogRecorder {
 
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
 
-        UserDetail userDetail = Optional.ofNullable(LoginUserUtil.getLoginUserDetail())
+        UserDetail userDetail = Optional.ofNullable(LoginUserUtils.getLoginUserDetail())
                 .orElseGet(UserDetail::new);
         String operator = userDetail.getUserName();
         operator = StringUtils.isBlank(operator) ? ANONYMOUS_USER : operator;

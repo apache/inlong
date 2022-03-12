@@ -17,12 +17,16 @@
  * under the License.
  */
 
+import { getColsFromFields } from '@/utils/metaData';
 import { ColumnsType } from 'antd/es/table';
 import rulesPattern from '@/utils/pattern';
 import i18n from '@/i18n';
 
-export const getCreateFormContent = () => {
-  const array = [
+export const getDataSourcesFileFields = (
+  type: 'form' | 'col' = 'form',
+  { currentValues } = {} as any,
+) => {
+  const fileds = [
     {
       type: 'input',
       label: i18n.t('components.AccessHelper.DataSourceMetaData.File.DataSourceIP'),
@@ -34,6 +38,9 @@ export const getCreateFormContent = () => {
           message: i18n.t('components.AccessHelper.DataSourceMetaData.File.IpRule'),
         },
       ],
+      _inTable: {
+        width: 120,
+      },
     },
     {
       type: 'inputnumber',
@@ -44,6 +51,9 @@ export const getCreateFormContent = () => {
         max: 65535,
       },
       rules: [{ required: true }],
+      _inTable: {
+        width: 90,
+      },
     },
     {
       type: 'input',
@@ -51,25 +61,11 @@ export const getCreateFormContent = () => {
       name: 'filePath',
       rules: [{ required: true }],
       suffix: i18n.t('components.AccessHelper.DataSourceMetaData.File.FillInTheAbsolutePath'),
+      _inTable: true,
     },
   ];
 
-  return array;
+  return type === 'col' ? getColsFromFields(fileds) : fileds;
 };
 
-export const tableColumns: ColumnsType = [
-  {
-    title: i18n.t('components.AccessHelper.DataSourceMetaData.File.DataSourceIP'),
-    dataIndex: 'ip',
-    width: 150,
-  },
-  {
-    title: i18n.t('components.AccessHelper.DataSourceMetaData.File.Port'),
-    dataIndex: 'port',
-    width: 120,
-  },
-  {
-    title: i18n.t('components.AccessHelper.DataSourceMetaData.File.FilePath'),
-    dataIndex: 'filePath',
-  },
-];
+export const dataSourcesFileColumns = getDataSourcesFileFields('col') as ColumnsType;

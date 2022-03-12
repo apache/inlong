@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.plugin;
 
-import static org.apache.inlong.agent.constants.AgentConstants.AGENT_FETCH_CENTER_INTERVAL_SECONDS;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_FETCH_CENTER_INTERVAL_SECONDS;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.inlong.agent.conf.AgentConfiguration;

@@ -39,9 +39,9 @@ const getFilterFormContent = defaultValues => [
   },
   {
     type: 'select',
-    name: 'storageType',
+    name: 'sinkType',
     label: i18n.t('pages.AccessDetail.DataStorage.Type'),
-    initialValue: defaultValues.storageType,
+    initialValue: defaultValues.sinkType,
     props: {
       dropdownMatchSelectWidth: false,
       options: [
@@ -63,7 +63,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     keyWord: '',
     pageSize: defaultSize,
     pageNum: 1,
-    storageType: 'HIVE',
+    sinkType: 'HIVE',
   });
 
   const [changedValues, setChangedValues] = useState({}) as any;
@@ -74,7 +74,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
 
   const { data, loading, run: getList } = useRequest(
     {
-      url: '/storage/list',
+      url: '/sink/list',
       params: {
         ...options,
         inlongGroupId,
@@ -85,14 +85,14 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     },
   );
 
-  const { data: datastreamList = [] } = useRequest(
+  const { data: streamList = [] } = useRequest(
     {
-      url: '/datastream/list',
+      url: '/stream/list',
       params: {
         pageNum: 1,
         pageSize: 1000,
         inlongGroupId,
-        storageType: options.storageType,
+        sinkType: options.sinkType,
       },
     },
     {
@@ -105,14 +105,14 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     const isUpdate = createModal.id;
     const submitData = {
       ...values,
-      storageType: options.storageType,
+      sinkType: options.sinkType,
       inlongGroupId: inlongGroupId,
     };
     if (isUpdate) {
       submitData.id = createModal.id;
     }
     await request({
-      url: isUpdate ? '/storage/update' : '/storage/save',
+      url: isUpdate ? '/sink/update' : '/sink/save',
       method: 'POST',
       data: submitData,
     });
@@ -129,10 +129,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       title: i18n.t('basic.DeleteConfirm'),
       onOk: async () => {
         await request({
-          url: `/storage/delete/${id}`,
+          url: `/sink/delete/${id}`,
           method: 'DELETE',
           params: {
-            storageType: options.storageType,
+            sinkType: options.sinkType,
           },
         });
         await getList();
@@ -177,7 +177,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         props: {
           notFoundContent: i18n.t('pages.AccessDetail.DataStorage.NoDataStreams'),
           disabled: !!createModal.id,
-          options: datastreamList.map(item => ({
+          options: streamList.map(item => ({
             label: item.inlongStreamId,
             value: item.inlongStreamId,
           })),
@@ -185,12 +185,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         rules: [{ required: true }],
       },
     ],
-    [createModal.id, datastreamList],
+    [createModal.id, streamList],
   );
 
-  const datastreamItem = datastreamList.find(
-    item => item.inlongStreamId === changedValues.inlongStreamId,
-  );
+  const streamItem = streamList.find(item => item.inlongStreamId === changedValues.inlongStreamId);
 
   const columns = [
     {
@@ -198,7 +196,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       dataIndex: 'inlongStreamId',
     },
   ]
-    .concat(columnsMap[options.storageType])
+    .concat(columnsMap[options.sinkType])
     .concat([
       {
         title: i18n.t('basic.Status'),
@@ -247,9 +245,9 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         {...createModal}
         inlongGroupId={inlongGroupId}
         content={createContent}
-        storageType={options.storageType as any}
+        sinkType={options.sinkType as any}
         visible={createModal.visible as boolean}
-        dataType={datastreamItem?.dataType}
+        dataType={streamItem?.dataType}
         onValuesChange={(c, v) => setChangedValues(v)}
         onOk={async values => {
           await onSave(values);

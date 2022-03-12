@@ -30,9 +30,9 @@ fi
 
 DOCKER_ORG="${DOCKER_ORG:-inlong}"
 
-docker login ${DOCKER_REGISTRY} -u="$DOCKER_USER" -p="$DOCKER_PASSWORD"
+echo $DOCKER_PASSWORD | docker login ${DOCKER_REGISTRY} -u="$DOCKER_USER" --password-stdin
 if [ $? -ne 0 ]; then
-    echo "Failed to loging to Docker Hub"
+    echo "Failed to login to ${DOCKER_REGISTRY}"
     exit 1
 fi
 
@@ -60,6 +60,7 @@ docker tag inlong/tubemq-all:latest      ${docker_registry_org}/tubemq-all:lates
 docker tag inlong/tubemq-build:latest    ${docker_registry_org}/tubemq-build:latest
 docker tag inlong/dashboard:latest         ${docker_registry_org}/dashboard:latest
 docker tag inlong/tubemq-cpp:latest      ${docker_registry_org}/tubemq-cpp:latest
+docker tag inlong/audit:latest      ${docker_registry_org}/audit:latest
 
 docker tag inlong/manager:$MVN_VERSION     ${docker_registry_org}/manager:$MVN_VERSION
 docker tag inlong/agent:$MVN_VERSION           ${docker_registry_org}/agent:$MVN_VERSION
@@ -69,6 +70,7 @@ docker tag inlong/tubemq-all:$MVN_VERSION      ${docker_registry_org}/tubemq-all
 docker tag inlong/tubemq-build:$MVN_VERSION    ${docker_registry_org}/tubemq-build:$MVN_VERSION
 docker tag inlong/dashboard:$MVN_VERSION         ${docker_registry_org}/dashboard:$MVN_VERSION
 docker tag inlong/tubemq-cpp:$MVN_VERSION      ${docker_registry_org}/tubemq-cpp:$MVN_VERSION
+docker tag inlong/audit:$MVN_VERSION      ${docker_registry_org}/audit:$MVN_VERSION
 
 # Push all images and tags
 docker push inlong/manager:latest
@@ -79,6 +81,7 @@ docker push inlong/tubemq-all:latest
 docker push inlong/tubemq-build:latest
 docker push inlong/dashboard:latest
 docker push inlong/tubemq-cpp:latest
+docker push inlong/audit:latest
 
 docker push inlong/manager:$MVN_VERSION
 docker push inlong/agent:$MVN_VERSION
@@ -88,5 +91,6 @@ docker push inlong/tubemq-all:$MVN_VERSION
 docker push inlong/tubemq-build:$MVN_VERSION
 docker push inlong/dashboard:$MVN_VERSION
 docker push inlong/tubemq-cpp:$MVN_VERSION
+docker push inlong/audit:$MVN_VERSION
 
 echo "Finished pushing images to ${docker_registry_org}"

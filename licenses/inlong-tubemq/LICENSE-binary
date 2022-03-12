@@ -272,7 +272,6 @@ MIT License
 -----------
  * SLF4J -- licenses-binary/LICENSE-slf4j.txt
    - org.slf4j:slf4j-api:slf4j-api-1.7.30.jar
-   - org.slf4j:slf4j-log4j12:slf4j-log4j12-1.7.30.jar
 
 
 BSD License

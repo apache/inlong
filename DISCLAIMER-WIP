@@ -17,10 +17,6 @@ you will need to conduct a thorough licensing review to determine the overall im
 including this work. For the current status of this project through the Apache Incubator
 visit: https://incubator.apache.org/projects/inlong.html
 
-1. mysql:mysql-connector-java    LICENSE: CATEGORY X
-   In inlong-manager and inlong-tubemq/tubemq-manager, We use this component and it is a mandatory path dependency.
-   we will remove it in subsequent versions or make it an optional path dependency
-
-2. berkeleydb-je:berkeleydb-je   LICENSE: CATEGORY X
+1. berkeleydb-je:berkeleydb-je   LICENSE: CATEGORY X
    In inlong-tubemq, we use this component and it is a mandatory path dependency.
    We will remove or make it an optional dependency in subsequent versions.

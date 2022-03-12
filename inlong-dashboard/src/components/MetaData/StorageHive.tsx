@@ -54,7 +54,7 @@ const hiveFieldTypes = [
 
 export const hiveTableColumns = [
   {
-    title: i18n.t('components.AccessHelper.StorageMetaData.Hive.Db'),
+    title: i18n.t('components.AccessHelper.StorageMetaData.Hive.TargetDb'),
     dataIndex: 'dbName',
   },
   {
@@ -120,7 +120,7 @@ export const getHiveForm: GetStorageFormFieldsType = (
   const fileds = [
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.Db'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.TargetDb'),
       name: 'dbName',
       rules: [{ required: true }],
       props: {
@@ -182,7 +182,7 @@ export const getHiveForm: GetStorageFormFieldsType = (
           onClick={async () => {
             const values = await form.validateFields(['username', 'password', 'jdbcUrl']);
             const res = await request({
-              url: '/storage/query/testConnection',
+              url: '/sink/query/testConnection',
               method: 'POST',
               data: values,
             });
@@ -219,6 +219,126 @@ export const getHiveForm: GetStorageFormFieldsType = (
       },
     },
     {
+      name: 'fileFormat',
+      type: 'radio',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.FileFormat'),
+      initialValue: 'TextFile',
+      rules: [{ required: true }],
+      props: {
+        options: [
+          {
+            label: 'TextFile',
+            value: 'TextFile',
+          },
+          {
+            label: 'SequenceFile',
+            value: 'SequenceFile',
+          },
+          // {
+          //   label: 'RcFile',
+          //   value: 'RcFile',
+          // },
+          {
+            label: 'OrcFile',
+            value: 'OrcFile',
+          },
+          {
+            label: 'Parquet',
+            value: 'Parquet',
+          },
+          {
+            label: 'Avro',
+            value: 'Avro',
+          },
+        ],
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+      },
+    },
+    {
+      name: 'storagePeriod',
+      type: 'inputnumber',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.StoragePeriod'),
+      tooltip: 'Optional range: -1 ~ 3600, -1 means permanent storage',
+      rules: [{ required: true }],
+      suffix: i18n.t('components.AccessHelper.StorageMetaData.Hive.Day'),
+      props: {
+        min: -1,
+        max: 3600,
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+      },
+    },
+    {
+      name: 'dataEncoding',
+      type: 'radio',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.DataEncoding'),
+      initialValue: 'UTF-8',
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+        options: [
+          {
+            label: 'UTF-8',
+            value: 'UTF-8',
+          },
+          {
+            label: 'GBK',
+            value: 'GBK',
+          },
+        ],
+      },
+      rules: [{ required: true }],
+    },
+    {
+      name: 'dataSeparator',
+      type: 'select',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.DataSeparator'),
+      initialValue: '124',
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+        dropdownMatchSelectWidth: false,
+        options: [
+          {
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.VerticalLine'),
+            value: '124',
+          },
+          {
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Comma'),
+            value: '44',
+          },
+          {
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DoubleQuotes'),
+            value: '34',
+          },
+          {
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Asterisk'),
+            value: '42',
+          },
+          {
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Space'),
+            value: '32',
+          },
+          {
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Semicolon'),
+            value: '59',
+          },
+        ],
+        useInput: true,
+        useInputProps: {
+          placeholder: 'ASCII',
+          disabled: isEdit && [110, 130].includes(currentValues?.status),
+        },
+        style: { width: 100 },
+      },
+      rules: [
+        {
+          required: true,
+          type: 'number',
+          transform: val => +val,
+          min: 0,
+          max: 127,
+        } as any,
+      ],
+    },
+    {
       type: (
         <EditableTable
           size="small"
@@ -226,7 +346,7 @@ export const getHiveForm: GetStorageFormFieldsType = (
           canDelete={(record, idx, isNew) => !isEdit || isNew}
         />
       ),
-      name: 'hiveFieldList',
+      name: 'fieldList',
     },
   ];
 

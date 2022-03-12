@@ -18,27 +18,29 @@
 package org.apache.inlong.manager.service.core.plugin;
 
 import com.google.common.collect.Lists;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.plugin.Plugin;
-import org.apache.inlong.manager.common.plugin.PluginDefinition;
-import org.apache.inlong.manager.common.plugin.ProcessPlugin;
+import org.apache.inlong.manager.workflow.plugin.Plugin;
+import org.apache.inlong.manager.workflow.plugin.PluginDefinition;
+import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 public class PluginClassLoaderTest {
 
     @Test
     public void testLoadPlugin() {
+
         String path = this.getClass().getClassLoader().getResource("").getPath();
         PluginClassLoader pluginClassLoader = PluginClassLoader.getFromPluginUrl(path + "plugins",
                 Thread.currentThread()
                         .getContextClassLoader());
         Map<String, PluginDefinition> pluginDefinitionMap = pluginClassLoader.getPluginDefinitions();
-        Assert.assertTrue(pluginDefinitionMap.size() == 1);
+        Assert.assertEquals(1, pluginDefinitionMap.size());
         PluginDefinition pluginDefinition = Lists.newArrayList(pluginDefinitionMap.values()).get(0);
-        Assert.assertTrue(pluginDefinition != null);
+        Assert.assertNotNull(pluginDefinition);
         String pluginClass = pluginDefinition.getPluginClass();
         Assert.assertTrue(StringUtils.isNotEmpty(pluginClass));
         try {

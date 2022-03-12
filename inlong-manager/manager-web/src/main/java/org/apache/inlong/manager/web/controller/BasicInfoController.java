@@ -19,17 +19,15 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import java.util.List;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.business.DataSchemaInfo;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.service.core.ClusterInfoService;
+import org.apache.inlong.manager.common.pojo.group.DataSchemaInfo;
 import org.apache.inlong.manager.service.core.DataSchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Control layer for basic information query
@@ -41,18 +39,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class BasicInfoController {
 
     @Autowired
-    private ClusterInfoService clusterInfoService;
-    @Autowired
     private DataSchemaService schemaService;
 
-    @RequestMapping(value = "/cluster/list", method = RequestMethod.GET)
-    @ApiOperation(value = "Query the cluster list based on conditions")
-    public Response<List<ClusterInfo>> list(ClusterRequest request) {
-        return Response.success(clusterInfoService.list(request));
-    }
-
     @ApiOperation(value = "Query data format list")
-    @RequestMapping(value = "/schema/listAll", method = RequestMethod.GET)
+    @GetMapping(value = "/schema/listAll")
     public Response<List<DataSchemaInfo>> dataSchemaList() {
         return Response.success(schemaService.listAllDataSchema());
     }

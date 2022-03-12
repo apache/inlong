@@ -18,10 +18,10 @@
 package org.apache.inlong.dataproxy.http;
 
 import com.google.common.base.Preconditions;
-import org.apache.inlong.commons.monitor.CounterGroup;
-import org.apache.inlong.commons.monitor.CounterGroupExt;
-import org.apache.inlong.commons.monitor.StatConstants;
-import org.apache.inlong.commons.monitor.StatRunner;
+import org.apache.inlong.common.monitor.CounterGroup;
+import org.apache.inlong.common.monitor.CounterGroupExt;
+import org.apache.inlong.common.monitor.StatConstants;
+import org.apache.inlong.common.monitor.StatRunner;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.flume.ChannelSelector;

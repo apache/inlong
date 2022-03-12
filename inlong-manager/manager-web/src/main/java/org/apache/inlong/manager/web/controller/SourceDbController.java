@@ -24,11 +24,11 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.datasource.SourceDbBasicInfo;
-import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailInfo;
-import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailListVO;
-import org.apache.inlong.manager.common.pojo.datasource.SourceDbDetailPageRequest;
-import org.apache.inlong.manager.common.util.LoginUserUtil;
+import org.apache.inlong.manager.common.pojo.source.SourceDbBasicInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceDbDetailInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceDbDetailListVO;
+import org.apache.inlong.manager.common.pojo.source.SourceDbDetailPageRequest;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.SourceDbService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Control layer of DB type data source
  */
+@Deprecated
 @RestController
 @RequestMapping("/datasource/db")
 @Api(tags = "DataSource - DB")
@@ -54,7 +55,8 @@ public class SourceDbController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save the basic information of the DB data source")
     public Response<Integer> saveBasic(@RequestBody SourceDbBasicInfo basicInfo) {
-        return Response.success(dbSourceService.saveBasic(basicInfo, LoginUserUtil.getLoginUserDetail().getUserName()));
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(dbSourceService.saveBasic(basicInfo, operator));
     }
 
     @RequestMapping(value = "/getBasic", method = RequestMethod.GET)
@@ -72,8 +74,8 @@ public class SourceDbController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Modify the basic information of the DB data source")
     public Response<Boolean> updateBasic(@RequestBody SourceDbBasicInfo basicInfo) {
-        boolean result = dbSourceService.updateBasic(basicInfo, LoginUserUtil.getLoginUserDetail().getUserName());
-        return Response.success(result);
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(dbSourceService.updateBasic(basicInfo, operator));
     }
 
     @RequestMapping(value = "/deleteBasic/{id}", method = RequestMethod.DELETE)
@@ -81,15 +83,16 @@ public class SourceDbController {
     @ApiOperation(value = "Delete the basic information of the DB data source")
     @ApiImplicitParam(name = "id", value = "DB data source id", dataTypeClass = String.class, required = true)
     public Response<Boolean> deleteBasic(@PathVariable Integer id) {
-        return Response.success(dbSourceService.logicDeleteBasic(id, LoginUserUtil.getLoginUserDetail().getUserName()));
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(dbSourceService.logicDeleteBasic(id, operator));
     }
 
     @RequestMapping(value = "/saveDetail", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save DB data source details")
     public Response<Integer> saveDetail(@RequestBody SourceDbDetailInfo detailInfo) {
-        return Response
-                .success(dbSourceService.saveDetail(detailInfo, LoginUserUtil.getLoginUserDetail().getUserName()));
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(dbSourceService.saveDetail(detailInfo, operator));
     }
 
     @RequestMapping(value = "/getDetail/{id}", method = RequestMethod.GET)
@@ -109,8 +112,8 @@ public class SourceDbController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update DB data source details")
     public Response<Boolean> updateDetail(@RequestBody SourceDbDetailInfo detailInfo) {
-        boolean result = dbSourceService.updateDetail(detailInfo, LoginUserUtil.getLoginUserDetail().getUserName());
-        return Response.success(result);
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(dbSourceService.updateDetail(detailInfo, operator));
     }
 
     @RequestMapping(value = "/deleteDetail/{id}", method = RequestMethod.DELETE)
@@ -118,8 +121,8 @@ public class SourceDbController {
     @ApiOperation(value = "Delete DB data source details")
     @ApiImplicitParam(name = "id", value = "DB data source id", dataTypeClass = String.class, required = true)
     public Response<Boolean> deleteDetail(@PathVariable Integer id) {
-        return Response
-                .success(dbSourceService.logicDeleteDetail(id, LoginUserUtil.getLoginUserDetail().getUserName()));
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(dbSourceService.logicDeleteDetail(id, operator));
     }
 
 }

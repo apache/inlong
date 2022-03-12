@@ -112,7 +112,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, record, middlewareType, ...modal
       pickObject(['dbBasicInfo', 'fileBasicInfo', 'streamInfo'], item),
     );
     await request({
-      url: '/datastream/updateAll',
+      url: '/stream/updateAll',
       method: 'POST',
       data: submitData?.[0],
     });

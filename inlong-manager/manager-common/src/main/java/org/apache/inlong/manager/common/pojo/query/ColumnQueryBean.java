@@ -25,7 +25,7 @@ public class ColumnQueryBean {
 
     private String columnName;
     private String columnDesc;
-    private String businessDesc; // Business description
+    private String inlongGroupDesc; // Inlong group description
     private String columnNameOfCN;
     private String columnNameOfEN;
     private String oldColumnName;

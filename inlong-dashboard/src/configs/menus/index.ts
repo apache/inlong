@@ -39,6 +39,10 @@ const menus: MenuItemType[] = [
     name: i18n.t('configs.menus.ApprovalManagement'),
   },
   {
+    path: '/datasources',
+    name: i18n.t('configs.menus.Datasources'),
+  },
+  {
     path: '/user',
     name: i18n.t('configs.menus.SystemManagement'),
   },

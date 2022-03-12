@@ -318,11 +318,10 @@
         order by id desc
     </select>
 
-    <select id="countByStatus"
+    <select id="countByQuery"
             parameterType="org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery"
-            resultType="org.apache.inlong.manager.common.model.view.CountByKey">
-        select
-        status as `key`,count(1) as value
+            resultType="org.apache.inlong.manager.common.pojo.common.CountInfo">
+        select status as `key`, count(1) as value
         from consumption
         where is_deleted=0
         <if test="consumerGroupName != null and consumerGroupName != ''">

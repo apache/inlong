@@ -32,6 +32,7 @@ import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.DataConverterUtil;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
 import org.apache.inlong.tubemq.corebase.utils.ServiceStatusHolder;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
@@ -44,12 +45,15 @@ import org.apache.inlong.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerStatsType;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.broker.utils.GroupOffsetInfo;
 import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.TubeServerVersion;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
+import org.apache.inlong.tubemq.server.common.webbase.WebCallStatsHolder;
 
 /**
  * Broker's web servlet. Used for admin operation, like query consumer's status etc.
@@ -111,6 +115,21 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // get offset by consume timestamp
         innRegisterWebMethod("admin_get_group_history_offset",
                 "adminQueryGroupHistoryOffSet", false);
+        // get broker's metric information
+        innRegisterWebMethod("admin_get_metrics_info",
+                "adminGetMetricsInfo", false);
+        // get message store stats info
+        innRegisterWebMethod("admin_get_msgstore_stats",
+                "adminGetMsgStoreStatsInfo", false);
+        // Enable metrics statistics
+        innRegisterWebMethod("admin_enable_stats",
+                "adminEnableMetricsStats", false);
+        // Disable metrics statistics
+        innRegisterWebMethod("admin_disable_stats",
+                "adminDisableMetricsStats", false);
+        // Disable unnecessary statistics
+        innRegisterWebMethod("admin_disable_all_stats",
+                "adminDisableAllStats", false);
     }
 
     /**
@@ -301,67 +320,19 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         sBuilder.append("],\"totalCnt\":").append(recordId).append("}");
     }
 
-    /**
+    /***
      * Get memory store status info.
      *
      * @param req      request
-     * @param sBuffer  process result
+     * @param sBuilder  process result
      */
     public void adminGetMemStoreStatisInfo(HttpServletRequest req,
-                                           StringBuilder sBuffer) {
-        ProcessResult result = new ProcessResult();
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
-            return;
-        }
-        Set<String> topicNameSet = (Set<String>) result.getRetData();
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.NEEDREFRESH, false, false, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
-            return;
-        }
-        boolean requireRefresh = (boolean) result.getRetData();
-        sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"detail\":[");
-        Map<String, ConcurrentHashMap<Integer, MessageStore>> messageTopicStores =
-                broker.getStoreManager().getMessageStores();
-        int index = 0;
-        int recordId = 0;
-        for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry : messageTopicStores.entrySet()) {
-            if (TStringUtils.isBlank(entry.getKey())
-                    || (!topicNameSet.isEmpty() && !topicNameSet.contains(entry.getKey()))) {
-                continue;
-            }
-            String topicName = entry.getKey();
-            if (recordId++ > 0) {
-                sBuffer.append(",");
-            }
-            index = 0;
-            sBuffer.append("{\"topicName\":\"").append(topicName).append("\",\"storeStatsInfo\":[");
-            ConcurrentHashMap<Integer, MessageStore> partStoreMap = entry.getValue();
-            if (partStoreMap != null) {
-                for (Entry<Integer, MessageStore> subEntry : partStoreMap.entrySet()) {
-                    MessageStore msgStore = subEntry.getValue();
-                    if (msgStore == null) {
-                        continue;
-                    }
-                    if (index++ > 0) {
-                        sBuffer.append(",");
-                    }
-                    sBuffer.append("{\"storeId\":").append(subEntry.getKey())
-                            .append(",\"memStats\":");
-                    msgStore.getMemStoreStatsInfo(requireRefresh, sBuffer);
-                    sBuffer.append(",\"fileStats\":");
-                    msgStore.getCurFileStoreStatsInfo(requireRefresh, sBuffer);
-                    sBuffer.append("}");
-                }
-            }
-            sBuffer.append("]}");
-        }
-        sBuffer.append("],\"totalCount\":").append(recordId).append("}");
+                                           StringBuilder sBuilder) {
+        sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
+                .append("The method is deprecated, please use admin_get_msgstore_stats\"}");
     }
 
-    /**
+    /***
      * Manual set offset.
      *
      * @param req      request
@@ -1130,7 +1101,267 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         broker.getOffsetManager().deleteGroupOffset(
                 onlyMemory, groupTopicPartMap, modifier);
         // builder return result
-        sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
+        WebParameterUtils.buildSuccessResult(sBuffer);
+    }
+
+    /**
+     * Get broker's metric information, include service status statistic and web-api call
+     *
+     * @param req  HttpServletRequest
+     * @param sBuffer query result
+     */
+    public void adminGetMetricsInfo(HttpServletRequest req,
+                                    StringBuilder sBuffer) {
+        ProcessResult result = new ProcessResult();
+        // check and get whether to reset the metric items
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.NEEDREFRESH, false, false, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return;
+        }
+        final boolean needRefresh = (Boolean) result.getRetData();
+        // build return result
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        sBuffer.append("{\"probeTime\":\"")
+                .append(DateTimeConvertUtils.ms2yyyyMMddHHmmss(System.currentTimeMillis()))
+                .append("\",\"nodeName\":\"").append(broker.getTubeConfig().getHostName())
+                .append("\",\"nodeRole\":\"Broker\",\"metrics\":{\"serviceStatus\":");
+        if (needRefresh) {
+            BrokerSrvStatsHolder.snapShort(sBuffer);
+            sBuffer.append(",\"webAPI\":");
+            WebCallStatsHolder.snapShort(sBuffer);
+        } else {
+            BrokerSrvStatsHolder.getValue(sBuffer);
+            sBuffer.append(",\"webAPI\":");
+            WebCallStatsHolder.getValue(sBuffer);
+        }
+        sBuffer.append("},\"count\":2}");
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, 1);
+    }
+
+    /**
+     * Get message store statistics.
+     *
+     * @param req      request
+     * @param sBuffer  process result
+     */
+    public void adminGetMsgStoreStatsInfo(HttpServletRequest req,
+                                          StringBuilder sBuffer) {
+        ProcessResult result = new ProcessResult();
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return;
+        }
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.NEEDREFRESH, false, false, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return;
+        }
+        boolean needRefresh = (boolean) result.getRetData();
+        // query data
+        int index = 0;
+        int recordId = 0;
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        Map<String, ConcurrentHashMap<Integer, MessageStore>> messageTopicStores =
+                broker.getStoreManager().getMessageStores();
+        if (topicNameSet.isEmpty()) {
+            // get all the msg store statistical data
+            for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry
+                    : messageTopicStores.entrySet()) {
+                if (entry == null) {
+                    continue;
+                }
+                String topicName = entry.getKey();
+                if (recordId++ > 0) {
+                    sBuffer.append(",");
+                }
+                index = 0;
+                sBuffer.append("{\"topicName\":\"").append(topicName).append("\",\"details\":[");
+                ConcurrentHashMap<Integer, MessageStore> partStoreMap = entry.getValue();
+                if (partStoreMap != null) {
+                    for (Entry<Integer, MessageStore> subEntry : partStoreMap.entrySet()) {
+                        MessageStore msgStore = subEntry.getValue();
+                        if (msgStore == null) {
+                            continue;
+                        }
+                        if (index++ > 0) {
+                            sBuffer.append(",");
+                        }
+                        sBuffer.append("{\"storeId\":").append(subEntry.getKey())
+                                .append(",\"msgStore\":");
+                        msgStore.getMsgStoreStatsInfo(needRefresh, sBuffer);
+                        sBuffer.append("}");
+                    }
+                }
+                sBuffer.append("]}");
+            }
+        } else {
+            ConcurrentHashMap<Integer, MessageStore> msgStoreMap;
+            // extract statistical item based on the specified topic
+            for (String topicName : topicNameSet) {
+                if (recordId++ > 0) {
+                    sBuffer.append(",");
+                }
+                index = 0;
+                msgStoreMap = messageTopicStores.get(topicName);
+                sBuffer.append("{\"topicName\":\"").append(topicName).append("\",\"details\":[");
+                if (msgStoreMap != null) {
+                    for (Entry<Integer, MessageStore> subEntry : msgStoreMap.entrySet()) {
+                        MessageStore msgStore = subEntry.getValue();
+                        if (msgStore == null) {
+                            continue;
+                        }
+                        if (index++ > 0) {
+                            sBuffer.append(",");
+                        }
+                        sBuffer.append("{\"storeId\":").append(subEntry.getKey())
+                                .append(",\"msgStore\":");
+                        msgStore.getMsgStoreStatsInfo(needRefresh, sBuffer);
+                        sBuffer.append("}");
+                    }
+                }
+                sBuffer.append("]}");
+            }
+        }
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, recordId);
+    }
+
+    /**
+     * Enable broker's statistics functions.
+     *
+     * @param req      request
+     * @param sBuffer  process result
+     */
+    public void adminEnableMetricsStats(HttpServletRequest req,
+                                        StringBuilder sBuffer) {
+        ProcessResult result = new ProcessResult();
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.STATSTYPE, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return;
+        }
+        String statsType = (String) result.getRetData();
+        innEnableOrDisableMetricsStats(true, statsType, req, sBuffer);
+    }
+
+    /**
+     * Disable broker's statistics functions.
+     *
+     * @param req      request
+     * @param sBuffer  process result
+     */
+    public void adminDisableMetricsStats(HttpServletRequest req,
+                                         StringBuilder sBuffer) {
+        ProcessResult result = new ProcessResult();
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.STATSTYPE, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return;
+        }
+        String statsType = (String) result.getRetData();
+        innEnableOrDisableMetricsStats(true, statsType, req, sBuffer);
+    }
+
+    /**
+     * Disable broker's all statistics functions.
+     *
+     * @param req      request
+     * @param sBuffer  process result
+     */
+    public void adminDisableAllStats(HttpServletRequest req,
+                                     StringBuilder sBuffer) {
+        innEnableOrDisableMetricsStats(false,
+                BrokerStatsType.ALL.getName(), req, sBuffer);
+    }
+
+    /**
+     * Disable or Enable broker's statistics functions
+     *
+     * @param enable     whether enable or disable
+     * @param statsType  the statistics type to be operated on
+     * @param req        HttpServletRequest
+     * @param sBuffer    query result
+     */
+    private void innEnableOrDisableMetricsStats(boolean enable,
+                                                String statsType,
+                                                HttpServletRequest req,
+                                                StringBuilder sBuffer) {
+        ProcessResult result = new ProcessResult();
+        // get input metric type
+        BrokerStatsType inMetricType = null;
+        for (BrokerStatsType metricType : BrokerStatsType.values()) {
+            if (metricType.getName().equalsIgnoreCase(statsType)) {
+                inMetricType = metricType;
+                break;
+            }
+        }
+        if (inMetricType == null) {
+            sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":")
+                    .append("\"Unmatched stat type, allowed stat type are : [");
+            int count = 0;
+            for (BrokerStatsType metricType : BrokerStatsType.values()) {
+                if (count++ > 0) {
+                    sBuffer.append(",");
+                }
+                sBuffer.append(metricType.getDesc());
+            }
+            sBuffer.append("]\"}");
+            return;
+        }
+        // Operate separately according to the specified statistic type
+        if (inMetricType == BrokerStatsType.WEBAPI
+                || inMetricType == BrokerStatsType.ALL) {
+            WebCallStatsHolder.setStatsStatus(enable);
+        }
+        if (inMetricType == BrokerStatsType.SERVICESTATUS
+                || inMetricType == BrokerStatsType.ALL) {
+            BrokerSrvStatsHolder.setDiskSyncStatsStatus(enable);
+        }
+        if (inMetricType == BrokerStatsType.MSGSTORE
+                || inMetricType == BrokerStatsType.ALL) {
+            // Check if the specified topic is included
+            if (!WebParameterUtils.getStringParamValue(req,
+                    WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
+                WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+                return;
+            }
+            Set<String> topicNameSet = (Set<String>) result.getRetData();
+            // set topic's statistic status
+            Map<String, ConcurrentHashMap<Integer, MessageStore>> msgTopicStores =
+                    broker.getStoreManager().getMessageStores();
+            if (topicNameSet.isEmpty()) {
+                for (ConcurrentHashMap<Integer, MessageStore> storeMap
+                        : msgTopicStores.values()) {
+                    if (storeMap == null) {
+                        continue;
+                    }
+                    for (MessageStore msgStore : storeMap.values()) {
+                        if (msgStore == null) {
+                            continue;
+                        }
+                        msgStore.getMsgStoreStatsHolder().setStatsStatus(enable);
+                    }
+                }
+            } else {
+                ConcurrentHashMap<Integer, MessageStore> storeMap;
+                for (String topicName : topicNameSet) {
+                    storeMap = msgTopicStores.get(topicName);
+                    if (storeMap == null) {
+                        continue;
+                    }
+                    for (MessageStore msgStore : storeMap.values()) {
+                        if (msgStore == null) {
+                            continue;
+                        }
+                        msgStore.getMsgStoreStatsHolder().setStatsStatus(true);
+                    }
+                }
+            }
+        }
+        // builder return result
+        WebParameterUtils.buildSuccessResult(sBuffer);
     }
 
     // build reset offset info

@@ -29,7 +29,7 @@ public class FieldInfoTest {
     public void testSerialize() throws JsonProcessingException {
         FieldInfo fieldInfo = new FieldInfo("field_name", StringFormatInfo.INSTANCE);
         ObjectMapper objectMapper = new ObjectMapper();
-        String expected = "{\"name\":\"field_name\",\"format_info\":{\"type\":\"string\"}}";
+        String expected = "{\"type\":\"base\",\"name\":\"field_name\",\"format_info\":{\"type\":\"string\"}}";
         assertEquals(expected, objectMapper.writeValueAsString(fieldInfo));
     }
 }

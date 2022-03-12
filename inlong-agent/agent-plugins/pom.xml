@@ -29,26 +29,36 @@
     <modelVersion>4.0.0</modelVersion>
     <name>Apache InLong - Agent Plugins</name>
 
-    <repositories>
-        <repository>
-            <id>central</id>
-            <name>Central Repository</name>
-            <url>https://repo.maven.apache.org/maven2</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
     <properties>
         <powermock.version>2.0.2</powermock.version>
-        <mysql-connector-java.version>8.0.26</mysql-connector-java.version>
+        <version.debezium>1.8.1.Final</version.debezium>
     </properties>
 
     <dependencies>
         <dependency>
             <artifactId>guava</artifactId>
             <groupId>com.google.guava</groupId>
+        </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-api</artifactId>
+            <version>${version.debezium}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-embedded</artifactId>
+            <version>${version.debezium}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-connector-mysql</artifactId>
+            <version>${version.debezium}</version>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
@@ -63,9 +73,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql-connector-java.version}</version>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgres.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
@@ -75,23 +85,26 @@
             <artifactId>slf4j-api</artifactId>
             <groupId>org.slf4j</groupId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>dataproxy-sdk</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        <dependency>
-            <artifactId>slf4j-log4j12</artifactId>
-            <groupId>org.slf4j</groupId>
-        </dependency>
-
         <dependency>
             <artifactId>junit</artifactId>
             <groupId>junit</groupId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <artifactId>mockito-core</artifactId>
             <groupId>org.mockito</groupId>
@@ -125,6 +138,12 @@
             <groupId>org.apache.inlong</groupId>
             <artifactId>agent-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_${flink.scala.binary.version}</artifactId>
+            <version>${kafka.version}</version>
         </dependency>
     </dependencies>
 </project>

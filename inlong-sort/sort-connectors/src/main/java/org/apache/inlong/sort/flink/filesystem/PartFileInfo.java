@@ -25,23 +25,24 @@ import java.io.IOException;
 public interface PartFileInfo<BucketID> {
 
     /**
+     * The bucket identifier of the current buffer
      * @return The bucket identifier of the current buffer, as returned by the
      * {@link BucketAssigner#getBucketId(Object, BucketAssigner.Context)}.
      */
     BucketID getBucketId();
 
     /**
-     * @return The creation time (in ms) of the currently open part file.
+     *  The creation time (in ms) of the currently open part file.
      */
     long getCreationTime();
 
     /**
-     * @return The size of the currently open part file.
+     *  The size of the currently open part file.
      */
     long getSize() throws IOException;
 
     /**
-     * @return The last time (in ms) the currently open part file was written to.
+     *  The last time (in ms) the currently open part file was written to.
      */
     long getLastUpdateTime();
 }

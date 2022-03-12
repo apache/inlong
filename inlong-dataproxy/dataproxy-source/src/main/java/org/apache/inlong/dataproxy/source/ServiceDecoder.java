@@ -17,15 +17,10 @@
 
 package org.apache.inlong.dataproxy.source;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import java.util.Map;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.MessageEvent;
-
-/**
- * decoder interface definition
- */
 public interface ServiceDecoder {
 
     int HEAD_LENGTH = 4;
@@ -35,7 +30,8 @@ public interface ServiceDecoder {
      * @param cb
      * @param channel
      * @return
+     *
      * @throws
      */
-    Map<String, Object> extractData(ChannelBuffer cb, Channel channel, MessageEvent e) throws Exception;
+    Map<String, Object> extractData(ByteBuf cb, Channel channel) throws Exception;
 }

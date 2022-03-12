@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.inlong.manager.common.pojo.business.DataSchemaInfo;
+import org.apache.inlong.manager.common.pojo.group.DataSchemaInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.DataSchemaEntity;
 import org.apache.inlong.manager.dao.mapper.DataSchemaEntityMapper;
@@ -31,8 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Data format service layer interface implementation class for business access
- *
+ * Data format service layer interface implementation class for inlong group
  */
 @Service
 @Slf4j

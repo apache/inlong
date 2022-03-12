@@ -61,7 +61,7 @@ public class ProxyMessage {
 
     public void setStreamId(String streamId) {
         this.streamId = streamId;
-        this.attributeMap.put(AttributeConstants.INTERFACE_ID, streamId);
+        this.attributeMap.put(AttributeConstants.STREAM_ID, streamId);
     }
 
     public Map<String, String> getAttributeMap() {

@@ -286,7 +286,7 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
      * @param sBuilder   build container
      * @param isLongName if return field key is long name
      * @param fullFormat if return full format json
-     * @return
+     * @return  the serialized content
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
                                       boolean isLongName,
@@ -321,7 +321,8 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
      * @return if equals
      */
     public boolean isDataEquals(TopicDeployEntity other) {
-        return brokerId == other.brokerId
+        return super.isDataEquals(other)
+                && brokerId == other.brokerId
                 && brokerPort == other.brokerPort
                 && topicNameId == other.topicNameId
                 && recordKey.equals(other.recordKey)

@@ -54,8 +54,8 @@
         <log4j.configuration>log4j-test.properties</log4j.configuration>
         <tubemq.version>${project.version}</tubemq.version>
         <commons-lang3.version>3.3.2</commons-lang3.version>
-        <clickhouse-jdbc.version>0.3.0</clickhouse-jdbc.version>
-        <flink.jackson.version>2.9.8-7.0</flink.jackson.version>
+        <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
+        <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
         <jsr.version>3.0.2</jsr.version>
         <snappy.version>1.1.4</snappy.version>
         <hadoop.version>2.8.5</hadoop.version>
@@ -168,6 +168,12 @@
 
             <dependency>
                 <groupId>org.apache.flink</groupId>
+                <artifactId>flink-table-runtime-blink_${flink.scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
                 <artifactId>flink-parquet_${flink.scala.binary.version}</artifactId>
                 <version>${flink.version}</version>
             </dependency>
@@ -181,6 +187,12 @@
             <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-json</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-avro</artifactId>
                 <version>${flink.version}</version>
             </dependency>
 
@@ -235,10 +247,6 @@
                     <exclusion>
                         <groupId>xml-apis</groupId>
                         <artifactId>xml-apis</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.hive</groupId>
-                        <artifactId>hive-service-rpc</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.logging.log4j</groupId>
@@ -372,6 +380,12 @@
                 <artifactId>kafka_${flink.scala.binary.version}</artifactId>
                 <version>${kafka.version}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -420,45 +434,13 @@
                     </argLine>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <shadedArtifactAttached>false</shadedArtifactAttached>
-                            <finalName>${project.artifactId}-${project.version}</finalName>
-                            <filters>
-                                <!-- Globally exclude log4j.properties from our JAR files. -->
-                                <filter>
-                                    <artifact>*</artifact>
-                                    <excludes>
-                                        <exclude>log4j.properties</exclude>
-                                        <exclude>log4j-test.properties</exclude>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>2.8.2</version>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>

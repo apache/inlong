@@ -21,8 +21,8 @@ import static java.sql.Types.BINARY;
 import static java.sql.Types.BLOB;
 import static java.sql.Types.LONGVARBINARY;
 import static java.sql.Types.VARBINARY;
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -31,7 +31,6 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.CharUtils;
@@ -40,25 +39,17 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.Reader;
-import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
-import org.apache.inlong.agent.plugin.metrics.PluginMetric;
-import org.apache.inlong.agent.plugin.metrics.PluginPrometheusMetric;
 import org.apache.inlong.agent.utils.AgentDbUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Read data from database by SQL
  */
-public class SqlReader implements Reader {
+public class SqlReader extends AbstractReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlReader.class);
-
-    private String inlongGroupId;
-    private String inlongStreamId;
 
     private static final String SQL_READER_TAG_NAME = "AgentSqlMetric";
 
@@ -74,7 +65,6 @@ public class SqlReader implements Reader {
     private static final String DEFAULT_JOB_DATABASE_DRIVER_CLASS = "com.mysql.jdbc.Driver";
 
     // pre-set sql lines, commands like "set xxx=xx;"
-    private static final String JOB_DATABASE_PRESET = "job.database.preset";
     private static final String JOB_DATABASE_TYPE = "job.database.type";
     private static final String MYSQL = "mysql";
 
@@ -86,30 +76,22 @@ public class SqlReader implements Reader {
     private static final String[] EMPTY_CHARS = new String[]{StringUtils.EMPTY, StringUtils.EMPTY};
 
     private final String sql;
+
     // use statement for mysql due to compatibility
     private Statement statement;
     private PreparedStatement preparedStatement;
     private Connection conn;
     private ResultSet resultSet;
     private int columnCount;
+
     // column types
     private String[] columnTypeNames;
     private int[] columnTypeCodes;
     private boolean finished = false;
     private String separator;
-    private final PluginMetric sqlFileMetric;
-    private static AtomicLong metricsIndex = new AtomicLong(0);
 
     public SqlReader(String sql) {
         this.sql = sql;
-
-        if (ConfigUtil.isPrometheusEnabled()) {
-            this.sqlFileMetric = new PluginPrometheusMetric(
-                    AgentUtils.getUniqId(SQL_READER_TAG_NAME, metricsIndex.incrementAndGet()));
-        } else {
-            this.sqlFileMetric = new PluginJmxMetric(
-                    AgentUtils.getUniqId(SQL_READER_TAG_NAME, metricsIndex.incrementAndGet()));
-        }
     }
 
     @Override
@@ -137,15 +119,16 @@ public class SqlReader implements Reader {
                 }
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
-                sqlFileMetric.incReadNum();
-
+                readerMetric.incReadNum();
+                streamMetric.incReadNum();
                 return generateMessage(lineColumns);
             } else {
                 finished = true;
             }
         } catch (Exception ex) {
             LOGGER.error("error while reading data", ex);
-            sqlFileMetric.incReadFailedNum();
+            readerMetric.incReadFailedNum();
+            streamMetric.incReadFailedNum();
             throw new RuntimeException(ex);
         }
         return null;
@@ -175,6 +158,16 @@ public class SqlReader implements Reader {
 
     }
 
+    @Override
+    public String getSnapshot() {
+        return StringUtils.EMPTY;
+    }
+
+    @Override
+    public void finishRead() {
+        destroy();
+    }
+
     /**
      * Init column meta data.
      *
@@ -197,6 +190,7 @@ public class SqlReader implements Reader {
     public void init(JobProfile jobConf) {
         inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID);
         inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, "");
+        intMetric(SQL_READER_TAG_NAME);
         int batchSize = jobConf.getInt(JOB_DATABASE_BATCH_SIZE, DEFAULT_JOB_DATABASE_BATCH_SIZE);
         String userName = jobConf.get(JOB_DATABASE_USER);
         String password = jobConf.get(JOB_DATABASE_PASSWORD);

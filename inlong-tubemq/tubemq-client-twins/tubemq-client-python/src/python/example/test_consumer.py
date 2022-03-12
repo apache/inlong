@@ -20,29 +20,21 @@
 import time
 import tubemq
 
-topic_list = ['demo']
-master_addr = '127.0.0.1:8000'
-group_name = 'test_group'
+topic_list = {'test_topic'}  # consum all of topic
+# topic_list = {'test_topic': {'test_tid1', 'test_tid2'}}  # filter by tids
+MASTER_ADDR = '127.0.0.1:8000'
+GROUP_NAME = 'test_group'
 
 # Start consumer
-consumer = tubemq.consumer(master_addr, group_name, topic_list)
+consumer = tubemq.Consumer(MASTER_ADDR, GROUP_NAME, topic_list)
 
 # Test consumer
 start_time = time.time()
 while True:
-    messageList = consumer.receive()
-    if messageList:
-        print("GetMessage success, msssage count =", len(messageList))
-        for message in messageList:
-            attributeMap = message.getProperties()
-            attribute = ''
-            for (key, value) in attributeMap.items():
-                attribute = attribute + key + '=' + value + ','
-            attribute = attribute[:-1]
-            rawMsgList = message.getVectorData()
-            print("GetMessage success, raw message byte count =", len(rawMsgList))
-            msgLen = message.getDataLength()
-            print("GetMessage success, raw message length =", len(rawMsgList))
+    msgs = consumer.receive()
+    if msgs:
+        print("GetMessage success, msssage count =", len(msgs))
+    consumer.acknowledge()
 
     # used for test, consume 10 minutes only
     stop_time = time.time()

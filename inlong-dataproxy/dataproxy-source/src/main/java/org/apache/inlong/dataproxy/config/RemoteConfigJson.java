@@ -17,38 +17,24 @@
 
 package org.apache.inlong.dataproxy.config;
 
-import java.util.List;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
 
 public class RemoteConfigJson {
 
-    private boolean result;
-    private List<DataItem> data;
-    private int errCode;
+    private boolean success;
+    private String errMsg;
+    private ThirdPartyClusterDTO data;
 
-    public List<DataItem> getData() {
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public String getErrMsg() {
+        return errMsg;
+    }
+
+    public ThirdPartyClusterDTO getData() {
         return data;
     }
 
-    public int getErrCode() {
-        return errCode;
-    }
-
-    public static class DataItem {
-
-        private String inlongGroupId;
-        private String topic;
-        private String m;
-
-        public String getGroupId() {
-            return inlongGroupId;
-        }
-
-        public String getTopic() {
-            return topic;
-        }
-
-        public String getM() {
-            return m;
-        }
-    }
 }

@@ -50,6 +50,21 @@ public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
     private long lstAssignedTime = TBaseConstants.META_VALUE_UNDEFINED;
     private long usedTopicMetaInfoId = TBaseConstants.META_VALUE_UNDEFINED;
 
+    /**
+     * Initial Consumer node information
+     *
+     * @param consumerId          the consumer id
+     * @param overTLS             whether to communicate via TLS
+     * @param group               the group name of the consumer
+     * @param topicSet            the topic set subscribed
+     * @param topicConditions     the topic filter condition set
+     * @param consumeType         the consume type
+     * @param sessionKey          the session key
+     * @param startTime           the start time
+     * @param sourceCount         the minimum consumer count of consume group
+     * @param selectedBig         whether to choose a larger value if there is a conflict
+     * @param requiredPartition   the required partitions
+     */
     public ConsumerInfo(String consumerId, boolean overTLS, String group,
                         Set<String> topicSet, Map<String, TreeSet<String>> topicConditions,
                         ConsumeType consumeType, String sessionKey, long startTime,
@@ -73,6 +88,20 @@ public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
         this.consumerViewInfo = toString();
     }
 
+    /**
+     * Initial Consumer node information
+     *
+     * @param consumerId          the consumer id
+     * @param overTLS             whether to communicate via TLS
+     * @param group               the group name of the consumer
+     * @param consumeType         the consume type
+     * @param sourceCount         the minimum consumer count of consume group
+     * @param nodeId              the node id
+     * @param topicSet            the topic set subscribed
+     * @param topicConditions     the topic filter condition set
+     * @param curCsmCtrlId        the node's consume control id
+     * @param syncInfo            the consumer report information
+     */
     public ConsumerInfo(String consumerId, boolean overTLS, String group,
                         ConsumeType consumeType, int sourceCount, int nodeId,
                         Set<String> topicSet, Map<String, TreeSet<String>> topicConditions,

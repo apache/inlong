@@ -30,8 +30,8 @@ public interface WorkflowApproverService {
     /**
      * Get process approver
      *
-     * @param processName Process name
-     * @param taskName Task name
+     * @param processName WorkflowProcess name
+     * @param taskName WorkflowTask name
      * @param context Context
      * @return Approver
      */

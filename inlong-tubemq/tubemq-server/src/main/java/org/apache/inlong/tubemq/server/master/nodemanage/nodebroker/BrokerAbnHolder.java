@@ -33,7 +33,7 @@ import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
-import org.apache.inlong.tubemq.server.master.metrics.MasterMetricsHolder;
+import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +75,7 @@ public class BrokerAbnHolder {
                 if (brokerForbiddenMap.get(brokerId) == null) {
                     brokerAbnInfo = brokerAbnormalMap.remove(brokerId);
                     if (brokerAbnInfo != null) {
-                        MasterMetricsHolder.decBrokerAbnormalCnt();
+                        MasterSrvStatsHolder.decBrokerAbnormalCnt();
                         logger.warn(sBuffer.append("[Broker AutoForbidden] broker ")
                                 .append(brokerId).append(" return to normal!").toString());
                         sBuffer.delete(0, sBuffer.length());
@@ -100,7 +100,7 @@ public class BrokerAbnHolder {
         if (brokerAbnInfo == null) {
             if (brokerAbnormalMap.putIfAbsent(brokerId,
                 new BrokerAbnInfo(brokerId, reportReadStatus, reportWriteStatus)) == null) {
-                MasterMetricsHolder.incBrokerAbnormalCnt();
+                MasterSrvStatsHolder.incBrokerAbnormalCnt();
                 logger.warn(sBuffer.append("[Broker AutoForbidden] broker report abnormal, ")
                         .append(brokerId).append("'s reportReadStatus=")
                         .append(reportReadStatus).append(", reportWriteStatus=")
@@ -119,7 +119,7 @@ public class BrokerAbnHolder {
                 if (updateCurManageStatus(brokerId, reqMngStatus, sBuffer)) {
                     if (brokerForbiddenMap.putIfAbsent(brokerId, tmpBrokerFbdInfo) == null) {
                         brokerForbiddenCount.incrementAndGet();
-                        MasterMetricsHolder.incBrokerForbiddenCnt();
+                        MasterSrvStatsHolder.incBrokerForbiddenCnt();
                         logger.warn(sBuffer
                                 .append("[Broker AutoForbidden] master add missing forbidden broker, ")
                                 .append(brokerId).append("'s manage status to ")
@@ -137,7 +137,7 @@ public class BrokerAbnHolder {
                         brokerForbiddenCount.decrementAndGet();
                         return;
                     }
-                    MasterMetricsHolder.incBrokerForbiddenCnt();
+                    MasterSrvStatsHolder.incBrokerForbiddenCnt();
                     logger.warn(sBuffer
                             .append("[Broker AutoForbidden] master auto forbidden broker, ")
                             .append(brokerId).append("'s manage status to ")
@@ -179,12 +179,12 @@ public class BrokerAbnHolder {
     public void removeBroker(Integer brokerId) {
         BrokerAbnInfo abnInfo = brokerAbnormalMap.remove(brokerId);
         if (abnInfo != null) {
-            MasterMetricsHolder.decBrokerAbnormalCnt();
+            MasterSrvStatsHolder.decBrokerAbnormalCnt();
         }
         BrokerFbdInfo brokerFbdInfo = brokerForbiddenMap.remove(brokerId);
         if (brokerFbdInfo != null) {
             this.brokerForbiddenCount.decrementAndGet();
-            MasterMetricsHolder.decBrokerForbiddenCnt();
+            MasterSrvStatsHolder.decBrokerForbiddenCnt();
         }
     }
 
@@ -269,10 +269,10 @@ public class BrokerAbnHolder {
                 brokerFbdInfos.add(fbdInfo);
                 BrokerAbnInfo abnInfo = this.brokerAbnormalMap.remove(brokerId);
                 if (abnInfo != null) {
-                    MasterMetricsHolder.decBrokerAbnormalCnt();
+                    MasterSrvStatsHolder.decBrokerAbnormalCnt();
                 }
                 this.brokerForbiddenCount.decrementAndGet();
-                MasterMetricsHolder.decBrokerForbiddenCnt();
+                MasterSrvStatsHolder.decBrokerForbiddenCnt();
             }
         }
         if (!brokerFbdInfos.isEmpty()) {

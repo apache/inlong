@@ -18,7 +18,9 @@
 package org.apache.inlong.agent.plugin.message;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.tuple.Pair;
@@ -43,6 +45,11 @@ public class PackProxyMessage {
     // ms
     private final int cacheTimeout;
 
+    /**
+     * extra map used when sending to dataproxy
+     */
+    private Map<String, String> extraMap = new HashMap<>();
+
     // streamId -> list of proxyMessage
     private final LinkedBlockingQueue<ProxyMessage> messageQueue;
 
@@ -63,6 +70,11 @@ public class PackProxyMessage {
         // double size of package
         this.messageQueue = new LinkedBlockingQueue<>(maxQueueNumber);
         this.streamId = streamId;
+    }
+
+    public void generateExtraMap(boolean syncSend, String dataKey) {
+        this.extraMap.put("syncSend", String.valueOf(syncSend));
+        this.extraMap.put("partitionKey", dataKey);
     }
 
     /**
@@ -138,4 +150,9 @@ public class PackProxyMessage {
         }
         return null;
     }
+
+    public Map<String, String> getExtraMap() {
+        return extraMap;
+    }
+
 }

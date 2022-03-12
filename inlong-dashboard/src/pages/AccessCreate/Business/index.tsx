@@ -40,7 +40,7 @@ const Comp = ({ inlongGroupId }: Props, ref) => {
     return !!inlongGroupId;
   }, [inlongGroupId]);
 
-  const { data: savedData } = useRequest(`/business/get/${inlongGroupId}`, {
+  const { data: savedData } = useRequest(`/group/get/${inlongGroupId}`, {
     ready: !!inlongGroupId && !Object.keys(changedValues).length,
     refreshDeps: [inlongGroupId],
     formatResult: data => ({
@@ -73,7 +73,7 @@ const Comp = ({ inlongGroupId }: Props, ref) => {
     }
 
     const result = await request({
-      url: isUpdate ? '/business/update' : '/business/save',
+      url: isUpdate ? '/group/update' : '/group/save',
       method: 'POST',
       data,
     });

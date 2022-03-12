@@ -37,7 +37,7 @@ public interface AttributeConstants {
      * interface id unique string id for each interface of business An interface stand for a kind of
      * data
      */
-    String INTERFACE_ID = "streamId";
+    String STREAM_ID = "streamId";
 
     /**
      * iname is like a streamId but used in file protocol(m=xxx)
@@ -80,4 +80,10 @@ public interface AttributeConstants {
     String GROUPID_NUM = "groupIdnum";
 
     String STREAMID_NUM = "streamIdnum";
+
+    String MESSAGE_PARTITION_KEY = "partitionKey";
+
+    String MESSAGE_SYNC_SEND = "syncSend";
+
+    String MESSAGE_IS_ACK = "isAck";
 }

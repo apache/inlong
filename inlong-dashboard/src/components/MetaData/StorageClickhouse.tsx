@@ -74,9 +74,9 @@ export const getClickhouseForm: GetStorageFormFieldsType = (
       props: {
         options: {
           requestService: {
-            url: '/storage/listStorageCluster',
+            url: '/sink/listStorageCluster',
             params: {
-              storageType: 'CLICK_HOUSE',
+              sinkType: 'CLICK_HOUSE',
             },
           },
           requestParams: {
@@ -222,7 +222,7 @@ export const getClickhouseForm: GetStorageFormFieldsType = (
       },
     },
     {
-      name: 'clickHouseFieldList',
+      name: 'fieldList',
       type: EditableTable,
       props: {
         size: 'small',

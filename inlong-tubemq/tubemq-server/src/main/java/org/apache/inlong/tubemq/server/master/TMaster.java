@@ -95,8 +95,6 @@ import org.apache.inlong.tubemq.server.common.exception.HeartbeatException;
 import org.apache.inlong.tubemq.server.common.heartbeat.HeartbeatManager;
 import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutInfo;
 import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutListener;
-import org.apache.inlong.tubemq.server.common.offsetstorage.OffsetStorage;
-import org.apache.inlong.tubemq.server.common.offsetstorage.ZkOffsetStorage;
 import org.apache.inlong.tubemq.server.common.paramcheck.PBParameterUtils;
 import org.apache.inlong.tubemq.server.common.paramcheck.ParamCheckResult;
 import org.apache.inlong.tubemq.server.common.utils.ClientSyncInfo;
@@ -110,7 +108,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Br
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
-import org.apache.inlong.tubemq.server.master.metrics.MasterMetricsHolder;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerAbnHolder;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.DefBrokerRunManager;
@@ -121,6 +118,8 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerEv
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfo;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeproducer.ProducerInfoHolder;
+import org.apache.inlong.tubemq.server.master.stats.MasterJMXHolder;
+import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
 import org.apache.inlong.tubemq.server.master.utils.Chore;
 import org.apache.inlong.tubemq.server.master.utils.SimpleVisitTokenManager;
 import org.apache.inlong.tubemq.server.master.web.WebServer;
@@ -150,7 +149,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private final MasterConfig masterConfig;                    //master config
     private final NodeAddrInfo masterAddInfo;                   //master address info
     private final HeartbeatManager heartbeatManager;            //heartbeat manager
-    private final OffsetStorage zkOffsetStorage;                //zookeeper offset manager
     private final ShutdownHook shutdownHook;                    //shutdown hook
     private final CertificateMasterHandler serverAuthHandler;           //server auth handler
     private AtomicBoolean shutdownHooked = new AtomicBoolean(false);
@@ -179,14 +177,12 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         this.masterAddInfo =
                 new NodeAddrInfo(masterConfig.getHostName(), masterConfig.getPort());
         // register metric bean
-        MasterMetricsHolder.registerMXBean();
+        MasterJMXHolder.registerMXBean();
         this.svrExecutor = Executors.newFixedThreadPool(this.masterConfig.getRebalanceParallel());
         this.cltExecutor = Executors.newFixedThreadPool(this.masterConfig.getRebalanceParallel());
         this.visitTokenManager = new SimpleVisitTokenManager(this.masterConfig);
         this.serverAuthHandler = new SimpleCertificateMasterHandler(this.masterConfig);
         this.heartbeatManager = new HeartbeatManager();
-        this.zkOffsetStorage = new ZkOffsetStorage(this.masterConfig.getZkConfig(),
-                false, TBaseConstants.META_VALUE_UNDEFINED);
         this.producerHolder = new ProducerInfoHolder();
         this.consumerHolder = new ConsumerInfoHolder(this);
         this.consumerEventManager = new ConsumerEventManager(consumerHolder);
@@ -1691,7 +1687,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 final List<String> subGroups = groupsNeedToBalance.subList(startIndex, endIndex);
                 if (subGroups.isEmpty()) {
                     if (curSvrBalanceParal.decrementAndGet() == 0) {
-                        MasterMetricsHolder.updSvrBalanceDurations(
+                        MasterSrvStatsHolder.updSvrBalanceDurations(
                                 System.currentTimeMillis() - startBalanceTime);
                     }
                     continue;
@@ -1733,7 +1729,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                             logger.warn("[Svr-Balance processor] Error during process", e);
                         } finally {
                             if (curSvrBalanceParal.decrementAndGet() == 0) {
-                                MasterMetricsHolder.updSvrBalanceDurations(
+                                MasterSrvStatsHolder.updSvrBalanceDurations(
                                         System.currentTimeMillis() - startBalanceTime);
                             }
                         }
@@ -1862,7 +1858,13 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         return result;
     }
 
-    // process unReset group balance
+    /**
+     * process unReset group balance
+     *
+     * @param rebalanceId   the re-balance id
+     * @param isFirstReb    whether is first re-balance
+     * @param groups        the need re-balance group set
+     */
     public void processRebalance(long rebalanceId, boolean isFirstReb, List<String> groups) {
         // #lizard forgives
         Map<String, Map<String, List<Partition>>> finalSubInfoMap = null;
@@ -2005,12 +2007,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // choose different load balance strategy
         if (isFirstReb) {
             finalSubInfoMap =  this.loadBalancer.resetBukAssign(consumerHolder,
-                    brokerRunManager, groups, this.zkOffsetStorage,
-                    this.defMetaDataManager, strBuffer);
+                    brokerRunManager, groups, this.defMetaDataManager, strBuffer);
         } else {
             finalSubInfoMap = this.loadBalancer.resetBalanceCluster(currentSubInfo,
-                    consumerHolder, brokerRunManager, groups, this.zkOffsetStorage,
-                    this.defMetaDataManager, strBuffer);
+                    consumerHolder, brokerRunManager, groups, this.defMetaDataManager, strBuffer);
         }
         // filter
         for (Map.Entry<String, Map<String, Map<String, Partition>>> entry
@@ -2473,7 +2473,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             cltExecutor.shutdown();
             stopChores();
             heartbeatManager.stop();
-            zkOffsetStorage.close();
             defMetaDataManager.stop();
             visitTokenManager.stop();
             if (!shutdownHooked.get()) {

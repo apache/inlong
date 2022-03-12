@@ -34,9 +34,11 @@ public class Sleeper {
     private final int period;
     private final Stoppable stopper;
     private final Object sleepLock = new Object();
-    private AtomicBoolean triggerWake = new AtomicBoolean(false);
+    private final AtomicBoolean triggerWake = new AtomicBoolean(false);
 
     /**
+     * Initial a Sleeper object
+     *
      * @param sleep   sleep time in milliseconds
      * @param stopper When {@link Stoppable#isStopped()} is true, this thread will cleanup and exit
      *                cleanly.
@@ -65,10 +67,9 @@ public class Sleeper {
     }
 
     /**
-     * Sleep for period adjusted by passed <code>startTime<code>
+     * Sleep for period adjusted by passed startTime
      *
-     * @param startTime Time some task started previous to now. Time to sleep will be docked current
-     *                  time minus passed <code>startTime<code>.
+     * @param startTime Time some task started previous to now.
      */
     public void sleep(final long startTime) {
         if (this.stopper.isStopped()) {

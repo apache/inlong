@@ -33,15 +33,17 @@ sed -i "s/127.0.0.1:3306/${JDBC_URL}/g" "${conf_file}"
 sed -i "s/datasource.druid.username=.*$/datasource.druid.username=${USERNAME}/g" "${conf_file}"
 sed -i "s/datasource.druid.password=.*$/datasource.druid.password=${PASSWORD}/g" "${conf_file}"
 
-sed -i "s/cluster.tube.manager=.*$/cluster.tube.manager\=${TUBE_MANAGER}/g" "${conf_file}"
-sed -i "s/cluster.tube.master=.*$/cluster.tube.master\=${TUBE_MASTER}/g" "${conf_file}"
-sed -i "s/cluster.tube.clusterId=.*$/cluster.tube.clusterId=${TUBE_CLUSTER_ID}/g" "${conf_file}"
 sed -i "s/cluster.zk.url=.*$/cluster.zk.url=${ZK_URL}/g" "${conf_file}"
-sed -i "s/cluster.zk.root=.*$/cluster.zk.root=${ZK_ROOT}/g" "${conf_file}"
-sed -i "s/sort.appName=.*$/sort.appName=${SORT_APP_NAME}/g" "${conf_file}"
 
 # startup the application
 JAVA_OPTS="-Dspring.profiles.active=${ACTIVE_PROFILE}"
+
+# get plugins from remote address.
+if [[ "${PLUGINS_URL}" =~ ^http* ]]; then
+    wget ${PLUGINS_URL} -O plugins.tar.gz
+    tar -zxvf plugins.tar.gz -C "${file_path}"/
+    rm plugins.tar.gz
+fi
 
 sh "${file_path}"/bin/startup.sh "${JAVA_OPTS}"
 sleep 3

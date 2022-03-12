@@ -23,7 +23,8 @@ import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import { DataSourcesCreateModal } from '@/components/AccessHelper';
-import { tableColumns as fileColumns } from '@/components/MetaData/DataSourcesFile';
+import { dataSourcesDbColumns } from '@/components/MetaData/DataSourcesDb';
+import { dataSourcesFileColumns } from '@/components/MetaData/DataSourcesFile';
 import i18n from '@/i18n';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
@@ -48,10 +49,10 @@ const getFilterFormContent = defaultValues => [
           label: i18n.t('pages.AccessDetail.DataSources.File'),
           value: 'file',
         },
-        // {
-        //   label: 'DB',
-        //   value: 'db',
-        // },
+        {
+          label: 'DB',
+          value: 'db',
+        },
       ],
     },
   },
@@ -92,6 +93,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     if (isUpdate) {
       submitData.id = createModal.id;
     }
+
     await request({
       url: `/datasource/${options.type}/${isUpdate ? 'updateDetail' : 'saveDetail'}`,
       method: 'POST',
@@ -148,7 +150,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       width: 100,
     } as any,
   ]
-    .concat(fileColumns)
+    .concat(options.type === 'file' ? dataSourcesFileColumns : dataSourcesDbColumns)
     .concat([
       {
         title: i18n.t('basic.Status'),
@@ -181,7 +183,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         disabled: !!createModal.id,
         options: {
           requestService: {
-            url: '/datastream/list',
+            url: '/stream/list',
             params: {
               pageNum: 1,
               pageSize: 1000,

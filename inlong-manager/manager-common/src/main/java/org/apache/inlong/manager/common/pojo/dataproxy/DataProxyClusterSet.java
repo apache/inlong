@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -17,19 +17,19 @@
 
 package org.apache.inlong.manager.common.pojo.dataproxy;
 
+import org.apache.inlong.common.pojo.dataproxy.CacheClusterSetObject;
+import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
+import org.apache.inlong.common.pojo.dataproxy.ProxyChannel;
+import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
+import org.apache.inlong.common.pojo.dataproxy.ProxySink;
+import org.apache.inlong.common.pojo.dataproxy.ProxySource;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.inlong.commons.pojo.dataproxy.CacheClusterSetObject;
-import org.apache.inlong.commons.pojo.dataproxy.InLongIdObject;
-import org.apache.inlong.commons.pojo.dataproxy.ProxyChannel;
-import org.apache.inlong.commons.pojo.dataproxy.ProxyClusterObject;
-import org.apache.inlong.commons.pojo.dataproxy.ProxySink;
-import org.apache.inlong.commons.pojo.dataproxy.ProxySource;
 
 /**
  * DataProxyClusterSet
@@ -46,14 +46,14 @@ public class DataProxyClusterSet {
     private Map<String, Set<String>> proxy2Cache = new HashMap<>();
     //
     private String defaultConfigJson;
-    // Map<proxyClusterName, jsonString>
+    // key: proxyClusterName, value: jsonString
     private Map<String, String> proxyConfigJson = new HashMap<>();
-    // Map<proxyClusterName, md5>
+    // key: proxyClusterName, value: md5
     private Map<String, String> md5Map = new HashMap<>();
 
     /**
      * get setName
-     * 
+     *
      * @return the setName
      */
     public String getSetName() {
@@ -62,7 +62,7 @@ public class DataProxyClusterSet {
 
     /**
      * set setName
-     * 
+     *
      * @param setName the setName to set
      */
     public void setSetName(String setName) {
@@ -71,7 +71,7 @@ public class DataProxyClusterSet {
 
     /**
      * get cacheClusterSet
-     * 
+     *
      * @return the cacheClusterSet
      */
     public CacheClusterSetObject getCacheClusterSet() {
@@ -80,7 +80,7 @@ public class DataProxyClusterSet {
 
     /**
      * set cacheClusterSet
-     * 
+     *
      * @param cacheClusterSet the cacheClusterSet to set
      */
     public void setCacheClusterSet(CacheClusterSetObject cacheClusterSet) {
@@ -89,7 +89,7 @@ public class DataProxyClusterSet {
 
     /**
      * get proxyClusterList
-     * 
+     *
      * @return the proxyClusterList
      */
     public List<ProxyClusterObject> getProxyClusterList() {
@@ -98,7 +98,7 @@ public class DataProxyClusterSet {
 
     /**
      * set proxyClusterList
-     * 
+     *
      * @param proxyClusterList the proxyClusterList to set
      */
     public void setProxyClusterList(List<ProxyClusterObject> proxyClusterList) {
@@ -107,7 +107,7 @@ public class DataProxyClusterSet {
 
     /**
      * get proxyChannelMap
-     * 
+     *
      * @return the proxyChannelMap
      */
     public Map<String, ProxyChannel> getProxyChannelMap() {
@@ -116,7 +116,7 @@ public class DataProxyClusterSet {
 
     /**
      * set proxyChannelMap
-     * 
+     *
      * @param proxyChannelMap the proxyChannelMap to set
      */
     public void setProxyChannelMap(Map<String, ProxyChannel> proxyChannelMap) {
@@ -125,7 +125,7 @@ public class DataProxyClusterSet {
 
     /**
      * get defaultConfigJson
-     * 
+     *
      * @return the defaultConfigJson
      */
     public String getDefaultConfigJson() {
@@ -134,7 +134,7 @@ public class DataProxyClusterSet {
 
     /**
      * set defaultConfigJson
-     * 
+     *
      * @param defaultConfigJson the defaultConfigJson to set
      */
     public void setDefaultConfigJson(String defaultConfigJson) {
@@ -143,7 +143,7 @@ public class DataProxyClusterSet {
 
     /**
      * get proxySourceMap
-     * 
+     *
      * @return the proxySourceMap
      */
     public Map<String, ProxySource> getProxySourceMap() {
@@ -152,7 +152,7 @@ public class DataProxyClusterSet {
 
     /**
      * set proxySourceMap
-     * 
+     *
      * @param proxySourceMap the proxySourceMap to set
      */
     public void setProxySourceMap(Map<String, ProxySource> proxySourceMap) {
@@ -161,7 +161,7 @@ public class DataProxyClusterSet {
 
     /**
      * get proxySinkMap
-     * 
+     *
      * @return the proxySinkMap
      */
     public Map<String, ProxySink> getProxySinkMap() {
@@ -170,7 +170,7 @@ public class DataProxyClusterSet {
 
     /**
      * set proxySinkMap
-     * 
+     *
      * @param proxySinkMap the proxySinkMap to set
      */
     public void setProxySinkMap(Map<String, ProxySink> proxySinkMap) {
@@ -179,7 +179,7 @@ public class DataProxyClusterSet {
 
     /**
      * get inlongIds
-     * 
+     *
      * @return the inlongIds
      */
     public List<InLongIdObject> getInlongIds() {
@@ -188,7 +188,7 @@ public class DataProxyClusterSet {
 
     /**
      * set inlongIds
-     * 
+     *
      * @param inlongIds the inlongIds to set
      */
     public void setInlongIds(List<InLongIdObject> inlongIds) {
@@ -197,7 +197,7 @@ public class DataProxyClusterSet {
 
     /**
      * get proxy2Cache
-     * 
+     *
      * @return the proxy2Cache
      */
     public Map<String, Set<String>> getProxy2Cache() {
@@ -206,7 +206,7 @@ public class DataProxyClusterSet {
 
     /**
      * set proxy2Cache
-     * 
+     *
      * @param proxy2Cache the proxy2Cache to set
      */
     public void setProxy2Cache(Map<String, Set<String>> proxy2Cache) {
@@ -214,24 +214,16 @@ public class DataProxyClusterSet {
     }
 
     /**
-     * 
      * addProxy2Cache
-     * 
-     * @param proxyClusterName
-     * @param cacheClusterName
      */
     public void addProxy2Cache(String proxyClusterName, String cacheClusterName) {
-        Set<String> cacheNameSet = this.proxy2Cache.get(proxyClusterName);
-        if (cacheNameSet == null) {
-            cacheNameSet = new HashSet<>();
-            this.proxy2Cache.put(proxyClusterName, cacheNameSet);
-        }
+        Set<String> cacheNameSet = this.proxy2Cache.computeIfAbsent(proxyClusterName, k -> new HashSet<>());
         cacheNameSet.add(cacheClusterName);
     }
 
     /**
      * get proxyConfigJson
-     * 
+     *
      * @return the proxyConfigJson
      */
     public Map<String, String> getProxyConfigJson() {
@@ -240,7 +232,7 @@ public class DataProxyClusterSet {
 
     /**
      * set proxyConfigJson
-     * 
+     *
      * @param proxyConfigJson the proxyConfigJson to set
      */
     public void setProxyConfigJson(Map<String, String> proxyConfigJson) {
@@ -249,7 +241,7 @@ public class DataProxyClusterSet {
 
     /**
      * get md5Map
-     * 
+     *
      * @return the md5Map
      */
     public Map<String, String> getMd5Map() {
@@ -258,7 +250,7 @@ public class DataProxyClusterSet {
 
     /**
      * set md5Map
-     * 
+     *
      * @param md5Map the md5Map to set
      */
     public void setMd5Map(Map<String, String> md5Map) {

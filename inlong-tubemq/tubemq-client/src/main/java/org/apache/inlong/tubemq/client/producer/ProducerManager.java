@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.inlong.tubemq.client.common.ClientMetrics;
+import org.apache.inlong.tubemq.client.common.ClientStatsInfo;
 import org.apache.inlong.tubemq.client.common.TubeClientVersion;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
@@ -87,22 +87,30 @@ public class ProducerManager {
             new AtomicReference<>("");
     private final ClientAuthenticateHandler authenticateHandler =
             new SimpleClientAuthenticateHandler();
-    private MasterService masterService;
+    private final MasterService masterService;
     private Map<Integer, BrokerInfo> brokersMap = new ConcurrentHashMap<>();
     private long brokerInfoCheckSum = -1L;
     private long lastBrokerUpdatedTime = System.currentTimeMillis();
     private long lastEmptyBrokerPrintTime = 0;
     private long lastEmptyTopicPrintTime = 0;
     private int heartbeatRetryTimes = 0;
-    private AtomicBoolean isStartHeart = new AtomicBoolean(false);
-    private AtomicInteger heartBeatStatus = new AtomicInteger(-1);
+    private final AtomicBoolean isStartHeart = new AtomicBoolean(false);
+    private final AtomicInteger heartBeatStatus = new AtomicInteger(-1);
     private volatile long lastHeartbeatTime = System.currentTimeMillis();
-    private AtomicInteger nodeStatus = new AtomicInteger(-1);
+    private final AtomicInteger nodeStatus = new AtomicInteger(-1);
     private Map<String, Map<Integer, List<Partition>>> topicPartitionMap =
             new ConcurrentHashMap<>();
-    private AtomicBoolean nextWithAuthInfo2M = new AtomicBoolean(false);
-    private final ClientMetrics clientMetrics;
+    private final AtomicBoolean nextWithAuthInfo2M =
+            new AtomicBoolean(false);
+    private final ClientStatsInfo clientStatsInfo;
 
+    /**
+     * Initial a producer manager
+     *
+     * @param sessionFactory         the session factory
+     * @param tubeClientConfig       the client configure
+     * @throws TubeClientException   the exception while creating object
+     */
     public ProducerManager(final InnerSessionFactory sessionFactory,
                            final TubeClientConfig tubeClientConfig) throws TubeClientException {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");
@@ -132,9 +140,10 @@ public class ProducerManager {
         rpcConfig.put(RpcConstants.WORKER_THREAD_NAME, "tube_netty_worker-");
         rpcConfig.put(RpcConstants.CALLBACK_WORKER_COUNT,
                 tubeClientConfig.getRpcRspCallBackThreadCnt());
-        // initial client metrics
-        this.clientMetrics =
-                new ClientMetrics(true, this.producerId, this.tubeClientConfig);
+        // initial client statistics configure
+        this.clientStatsInfo =
+                new ClientStatsInfo(true, this.producerId,
+                        this.tubeClientConfig.getStatsConfig());
         heartBeatStatus.set(0);
         this.masterService =
                 this.rpcServiceFactory.getFailoverService(MasterService.class,
@@ -159,7 +168,7 @@ public class ProducerManager {
     /**
      * Start the producer manager.
      *
-     * @throws Throwable
+     * @throws Throwable  the exception
      */
     public void start() throws Throwable {
         if (nodeStatus.get() <= 0) {
@@ -174,7 +183,7 @@ public class ProducerManager {
      * Publish a topic.
      *
      * @param topic topic name
-     * @throws TubeClientException
+     * @throws TubeClientException  the exception at publish
      */
     public void publish(final String topic) throws TubeClientException {
         checkServiceStatus();
@@ -219,7 +228,7 @@ public class ProducerManager {
      *
      * @param topicSet a set of topic names
      * @return a set of successful published topic names
-     * @throws TubeClientException
+     * @throws TubeClientException   the exception at publish
      */
     public Set<String> publish(Set<String> topicSet) throws TubeClientException {
         checkServiceStatus();
@@ -278,7 +287,7 @@ public class ProducerManager {
     /**
      * Shutdown the produce manager.
      *
-     * @throws Throwable
+     * @throws Throwable   the exception at shutdown
      */
     public void shutdown() throws Throwable {
         StringBuilder strBuff = new StringBuilder(512);
@@ -292,7 +301,7 @@ public class ProducerManager {
             }
             return;
         }
-        clientMetrics.printMetricInfo(true, strBuff);
+        clientStatsInfo.selfPrintStatsInfo(true, true, strBuff);
         if (this.nodeStatus.compareAndSet(0, 1)) {
             this.heartbeatService.shutdownNow();
             this.topicPartitionMap.clear();
@@ -307,8 +316,8 @@ public class ProducerManager {
      *
      * @return client metrics
      */
-    public ClientMetrics getClientMetrics() {
-        return clientMetrics;
+    public ClientStatsInfo getClientMetrics() {
+        return clientStatsInfo;
     }
 
     /**
@@ -369,7 +378,7 @@ public class ProducerManager {
     /**
      * Remove published topics. We will ignore null topics or non-published topics.
      *
-     * @param topicSet
+     * @param topicSet   the topic set need to delete
      */
     public void removeTopic(Set<String> topicSet) {
         for (String topic : topicSet) {
@@ -420,18 +429,18 @@ public class ProducerManager {
                         this.masterService.producerRegisterP2M(createRegisterRequest(),
                                 AddressUtils.getLocalAddress(), tubeClientConfig.isTlsEnable());
                 if (response == null) {
-                    clientMetrics.bookReg2Master(true);
+                    clientStatsInfo.bookReg2Master(true);
                 } else {
                     if (response.getSuccess()) {
                         if (response.getBrokerCheckSum() != this.brokerInfoCheckSum) {
                             updateBrokerInfoList(true, response.getBrokerInfosList(),
                                     response.getBrokerCheckSum(), sBuilder);
                         }
-                        clientMetrics.bookReg2Master(false);
+                        clientStatsInfo.bookReg2Master(false);
                         processRegSyncInfo(response);
                         return;
                     } else {
-                        clientMetrics.bookReg2Master(true);
+                        clientStatsInfo.bookReg2Master(true);
                     }
                 }
                 if (remainingRetry <= 0) {
@@ -665,7 +674,7 @@ public class ProducerManager {
                 ThreadUtils.sleep(100);
             }
             // print metrics information
-            clientMetrics.printMetricInfo(false, sBuilder);
+            clientStatsInfo.selfPrintStatsInfo(false, true, sBuilder);
             // check whether public topics
             if (publishTopics.isEmpty()) {
                 return;
@@ -677,14 +686,14 @@ public class ProducerManager {
                 if (response == null || !response.getSuccess()) {
                     heartbeatRetryTimes++;
                     if (response == null) {
-                        clientMetrics.bookHB2MasterException();
+                        clientStatsInfo.bookHB2MasterException();
                         logger.error("[Heartbeat Failed] receive null HeartResponseM2P response!");
                     } else {
                         logger.error(sBuilder.append("[Heartbeat Failed] ")
                                 .append(response.getErrMsg()).toString());
                         sBuilder.delete(0, sBuilder.length());
                         if (response.getErrCode() == TErrCodeConstants.HB_NO_NODE) {
-                            clientMetrics.bookHB2MasterTimeout();
+                            clientStatsInfo.bookHB2MasterTimeout();
                             try {
                                 register2Master();
                             } catch (Throwable ee) {
@@ -694,7 +703,7 @@ public class ProducerManager {
                                 sBuilder.delete(0, sBuilder.length());
                             }
                         } else {
-                            clientMetrics.bookHB2MasterException();
+                            clientStatsInfo.bookHB2MasterException();
                             if (response.getErrCode() == TErrCodeConstants.CERTIFICATE_FAILURE) {
                                 adjustHeartBeatPeriod("certificate failure", sBuilder);
                             }

@@ -24,8 +24,6 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 
 public class DorisSinkInfo extends SinkInfo {
 
-
-
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("table_identifier")

@@ -47,8 +47,15 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID_OPEN;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_UUID_OPEN;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_LOCAL_IP;
 
 public class AgentUtils {
 
@@ -79,6 +86,14 @@ public class AgentUtils {
             LOGGER.warn("cannot get md5 of {}", file, ex);
         }
         return "";
+    }
+
+    /**
+     * return system current time
+     * @return
+     */
+    public static long getCurrentTime() {
+        return System.currentTimeMillis();
     }
 
     /**
@@ -321,6 +336,40 @@ public class AgentUtils {
     }
 
     /**
+     * check agent ip from manager
+     */
+    public static String fetchLocalIp() {
+        return AgentConfiguration.getAgentConf().get(AGENT_LOCAL_IP, DEFAULT_LOCAL_IP);
+    }
+
+    /**
+     * check agent uuid from manager
+     */
+    public static String fetchLocalUuid() {
+        String uuid = "";
+        if (!AgentConfiguration.getAgentConf()
+            .getBoolean(AGENT_LOCAL_UUID_OPEN, DEFAULT_AGENT_LOCAL_UUID_OPEN)) {
+            return uuid;
+        }
+        try {
+            String localUuid = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_UUID);
+            if (StringUtils.isNotEmpty(localUuid)) {
+                uuid = localUuid;
+                return uuid;
+            }
+            String result = ExcuteLinux.exeCmd("dmidecode | grep UUID");
+            if (StringUtils.isNotEmpty(result)
+                    && StringUtils.containsIgnoreCase(result, "UUID")) {
+                uuid = result.split(":")[1].trim();
+                return uuid;
+            }
+        } catch (Exception e) {
+            LOGGER.error("fetch uuid  error", e);
+        }
+        return uuid;
+    }
+
+    /**
      * time str convert to mill sec
      * @param time
      * @param cycleUnit
@@ -360,6 +409,17 @@ public class AgentUtils {
             LOGGER.error("convert time string {} to millSec error", time);
         }
         return System.currentTimeMillis();
+    }
+
+    public static File makeDirsIfNotExist(String childPath, String parentPath) {
+        File finalPath = new File(parentPath, childPath);
+        try {
+            boolean result = finalPath.mkdirs();
+            LOGGER.info("try to create local path {}, result is {}", finalPath, result);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        return finalPath;
     }
 
 }

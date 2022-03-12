@@ -19,28 +19,19 @@ package org.apache.inlong.manager.service.repository;
 
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import javax.annotation.PostConstruct;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.inlong.commons.pojo.dataproxy.CacheClusterObject;
-import org.apache.inlong.commons.pojo.dataproxy.CacheClusterSetObject;
-import org.apache.inlong.commons.pojo.dataproxy.CacheTopicObject;
-import org.apache.inlong.commons.pojo.dataproxy.DataProxyCluster;
-import org.apache.inlong.commons.pojo.dataproxy.DataProxyConfigResponse;
-import org.apache.inlong.commons.pojo.dataproxy.IRepository;
-import org.apache.inlong.commons.pojo.dataproxy.InLongIdObject;
-import org.apache.inlong.commons.pojo.dataproxy.ProxyChannel;
-import org.apache.inlong.commons.pojo.dataproxy.ProxyClusterObject;
-import org.apache.inlong.commons.pojo.dataproxy.ProxySink;
-import org.apache.inlong.commons.pojo.dataproxy.ProxySource;
-import org.apache.inlong.commons.pojo.dataproxy.RepositoryTimerTask;
+import org.apache.inlong.common.pojo.dataproxy.CacheClusterObject;
+import org.apache.inlong.common.pojo.dataproxy.CacheClusterSetObject;
+import org.apache.inlong.common.pojo.dataproxy.CacheTopicObject;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
+import org.apache.inlong.common.pojo.dataproxy.IRepository;
+import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
+import org.apache.inlong.common.pojo.dataproxy.ProxyChannel;
+import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
+import org.apache.inlong.common.pojo.dataproxy.ProxySink;
+import org.apache.inlong.common.pojo.dataproxy.ProxySource;
+import org.apache.inlong.common.pojo.dataproxy.RepositoryTimerTask;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyClusterSet;
 import org.apache.inlong.manager.dao.entity.CacheCluster;
 import org.apache.inlong.manager.dao.entity.CacheClusterExt;
@@ -60,6 +51,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * DataProxyConfigRepository
@@ -96,6 +98,8 @@ public class DataProxyConfigRepository implements IRepository {
     /**
      * reload
      */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public void reload() {
         LOGGER.info("start to reload config.");
         List<ClusterSet> setList = clusterSetMapper.selectClusterSet();
