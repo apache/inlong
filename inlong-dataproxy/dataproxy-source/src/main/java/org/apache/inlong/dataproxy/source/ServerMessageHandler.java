@@ -129,6 +129,21 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     //
     private final DataProxyMetricItemSet metricItemSet;
 
+    /**
+     * Constructor
+     *
+     * @param source AbstractSource
+     * @param serviceDecoder ServiceDecoder
+     * @param allChannels ChannelGroup
+     * @param topic Topic
+     * @param attr String
+     * @param filterEmptyMsg Boolean
+     * @param maxCons maxCons
+     * @param isCompressed Is compressed
+     * @param monitorIndex MonitorIndex
+     * @param monitorIndexExt MonitorIndexExt
+     * @param protocolType protocolType
+     */
     public ServerMessageHandler(AbstractSource source, ServiceDecoder serviceDecoder,
             ChannelGroup allChannels,
             String topic, String attr, Boolean filterEmptyMsg,

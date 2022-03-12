@@ -47,6 +47,14 @@ public class MessageUtils {
         return isSyncSendForOrder(syncSend);
     }
 
+    /**
+     * Convert String to ByteBuf
+     *
+     * @param backattrs
+     * @param msgType message type
+     * @param sequenceId sequence Id
+     * @return ByteBuf
+     */
     public static ByteBuf getResponsePackage(String backattrs, MsgType msgType, String sequenceId) {
         int binTotalLen = 1 + 4 + 2 + 2;
         if (null != backattrs) {

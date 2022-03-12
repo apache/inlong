@@ -106,9 +106,14 @@ public class InlongTcpSource extends SimpleTcpSource
         }
     }
 
+    /**
+     * get ChannelInitializerFactory
+     *
+     * @return ChannelInitializer
+     */
     public ChannelInitializer getChannelInitializerFactory() {
-        LOG.info(new StringBuffer("load msgFactory=").append(msgFactoryName)
-                .append(" and serviceDecoderName=").append(serviceDecoderName).toString());
+        LOG.info("load msgFactory=" + msgFactoryName +
+                " and serviceDecoderName=" + serviceDecoderName);
 
         ChannelInitializer fac = null;
         try {
