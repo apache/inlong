@@ -103,7 +103,7 @@ public class TopicWebController {
      *
      * @param req
      * @return
-     * @throws Exception
+     * @throws Exception exception
      */
     @GetMapping("/consumerAuth")
     public @ResponseBody
@@ -118,7 +118,7 @@ public class TopicWebController {
      *
      * @param req
      * @return
-     * @throws Exception
+     * @throws Exception exception
      */
     @GetMapping("/topicConfig")
     public @ResponseBody

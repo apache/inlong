@@ -23,12 +23,12 @@ import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import java.util.List;
 
 /**
- * Handler to pares profile event to CLS List<LogItem> format.
+ * Handler to pares profile event to CLS {@literal List<LogItem>} format.
  */
 public interface IEvent2LogItemHandler {
 
     /**
-     * Parse event into CLS List<LogItem> format.
+     * Parse event into CLS {@literal List<LogItem>} format.
      *
      * @param context Context of CLS sink.
      * @param event Event to be pares to List<LogItem>

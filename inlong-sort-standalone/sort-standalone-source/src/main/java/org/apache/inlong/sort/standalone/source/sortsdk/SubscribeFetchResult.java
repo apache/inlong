@@ -66,7 +66,7 @@ public class SubscribeFetchResult {
      * @param sortId String
      * @param msgKey String
      * @param offset String
-     * @param headers {@link Map<String,String>}
+     * @param headers Map
      * @param recTime long
      * @param body byte[]
      */

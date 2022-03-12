@@ -89,7 +89,6 @@ public class NodeServiceImpl implements NodeService {
      *
      * @param masterEntry - node entry
      * @return
-     * @throws IOException
      */
     @Override
     public TubeHttpBrokerInfoList requestBrokerStatus(MasterEntry masterEntry) {
@@ -118,7 +117,7 @@ public class NodeServiceImpl implements NodeService {
      *
      * @param req
      * @return
-     * @throws Exception
+     * @throws Exception exception
      */
     @Override
     public TubeMQResult cloneBrokersWithTopic(CloneBrokersReq req) throws Exception {
@@ -311,7 +310,7 @@ public class NodeServiceImpl implements NodeService {
      *
      * @param req
      * @return
-     * @throws Exception
+     * @throws Exception exception
      */
     @Override
     public TubeMQResult cloneTopicToBrokers(CloneTopicReq req) throws Exception {

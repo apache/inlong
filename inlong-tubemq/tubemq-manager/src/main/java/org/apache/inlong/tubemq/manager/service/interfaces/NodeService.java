@@ -46,7 +46,7 @@ public interface NodeService {
      *
      * @param req
      * @return
-     * @throws Exception
+     * @throws Exception exception
      */
     TubeMQResult cloneBrokersWithTopic(CloneBrokersReq req) throws Exception;
 
@@ -67,7 +67,7 @@ public interface NodeService {
      * @param req
      * @param masterEntry
      * @return
-     * @throws Exception
+     * @throws Exception exception
      */
     TubeMQResult addTopicToBrokers(AddTopicReq req, MasterEntry masterEntry) throws Exception;
 
@@ -92,7 +92,7 @@ public interface NodeService {
      *
      * @param req
      * @return
-     * @throws Exception
+     * @throws Exception exception
      */
     TubeMQResult cloneTopicToBrokers(CloneTopicReq req) throws Exception;
 
