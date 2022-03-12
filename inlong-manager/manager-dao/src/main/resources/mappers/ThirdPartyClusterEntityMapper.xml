@@ -225,7 +225,7 @@
         where is_deleted = 0
         and name = #{name, jdbcType=VARCHAR}
     </select>
-    <select id="selectMqCluster" resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
+    <select id="selectMQCluster" resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
         select
         <include refid="Base_Column_List"/>
         from third_party_cluster

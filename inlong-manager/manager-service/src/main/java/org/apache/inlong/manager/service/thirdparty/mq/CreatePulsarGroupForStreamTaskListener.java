@@ -86,7 +86,7 @@ public class CreatePulsarGroupForStreamTaskListener implements QueueOperateListe
             log.warn("inlong stream is empty for group={}, stream={}, skip to create pulsar group", groupId, streamId);
             return ListenerResult.success();
         }
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo();
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMiddlewareType());
         try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             // Query data sink info based on groupId and streamId
             List<String> sinkTypeList = sinkService.getSinkTypeList(groupId, streamId);

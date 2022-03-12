@@ -64,17 +64,17 @@ public class SourceInfoUtils {
             ClusterBean clusterBean, InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             SourceResponse sourceResponse, List<FieldInfo> sourceFields) {
 
-        String middleWareType = groupInfo.getMiddlewareType();
+        String mqType = groupInfo.getMiddlewareType();
         DeserializationInfo deserializationInfo = SerializationUtils.createDeserialInfo(sourceResponse, streamInfo);
         SourceInfo sourceInfo;
-        if (Constant.MIDDLEWARE_PULSAR.equals(middleWareType)) {
+        if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
             sourceInfo = createPulsarSourceInfo(pulsarCluster, clusterBean, groupInfo, streamInfo, deserializationInfo,
                     sourceFields);
-        } else if (Constant.MIDDLEWARE_TUBE.equals(middleWareType)) {
+        } else if (Constant.MIDDLEWARE_TUBE.equals(mqType)) {
             // InlongGroupInfo groupInfo, String masterAddress,
             sourceInfo = createTubeSourceInfo(groupInfo, masterAddress, clusterBean, deserializationInfo, sourceFields);
         } else {
-            throw new WorkflowListenerException(String.format("Unsupported middleware {%s}", middleWareType));
+            throw new WorkflowListenerException(String.format("Unsupported middleware {%s}", mqType));
         }
 
         return sourceInfo;
@@ -98,6 +98,7 @@ public class SourceInfoUtils {
         final String fullTopicName = "persistent://" + tenant + "/" + namespace + "/" + topicName;
         final String consumerGroup = clusterBean.getAppName() + "_" + topicName + "_consumer_group";
         FieldInfo[] fieldInfosArr = fieldInfos.toArray(new FieldInfo[0]);
+
         String type = pulsarCluster.getType();
         if (StringUtils.isNotEmpty(type) && Constant.MIDDLEWARE_TDMQ_PULSAR.equals(type)) {
             return new TDMQPulsarSourceInfo(pulsarCluster.getBrokerServiceUrl(),

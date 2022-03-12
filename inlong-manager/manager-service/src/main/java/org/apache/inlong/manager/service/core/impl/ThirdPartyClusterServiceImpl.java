@@ -211,10 +211,11 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
 
             DataProxyConfig config = new DataProxyConfig();
             config.setM(groupEntity.getSchemaName());
-            if (Constant.MIDDLEWARE_TUBE.equals(groupEntity.getMiddlewareType())) {
+            String mqType = groupEntity.getMiddlewareType();
+            if (Constant.MIDDLEWARE_TUBE.equals(mqType)) {
                 config.setInlongGroupId(groupId);
                 config.setTopic(bizResource);
-            } else if (Constant.MIDDLEWARE_PULSAR.equals(groupEntity.getMiddlewareType())) {
+            } else if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
                 List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
                 for (InlongStreamEntity stream : streamList) {
                     String topic = stream.getMqResourceObj();
@@ -248,9 +249,9 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         }
 
         // third-party-cluster type
-        String middlewareType = "";
+        String mqType = "";
         if (!groupEntityList.isEmpty()) {
-            middlewareType = groupEntityList.get(0).getMiddlewareType();
+            mqType = groupEntityList.get(0).getMiddlewareType();
         }
 
         // Get topic list by group id
@@ -258,7 +259,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         for (InlongGroupEntity groupEntity : groupEntityList) {
             final String groupId = groupEntity.getInlongGroupId();
             final String mqResource = groupEntity.getMqResourceObj();
-            if (Constant.MIDDLEWARE_PULSAR.equals(middlewareType)) {
+            if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
                 List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
                 for (InlongStreamEntity stream : streamList) {
                     DataProxyConfig topicConfig = new DataProxyConfig();
@@ -273,7 +274,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
                     topicConfig.setTopic("persistent://" + tenant + "/" + mqResource + "/" + topic);
                     topicList.add(topicConfig);
                 }
-            } else if (Constant.MIDDLEWARE_TUBE.equals(middlewareType)) {
+            } else if (Constant.MIDDLEWARE_TUBE.equals(mqType)) {
                 DataProxyConfig topicConfig = new DataProxyConfig();
                 topicConfig.setInlongGroupId(groupId);
                 topicConfig.setTopic(mqResource);
@@ -285,7 +286,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         List<ThirdPartyClusterInfo> mqSet = new ArrayList<>();
         List<String> clusterType = Arrays.asList(Constant.CLUSTER_TUBE, Constant.CLUSTER_PULSAR,
                 Constant.CLUSTER_TDMQ_PULSAR);
-        List<ThirdPartyClusterEntity> clusterList = thirdPartyClusterMapper.selectMqCluster(
+        List<ThirdPartyClusterEntity> clusterList = thirdPartyClusterMapper.selectMQCluster(
                 clusterEntity.getMqSetName(), clusterType);
         for (ThirdPartyClusterEntity cluster : clusterList) {
             ThirdPartyClusterInfo clusterInfo = new ThirdPartyClusterInfo();

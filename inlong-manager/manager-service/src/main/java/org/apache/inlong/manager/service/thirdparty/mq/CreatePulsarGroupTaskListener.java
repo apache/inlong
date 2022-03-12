@@ -70,8 +70,8 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
 
         String groupId = form.getInlongGroupId();
-        InlongGroupInfo bizInfo = groupService.get(groupId);
-        if (bizInfo == null) {
+        InlongGroupInfo groupInfo = groupService.get(groupId);
+        if (groupInfo == null) {
             log.error("inlong group not found with groupId={}", groupId);
             throw new WorkflowListenerException("inlong group not found with groupId=" + groupId);
         }
@@ -82,10 +82,10 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
             log.warn("inlong stream is empty for groupId={}, skip to create pulsar subscription", groupId);
             return ListenerResult.success();
         }
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo();
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMiddlewareType());
         try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             String tenant = clusterBean.getDefaultTenant();
-            String namespace = bizInfo.getMqResourceObj();
+            String namespace = groupInfo.getMqResourceObj();
 
             for (InlongStreamEntity streamEntity : streamEntities) {
                 PulsarTopicBean topicBean = new PulsarTopicBean();
@@ -114,7 +114,7 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
                         pulsarOptService.createSubscription(pulsarAdmin, topicBean, subscription);
 
                         // Insert the consumption data into the consumption table
-                        consumptionService.saveSortConsumption(bizInfo, topic, subscription);
+                        consumptionService.saveSortConsumption(groupInfo, topic, subscription);
                     }
                 }
             }

@@ -76,7 +76,7 @@ public class CreatePulsarTopicForStreamTaskListener implements QueueOperateListe
         }
 
         log.info("begin to create pulsar topic for groupId={}, streamId={}", groupId, streamId);
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo();
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMiddlewareType());
         try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
             for (String cluster : pulsarClusters) {
