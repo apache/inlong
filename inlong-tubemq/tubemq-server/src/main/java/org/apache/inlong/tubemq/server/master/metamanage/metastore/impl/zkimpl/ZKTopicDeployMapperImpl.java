@@ -85,7 +85,7 @@ public class ZKTopicDeployMapperImpl extends AbsTopicDeployMapperImpl {
             if (recordStr == null) {
                 continue;
             }
-            addOrUpdCacheRecord(gson.fromJson(recordStr, type));
+            putRecord2Caches(gson.fromJson(recordStr, type));
             totalCnt++;
         }
         logger.info(strBuff.append("[ZK Impl] loaded ").append(totalCnt)

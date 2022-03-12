@@ -71,7 +71,7 @@ public class BdbBrokerConfigMapperImpl extends AbsBrokerConfigMapperImpl {
                     logger.warn("[BDB Impl] found Null data while loading broker configure!");
                     continue;
                 }
-                addOrUpdCacheRecord(new BrokerConfEntity(bdbEntity));
+                putRecord2Caches(new BrokerConfEntity(bdbEntity));
                 totalCnt++;
             }
         } catch (Exception e) {
@@ -88,7 +88,8 @@ public class BdbBrokerConfigMapperImpl extends AbsBrokerConfigMapperImpl {
     }
 
     protected boolean putConfig2Persistent(BrokerConfEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+                                           StringBuilder strBuff,
+                                           ProcessResult result) {
         BdbBrokerConfEntity bdbEntity =
                 entity.buildBdbBrokerConfEntity();
         try {

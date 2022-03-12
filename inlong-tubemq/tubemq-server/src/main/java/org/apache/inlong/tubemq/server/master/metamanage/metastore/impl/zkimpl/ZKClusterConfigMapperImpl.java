@@ -89,7 +89,7 @@ public class ZKClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
             if (clrConfigureStr == null) {
                 continue;
             }
-            addOrUpdCacheRecord(gson.fromJson(clrConfigureStr, type));
+            putRecord2Caches(gson.fromJson(clrConfigureStr, type));
             totalCnt++;
         }
         logger.info(strBuff.append("[ZK Impl] loaded ").append(totalCnt)

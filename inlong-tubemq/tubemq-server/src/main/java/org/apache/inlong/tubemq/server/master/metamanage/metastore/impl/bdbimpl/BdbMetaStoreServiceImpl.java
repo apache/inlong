@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.server.master.metamanage.metastore;
+package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl;
 
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Durability;
@@ -58,10 +58,12 @@ import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.fileconfig.MasterReplicationConfig;
+import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterNodeInfo;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.keepalive.AliveObserver;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaStoreService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
@@ -74,12 +76,6 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.Co
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.GroupResCtrlMapper;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.TopicCtrlMapper;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.TopicDeployMapper;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbBrokerConfigMapperImpl;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbClusterConfigMapperImpl;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbConsumeCtrlMapperImpl;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbGroupResCtrlMapperImpl;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbTopicCtrlMapperImpl;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbTopicDeployMapperImpl;
 import org.apache.inlong.tubemq.server.master.utils.BdbStoreSamplePrint;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterNodeVO;
@@ -144,11 +140,10 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     // group consume control configure
     private ConsumeCtrlMapper consumeCtrlMapper;
 
-    public BdbMetaStoreServiceImpl(String nodeHost, String metaDataPath,
-                                   MasterReplicationConfig replicationConfig) {
-        this.nodeHost = nodeHost;
-        this.metaDataPath = metaDataPath;
-        this.replicationConfig = replicationConfig;
+    public BdbMetaStoreServiceImpl(MasterConfig masterConfig) {
+        this.nodeHost = masterConfig.getHostName();
+        this.metaDataPath = masterConfig.getMetaDataPath();
+        this.replicationConfig = masterConfig.getReplicationConfig();
         // build replicationGroupAdmin info
         Set<InetSocketAddress> helpers = new HashSet<>();
         for (int i = 1; i <= 3; i++) {
@@ -223,10 +218,8 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             return result.isSuccess();
         }
         if (clusterConfigMapper.addClusterConfig(entity, strBuff, result)) {
-            strBuff.append("[addClusterConfig], ")
-                    .append(entity.getCreateUser())
-                    .append(" added cluster setting record :")
-                    .append(entity.toString());
+            strBuff.append("[addClusterConfig], ").append(entity.getCreateUser())
+                    .append(" added cluster setting record :").append(entity);
             logger.info(strBuff.toString());
         } else {
             strBuff.append("[addClusterConfig], ")
@@ -281,7 +274,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
                     (ClusterSettingEntity) result.getRetData();
             if (entity != null) {
                 strBuff.append("[delClusterConfig], ").append(operator)
-                        .append(" deleted cluster setting record :").append(entity.toString());
+                        .append(" deleted cluster setting record :").append(entity);
                 logger.info(strBuff.toString());
             }
         } else {
@@ -303,10 +296,8 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             return result.isSuccess();
         }
         if (brokerConfigMapper.addBrokerConf(entity, strBuff, result)) {
-            strBuff.append("[addBrokerConf], ")
-                    .append(entity.getCreateUser())
-                    .append(" added broker configure record :")
-                    .append(entity.toString());
+            strBuff.append("[addBrokerConf], ").append(entity.getCreateUser())
+                    .append(" added broker configure record :").append(entity);
             logger.info(strBuff.toString());
         } else {
             strBuff.append("[addBrokerConf], ")
@@ -357,8 +348,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             BrokerConfEntity entity = (BrokerConfEntity) result.getRetData();
             if (entity != null) {
                 strBuffer.append("[delBrokerConf], ").append(operator)
-                        .append(" deleted broker configure record :")
-                        .append(entity.toString());
+                        .append(" deleted broker configure record :").append(entity);
                 logger.info(strBuffer.toString());
             }
         } else {
@@ -402,10 +392,8 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             return result.isSuccess();
         }
         if (topicDeployMapper.addTopicConf(entity, strBuff, result)) {
-            strBuff.append("[addTopicConf], ")
-                    .append(entity.getCreateUser())
-                    .append(" added topic configure record :")
-                    .append(entity.toString());
+            strBuff.append("[addTopicConf], ").append(entity.getCreateUser())
+                    .append(" added topic configure record :").append(entity);
             logger.info(strBuff.toString());
         } else {
             strBuff.append("[addTopicConf], ")
@@ -457,8 +445,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
                     (GroupResCtrlEntity) result.getRetData();
             if (entity != null) {
                 strBuff.append("[delTopicConf], ").append(operator)
-                        .append(" deleted topic configure record :")
-                        .append(entity.toString());
+                        .append(" deleted topic configure record :").append(entity);
                 logger.info(strBuff.toString());
             }
         } else {
@@ -566,10 +553,8 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             return result.isSuccess();
         }
         if (topicCtrlMapper.addTopicCtrlConf(entity, strBuff, result)) {
-            strBuff.append("[addTopicCtrlConf], ")
-                    .append(entity.getCreateUser())
-                    .append(" added topic control record :")
-                    .append(entity.toString());
+            strBuff.append("[addTopicCtrlConf], ").append(entity.getCreateUser())
+                    .append(" added topic control record :").append(entity);
             logger.info(strBuff.toString());
         } else {
             strBuff.append("[addTopicCtrlConf], ")
@@ -620,7 +605,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
                     (TopicCtrlEntity) result.getRetData();
             if (entity != null) {
                 strBuff.append("[delTopicCtrlConf], ").append(operator)
-                        .append(" deleted topic control record :").append(entity.toString());
+                        .append(" deleted topic control record :").append(entity);
                 logger.info(strBuff.toString());
             }
         } else {
@@ -658,10 +643,8 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             return result.isSuccess();
         }
         if (groupResCtrlMapper.addGroupResCtrlConf(entity, strBuff, result)) {
-            strBuff.append("[addGroupResCtrlConf], ")
-                    .append(entity.getCreateUser())
-                    .append(" added group resource control record :")
-                    .append(entity.toString());
+            strBuff.append("[addGroupResCtrlConf], ").append(entity.getCreateUser())
+                    .append(" added group resource control record :").append(entity);
             logger.info(strBuff.toString());
         } else {
             strBuff.append("[addGroupResCtrlConf], ")
@@ -713,8 +696,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
                     (GroupResCtrlEntity) result.getRetData();
             if (entity != null) {
                 strBuff.append("[delGroupResCtrlConf], ").append(operator)
-                        .append(" deleted group resource control record :")
-                        .append(entity.toString());
+                        .append(" deleted group resource control record :").append(entity);
                 logger.info(strBuff.toString());
             }
         } else {
@@ -746,10 +728,8 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             return result.isSuccess();
         }
         if (consumeCtrlMapper.addGroupConsumeCtrlConf(entity, strBuff, result)) {
-            strBuff.append("[addGroupConsumeCtrlConf], ")
-                    .append(entity.getCreateUser())
-                    .append(" added group consume control record :")
-                    .append(entity.toString());
+            strBuff.append("[addGroupConsumeCtrlConf], ").append(entity.getCreateUser())
+                    .append(" added group consume control record :").append(entity);
             logger.info(strBuff.toString());
         } else {
             strBuff.append("[addGroupConsumeCtrlConf], ")
@@ -979,7 +959,6 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
                 }
             } catch (Throwable e) {
                 logger.error("[BDB Impl] Get nodeState Throwable error", e);
-                continue;
             }
         }
         return null;
@@ -1216,7 +1195,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
      * Initialize configuration for BDB-JE replication environment.
      *
      * */
-    private void initEnvConfig() throws InterruptedException {
+    private void initEnvConfig() {
 
         // Set envHome and generate a ReplicationConfig. Note that ReplicationConfig and
         // EnvironmentConfig values could all be specified in the je.properties file,
@@ -1271,7 +1250,6 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
      */
     private ReplicatedEnvironment getEnvironment() throws InterruptedException {
         DatabaseException exception = null;
-
         //In this example we retry REP_HANDLE_RETRY_MAX times, but a production HA application may
         //retry indefinitely.
         for (int i = 0; i < REP_HANDLE_RETRY_MAX; i++) {
@@ -1305,11 +1283,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             }
         }
         // Failed despite retries.
-        if (exception != null) {
-            throw exception;
-        }
-        // Don't expect to get here.
-        throw new IllegalStateException("Failed despite retries");
+        throw exception;
     }
 
     /* initial metadata */

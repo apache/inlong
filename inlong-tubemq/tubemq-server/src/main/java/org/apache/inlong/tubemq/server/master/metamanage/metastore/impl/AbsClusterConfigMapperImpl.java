@@ -20,6 +20,7 @@ package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
@@ -40,11 +41,22 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
     @Override
     public boolean addClusterConfig(ClusterSettingEntity entity,
                                     StringBuilder strBuff, ProcessResult result) {
-        if (!metaDataCache.isEmpty()) {
+        // Check whether the configure record already exist
+        ClusterSettingEntity curEntity = metaDataCache.get(entity.getRecordKey());
+        if (curEntity == null) {
             result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    "The cluster configure already exists, please delete or update it first!");
+                    strBuff.append("Existed record found for ")
+                            .append(entity.getRecordKey()).toString());
+            strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
+        // Check whether the configured ports conflict in the record
+        if (WebParameterUtils.isConflictedPortsSet(entity.getBrokerPort(),
+                entity.getBrokerTLSPort(), entity.getBrokerWebPort(),
+                strBuff, result)) {
+            return result.isSuccess();
+        }
+        // Store data to persistent
         if (putConfig2Persistent(entity, strBuff, result)) {
             metaDataCache.put(entity.getRecordKey(), entity);
         }
@@ -54,19 +66,36 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
     @Override
     public boolean updClusterConfig(ClusterSettingEntity entity,
                                     StringBuilder strBuff, ProcessResult result) {
-        if (metaDataCache.isEmpty()) {
-            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    "The cluster configure is null, please add it first!");
-            return result.isSuccess();
-        }
+        // Check for the record to be updated
         ClusterSettingEntity curEntity = metaDataCache.get(entity.getRecordKey());
-        if (curEntity.equals(entity)) {
-            result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                    "The cluster configure have not changed!");
+        if (curEntity == null) {
+            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                    strBuff.append("Not found cluster configure for (")
+                            .append(entity.getRecordKey()).append(")!").toString());
             return result.isSuccess();
         }
-        if (putConfig2Persistent(entity, strBuff, result)) {
-            metaDataCache.put(entity.getRecordKey(), entity);
+        // Build the entity that need to be updated
+        ClusterSettingEntity newEntity = curEntity.clone();
+        newEntity.updBaseModifyInfo(entity);
+        if (!newEntity.updModifyInfo(entity.getDataVerId(),
+                entity.getBrokerPort(), entity.getBrokerTLSPort(),
+                entity.getBrokerWebPort(), entity.getMaxMsgSizeInMB(),
+                entity.getQryPriorityId(), entity.enableFlowCtrl(),
+                entity.getGloFlowCtrlRuleCnt(), entity.getGloFlowCtrlRuleInfo(),
+                entity.getClsDefTopicProps())) {
+            result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+                    "Cluster configure not changed!");
+            return result.isSuccess();
+        }
+        // Check whether the configured ports conflict in the record
+        if (WebParameterUtils.isConflictedPortsSet(newEntity.getBrokerPort(),
+                newEntity.getBrokerTLSPort(), newEntity.getBrokerWebPort(),
+                strBuff, result)) {
+            return result.isSuccess();
+        }
+        // Store data to persistent
+        if (putConfig2Persistent(newEntity, strBuff, result)) {
+            metaDataCache.put(newEntity.getRecordKey(), newEntity);
             result.setSuccResult(curEntity);
         }
         return result.isSuccess();
@@ -103,7 +132,7 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
      *
      * @param entity  need added or updated entity
      */
-    protected void addOrUpdCacheRecord(ClusterSettingEntity entity) {
+    protected void putRecord2Caches(ClusterSettingEntity entity) {
         metaDataCache.put(entity.getRecordKey(), entity);
     }
 

@@ -32,12 +32,8 @@ import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsGroupResCtrlMapperImpl;
 import org.apache.zookeeper.KeeperException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ZKGroupResCtrlMapperImpl extends AbsGroupResCtrlMapperImpl {
-    private static final Logger logger =
-            LoggerFactory.getLogger(ZKGroupResCtrlMapperImpl.class);
     private final ZooKeeperWatcher zkWatcher;
     private final String groupCtrlRootDir;
 
@@ -88,7 +84,7 @@ public class ZKGroupResCtrlMapperImpl extends AbsGroupResCtrlMapperImpl {
             if (recordStr == null) {
                 continue;
             }
-            addOrUpdCacheRecord(gson.fromJson(recordStr, type));
+            putRecord2Caches(gson.fromJson(recordStr, type));
             totalCnt++;
         }
         logger.info(strBuff.append("[ZK Impl] loaded ").append(totalCnt)

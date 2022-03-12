@@ -23,16 +23,31 @@ import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
 
 public interface KeepAlive {
 
+    /**
+     * Whether this node is the master role
+     *
+     * @return true if is master role or else
+     */
     boolean isMasterNow();
 
     long getMasterSinceTime();
 
     InetSocketAddress getMasterAddress();
 
+    /**
+     * Whether the primary node in active
+     *
+     * @return  true for active, false for inactive
+     */
     boolean isPrimaryNodeActive();
 
     void transferMaster() throws Exception;
 
+    /**
+     * Register node role switching event observer
+     *
+     * @param eventObserver  the event observer
+     */
     void registerObserver(AliveObserver eventObserver);
 
     ClusterGroupVO getGroupAddressStrInfo();
