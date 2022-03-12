@@ -15,20 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.client.api;
 
-public enum MqType {
-    PULSAR,
-    TUBE,
-    TDMQ_PULSAR,
-    NONE;
+import io.swagger.annotations.ApiModelProperty;
+import org.apache.inlong.manager.common.enums.MqType;
 
-    public static MqType forType(String type) {
-        for (MqType mqType : values()) {
-            if (mqType.name().equals(type)) {
-                return mqType;
-            }
-        }
-        throw new IllegalArgumentException(String.format("Unsupport queue=%s for Inlong", type));
-    }
+public class TdmqPulsarBaseConf extends PulsarBaseConf {
+
+    @ApiModelProperty("Message queue type")
+    private MqType type = MqType.TDMQ_PULSAR;
 }
