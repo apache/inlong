@@ -31,7 +31,7 @@ public interface IEvent2LogItemHandler {
      * Parse event into CLS {@literal List<LogItem>} format.
      *
      * @param context Context of CLS sink.
-     * @param event Event to be pares to List<LogItem>
+     * @param event Event to be pares to {@literal List<LogItem>}
      * @return List<LogItem>
      */
     List<LogItem> parse(ClsSinkContext context, ProfileEvent event);

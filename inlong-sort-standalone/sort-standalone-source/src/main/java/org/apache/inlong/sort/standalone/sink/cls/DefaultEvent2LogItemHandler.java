@@ -42,7 +42,7 @@ public class DefaultEvent2LogItemHandler implements IEvent2LogItemHandler {
      * Parse event to {@literal List<LogItem>} format.
      *
      * @param context Context of CLS sink.
-     * @param event Event to be pares to List<LogItem>
+     * @param event Event to be pares to {@literal List<LogItem>}
      * @return Prepared data structure to send.
      */
     @Override
