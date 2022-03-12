@@ -136,8 +136,6 @@ public class KafkaReader<K, V> implements Reader {
                         "partition:" + record.partition() + "value:" + recordValue + ", offset:" + record.offset());
                 // control speed
                 kafkaMetric.incReadNum();
-                // commit offset
-                consumer.commitAsync();
                 // commit succeed,then record current offset
                 snapshot = record.partition() + JOB_KAFKA_PARTITION_OFFSET_DELIMITER + record.offset();
                 DefaultMessage message = new DefaultMessage(recordValue.getBytes(StandardCharsets.UTF_8), headerMap);
@@ -145,6 +143,8 @@ public class KafkaReader<K, V> implements Reader {
                 return message;
             }
         } else {
+            // commit offset
+            consumer.commitAsync();
             fetchData(5000);
         }
         AgentUtils.silenceSleepInMs(waitTimeout);
