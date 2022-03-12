@@ -57,14 +57,11 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class ElasticsearchService implements AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(ElasticsearchService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchService.class);
 
     private static ScheduledExecutorService timerService = Executors.newScheduledThreadPool(1);
-
-    private List<ESDataPo> datalist = new ArrayList<>();
     private final Semaphore semaphore = new Semaphore(1);
-
+    private List<ESDataPo> datalist = new ArrayList<>();
     @Autowired
     @Qualifier("restClient")
     private RestHighLevelClient client;
@@ -77,9 +74,9 @@ public class ElasticsearchService implements AutoCloseable {
             @Override
             public void run() {
                 try {
-                    deleteTimeoutIndexs();
+                    deleteTimeoutIndices();
                 } catch (IOException e) {
-                    LOG.error("deleteTimeoutIndexs has err {}", e);
+                    LOG.error("deleteTimeoutIndices has err: ", e);
                 }
             }
         }), 1, 1, TimeUnit.DAYS);
@@ -90,7 +87,7 @@ public class ElasticsearchService implements AutoCloseable {
                 try {
                     bulkInsert();
                 } catch (IOException e) {
-                    LOG.error("bulkInsert has err {}", e);
+                    LOG.error("bulkInsert has err: ", e);
                 }
             }
         }), esConfig.getBulkInterval(), esConfig.getBulkInterval(), TimeUnit.SECONDS);
@@ -105,7 +102,7 @@ public class ElasticsearchService implements AutoCloseable {
                     LOG.error("failed to bulk insert");
                 }
             } catch (IOException e) {
-                LOG.error("bulkInsert has err {}", e);
+                LOG.error("bulkInsert has err: ", e);
             }
         }
         try {
@@ -113,7 +110,7 @@ public class ElasticsearchService implements AutoCloseable {
             datalist.add(data);
             semaphore.release();
         } catch (InterruptedException e) {
-            LOG.error("datalist semaphore has err {}", e);
+            LOG.error("datalist semaphore has err: ", e);
         }
     }
 
@@ -138,8 +135,7 @@ public class ElasticsearchService implements AutoCloseable {
     protected boolean existsIndex(String index) throws IOException {
         GetIndexRequest getIndexRequest = new GetIndexRequest();
         getIndexRequest.indices(index);
-        boolean isExits = client.indices().exists(getIndexRequest, RequestOptions.DEFAULT);
-        return isExits;
+        return client.indices().exists(getIndexRequest, RequestOptions.DEFAULT);
     }
 
     protected boolean bulkInsert() throws IOException {
@@ -175,19 +171,19 @@ public class ElasticsearchService implements AutoCloseable {
             semaphore.release();
             return bulkResponse.status().equals(RestStatus.OK);
         } catch (InterruptedException e) {
-            LOG.error("datalist semaphore has err {}", e);
+            LOG.error("datalist semaphore has err: ", e);
         }
         return false;
     }
 
-    protected void deleteTimeoutIndexs() throws IOException {
+    protected void deleteTimeoutIndices() throws IOException {
         List<String> auditIdList = esConfig.getAuditIdList();
         if (auditIdList.isEmpty()) {
             return;
         }
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, 0 - esConfig.getIndexDeleteDay());
+        calendar.add(Calendar.DATE, -esConfig.getIndexDeleteDay());
         Date deleteDay = calendar.getTime();
         String preIndex = formatter.format(deleteDay);
         for (String auditId : auditIdList) {
@@ -213,11 +209,11 @@ public class ElasticsearchService implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         try {
             bulkInsert();
         } catch (IOException e) {
-            LOG.error("bulkInsert has err {}", e);
+            LOG.error("bulkInsert has err: ", e);
         }
         timerService.shutdown();
     }

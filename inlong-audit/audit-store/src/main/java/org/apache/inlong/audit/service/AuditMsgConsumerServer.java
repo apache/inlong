@@ -19,12 +19,12 @@ package org.apache.inlong.audit.service;
 
 import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
-import org.apache.inlong.audit.protocol.AuditData;
 import org.apache.inlong.audit.config.PulsarConfig;
 import org.apache.inlong.audit.config.StoreConfig;
 import org.apache.inlong.audit.db.dao.AuditDataDao;
 import org.apache.inlong.audit.db.entities.AuditDataPo;
 import org.apache.inlong.audit.db.entities.ESDataPo;
+import org.apache.inlong.audit.protocol.AuditData;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageListener;
@@ -37,6 +37,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,30 +47,21 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class AuditMsgConsumerServer implements InitializingBean {
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(AuditMsgConsumerServer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AuditMsgConsumerServer.class);
+    private final Gson gson = new Gson();
+    private final ConcurrentHashMap<String, List<Consumer<byte[]>>> topicConsumerMap = new ConcurrentHashMap<>();
 
     @Autowired
     private PulsarConfig pulsarConfig;
-
     @Autowired
     private AuditDataDao auditDataDao;
-
     @Autowired
     private ElasticsearchService esService;
-
     @Autowired
     private StoreConfig storeConfig;
 
-    private PulsarClient pulsarClient;
-
-    private Gson gson = new Gson();
-
-    private ConcurrentHashMap<String, List<Consumer<byte[]>>> topicConsumerMap =
-            new ConcurrentHashMap<String, List<Consumer<byte[]>>>();
-
-    public void afterPropertiesSet() throws Exception {
-        pulsarClient = getOrCreatePulsarClient(pulsarConfig.getPulsarServerUrl());
+    public void afterPropertiesSet() {
+        PulsarClient pulsarClient = getOrCreatePulsarClient(pulsarConfig.getPulsarServerUrl());
         if (storeConfig.isElasticsearchStore()) {
             esService.startTimerRoutine();
         }
@@ -166,7 +158,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
     }
 
     protected void handleMessage(Message<byte[]> msg) throws Exception {
-        String body = new String(msg.getData(), "UTF-8");
+        String body = new String(msg.getData(), StandardCharsets.UTF_8);
         AuditData msgBody = gson.fromJson(body, AuditData.class);
         if (storeConfig.isMysqlStore()) {
             AuditDataPo po = new AuditDataPo();
