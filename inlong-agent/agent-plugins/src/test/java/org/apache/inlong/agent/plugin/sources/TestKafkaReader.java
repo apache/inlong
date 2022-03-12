@@ -64,6 +64,5 @@ public class TestKafkaReader {
         } catch (Exception e) {
             LOGGER.error("get record failed:", e);
         }
-        AgentUtils.silenceSleepInMs(100000);
     }
 }
