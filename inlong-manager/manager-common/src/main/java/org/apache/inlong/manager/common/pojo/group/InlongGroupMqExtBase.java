@@ -32,7 +32,8 @@ import org.apache.inlong.manager.common.enums.Constant;
 @ApiModel("Extended inlong group info of different MQs")
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "middlewareType", defaultImpl = InlongGroupMqExtBase.class)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = InlongGroupPulsarInfo.class, name = Constant.MIDDLEWARE_PULSAR)
+        @JsonSubTypes.Type(value = InlongGroupPulsarInfo.class, name = Constant.MIDDLEWARE_PULSAR),
+        @JsonSubTypes.Type(value = InlongGroupPulsarInfo.class, name = Constant.MIDDLEWARE_TDMQ_PULSAR)
 })
 public class InlongGroupMqExtBase {
 
