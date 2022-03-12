@@ -191,11 +191,9 @@ start_inlong_sort() {
   else
     echo "Currently, the system starts Flink, which is used to process sort tasks"
   fi
-  # This file is mainly used to find the Flink bin directory
-  flagfile=$(find / -name find-flink-home.sh)
-  flink_bin=$(dirname $flagfile)
+
   cd $INLONG_HOME
-  $flink_bin/flink run -c org.apache.inlong.sort.flink.Entrance inlong-sort/sort-dist*.jar \
+  $FLINK_HOME/bin/flink run -c org.apache.inlong.sort.flink.Entrance inlong-sort/sort-dist*.jar \
   --cluster-id $sort_app_name --zookeeper.quorum $zkserver_addr --zookeeper.path.root $cluster_zk_root \
   --source.type $source_type --sink.type $sink_type &
 }
@@ -301,17 +299,14 @@ stop_inlong_sort() {
     echo "cli_frontend stopped "
   fi
   echo "stop sort flink job"
-  #This file is mainly used to find the Flink bin directory
-  flagfile=$(find / -name find-flink-home.sh)
-  flink_bin=$(dirname $flagfile)
-  runjob=$($flink_bin/flink list -r | grep "$sort_app_name")
+  runjob=$($FLINK_HOME/bin/flink list -r | grep "$sort_app_name")
   OLD_IFS="$IFS"
   IFS=":"
   array=($runjob)
   IFS="$OLD_IFS"
   jobId=$(echo "${array[3]}")
   echo $jobId
-  $flink_bin/flink cancel $jobId
+  $FLINK_HOME/bin/flink cancel $jobId
 }
 
 # stop inlong
@@ -340,7 +335,6 @@ stop_inlong_all() {
   # stop inlong sort
   stop_inlong_sort
 }
-
 
 if [[ "$COMMAND" == start || "$COMMAND" == stop ]]; then
   case $SERVICE in
