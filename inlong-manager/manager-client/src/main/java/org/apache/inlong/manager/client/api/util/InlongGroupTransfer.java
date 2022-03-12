@@ -74,6 +74,7 @@ public class InlongGroupTransfer {
             case NONE:
                 return MqBaseConf.BLANK_MQ_CONF;
             case PULSAR:
+            case TDMQ_PULSAR:
                 return parsePulsarConf(inlongGroupResponse);
             case TUBE:
                 return parseTubeConf(inlongGroupResponse);
@@ -204,7 +205,7 @@ public class InlongGroupTransfer {
         groupInfo.setInCharges(groupConf.getOperator());
         groupInfo.setExtList(Lists.newArrayList());
         groupInfo.setCreator(groupConf.getOperator());
-        if (mqType == MqType.PULSAR) {
+        if (mqType == MqType.PULSAR || mqType == MqType.TDMQ_PULSAR) {
             PulsarBaseConf pulsarBaseConf = (PulsarBaseConf) mqConf;
             groupInfo.setMqResourceObj(pulsarBaseConf.getNamespace());
             InlongGroupPulsarInfo pulsarInfo = createPulsarInfo(pulsarBaseConf);
