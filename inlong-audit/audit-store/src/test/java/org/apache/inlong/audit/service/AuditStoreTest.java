@@ -18,10 +18,8 @@
 package org.apache.inlong.audit.service;
 
 import org.apache.pulsar.client.api.Consumer;
-import org.apache.pulsar.client.impl.ConsumerImpl;
 import org.apache.pulsar.client.impl.PulsarClientImpl;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
-import org.apache.pulsar.client.impl.conf.ConsumerConfigurationData;
 import org.apache.pulsar.client.util.ExecutorProvider;
 import org.apache.pulsar.shade.io.netty.channel.EventLoop;
 import org.apache.pulsar.shade.io.netty.util.Timer;
@@ -29,42 +27,37 @@ import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.util.concurrent.CompletableFuture;
-
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AuditStoreTest {
 
-    private ConsumerConfigurationData consumerConf;
-
+    private PulsarClientImpl client;
     private AuditMsgConsumerServer auditMsgConsumerServer;
 
-    private PulsarClientImpl client;
-
     static <T> PulsarClientImpl createPulsarClientMock() {
-        PulsarClientImpl clientMock = mock(PulsarClientImpl.class, Mockito.RETURNS_DEEP_STUBS);
-
+        PulsarClientImpl mockClient = mock(PulsarClientImpl.class, Mockito.RETURNS_DEEP_STUBS);
         ClientConfigurationData clientConf = new ClientConfigurationData();
-        when(clientMock.getConfiguration()).thenReturn(clientConf);
-        when(clientMock.timer()).thenReturn(mock(Timer.class));
+        when(mockClient.getConfiguration()).thenReturn(clientConf);
+        when(mockClient.timer()).thenReturn(mock(Timer.class));
 
-        when(clientMock.externalExecutorProvider()).thenReturn(mock(ExecutorProvider.class));
-        when(clientMock.eventLoopGroup().next()).thenReturn(mock(EventLoop.class));
+        when(mockClient.externalExecutorProvider()).thenReturn(mock(ExecutorProvider.class));
+        when(mockClient.eventLoopGroup().next()).thenReturn(mock(EventLoop.class));
 
-        return clientMock;
+        return mockClient;
     }
 
     @BeforeMethod
-    public void setUp() {
-        consumerConf = new ConsumerConfigurationData<>();
-        PulsarClientImpl client = createPulsarClientMock();
+    public void setUp() throws Exception {
+        client = createPulsarClientMock();
         ClientConfigurationData clientConf = client.getConfiguration();
         clientConf.setOperationTimeoutMs(100);
         clientConf.setStatsIntervalSeconds(0);
-        CompletableFuture<Consumer<ConsumerImpl>> subscribeFuture = new CompletableFuture<>();
-        consumerConf.setSubscriptionName("test-sub");
-        auditMsgConsumerServer = new AuditMsgConsumerServer();
+
+        Consumer<byte[]> consumer = client.newConsumer().subscribe();
+        auditMsgConsumerServer = mock(AuditMsgConsumerServer.class);
+        when(auditMsgConsumerServer.createConsumer(any(), any())).thenReturn(consumer);
     }
 
     @Test
@@ -72,4 +65,5 @@ public class AuditStoreTest {
         String topic = "non-persistent://public/default/audit-test";
         auditMsgConsumerServer.createConsumer(client, topic);
     }
+
 }

@@ -18,7 +18,10 @@
 package org.apache.inlong.audit.db.dao;
 
 import org.apache.inlong.audit.db.entities.AuditDataPo;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface AuditDataDao {
+
     int insert(AuditDataPo auditDataPo);
 }
