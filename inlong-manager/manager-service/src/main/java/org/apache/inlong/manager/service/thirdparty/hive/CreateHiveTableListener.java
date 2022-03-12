@@ -17,10 +17,13 @@
 
 package org.apache.inlong.manager.service.thirdparty.hive;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.inlong.manager.common.pojo.sink.SinkForSortDTO;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
+import org.apache.inlong.manager.service.utils.SpringContextUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
@@ -28,8 +31,7 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Event listener of create hive table for all inlong stream
@@ -40,8 +42,8 @@ public class CreateHiveTableListener implements SinkOperateListener {
 
     @Autowired
     private StreamSinkEntityMapper sinkMapper;
-    @Autowired
-    private HiveTableOperator hiveTableOperator;
+
+    private IHiveTableOperator hiveTableOperator;
 
     @Override
     public TaskEvent event() {
@@ -58,6 +60,10 @@ public class CreateHiveTableListener implements SinkOperateListener {
         List<SinkForSortDTO> needCreateList = configList.stream()
                 .filter(sinkForSortDTO -> sinkForSortDTO.getEnableCreateResource() == 1)
                 .collect(Collectors.toList());
+        if (hiveTableOperator == null) {
+            hiveTableOperator = (IHiveTableOperator) SpringContextUtils.getBean(IHiveTableOperator.BEAN_NAME,
+                    DefaultHiveTableOperator.class.getName());
+        }
         hiveTableOperator.createHiveResource(groupId, needCreateList);
 
         String result = "success to create hive table for group [" + groupId + "]";
