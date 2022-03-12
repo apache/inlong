@@ -65,7 +65,9 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
             default:
                 throw new RuntimeException(String.format("Unsupported operation=%s for Inlong group", operateType));
         }
+        // Update inlong group status and other info
         groupService.updateStatus(groupInfo.getInlongGroupId(), nextStatus, username);
+        groupService.update(groupInfo.genRequest(), username);
         return ListenerResult.success();
     }
 

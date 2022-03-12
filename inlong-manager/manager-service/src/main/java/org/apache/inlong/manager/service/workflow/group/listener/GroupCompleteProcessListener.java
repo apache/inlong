@@ -65,8 +65,11 @@ public class GroupCompleteProcessListener implements ProcessEventListener {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
         String applicant = context.getApplicant();
-        // Update status of inlong group, inlong stream...
+        // Update inlong group status and other info
         groupService.updateStatus(groupId, GroupState.CONFIG_SUCCESSFUL.getCode(), applicant);
+        groupService.update(form.getGroupInfo().genRequest(), applicant);
+
+        // Update status of other related configs
         streamService.updateStatus(groupId, null, EntityStatus.STREAM_CONFIG_SUCCESSFUL.getCode(), applicant);
 
         // TODO Remove update source file / db detail status
