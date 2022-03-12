@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.utils.MockUtils;
 import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.MessageId;
@@ -50,7 +51,7 @@ import org.slf4j.LoggerFactory;
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
 @PrepareForTest({PulsarClient.class, ClientBuilder.class, MessageId.class,
-        Producer.class, ProducerBuilder.class, TypedMessageBuilder.class})
+        Producer.class, ProducerBuilder.class, TypedMessageBuilder.class, MetricRegister.class})
 public class TestPulsarProducerFederation {
 
     public static final Logger LOG = LoggerFactory.getLogger(TestPulsarProducerFederation.class);
@@ -65,6 +66,7 @@ public class TestPulsarProducerFederation {
         Map<String, String> result = new ConcurrentHashMap<>();
         try (InputStream inStream = TestPulsarFederationSink.class.getClassLoader().getResource("flume.conf")
                 .openStream()) {
+            MockUtils.mockMetricRegister();
             Properties props = new Properties();
             props.load(inStream);
             for (Map.Entry<Object, Object> entry : props.entrySet()) {

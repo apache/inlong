@@ -130,14 +130,17 @@ public class PulsarProducerCluster implements LifecycleAware {
                     .maxPendingMessages(context.getInteger(KEY_MAXPENDINGMESSAGES, 500))
                     .maxPendingMessagesAcrossPartitions(
                             context.getInteger(KEY_MAXPENDINGMESSAGESACROSSPARTITIONS, 60000))
-                    .batchingMaxMessages(context.getInteger(KEY_BATCHINGMAXMESSAGES, 500))
+                    .batchingMaxMessages(context.getInteger(KEY_BATCHINGMAXMESSAGES, 500));
+            this.baseBuilder
                     .batchingMaxPublishDelay(context.getInteger(KEY_BATCHINGMAXPUBLISHDELAY, 100),
-                            TimeUnit.MILLISECONDS)
+                            TimeUnit.MILLISECONDS);
+            this.baseBuilder
                     .batchingMaxBytes(context.getInteger(KEY_BATCHINGMAXBYTES, 131072));
             this.baseBuilder
                     .accessMode(ProducerAccessMode.Shared)
                     .messageRoutingMode(MessageRoutingMode.RoundRobinPartition)
-                    .blockIfQueueFull(context.getBoolean(KEY_BLOCKIFQUEUEFULL, true))
+                    .blockIfQueueFull(context.getBoolean(KEY_BLOCKIFQUEUEFULL, true));
+            this.baseBuilder
                     .roundRobinRouterBatchingPartitionSwitchFrequency(
                             context.getInteger(KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY, 60))
                     .enableBatching(context.getBoolean(KEY_ENABLEBATCHING, true))
