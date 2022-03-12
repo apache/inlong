@@ -56,9 +56,9 @@ public class TestEsSinkContext {
     /**
      * mock
      * 
-     * @param  dispatchQueue
-     * @return
-     * @throws Exception
+     * @param dispatchQueue
+     * @return EsSinkContext
+     * @throws Exception exception
      */
     public static EsSinkContext mock(LinkedBlockingQueue<EsIndexRequest> dispatchQueue) throws Exception {
         PowerMockito.mockStatic(MetricRegister.class);

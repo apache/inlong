@@ -58,7 +58,7 @@ public class TestEsOutputChannel {
      * mock
      * 
      * @return
-     * @throws Exception
+     * @throws Exception exception
      */
     public static EsOutputChannel mock() throws Exception {
         EsOutputChannel output = PowerMockito.mock(EsOutputChannel.class);

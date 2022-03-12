@@ -18,6 +18,13 @@
 package org.apache.inlong.dataproxy.source;
 
 public class ConfStringUtils {
+
+    /**
+     * Check ip format
+     *
+     * @param ip ip
+     * @return Boolean
+     */
     public static boolean isValidIp(String ip) {
         if (ip == null || ip.trim().isEmpty()) {
             return false;
@@ -39,6 +46,12 @@ public class ConfStringUtils {
         return b;
     }
 
+    /**
+     * Check ip port
+     *
+     * @param port Port
+     * @return Boolean
+     */
     public static boolean isValidPort(int port) {
         if (port < 0 || port > 65535) {
             return false;

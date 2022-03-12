@@ -131,8 +131,8 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
      * <p> Create new clients with new sort task id, and remove the finished or scheduled ones. </p>
      *
      * <p> Current version of SortSdk <b>DO NOT</b> support to get the corresponding sort id of {@link SortClient}.
-     * Hence, the maintenance of mapping of <SortId, SortClient> should be done by Source itself. Which is not elegant,
-     * the <b>REMOVE</b> of expire clients will <b>NOT</b> be supported right now. </p>
+     * Hence, the maintenance of mapping of {@literal sortId, SortClient} should be done by Source itself. Which
+     * is not elegant, the <b>REMOVE</b> of expire clients will <b>NOT</b> be supported right now. </p>
      */
     private void reload() {
 
