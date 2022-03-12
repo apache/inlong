@@ -17,10 +17,6 @@
 
 package org.apache.inlong.dataproxy.source;
 
-import com.google.common.base.Splitter;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -39,6 +35,11 @@ import org.apache.inlong.dataproxy.exception.MessageIDException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
+
+import com.google.common.base.Splitter;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 
 public class DefaultServiceDecoder implements ServiceDecoder {
 
@@ -73,13 +74,13 @@ public class DefaultServiceDecoder implements ServiceDecoder {
 
     /**
      * extract bin heart beat data, message type is 8
+     * 
      * @param resultMap
      * @param cb
      * @param channel
      * @param totalDataLen
-     * @return
-     *
-     * @throws
+     * @return Map
+     * @throws Exception
      */
     private Map<String, Object> extractNewBinHB(Map<String, Object> resultMap,
             ByteBuf cb, Channel channel, int totalDataLen) throws Exception {

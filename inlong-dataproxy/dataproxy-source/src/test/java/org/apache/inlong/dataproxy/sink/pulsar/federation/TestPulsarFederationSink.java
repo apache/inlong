@@ -25,12 +25,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.config.loader.TestContextIdTopicConfigLoader;
 import org.apache.inlong.dataproxy.utils.MockUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
+@PrepareForTest({MetricRegister.class})
 public class TestPulsarFederationSink {
 
     public static final Logger LOG = LoggerFactory.getLogger(TestContextIdTopicConfigLoader.class);
@@ -80,6 +83,7 @@ public class TestPulsarFederationSink {
      */
     @Test
     public void testResult() throws Exception {
+        MockUtils.mockMetricRegister();
         // mock
         Channel channel = MockUtils.mockChannel();
         sinkObj.setChannel(channel);
