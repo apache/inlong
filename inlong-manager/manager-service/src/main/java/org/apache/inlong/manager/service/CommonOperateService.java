@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
@@ -28,19 +29,15 @@ import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.DataProxyClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
-import org.apache.inlong.manager.dao.mapper.DataProxyClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterEntityMapper;
 import org.apache.inlong.manager.service.core.InlongStreamService;
@@ -61,6 +58,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,8 +80,6 @@ public class CommonOperateService {
     @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
-    private DataProxyClusterEntityMapper dataProxyClusterMapper;
-    @Autowired
     private ThirdPartyClusterEntityMapper thirdPartyClusterMapper;
 
     /**
@@ -100,14 +96,14 @@ public class CommonOperateService {
 
         switch (key) {
             case Constant.PULSAR_SERVICEURL: {
-                clusterEntity = getThirdPartyCluster(Constant.MIDDLEWARE_PULSAR);
+                clusterEntity = getMQCluster(Constant.MIDDLEWARE_PULSAR);
                 if (clusterEntity != null) {
                     result = clusterEntity.getUrl();
                 }
                 break;
             }
             case Constant.PULSAR_ADMINURL: {
-                clusterEntity = getThirdPartyCluster(Constant.MIDDLEWARE_PULSAR);
+                clusterEntity = getMQCluster(Constant.MIDDLEWARE_PULSAR);
                 if (clusterEntity != null) {
                     params = gson.fromJson(clusterEntity.getExtParams(), Map.class);
                     result = params.get(key);
@@ -117,7 +113,7 @@ public class CommonOperateService {
             case Constant.CLUSTER_TUBE_MANAGER:
             case Constant.CLUSTER_TUBE_CLUSTER_ID:
             case Constant.TUBE_MASTER_URL: {
-                clusterEntity = getThirdPartyCluster(Constant.MIDDLEWARE_TUBE);
+                clusterEntity = getMQCluster(Constant.MIDDLEWARE_TUBE);
                 if (clusterEntity != null) {
                     if (key.equals(Constant.TUBE_MASTER_URL)) {
                         result = clusterEntity.getUrl();
@@ -129,61 +125,50 @@ public class CommonOperateService {
                 break;
             }
         }
-
         return result;
     }
 
     /**
      * Get third party cluster by type.
      *
-     * TODO Add more condition for query.
+     * TODO Add data_proxy_cluster_name for query.
      *
      * @param type Cluster type, such as TUBE, PULSAR, etc.
      */
-    private ThirdPartyClusterEntity getThirdPartyCluster(String type) {
-        InlongGroupPageRequest groupPageRequest = new InlongGroupPageRequest();
-        groupPageRequest.setMiddlewareType(type);
-        List<InlongGroupEntity> groupEntities = groupMapper.selectByCondition(groupPageRequest);
-        if (groupEntities.isEmpty()) {
-            LOGGER.warn("no inlong group found by type={}", type);
+    private ThirdPartyClusterEntity getMQCluster(String type) {
+        List<ThirdPartyClusterEntity> clusterList = thirdPartyClusterMapper.selectByType(Constant.CLUSTER_DATA_PROXY);
+        if (CollectionUtils.isEmpty(clusterList)) {
+            LOGGER.warn("no data proxy cluster found");
+            return null;
+        }
+        String mqSetName = clusterList.get(0).getMqSetName();
+        List<ThirdPartyClusterEntity> mqClusterList = thirdPartyClusterMapper.selectMQCluster(mqSetName,
+                Collections.singletonList(type));
+        if (CollectionUtils.isEmpty(mqClusterList)) {
+            LOGGER.warn("no mq cluster found by type={} and mq set name={}", type, mqSetName);
             return null;
         }
 
-        Integer clusterId = groupEntities.get(0).getProxyClusterId();
-        DataProxyClusterEntity dataProxyCluster = dataProxyClusterMapper.selectByPrimaryKey(clusterId);
-        if (dataProxyCluster == null) {
-            LOGGER.warn("no data proxy cluster found with id={}", clusterId);
-            return null;
-        }
-
-        String mqSetName = dataProxyCluster.getMqSetName();
-        ClusterPageRequest clusterRequest = new ClusterPageRequest();
-        clusterRequest.setMqSetName(mqSetName);
-        List<ThirdPartyClusterEntity> thirdPartyClusters = thirdPartyClusterMapper.selectByCondition(clusterRequest);
-        if (CollectionUtils.isEmpty(thirdPartyClusters)) {
-            LOGGER.warn("no related third-party-cluster by type={} and mq set name={}", type, mqSetName);
-            return null;
-        }
-
-        return thirdPartyClusters.get(0);
+        return mqClusterList.get(0);
     }
 
     /**
-     * Get Pulsar cluster info.
+     * Get Pulsar cluster by the given type.
      *
      * @return Pulsar cluster info.
      */
-    public PulsarClusterInfo getPulsarClusterInfo() {
-        ThirdPartyClusterEntity thirdPartyClusterEntity = getThirdPartyCluster(Constant.MIDDLEWARE_PULSAR);
-        Preconditions.checkNotNull(thirdPartyClusterEntity.getExtParams(), "pulsar extParam is empty, check"
-                + "third party cluster table");
-        Map<String, String> configParams = JsonUtils.parse(thirdPartyClusterEntity.getExtParams(), Map.class);
+    public PulsarClusterInfo getPulsarClusterInfo(String type) {
+        ThirdPartyClusterEntity clusterEntity = getMQCluster(type);
+        if (clusterEntity == null || StringUtils.isBlank(clusterEntity.getExtParams())) {
+            throw new BusinessException("pulsar cluster or pulsar ext params is empty");
+        }
+        Map<String, String> configParams = JsonUtils.parse(clusterEntity.getExtParams(), Map.class);
         PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder().brokerServiceUrl(
-                thirdPartyClusterEntity.getUrl()).token(thirdPartyClusterEntity.getToken()).build();
+                clusterEntity.getUrl()).token(clusterEntity.getToken()).build();
         String adminUrl = configParams.get(Constant.PULSAR_ADMINURL);
         Preconditions.checkNotNull(adminUrl, "adminUrl is empty, check third party cluster table");
         pulsarClusterInfo.setAdminUrl(adminUrl);
-        pulsarClusterInfo.setType(thirdPartyClusterEntity.getType());
+        pulsarClusterInfo.setType(clusterEntity.getType());
         return pulsarClusterInfo;
     }
 
@@ -241,7 +226,7 @@ public class CommonOperateService {
 
         // Get source info
         String masterAddress = getSpecifiedParam(Constant.TUBE_MASTER_URL);
-        PulsarClusterInfo pulsarCluster = getPulsarClusterInfo();
+        PulsarClusterInfo pulsarCluster = getPulsarClusterInfo(groupInfo.getMiddlewareType());
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
         SourceInfo sourceInfo = SourceInfoUtils.createSourceInfo(pulsarCluster, masterAddress, clusterBean,
                 groupInfo, streamInfo, sourceResponse, sourceFields);

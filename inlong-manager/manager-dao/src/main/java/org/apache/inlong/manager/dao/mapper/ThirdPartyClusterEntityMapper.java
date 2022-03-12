@@ -39,7 +39,7 @@ public interface ThirdPartyClusterEntityMapper {
 
     List<ThirdPartyClusterEntity> selectByType(@Param("type") String type);
 
-    List<ThirdPartyClusterEntity> selectMqCluster(@Param("mqSetName") String mqSetName,
+    List<ThirdPartyClusterEntity> selectMQCluster(@Param("mqSetName") String mqSetName,
             @Param("typeList") List<String> typeList);
 
     ThirdPartyClusterEntity selectByName(@Param("name") String name);
