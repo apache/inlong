@@ -80,8 +80,6 @@ public class TestPulsarSink extends PowerMockTestCase {
         context.put("type", "org.apache.inlong.dataproxy.sink.PulsarSink");
         sink.setChannel(channel);
 
-//        Configurables.configure(sink, context);
-//        Configurables.configure(channel, context);
         this.channel.configure(context);
     }
 
@@ -89,9 +87,6 @@ public class TestPulsarSink extends PowerMockTestCase {
     public void testProcess() throws Exception {
         setUp();
         Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
-//        sink.start();
-//        Assert.assertTrue(LifecycleController.waitForOneOf(sink,
-//                LifecycleState.START_OR_ERROR, 5000));
 
         Transaction transaction = channel.getTransaction();
 
@@ -101,14 +96,5 @@ public class TestPulsarSink extends PowerMockTestCase {
         }
         transaction.commit();
         transaction.close();
-
-//        for (int i = 0; i < 5; i++) {
-//            Sink.Status status = sink.process();
-//            Assert.assertEquals(Sink.Status.READY, status);
-//        }
-//
-//        sink.stop();
-//        Assert.assertTrue(LifecycleController.waitForOneOf(sink,
-//                LifecycleState.STOP_OR_ERROR, 5000));
     }
 }
