@@ -18,10 +18,19 @@
 package org.apache.inlong.manager.client.api;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.MqType;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
+@AllArgsConstructor
+@NoArgsConstructor
 public class TdmqPulsarBaseConf extends PulsarBaseConf {
 
     @ApiModelProperty("Message queue type")
     private MqType type = MqType.TDMQ_PULSAR;
+
 }
