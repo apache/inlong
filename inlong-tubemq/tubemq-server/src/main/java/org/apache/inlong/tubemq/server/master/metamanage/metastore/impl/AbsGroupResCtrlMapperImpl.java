@@ -41,16 +41,16 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
     @Override
     public boolean addGroupResCtrlConf(GroupResCtrlEntity entity,
                                        StringBuilder strBuff, ProcessResult result) {
-        GroupResCtrlEntity curEntity =
-                groupBaseCtrlCache.get(entity.getGroupName());
+        // Checks whether the record already exists
+        GroupResCtrlEntity curEntity = groupBaseCtrlCache.get(entity.getGroupName());
         if (curEntity != null) {
             result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    strBuff.append("The group control configure ").append(entity.getGroupName())
-                            .append(" already exists, please delete it first!")
-                            .toString());
+                    strBuff.append("Existed record found for groupName(")
+                            .append(entity.getGroupName()).append(")!").toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
+        // Store data to persistent
         if (putConfig2Persistent(entity, strBuff, result)) {
             groupBaseCtrlCache.put(entity.getGroupName(), entity);
         }
@@ -60,26 +60,29 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
     @Override
     public boolean updGroupResCtrlConf(GroupResCtrlEntity entity,
                                        StringBuilder strBuff, ProcessResult result) {
-        GroupResCtrlEntity curEntity =
-                groupBaseCtrlCache.get(entity.getGroupName());
+        // Checks whether the record already exists
+        GroupResCtrlEntity curEntity = groupBaseCtrlCache.get(entity.getGroupName());
         if (curEntity == null) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    strBuff.append("The group control configure ").append(entity.getGroupName())
-                            .append(" is not exists, please add it first!")
-                            .toString());
+                    strBuff.append("Not found group control configure for groupName(")
+                            .append(entity.getGroupName()).append(")!").toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        if (curEntity.equals(entity)) {
+        // Build the entity that need to be updated
+        GroupResCtrlEntity newEntity = curEntity.clone();
+        newEntity.updBaseModifyInfo(entity);
+        if (!newEntity.updModifyInfo(entity.getDataVerId(),
+                entity.isEnableResCheck(), entity.getAllowedBrokerClientRate(),
+                entity.getQryPriorityId(), entity.isFlowCtrlEnable(),
+                entity.getRuleCnt(), entity.getFlowCtrlInfo())) {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                    strBuff.append("The group control configure ").append(entity.getGroupName())
-                            .append(" have not changed, please confirm it first!")
-                            .toString());
-            strBuff.delete(0, strBuff.length());
+                    "Group control configure not changed!");
             return result.isSuccess();
         }
-        if (putConfig2Persistent(entity, strBuff, result)) {
-            groupBaseCtrlCache.put(entity.getGroupName(), entity);
+        // Store data to persistent
+        if (putConfig2Persistent(newEntity, strBuff, result)) {
+            groupBaseCtrlCache.put(newEntity.getGroupName(), newEntity);
             result.setSuccResult(curEntity);
         }
         return result.isSuccess();
@@ -138,9 +141,9 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
     /**
      * Add or update a record
      *
-     * @param entity  need added or updated entity
+     * @param entity  the entity to be added or updated
      */
-    protected void addOrUpdCacheRecord(GroupResCtrlEntity entity) {
+    protected void putRecord2Caches(GroupResCtrlEntity entity) {
         groupBaseCtrlCache.put(entity.getGroupName(), entity);
     }
 

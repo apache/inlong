@@ -20,6 +20,8 @@ package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper;
 import java.util.Map;
 import java.util.Set;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 
 public interface BrokerConfigMapper extends AbstractMapper {
@@ -45,6 +47,20 @@ public interface BrokerConfigMapper extends AbstractMapper {
      */
     boolean updBrokerConf(BrokerConfEntity entity,
                           StringBuilder strBuff, ProcessResult result);
+
+    /**
+     * Update a broker manage status
+     *
+     * @param opEntity      the operator information
+     * @param brokerId      the broker id need to updated
+     * @param newMngStatus  the new manage status
+     * @param strBuff       the string buffer
+     * @param result        process result with old value
+     * @return  the process result
+     */
+    boolean updBrokerMngStatus(BaseEntity opEntity,
+                               Integer brokerId, ManageStatus newMngStatus,
+                               StringBuilder strBuff, ProcessResult result);
 
     /**
      * delete broker configure info from store

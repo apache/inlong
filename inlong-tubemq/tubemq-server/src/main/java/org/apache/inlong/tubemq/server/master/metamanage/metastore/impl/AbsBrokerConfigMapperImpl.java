@@ -24,7 +24,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
+import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
+import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.BrokerConfigMapper;
 import org.slf4j.Logger;
@@ -48,27 +52,27 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
     @Override
     public boolean addBrokerConf(BrokerConfEntity entity,
                                  StringBuilder strBuff, ProcessResult result) {
-        BrokerConfEntity curEntity =
-                brokerConfCache.get(entity.getBrokerId());
-        if (curEntity != null) {
+        // Check whether the brokerId or broker Ip conflict with existing records
+        if (brokerConfCache.get(entity.getBrokerId()) != null
+                || brokerIpIndexCache.get(entity.getBrokerIp()) != null) {
             result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    strBuff.append("The broker's brokerId ").append(entity.getBrokerId())
-                            .append(" has already exists, the value must be unique!")
+                    strBuff.append("Existed record found for ")
+                            .append(WebFieldDef.BROKERID.name).append("(")
+                            .append(entity.getBrokerId()).append(") or ")
+                            .append(WebFieldDef.BROKERIP.name).append("(")
+                            .append(entity.getBrokerIp()).append(") value!")
                             .toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        Integer curBrokerId = brokerIpIndexCache.get(entity.getBrokerIp());
-        if (curBrokerId != null) {
-            result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    strBuff.append("The broker's brokerIp ").append(entity.getBrokerIp())
-                            .append(" has already exists, the value must be unique!")
-                            .toString());
-            strBuff.delete(0, strBuff.length());
+        // Check whether the configured ports conflict in the record
+        if (WebParameterUtils.isConflictedPortsSet(entity.getBrokerPort(),
+                entity.getBrokerTLSPort(), entity.getBrokerWebPort(), strBuff, result)) {
             return result.isSuccess();
         }
+        // Store data to persistent
         if (putConfig2Persistent(entity, strBuff, result)) {
-            addOrUpdCacheRecord(entity);
+            putRecord2Caches(entity);
         }
         return result.isSuccess();
     }
@@ -76,26 +80,80 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
     @Override
     public boolean updBrokerConf(BrokerConfEntity entity,
                                  StringBuilder strBuff, ProcessResult result) {
+        // Check the existence of records by brokerId
         BrokerConfEntity curEntity =
                 brokerConfCache.get(entity.getBrokerId());
         if (curEntity == null) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    strBuff.append("The broker configure ").append(entity.getBrokerIp())
-                            .append(" is not exists, please add it first!")
-                            .toString());
+                    strBuff.append("Not found broker configure for ")
+                            .append(WebFieldDef.BROKERID.name).append("(")
+                            .append(entity.getBrokerId()).append(")!").toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        if (curEntity.equals(entity)) {
+        // Build the entity that need to be updated
+        BrokerConfEntity newEntity = curEntity.clone();
+        newEntity.updBaseModifyInfo(entity);
+        if (!newEntity.updModifyInfo(entity.getDataVerId(),
+                entity.getBrokerPort(), entity.getBrokerTLSPort(),
+                entity.getBrokerWebPort(), entity.getRegionId(),
+                entity.getGroupId(), entity.getManageStatus(),
+                entity.getTopicProps())) {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                    strBuff.append("The broker configure ").append(entity.getBrokerIp())
-                            .append(" have not changed, please confirm it first!")
-                            .toString());
+                    "Broker configure not changed!");
+            return result.isSuccess();
+        }
+        // Check whether the configured ports conflict in the record
+        if (WebParameterUtils.isConflictedPortsSet(newEntity.getBrokerPort(),
+                newEntity.getBrokerTLSPort(), newEntity.getBrokerWebPort(),
+                strBuff, result)) {
+            return result.isSuccess();
+        }
+        // Check manage status
+        if (isIllegalManageStatusChange(newEntity, curEntity, strBuff, result)) {
+            return result.isSuccess();
+        }
+        // Store data to persistent
+        if (putConfig2Persistent(newEntity, strBuff, result)) {
+            putRecord2Caches(newEntity);
+            result.setSuccResult(curEntity);
+        }
+        return result.isSuccess();
+    }
+
+    @Override
+    public boolean updBrokerMngStatus(BaseEntity opEntity,
+                                      Integer brokerId, ManageStatus newMngStatus,
+                                      StringBuilder strBuff, ProcessResult result) {
+        // Check the existence of records by brokerId
+        BrokerConfEntity curEntity = brokerConfCache.get(brokerId);
+        if (curEntity == null) {
+            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                    strBuff.append("Not found broker configure for ")
+                            .append(WebFieldDef.BROKERID.name).append("(")
+                            .append(brokerId).append(")!").toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        if (putConfig2Persistent(entity, strBuff, result)) {
-            addOrUpdCacheRecord(entity);
+        // Build the entity that need to be updated
+        BrokerConfEntity newEntity = curEntity.clone();
+        newEntity.updBaseModifyInfo(opEntity);
+        if (!newEntity.updModifyInfo(opEntity.getDataVerId(),
+                curEntity.getBrokerPort(), curEntity.getBrokerTLSPort(),
+                curEntity.getBrokerWebPort(), curEntity.getRegionId(),
+                curEntity.getGroupId(), newMngStatus,
+                curEntity.getTopicProps())) {
+            result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+                    "Broker configure not changed!");
+            return result.isSuccess();
+        }
+        // Check manage status
+        if (isIllegalManageStatusChange(newEntity, curEntity, strBuff, result)) {
+            return result.isSuccess();
+        }
+        // Store data to persistent
+        if (putConfig2Persistent(newEntity, strBuff, result)) {
+            putRecord2Caches(newEntity);
             result.setSuccResult(curEntity);
         }
         return result.isSuccess();
@@ -105,12 +163,24 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
     public boolean delBrokerConf(int brokerId, StringBuilder strBuff, ProcessResult result) {
         BrokerConfEntity curEntity =
                 brokerConfCache.get(brokerId);
+        // Check the existence of records by brokerId
         if (curEntity == null) {
             result.setSuccResult(null);
             return result.isSuccess();
         }
+        // Check broker's manage status
+        if (curEntity.getManageStatus().isOnlineStatus()) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                    strBuff.append("Illegal manage status, please offline the broker(")
+                            .append(WebFieldDef.BROKERID.name).append("=")
+                            .append(curEntity.getBrokerId()).append(") first!").toString());
+            strBuff.delete(0, strBuff.length());
+            return result.isSuccess();
+        }
+        // Delete record from persistent
         delConfigFromPersistent(brokerId, strBuff);
-        delCacheRecord(brokerId);
+        // Clear cache data
+        delRecordFromCaches(brokerId);
         result.setSuccResult(curEntity);
         return result.isSuccess();
     }
@@ -250,11 +320,11 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
     }
 
     /**
-     * Add or update a record
+     * Add or update a record to caches
      *
      * @param entity  need added or updated entity
      */
-    protected void addOrUpdCacheRecord(BrokerConfEntity entity) {
+    protected void putRecord2Caches(BrokerConfEntity entity) {
         brokerConfCache.put(entity.getBrokerId(), entity);
         // add brokerId info
         Integer brokerId = brokerIpIndexCache.get(entity.getBrokerIp());
@@ -272,7 +342,33 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
         brokerIdSet.add(entity.getBrokerId());
     }
 
-    private void delCacheRecord(int brokerId) {
+    /**
+     * Put broker configure information into persistent storage
+     *
+     * @param entity   need add record
+     * @param strBuff  the string buffer
+     * @param result   process result with old value
+     * @return the process result
+     */
+    protected abstract boolean putConfig2Persistent(BrokerConfEntity entity,
+                                                    StringBuilder strBuff,
+                                                    ProcessResult result);
+
+    /**
+     * Delete broker configure information from persistent storage
+     *
+     * @param brokerId  the broker id key
+     * @param strBuff   the string buffer
+     * @return the process result
+     */
+    protected abstract boolean delConfigFromPersistent(int brokerId, StringBuilder strBuff);
+
+    /**
+     * Delete the record from caches
+     *
+     * @param brokerId  need deleted broker id
+     */
+    private void delRecordFromCaches(int brokerId) {
         BrokerConfEntity curEntity =
                 brokerConfCache.remove(brokerId);
         if (curEntity == null) {
@@ -288,23 +384,35 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
     }
 
     /**
-     * Put broker configure information into persistent storage
+     * Check whether the management status change is illegal
      *
-     * @param entity   need add record
-     * @param strBuff  the string buffer
-     * @param result   process result with old value
-     * @return the process result
+     * @param newEntity  the entity to be updated
+     * @param curEntity  the current entity
+     * @param strBuff    string buffer
+     * @param result     check result of parameter value
+     * @return  true for illegal, false for legal
      */
-    protected abstract boolean putConfig2Persistent(BrokerConfEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result);
-
-    /**
-     * Delete broker configure information from persistent storage
-     *
-     * @param brokerId  the broker id key
-     * @param strBuff   the string buffer
-     * @return the process result
-     */
-    protected abstract boolean delConfigFromPersistent(int brokerId, StringBuilder strBuff);
-
+    private boolean isIllegalManageStatusChange(BrokerConfEntity newEntity,
+                                                BrokerConfEntity curEntity,
+                                                StringBuilder strBuff,
+                                                ProcessResult result) {
+        if (newEntity.getManageStatus() == curEntity.getManageStatus()) {
+            return false;
+        }
+        if (((newEntity.getManageStatus().getCode() < ManageStatus.STATUS_MANAGE_ONLINE.getCode())
+                && (curEntity.getManageStatus().getCode() >= ManageStatus.STATUS_MANAGE_ONLINE.getCode()))
+                || ((newEntity.getManageStatus().getCode() > ManageStatus.STATUS_MANAGE_ONLINE.getCode())
+                && (curEntity.getManageStatus().getCode() < ManageStatus.STATUS_MANAGE_ONLINE.getCode()))) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
+                    strBuff.append("Illegal manage status, cannot reverse ")
+                            .append(WebFieldDef.MANAGESTATUS.name).append(" from ")
+                            .append(curEntity.getManageStatus().getDescription())
+                            .append(" to ").append(newEntity.getManageStatus().getDescription())
+                            .append(" for the broker(").append(WebFieldDef.BROKERID.name).append("=")
+                            .append(curEntity.getBrokerId()).append(")!").toString());
+            strBuff.delete(0, strBuff.length());
+            return !result.isSuccess();
+        }
+        return false;
+    }
 }

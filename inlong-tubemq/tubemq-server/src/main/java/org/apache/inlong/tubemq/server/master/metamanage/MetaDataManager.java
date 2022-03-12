@@ -48,7 +48,7 @@ import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
 import org.apache.inlong.tubemq.server.master.metamanage.keepalive.AliveObserver;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.BdbMetaStoreServiceImpl;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbMetaStoreServiceImpl;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaStoreService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
@@ -88,8 +88,7 @@ public class MetaDataManager implements Server {
         MasterConfig masterConfig = this.tMaster.getMasterConfig();
         this.replicationConfig = masterConfig.getReplicationConfig();
         this.metaStoreService =
-                new BdbMetaStoreServiceImpl(masterConfig.getHostName(),
-                        masterConfig.getMetaDataPath(), this.replicationConfig);
+                new BdbMetaStoreServiceImpl(tMaster.getMasterConfig());
 
         this.scheduledExecutorService =
                 Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
@@ -426,7 +425,7 @@ public class MetaDataManager implements Server {
         if (isAddOp) {
             if (metaStoreService.getBrokerConfByBrokerId(entity.getBrokerId()) == null
                     && metaStoreService.getBrokerConfByBrokerIp(entity.getBrokerIp()) == null) {
-                if (WebParameterUtils.isLegallyPortValueSet(entity.getBrokerPort(),
+                if (!WebParameterUtils.isConflictedPortsSet(entity.getBrokerPort(),
                         entity.getBrokerTLSPort(), entity.getBrokerWebPort(), sBuffer, result)) {
                     if (metaStoreService.addBrokerConf(entity, sBuffer, result)) {
                         this.tMaster.getBrokerRunManager().updBrokerStaticInfo(entity);
@@ -454,7 +453,7 @@ public class MetaDataManager implements Server {
                         entity.getBrokerTLSPort(), entity.getBrokerWebPort(),
                         entity.getRegionId(), entity.getGroupId(),
                         entity.getManageStatus(), entity.getTopicProps())) {
-                    if (WebParameterUtils.isLegallyPortValueSet(newEntity.getBrokerPort(),
+                    if (!WebParameterUtils.isConflictedPortsSet(newEntity.getBrokerPort(),
                             newEntity.getBrokerTLSPort(), newEntity.getBrokerWebPort(),
                             sBuffer, result)) {
                         if (metaStoreService.updBrokerConf(newEntity, sBuffer, result)) {
@@ -503,7 +502,7 @@ public class MetaDataManager implements Server {
         BrokerConfEntity curEntry;
         BrokerConfEntity newEntry;
         List<BrokerProcessResult> retInfo = new ArrayList<>();
-        // check target broker configure's status
+        // check target broker configures status
         for (Integer brokerId : brokerIdSet) {
             curEntry = metaStoreService.getBrokerConfByBrokerId(brokerId);
             if (curEntry == null) {
@@ -1581,7 +1580,7 @@ public class MetaDataManager implements Server {
             newConf.updModifyInfo(opEntity.getDataVerId(), brokerPort,
                     brokerTlsPort, brokerWebPort, maxMsgSizeMB, qryPriorityId,
                     flowCtrlEnable, flowRuleCnt, flowCtrlInfo, topicProps);
-            if (WebParameterUtils.isLegallyPortValueSet(newConf.getBrokerPort(),
+            if (!WebParameterUtils.isConflictedPortsSet(newConf.getBrokerPort(),
                     newConf.getBrokerTLSPort(), newConf.getBrokerWebPort(), sBuffer, result)) {
                 metaStoreService.addClusterConfig(newConf, sBuffer, result);
             }
@@ -1591,7 +1590,7 @@ public class MetaDataManager implements Server {
             if (newConf.updModifyInfo(opEntity.getDataVerId(), brokerPort,
                     brokerTlsPort, brokerWebPort, maxMsgSizeMB, qryPriorityId,
                     flowCtrlEnable, flowRuleCnt, flowCtrlInfo, topicProps)) {
-                if (WebParameterUtils.isLegallyPortValueSet(newConf.getBrokerPort(),
+                if (!WebParameterUtils.isConflictedPortsSet(newConf.getBrokerPort(),
                         newConf.getBrokerTLSPort(), newConf.getBrokerWebPort(),
                         sBuffer, result)) {
                     metaStoreService.updClusterConfig(newConf, sBuffer, result);

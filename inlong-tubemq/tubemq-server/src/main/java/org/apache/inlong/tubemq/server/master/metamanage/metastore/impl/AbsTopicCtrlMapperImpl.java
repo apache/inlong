@@ -45,16 +45,16 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
     @Override
     public boolean addTopicCtrlConf(TopicCtrlEntity entity,
                                     StringBuilder strBuff, ProcessResult result) {
-        TopicCtrlEntity curEntity =
-                topicCtrlCache.get(entity.getTopicName());
+        // Checks whether the record already exists
+        TopicCtrlEntity curEntity = topicCtrlCache.get(entity.getTopicName());
         if (curEntity != null) {
             result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    strBuff.append("The topic control configure ").append(entity.getTopicName())
-                            .append(" already exists, please delete it first!")
-                            .toString());
+                    strBuff.append("Existed record found for topicName(")
+                            .append(entity.getTopicName()).append(")!").toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
+        // Store data to persistent
         if (putConfig2Persistent(entity, strBuff, result)) {
             topicCtrlCache.put(entity.getTopicName(), entity);
         }
@@ -64,26 +64,28 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
     @Override
     public boolean updTopicCtrlConf(TopicCtrlEntity entity,
                                     StringBuilder strBuff, ProcessResult result) {
-        TopicCtrlEntity curEntity =
-                topicCtrlCache.get(entity.getTopicName());
+        // Checks whether the record already exists
+        TopicCtrlEntity curEntity = topicCtrlCache.get(entity.getTopicName());
         if (curEntity == null) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    strBuff.append("The topic control configure ").append(entity.getTopicName())
-                            .append(" is not exists, please add it first!")
-                            .toString());
+                    strBuff.append("Not found topic control configure for topicName(")
+                            .append(entity.getTopicName()).append(")!").toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        if (curEntity.equals(entity)) {
+        // Build the entity that need to be updated
+        TopicCtrlEntity newEntity = curEntity.clone();
+        newEntity.updBaseModifyInfo(entity);
+        if (!newEntity.updModifyInfo(entity.getDataVerId(),
+                entity.getTopicId(), entity.getMaxMsgSizeInMB(),
+                entity.isAuthCtrlEnable())) {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                    strBuff.append("The topic control configure ").append(entity.getTopicName())
-                            .append(" have not changed, please confirm it first!")
-                            .toString());
-            strBuff.delete(0, strBuff.length());
+                    "Topic control configure not changed!");
             return result.isSuccess();
         }
-        if (putConfig2Persistent(entity, strBuff, result)) {
-            topicCtrlCache.put(entity.getTopicName(), entity);
+        // Store data to persistent
+        if (putConfig2Persistent(newEntity, strBuff, result)) {
+            topicCtrlCache.put(newEntity.getTopicName(), newEntity);
             result.setSuccResult(curEntity);
         }
         return result.isSuccess();
@@ -155,9 +157,9 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
     /**
      * Add or update a record
      *
-     * @param entity  need added or updated entity
+     * @param entity  the entity need to added or updated
      */
-    protected void addOrUpdCacheRecord(TopicCtrlEntity entity) {
+    protected void putRecord2Caches(TopicCtrlEntity entity) {
         topicCtrlCache.put(entity.getTopicName(), entity);
     }
 

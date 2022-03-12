@@ -69,7 +69,7 @@ public class BdbTopicDeployMapperImpl extends AbsTopicDeployMapperImpl {
                     logger.warn("[BDB Impl] found Null data while loading topic deploy configure!");
                     continue;
                 }
-                addOrUpdCacheRecord(new TopicDeployEntity(bdbEntity));
+                putRecord2Caches(new TopicDeployEntity(bdbEntity));
                 totalCnt++;
             }
         } catch (Exception e) {

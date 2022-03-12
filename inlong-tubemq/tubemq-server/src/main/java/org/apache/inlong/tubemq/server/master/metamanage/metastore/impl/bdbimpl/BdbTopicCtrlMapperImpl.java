@@ -71,7 +71,7 @@ public class BdbTopicCtrlMapperImpl extends AbsTopicCtrlMapperImpl {
                     logger.warn("[BDB Impl] found Null data while loading topic control!");
                     continue;
                 }
-                addOrUpdCacheRecord(new TopicCtrlEntity(bdbEntity));
+                putRecord2Caches(new TopicCtrlEntity(bdbEntity));
                 totalCnt++;
             }
         } catch (Exception e) {
@@ -96,7 +96,7 @@ public class BdbTopicCtrlMapperImpl extends AbsTopicCtrlMapperImpl {
         } catch (Throwable e) {
             logger.error("[BDB Impl] put topic control failure ", e);
             result.setFailResult(DataOpErrCode.DERR_STORE_ABNORMAL.getCode(),
-                    strBuff.append("Put topic control failure: ")
+                    strBuff.append("Put topic control configure failure: ")
                             .append(e.getMessage()).toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();

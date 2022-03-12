@@ -25,9 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.KeyBuilderUtils;
+import org.apache.inlong.tubemq.server.common.TServerConstants;
+import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.TopicDeployMapper;
@@ -54,18 +57,40 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
     @Override
     public boolean addTopicConf(TopicDeployEntity entity,
                                 StringBuilder strBuff, ProcessResult result) {
+        // Checks whether the record already exists
         TopicDeployEntity curEntity =
                 topicConfCache.get(entity.getRecordKey());
         if (curEntity != null) {
-            result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    strBuff.append("The topic deploy configure ").append(entity.getRecordKey())
-                            .append(" already exists, please delete it first!")
-                            .toString());
+            if (curEntity.isValidTopicStatus()) {
+                result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
+                        strBuff.append("Existed record found for brokerId-topicName(")
+                                .append(curEntity.getRecordKey()).append(")!").toString());
+            } else {
+                result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
+                        strBuff.append("Softly deleted record found for brokerId-topicName(")
+                                .append(curEntity.getRecordKey())
+                                .append("), please resume or remove it first!").toString());
+            }
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
+        // valid whether system topic
+        if (!validSysTopicConfigure(entity, strBuff, result)) {
+            return result.isSuccess();
+        }
+        // check deploy status if still accept publish and subscribe
+        if (!entity.isValidTopicStatus()
+                && (entity.isAcceptPublish() || entity.isAcceptSubscribe())) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                    strBuff.append("The values of acceptPublish and acceptSubscribe must be false")
+                            .append(" when add brokerId-topicName(")
+                            .append(entity.getRecordKey()).append(") record!").toString());
+            strBuff.delete(0, strBuff.length());
+            return result.isSuccess();
+        }
+        // Store data to persistent
         if (putConfig2Persistent(entity, strBuff, result)) {
-            addOrUpdCacheRecord(entity);
+            putRecord2Caches(entity);
         }
         return result.isSuccess();
     }
@@ -73,26 +98,38 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
     @Override
     public boolean updTopicConf(TopicDeployEntity entity,
                                 StringBuilder strBuff, ProcessResult result) {
+        // Checks whether the record already exists
         TopicDeployEntity curEntity =
                 topicConfCache.get(entity.getRecordKey());
         if (curEntity == null) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    strBuff.append("The topic deploy configure ").append(entity.getRecordKey())
-                            .append(" is not exists, please add it first!")
-                            .toString());
+                    strBuff.append("Not found topic deploy configure for brokerId-topicName(")
+                            .append(entity.getRecordKey()).append(")!").toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        if (curEntity.equals(entity)) {
+        // Build the entity that need to be updated
+        TopicDeployEntity newEntity = curEntity.clone();
+        newEntity.updBaseModifyInfo(entity);
+        if (!newEntity.updModifyInfo(entity.getDataVerId(),
+                entity.getTopicId(), entity.getBrokerPort(),
+                entity.getBrokerIp(), entity.getDeployStatus(),
+                entity.getTopicProps())) {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                    strBuff.append("The topic deploy configure ").append(entity.getRecordKey())
-                            .append(" have not changed, please confirm it first!")
-                            .toString());
-            strBuff.delete(0, strBuff.length());
+                    "Topic deploy configure not changed!");
             return result.isSuccess();
         }
-        if (putConfig2Persistent(entity, strBuff, result)) {
-            addOrUpdCacheRecord(entity);
+        // valid whether system topic
+        if (!validSysTopicConfigure(newEntity, strBuff, result)) {
+            return result.isSuccess();
+        }
+        // check deploy status
+        if (isIllegalValuesChange(newEntity, curEntity, strBuff, result)) {
+            return result.isSuccess();
+        }
+        // Store data to persistent
+        if (putConfig2Persistent(newEntity, strBuff, result)) {
+            putRecord2Caches(newEntity);
             result.setSuccResult(curEntity);
         }
         return result.isSuccess();
@@ -106,8 +143,17 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
             result.setSuccResult(null);
             return result.isSuccess();
         }
+        // check deploy status if still accept publish and subscribe
+        if (curEntity.isAcceptPublish() || curEntity.isAcceptSubscribe()) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                    strBuff.append("The values of acceptPublish and acceptSubscribe must be false")
+                            .append(" before delete brokerId-topicName(")
+                            .append(curEntity.getRecordKey()).append(") record!").toString());
+            strBuff.delete(0, strBuff.length());
+            return result.isSuccess();
+        }
         delConfigFromPersistent(recordKey, strBuff);
-        delCacheRecord(recordKey);
+        delRecordFromCaches(recordKey);
         result.setSuccResult(curEntity);
         return result.isSuccess();
     }
@@ -116,13 +162,30 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
     public boolean delTopicConfByBrokerId(Integer brokerId, StringBuilder strBuff, ProcessResult result) {
         ConcurrentHashSet<String> recordKeySet =
                 brokerIdCacheIndex.get(brokerId);
-        if (recordKeySet == null) {
+        if (recordKeySet == null || recordKeySet.isEmpty()) {
             result.setSuccResult(null);
             return result.isSuccess();
         }
+        // check deploy status if still accept publish and subscribe
+        TopicDeployEntity curEntity;
+        for (String recordKey : recordKeySet) {
+            curEntity = topicConfCache.get(recordKey);
+            if (curEntity == null) {
+                continue;
+            }
+            if (curEntity.isAcceptPublish() || curEntity.isAcceptSubscribe()) {
+                result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                        strBuff.append("The values of acceptPublish and acceptSubscribe must be false")
+                                .append(" before delete brokerId-topicName(")
+                                .append(curEntity.getRecordKey()).append(") record!").toString());
+                strBuff.delete(0, strBuff.length());
+                return result.isSuccess();
+            }
+        }
+        // delete records
         for (String recordKey : recordKeySet) {
             delConfigFromPersistent(recordKey, strBuff);
-            delCacheRecord(recordKey);
+            delRecordFromCaches(recordKey);
         }
         result.setSuccResult(null);
         return result.isSuccess();
@@ -366,7 +429,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
      *
      * @param entity  need added or updated entity
      */
-    protected void addOrUpdCacheRecord(TopicDeployEntity entity) {
+    protected void putRecord2Caches(TopicDeployEntity entity) {
         topicConfCache.put(entity.getRecordKey(), entity);
         // add topic index map
         ConcurrentHashSet<String> keySet =
@@ -421,7 +484,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
      */
     protected abstract boolean delConfigFromPersistent(String recordKey, StringBuilder strBuff);
 
-    private void delCacheRecord(String recordKey) {
+    private void delRecordFromCaches(String recordKey) {
         TopicDeployEntity curEntity =
                 topicConfCache.remove(recordKey);
         if (curEntity == null) {
@@ -504,5 +567,165 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
             }
         }
         return matchedKeySet;
+    }
+
+    /**
+     * Check whether the change of deploy values is illegal
+     * Attention, the newEntity and newEntity must not equal
+     *
+     * @param newEntity  the entity to be updated
+     * @param curEntity  the current entity
+     * @param strBuff    string buffer
+     * @param result     check result of parameter value
+     * @return  true for illegal, false for legal
+     */
+    private boolean isIllegalValuesChange(TopicDeployEntity newEntity,
+                                          TopicDeployEntity curEntity,
+                                          StringBuilder strBuff,
+                                          ProcessResult result) {
+        // check if shrink data store block
+        if (newEntity.getNumPartitions() != TBaseConstants.META_VALUE_UNDEFINED
+                && newEntity.getNumPartitions() < curEntity.getNumPartitions()) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
+                    strBuff.append("Partition number less than before,")
+                            .append(" new value is ").append(newEntity.getNumPartitions())
+                            .append(", current value is ").append(curEntity.getNumPartitions())
+                            .append("in brokerId-topicName(").append(curEntity.getRecordKey())
+                            .append(") record!").toString());
+            strBuff.delete(0, strBuff.length());
+            return !result.isSuccess();
+        }
+        if (newEntity.getNumTopicStores() != TBaseConstants.META_VALUE_UNDEFINED
+                && newEntity.getNumTopicStores() < curEntity.getNumTopicStores()) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
+                    strBuff.append("TopicStores number less than before,")
+                            .append(" new value is ").append(newEntity.getNumTopicStores())
+                            .append(", current value is ").append(curEntity.getNumTopicStores())
+                            .append("in brokerId-topicName(").append(curEntity.getRecordKey())
+                            .append(") record!").toString());
+            strBuff.delete(0, strBuff.length());
+            return !result.isSuccess();
+        }
+        // check whether the deploy status is equal
+        if (newEntity.getTopicStatus() == curEntity.getTopicStatus()) {
+            if (!newEntity.isValidTopicStatus()) {
+                result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                        strBuff.append("Softly deleted record cannot be changed,")
+                                .append(" please resume or hard remove for brokerId-topicName(")
+                                .append(newEntity.getRecordKey()).append(") record!").toString());
+                strBuff.delete(0, strBuff.length());
+                return !result.isSuccess();
+            }
+            return false;
+        }
+        // check deploy status case from valid to invalid
+        if (curEntity.isValidTopicStatus() && !newEntity.isValidTopicStatus()) {
+            if (curEntity.isAcceptPublish()
+                    || curEntity.isAcceptSubscribe()) {
+                result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                        strBuff.append("The values of acceptPublish and acceptSubscribe must be false")
+                                .append(" before change status of brokerId-topicName(")
+                                .append(curEntity.getRecordKey()).append(") record!").toString());
+                strBuff.delete(0, strBuff.length());
+                return !result.isSuccess();
+            }
+            if (newEntity.getTopicStatus().getCode()
+                    > TopicStatus.STATUS_TOPIC_SOFT_DELETE.getCode()) {
+                result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                        strBuff.append("Please softly deleted the brokerId-topicName(")
+                                .append(newEntity.getRecordKey()).append(") record first!").toString());
+                strBuff.delete(0, strBuff.length());
+                return !result.isSuccess();
+            }
+            return false;
+        }
+        // check deploy status case from invalid to invalid
+        if (!curEntity.isValidTopicStatus() && !newEntity.isValidTopicStatus()) {
+            if (!((curEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_SOFT_DELETE
+                    && newEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_SOFT_REMOVE)
+                    || (curEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_SOFT_REMOVE
+                    && newEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_HARD_REMOVE))) {
+                result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                        strBuff.append("Illegal transfer status from ")
+                                .append(curEntity.getTopicStatus().getDescription())
+                                .append(" to ").append(newEntity.getTopicStatus().getDescription())
+                                .append(" for the brokerId-topicName(")
+                                .append(newEntity.getRecordKey()).append(") record!").toString());
+                strBuff.delete(0, strBuff.length());
+                return !result.isSuccess();
+            }
+            if (newEntity.isAcceptPublish()
+                    || newEntity.isAcceptSubscribe()) {
+                result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                        strBuff.append("The values of acceptPublish and acceptSubscribe must be false")
+                                .append(" before change status of brokerId-topicName(")
+                                .append(newEntity.getRecordKey()).append(") record!").toString());
+                strBuff.delete(0, strBuff.length());
+                return !result.isSuccess();
+            }
+            return false;
+        }
+        // check deploy status case from invalid to valid
+        if (!curEntity.isValidTopicStatus() && newEntity.isValidTopicStatus()) {
+            if (curEntity.getTopicStatus() != TopicStatus.STATUS_TOPIC_SOFT_DELETE) {
+                result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                        strBuff.append("Illegal transfer status from ")
+                                .append(curEntity.getTopicStatus().getDescription())
+                                .append(" to ").append(newEntity.getTopicStatus().getDescription())
+                                .append(" for the brokerId-topicName(")
+                                .append(newEntity.getRecordKey()).append(") record!").toString());
+                strBuff.delete(0, strBuff.length());
+                return !result.isSuccess();
+            }
+            if (newEntity.isAcceptPublish()
+                    || newEntity.isAcceptSubscribe()) {
+                result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
+                        strBuff.append("The values of acceptPublish and acceptSubscribe must be false")
+                                .append(" before change status of brokerId-topicName(")
+                                .append(newEntity.getRecordKey()).append(") record!").toString());
+                strBuff.delete(0, strBuff.length());
+                return !result.isSuccess();
+            }
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * Verify the validity of the configuration value for the system topic
+     *
+     * @param deployEntity   the topic configuration that needs to be added or updated
+     * @param strBuff  the print info string buffer
+     * @param result   the process result return
+     * @return true if success otherwise false
+     */
+    private boolean validSysTopicConfigure(TopicDeployEntity deployEntity,
+                                           StringBuilder strBuff, ProcessResult result) {
+        if (!TServerConstants.OFFSET_HISTORY_NAME.equals(deployEntity.getTopicName())) {
+            return true;
+        }
+        if (deployEntity.getNumTopicStores()
+                != TServerConstants.OFFSET_HISTORY_NUMSTORES) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
+                    strBuff.append("For system topic")
+                            .append(TServerConstants.OFFSET_HISTORY_NAME)
+                            .append(", the TopicStores value(")
+                            .append(TServerConstants.OFFSET_HISTORY_NUMSTORES)
+                            .append(") cannot be changed!").toString());
+            strBuff.delete(0, strBuff.length());
+            return result.isSuccess();
+        }
+        if (deployEntity.getNumPartitions()
+                != TServerConstants.OFFSET_HISTORY_NUMPARTS) {
+            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
+                    strBuff.append("For system topic")
+                            .append(TServerConstants.OFFSET_HISTORY_NAME)
+                            .append(", the Partition value(")
+                            .append(TServerConstants.OFFSET_HISTORY_NUMPARTS)
+                            .append(") cannot be changed!").toString());
+            strBuff.delete(0, strBuff.length());
+            return result.isSuccess();
+        }
+        return true;
     }
 }
