@@ -225,6 +225,21 @@
         where is_deleted = 0
         and name = #{name, jdbcType=VARCHAR}
     </select>
+    <select id="selectMqCluster" resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from third_party_cluster
+        <where>
+            is_deleted = 0
+            and mq_set_name = #{mqSetName, jdbcType=VARCHAR}
+            <if test="typeList != null and typeList.size()>0">
+                and `type` in
+                <foreach item="item" index="index" collection="typeList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
 
     <update id="updateByPrimaryKeySelective"
             parameterType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
