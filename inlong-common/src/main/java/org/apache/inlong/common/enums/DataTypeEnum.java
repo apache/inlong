@@ -17,14 +17,16 @@
 
 package org.apache.inlong.common.enums;
 
-import java.util.Locale;
 import lombok.Getter;
+
+import java.util.Locale;
 
 public enum DataTypeEnum {
     CSV("csv"),
     AVRO("avro"),
     JSON("json"),
     CANAL("canal"),
+    NONE("none"),
     DEBEZIUM_JSON("debezium_json");
 
     @Getter

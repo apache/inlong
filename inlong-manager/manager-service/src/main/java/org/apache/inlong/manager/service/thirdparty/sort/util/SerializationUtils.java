@@ -24,9 +24,11 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.kafka.CanalConfig;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.sort.protocol.deserialization.AvroDeserializationInfo;
+import org.apache.inlong.sort.protocol.deserialization.CanalDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.CsvDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.DebeziumDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
@@ -37,6 +39,8 @@ import org.apache.inlong.sort.protocol.serialization.DebeziumSerializationInfo;
 import org.apache.inlong.sort.protocol.serialization.JsonSerializationInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 import org.springframework.util.Assert;
+
+import java.util.Map;
 
 /**
  * Utils for Serialization and Deserialization info
@@ -97,6 +101,14 @@ public class SerializationUtils {
                 return new AvroDeserializationInfo();
             case JSON:
                 return new JsonDeserializationInfo();
+            case CANAL:
+                Map<String, Object> properties = source.getProperties();
+                CanalConfig canalConfig = CanalConfig.forCanalConfig(properties);
+                return new CanalDeserializationInfo(canalConfig.getDatabase(),
+                        canalConfig.getTable(),
+                        canalConfig.isIgnoreParseErrors(),
+                        canalConfig.getTimestampFormatStandard(),
+                        canalConfig.isIncludeMetadata());
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported serializationType for Kafka source: %s", serializationType));

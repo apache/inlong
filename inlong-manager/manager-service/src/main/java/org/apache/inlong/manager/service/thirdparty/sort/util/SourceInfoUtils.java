@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.thirdparty.sort.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
@@ -27,6 +28,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -46,13 +48,19 @@ public class SourceInfoUtils {
     /**
      * Whether the source is all binlog migration.
      */
-    public static boolean isBinlogAllMigration(SourceResponse sourceResponse) {
+    public static boolean isAllMigration(SourceResponse sourceResponse) {
         if (sourceResponse == null) {
             return false;
         }
         if (SourceType.BINLOG.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
             BinlogSourceResponse binlogSource = (BinlogSourceResponse) sourceResponse;
             return binlogSource.isAllMigration();
+        }
+        if (SourceType.KAFKA.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
+            KafkaSourceResponse kafkaSourceResponse = (KafkaSourceResponse) sourceResponse;
+            if (DataTypeEnum.forName(kafkaSourceResponse.getSerializationType()) == DataTypeEnum.CANAL) {
+                return true;
+            }
         }
         return false;
     }

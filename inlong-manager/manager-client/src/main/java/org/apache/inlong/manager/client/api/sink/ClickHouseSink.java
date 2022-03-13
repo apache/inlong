@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.client.api.SinkField;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
@@ -81,7 +81,7 @@ public class ClickHouseSink extends StreamSink {
     private List<SinkField> sinkFields;
 
     @Override
-    public DataFormat getDataFormat() {
-        return DataFormat.NONE;
+    public DataTypeEnum getDataFormat() {
+        return DataTypeEnum.NONE;
     }
 }

@@ -20,13 +20,13 @@ package org.apache.inlong.manager.client.api.util;
 import com.google.common.base.Joiner;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.common.enums.DataTypeEnum;
+import org.apache.inlong.manager.client.api.KafkaOffset;
 import org.apache.inlong.manager.client.api.StreamSource;
 import org.apache.inlong.manager.client.api.StreamSource.SyncType;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.source.KafkaSource;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
-import org.apache.inlong.manager.client.api.KafkaOffset;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
@@ -34,6 +34,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.kafka.CanalConfig;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
@@ -86,8 +87,11 @@ public class InlongStreamSourceTransfer {
         KafkaSource kafkaSource = new KafkaSource();
         kafkaSource.setSourceName(kafkaSourceResponse.getSourceName());
         kafkaSource.setConsumerGroup(kafkaSourceResponse.getGroupId());
-        DataFormat dataFormat = DataFormat.forName(kafkaSourceResponse.getSerializationType());
+        DataTypeEnum dataFormat = DataTypeEnum.forName(kafkaSourceResponse.getSerializationType());
         kafkaSource.setDataFormat(dataFormat);
+        if (dataFormat == DataTypeEnum.CANAL) {
+            kafkaSource.setCanalConfig(CanalConfig.forCanalConfig(kafkaSourceResponse.getProperties()));
+        }
         kafkaSource.setAgentIp(kafkaSourceResponse.getAgentIp());
         kafkaSource.setTopic(kafkaSourceResponse.getTopic());
         kafkaSource.setBootstrapServers(kafkaSourceResponse.getBootstrapServers());
@@ -103,8 +107,11 @@ public class InlongStreamSourceTransfer {
         kafkaSource.setSourceName(kafkaResponse.getSourceName());
         kafkaSource.setConsumerGroup(kafkaResponse.getGroupId());
 
-        DataFormat dataFormat = DataFormat.forName(kafkaResponse.getSerializationType());
+        DataTypeEnum dataFormat = DataTypeEnum.forName(kafkaResponse.getSerializationType());
         kafkaSource.setDataFormat(dataFormat);
+        if (dataFormat == DataTypeEnum.CANAL) {
+            kafkaSource.setCanalConfig(CanalConfig.forCanalConfig(kafkaResponse.getProperties()));
+        }
         kafkaSource.setTopic(kafkaResponse.getTopic());
         kafkaSource.setBootstrapServers(kafkaResponse.getBootstrapServers());
         kafkaSource.setByteSpeedLimit(kafkaResponse.getByteSpeedLimit());
@@ -121,7 +128,7 @@ public class InlongStreamSourceTransfer {
         MySQLBinlogSource binlogSource = new MySQLBinlogSource();
         binlogSource.setSourceName(response.getSourceName());
         binlogSource.setHostname(response.getHostname());
-        binlogSource.setDataFormat(DataFormat.NONE);
+        binlogSource.setDataFormat(DataTypeEnum.NONE);
         binlogSource.setPort(response.getPort());
         binlogSource.setAgentIp(response.getAgentIp());
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
@@ -147,7 +154,7 @@ public class InlongStreamSourceTransfer {
         MySQLBinlogSource binlogSource = new MySQLBinlogSource();
         binlogSource.setSourceName(response.getSourceName());
         binlogSource.setHostname(response.getHostname());
-        binlogSource.setDataFormat(DataFormat.NONE);
+        binlogSource.setDataFormat(DataTypeEnum.NONE);
         binlogSource.setPort(response.getPort());
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
                 response.getUser(),
@@ -183,6 +190,10 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setAutoOffsetReset(kafkaSource.getAutoOffsetReset().getName());
         sourceRequest.setGroupId(kafkaSource.getConsumerGroup());
         sourceRequest.setSerializationType(kafkaSource.getDataFormat().getName());
+        if (kafkaSource.getDataFormat() == DataTypeEnum.CANAL) {
+            AssertUtil.notNull(kafkaSource.getCanalConfig(), "CanalConfig should not be null");
+            sourceRequest.getProperties().putAll(kafkaSource.getCanalConfig().toMap());
+        }
         return sourceRequest;
     }
 

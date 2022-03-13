@@ -23,10 +23,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.client.api.StreamSource;
 import org.apache.inlong.manager.client.api.KafkaOffset;
 import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.pojo.source.kafka.CanalConfig;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -42,7 +43,7 @@ public class KafkaSource extends StreamSource {
     private SyncType syncType;
 
     @ApiModelProperty("Data format type for kafka")
-    private DataFormat dataFormat;
+    private DataTypeEnum dataFormat;
 
     @ApiModelProperty("Kafka topic")
     private String topic;
@@ -67,5 +68,8 @@ public class KafkaSource extends StreamSource {
 
     @ApiModelProperty(value = "The strategy of auto offset reset")
     private KafkaOffset autoOffsetReset;
+
+    @ApiModelProperty(value = "Canal config is needed if dataFormat is canal")
+    private CanalConfig canalConfig;
 
 }

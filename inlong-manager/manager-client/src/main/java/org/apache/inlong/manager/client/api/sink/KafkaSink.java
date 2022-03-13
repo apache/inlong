@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.client.api.SinkField;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.common.enums.SinkType;
@@ -47,7 +47,7 @@ public class KafkaSink extends StreamSink {
     private String topicName;
 
     @ApiModelProperty("Data format type for stream sink")
-    private DataFormat dataFormat;
+    private DataTypeEnum dataFormat;
 
     @ApiModelProperty("Create topic or not")
     private boolean needCreated;

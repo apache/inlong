@@ -18,11 +18,13 @@
 package org.apache.inlong.manager.common.pojo.source;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Response of the stream source
@@ -86,4 +88,7 @@ public class SourceResponse {
 
     @ApiModelProperty("Data Serialization, support: json, canal, avro, etc")
     private String serializationType;
+
+    @ApiModelProperty("Properties for source")
+    private Map<String, Object> properties = Maps.newHashMap();
 }

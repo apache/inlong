@@ -18,10 +18,12 @@
 package org.apache.inlong.manager.common.pojo.source;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Response of the source list
@@ -65,4 +67,6 @@ public class SourceListResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
+    @ApiModelProperty("Properties for source")
+    private Map<String, Object> properties = Maps.newHashMap();
 }

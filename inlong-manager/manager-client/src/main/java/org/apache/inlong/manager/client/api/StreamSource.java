@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
 
 @Data
@@ -43,6 +44,6 @@ public abstract class StreamSource {
 
     public abstract SyncType getSyncType();
 
-    public abstract DataFormat getDataFormat();
+    public abstract DataTypeEnum getDataFormat();
 
 }

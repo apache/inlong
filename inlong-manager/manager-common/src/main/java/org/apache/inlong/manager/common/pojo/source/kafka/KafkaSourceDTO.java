@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * kafka source information data transfer object.
@@ -71,6 +72,9 @@ public class KafkaSourceDTO {
     @ApiModelProperty("Data Serialization, support: json, canal, avro, etc")
     private String serializationType;
 
+    @ApiModelProperty("Properties for kafka source")
+    private Map<String, Object> properties;
+
     /**
      * Get the dto instance from the request
      */
@@ -84,6 +88,7 @@ public class KafkaSourceDTO {
                 .topicPartitionOffset(request.getTopicPartitionOffset())
                 .autoOffsetReset(request.getAutoOffsetReset())
                 .serializationType(request.getSerializationType())
+                .properties(request.getProperties())
                 .build();
     }
 

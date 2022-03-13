@@ -19,7 +19,7 @@ package org.apache.inlong.manager.client.api.util;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.compress.utils.Lists;
-import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.client.api.DataSeparator;
 import org.apache.inlong.manager.client.api.SinkField;
 import org.apache.inlong.manager.client.api.StreamField.FieldType;
@@ -189,7 +189,7 @@ public class InlongStreamSinkTransfer {
             kafkaSink.setSinkName(sinkResponse.getSinkName());
             kafkaSink.setAddress(sinkResponse.getAddress());
             kafkaSink.setTopicName(sinkResponse.getTopicName());
-            kafkaSink.setDataFormat(DataFormat.forName(sinkResponse.getSerializationType()));
+            kafkaSink.setDataFormat(DataTypeEnum.forName(sinkResponse.getSerializationType()));
         }
         kafkaSink.setProperties(sinkResponse.getProperties());
         kafkaSink.setNeedCreated(sinkResponse.getEnableCreateResource() == 1);

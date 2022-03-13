@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
 
 import java.util.List;
@@ -39,6 +40,6 @@ public abstract class StreamSink {
 
     public abstract List<SinkField> getSinkFields();
 
-    public abstract DataFormat getDataFormat();
+    public abstract DataTypeEnum getDataFormat();
 
 }

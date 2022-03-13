@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.client.api.DataSeparator;
 import org.apache.inlong.manager.client.api.SinkField;
 import org.apache.inlong.manager.client.api.StreamSink;
@@ -84,7 +84,7 @@ public class HiveSink extends StreamSink {
     private List<SinkField> sinkFields;
 
     @ApiModelProperty("Data format type for stream sink")
-    private DataFormat dataFormat;
+    private DataTypeEnum dataFormat;
 
     public enum FileFormat {
         TextFile, RCFile, SequenceFile, Avro;

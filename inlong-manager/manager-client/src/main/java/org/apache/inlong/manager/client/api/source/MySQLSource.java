@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.client.api.StreamSource;
 import org.apache.inlong.manager.common.enums.SourceType;
 
@@ -62,5 +62,5 @@ public class MySQLSource extends StreamSource {
     private String dataSql;
 
     @ApiModelProperty("Data format type of source")
-    private DataFormat dataFormat;
+    private DataTypeEnum dataFormat;
 }

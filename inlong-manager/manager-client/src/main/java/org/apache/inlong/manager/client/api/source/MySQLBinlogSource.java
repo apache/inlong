@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.client.api.StreamSource;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.SourceType;
@@ -44,7 +44,7 @@ public class MySQLBinlogSource extends StreamSource {
     private SyncType syncType;
 
     @ApiModelProperty("Data format type for binlog")
-    private DataFormat dataFormat = DataFormat.NONE;
+    private DataTypeEnum dataFormat = DataTypeEnum.NONE;
 
     @ApiModelProperty("Auth for binlog")
     private DefaultAuthentication authentication;

@@ -220,7 +220,7 @@ public class CommonOperateService {
 
         // TODO Support more than one source and one sink
         final SourceResponse sourceResponse = sourceList.get(0);
-        boolean isAllMigration = SourceInfoUtils.isBinlogAllMigration(sourceResponse);
+        boolean isAllMigration = SourceInfoUtils.isAllMigration(sourceResponse);
         FieldMappingRule fieldMappingRule = FieldInfoUtils.createFieldInfo(isAllMigration,
                 sinkResponse.getFieldList(), sourceFields, sinkFields, partition);
 
