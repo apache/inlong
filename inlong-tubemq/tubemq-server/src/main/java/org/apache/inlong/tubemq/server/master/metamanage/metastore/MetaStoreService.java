@@ -38,26 +38,15 @@ public interface MetaStoreService extends KeepAlive, Server {
     // cluster default configure api
 
     /**
-     * Add or update cluster default setting
+     * Add cluster default setting, or update records if data exists
      *
      * @param entity     the cluster default setting entity will be add
      * @param strBuff  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
-    boolean addClusterConfig(ClusterSettingEntity entity,
-                             StringBuilder strBuff, ProcessResult result);
-
-    /**
-     * Update cluster default setting
-     *
-     * @param entity     the cluster default setting entity will be add
-     * @param strBuff  the print info string buffer
-     * @param result     the process result return
-     * @return true if success otherwise false
-     */
-    boolean updClusterConfig(ClusterSettingEntity entity,
-                             StringBuilder strBuff, ProcessResult result);
+    boolean addUpdClusterConfig(ClusterSettingEntity entity,
+                                StringBuilder strBuff, ProcessResult result);
 
     ClusterSettingEntity getClusterConfig();
 

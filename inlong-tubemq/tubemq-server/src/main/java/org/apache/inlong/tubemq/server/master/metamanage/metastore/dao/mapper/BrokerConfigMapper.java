@@ -59,7 +59,7 @@ public interface BrokerConfigMapper extends AbstractMapper {
      * @return  the process result
      */
     boolean updBrokerMngStatus(BaseEntity opEntity,
-                               Integer brokerId, ManageStatus newMngStatus,
+                               int brokerId, ManageStatus newMngStatus,
                                StringBuilder strBuff, ProcessResult result);
 
     /**

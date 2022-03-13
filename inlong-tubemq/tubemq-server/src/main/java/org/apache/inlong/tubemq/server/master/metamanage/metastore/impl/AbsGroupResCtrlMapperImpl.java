@@ -83,7 +83,7 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
         // Store data to persistent
         if (putConfig2Persistent(newEntity, strBuff, result)) {
             groupBaseCtrlCache.put(newEntity.getGroupName(), newEntity);
-            result.setSuccResult(curEntity);
+            result.setSuccResult(null);
         }
         return result.isSuccess();
     }
@@ -98,7 +98,7 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
         }
         delConfigFromPersistent(groupName, strBuff);
         groupBaseCtrlCache.remove(groupName);
-        result.setSuccResult(curEntity);
+        result.setSuccResult(null);
         return true;
     }
 

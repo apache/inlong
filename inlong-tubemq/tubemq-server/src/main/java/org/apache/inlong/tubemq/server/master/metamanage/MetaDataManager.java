@@ -425,7 +425,7 @@ public class MetaDataManager implements Server {
         if (isAddOp) {
             if (metaStoreService.getBrokerConfByBrokerId(entity.getBrokerId()) == null
                     && metaStoreService.getBrokerConfByBrokerIp(entity.getBrokerIp()) == null) {
-                if (!WebParameterUtils.isConflictedPortsSet(entity.getBrokerPort(),
+                if (WebParameterUtils.isValidPortsSet(entity.getBrokerPort(),
                         entity.getBrokerTLSPort(), entity.getBrokerWebPort(), sBuffer, result)) {
                     if (metaStoreService.addBrokerConf(entity, sBuffer, result)) {
                         this.tMaster.getBrokerRunManager().updBrokerStaticInfo(entity);
@@ -453,7 +453,7 @@ public class MetaDataManager implements Server {
                         entity.getBrokerTLSPort(), entity.getBrokerWebPort(),
                         entity.getRegionId(), entity.getGroupId(),
                         entity.getManageStatus(), entity.getTopicProps())) {
-                    if (!WebParameterUtils.isConflictedPortsSet(newEntity.getBrokerPort(),
+                    if (WebParameterUtils.isValidPortsSet(newEntity.getBrokerPort(),
                             newEntity.getBrokerTLSPort(), newEntity.getBrokerWebPort(),
                             sBuffer, result)) {
                         if (metaStoreService.updBrokerConf(newEntity, sBuffer, result)) {
@@ -1580,9 +1580,9 @@ public class MetaDataManager implements Server {
             newConf.updModifyInfo(opEntity.getDataVerId(), brokerPort,
                     brokerTlsPort, brokerWebPort, maxMsgSizeMB, qryPriorityId,
                     flowCtrlEnable, flowRuleCnt, flowCtrlInfo, topicProps);
-            if (!WebParameterUtils.isConflictedPortsSet(newConf.getBrokerPort(),
+            if (WebParameterUtils.isValidPortsSet(newConf.getBrokerPort(),
                     newConf.getBrokerTLSPort(), newConf.getBrokerWebPort(), sBuffer, result)) {
-                metaStoreService.addClusterConfig(newConf, sBuffer, result);
+                metaStoreService.addUpdClusterConfig(newConf, sBuffer, result);
             }
         } else {
             newConf = curConf.clone();
@@ -1590,10 +1590,10 @@ public class MetaDataManager implements Server {
             if (newConf.updModifyInfo(opEntity.getDataVerId(), brokerPort,
                     brokerTlsPort, brokerWebPort, maxMsgSizeMB, qryPriorityId,
                     flowCtrlEnable, flowRuleCnt, flowCtrlInfo, topicProps)) {
-                if (!WebParameterUtils.isConflictedPortsSet(newConf.getBrokerPort(),
+                if (WebParameterUtils.isValidPortsSet(newConf.getBrokerPort(),
                         newConf.getBrokerTLSPort(), newConf.getBrokerWebPort(),
                         sBuffer, result)) {
-                    metaStoreService.updClusterConfig(newConf, sBuffer, result);
+                    metaStoreService.addUpdClusterConfig(newConf, sBuffer, result);
                 }
             } else {
                 result.setSuccResult(null);
