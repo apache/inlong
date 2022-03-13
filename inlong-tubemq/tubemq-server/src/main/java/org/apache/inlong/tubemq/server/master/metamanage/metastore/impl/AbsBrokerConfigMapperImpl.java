@@ -22,6 +22,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
@@ -66,7 +68,7 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
             return result.isSuccess();
         }
         // Check whether the configured ports conflict in the record
-        if (WebParameterUtils.isConflictedPortsSet(entity.getBrokerPort(),
+        if (!WebParameterUtils.isValidPortsSet(entity.getBrokerPort(),
                 entity.getBrokerTLSPort(), entity.getBrokerWebPort(), strBuff, result)) {
             return result.isSuccess();
         }
@@ -104,26 +106,26 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
             return result.isSuccess();
         }
         // Check whether the configured ports conflict in the record
-        if (WebParameterUtils.isConflictedPortsSet(newEntity.getBrokerPort(),
+        if (!WebParameterUtils.isValidPortsSet(newEntity.getBrokerPort(),
                 newEntity.getBrokerTLSPort(), newEntity.getBrokerWebPort(),
                 strBuff, result)) {
             return result.isSuccess();
         }
         // Check manage status
-        if (isIllegalManageStatusChange(newEntity, curEntity, strBuff, result)) {
+        if (!isValidMngStatusChange(newEntity, curEntity, strBuff, result)) {
             return result.isSuccess();
         }
         // Store data to persistent
         if (putConfig2Persistent(newEntity, strBuff, result)) {
             putRecord2Caches(newEntity);
-            result.setSuccResult(curEntity);
+            result.setSuccResult(null);
         }
         return result.isSuccess();
     }
 
     @Override
     public boolean updBrokerMngStatus(BaseEntity opEntity,
-                                      Integer brokerId, ManageStatus newMngStatus,
+                                      int brokerId, ManageStatus newMngStatus,
                                       StringBuilder strBuff, ProcessResult result) {
         // Check the existence of records by brokerId
         BrokerConfEntity curEntity = brokerConfCache.get(brokerId);
@@ -139,22 +141,21 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
         BrokerConfEntity newEntity = curEntity.clone();
         newEntity.updBaseModifyInfo(opEntity);
         if (!newEntity.updModifyInfo(opEntity.getDataVerId(),
-                curEntity.getBrokerPort(), curEntity.getBrokerTLSPort(),
-                curEntity.getBrokerWebPort(), curEntity.getRegionId(),
-                curEntity.getGroupId(), newMngStatus,
-                curEntity.getTopicProps())) {
+                TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
+                TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
+                TBaseConstants.META_VALUE_UNDEFINED, newMngStatus, null)) {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
                     "Broker configure not changed!");
             return result.isSuccess();
         }
         // Check manage status
-        if (isIllegalManageStatusChange(newEntity, curEntity, strBuff, result)) {
+        if (!isValidMngStatusChange(newEntity, curEntity, strBuff, result)) {
             return result.isSuccess();
         }
         // Store data to persistent
         if (putConfig2Persistent(newEntity, strBuff, result)) {
             putRecord2Caches(newEntity);
-            result.setSuccResult(curEntity);
+            result.setSuccResult(null);
         }
         return result.isSuccess();
     }
@@ -168,20 +169,11 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
             result.setSuccResult(null);
             return result.isSuccess();
         }
-        // Check broker's manage status
-        if (curEntity.getManageStatus().isOnlineStatus()) {
-            result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
-                    strBuff.append("Illegal manage status, please offline the broker(")
-                            .append(WebFieldDef.BROKERID.name).append("=")
-                            .append(curEntity.getBrokerId()).append(") first!").toString());
-            strBuff.delete(0, strBuff.length());
-            return result.isSuccess();
-        }
         // Delete record from persistent
         delConfigFromPersistent(brokerId, strBuff);
         // Clear cache data
         delRecordFromCaches(brokerId);
-        result.setSuccResult(curEntity);
+        result.setSuccResult(null);
         return result.isSuccess();
     }
 
@@ -384,20 +376,20 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
     }
 
     /**
-     * Check whether the management status change is illegal
+     * Check whether the management status change is legal
      *
      * @param newEntity  the entity to be updated
      * @param curEntity  the current entity
      * @param strBuff    string buffer
      * @param result     check result of parameter value
-     * @return  true for illegal, false for legal
+     * @return  true for valid, false for invalid
      */
-    private boolean isIllegalManageStatusChange(BrokerConfEntity newEntity,
-                                                BrokerConfEntity curEntity,
-                                                StringBuilder strBuff,
-                                                ProcessResult result) {
+    private boolean isValidMngStatusChange(BrokerConfEntity newEntity,
+                                           BrokerConfEntity curEntity,
+                                           StringBuilder strBuff,
+                                           ProcessResult result) {
         if (newEntity.getManageStatus() == curEntity.getManageStatus()) {
-            return false;
+            return true;
         }
         if (((newEntity.getManageStatus().getCode() < ManageStatus.STATUS_MANAGE_ONLINE.getCode())
                 && (curEntity.getManageStatus().getCode() >= ManageStatus.STATUS_MANAGE_ONLINE.getCode()))
@@ -411,8 +403,8 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
                             .append(" for the broker(").append(WebFieldDef.BROKERID.name).append("=")
                             .append(curEntity.getBrokerId()).append(")!").toString());
             strBuff.delete(0, strBuff.length());
-            return !result.isSuccess();
+            return result.isSuccess();
         }
-        return false;
+        return true;
     }
 }
