@@ -378,11 +378,11 @@ public class WebParameterUtils {
      * @param brokerWebPort  broker web port
      * @param strBuff        string buffer
      * @param result     check result of parameter value
-     * @return   true for illegal, false for legal
+     * @return   true for valid, false for invalid
      */
-    public static boolean isConflictedPortsSet(int brokerPort, int brokerTlsPort,
-                                               int brokerWebPort, StringBuilder strBuff,
-                                               ProcessResult result) {
+    public static boolean isValidPortsSet(int brokerPort, int brokerTlsPort,
+                                          int brokerWebPort, StringBuilder strBuff,
+                                          ProcessResult result) {
         if (brokerPort == brokerWebPort || brokerTlsPort == brokerWebPort) {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
                     strBuff.append(DataOpErrCode.DERR_CONFLICT_VALUE.getDescription())
@@ -392,9 +392,9 @@ public class WebParameterUtils {
                             .append(" cannot be the same as the value of")
                             .append(WebFieldDef.BROKERWEBPORT.name).toString());
             strBuff.delete(0, strBuff.length());
-            return !result.isSuccess();
+            return result.isSuccess();
         }
-        return false;
+        return true;
     }
 
     /**

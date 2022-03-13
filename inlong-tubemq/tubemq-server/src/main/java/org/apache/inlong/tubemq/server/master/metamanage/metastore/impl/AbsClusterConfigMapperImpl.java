@@ -39,71 +39,39 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
     }
 
     @Override
-    public boolean addClusterConfig(ClusterSettingEntity entity,
-                                    StringBuilder strBuff, ProcessResult result) {
+    public boolean addUpdClusterConfig(ClusterSettingEntity entity,
+                                       StringBuilder strBuff, ProcessResult result) {
+        ClusterSettingEntity newEntity;
         // Check whether the configure record already exist
         ClusterSettingEntity curEntity = metaDataCache.get(entity.getRecordKey());
         if (curEntity == null) {
-            result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
-                    strBuff.append("Existed record found for ")
-                            .append(entity.getRecordKey()).toString());
-            strBuff.delete(0, strBuff.length());
-            return result.isSuccess();
+            newEntity = entity.clone();
+        } else {
+            // Build the entity that need to be updated
+            newEntity = curEntity.clone();
+            newEntity.updBaseModifyInfo(entity);
+            if (!newEntity.updModifyInfo(entity.getDataVerId(),
+                    entity.getBrokerPort(), entity.getBrokerTLSPort(),
+                    entity.getBrokerWebPort(), entity.getMaxMsgSizeInMB(),
+                    entity.getQryPriorityId(), entity.enableFlowCtrl(),
+                    entity.getGloFlowCtrlRuleCnt(), entity.getGloFlowCtrlRuleInfo(),
+                    entity.getClsDefTopicProps())) {
+                result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+                        "Cluster configure not changed!");
+                return result.isSuccess();
+            }
         }
         // Check whether the configured ports conflict in the record
-        if (WebParameterUtils.isConflictedPortsSet(entity.getBrokerPort(),
-                entity.getBrokerTLSPort(), entity.getBrokerWebPort(),
-                strBuff, result)) {
-            return result.isSuccess();
-        }
-        // Store data to persistent
-        if (putConfig2Persistent(entity, strBuff, result)) {
-            metaDataCache.put(entity.getRecordKey(), entity);
-        }
-        return result.isSuccess();
-    }
-
-    @Override
-    public boolean updClusterConfig(ClusterSettingEntity entity,
-                                    StringBuilder strBuff, ProcessResult result) {
-        // Check for the record to be updated
-        ClusterSettingEntity curEntity = metaDataCache.get(entity.getRecordKey());
-        if (curEntity == null) {
-            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    strBuff.append("Not found cluster configure for (")
-                            .append(entity.getRecordKey()).append(")!").toString());
-            return result.isSuccess();
-        }
-        // Build the entity that need to be updated
-        ClusterSettingEntity newEntity = curEntity.clone();
-        newEntity.updBaseModifyInfo(entity);
-        if (!newEntity.updModifyInfo(entity.getDataVerId(),
-                entity.getBrokerPort(), entity.getBrokerTLSPort(),
-                entity.getBrokerWebPort(), entity.getMaxMsgSizeInMB(),
-                entity.getQryPriorityId(), entity.enableFlowCtrl(),
-                entity.getGloFlowCtrlRuleCnt(), entity.getGloFlowCtrlRuleInfo(),
-                entity.getClsDefTopicProps())) {
-            result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                    "Cluster configure not changed!");
-            return result.isSuccess();
-        }
-        // Check whether the configured ports conflict in the record
-        if (WebParameterUtils.isConflictedPortsSet(newEntity.getBrokerPort(),
+        if (!WebParameterUtils.isValidPortsSet(newEntity.getBrokerPort(),
                 newEntity.getBrokerTLSPort(), newEntity.getBrokerWebPort(),
                 strBuff, result)) {
             return result.isSuccess();
         }
         // Store data to persistent
         if (putConfig2Persistent(newEntity, strBuff, result)) {
-            metaDataCache.put(newEntity.getRecordKey(), newEntity);
-            result.setSuccResult(curEntity);
+            metaDataCache.put(newEntity.getRecordKey(), entity);
         }
         return result.isSuccess();
-    }
-
-    @Override
-    public ClusterSettingEntity getClusterConfig() {
-        return metaDataCache.get(TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
     }
 
     @Override
@@ -116,8 +84,13 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
         }
         delConfigFromPersistent(strBuff, TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
         metaDataCache.remove(TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
-        result.setSuccResult(curEntity);
+        result.setSuccResult(null);
         return true;
+    }
+
+    @Override
+    public ClusterSettingEntity getClusterConfig() {
+        return metaDataCache.get(TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
     }
 
     /**

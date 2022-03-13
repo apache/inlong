@@ -86,7 +86,7 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
         // Store data to persistent
         if (putConfig2Persistent(newEntity, strBuff, result)) {
             topicCtrlCache.put(newEntity.getTopicName(), newEntity);
-            result.setSuccResult(curEntity);
+            result.setSuccResult(null);
         }
         return result.isSuccess();
     }
@@ -103,7 +103,7 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
         }
         delConfigFromPersistent(topicName, strBuff);
         topicCtrlCache.remove(topicName);
-        result.setSuccResult(curEntity);
+        result.setSuccResult(null);
         return result.isSuccess();
     }
 

@@ -211,46 +211,20 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
 
     // cluster default configure api
     @Override
-    public boolean addClusterConfig(ClusterSettingEntity entity,
-                                    StringBuilder strBuff, ProcessResult result) {
+    public boolean addUpdClusterConfig(ClusterSettingEntity entity,
+                                       StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (clusterConfigMapper.addClusterConfig(entity, strBuff, result)) {
-            strBuff.append("[addClusterConfig], ").append(entity.getCreateUser())
-                    .append(" added cluster setting record :").append(entity);
+        if (clusterConfigMapper.addUpdClusterConfig(entity, strBuff, result)) {
+            ClusterSettingEntity newEntity = clusterConfigMapper.getClusterConfig();
+            strBuff.append("[insertClusterConfig], ").append(entity.getCreateUser())
+                    .append(" insert cluster setting record :").append(newEntity);
             logger.info(strBuff.toString());
         } else {
-            strBuff.append("[addClusterConfig], ")
-                    .append("failure to add cluster setting record : ")
-                    .append(result.getErrMsg());
-            logger.warn(strBuff.toString());
-        }
-        strBuff.delete(0, strBuff.length());
-        return result.isSuccess();
-    }
-
-    @Override
-    public boolean updClusterConfig(ClusterSettingEntity entity,
-                                    StringBuilder strBuff, ProcessResult result) {
-        // check current status
-        if (!checkStoreStatus(true, result)) {
-            return result.isSuccess();
-        }
-        if (clusterConfigMapper.updClusterConfig(entity, strBuff, result)) {
-            ClusterSettingEntity oldEntity =
-                    (ClusterSettingEntity) result.getRetData();
-            ClusterSettingEntity curEntity =
-                    clusterConfigMapper.getClusterConfig();
-            strBuff.append("[updClusterConfig], ")
-                    .append(entity.getModifyUser())
-                    .append(" updated record from :").append(oldEntity.toString())
-                    .append(" to ").append(curEntity.toString());
-            logger.info(strBuff.toString());
-        } else {
-            strBuff.append("[updClusterConfig], ")
-                    .append("failure to update record : ")
+            strBuff.append("[addUpdClusterConfig], ")
+                    .append("failure to insert cluster setting record : ")
                     .append(result.getErrMsg());
             logger.warn(strBuff.toString());
         }
@@ -316,16 +290,15 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
+        BrokerConfEntity curEntity =
+                brokerConfigMapper.getBrokerConfByBrokerId(entity.getBrokerId());
         if (brokerConfigMapper.updBrokerConf(entity, strBuff, result)) {
-            BrokerConfEntity oldEntity =
-                    (BrokerConfEntity) result.getRetData();
-            BrokerConfEntity curEntity =
+            BrokerConfEntity newEntity =
                     brokerConfigMapper.getBrokerConfByBrokerId(entity.getBrokerId());
             strBuff.append("[updBrokerConf], ")
                     .append(entity.getModifyUser())
                     .append(" updated broker configure record from :")
-                    .append(oldEntity.toString())
-                    .append(" to ").append(curEntity.toString());
+                    .append(curEntity).append(" to ").append(newEntity);
             logger.info(strBuff.toString());
         } else {
             strBuff.append("[updBrokerConf], ")
@@ -391,7 +364,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (topicDeployMapper.addTopicConf(entity, strBuff, result)) {
+        if (topicDeployMapper.addTopicDeployConf(entity, strBuff, result)) {
             strBuff.append("[addTopicConf], ").append(entity.getCreateUser())
                     .append(" added topic configure record :").append(entity);
             logger.info(strBuff.toString());
@@ -412,16 +385,14 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (topicDeployMapper.updTopicConf(entity, strBuff, result)) {
-            TopicDeployEntity oldEntity =
-                    (TopicDeployEntity) result.getRetData();
-            TopicDeployEntity curEntity =
+        TopicDeployEntity curEntity =
+                topicDeployMapper.getTopicConfByeRecKey(entity.getRecordKey());
+        if (topicDeployMapper.updTopicDeployConf(entity, strBuff, result)) {
+            TopicDeployEntity newEntity =
                     topicDeployMapper.getTopicConfByeRecKey(entity.getRecordKey());
-            strBuff.append("[updTopicConf], ")
-                    .append(entity.getModifyUser())
-                    .append(" updated record from :")
-                    .append(oldEntity.toString())
-                    .append(" to ").append(curEntity.toString());
+            strBuff.append("[updTopicConf], ").append(entity.getModifyUser())
+                    .append(" updated record from :").append(curEntity)
+                    .append(" to ").append(newEntity);
             logger.info(strBuff.toString());
         } else {
             strBuff.append("[updTopicConf], ")
@@ -440,7 +411,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        if (topicDeployMapper.delTopicConf(recordKey, strBuff, result)) {
+        if (topicDeployMapper.delTopicDeployConf(recordKey, strBuff, result)) {
             GroupResCtrlEntity entity =
                     (GroupResCtrlEntity) result.getRetData();
             if (entity != null) {
@@ -573,15 +544,14 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
+        TopicCtrlEntity curEntity =
+                topicCtrlMapper.getTopicCtrlConf(entity.getTopicName());
         if (topicCtrlMapper.updTopicCtrlConf(entity, strBuff, result)) {
-            TopicCtrlEntity oldEntity =
-                    (TopicCtrlEntity) result.getRetData();
-            TopicCtrlEntity curEntity =
+            TopicCtrlEntity newEntity =
                     topicCtrlMapper.getTopicCtrlConf(entity.getTopicName());
-            strBuff.append("[updTopicCtrlConf], ")
-                    .append(entity.getModifyUser())
-                    .append(" updated record from :").append(oldEntity.toString())
-                    .append(" to ").append(curEntity.toString());
+            strBuff.append("[updTopicCtrlConf], ").append(entity.getModifyUser())
+                    .append(" updated record from :").append(curEntity)
+                    .append(" to ").append(newEntity);
             logger.info(strBuff.toString());
         } else {
             strBuff.append("[updTopicCtrlConf], ")
@@ -663,16 +633,14 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
+        GroupResCtrlEntity curEntity =
+                groupResCtrlMapper.getGroupResCtrlConf(entity.getGroupName());
         if (groupResCtrlMapper.updGroupResCtrlConf(entity, strBuff, result)) {
-            GroupResCtrlEntity oldEntity =
-                    (GroupResCtrlEntity) result.getRetData();
-            GroupResCtrlEntity curEntity =
+            GroupResCtrlEntity newEntity =
                     groupResCtrlMapper.getGroupResCtrlConf(entity.getGroupName());
-            strBuff.append("[updGroupResCtrlConf], ")
-                    .append(entity.getModifyUser())
-                    .append(" updated record from :")
-                    .append(oldEntity.toString())
-                    .append(" to ").append(curEntity.toString());
+            strBuff.append("[updGroupResCtrlConf], ").append(entity.getModifyUser())
+                    .append(" updated record from :").append(curEntity)
+                    .append(" to ").append(newEntity);
             logger.info(strBuff.toString());
         } else {
             strBuff.append("[updGroupResCtrlConf], ")
@@ -748,15 +716,14 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
         if (!checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
+        GroupConsumeCtrlEntity curEntity =
+                consumeCtrlMapper.getGroupConsumeCtrlConfByRecKey(entity.getRecordKey());
         if (consumeCtrlMapper.updGroupConsumeCtrlConf(entity, strBuff, result)) {
-            GroupConsumeCtrlEntity oldEntity =
-                    (GroupConsumeCtrlEntity) result.getRetData();
-            GroupConsumeCtrlEntity curEntity =
+            GroupConsumeCtrlEntity newEntity =
                     consumeCtrlMapper.getGroupConsumeCtrlConfByRecKey(entity.getRecordKey());
-            strBuff.append("[updGroupConsumeCtrlConf], ")
-                    .append(entity.getModifyUser())
-                    .append(" updated record from :").append(oldEntity.toString())
-                    .append(" to ").append(curEntity.toString());
+            strBuff.append("[updGroupConsumeCtrlConf], ").append(entity.getModifyUser())
+                    .append(" updated record from :").append(curEntity)
+                    .append(" to ").append(newEntity);
             logger.info(strBuff.toString());
         } else {
             strBuff.append("[updGroupConsumeCtrlConf], ")
@@ -825,12 +792,12 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
 
     @Override
     public boolean isTopicNameInUsed(String topicName) {
-        return consumeCtrlMapper.isTopicNameInUsed(topicName);
+        return consumeCtrlMapper.isTopicNameInUse(topicName);
     }
 
     @Override
     public boolean hasGroupConsumeCtrlConf(String groupName) {
-        return consumeCtrlMapper.hasGroupConsumeCtrlConf(groupName);
+        return consumeCtrlMapper.isGroupNameInUse(groupName);
     }
 
     @Override
