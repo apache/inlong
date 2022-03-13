@@ -85,7 +85,9 @@ public class InlongParser {
         InlongGroupResponse inlongGroupResponse = GsonUtil.fromJson(GsonUtil.toJson(data), InlongGroupResponse.class);
         JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
         if (mqExtInfo != null && mqExtInfo.get(MIDDLEWARE_TYPE) != null) {
-            if (Constant.MIDDLEWARE_PULSAR.equals(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString())) {
+            String middlewareType = mqExtInfo.get(MIDDLEWARE_TYPE).getAsString();
+            if (Constant.MIDDLEWARE_PULSAR.equals(middlewareType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(
+                    middlewareType)) {
                 InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
                 inlongGroupResponse.setMqExtInfo(pulsarInfo);
             }
@@ -218,7 +220,9 @@ public class InlongParser {
                 InlongGroupApproveRequest.class);
         JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
         if (mqExtInfo != null && mqExtInfo.get(MIDDLEWARE_TYPE) != null) {
-            if (Constant.MIDDLEWARE_PULSAR.equals(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString())) {
+            String middlewareType = mqExtInfo.get(MIDDLEWARE_TYPE).getAsString();
+            if (Constant.MIDDLEWARE_PULSAR.equals(middlewareType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(
+                    middlewareType)) {
                 InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
                 groupApproveInfo.setAckQuorum(pulsarInfo.getAckQuorum());
                 groupApproveInfo.setEnsemble(pulsarInfo.getEnsemble());
