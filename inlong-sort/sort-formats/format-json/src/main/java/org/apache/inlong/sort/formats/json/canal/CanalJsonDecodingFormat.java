@@ -231,7 +231,7 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
 
         EVENT_TIMESTAMP(
                 "event-timestamp",
-                DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).nullable(),
+                DataTypes.BIGINT().nullable(),
                 DataTypes.FIELD("es", DataTypes.BIGINT()),
                 new MetadataConverter() {
                     private static final long serialVersionUID = 1L;
@@ -241,7 +241,7 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
                         if (row.isNullAt(pos)) {
                             return null;
                         }
-                        return TimestampData.fromEpochMillis(row.getLong(pos));
+                        return row.getLong(pos);
                     }
 
                     @Override
@@ -288,6 +288,10 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
             this.dataType = dataType;
             this.requiredJsonField = requiredJsonField;
             this.converter = converter;
+        }
+
+        public String getKey() {
+            return key;
         }
     }
 }

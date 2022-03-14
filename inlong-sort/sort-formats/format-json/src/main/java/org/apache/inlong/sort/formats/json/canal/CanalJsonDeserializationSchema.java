@@ -19,10 +19,13 @@
 package org.apache.inlong.sort.formats.json.canal;
 
 import static java.lang.String.format;
+import static org.apache.inlong.sort.formats.json.canal.CanalUtils.getMysqlMetadataKey;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -35,8 +38,10 @@ import org.apache.flink.formats.json.JsonRowDataDeserializationSchema;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.ArrayData;
+import org.apache.flink.table.data.GenericMapData;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
@@ -67,11 +72,10 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
     /** The deserializer to deserialize Canal JSON data. */
     private final JsonRowDataDeserializationSchema jsonDeserializer;
 
-    /** Flag that indicates that an additional projection is required for metadata. */
-    private final boolean hasMetadata;
-
     /** Metadata to be extracted for every record. */
     private final MetadataConverter[] metadataConverters;
+
+    private final List<ReadableMetadata> requestedMetadata;
 
     /** {@link TypeInformation} of the produced {@link RowData} (physical + meta data). */
     private final TypeInformation<RowData> producedTypeInfo;
@@ -116,8 +120,8 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
                         // failOnMissingField
                         ignoreParseErrors,
                         timestampFormat);
-        this.hasMetadata = requestedMetadata.size() > 0;
         this.metadataConverters = createMetadataConverters(jsonRowType, requestedMetadata);
+        this.requestedMetadata = requestedMetadata;
         this.producedTypeInfo = producedTypeInfo;
         this.database = database;
         this.table = table;
@@ -284,24 +288,26 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
         }
     }
 
-    private void emitRow(
-            GenericRowData rootRow, GenericRowData physicalRow, Collector<RowData> out) {
-        // shortcut in case no output projection is required
-        if (!hasMetadata) {
-            out.collect(physicalRow);
-            return;
-        }
+    private void emitRow(GenericRowData rootRow, GenericRowData physicalRow, Collector<RowData> out) {
         final int physicalArity = physicalRow.getArity();
         final int metadataArity = metadataConverters.length;
-        final GenericRowData producedRow =
-                new GenericRowData(physicalRow.getRowKind(), physicalArity + metadataArity);
+        final GenericRowData producedRow = new GenericRowData(physicalRow.getRowKind(), physicalArity + 1);
+
         for (int physicalPos = 0; physicalPos < physicalArity; physicalPos++) {
-            producedRow.setField(physicalPos, physicalRow.getField(physicalPos));
+            producedRow.setField(physicalPos + 1, physicalRow.getField(physicalPos));
         }
+
+        // Put metadata in the first field of the emitted RowData
+        Map<StringData, StringData> metadataMap = new HashMap<>();
+
         for (int metadataPos = 0; metadataPos < metadataArity; metadataPos++) {
-            producedRow.setField(
-                    physicalArity + metadataPos, metadataConverters[metadataPos].convert(rootRow));
+            metadataMap.put(
+                    StringData.fromString(getMysqlMetadataKey(requestedMetadata.get(metadataPos))),
+                    StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString())
+            );
         }
+        producedRow.setField(0, new GenericMapData(metadataMap));
+
         out.collect(producedRow);
     }
 
@@ -325,7 +331,6 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
         }
         CanalJsonDeserializationSchema that = (CanalJsonDeserializationSchema) o;
         return Objects.equals(jsonDeserializer, that.jsonDeserializer)
-                && hasMetadata == that.hasMetadata
                 && Objects.equals(producedTypeInfo, that.producedTypeInfo)
                 && Objects.equals(database, that.database)
                 && Objects.equals(table, that.table)
@@ -337,7 +342,6 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
     public int hashCode() {
         return Objects.hash(
                 jsonDeserializer,
-                hasMetadata,
                 producedTypeInfo,
                 database,
                 table,

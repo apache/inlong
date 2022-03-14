@@ -20,8 +20,15 @@ package org.apache.inlong.sort.singletenant.flink.deserialization;
 import org.apache.flink.types.Row;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sort.configuration.Configuration;
+import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
+import org.apache.inlong.sort.formats.common.FloatFormatInfo;
+import org.apache.inlong.sort.formats.common.IntFormatInfo;
+import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.deserialization.CanalDeserializationInfo;
 import org.apache.inlong.sort.singletenant.flink.SerializedRecord;
 import org.junit.Test;
 
@@ -49,6 +56,91 @@ public class DeserializationFunctionTest {
         Row row = collector.getInnerList().get(0);
         assertEquals(1, row.getArity());
         assertEquals(testData, row.getField(0));
+    }
+
+    @Test
+    public void testDeserializeCanalJson() throws Exception {
+        String testCanalData = "{\n"
+                + "    \"data\":[\n"
+                + "        {\n"
+                + "            \"id\":\"101\",\n"
+                + "            \"name\":\"scooter\",\n"
+                + "            \"description\":\"Small 2-wheel scooter\",\n"
+                + "            \"weight\":\"3.14\"\n"
+                + "        },\n"
+                + "        {\n"
+                + "            \"id\":\"102\",\n"
+                + "            \"name\":\"car battery\",\n"
+                + "            \"description\":\"12V car battery\",\n"
+                + "            \"weight\":\"8.1\"\n"
+                + "        },\n"
+                + "        {\n"
+                + "            \"id\":\"103\",\n"
+                + "            \"name\":\"12-pack drill bits\",\n"
+                + "            \"description\":\"12-pack of drill bits with sizes ranging from #40 to #3\",\n"
+                + "            \"weight\":\"0.8\"\n"
+                + "        }\n"
+                + "    ],\n"
+                + "    \"database\":\"database\",\n"
+                + "    \"es\":1589373515000,\n"
+                + "    \"id\":3,\n"
+                + "    \"isDdl\":false,\n"
+                + "    \"mysqlType\":{\n"
+                + "        \"id\":\"INTEGER\",\n"
+                + "        \"name\":\"VARCHAR(255)\",\n"
+                + "        \"description\":\"VARCHAR(512)\",\n"
+                + "        \"weight\":\"FLOAT\"\n"
+                + "    },\n"
+                + "    \"old\":null,\n"
+                + "    \"pkNames\":[\n"
+                + "        \"id\"\n"
+                + "    ],\n"
+                + "    \"sql\":\"\",\n"
+                + "    \"sqlType\":{\n"
+                + "        \"id\":4,\n"
+                + "        \"name\":12,\n"
+                + "        \"description\":12,\n"
+                + "        \"weight\":7\n"
+                + "    },\n"
+                + "    \"table\":\"table\",\n"
+                + "    \"ts\":1589373515477,\n"
+                + "    \"type\":\"INSERT\"\n"
+                + "}";
+
+        InLongMsg inLongMsg = InLongMsg.newInLongMsg(true);
+        String attrs = "m=0"
+                + "&dt=" + System.currentTimeMillis()
+                + "&iname=" + "tid";
+        inLongMsg.addMsg(attrs, testCanalData.getBytes());
+        SerializedRecord serializedRecord = new SerializedRecord(1, inLongMsg.buildArray());
+
+        FieldInfo[] fieldInfos = new FieldInfo[]{
+                new FieldInfo("id", IntFormatInfo.INSTANCE),
+                new FieldInfo("name", StringFormatInfo.INSTANCE),
+                new FieldInfo("description", StringFormatInfo.INSTANCE),
+                new FieldInfo("weight", FloatFormatInfo.INSTANCE),
+                new BuiltInFieldInfo("database", StringFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_DATABASE),
+                new BuiltInFieldInfo("table", StringFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_TABLE),
+                new BuiltInFieldInfo(
+                        "event-timestamp", LongFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_EVENT_TIME),
+                new BuiltInFieldInfo("is-ddl", BooleanFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_IS_DDL),
+                new BuiltInFieldInfo("is-ddl", BooleanFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_EVENT_TYPE)
+        };
+
+        DeserializationFunction function = new DeserializationFunction(
+                DeserializationSchemaFactory.build(
+                        fieldInfos,
+                        new CanalDeserializationInfo(null, null, false, "ISO_8601", false)),
+                new FieldMappingTransformer(new Configuration(), fieldInfos),
+                false);
+
+        ListCollector<Row> collector = new ListCollector<>();
+        function.processElement(serializedRecord,null, collector);
+        Row row = collector.getInnerList().get(0);
+
+        Row expected = Row.of(
+                101, "scooter", "Small 2-wheel scooter", 3.14f, "database", "table", 1589373515000L, false, "+I");
+        assertEquals(expected, row);
     }
 
 }

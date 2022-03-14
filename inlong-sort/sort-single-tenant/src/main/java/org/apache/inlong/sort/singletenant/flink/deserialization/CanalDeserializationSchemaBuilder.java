@@ -17,53 +17,59 @@
 
 package org.apache.inlong.sort.singletenant.flink.deserialization;
 
+import static org.apache.flink.table.types.utils.DataTypeUtils.validateInputDataType;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertDateToStringFormatInfo;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertFieldInfosToDataType;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.extractFormatInfos;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.getProducedFieldInfos;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.getTimestampFormatStandard;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.formats.common.TimestampFormat;
-import org.apache.flink.formats.json.canal.CanalJsonDecodingFormat;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.runtime.typeutils.InternalTypeInfo;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.Row;
-import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
-import org.apache.inlong.sort.formats.common.IntFormatInfo;
-import org.apache.inlong.sort.formats.common.LocalZonedTimestampFormatInfo;
-import org.apache.inlong.sort.formats.common.MapFormatInfo;
+import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
+import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat;
+import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.ReadableMetadata;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.CanalDeserializationInfo;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.apache.flink.table.types.utils.DataTypeUtils.validateInputDataType;
-import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertDateToStringFormatInfo;
-import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertFieldInfosToDataType;
-import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.extractFormatInfos;
-import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.getTimestampFormatStandard;
+import org.apache.inlong.sort.singletenant.flink.utils.CommonUtils;
 
 public class CanalDeserializationSchemaBuilder {
-
-    private static final List<String> ALL_SUPPORTED_METADATA_KEYS =
-            Arrays.asList("database", "table", "sql-type", "pk-names", "ingestion-timestamp", "event-timestamp");
 
     public static DeserializationSchema<Row> build(
             FieldInfo[] fieldInfos,
             CanalDeserializationInfo deserializationInfo
     ) throws IOException, ClassNotFoundException {
         String timestampFormatStandard = deserializationInfo.getTimestampFormatStandard();
-        boolean includeMetadata = deserializationInfo.isIncludeMetadata();
-        CanalJsonDecodingFormat canalJsonDecodingFormat = createCanalJsonDecodingFormat(
+        CanalJsonDecodingFormat canalJsonDecodingFormat = new CanalJsonDecodingFormat(
                 deserializationInfo.getDatabase(),
                 deserializationInfo.getTable(),
                 deserializationInfo.isIgnoreParseErrors(),
-                timestampFormatStandard,
-                includeMetadata
+                getTimestampFormatStandard(timestampFormatStandard)
         );
 
-        FieldInfo[] convertedInputFields = convertDateToStringFormatInfo(fieldInfos);
+        // Extract required metadata
+        FieldInfo[] metadataFieldInfos = getMetadataFieldInfos(fieldInfos);
+        List<String> requiredMetadataKeys = Arrays.stream(metadataFieldInfos)
+                .map(FieldInfo::getName)
+                .collect(Collectors.toList());
+        canalJsonDecodingFormat.applyReadableMetadata(requiredMetadataKeys);
+
+        FieldInfo[] originPhysicalFieldInfos = CommonUtils.extractNonBuiltInFieldInfos(fieldInfos, false);
+        FieldInfo[] convertedPhysicalFieldInfos = convertDateToStringFormatInfo(originPhysicalFieldInfos);
         DeserializationSchema<RowData> canalSchema = canalJsonDecodingFormat.createRuntimeDecoder(
                 new DynamicTableSource.Context() {
                     @Override
@@ -77,61 +83,59 @@ public class CanalDeserializationSchemaBuilder {
                         return null;
                     }
                 },
-                convertFieldInfosToDataType(convertedInputFields)
+                convertFieldInfosToDataType(convertedPhysicalFieldInfos)
         );
 
-        return wrapCanalDeserializationSchema(canalSchema, includeMetadata, fieldInfos, timestampFormatStandard);
+        return wrapCanalDeserializationSchema(canalSchema, originPhysicalFieldInfos, convertedPhysicalFieldInfos);
     }
 
     private static DeserializationSchema<Row> wrapCanalDeserializationSchema(
             DeserializationSchema<RowData> canalSchema,
-            boolean includeMetadata,
-            FieldInfo[] origFieldInfos,
-            String timestampFormatStandard
-    ) throws IOException, ClassNotFoundException {
-        FieldInfo[] allFields;
-        if (includeMetadata) {
-            allFields = new FieldInfo[origFieldInfos.length + ALL_SUPPORTED_METADATA_KEYS.size()];
-            System.arraycopy(origFieldInfos, 0, allFields, 0, origFieldInfos.length);
-            FieldInfo[] metadataFields = buildMetadataFields(timestampFormatStandard);
-            System.arraycopy(metadataFields, 0, allFields, origFieldInfos.length, metadataFields.length);
-        } else {
-            allFields = origFieldInfos;
-        }
-
-        FieldInfo[] convertedAllFields = convertDateToStringFormatInfo(allFields);
-        RowDataToRowDeserializationSchemaWrapper rowDataToRowSchema =
-                new RowDataToRowDeserializationSchemaWrapper(canalSchema, convertedAllFields);
-        return new CustomDateFormatDeserializationSchemaWrapper(rowDataToRowSchema, extractFormatInfos(allFields));
-    }
-
-    private static CanalJsonDecodingFormat createCanalJsonDecodingFormat(
-            String database,
-            String table,
-            boolean ignoreParseErrors,
-            String timestampFormatStandard,
-            boolean includeMetadata
+            FieldInfo[] originPhysicalFieldInfos,
+            FieldInfo[] convertedPhysicalFieldInfos
     ) {
-        TimestampFormat timestampFormat = getTimestampFormatStandard(timestampFormatStandard);
-        CanalJsonDecodingFormat canalJsonDecodingFormat =
-                new CanalJsonDecodingFormat(database, table, ignoreParseErrors, timestampFormat);
-        if (includeMetadata) {
-            canalJsonDecodingFormat.applyReadableMetadata(ALL_SUPPORTED_METADATA_KEYS);
-        }
 
-        return canalJsonDecodingFormat;
+        RowDataToRowDeserializationSchemaWrapper rowDataToRowSchema = new RowDataToRowDeserializationSchemaWrapper(
+                canalSchema,
+                getProducedFieldInfos(convertedPhysicalFieldInfos));
+        return new CustomDateFormatDeserializationSchemaWrapper(
+                rowDataToRowSchema,
+                extractFormatInfos(getProducedFieldInfos(originPhysicalFieldInfos)));
     }
 
-    private static FieldInfo[] buildMetadataFields(String timestampStandard) {
-        return new FieldInfo[]{
-                new FieldInfo(ALL_SUPPORTED_METADATA_KEYS.get(0), StringFormatInfo.INSTANCE),
-                new FieldInfo(ALL_SUPPORTED_METADATA_KEYS.get(1), StringFormatInfo.INSTANCE),
-                new FieldInfo(ALL_SUPPORTED_METADATA_KEYS.get(2),
-                        new MapFormatInfo(StringFormatInfo.INSTANCE, IntFormatInfo.INSTANCE)),
-                new FieldInfo(ALL_SUPPORTED_METADATA_KEYS.get(3), new ArrayFormatInfo(StringFormatInfo.INSTANCE)),
-                new FieldInfo(ALL_SUPPORTED_METADATA_KEYS.get(4), new LocalZonedTimestampFormatInfo(timestampStandard)),
-                new FieldInfo(ALL_SUPPORTED_METADATA_KEYS.get(5), new LocalZonedTimestampFormatInfo(timestampStandard))
-        };
-    }
+    public static FieldInfo[] getMetadataFieldInfos(FieldInfo[] fieldInfos) {
+        List<FieldInfo> metadataFieldInfos = new ArrayList<>();
+        Arrays.stream(fieldInfos)
+                .filter(fieldInfo -> fieldInfo instanceof BuiltInFieldInfo)
+                .forEach(fieldInfo -> {
+                    BuiltInFieldInfo builtInFieldInfo = (BuiltInFieldInfo) fieldInfo;
+                    BuiltInField builtInField = builtInFieldInfo.getBuiltInField();
+                    switch (builtInField) {
+                        case MYSQL_METADATA_DATABASE:
+                            metadataFieldInfos.add(new FieldInfo(
+                                    ReadableMetadata.DATABASE.getKey(), StringFormatInfo.INSTANCE));
+                            break;
+                        case MYSQL_METADATA_TABLE:
+                            metadataFieldInfos.add(new FieldInfo(
+                                    ReadableMetadata.TABLE.getKey(), StringFormatInfo.INSTANCE));
+                            break;
+                        case MYSQL_METADATA_EVENT_TIME:
+                            metadataFieldInfos.add(new FieldInfo(
+                                    ReadableMetadata.EVENT_TIMESTAMP.getKey(), LongFormatInfo.INSTANCE));
+                            break;
+                        case MYSQL_METADATA_IS_DDL:
+                            metadataFieldInfos.add(new FieldInfo(
+                                    ReadableMetadata.IS_DDL.getKey(), BooleanFormatInfo.INSTANCE));
+                            break;
+                        case MYSQL_METADATA_EVENT_TYPE:
+                        case MYSQL_METADATA_DATA:
+                            break;
+                        default:
+                            throw new IllegalArgumentException(
+                                    "Unsupported builtin field '" + builtInField + "' in debezium deserialization");
+                    }
+                });
 
+        return metadataFieldInfos.toArray(new FieldInfo[0]);
+    }
 }

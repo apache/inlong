@@ -18,7 +18,9 @@
 
 package org.apache.inlong.sort.singletenant.flink.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.apache.avro.Schema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.formats.common.TimestampFormat;
@@ -31,6 +33,7 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.DateFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
+import org.apache.inlong.sort.formats.common.MapFormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
@@ -212,6 +215,15 @@ public class CommonUtils {
         }
 
         return false;
+    }
+
+    public static FieldInfo[] getProducedFieldInfos(FieldInfo[] physicalFieldInfos) {
+        List<FieldInfo> results = new ArrayList<>();
+        results.add(new FieldInfo(
+                "metadata",
+                new MapFormatInfo(StringFormatInfo.INSTANCE, StringFormatInfo.INSTANCE)));
+        results.addAll(Arrays.asList(physicalFieldInfos));
+        return results.toArray(new FieldInfo[0]);
     }
 
 }
