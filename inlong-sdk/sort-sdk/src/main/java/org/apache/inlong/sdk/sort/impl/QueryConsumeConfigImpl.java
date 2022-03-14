@@ -62,8 +62,8 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
 
     private String getRequestUrlWithParam() {
         return clientContext.getConfig().getManagerApiUrl() + "?sortClusterName=" + clientContext.getConfig()
-                .getSortClusterName() + "&sortId=" + clientContext.getConfig().getSortTaskId() + "&md5=" + md5
-                + "&apiVersioin=" + clientContext.getConfig().getManagerApiVersion();
+                .getSortClusterName() + "&sortTaskId=" + clientContext.getConfig().getSortTaskId() + "&md5=" + md5
+                + "&apiVersion=" + clientContext.getConfig().getManagerApiVersion();
     }
 
     // HTTP GET
