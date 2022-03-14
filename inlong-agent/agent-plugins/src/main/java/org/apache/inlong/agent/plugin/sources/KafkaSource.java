@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BOOTSTRAP_SERVERS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_GROUP_ID;
@@ -26,11 +27,9 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_TOPIC;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
-
 import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -85,15 +84,12 @@ public class KafkaSource implements Source {
 
         Properties props = new Properties();
         Map<String, String> map = gson.fromJson(conf.toJsonStr(), Map.class);
-        Iterator<Map.Entry<String, String>> iterator = map.entrySet().iterator();
-        // begin build kafkaConsumer
-        while (iterator.hasNext()) {
-            Map.Entry<String, String> entry = iterator.next();
-            if (entry.getKey() != null && (entry.getKey().equals(JOB_KAFKA_BOOTSTRAP_SERVERS)
-                    || entry.getKey().equals(JOB_KAFKA_GROUP_ID))) {
-                props.put(entry.getKey().replace(JOB_KAFKAJOB_PARAM_PREFIX, ""), entry.getValue());
-            }
-        }
+        props.put(JOB_KAFKA_BOOTSTRAP_SERVERS.replace(JOB_KAFKAJOB_PARAM_PREFIX, StringUtils.EMPTY),
+                map.get(JOB_KAFKA_BOOTSTRAP_SERVERS));
+
+        props.put(JOB_KAFKA_GROUP_ID.replace(JOB_KAFKAJOB_PARAM_PREFIX, StringUtils.EMPTY),
+                    map.getOrDefault(JOB_KAFKA_GROUP_ID, map.get(JOB_ID) + JOB_OFFSET_DELIMITER + "group"));
+
         props.put(KAFKA_KEY_DESERIALIZER, KAFKA_DESERIALIZER_METHOD);
         props.put(KAFKA_VALUE_DESERIALIZER, KAFKA_DESERIALIZER_METHOD);
         // set offset
