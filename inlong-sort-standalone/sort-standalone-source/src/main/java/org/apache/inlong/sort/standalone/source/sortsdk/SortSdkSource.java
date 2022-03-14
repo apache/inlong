@@ -33,6 +33,7 @@ import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.api.SortClientFactory;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
 import org.slf4j.Logger;
@@ -161,7 +162,7 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
      * Create one {@link SortClient} with specific sort id.
      *
      * <p> In current version, the {@link FetchCallback} will hold the client to ACK.
-     * For more details see {@link FetchCallback#onFinished(MessageRecord)}</p>
+     * For more details see {@link FetchCallback#onFinished}</p>
      *
      * @param sortId Sort in of new client.
      * @return New sort client.
@@ -174,6 +175,7 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
                             SortSdkSource.defaultStrategy, InetAddress.getLocalHost().getHostAddress());
             final FetchCallback callback = FetchCallback.Factory.create(sortId, getChannelProcessor(), context);
             clientConfig.setCallback(callback);
+            clientConfig.setManagerApiUrl(CommonPropertiesHolder.getManagerUrl());
             SortClient client = SortClientFactory.createSortClient(clientConfig);
             client.init();
             // temporary use to ACK fetched msg.

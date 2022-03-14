@@ -38,6 +38,7 @@ public class CommonPropertiesHolder {
     public static final String KEY_COMMON_PROPERTIES = "common-properties-loader";
     public static final String DEFAULT_LOADER = ClassResourceCommonPropertiesLoader.class.getName();
     public static final String KEY_CLUSTER_ID = "clusterId";
+    public static final String KEY_MANAGER_URL = "sortClusterConfig.managerUrl";
 
     private static Map<String, String> props;
     private static Context context;
@@ -194,6 +195,15 @@ public class CommonPropertiesHolder {
      */
     public static String getClusterId() {
         return getString(KEY_CLUSTER_ID);
+    }
+
+    /**
+     * Get manager URL
+     *
+     * @return Manager URL
+     */
+    public static String getManagerUrl() {
+        return getString(KEY_MANAGER_URL);
     }
 
     /**
