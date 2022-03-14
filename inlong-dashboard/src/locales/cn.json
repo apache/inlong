@@ -20,7 +20,6 @@
   "components.AccessHelper.DataSourceMetaData.File.FilePath": "⽂件路径",
   "components.AccessHelper.DataSourceMetaData.File.Port": "端口",
   "components.AccessHelper.DataSourceMetaData.File.IpRule": "请正确输入Ip地址",
-  "components.AccessHelper.DataSourceMetaData.Db.AccessType": "采集类型",
   "components.AccessHelper.DataSourceMetaData.Db.Server": "DB服务器",
   "components.AccessHelper.DataSourceMetaData.Db.Name": "DB名称",
   "components.AccessHelper.DataSourceMetaData.Db.IpRule": "请正确输入Ip地址",

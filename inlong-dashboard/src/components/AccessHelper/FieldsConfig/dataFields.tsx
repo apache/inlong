@@ -113,8 +113,8 @@ export default (
             value: 'FILE',
           },
           {
-            label: 'DB',
-            value: 'DB',
+            label: 'BINLOG',
+            value: 'BINLOG',
           },
           {
             label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Autonomous'),
@@ -137,7 +137,7 @@ export default (
       ),
       preserve: false,
       name: 'dataSourcesConfig',
-      visible: values => values.dataSourceType === 'DB' || values.dataSourceType === 'FILE',
+      visible: values => values.dataSourceType === 'BINLOG' || values.dataSourceType === 'FILE',
     },
     {
       type: 'radio',
@@ -157,7 +157,7 @@ export default (
         ],
       },
       rules: [{ required: true }],
-      visible: values => currentValues.dataSourceType === 'DB',
+      visible: values => currentValues.dataSourceType === 'BINLOG',
     },
     {
       type: 'radio',
