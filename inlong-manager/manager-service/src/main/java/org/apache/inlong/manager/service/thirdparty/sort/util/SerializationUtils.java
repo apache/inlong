@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.sort.protocol.deserialization.AvroDeserializationInfo;
+import org.apache.inlong.sort.protocol.deserialization.CanalDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.CsvDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.DebeziumDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
@@ -97,6 +98,9 @@ public class SerializationUtils {
                 return new AvroDeserializationInfo();
             case JSON:
                 return new JsonDeserializationInfo();
+            case CANAL:
+                return new CanalDeserializationInfo(source.getDatabasePattern(), source.getTablePattern(),
+                        source.isIgnoreParseErrors(), source.getTimestampFormatStandard(), true);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported serializationType for Kafka source: %s", serializationType));

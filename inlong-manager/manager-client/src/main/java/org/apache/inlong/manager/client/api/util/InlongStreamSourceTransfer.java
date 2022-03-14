@@ -21,12 +21,12 @@ import com.google.common.base.Joiner;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.manager.client.api.KafkaOffset;
 import org.apache.inlong.manager.client.api.StreamSource;
 import org.apache.inlong.manager.client.api.StreamSource.SyncType;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.source.KafkaSource;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
-import org.apache.inlong.manager.client.api.KafkaOffset;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
@@ -95,6 +95,10 @@ public class InlongStreamSourceTransfer {
         kafkaSource.setTopicPartitionOffset(kafkaSourceResponse.getTopicPartitionOffset());
         kafkaSource.setRecordSpeedLimit(kafkaSourceResponse.getRecordSpeedLimit());
         kafkaSource.setSyncType(SyncType.FULL);
+        kafkaSource.setDatabasePattern(kafkaSourceResponse.getDatabasePattern());
+        kafkaSource.setTablePattern(kafkaSourceResponse.getTablePattern());
+        kafkaSource.setIgnoreParseErrors(kafkaSourceResponse.isIgnoreParseErrors());
+        kafkaSource.setTimestampFormatStandard(kafkaSourceResponse.getTimestampFormatStandard());
         return kafkaSource;
     }
 
@@ -183,6 +187,10 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setAutoOffsetReset(kafkaSource.getAutoOffsetReset().getName());
         sourceRequest.setGroupId(kafkaSource.getConsumerGroup());
         sourceRequest.setSerializationType(kafkaSource.getDataFormat().getName());
+        sourceRequest.setDatabasePattern(kafkaSource.getDatabasePattern());
+        sourceRequest.setTablePattern(kafkaSource.getTablePattern());
+        sourceRequest.setIgnoreParseErrors(kafkaSource.isIgnoreParseErrors());
+        sourceRequest.setTimestampFormatStandard(kafkaSource.getTimestampFormatStandard());
         return sourceRequest;
     }
 

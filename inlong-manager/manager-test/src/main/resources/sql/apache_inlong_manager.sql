@@ -641,6 +641,7 @@ CREATE TABLE `stream_sink_field`
     `sink_type`         varchar(15)  NOT NULL COMMENT 'Sink type',
     `source_field_name` varchar(50)   DEFAULT NULL COMMENT 'Source field name',
     `source_field_type` varchar(50)   DEFAULT NULL COMMENT 'Source field type',
+    `is_source_meta_field` int(3)     DEFAULT '0' COMMENT 'source field is meta field',
     `field_name`        varchar(50)  NOT NULL COMMENT 'Field name',
     `field_type`        varchar(50)  NOT NULL COMMENT 'Field type',
     `field_comment`     varchar(2000) DEFAULT NULL COMMENT 'Field description',

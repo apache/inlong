@@ -24,8 +24,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.DataFormat;
-import org.apache.inlong.manager.client.api.StreamSource;
 import org.apache.inlong.manager.client.api.KafkaOffset;
+import org.apache.inlong.manager.client.api.StreamSource;
 import org.apache.inlong.manager.common.enums.SourceType;
 
 @Data
@@ -68,4 +68,15 @@ public class KafkaSource extends StreamSource {
     @ApiModelProperty(value = "The strategy of auto offset reset")
     private KafkaOffset autoOffsetReset;
 
+    @ApiModelProperty("database pattern used for filter in canal format")
+    private String databasePattern;
+
+    @ApiModelProperty("table pattern used for filter in canal format")
+    private String tablePattern;
+
+    @ApiModelProperty("ignore parse errors, true: ignore parse error; false: not ignore parse error; default true")
+    private boolean ignoreParseErrors = true;
+
+    @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
+    private String timestampFormatStandard = "SQL";
 }

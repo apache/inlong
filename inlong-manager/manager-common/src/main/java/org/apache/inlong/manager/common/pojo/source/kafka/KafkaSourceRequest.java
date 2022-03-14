@@ -62,6 +62,18 @@ public class KafkaSourceRequest extends SourceRequest {
             notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
 
+    @ApiModelProperty("database pattern used for filter in canal format")
+    private String databasePattern;
+
+    @ApiModelProperty("table pattern used for filter in canal format")
+    private String tablePattern;
+
+    @ApiModelProperty("ignore parse errors, true: ignore parse error; false: not ignore parse error; default true")
+    private boolean ignoreParseErrors = true;
+
+    @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
+    private String timestampFormatStandard = "SQL";
+
     public KafkaSourceRequest() {
         this.setSourceType(SourceType.KAFKA.toString());
     }

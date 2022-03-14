@@ -152,7 +152,8 @@ public class InlongStreamSinkTransfer {
                 sinkFieldResponse.getFieldName(),
                 sinkFieldResponse.getFieldComment(),
                 null, sinkFieldResponse.getSourceFieldName(),
-                sinkFieldResponse.getSourceFieldType())).collect(Collectors.toList());
+                sinkFieldResponse.getSourceFieldType(),
+                sinkFieldResponse.getIsSourceMetaField())).collect(Collectors.toList());
 
     }
 
@@ -239,6 +240,7 @@ public class InlongStreamSinkTransfer {
             sinkFieldRequest.setFieldComment(sinkField.getFieldComment());
             sinkFieldRequest.setSourceFieldName(sinkField.getSourceFieldName());
             sinkFieldRequest.setSourceFieldType(sinkField.getSourceFieldType());
+            sinkFieldRequest.setIsSourceMetaField(sinkField.getIsSourceMetaField());
             sinkFieldRequests.add(sinkFieldRequest);
         }
         return sinkFieldRequests;
