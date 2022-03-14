@@ -51,6 +51,9 @@ public class SinkFieldResponse {
     @ApiModelProperty("Source field type")
     private String sourceFieldType;
 
+    @ApiModelProperty("Is source builtin, 0: no, 1: yes")
+    private Integer isSourceBuiltin;
+
     @ApiModelProperty("Field order")
     private Short rankNum;
 

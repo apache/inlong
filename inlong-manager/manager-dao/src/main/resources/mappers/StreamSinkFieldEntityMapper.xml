@@ -18,7 +18,8 @@
     under the License.
 -->
 
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
@@ -31,24 +32,28 @@
         <result column="field_comment" jdbcType="VARCHAR" property="fieldComment"/>
         <result column="source_field_name" jdbcType="VARCHAR" property="sourceFieldName"/>
         <result column="source_field_type" jdbcType="VARCHAR" property="sourceFieldType"/>
+        <result column="is_source_builtin" jdbcType="INTEGER" property="isSourceBuiltin"/>
         <result column="rank_num" jdbcType="SMALLINT" property="rankNum"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, sink_id, field_name, field_type, field_comment,
+        id
+        , sink_id, field_name, field_type, field_comment,
         source_field_name, source_field_type, rank_num, is_deleted
     </sql>
 
-    <insert id="insert"  useGeneratedKeys="true" keyProperty="id"
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity">
         insert into stream_sink_field (id, inlong_group_id, inlong_stream_id,
                                        sink_id, sink_type,
                                        field_name, field_type, field_comment,
                                        source_field_name, source_field_type,
                                        rank_num, is_deleted)
-        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
+        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR},
+                #{inlongStreamId,jdbcType=VARCHAR},
                 #{sinkId,jdbcType=INTEGER}, #{sinkType,jdbcType=VARCHAR},
-                #{fieldName,jdbcType=VARCHAR}, #{fieldType,jdbcType=VARCHAR}, #{fieldComment,jdbcType=VARCHAR},
+                #{fieldName,jdbcType=VARCHAR}, #{fieldType,jdbcType=VARCHAR},
+                #{fieldComment,jdbcType=VARCHAR},
                 #{sourceFieldName,jdbcType=VARCHAR}, #{sourceFieldType,jdbcType=VARCHAR},
                 #{rankNum,jdbcType=SMALLINT}, #{isDeleted,jdbcType=INTEGER})
     </insert>

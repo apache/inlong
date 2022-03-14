@@ -78,7 +78,8 @@ public class FieldInfoUtils {
             boolean duplicate = false;
             for (SinkFieldResponse field : fieldList) {
                 // If the field name equals to build-in field, new a build-in field info
-                FieldInfo sourceFieldInfo = getFieldInfo(field.getSourceFieldName(), field.getSourceFieldType());
+                FieldInfo sourceFieldInfo = getFieldInfo(field.getSourceFieldName(),
+                        field.getSourceFieldType(), field.getIsSourceBuiltin() == 1);
                 sourceFields.add(sourceFieldInfo);
 
                 // Get sink field info
@@ -86,7 +87,8 @@ public class FieldInfoUtils {
                 if (sinkFieldName.equals(partitionField)) {
                     duplicate = true;
                 }
-                FieldInfo sinkFieldInfo = getFieldInfo(field.getFieldName(), field.getFieldType());
+                FieldInfo sinkFieldInfo = getSinkFieldInfo(field.getFieldName(), field.getFieldType(),
+                        field.getSourceFieldName(), field.getIsSourceBuiltin() == 1);
                 sinkFields.add(sinkFieldInfo);
 
                 fieldMappingUnitList.add(new FieldMappingUnit(sourceFieldInfo, sinkFieldInfo));
@@ -108,15 +110,41 @@ public class FieldInfoUtils {
      * @apiNote If the field name equals to build-in field, new a build-in field info
      */
     private static FieldInfo getFieldInfo(String fieldName, String fieldType) {
+        return getFieldInfo(fieldName, fieldType, false);
+    }
+
+    /**
+     * Get field info by the given field name ant type.
+     *
+     * @apiNote If the field name equals to build-in field, new a build-in field info
+     */
+    private static FieldInfo getFieldInfo(String fieldName, String fieldType, boolean isBuiltin) {
         FieldInfo fieldInfo;
         BuiltInField builtInField = BUILT_IN_FIELD_MAP.get(fieldName);
         FormatInfo formatInfo = convertFieldFormat(fieldType.toLowerCase());
-        if (builtInField == null) {
-            fieldInfo = new FieldInfo(fieldName, formatInfo);
-        } else {
+        if (isBuiltin && builtInField != null) {
             fieldInfo = new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
+        } else {
+            fieldInfo = new FieldInfo(fieldName, formatInfo);
         }
+        return fieldInfo;
+    }
 
+    /**
+     * Get field info by the given field name ant type.
+     *
+     * @apiNote If the field name equals to build-in field, new a build-in field info
+     */
+    private static FieldInfo getSinkFieldInfo(String fieldName, String fieldType,
+            String sourceFieldName, boolean isBuiltin) {
+        FieldInfo fieldInfo;
+        BuiltInField builtInField = BUILT_IN_FIELD_MAP.get(sourceFieldName);
+        FormatInfo formatInfo = convertFieldFormat(fieldType.toLowerCase());
+        if (isBuiltin && builtInField != null) {
+            fieldInfo = new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
+        } else {
+            fieldInfo = new FieldInfo(fieldName, formatInfo);
+        }
         return fieldInfo;
     }
 
