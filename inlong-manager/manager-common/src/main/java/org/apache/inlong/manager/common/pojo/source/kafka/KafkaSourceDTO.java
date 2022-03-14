@@ -71,6 +71,18 @@ public class KafkaSourceDTO {
     @ApiModelProperty("Data Serialization, support: json, canal, avro, etc")
     private String serializationType;
 
+    @ApiModelProperty("database pattern used for filter in canal format")
+    private String databasePattern;
+
+    @ApiModelProperty("table pattern used for filter in canal format")
+    private String tablePattern;
+
+    @ApiModelProperty("ignore parse errors, true: ignore parse error; false: not ignore parse error; default true")
+    private boolean ignoreParseErrors;
+
+    @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
+    private String timestampFormatStandard;
+
     /**
      * Get the dto instance from the request
      */
@@ -84,6 +96,10 @@ public class KafkaSourceDTO {
                 .topicPartitionOffset(request.getTopicPartitionOffset())
                 .autoOffsetReset(request.getAutoOffsetReset())
                 .serializationType(request.getSerializationType())
+                .databasePattern(request.getDatabasePattern())
+                .tablePattern(request.getTablePattern())
+                .ignoreParseErrors(request.isIgnoreParseErrors())
+                .timestampFormatStandard(request.getTimestampFormatStandard())
                 .build();
     }
 

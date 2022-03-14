@@ -33,14 +33,14 @@ public class SinkField extends StreamField {
     @ApiModelProperty("Source field type")
     private String sourceFieldType;
 
-    @ApiModelProperty("Is source builtin, 0: no, 1: yes")
-    private Integer isSourceBuiltin = 0;
+    @ApiModelProperty("Is source meta field, 0: no, 1: yes")
+    private Integer isSourceMetaField = 0;
 
     public SinkField(int index, FieldType fieldType, String fieldName, String fieldComment,
-            String fieldValue, String sourceFieldName, String sourceFieldType, Integer isSourceBuiltin) {
+            String fieldValue, String sourceFieldName, String sourceFieldType, Integer isSourceMetaField) {
         super(index, fieldType, fieldName, fieldComment, fieldValue);
         this.sourceFieldName = sourceFieldName;
         this.sourceFieldType = sourceFieldType;
-        this.isSourceBuiltin = isSourceBuiltin;
+        this.isSourceMetaField = isSourceMetaField;
     }
 }
