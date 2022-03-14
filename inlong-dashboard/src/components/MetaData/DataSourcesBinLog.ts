@@ -23,30 +23,11 @@ import { ColumnsType } from 'antd/es/table';
 import rulesPattern from '@/utils/pattern';
 import i18n from '@/i18n';
 
-export const getDataSourcesDbFields = (
+export const getDataSourcesBinLogFields = (
   type: 'form' | 'col' = 'form',
   { currentValues } = {} as any,
 ) => {
   const fileds = [
-    {
-      name: 'accessType',
-      type: 'radio',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.AccessType'),
-      initialValue: 'DB_SYNC_AGENT',
-      rules: [{ required: true }],
-      props: {
-        options: [
-          // {
-          //   label: 'SQL',
-          //   value: 'SQL',
-          // },
-          {
-            label: 'BinLog',
-            value: 'DB_SYNC_AGENT',
-          },
-        ],
-      },
-    },
     {
       name: 'serverName',
       type: 'select',
@@ -235,4 +216,4 @@ export const toSubmitValues = data => {
   };
 };
 
-export const dataSourcesDbColumns = getDataSourcesDbFields('col') as ColumnsType;
+export const dataSourcesBinLogColumns = getDataSourcesBinLogFields('col') as ColumnsType;

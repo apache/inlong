@@ -25,13 +25,13 @@ import { useRequest, useUpdateEffect } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import { getDataSourcesFileFields as getFileCreateFormContent } from '@/components/MetaData/DataSourcesFile';
 import {
-  getDataSourcesDbFields,
+  getDataSourcesBinLogFields,
   toFormValues,
   toSubmitValues,
-} from '@/components/MetaData/DataSourcesDb';
+} from '@/components/MetaData/DataSourcesBinLog';
 
 export interface Props extends ModalProps {
-  type: 'DB' | 'FILE';
+  type: 'BINLOG' | 'FILE';
   // When editing, use the ID to call the interface for obtaining details
   id?: string;
   // Pass when editing, directly echo the record data
@@ -49,7 +49,7 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
   const toFormVals = useCallback(
     v => {
       const mapFunc = {
-        DB: toFormValues,
+        BINLOG: toFormValues,
       }[type];
       return mapFunc ? mapFunc(v) : v;
     },
@@ -59,7 +59,7 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
   const toSubmitVals = useCallback(
     v => {
       const mapFunc = {
-        DB: toSubmitValues,
+        BINLOG: toSubmitValues,
       }[type];
       return mapFunc ? mapFunc(v) : v;
     },
@@ -86,7 +86,10 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
 
   const { run: getData } = useRequest(
     id => ({
-      url: `/datasource/${type.toLowerCase()}/getDetail/${id}`,
+      url: `source/get/${id}`,
+      params: {
+        sourceType: type,
+      },
     }),
     {
       manual: true,
@@ -101,7 +104,7 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
   const getCreateFormContent = useMemo(
     () => currentValues => {
       return {
-        DB: getDataSourcesDbFields,
+        BINLOG: getDataSourcesBinLogFields,
         FILE: getFileCreateFormContent,
       }[type]('form', { currentValues });
     },
@@ -113,7 +116,9 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
       <Modal
         {...modalProps}
         title={
-          type === 'DB' ? 'DB' : t('components.AccessHelper.DataSourcesEditor.CreateModal.File')
+          type === 'BINLOG'
+            ? 'BINLOG'
+            : t('components.AccessHelper.DataSourcesEditor.CreateModal.File')
         }
         width={666}
         onOk={onOk}
