@@ -22,8 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.Server;
-import org.apache.inlong.tubemq.server.master.metamanage.keepalive.AliveObserver;
-import org.apache.inlong.tubemq.server.master.metamanage.keepalive.KeepAlive;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
@@ -31,7 +29,7 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Gr
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 
-public interface MetaStoreService extends KeepAlive, Server {
+public interface MetaStoreService extends KeepAliveService, Server {
 
     boolean checkStoreStatus(boolean checkIsMaster, ProcessResult result);
 
@@ -279,7 +277,7 @@ public interface MetaStoreService extends KeepAlive, Server {
     boolean delGroupConsumeCtrlConf(String operator, String recordKey,
                                     StringBuilder strBuff, ProcessResult result);
 
-    void registerObserver(AliveObserver eventObserver);
+    void registerObserver(MetaConfigObserver eventObserver);
 
     boolean isTopicNameInUsed(String topicName);
 

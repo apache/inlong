@@ -23,6 +23,8 @@ import java.util.Set;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaConfigObserver;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.KeepAliveService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
@@ -32,7 +34,16 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.To
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
 
-public interface MetaStoreMapper {
+public interface MetaConfigMapper extends KeepAliveService {
+
+    /**
+     * Register meta configure change observer
+     *
+     * @param eventObserver  the event observer
+     */
+    void regMetaConfigObserver(MetaConfigObserver eventObserver);
+
+    boolean checkStoreStatus(boolean checkIsMaster, ProcessResult result);
 
     /**
      * Add or update cluster default setting

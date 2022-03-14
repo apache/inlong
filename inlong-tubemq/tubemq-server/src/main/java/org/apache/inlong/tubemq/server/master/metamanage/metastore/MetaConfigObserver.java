@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.server.master.metamanage.keepalive;
+package org.apache.inlong.tubemq.server.master.metamanage.metastore;
 
-public interface AliveObserver {
+public interface MetaConfigObserver {
 
     void clearCacheData();
 

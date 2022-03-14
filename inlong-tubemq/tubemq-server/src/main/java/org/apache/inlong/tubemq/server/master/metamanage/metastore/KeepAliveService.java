@@ -15,42 +15,63 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.server.master.metamanage.keepalive;
+package org.apache.inlong.tubemq.server.master.metamanage.metastore;
 
 import java.net.InetSocketAddress;
+
+import org.apache.inlong.tubemq.server.Server;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
 
-public interface KeepAlive {
+public interface KeepAliveService extends Server {
 
     /**
-     * Whether this node is the master role
+     * Whether this node is the Master role now
      *
-     * @return true if is master role or else
+     * @return true if is Master role or else
      */
     boolean isMasterNow();
 
+    /**
+     * Get the timestamp when the current node becomes the Master role
+     *
+     * @return the since time
+     */
     long getMasterSinceTime();
 
+    /**
+     * Get current Master address
+     *
+     * @return  the current Master address
+     */
     InetSocketAddress getMasterAddress();
 
     /**
-     * Whether the primary node in active
+     * Whether the Master node in active
      *
-     * @return  true for active, false for inactive
+     * @return  true for Master, false for Slave
      */
     boolean isPrimaryNodeActive();
 
+    /**
+     * Transfer Master role to other replica node
+     *
+     * @throws Exception the exception information
+     */
     void transferMaster() throws Exception;
 
     /**
-     * Register node role switching event observer
+     * Get group address info
      *
-     * @param eventObserver  the event observer
+     * @return  the group address information
      */
-    void registerObserver(AliveObserver eventObserver);
-
     ClusterGroupVO getGroupAddressStrInfo();
 
+    /**
+     * Get Master group status
+     *
+     * @param isFromHeartbeat   whether called by hb thread
+     * @return    the master group status
+     */
     MasterGroupStatus getMasterGroupStatus(boolean isFromHeartbeat);
 }
