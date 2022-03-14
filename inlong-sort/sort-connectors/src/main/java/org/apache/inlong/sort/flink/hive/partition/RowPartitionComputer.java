@@ -21,7 +21,6 @@ package org.apache.inlong.sort.flink.hive.partition;
 import static com.google.common.base.Preconditions.checkState;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -131,7 +130,7 @@ public class RowPartitionComputer implements PartitionComputer<Row> {
 
         @Override
         public String transform(Object fieldValue) {
-            checkState(fieldValue instanceof Timestamp);
+            checkState(fieldValue instanceof Date);
             return dateFormat.format((Date) fieldValue);
         }
     }

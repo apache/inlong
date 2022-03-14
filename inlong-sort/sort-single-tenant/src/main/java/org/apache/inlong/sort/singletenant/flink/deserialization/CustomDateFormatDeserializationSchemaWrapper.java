@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.singletenant.flink.deserialization;
 
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.shaded.guava18.com.google.common.annotations.VisibleForTesting;
@@ -29,13 +28,9 @@ import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 
 import java.io.IOException;
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.text.ParseException;
 
 import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkNotNull;
-import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkState;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.isStandardTimestampFormat;
 
 public class CustomDateFormatDeserializationSchemaWrapper implements DeserializationSchema<Row> {
@@ -100,22 +95,13 @@ public class CustomDateFormatDeserializationSchemaWrapper implements Deserializa
     private Object convert(Object input, FormatInfo formatInfo) throws ParseException {
 
         if (formatInfo instanceof DateFormatInfo && !isStandardTimestampFormat(formatInfo)) {
-            checkState(input instanceof String);
-            java.util.Date date =
-                    FastDateFormat.getInstance(((DateFormatInfo) formatInfo).getFormat()).parse((String) input);
-            return new Date(date.getTime());
+            return ((DateFormatInfo) formatInfo).deserialize((String) input);
 
         } else if (formatInfo instanceof TimeFormatInfo && !isStandardTimestampFormat(formatInfo)) {
-            checkState(input instanceof String);
-            java.util.Date date =
-                    FastDateFormat.getInstance(((TimeFormatInfo) formatInfo).getFormat()).parse((String) input);
-            return new Time(date.getTime());
+            return ((TimeFormatInfo) formatInfo).deserialize((String) input);
 
         } else if (formatInfo instanceof TimestampFormatInfo && !isStandardTimestampFormat(formatInfo)) {
-            checkState(input instanceof String);
-            java.util.Date date =
-                    FastDateFormat.getInstance(((TimestampFormatInfo) formatInfo).getFormat()).parse((String) input);
-            return new Timestamp(date.getTime());
+            return ((TimestampFormatInfo) formatInfo).deserialize((String) input);
 
         } else {
             return input;
