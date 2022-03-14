@@ -62,7 +62,7 @@ import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterNodeInfo;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
-import org.apache.inlong.tubemq.server.master.metamanage.keepalive.AliveObserver;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaConfigObserver;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaStoreService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
@@ -76,7 +76,7 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.Co
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.GroupResCtrlMapper;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.TopicCtrlMapper;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.TopicDeployMapper;
-import org.apache.inlong.tubemq.server.master.utils.BdbStoreSamplePrint;
+import org.apache.inlong.tubemq.server.master.utils.MetaConfigSamplePrint;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterNodeVO;
 import org.slf4j.Logger;
@@ -88,8 +88,8 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
 
     private static final Logger logger =
             LoggerFactory.getLogger(BdbMetaStoreServiceImpl.class);
-    private final BdbStoreSamplePrint bdbStoreSamplePrint =
-            new BdbStoreSamplePrint(logger);
+    private final MetaConfigSamplePrint metaConfigSamplePrint =
+            new MetaConfigSamplePrint(logger);
     // parameters need input
     // local host name
     private final String nodeHost;
@@ -99,7 +99,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     private final MasterReplicationConfig replicationConfig;
     private final Listener listener = new Listener();
     private ExecutorService executorService = null;
-    private final List<AliveObserver> eventObservers = new ArrayList<>();
+    private final List<MetaConfigObserver> eventObservers = new ArrayList<>();
     // service status
     // 0 stopped, 1 starting, 2 started, 3 stopping
     private final AtomicInteger srvStatus = new AtomicInteger(0);
@@ -839,7 +839,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     }
 
     @Override
-    public void registerObserver(AliveObserver eventObserver) {
+    public void registerObserver(MetaConfigObserver eventObserver) {
         if (eventObserver != null) {
             eventObservers.add(eventObserver);
         }
@@ -1028,15 +1028,15 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
             } catch (IOException e) {
                 connectNodeFailCount++;
                 masterNodeInfo.setNodeStatus(-1);
-                bdbStoreSamplePrint.printExceptionCaught(e, node.getHostName(), node.getName());
+                metaConfigSamplePrint.printExceptionCaught(e, node.getHostName(), node.getName());
                 continue;
             } catch (ServiceDispatcher.ServiceConnectFailedException e) {
                 masterNodeInfo.setNodeStatus(-2);
-                bdbStoreSamplePrint.printExceptionCaught(e, node.getHostName(), node.getName());
+                metaConfigSamplePrint.printExceptionCaught(e, node.getHostName(), node.getName());
                 continue;
             } catch (Throwable ee) {
                 masterNodeInfo.setNodeStatus(-3);
-                bdbStoreSamplePrint.printExceptionCaught(ee, node.getHostName(), node.getName());
+                metaConfigSamplePrint.printExceptionCaught(ee, node.getHostName(), node.getName());
                 continue;
             }
         }
@@ -1143,7 +1143,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
      *
      * */
     private void clearCachedRunData() {
-        for (AliveObserver observer : eventObservers) {
+        for (MetaConfigObserver observer : eventObservers) {
             observer.clearCacheData();
         }
     }
@@ -1153,7 +1153,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
      *
      * */
     private void reloadRunData() {
-        for (AliveObserver observer : eventObservers) {
+        for (MetaConfigObserver observer : eventObservers) {
             observer.reloadCacheData();
         }
     }

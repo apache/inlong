@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
@@ -32,8 +31,8 @@ import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.common.utils.RowLock;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
-import org.apache.inlong.tubemq.server.master.metamanage.keepalive.AliveObserver;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.MetaStoreMapper;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaConfigObserver;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.MetaConfigMapper;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
@@ -51,36 +50,39 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.To
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AbsMetaStoreMapperImpl implements MetaStoreMapper {
+public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     protected static final Logger logger =
-            LoggerFactory.getLogger(AbsMetaStoreMapperImpl.class);
-    // service status
-    // 0 stopped, 1 starting, 2 started, 3 stopping
-    private final AtomicInteger srvStatus = new AtomicInteger(0);
-    // the observers focusing on active-standby switching
-    private final List<AliveObserver> eventObservers = new ArrayList<>();
-
+            LoggerFactory.getLogger(AbsMetaConfigMapperImpl.class);
     // row lock.
     private final RowLock metaRowLock;
     // default cluster setting
     private static final ClusterSettingEntity defClusterSetting =
             new ClusterSettingEntity().fillDefaultValue();
     // cluster default setting
-    private ClusterConfigMapper clusterConfigMapper;
+    protected ClusterConfigMapper clusterConfigMapper;
     // broker configure
-    private BrokerConfigMapper brokerConfigMapper;
+    protected BrokerConfigMapper brokerConfigMapper;
     // topic deployment configure
-    private TopicDeployMapper topicDeployMapper;
+    protected TopicDeployMapper topicDeployMapper;
     // topic control configure
-    private TopicCtrlMapper topicCtrlMapper;
+    protected TopicCtrlMapper topicCtrlMapper;
     // group resource control configure
-    private GroupResCtrlMapper groupResCtrlMapper;
+    protected GroupResCtrlMapper groupResCtrlMapper;
     // group consume control configure
-    private ConsumeCtrlMapper consumeCtrlMapper;
+    protected ConsumeCtrlMapper consumeCtrlMapper;
+    // the observers focusing on active-standby switching
+    private final List<MetaConfigObserver> eventObservers = new ArrayList<>();
 
-    public AbsMetaStoreMapperImpl(int rowLockWaiDurMs) {
+    public AbsMetaConfigMapperImpl(int rowLockWaiDurMs) {
         this.metaRowLock =
                 new RowLock("MetaData-RowLock", rowLockWaiDurMs);
+    }
+
+    @Override
+    public void regMetaConfigObserver(MetaConfigObserver eventObserver) {
+        if (eventObserver != null) {
+            eventObservers.add(eventObserver);
+        }
     }
 
     @Override
@@ -1157,21 +1159,13 @@ public class AbsMetaStoreMapperImpl implements MetaStoreMapper {
     }
 
     /**
-     * Initial meta-data stores.
-     *
-     */
-    protected void initMetaStore() {
-
-    }
-
-    /**
      * Reload meta-data stores.
      *
      * @param strBuff  the string buffer
      */
-    private void reloadMetaStore(StringBuilder strBuff) {
+    protected void reloadMetaStore(StringBuilder strBuff) {
         // Clear observers' cache data.
-        for (AliveObserver observer : eventObservers) {
+        for (MetaConfigObserver observer : eventObservers) {
             observer.clearCacheData();
         }
         // Load the latest meta-data from persistent
@@ -1182,7 +1176,7 @@ public class AbsMetaStoreMapperImpl implements MetaStoreMapper {
         groupResCtrlMapper.loadConfig(strBuff);
         consumeCtrlMapper.loadConfig(strBuff);
         // load the latest meta-data to observers
-        for (AliveObserver observer : eventObservers) {
+        for (MetaConfigObserver observer : eventObservers) {
             observer.reloadCacheData();
         }
     }
@@ -1191,7 +1185,7 @@ public class AbsMetaStoreMapperImpl implements MetaStoreMapper {
      * Close meta-data stores.
      *
      */
-    private void closeMetaStore() {
+    protected void closeMetaStore() {
         brokerConfigMapper.close();
         topicDeployMapper.close();
         groupResCtrlMapper.close();

@@ -47,7 +47,7 @@ import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
-import org.apache.inlong.tubemq.server.master.metamanage.keepalive.AliveObserver;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaConfigObserver;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbMetaStoreServiceImpl;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaStoreService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
@@ -144,7 +144,7 @@ public class MetaDataManager implements Server {
         logger.info("BrokerConfManager StoreService stopped");
     }
 
-    public void registerObserver(AliveObserver eventObserver) {
+    public void registerObserver(MetaConfigObserver eventObserver) {
         metaStoreService.registerObserver(eventObserver);
     }
 
