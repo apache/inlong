@@ -46,8 +46,8 @@ public class SinkFieldRequest {
     @ApiModelProperty("Source field type")
     private String sourceFieldType;
 
-    @ApiModelProperty("Is source builtin, 0: no, 1: yes")
-    private Integer isSourceBuiltin = 0;
+    @ApiModelProperty("Is source meta field, 0: no, 1: yes")
+    private Integer isSourceMetaField = 0;
 
     @ApiModelProperty("Field order")
     private Short rankNum;

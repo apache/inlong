@@ -32,7 +32,7 @@
         <result column="field_comment" jdbcType="VARCHAR" property="fieldComment"/>
         <result column="source_field_name" jdbcType="VARCHAR" property="sourceFieldName"/>
         <result column="source_field_type" jdbcType="VARCHAR" property="sourceFieldType"/>
-        <result column="is_source_builtin" jdbcType="INTEGER" property="isSourceBuiltin"/>
+        <result column="is_source_meta_field" jdbcType="INTEGER" property="isSourceMetaField"/>
         <result column="rank_num" jdbcType="SMALLINT" property="rankNum"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
     </resultMap>

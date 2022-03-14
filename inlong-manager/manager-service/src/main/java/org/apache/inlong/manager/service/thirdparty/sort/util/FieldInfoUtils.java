@@ -80,7 +80,7 @@ public class FieldInfoUtils {
             for (SinkFieldResponse field : fieldList) {
                 // If the field name equals to build-in field, new a build-in field info
                 FieldInfo sourceFieldInfo = getFieldInfo(field.getSourceFieldName(),
-                        field.getSourceFieldType(), field.getIsSourceBuiltin() == 1);
+                        field.getSourceFieldType(), field.getIsSourceMetaField() == 1);
                 sourceFields.add(sourceFieldInfo);
 
                 // Get sink field info
@@ -89,7 +89,7 @@ public class FieldInfoUtils {
                     duplicate = true;
                 }
                 FieldInfo sinkFieldInfo = getSinkFieldInfo(field.getFieldName(), field.getFieldType(),
-                        field.getSourceFieldName(), field.getIsSourceBuiltin() == 1);
+                        field.getSourceFieldName(), field.getIsSourceMetaField() == 1);
                 sinkFields.add(sinkFieldInfo);
 
                 fieldMappingUnitList.add(new FieldMappingUnit(sourceFieldInfo, sinkFieldInfo));
