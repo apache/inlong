@@ -150,31 +150,46 @@ public class InlongGroupImpl implements InlongGroup {
 
     @Override
     public InlongGroupContext suspend() throws Exception {
+        return suspend(false);
+    }
+
+    @Override
+    public InlongGroupContext suspend(boolean async) throws Exception {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
         Pair<String, String> idAndErr = managerClient.updateGroup(groupInfo.genRequest());
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
-        managerClient.operateInlongGroup(groupId, InlongGroupState.STOPPED);
+        managerClient.operateInlongGroup(groupId, InlongGroupState.STOPPED, async);
         return generateSnapshot();
     }
 
     @Override
     public InlongGroupContext restart() throws Exception {
+        return restart(false);
+    }
+
+    @Override
+    public InlongGroupContext restart(boolean async) throws Exception {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
         Pair<String, String> idAndErr = managerClient.updateGroup(groupInfo.genRequest());
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
-        managerClient.operateInlongGroup(groupId, InlongGroupState.STARTED);
+        managerClient.operateInlongGroup(groupId, InlongGroupState.STARTED, async);
         return generateSnapshot();
     }
 
     @Override
     public InlongGroupContext delete() throws Exception {
+        return delete(false);
+    }
+
+    @Override
+    public InlongGroupContext delete(boolean async) throws Exception {
         InlongGroupResponse groupResponse = managerClient.getGroupInfo(
                 groupContext.getGroupId());
-        boolean isDeleted = managerClient.deleteInlongGroup(groupResponse.getInlongGroupId());
+        boolean isDeleted = managerClient.deleteInlongGroup(groupResponse.getInlongGroupId(), async);
         if (isDeleted) {
             groupResponse.setStatus(GroupState.DELETED.getCode());
         }

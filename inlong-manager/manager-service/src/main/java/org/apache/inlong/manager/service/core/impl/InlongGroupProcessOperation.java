@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -38,6 +39,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Operation related to inlong group process
@@ -46,13 +52,22 @@ import java.util.List;
 public class InlongGroupProcessOperation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupProcessOperation.class);
+
+    private final ExecutorService executorService = new ThreadPoolExecutor(
+            20,
+            40,
+            0L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(),
+            new ThreadFactoryBuilder().setNameFormat("inlong-group-process-%s").build(),
+            new CallerRunsPolicy());
+
     @Autowired
     private InlongGroupService groupService;
     @Autowired
     private WorkflowService workflowService;
     @Autowired
     private InlongStreamService streamService;
-
     @Autowired
     private InlongStreamEntityMapper streamMapper;
 
@@ -72,6 +87,21 @@ public class InlongGroupProcessOperation {
     }
 
     /**
+     * Suspend resource application group in an asynchronous way,
+     * stop source and sort task related to application group asynchronously,
+     * persist the application status if necessary.
+     *
+     * @return groupId
+     */
+    public String suspendProcessAsync(String groupId, String operator) {
+        LOGGER.info("begin to suspend process asynchronously, groupId = {}, operator = {}", groupId, operator);
+        groupService.updateStatus(groupId, GroupState.SUSPENDING.getCode(), operator);
+        UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.SUSPEND);
+        executorService.execute(() -> workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form));
+        return groupId;
+    }
+
+    /**
      * Suspend resource application group which is started up successfully,
      * stop source and sort task related to application group asynchronously,
      * persist the application status if necessary.
@@ -83,6 +113,20 @@ public class InlongGroupProcessOperation {
         groupService.updateStatus(groupId, GroupState.SUSPENDING.getCode(), operator);
         UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.SUSPEND);
         return workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form);
+    }
+
+    /**
+     * Restart resource application group in an asynchronous way,
+     * starting from the last persist snapshot.
+     *
+     * @return Workflow result
+     */
+    public String restartProcessAsync(String groupId, String operator) {
+        LOGGER.info("begin to restart process asynchronously, groupId = {}, operator = {}", groupId, operator);
+        groupService.updateStatus(groupId, GroupState.RESTARTING.getCode(), operator);
+        UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.RESTART);
+        executorService.execute(() -> workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form));
+        return groupId;
     }
 
     /**
@@ -99,7 +143,25 @@ public class InlongGroupProcessOperation {
     }
 
     /**
-     * Delete resource application group logically and delete related resource
+     * Delete resource application group logically and delete related resource in an
+     */
+    public String deleteProcessAsync(String groupId, String operator) {
+        LOGGER.info("begin to delete process asynchronously, groupId = {}, operator = {}", groupId, operator);
+        executorService.execute(() -> {
+            try {
+                UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.DELETE);
+                workflowService.start(ProcessName.DELETE_GROUP_PROCESS, operator, form);
+            } catch (Exception ex) {
+                LOGGER.error("exception while delete process, groupId = {}, operator = {}", groupId, operator, ex);
+                throw ex;
+            }
+            groupService.delete(groupId, operator);
+        });
+        return groupId;
+    }
+
+    /**
+     * Delete resource application group logically and delete related resource in an asynchronous way
      */
     public boolean deleteProcess(String groupId, String operator) {
         LOGGER.info("begin to delete process, groupId = {}, operator = {}", groupId, operator);

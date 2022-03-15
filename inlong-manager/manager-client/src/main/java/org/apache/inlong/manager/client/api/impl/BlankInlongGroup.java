@@ -59,12 +59,27 @@ public class BlankInlongGroup implements InlongGroup {
     }
 
     @Override
+    public InlongGroupContext suspend(boolean async) throws Exception {
+        throw new UnsupportedOperationException("Inlong group is not exists");
+    }
+
+    @Override
     public InlongGroupContext restart() throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 
     @Override
+    public InlongGroupContext restart(boolean async) throws Exception {
+        throw new UnsupportedOperationException("Inlong group is not exists");
+    }
+
+    @Override
     public InlongGroupContext delete() throws Exception {
+        throw new UnsupportedOperationException("Inlong group is not exists");
+    }
+
+    @Override
+    public InlongGroupContext delete(boolean async) throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 
