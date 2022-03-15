@@ -126,6 +126,11 @@ public class InlongGroupImpl implements InlongGroup {
         } else {
             conf = this.groupConf;
         }
+        final String groupId = "b_" + conf.getGroupName();
+        InlongGroupResponse groupResponse = managerClient.getGroupInfo(groupId);
+        InlongGroupState state = InlongGroupState.parseByBizStatus(groupResponse.getStatus());
+        AssertUtil.isTrue(state != InlongGroupState.INITIALIZING,
+                "Inlong Group is in init state, should not be updated");
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(conf);
         InlongGroupRequest groupRequest = groupInfo.genRequest();
         Pair<String, String> idAndErr = managerClient.updateGroup(groupRequest);
