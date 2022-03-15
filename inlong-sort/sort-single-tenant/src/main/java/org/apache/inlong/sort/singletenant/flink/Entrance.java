@@ -41,6 +41,7 @@ import org.apache.inlong.sort.flink.hive.HiveCommitter;
 import org.apache.inlong.sort.flink.hive.HiveWriter;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.deserialization.CanalDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.DebeziumDeserializationInfo;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
@@ -155,10 +156,13 @@ public class Entrance {
                 sourceFields, sourceInfo.getDeserializationInfo());
         FieldMappingTransformer fieldMappingTransformer = new FieldMappingTransformer(config, sourceFields);
 
+        // Currently, canal and debezium deserialization schema will put a map at the first position
+        // of the deserialized row. So the `appendAttributes` flag should be set false.
         DeserializationFunction function = new DeserializationFunction(
                 schema,
                 fieldMappingTransformer,
-                !(sourceInfo.getDeserializationInfo() instanceof DebeziumDeserializationInfo));
+                !(sourceInfo.getDeserializationInfo() instanceof DebeziumDeserializationInfo)
+                        && !(sourceInfo.getDeserializationInfo() instanceof CanalDeserializationInfo));
 
         DataStream<Row> deserializedStream = sourceStream.process(function)
                 .uid(Constants.DESERIALIZATION_SCHEMA_UID)
