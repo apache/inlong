@@ -22,8 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Locale;
+import org.apache.inlong.manager.common.enums.FieldType;
 
 @Data
 @NoArgsConstructor
@@ -33,34 +32,6 @@ public class StreamField {
 
     @ApiModelProperty("Field index")
     private int index;
-
-    public enum FieldType {
-        INT,
-        LONG,
-        DOUBLE,
-        FLOAT,
-        STRING,
-        CHAR,
-        BYTE,
-        BINARY,
-        BOOLEAN,
-        DATE,
-        TIMESTAMP;
-
-        @Override
-        public String toString() {
-            return name().toLowerCase(Locale.ROOT);
-        }
-
-        public static FieldType forName(String name) {
-            for (FieldType value : values()) {
-                if (value.toString().equals(name)) {
-                    return value;
-                }
-            }
-            throw new IllegalArgumentException(String.format("Unsupported FieldType : %s", name));
-        }
-    }
 
     @ApiModelProperty(value = "Field type", required = true)
     private FieldType fieldType;
