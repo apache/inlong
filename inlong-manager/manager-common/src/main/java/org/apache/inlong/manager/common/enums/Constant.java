@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.enums;
 /**
  * Constant for system
  */
+@Deprecated
 public class Constant {
 
     public static final Integer UN_DELETED = 0;
