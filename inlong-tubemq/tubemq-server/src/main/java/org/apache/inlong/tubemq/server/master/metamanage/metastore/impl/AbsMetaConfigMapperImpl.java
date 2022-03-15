@@ -23,6 +23,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
@@ -30,6 +33,7 @@ import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.common.utils.RowLock;
+import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaConfigObserver;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.MetaConfigMapper;
@@ -53,6 +57,14 @@ import org.slf4j.LoggerFactory;
 public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     protected static final Logger logger =
             LoggerFactory.getLogger(AbsMetaConfigMapperImpl.class);
+    // master configure
+    protected final MasterConfig masterConfig;
+    // 0 stopped, 1 starting, 2 started, 3 stopping
+    protected final AtomicInteger srvStatus = new AtomicInteger(0);
+    // master role flag
+    protected volatile boolean isMaster = false;
+    // time since node become active
+    protected final AtomicLong masterSinceTime = new AtomicLong(Long.MAX_VALUE);
     // row lock.
     private final RowLock metaRowLock;
     // default cluster setting
@@ -73,9 +85,10 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     // the observers focusing on active-standby switching
     private final List<MetaConfigObserver> eventObservers = new ArrayList<>();
 
-    public AbsMetaConfigMapperImpl(int rowLockWaiDurMs) {
+    public AbsMetaConfigMapperImpl(MasterConfig masterConfig) {
+        this.masterConfig = masterConfig;
         this.metaRowLock =
-                new RowLock("MetaData-RowLock", rowLockWaiDurMs);
+                new RowLock("MetaData-RowLock", masterConfig.getRowLockWaitDurMs());
     }
 
     @Override
@@ -83,6 +96,22 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
         if (eventObserver != null) {
             eventObservers.add(eventObserver);
         }
+    }
+
+    @Override
+    public boolean checkStoreStatus(boolean checkIsMaster, ProcessResult result) {
+        if (!isServiceStarted()) {
+            result.setFailResult(DataOpErrCode.DERR_STORE_STOPPED.getCode(),
+                    "Meta store service stopped!");
+            return result.isSuccess();
+        }
+        if (checkIsMaster && !isMasterNow()) {
+            result.setFailResult(DataOpErrCode.DERR_STORE_NOT_MASTER.getCode(),
+                    "Current node not active, please send your request to the active Node!");
+            return result.isSuccess();
+        }
+        result.setSuccResult(null);
+        return true;
     }
 
     @Override
@@ -1157,6 +1186,22 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
             Set<String> groupSet, Set<String> topicSet, GroupConsumeCtrlEntity qryEntry) {
         return consumeCtrlMapper.getConsumeCtrlInfoMap(groupSet, topicSet, qryEntry);
     }
+
+    /**
+     * Whether service started
+     *
+     * @return true for started, false for other cases
+     */
+    protected boolean isServiceStarted() {
+        return (this.srvStatus.get() == 2);
+    }
+
+    /**
+     * Initial meta-data stores.
+     *
+     * @param strBuff  the string buffer
+     */
+    protected abstract void initMetaStore(StringBuilder strBuff);
 
     /**
      * Reload meta-data stores.

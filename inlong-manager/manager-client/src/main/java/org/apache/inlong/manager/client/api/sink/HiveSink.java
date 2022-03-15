@@ -28,6 +28,7 @@ import org.apache.inlong.manager.client.api.DataSeparator;
 import org.apache.inlong.manager.client.api.SinkField;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.enums.FileFormat;
 import org.apache.inlong.manager.common.enums.SinkType;
 
 import java.nio.charset.Charset;
@@ -68,7 +69,7 @@ public class HiveSink extends StreamSink {
     @ApiModelProperty("Data separator, stored as ASCII code")
     private DataSeparator dataSeparator = DataSeparator.SOH;
 
-    @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
+    @ApiModelProperty("File format, support: TextFile, ORCFile, SequenceFile, Parquet")
     private FileFormat fileFormat;
 
     @ApiModelProperty("Create table or not")
@@ -85,18 +86,5 @@ public class HiveSink extends StreamSink {
 
     @ApiModelProperty("Data format type for stream sink")
     private DataFormat dataFormat;
-
-    public enum FileFormat {
-        TextFile, RCFile, SequenceFile, Avro;
-
-        public static FileFormat forName(String name) {
-            for (FileFormat value : values()) {
-                if (value.name().equals(name)) {
-                    return value;
-                }
-            }
-            throw new IllegalArgumentException(String.format("Unsupport FileFormat:%s", name));
-        }
-    }
 }
 

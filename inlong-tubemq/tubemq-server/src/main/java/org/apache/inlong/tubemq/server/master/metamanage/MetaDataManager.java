@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage;
 
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -173,7 +172,7 @@ public class MetaDataManager implements Server {
         }
     }
 
-    public InetSocketAddress getMasterAddress() {
+    public String getMasterAddress() {
         return metaStoreService.getMasterAddress();
     }
 
