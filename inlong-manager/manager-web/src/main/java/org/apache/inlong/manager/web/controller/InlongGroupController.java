@@ -84,15 +84,6 @@ public class InlongGroupController {
         return Response.success(groupService.update(groupInfo, operator));
     }
 
-    @RequestMapping(value = "/delete/{groupId}", method = RequestMethod.DELETE)
-    @ApiOperation(value = "Delete inlong group information")
-    @OperationLog(operation = OperationType.DELETE)
-    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
-    public Response<Boolean> delete(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
-        return Response.success(groupProcessOperation.deleteProcess(groupId, operator));
-    }
-
     @RequestMapping(value = "/exist/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Query whether the inlong group id exists")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
@@ -129,6 +120,40 @@ public class InlongGroupController {
     public Response<WorkflowResult> restartProcess(@PathVariable String groupId) {
         String operator = LoginUserUtils.getLoginUserDetail().getUserName();
         return Response.success(groupProcessOperation.restartProcess(groupId, operator));
+    }
+
+    @RequestMapping(value = "/delete/{groupId}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Delete inlong group information")
+    @OperationLog(operation = OperationType.DELETE)
+    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
+    public Response<Boolean> delete(@PathVariable String groupId) {
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(groupProcessOperation.deleteProcess(groupId, operator));
+    }
+
+    @RequestMapping(value = "suspendProcessAsync/{groupId}", method = RequestMethod.POST)
+    @ApiOperation(value = "Suspend process")
+    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
+    public Response<String> suspendProcessAsync(@PathVariable String groupId) {
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(groupProcessOperation.suspendProcessAsync(groupId, operator));
+    }
+
+    @RequestMapping(value = "restartProcessAsync/{groupId}", method = RequestMethod.POST)
+    @ApiOperation(value = "Restart process")
+    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
+    public Response<String> restartProcessAsync(@PathVariable String groupId) {
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(groupProcessOperation.restartProcessAsync(groupId, operator));
+    }
+
+    @RequestMapping(value = "/deleteAsync/{groupId}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Delete inlong group information")
+    @OperationLog(operation = OperationType.DELETE)
+    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
+    public Response<String> deleteAsync(@PathVariable String groupId) {
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(groupProcessOperation.deleteProcessAsync(groupId, operator));
     }
 
     @RequestMapping(value = "getTopic/{groupId}", method = RequestMethod.GET)

@@ -32,7 +32,6 @@ public interface InlongGroup {
      * Create snapshot for Inlong group
      *
      * @return
-     *
      * @throws Exception
      */
     InlongGroupContext context() throws Exception;
@@ -50,7 +49,6 @@ public interface InlongGroup {
      * Update Inlong group on updated conf
      *
      * @return
-     *
      * @throws Exception
      */
     void update(InlongGroupConf conf) throws Exception;
@@ -71,6 +69,13 @@ public interface InlongGroup {
     InlongGroupContext suspend() throws Exception;
 
     /**
+     * Suspend the stream group and return group info.
+     *
+     * @return group info
+     */
+    InlongGroupContext suspend(boolean async) throws Exception;
+
+    /**
      * Restart the stream group and return group info.
      *
      * @return group info
@@ -78,11 +83,25 @@ public interface InlongGroup {
     InlongGroupContext restart() throws Exception;
 
     /**
+     * Restart the stream group and return group info.
+     *
+     * @return group info
+     */
+    InlongGroupContext restart(boolean async) throws Exception;
+
+    /**
      * delete the stream group and return group info
      *
      * @return group info
      */
     InlongGroupContext delete() throws Exception;
+
+    /**
+     * delete the stream group and return group info
+     *
+     * @return group info
+     */
+    InlongGroupContext delete(boolean async) throws Exception;
 
     /**
      * List all inlong streams in certain group

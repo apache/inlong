@@ -567,11 +567,23 @@ public class InnerInlongManagerClient {
     }
 
     public boolean operateInlongGroup(String groupId, InlongGroupState status) {
+        return operateInlongGroup(groupId, status, false);
+    }
+
+    public boolean operateInlongGroup(String groupId, InlongGroupState status, boolean async) {
         String path = HTTP_PATH;
         if (status == InlongGroupState.STOPPED) {
-            path += "/group/suspendProcess/";
+            if (async) {
+                path += "/group/suspendProcessAsync/";
+            } else {
+                path += "/group/suspendProcess/";
+            }
         } else if (status == InlongGroupState.STARTED) {
-            path += "/group/restartProcess/";
+            if (async) {
+                path += "/group/restartProcessAsync/";
+            } else {
+                path += "/group/restartProcess/";
+            }
         } else {
             throw new IllegalArgumentException(String.format("Unsupported state: %s", status));
         }
@@ -599,7 +611,16 @@ public class InnerInlongManagerClient {
     }
 
     public boolean deleteInlongGroup(String groupId) {
-        final String path = HTTP_PATH + "/group/delete/" + groupId;
+        return deleteInlongGroup(groupId, false);
+    }
+
+    public boolean deleteInlongGroup(String groupId, boolean async) {
+        String path = HTTP_PATH;
+        if (async) {
+            path += "/group/deleteAsync/" + groupId;
+        } else {
+            path += "/group/delete/" + groupId;
+        }
         final String url = formatUrl(path);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
         Request request = new Request.Builder()
