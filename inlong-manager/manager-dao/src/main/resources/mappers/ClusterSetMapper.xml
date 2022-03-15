@@ -35,16 +35,13 @@
         where is_deleted = 0
     </select>
     <select id="selectInlongId" resultType="org.apache.inlong.manager.dao.entity.InLongId">
-        select biz.inlong_group_id as inlong_id,
+        select biz.inlong_stream_id as inlong_id,
                biz.mq_resource_obj as topic,
-               d.sort_type         as params,
+               concat('fieldDelimiter=',biz.data_separator) as params,
                c.set_name          as set_name
-        from inlong_group biz,
-             data_schema d,
+        from inlong_stream biz,
              cluster_set_inlongid c
-        where biz.status = 130
-          and biz.is_deleted = 0
-          and biz.schema_name = d.name
+        where biz.is_deleted = 0
           and biz.inlong_group_id = c.inlong_group_id
     </select>
     <select id="selectCacheCluster" resultType="org.apache.inlong.manager.dao.entity.CacheCluster">
@@ -89,7 +86,7 @@
         where is_deleted = 0
     </select>
     <select id="selectFlumeSink" resultType="org.apache.inlong.manager.dao.entity.FlumeSink">
-        select channel_name, set_name, type, channel
+        select sink_name, set_name, type, channel
         from flume_sink
     </select>
     <select id="selectFlumeSinkExt" resultType="org.apache.inlong.manager.dao.entity.FlumeSinkExt">

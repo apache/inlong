@@ -19,6 +19,8 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyClusterSet;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
@@ -42,15 +44,32 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
      * @return data proxy config
      */
     public String getAllConfig(String clusterName, String setName, String md5) {
+        log.error("proxyRepository.getClusterSets():{}", new Gson().toJson(proxyRepository.getClusterSets()));
         DataProxyClusterSet setObj = proxyRepository.getDataProxyClusterSet(setName);
+        log.error("proxyRepository.getClusterSets().size():{}, setName:{}, setObj:{}",
+                proxyRepository.getClusterSets().size(), setName, setObj);
         if (setObj == null) {
             return this.getErrorAllConfig();
         }
         String configMd5 = setObj.getMd5Map().get(clusterName);
-        if (configMd5 == null || !configMd5.equals(md5)) {
+        log.error("setObj.getMd5Map().size():{}, clusterName:{}, configMd5:{}", setObj.getMd5Map().size(),
+                clusterName, configMd5);
+        if (configMd5 == null) {
             return this.getErrorAllConfig();
         }
+        // same config
+        if (md5 != null && configMd5.equals(md5)) {
+            DataProxyConfigResponse response = new DataProxyConfigResponse();
+            response.setResult(true);
+            response.setErrCode(DataProxyConfigResponse.NOUPDATE);
+            response.setMd5(configMd5);
+            response.setData(new DataProxyCluster());
+            Gson gson = new Gson();
+            return gson.toJson(response);
+        }
         String configJson = setObj.getProxyConfigJson().get(clusterName);
+        log.error("setObj.getProxyConfigJson().size():{}, clusterName:{}, configJson:{}",
+                setObj.getProxyConfigJson().size(), clusterName, configJson);
         if (configJson == null) {
             return this.getErrorAllConfig();
         }
