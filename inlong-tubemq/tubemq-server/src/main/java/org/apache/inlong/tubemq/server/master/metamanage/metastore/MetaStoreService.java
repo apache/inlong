@@ -277,7 +277,7 @@ public interface MetaStoreService extends KeepAliveService, Server {
     boolean delGroupConsumeCtrlConf(String operator, String recordKey,
                                     StringBuilder strBuff, ProcessResult result);
 
-    void registerObserver(MetaConfigObserver eventObserver);
+    void registerObserver(ConfigObserver eventObserver);
 
     boolean isTopicNameInUsed(String topicName);
 

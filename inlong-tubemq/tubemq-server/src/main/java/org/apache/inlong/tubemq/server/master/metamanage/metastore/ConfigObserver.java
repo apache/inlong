@@ -17,7 +17,7 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore;
 
-public interface MetaConfigObserver {
+public interface ConfigObserver {
 
     void clearCacheData();
 

@@ -23,7 +23,7 @@ import java.util.Set;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaConfigObserver;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.ConfigObserver;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.KeepAliveService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
@@ -41,7 +41,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      *
      * @param eventObserver  the event observer
      */
-    void regMetaConfigObserver(MetaConfigObserver eventObserver);
+    void regMetaConfigObserver(ConfigObserver eventObserver);
 
     boolean checkStoreStatus(boolean checkIsMaster, ProcessResult result);
 

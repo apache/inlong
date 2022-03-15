@@ -173,7 +173,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         this.masterConfig = masterConfig;
         this.masterRowLock =
                 new RowLock("Master-RowLock", this.masterConfig.getRowLockWaitDurMs());
-        this.checkAndCreateBdbDataPath();
+        if (this.masterConfig.isUseBdbStoreMetaData()) {
+            this.chkAndCreateBdbMetaDataPath();
+        }
         this.masterAddInfo =
                 new NodeAddrInfo(masterConfig.getHostName(), masterConfig.getPort());
         // register metric bean
@@ -2514,11 +2516,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     }
 
     /**
-     * check bdb data path, create it if not exist
+     * check bdb meta-data path, create it if not exist
      *
      * @throws Exception
      */
-    private void checkAndCreateBdbDataPath() throws Exception {
+    private void chkAndCreateBdbMetaDataPath() throws Exception {
         String bdbEnvPath = this.masterConfig.getMetaDataPath();
         final File dir = new File(bdbEnvPath);
         if (!dir.exists() && !dir.mkdirs()) {

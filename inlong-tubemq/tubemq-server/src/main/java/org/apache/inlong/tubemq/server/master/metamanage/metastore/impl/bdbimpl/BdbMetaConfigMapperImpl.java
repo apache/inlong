@@ -52,7 +52,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
-import org.apache.inlong.tubemq.server.common.fileconfig.MasterReplicationConfig;
+import org.apache.inlong.tubemq.server.common.fileconfig.BdbMetaConfig;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterNodeInfo;
@@ -69,7 +69,8 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             LoggerFactory.getLogger(BdbMetaConfigMapperImpl.class);
     private final MetaConfigSamplePrint metaSamplePrint =
             new MetaConfigSamplePrint(logger);
-
+    // bdb meta store configure
+    private final BdbMetaConfig bdbMetaConfig;
     // bdb environment configure
     private final EnvironmentConfig envConfig;
     // meta data store file
@@ -94,16 +95,15 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
 
     public BdbMetaConfigMapperImpl(MasterConfig masterConfig) {
         super(masterConfig);
-        MasterReplicationConfig replicationConfig =
-                masterConfig.getReplicationConfig();
+        bdbMetaConfig = masterConfig.getBdbMetaConfig();
         // build replicationGroupAdmin info
         Set<InetSocketAddress> helpers = new HashSet<>();
         for (int i = 1; i <= 3; i++) {
             helpers.add(new InetSocketAddress(this.masterConfig.getHostName(),
-                    replicationConfig.getRepNodePort() + i));
+                    bdbMetaConfig.getRepNodePort() + i));
         }
         this.replicationGroupAdmin =
-                new ReplicationGroupAdmin(replicationConfig.getRepGroupName(), helpers);
+                new ReplicationGroupAdmin(bdbMetaConfig.getRepGroupName(), helpers);
         // Initialize configuration for BDB-JE replication environment.
         // Set envHome and generate a ReplicationConfig. Note that ReplicationConfig and
         // EnvironmentConfig values could all be specified in the je.properties file,
@@ -115,13 +115,13 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         // Wait up to 3 seconds for commitConsumed acknowledgments.
         this.repConfig.setReplicaAckTimeout(3, TimeUnit.SECONDS);
         this.repConfig.setConfigParam(ReplicationConfig.TXN_ROLLBACK_LIMIT, "1000");
-        this.repConfig.setGroupName(replicationConfig.getRepGroupName());
-        this.repConfig.setNodeName(replicationConfig.getRepNodeName());
+        this.repConfig.setGroupName(bdbMetaConfig.getRepGroupName());
+        this.repConfig.setNodeName(bdbMetaConfig.getRepNodeName());
         this.repConfig.setNodeHostPort(this.masterConfig.getHostName() + TokenConstants.ATTR_SEP
-                + replicationConfig.getRepNodePort());
-        if (TStringUtils.isNotEmpty(replicationConfig.getRepHelperHost())) {
+                + bdbMetaConfig.getRepNodePort());
+        if (TStringUtils.isNotEmpty(bdbMetaConfig.getRepHelperHost())) {
             logger.info("[BDB Impl] ADD HELP HOST");
-            this.repConfig.setHelperHosts(replicationConfig.getRepHelperHost());
+            this.repConfig.setHelperHosts(bdbMetaConfig.getRepHelperHost());
         }
         // A replicated environment must be opened with transactions enabled.
         // Environments on a master must be read/write, while environments
@@ -131,9 +131,9 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         this.envConfig = new EnvironmentConfig();
         this.envConfig.setTransactional(true);
         this.envConfig.setDurability(new Durability(
-                replicationConfig.getMetaLocalSyncPolicy(),
-                replicationConfig.getMetaReplicaSyncPolicy(),
-                replicationConfig.getRepReplicaAckPolicy()));
+                bdbMetaConfig.getMetaLocalSyncPolicy(),
+                bdbMetaConfig.getMetaReplicaSyncPolicy(),
+                bdbMetaConfig.getRepReplicaAckPolicy()));
         this.envConfig.setAllowCreate(true);
         // Set transactional for the replicated environment.
         this.storeConfig.setTransactional(true);
@@ -157,7 +157,8 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             }
             executorService = Executors.newSingleThreadExecutor();
             // build envHome file
-            envHome = new File(masterConfig.getMetaDataPath());
+
+            envHome = new File(bdbMetaConfig.getMetaDataPath());
             repEnv = getEnvironment();
             initMetaStore(null);
             repEnv.setStateChangeListener(listener);
