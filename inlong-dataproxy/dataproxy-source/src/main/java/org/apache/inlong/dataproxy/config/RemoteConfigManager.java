@@ -79,7 +79,7 @@ public class RemoteConfigManager implements IRepository {
     // config
     private String dataProxyConfigMd5;
     private DataProxyCluster currentClusterConfig;
-    private AtomicReference<DataProxyCluster> currentClusterConfigRef;
+    private AtomicReference<DataProxyCluster> currentClusterConfigRef = new AtomicReference<>();
     // flume properties
     private Map<String, String> flumeProperties;
     // inlong id map
@@ -143,8 +143,12 @@ public class RemoteConfigManager implements IRepository {
         //
         this.ipListParser.setCommonProperties(ConfigManager.getInstance().getCommonProperties());
         List<String> managerIpList = this.ipListParser.getIpList();
+        if (managerIpList == null || managerIpList.size() == 0) {
+            return;
+        }
+        int managerIpSize = managerIpList.size();
         for (int i = 0; i < managerIpList.size(); i++) {
-            String host = managerIpList.get(managerIpListIndex.getAndIncrement());
+            String host = managerIpList.get(managerIpListIndex.getAndIncrement() % managerIpSize);
             if (this.reloadDataProxyConfig(proxyClusterName, setName, host)) {
                 // parse inlong id
                 this.parseInlongIds();
