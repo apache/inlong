@@ -190,6 +190,7 @@ public class InlongGroupTransfer {
         AssertUtil.hasLength(groupConf.getGroupName(), "GroupName should not be empty");
         groupInfo.setName(groupConf.getGroupName());
         groupInfo.setCnName(groupConf.getCnName());
+        groupInfo.setInlongGroupId("b_" + groupConf.getGroupName());
         groupInfo.setDescription(groupConf.getDescription());
         groupInfo.setZookeeperEnabled(groupConf.isZookeeperEnabled() ? 1 : 0);
         groupInfo.setDailyRecords(groupConf.getDailyRecords().intValue());
