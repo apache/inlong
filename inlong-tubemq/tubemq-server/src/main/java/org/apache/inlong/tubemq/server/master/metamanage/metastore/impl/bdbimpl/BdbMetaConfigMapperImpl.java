@@ -27,8 +27,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Durability;
 import com.sleepycat.je.EnvironmentConfig;
@@ -51,14 +50,12 @@ import com.sleepycat.je.rep.utilint.ServiceDispatcher;
 import com.sleepycat.persist.StoreConfig;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
-import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.fileconfig.MasterReplicationConfig;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterNodeInfo;
-import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsMetaConfigMapperImpl;
 import org.apache.inlong.tubemq.server.master.utils.MetaConfigSamplePrint;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
@@ -72,11 +69,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             LoggerFactory.getLogger(BdbMetaConfigMapperImpl.class);
     private final MetaConfigSamplePrint metaSamplePrint =
             new MetaConfigSamplePrint(logger);
-    // 0 stopped, 1 starting, 2 started, 3 stopping
-    private final AtomicInteger srvStatus = new AtomicInteger(0);
 
-    // master configure
-    private final MasterConfig masterConfig;
     // bdb environment configure
     private final EnvironmentConfig envConfig;
     // meta data store file
@@ -87,10 +80,6 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     private ReplicatedEnvironment repEnv;
     // bdb replication group admin info
     private final ReplicationGroupAdmin replicationGroupAdmin;
-    // master role flag
-    private volatile boolean isMaster = false;
-    // time since node become active
-    private final AtomicLong masterSinceTime = new AtomicLong(Long.MAX_VALUE);
     // master node name
     private String masterNodeName;
     // node connect failure count
@@ -98,13 +87,13 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     // replication nodes
     private Set<String> replicas4Transfer = new HashSet<>();
     private final Listener listener = new Listener();
+    // ha check thread
     private ExecutorService executorService = null;
     // bdb data store configure
     private final StoreConfig storeConfig = new StoreConfig();
 
     public BdbMetaConfigMapperImpl(MasterConfig masterConfig) {
-        super(masterConfig.getRowLockWaitDurMs());
-        this.masterConfig = masterConfig;
+        super(masterConfig);
         MasterReplicationConfig replicationConfig =
                 masterConfig.getReplicationConfig();
         // build replicationGroupAdmin info
@@ -155,12 +144,12 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
 
     @Override
     public void start() throws Exception {
-        logger.info("[BDB Impl] Start StoreManagerService, begin");
+        logger.info("[BDB Impl] Start MetaConfigService, begin");
         if (!srvStatus.compareAndSet(0, 1)) {
-            logger.info("[BDB Impl] Start StoreManagerService, started");
+            logger.info("[BDB Impl] Start MetaConfigService, started");
             return;
         }
-        logger.info("[BDB Impl] Starting StoreManagerService...");
+        logger.info("[BDB Impl] Starting MetaConfigService...");
         try {
             if (executorService != null) {
                 executorService.shutdownNow();
@@ -170,25 +159,25 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             // build envHome file
             envHome = new File(masterConfig.getMetaDataPath());
             repEnv = getEnvironment();
-            initMetaStore();
+            initMetaStore(null);
             repEnv.setStateChangeListener(listener);
             srvStatus.compareAndSet(1, 2);
         } catch (Throwable ee) {
             srvStatus.compareAndSet(1, 0);
-            logger.error("[BDB Impl] Start StoreManagerService failure, error", ee);
+            logger.error("[BDB Impl] Start MetaConfigService failure, error", ee);
             return;
         }
-        logger.info("[BDB Impl] Start StoreManagerService, success");
+        logger.info("[BDB Impl] Start MetaConfigService, success");
     }
 
     @Override
     public void stop() throws Exception {
-        logger.info("[BDB Impl] Stop StoreManagerService, begin");
+        logger.info("[BDB Impl] Stop MetaConfigService, begin");
         if (!srvStatus.compareAndSet(2, 3)) {
-            logger.info("[BDB Impl] Stop StoreManagerService, stopped");
+            logger.info("[BDB Impl] Stop MetaConfigService, stopped");
             return;
         }
-        logger.info("[BDB Impl] Stopping StoreManagerService...");
+        logger.info("[BDB Impl] Stopping MetaConfigService...");
         // close bdb configure
         closeMetaStore();
         /* evn close */
@@ -205,23 +194,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             executorService = null;
         }
         srvStatus.set(0);
-        logger.info("[BDB Impl] Stop StoreManagerService, success");
-    }
-
-    @Override
-    public boolean checkStoreStatus(boolean checkIsMaster, ProcessResult result) {
-        if (!isStarted()) {
-            result.setFailResult(DataOpErrCode.DERR_STORE_STOPPED.getCode(),
-                    "Meta store service stopped!");
-            return result.isSuccess();
-        }
-        if (checkIsMaster && !isMasterNow()) {
-            result.setFailResult(DataOpErrCode.DERR_STORE_NOT_MASTER.getCode(),
-                    "Current node not active, please send your request to the active Node!");
-            return result.isSuccess();
-        }
-        result.setSuccResult(null);
-        return true;
+        logger.info("[BDB Impl] Stop MetaConfigService, success");
     }
 
     @Override
@@ -235,7 +208,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     }
 
     @Override
-    public InetSocketAddress getMasterAddress() {
+    public String getMasterAddress() {
         ReplicationGroup replicationGroup = getCurrReplicationGroup();
         if (replicationGroup == null) {
             logger.info("[BDB Impl] ReplicationGroup is null...please check the group status!");
@@ -247,7 +220,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
                         replicationGroupAdmin.getNodeState(node, 2000);
                 if (nodeState != null) {
                     if (nodeState.getNodeState().isMaster()) {
-                        return node.getSocketAddress();
+                        return node.getSocketAddress().getAddress().getHostAddress();
                     }
                 }
             } catch (Throwable e) {
@@ -268,7 +241,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
 
     @Override
     public void transferMaster() throws Exception {
-        if (!isStarted()) {
+        if (!isServiceStarted()) {
             throw new Exception("The BDB store StoreService is reboot now!");
         }
         if (isMasterNow()) {
@@ -411,6 +384,15 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         return masterGroupStatus;
     }
 
+    protected void initMetaStore(StringBuilder strBuff) {
+        clusterConfigMapper = new BdbClusterConfigMapperImpl(repEnv, storeConfig);
+        brokerConfigMapper = new BdbBrokerConfigMapperImpl(repEnv, storeConfig);
+        topicDeployMapper =  new BdbTopicDeployMapperImpl(repEnv, storeConfig);
+        groupResCtrlMapper = new BdbGroupResCtrlMapperImpl(repEnv, storeConfig);
+        topicCtrlMapper = new BdbTopicCtrlMapperImpl(repEnv, storeConfig);
+        consumeCtrlMapper = new BdbConsumeCtrlMapperImpl(repEnv, storeConfig);
+    }
+
     /**
      * State Change Listener,
      * through this object, it complete the metadata cache cleaning
@@ -479,23 +461,6 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
                 sBuilder.delete(0, sBuilder.length());
             });
         }
-    }
-
-    private boolean isStarted() {
-        return (this.srvStatus.get() == 2);
-    }
-
-    /**
-     * Initial meta-data stores.
-     *
-     */
-    protected void initMetaStore() {
-        clusterConfigMapper = new BdbClusterConfigMapperImpl(repEnv, storeConfig);
-        brokerConfigMapper = new BdbBrokerConfigMapperImpl(repEnv, storeConfig);
-        topicDeployMapper =  new BdbTopicDeployMapperImpl(repEnv, storeConfig);
-        groupResCtrlMapper = new BdbGroupResCtrlMapperImpl(repEnv, storeConfig);
-        topicCtrlMapper = new BdbTopicCtrlMapperImpl(repEnv, storeConfig);
-        consumeCtrlMapper = new BdbConsumeCtrlMapperImpl(repEnv, storeConfig);
     }
 
     /**

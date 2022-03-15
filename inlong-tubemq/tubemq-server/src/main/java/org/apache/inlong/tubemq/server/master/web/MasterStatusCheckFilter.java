@@ -18,7 +18,6 @@
 package org.apache.inlong.tubemq.server.master.web;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -53,15 +52,16 @@ public class MasterStatusCheckFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
         if (!metaDataManager.isSelfMaster()) {
-            InetSocketAddress masterAddr =
+            String masterAdd =
                     metaDataManager.getMasterAddress();
-            if (masterAddr == null) {
+            if (masterAdd == null) {
                 throw new IOException("Not found the master node address!");
             }
-            StringBuilder sBuilder = new StringBuilder(512).append("http://")
-                    .append(masterAddr.getAddress().getHostAddress())
-                    .append(":").append(master.getMasterConfig().getWebPort())
-                    .append(req.getRequestURI());
+            StringBuilder sBuilder =
+                    new StringBuilder(512).append("http://")
+                            .append(masterAdd).append(":")
+                            .append(master.getMasterConfig().getWebPort())
+                            .append(req.getRequestURI());
             if (TStringUtils.isNotBlank(req.getQueryString())) {
                 sBuilder.append("?").append(req.getQueryString());
             }
