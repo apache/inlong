@@ -44,16 +44,11 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
      * @return data proxy config
      */
     public String getAllConfig(String clusterName, String setName, String md5) {
-        log.error("proxyRepository.getClusterSets():{}", new Gson().toJson(proxyRepository.getClusterSets()));
         DataProxyClusterSet setObj = proxyRepository.getDataProxyClusterSet(setName);
-        log.error("proxyRepository.getClusterSets().size():{}, setName:{}, setObj:{}",
-                proxyRepository.getClusterSets().size(), setName, setObj);
         if (setObj == null) {
             return this.getErrorAllConfig();
         }
         String configMd5 = setObj.getMd5Map().get(clusterName);
-        log.error("setObj.getMd5Map().size():{}, clusterName:{}, configMd5:{}", setObj.getMd5Map().size(),
-                clusterName, configMd5);
         if (configMd5 == null) {
             return this.getErrorAllConfig();
         }
@@ -68,8 +63,6 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
             return gson.toJson(response);
         }
         String configJson = setObj.getProxyConfigJson().get(clusterName);
-        log.error("setObj.getProxyConfigJson().size():{}, clusterName:{}, configJson:{}",
-                setObj.getProxyConfigJson().size(), clusterName, configJson);
         if (configJson == null) {
             return this.getErrorAllConfig();
         }
