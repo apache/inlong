@@ -54,6 +54,7 @@ public class ManagerPropertiesConfigurationProvider extends
     public FlumeConfiguration getFlumeConfiguration() {
         try {
             Map<String, String> flumeProperties = RemoteConfigManager.getInstance().getFlumeProperties();
+            LOGGER.info("flumeProperties:{}", flumeProperties);
             return new FlumeConfiguration(flumeProperties);
         } catch (Exception e) {
             LOGGER.error("exception catch:" + e.getMessage(), e);

@@ -75,11 +75,12 @@ public class KafkaZoneSinkContext extends SinkContext {
         Map<String, String> producerParams = context.getSubProperties(PREFIX_PRODUCER);
         this.producerContext = new Context(producerParams);
         // idTopicHolder
+        Context commonPropertiesContext = new Context(CommonPropertiesHolder.get());
         this.idTopicHolder = new IdTopicConfigHolder();
-        this.idTopicHolder.configure(context);
+        this.idTopicHolder.configure(commonPropertiesContext);
         // cacheHolder
         this.cacheHolder = new CacheClusterConfigHolder();
-        this.cacheHolder.configure(context);
+        this.cacheHolder.configure(commonPropertiesContext);
     }
 
     /**

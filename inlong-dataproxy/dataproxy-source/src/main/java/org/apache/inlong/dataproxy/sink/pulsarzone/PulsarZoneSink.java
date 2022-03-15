@@ -123,6 +123,7 @@ public class PulsarZoneSink extends AbstractSink implements Configurable {
      */
     @Override
     public Status process() throws EventDeliveryException {
+        this.dispatchManager.outputOvertimeData();
         Channel channel = getChannel();
         Transaction tx = channel.getTransaction();
         tx.begin();

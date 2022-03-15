@@ -75,11 +75,12 @@ public class PulsarZoneSinkContext extends SinkContext {
         Map<String, String> producerParams = context.getSubProperties(PREFIX_PRODUCER);
         this.producerContext = new Context(producerParams);
         // idTopicHolder
+        Context commonPropertiesContext = new Context(CommonPropertiesHolder.get());
         this.idTopicHolder = new IdTopicConfigHolder();
-        this.idTopicHolder.configure(context);
+        this.idTopicHolder.configure(commonPropertiesContext);
         // cacheHolder
         this.cacheHolder = new CacheClusterConfigHolder();
-        this.cacheHolder.configure(context);
+        this.cacheHolder.configure(commonPropertiesContext);
     }
 
     /**
@@ -171,7 +172,7 @@ public class PulsarZoneSinkContext extends SinkContext {
      */
     public void addSendMetric(DispatchProfile currentRecord, String bid) {
         Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
         // metric
         fillInlongId(currentRecord, dimensions);
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
@@ -191,7 +192,7 @@ public class PulsarZoneSinkContext extends SinkContext {
      */
     public void addSendFailMetric() {
         Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
         long msgTime = System.currentTimeMillis();
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
@@ -225,7 +226,7 @@ public class PulsarZoneSinkContext extends SinkContext {
      */
     public void addSendResultMetric(DispatchProfile currentRecord, String bid, boolean result, long sendTime) {
         Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
         // metric
         fillInlongId(currentRecord, dimensions);
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
