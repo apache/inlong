@@ -17,8 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore;
 
-import java.net.InetSocketAddress;
-
 import org.apache.inlong.tubemq.server.Server;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
@@ -44,7 +42,7 @@ public interface KeepAliveService extends Server {
      *
      * @return  the current Master address
      */
-    InetSocketAddress getMasterAddress();
+    String getMasterAddress();
 
     /**
      * Whether the Master node in active

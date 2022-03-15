@@ -909,7 +909,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
      * @return  the current master address
      */
     @Override
-    public InetSocketAddress getMasterAddress() {
+    public String getMasterAddress() {
         ReplicationGroup replicationGroup = getCurrReplicationGroup();
         if (replicationGroup == null) {
             logger.info("[BDB Impl] ReplicationGroup is null...please check the group status!");
@@ -921,7 +921,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
                         replicationGroupAdmin.getNodeState(node, 2000);
                 if (nodeState != null) {
                     if (nodeState.getNodeState().isMaster()) {
-                        return node.getSocketAddress();
+                        return node.getSocketAddress().getAddress().getHostAddress();
                     }
                 }
             } catch (Throwable e) {
