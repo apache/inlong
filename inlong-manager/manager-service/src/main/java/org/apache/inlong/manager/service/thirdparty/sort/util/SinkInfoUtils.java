@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.thirdparty.sort.util;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.FileFormat;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
@@ -134,13 +134,13 @@ public class SinkInfoUtils {
         // Use the field separator in Hive, the default is TextFile
         Character separator = (char) Integer.parseInt(hiveInfo.getDataSeparator());
         HiveFileFormat fileFormat;
-        String format = hiveInfo.getFileFormat();
+        FileFormat format = FileFormat.forName(hiveInfo.getFileFormat());
 
-        if (Constant.FILE_FORMAT_ORC.equalsIgnoreCase(format)) {
+        if (format == FileFormat.ORCFile) {
             fileFormat = new HiveSinkInfo.OrcFileFormat(1000);
-        } else if (Constant.FILE_FORMAT_SEQUENCE.equalsIgnoreCase(format)) {
+        } else if (format == FileFormat.SequenceFile) {
             fileFormat = new HiveSinkInfo.SequenceFileFormat(separator, 100);
-        } else if (Constant.FILE_FORMAT_PARQUET.equalsIgnoreCase(format)) {
+        } else if (format == FileFormat.Parquet) {
             fileFormat = new HiveSinkInfo.ParquetFileFormat();
         } else {
             fileFormat = new HiveSinkInfo.TextFileFormat(separator);

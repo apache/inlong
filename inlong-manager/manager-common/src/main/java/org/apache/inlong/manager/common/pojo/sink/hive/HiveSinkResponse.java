@@ -74,7 +74,7 @@ public class HiveSinkResponse extends SinkResponse {
     @ApiModelProperty("Partition creation strategy, partition start, partition close")
     private String partitionCreationStrategy;
 
-    @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
+    @ApiModelProperty("File format, support: TextFile, ORCFile, SequenceFile, Avro")
     private String fileFormat;
 
     @ApiModelProperty("Data encoding type")
