@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.thirdparty.sort.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.MetaFieldType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
@@ -180,45 +181,46 @@ public class FieldInfoUtils {
      */
     public static FormatInfo convertFieldFormat(String type) {
         FormatInfo formatInfo;
-        switch (type) {
-            case "boolean":
+        FieldType fieldType = FieldType.forName(type);
+        switch (fieldType) {
+            case BOOLEAN:
                 formatInfo = new BooleanFormatInfo();
                 break;
-            case "tinyint":
-            case "byte":
+            case TINYINT:
+            case BYTE:
                 formatInfo = new ByteFormatInfo();
                 break;
-            case "smallint":
-            case "short":
+            case SMALLINT:
+            case SHORT:
                 formatInfo = new ShortFormatInfo();
                 break;
-            case "int":
+            case INT:
                 formatInfo = new IntFormatInfo();
                 break;
-            case "bigint":
-            case "long":
+            case BIGINT:
+            case LONG:
                 formatInfo = new LongFormatInfo();
                 break;
-            case "float":
+            case FLOAT:
                 formatInfo = new FloatFormatInfo();
                 break;
-            case "double":
+            case DOUBLE:
                 formatInfo = new DoubleFormatInfo();
                 break;
-            case "decimal":
+            case DECIMAL:
                 formatInfo = new DecimalFormatInfo();
                 break;
-            case "date":
+            case DATE:
                 formatInfo = new DateFormatInfo();
                 break;
-            case "time":
+            case TIME:
                 formatInfo = new TimeFormatInfo();
                 break;
-            case "timestamp":
+            case TIMESTAMP:
                 formatInfo = new TimestampFormatInfo();
                 break;
-            case "binary":
-            case "fixed":
+            case BINARY:
+            case FIXED:
                 formatInfo = new ArrayFormatInfo(ByteTypeInfo::new);
                 break;
             default: // default is string
