@@ -144,6 +144,7 @@ public class RemoteConfigManager implements IRepository {
         this.ipListParser.setCommonProperties(ConfigManager.getInstance().getCommonProperties());
         List<String> managerIpList = this.ipListParser.getIpList();
         if (managerIpList == null || managerIpList.size() == 0) {
+            LOGGER.error("end to reload config, manager ip list can not be found.");
             return;
         }
         int managerIpSize = managerIpList.size();
