@@ -51,7 +51,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.source>1.8</compiler.source>
         <compiler.target>1.8</compiler.target>
-        <hadoop.version>2.10.1</hadoop.version>
         <hive.version>2.3.9</hive.version>
         <fastjson.version>1.2.79</fastjson.version>
         <simpleclient_httpserver.version>0.14.1</simpleclient_httpserver.version>
