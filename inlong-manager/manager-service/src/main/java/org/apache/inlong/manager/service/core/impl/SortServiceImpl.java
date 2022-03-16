@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.core.impl;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse;
+import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.SortClusterConfig;
 import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse;
 import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse.CacheZone;
 import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse.SortSourceConfig;
@@ -77,7 +78,10 @@ public class SortServiceImpl implements SortService {
         if (tasks == null || tasks.isEmpty()) {
             String errMsg = "There is not any task for cluster" + clusterName;
             LOGGER.info(errMsg);
-            return SortClusterConfigResponse.builder().msg(errMsg).build();
+            return SortClusterConfigResponse.builder()
+                    .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
+                    .msg(errMsg)
+                    .build();
         }
 
         // add task configs
@@ -87,10 +91,22 @@ public class SortServiceImpl implements SortService {
         } catch (IllegalArgumentException ex) {
             String errMsg = "Got illegal sink type from db, " + ex.getMessage();
             LOGGER.info(errMsg);
-            return SortClusterConfigResponse.builder().msg(errMsg).build();
+            return SortClusterConfigResponse.builder()
+                    .code(RESPONSE_CODE_FAIL)
+                    .msg(errMsg)
+                    .build();
         }
 
-        return SortClusterConfigResponse.builder().tasks(taskConfigs).msg("success").build();
+        SortClusterConfig clusterConfig = SortClusterConfig.builder()
+                .clusterName(clusterName)
+                .sortTasks(taskConfigs)
+                .build();
+
+        return SortClusterConfigResponse.builder()
+                .code(RESPONSE_CODE_SUCCESS)
+                .data(clusterConfig)
+                .msg("success")
+                .build();
     }
 
     private SortTaskConfig getTaskConfig(SortClusterConfigEntity clusterConfig) {
@@ -101,8 +117,8 @@ public class SortServiceImpl implements SortService {
                 sortTaskSinkParamService
                         .selectByTaskNameAndType(clusterConfig.getTaskName(), clusterConfig.getSinkType());
         return SortTaskConfig.builder()
-                .taskName(clusterConfig.getTaskName())
-                .sinkType(sinkType)
+                .name(clusterConfig.getTaskName())
+                .type(sinkType)
                 .idParams(idParams)
                 .sinkParams(sinkParams)
                 .build();

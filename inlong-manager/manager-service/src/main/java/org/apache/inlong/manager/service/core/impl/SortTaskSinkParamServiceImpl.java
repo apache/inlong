@@ -33,7 +33,7 @@ import java.util.Map;
 @Service
 public class SortTaskSinkParamServiceImpl implements SortTaskSinkParamService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SortTaskSinkParamServiceImpl.class);
-    
+
     @Autowired
     private SortTaskSinkParamEntityMapper sortTaskSinkParamEntityMapper;
 

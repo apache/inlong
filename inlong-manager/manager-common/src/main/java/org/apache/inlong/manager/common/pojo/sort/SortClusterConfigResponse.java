@@ -31,7 +31,7 @@ public class SortClusterConfigResponse {
     String msg;
     int code;
     String md5;
-    List<SortTaskConfig> tasks;
+    SortClusterConfig data;
 
     @Builder
     @Data
@@ -43,8 +43,8 @@ public class SortClusterConfigResponse {
     @Builder
     @Data
     public static class SortTaskConfig {
-        String taskName;
-        SinkType sinkType;
+        String name;
+        SinkType type;
         List<Map<String, String>> idParams;
         Map<String, String> sinkParams;
     }
