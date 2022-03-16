@@ -59,7 +59,8 @@ public class KafkaSource implements Source {
     private static final String JOB_KAFKAJOB_PARAM_PREFIX = "job.kafkaJob.";
     private static final String JOB_KAFKAJOB_WAIT_TIMEOUT = "job.kafkajob.wait.timeout";
     private static final String KAFKA_COMMIT_AUTO = "enable.auto.commit";
-    private static final String KAFKA_DESERIALIZER_METHOD = "org.apache.kafka.common.serialization.StringDeserializer";
+    private static final String KAFKA_DESERIALIZER_METHOD =
+                                    "org.apache.kafka.common.serialization.ByteArrayDeserializer";
     private static final String KAFKA_KEY_DESERIALIZER = "key.deserializer";
     private static final String KAFKA_VALUE_DESERIALIZER = "value.deserializer";
     private static final Gson gson = new Gson();
@@ -109,7 +110,7 @@ public class KafkaSource implements Source {
         // spilt reader reduce to partition
         if (null != partitionInfoList) {
             for (PartitionInfo partitionInfo : partitionInfoList) {
-                KafkaConsumer<String, String> partitonConsumer = new KafkaConsumer<>(props);
+                KafkaConsumer<String, byte[]> partitonConsumer = new KafkaConsumer<>(props);
                 partitonConsumer.assign(Collections.singletonList(
                         new TopicPartition(partitionInfo.topic(), partitionInfo.partition())));
                 // if get offset,consume from offset; if not,consume from 0
@@ -127,7 +128,7 @@ public class KafkaSource implements Source {
                     // if offset not null,then consume from the offset
                     partitonConsumer.seek(new TopicPartition(partitionInfo.topic(), partitionInfo.partition()), offset);
                 }
-                KafkaReader<String, String> kafkaReader = new KafkaReader<>(partitonConsumer, map);
+                KafkaReader<String, byte[]> kafkaReader = new KafkaReader<>(partitonConsumer, map);
                 addValidator(filterPattern, kafkaReader);
                 result.add(kafkaReader);
             }
