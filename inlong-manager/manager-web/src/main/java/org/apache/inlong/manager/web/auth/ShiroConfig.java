@@ -80,8 +80,6 @@ public class ShiroConfig {
      */
     @Bean
     public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor() {
-        AuthorizationAttributeSourceAdvisor advisor = new AuthorizationAttributeSourceAdvisor();
-        advisor.setSecurityManager(securityManager(hashedCredentialsMatcher()));
-        return advisor;
+        return inLongShiro.getAuthorizationAttributeSourceAdvisor(securityManager(hashedCredentialsMatcher()));
     }
 }
