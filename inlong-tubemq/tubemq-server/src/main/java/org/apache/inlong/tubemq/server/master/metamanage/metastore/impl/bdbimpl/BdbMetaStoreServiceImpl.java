@@ -57,12 +57,12 @@ import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
-import org.apache.inlong.tubemq.server.common.fileconfig.MasterReplicationConfig;
+import org.apache.inlong.tubemq.server.common.fileconfig.BdbMetaConfig;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterNodeInfo;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaConfigObserver;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.ConfigObserver;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaStoreService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
@@ -96,10 +96,10 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     // meta data store path
     private final String metaDataPath;
     // bdb replication configure
-    private final MasterReplicationConfig replicationConfig;
+    private final BdbMetaConfig replicationConfig;
     private final Listener listener = new Listener();
     private ExecutorService executorService = null;
-    private final List<MetaConfigObserver> eventObservers = new ArrayList<>();
+    private final List<ConfigObserver> eventObservers = new ArrayList<>();
     // service status
     // 0 stopped, 1 starting, 2 started, 3 stopping
     private final AtomicInteger srvStatus = new AtomicInteger(0);
@@ -142,8 +142,8 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
 
     public BdbMetaStoreServiceImpl(MasterConfig masterConfig) {
         this.nodeHost = masterConfig.getHostName();
-        this.metaDataPath = masterConfig.getMetaDataPath();
-        this.replicationConfig = masterConfig.getReplicationConfig();
+        this.metaDataPath = masterConfig.getBdbMetaConfig().getMetaDataPath();
+        this.replicationConfig = masterConfig.getBdbMetaConfig();
         // build replicationGroupAdmin info
         Set<InetSocketAddress> helpers = new HashSet<>();
         for (int i = 1; i <= 3; i++) {
@@ -839,7 +839,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
     }
 
     @Override
-    public void registerObserver(MetaConfigObserver eventObserver) {
+    public void registerObserver(ConfigObserver eventObserver) {
         if (eventObserver != null) {
             eventObservers.add(eventObserver);
         }
@@ -1143,7 +1143,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
      *
      * */
     private void clearCachedRunData() {
-        for (MetaConfigObserver observer : eventObservers) {
+        for (ConfigObserver observer : eventObservers) {
             observer.clearCacheData();
         }
     }
@@ -1153,7 +1153,7 @@ public class BdbMetaStoreServiceImpl implements MetaStoreService {
      *
      * */
     private void reloadRunData() {
-        for (MetaConfigObserver observer : eventObservers) {
+        for (ConfigObserver observer : eventObservers) {
             observer.reloadCacheData();
         }
     }

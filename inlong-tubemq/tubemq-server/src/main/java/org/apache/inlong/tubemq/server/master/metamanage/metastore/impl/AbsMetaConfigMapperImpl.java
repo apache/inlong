@@ -35,7 +35,7 @@ import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.common.utils.RowLock;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaConfigObserver;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.ConfigObserver;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.MetaConfigMapper;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
@@ -83,7 +83,7 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     // group consume control configure
     protected ConsumeCtrlMapper consumeCtrlMapper;
     // the observers focusing on active-standby switching
-    private final List<MetaConfigObserver> eventObservers = new ArrayList<>();
+    private final List<ConfigObserver> eventObservers = new ArrayList<>();
 
     public AbsMetaConfigMapperImpl(MasterConfig masterConfig) {
         this.masterConfig = masterConfig;
@@ -92,7 +92,7 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     }
 
     @Override
-    public void regMetaConfigObserver(MetaConfigObserver eventObserver) {
+    public void regMetaConfigObserver(ConfigObserver eventObserver) {
         if (eventObserver != null) {
             eventObservers.add(eventObserver);
         }
@@ -1210,7 +1210,7 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
      */
     protected void reloadMetaStore(StringBuilder strBuff) {
         // Clear observers' cache data.
-        for (MetaConfigObserver observer : eventObservers) {
+        for (ConfigObserver observer : eventObservers) {
             observer.clearCacheData();
         }
         // Load the latest meta-data from persistent
@@ -1221,7 +1221,7 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
         groupResCtrlMapper.loadConfig(strBuff);
         consumeCtrlMapper.loadConfig(strBuff);
         // load the latest meta-data to observers
-        for (MetaConfigObserver observer : eventObservers) {
+        for (ConfigObserver observer : eventObservers) {
             observer.reloadCacheData();
         }
     }

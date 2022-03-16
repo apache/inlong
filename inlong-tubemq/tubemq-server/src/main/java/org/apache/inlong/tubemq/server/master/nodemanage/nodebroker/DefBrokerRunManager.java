@@ -43,7 +43,7 @@ import org.apache.inlong.tubemq.server.common.utils.SerialIdUtils;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaConfigObserver;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.ConfigObserver;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
 import org.slf4j.Logger;
@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
 /*
  * Broker run manager
  */
-public class DefBrokerRunManager implements BrokerRunManager, MetaConfigObserver {
+public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     private static final Logger logger =
             LoggerFactory.getLogger(DefBrokerRunManager.class);
     // meta data manager

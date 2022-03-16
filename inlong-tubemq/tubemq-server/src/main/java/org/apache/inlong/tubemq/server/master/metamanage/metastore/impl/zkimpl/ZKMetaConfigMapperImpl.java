@@ -81,7 +81,7 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         super(masterConfig);
         this.localNodeAdd = new NodeAddrInfo(
                 masterConfig.getHostName(), masterConfig.getPort());
-        String tubeZkRoot = ZKUtil.normalizePath(masterConfig.getZkConfig().getZkNodeRoot());
+        String tubeZkRoot = ZKUtil.normalizePath(masterConfig.getZkMetaConfig().getZkNodeRoot());
         StringBuilder strBuff =
                 new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
         this.metaZkRoot = strBuff.append(tubeZkRoot).append(TokenConstants.SLASH)
@@ -111,7 +111,7 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             logger.info("[ZK Impl] Starting MetaConfigService...");
             // start Master select thread
             executorService.scheduleWithFixedDelay(new MasterSelectorTask(), 5L,
-                    masterConfig.getZkConfig().getZkMasterCheckPeriodMs(), TimeUnit.MILLISECONDS);
+                    masterConfig.getZkMetaConfig().getZkMasterCheckPeriodMs(), TimeUnit.MILLISECONDS);
             // sleep 1 second for select
             Thread.sleep(1000);
             srvStatus.compareAndSet(1, 2);
@@ -139,7 +139,7 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         closeMetaStore();
         // set status
         srvStatus.set(0);
-        logger.info("[BDB Impl] Stop MetaConfigService, success");
+        logger.info("[ZK Impl] Stop MetaConfigService, success");
     }
 
     @Override

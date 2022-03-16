@@ -38,7 +38,7 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.Server;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
-import org.apache.inlong.tubemq.server.common.fileconfig.MasterReplicationConfig;
+import org.apache.inlong.tubemq.server.common.fileconfig.BdbMetaConfig;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStsChgType;
@@ -46,7 +46,7 @@ import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaConfigObserver;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.ConfigObserver;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl.BdbMetaStoreServiceImpl;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.MetaStoreService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
@@ -73,7 +73,7 @@ public class MetaDataManager implements Server {
     private final TMaster tMaster;
     private static final ClusterSettingEntity defClusterSetting =
             new ClusterSettingEntity().fillDefaultValue();
-    private final MasterReplicationConfig replicationConfig;
+    private final BdbMetaConfig replicationConfig;
     private final ScheduledExecutorService scheduledExecutorService;
     private final MasterGroupStatus masterGroupStatus = new MasterGroupStatus();
 
@@ -85,7 +85,7 @@ public class MetaDataManager implements Server {
     public MetaDataManager(TMaster tMaster) {
         this.tMaster = tMaster;
         MasterConfig masterConfig = this.tMaster.getMasterConfig();
-        this.replicationConfig = masterConfig.getReplicationConfig();
+        this.replicationConfig = masterConfig.getBdbMetaConfig();
         this.metaStoreService =
                 new BdbMetaStoreServiceImpl(tMaster.getMasterConfig());
 
@@ -143,7 +143,7 @@ public class MetaDataManager implements Server {
         logger.info("BrokerConfManager StoreService stopped");
     }
 
-    public void registerObserver(MetaConfigObserver eventObserver) {
+    public void registerObserver(ConfigObserver eventObserver) {
         metaStoreService.registerObserver(eventObserver);
     }
 
