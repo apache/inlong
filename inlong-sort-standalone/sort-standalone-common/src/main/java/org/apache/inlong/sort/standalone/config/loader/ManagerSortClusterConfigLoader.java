@@ -102,7 +102,7 @@ public class ManagerSortClusterConfigLoader implements SortClusterConfigLoader {
 
             SortClusterResponse clusterResponse = gson.fromJson(returnStr, SortClusterResponse.class);
             int errCode = clusterResponse.getErrCode();
-            if ( errCode != SortClusterResponse.SUCC && errCode != SortClusterResponse.NOUPDATE) {
+            if (errCode != SortClusterResponse.SUCC && errCode != SortClusterResponse.NOUPDATE) {
                 LOG.info("Fail to get config info from url:{}, error code is {}, msg is {}",
                         url, clusterResponse.getErrCode(), clusterResponse.getMsg());
                 return null;
