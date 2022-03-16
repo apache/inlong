@@ -31,7 +31,7 @@ public interface StreamSourceEntityMapper {
 
     int insertSelective(StreamSourceEntity record);
 
-    StreamSourceEntity selectByPrimaryKey(Integer id);
+    StreamSourceEntity selectByIdForUpdate(Integer id);
 
     /**
      * According to the inlong group id and inlong stream id, query the number of valid source
@@ -78,7 +78,7 @@ public interface StreamSourceEntityMapper {
     /**
      * Query the sources with status 20x by the given agent IP and agent UUID.
      */
-    List<StreamSourceEntity> selectByStatusAndIp(@Param("list") List<Integer> list,
+    List<StreamSourceEntity> selectByStatusAndIpForUpdate(@Param("list") List<Integer> list,
             @Param("agentIp") String agentIp, @Param("uuid") String uuid);
 
     /**
@@ -121,6 +121,6 @@ public interface StreamSourceEntityMapper {
 
     int updateSnapshot(StreamSourceEntity entity);
 
-    int deleteByPrimaryKey(Integer id);
+    int deleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
 }

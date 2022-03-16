@@ -22,11 +22,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.Constant;
@@ -48,7 +43,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of source service interface
@@ -188,7 +190,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         LOGGER.info("begin to delete source by id={}, sourceType={}", id, sourceType);
         Preconditions.checkNotNull(id, Constant.ID_IS_EMPTY);
 
-        StreamSourceEntity entity = sourceMapper.selectByPrimaryKey(id);
+        StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
@@ -202,11 +204,10 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public boolean restart(Integer id, String sourceType, String operator) {
         LOGGER.info("begin to restart source by id={}, sourceType={}", id, sourceType);
-        Preconditions.checkNotNull(id, Constant.ID_IS_EMPTY);
-
-        StreamSourceEntity entity = sourceMapper.selectByPrimaryKey(id);
+        StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
@@ -220,9 +221,10 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public boolean stop(Integer id, String sourceType, String operator) {
         LOGGER.info("begin to stop source by id={}, sourceType={}", id, sourceType);
-        StreamSourceEntity entity = sourceMapper.selectByPrimaryKey(id);
+        StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
@@ -278,12 +280,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         // Check if it can be deleted
         commonOperateService.checkGroupStatus(groupId, operator);
-
-        List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedId(groupId, streamId);
-        if (CollectionUtils.isNotEmpty(entityList)) {
-            entityList.forEach(entity -> sourceMapper.deleteByPrimaryKey(entity.getId()));
-        }
-
+        sourceMapper.deleteByRelatedId(groupId, streamId);
         LOGGER.info("success to delete all source by groupId={}, streamId={}", groupId, streamId);
         return true;
     }

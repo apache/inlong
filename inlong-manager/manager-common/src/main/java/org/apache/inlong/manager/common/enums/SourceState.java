@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.enums;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -74,49 +75,73 @@ public enum SourceState {
      * The set of status allowed updating
      */
     public static final Set<Integer> ALLOWED_UPDATE = Sets.newHashSet(
-            SOURCE_NEW.getCode(), SOURCE_FAILED.getCode(), SOURCE_FROZEN.getCode());
+            SOURCE_NEW.getCode(), SOURCE_FAILED.getCode(), SOURCE_FROZEN.getCode(),
+            TO_BE_ISSUED_ADD.getCode(), TO_BE_ISSUED_DELETE.getCode(), TO_BE_ISSUED_RETRY.getCode(),
+            TO_BE_ISSUED_BACKTRACK.getCode(), TO_BE_ISSUED_FROZEN.getCode(), TO_BE_ISSUED_ACTIVE.getCode(),
+            TO_BE_ISSUED_CHECK.getCode(), TO_BE_ISSUED_REDO_METRIC.getCode(), TO_BE_ISSUED_MAKEUP.getCode());
 
-    private static final Map<SourceState, Set<SourceState>> SOURCE_FINITE_STATE_AUTOMATON = Maps.newHashMap();
+    public static final Set<SourceState> TOBE_ISSUED_SET = Sets.newHashSet(
+            TO_BE_ISSUED_ADD, TO_BE_ISSUED_DELETE, TO_BE_ISSUED_RETRY,
+            TO_BE_ISSUED_BACKTRACK, TO_BE_ISSUED_FROZEN, TO_BE_ISSUED_ACTIVE,
+            TO_BE_ISSUED_CHECK, TO_BE_ISSUED_REDO_METRIC, TO_BE_ISSUED_MAKEUP);
+
+    private static final Map<SourceState, Set<SourceState>> SOURCE_STATE_AUTOMATON = Maps.newHashMap();
 
     static {
         // new
-        SOURCE_FINITE_STATE_AUTOMATON.put(SOURCE_NEW, Sets.newHashSet(SOURCE_NEW, TO_BE_ISSUED_ADD));
+        SOURCE_STATE_AUTOMATON.put(SOURCE_NEW, Sets.newHashSet(SOURCE_NEW, TO_BE_ISSUED_ADD));
 
         // normal
-        SOURCE_FINITE_STATE_AUTOMATON.put(SOURCE_NORMAL,
+        SOURCE_STATE_AUTOMATON.put(SOURCE_NORMAL,
                 Sets.newHashSet(SOURCE_DISABLE, SOURCE_NORMAL, SOURCE_FAILED, TO_BE_ISSUED_DELETE,
                         TO_BE_ISSUED_RETRY, TO_BE_ISSUED_BACKTRACK, TO_BE_ISSUED_FROZEN, TO_BE_ISSUED_ACTIVE,
                         TO_BE_ISSUED_CHECK, TO_BE_ISSUED_REDO_METRIC, TO_BE_ISSUED_MAKEUP));
 
         // failed
-        SOURCE_FINITE_STATE_AUTOMATON.put(SOURCE_FAILED,
-                Sets.newHashSet(SOURCE_DISABLE, SOURCE_FAILED, TO_BE_ISSUED_RETRY));
+        SOURCE_STATE_AUTOMATON.put(SOURCE_FAILED, Sets.newHashSet(SOURCE_DISABLE, SOURCE_FAILED, TO_BE_ISSUED_RETRY));
 
         // frozen
-        SOURCE_FINITE_STATE_AUTOMATON.put(SOURCE_FROZEN,
-                Sets.newHashSet(SOURCE_DISABLE, SOURCE_FROZEN, TO_BE_ISSUED_ACTIVE));
+        SOURCE_STATE_AUTOMATON.put(SOURCE_FROZEN, Sets.newHashSet(SOURCE_DISABLE, SOURCE_FROZEN, TO_BE_ISSUED_ACTIVE));
 
         // [xxx] bo be issued
-        SOURCE_FINITE_STATE_AUTOMATON.put(TO_BE_ISSUED_ADD, Sets.newHashSet(BEEN_ISSUED_ADD));
-        SOURCE_FINITE_STATE_AUTOMATON.put(TO_BE_ISSUED_DELETE, Sets.newHashSet(BEEN_ISSUED_DELETE));
-        SOURCE_FINITE_STATE_AUTOMATON.put(TO_BE_ISSUED_RETRY, Sets.newHashSet(BEEN_ISSUED_RETRY));
-        SOURCE_FINITE_STATE_AUTOMATON.put(TO_BE_ISSUED_BACKTRACK, Sets.newHashSet(BEEN_ISSUED_BACKTRACK));
-        SOURCE_FINITE_STATE_AUTOMATON.put(TO_BE_ISSUED_FROZEN, Sets.newHashSet(BEEN_ISSUED_FROZEN));
-        SOURCE_FINITE_STATE_AUTOMATON.put(TO_BE_ISSUED_ACTIVE, Sets.newHashSet(BEEN_ISSUED_ACTIVE));
-        SOURCE_FINITE_STATE_AUTOMATON.put(TO_BE_ISSUED_CHECK, Sets.newHashSet(BEEN_ISSUED_CHECK));
-        SOURCE_FINITE_STATE_AUTOMATON.put(TO_BE_ISSUED_REDO_METRIC, Sets.newHashSet(BEEN_ISSUED_REDO_METRIC));
-        SOURCE_FINITE_STATE_AUTOMATON.put(TO_BE_ISSUED_MAKEUP, Sets.newHashSet(BEEN_ISSUED_MAKEUP));
+        HashSet<SourceState> tobeAdd = Sets.newHashSet(BEEN_ISSUED_ADD);
+        tobeAdd.addAll(TOBE_ISSUED_SET);
+        SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_ADD, tobeAdd);
+        HashSet<SourceState> tobeDelete = Sets.newHashSet(BEEN_ISSUED_DELETE);
+        tobeDelete.addAll(TOBE_ISSUED_SET);
+        SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_DELETE, Sets.newHashSet(tobeDelete));
+        HashSet<SourceState> tobeRetry = Sets.newHashSet(BEEN_ISSUED_RETRY);
+        tobeRetry.addAll(TOBE_ISSUED_SET);
+        SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_RETRY, Sets.newHashSet(tobeRetry));
+        HashSet<SourceState> tobeBacktrack = Sets.newHashSet(BEEN_ISSUED_BACKTRACK);
+        tobeBacktrack.addAll(TOBE_ISSUED_SET);
+        SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_BACKTRACK, Sets.newHashSet(tobeBacktrack));
+        HashSet<SourceState> tobeFrozen = Sets.newHashSet(BEEN_ISSUED_FROZEN);
+        tobeFrozen.addAll(TOBE_ISSUED_SET);
+        SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_FROZEN, Sets.newHashSet(tobeFrozen));
+        HashSet<SourceState> tobeActive = Sets.newHashSet(BEEN_ISSUED_ACTIVE);
+        tobeActive.addAll(TOBE_ISSUED_SET);
+        SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_ACTIVE, Sets.newHashSet(tobeActive));
+        HashSet<SourceState> tobeCheck = Sets.newHashSet(BEEN_ISSUED_CHECK);
+        tobeCheck.addAll(TOBE_ISSUED_SET);
+        SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_CHECK, Sets.newHashSet(tobeCheck));
+        HashSet<SourceState> tobeRedoMetric = Sets.newHashSet(BEEN_ISSUED_REDO_METRIC);
+        tobeRedoMetric.addAll(TOBE_ISSUED_SET);
+        SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_REDO_METRIC, Sets.newHashSet(tobeRedoMetric));
+        HashSet<SourceState> tobeMakeup = Sets.newHashSet(BEEN_ISSUED_MAKEUP);
+        tobeMakeup.addAll(TOBE_ISSUED_SET);
+        SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_MAKEUP, Sets.newHashSet(tobeMakeup));
 
         // [xxx] been issued
-        SOURCE_FINITE_STATE_AUTOMATON.put(BEEN_ISSUED_ADD, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
-        SOURCE_FINITE_STATE_AUTOMATON.put(BEEN_ISSUED_DELETE, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
-        SOURCE_FINITE_STATE_AUTOMATON.put(BEEN_ISSUED_RETRY, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
-        SOURCE_FINITE_STATE_AUTOMATON.put(BEEN_ISSUED_BACKTRACK, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
-        SOURCE_FINITE_STATE_AUTOMATON.put(BEEN_ISSUED_FROZEN, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
-        SOURCE_FINITE_STATE_AUTOMATON.put(BEEN_ISSUED_ACTIVE, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
-        SOURCE_FINITE_STATE_AUTOMATON.put(BEEN_ISSUED_CHECK, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
-        SOURCE_FINITE_STATE_AUTOMATON.put(BEEN_ISSUED_REDO_METRIC, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
-        SOURCE_FINITE_STATE_AUTOMATON.put(BEEN_ISSUED_MAKEUP, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
+        SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_ADD, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
+        SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_DELETE, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
+        SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_RETRY, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
+        SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_BACKTRACK, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
+        SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_FROZEN, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
+        SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_ACTIVE, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
+        SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_CHECK, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
+        SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_REDO_METRIC, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
+        SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_MAKEUP, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
     }
 
     private final Integer code;
@@ -143,7 +168,7 @@ public enum SourceState {
      * Whether the `next` state is valid according to the `current` state.
      */
     public static boolean isAllowedTransition(SourceState current, SourceState next) {
-        Set<SourceState> nextStates = SOURCE_FINITE_STATE_AUTOMATON.get(current);
+        Set<SourceState> nextStates = SOURCE_STATE_AUTOMATON.get(current);
         return nextStates != null && nextStates.contains(next);
     }
 
