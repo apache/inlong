@@ -75,7 +75,8 @@ public class InlongStreamImpl extends InlongStream {
                     .collect(Collectors.toMap(StreamSink::getSinkName, streamSink -> streamSink,
                             (sink1, sink2) -> {
                                 throw new RuntimeException(
-                                        String.format("duplicate sinkName:%s in stream:%s", sink1.getSinkName(), this.name));
+                                        String.format("duplicate sinkName:%s in stream:%s", sink1.getSinkName(),
+                                                this.name));
                             }));
         }
         List<SourceResponse> sourceList = fullStreamResponse.getSourceInfo();
