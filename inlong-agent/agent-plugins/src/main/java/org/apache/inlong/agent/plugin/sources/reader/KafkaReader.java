@@ -25,8 +25,6 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BYTE_SPEED
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_RECORD_SPEED_LIMIT;
-
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -124,7 +122,7 @@ public class KafkaReader<K, V> implements Reader {
         if (iterator != null && iterator.hasNext()) {
             ConsumerRecord<K, V> record = iterator.next();
             // body
-            String recordValue = record.value().toString();
+            byte[] recordValue = (byte[]) record.value();
             if (validateMessage(recordValue)) {
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
@@ -132,13 +130,14 @@ public class KafkaReader<K, V> implements Reader {
                 Map<String, String> headerMap = new HashMap<>();
                 headerMap.put("record.offset", String.valueOf(record.offset()));
                 headerMap.put("record.key", String.valueOf(record.key()));
-                LOGGER.info(
-                        "partition:" + record.partition() + "value:" + recordValue + ", offset:" + record.offset());
+                LOGGER.debug(
+                        "partition:" + record.partition()
+                                + ", value:" + new String(recordValue) + ", offset:" + record.offset());
                 // control speed
                 kafkaMetric.incReadNum();
                 // commit succeed,then record current offset
                 snapshot = record.partition() + JOB_KAFKA_PARTITION_OFFSET_DELIMITER + record.offset();
-                DefaultMessage message = new DefaultMessage(recordValue.getBytes(StandardCharsets.UTF_8), headerMap);
+                DefaultMessage message = new DefaultMessage(recordValue, headerMap);
                 recordReadLimit(1L, message.getBody().length);
                 return message;
             }
@@ -209,11 +208,11 @@ public class KafkaReader<K, V> implements Reader {
         }
     }
 
-    private boolean validateMessage(String message) {
+    private boolean validateMessage(byte[] message) {
         if (validators.isEmpty()) {
             return true;
         }
-        return validators.stream().allMatch(v -> v.validate(message));
+        return validators.stream().allMatch(v -> v.validate(new String(message)));
     }
 
     public void addPatternValidator(String pattern) {
