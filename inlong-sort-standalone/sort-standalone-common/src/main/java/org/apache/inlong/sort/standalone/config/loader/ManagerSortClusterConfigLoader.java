@@ -101,8 +101,10 @@ public class ManagerSortClusterConfigLoader implements SortClusterConfigLoader {
             // get groupId <-> topic and m value.
 
             SortClusterResponse clusterResponse = gson.fromJson(returnStr, SortClusterResponse.class);
-            if (!clusterResponse.isResult()) {
-                LOG.info("Fail to get config info from url:{}, error code is {}", url, clusterResponse.getErrCode());
+            int errCode = clusterResponse.getErrCode();
+            if ( errCode != SortClusterResponse.SUCC && errCode != SortClusterResponse.NOUPDATE) {
+                LOG.info("Fail to get config info from url:{}, error code is {}, msg is {}",
+                        url, clusterResponse.getErrCode(), clusterResponse.getMsg());
                 return null;
             }
 

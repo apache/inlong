@@ -28,27 +28,27 @@ public class SortClusterResponse {
     public static final int FAIL = -1;
     public static final int REQ_PARAMS_ERROR = -101;
 
-    private boolean result;
-    private int errCode;
+    private String msg;
+    private int code;
     private String md5;
     private SortClusterConfig data;
 
     /**
-     * get result
-     * 
-     * @return the result
+     * get msg
+     *
+     * @return Response message.
      */
-    public boolean isResult() {
-        return result;
+    public String getMsg() {
+        return this.msg;
     }
 
     /**
-     * set result
+     * set msg
      * 
-     * @param result the result to set
+     * @param msg The msg of response
      */
-    public void setResult(boolean result) {
-        this.result = result;
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
 
     /**
@@ -57,16 +57,16 @@ public class SortClusterResponse {
      * @return the errCode
      */
     public int getErrCode() {
-        return errCode;
+        return code;
     }
 
     /**
      * set errCode
      * 
-     * @param errCode the errCode to set
+     * @param code the errCode to set
      */
-    public void setErrCode(int errCode) {
-        this.errCode = errCode;
+    public void setErrCode(int code) {
+        this.code = code;
     }
 
     /**

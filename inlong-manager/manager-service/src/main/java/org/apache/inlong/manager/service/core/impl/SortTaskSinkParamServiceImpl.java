@@ -33,9 +33,7 @@ import java.util.Map;
 @Service
 public class SortTaskSinkParamServiceImpl implements SortTaskSinkParamService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SortTaskSinkParamServiceImpl.class);
-
-    private static final String KEY_SINK_TYPE = "type";
-
+    
     @Autowired
     private SortTaskSinkParamEntityMapper sortTaskSinkParamEntityMapper;
 
@@ -45,7 +43,6 @@ public class SortTaskSinkParamServiceImpl implements SortTaskSinkParamService {
         List<SortTaskSinkParamEntity> taskSinkParamEntityList =
                 sortTaskSinkParamEntityMapper.selectByTaskNameAndType(taskName);
         Map<String, String> sinkParams = new HashMap<>();
-        sinkParams.put(KEY_SINK_TYPE, sinkType);
         taskSinkParamEntityList.forEach(entity -> sinkParams.put(entity.getParamKey(), entity.getParamValue()));
         return sinkParams;
     }
