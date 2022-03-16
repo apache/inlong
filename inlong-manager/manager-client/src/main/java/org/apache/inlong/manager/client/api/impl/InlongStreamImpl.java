@@ -59,28 +59,35 @@ public class InlongStreamImpl extends InlongStream {
         this.name = streamInfo.getName();
         List<InlongStreamFieldInfo> streamFieldInfos = streamInfo.getFieldList();
         if (CollectionUtils.isNotEmpty(streamFieldInfos)) {
-            this.streamFields = streamFieldInfos.stream().map(streamFieldInfo -> {
-                return new StreamField(streamFieldInfo.getId(),
-                        FieldType.forName(streamFieldInfo.getFieldType()),
-                        streamFieldInfo.getFieldName(),
-                        streamFieldInfo.getFieldComment(),
-                        streamFieldInfo.getFieldValue()
-                );
-            }).collect(Collectors.toList());
+            this.streamFields = streamFieldInfos.stream()
+                    .map(streamFieldInfo -> new StreamField(
+                            streamFieldInfo.getId(),
+                            FieldType.forName(streamFieldInfo.getFieldType()),
+                            streamFieldInfo.getFieldName(),
+                            streamFieldInfo.getFieldComment(),
+                            streamFieldInfo.getFieldValue())
+                    ).collect(Collectors.toList());
         }
         List<SinkResponse> sinkList = fullStreamResponse.getSinkInfo();
         if (CollectionUtils.isNotEmpty(sinkList)) {
             this.streamSinks = sinkList.stream()
-                    .map(sinkResponse -> {
-                        return InlongStreamSinkTransfer.parseStreamSink(sinkResponse, null);
-                    }).collect(Collectors.toMap(StreamSink::getSinkName, streamSink -> streamSink));
+                    .map(sinkResponse -> InlongStreamSinkTransfer.parseStreamSink(sinkResponse, null))
+                    .collect(Collectors.toMap(StreamSink::getSinkName, streamSink -> streamSink,
+                            (sinkName1, sinkName2) -> {
+                                throw new RuntimeException(
+                                        String.format("duplicate sinkName:%s in stream:%s", sinkName1, this.name));
+                            }));
         }
         List<SourceResponse> sourceList = fullStreamResponse.getSourceInfo();
         if (CollectionUtils.isNotEmpty(sourceList)) {
             this.streamSources = sourceList.stream()
-                    .map(sourceResponse -> {
-                        return InlongStreamSourceTransfer.parseStreamSource(sourceResponse);
-                    }).collect(Collectors.toMap(StreamSource::getSourceName, streamSource -> streamSource));
+                    .map(sourceResponse -> InlongStreamSourceTransfer.parseStreamSource(sourceResponse))
+                    .collect(Collectors.toMap(StreamSource::getSourceName, streamSource -> streamSource,
+                            (sourceName1, sourceName2) -> {
+                                throw new RuntimeException(
+                                        String.format("duplicate sourceName:%s in stream:%s", sourceName1, this.name));
+                            }
+                    ));
         }
 
     }
