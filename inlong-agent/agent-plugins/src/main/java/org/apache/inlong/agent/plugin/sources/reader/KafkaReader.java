@@ -130,7 +130,7 @@ public class KafkaReader<K, V> implements Reader {
                 Map<String, String> headerMap = new HashMap<>();
                 headerMap.put("record.offset", String.valueOf(record.offset()));
                 headerMap.put("record.key", String.valueOf(record.key()));
-                LOGGER.info(
+                LOGGER.debug(
                         "partition:" + record.partition()
                                 + ", value:" + new String(recordValue) + ", offset:" + record.offset());
                 // control speed
