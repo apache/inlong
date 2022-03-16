@@ -113,8 +113,8 @@ public class InlongParser {
         JsonObject pageInfoJson = GsonUtil.fromJson(GsonUtil.toJson(data), JsonObject.class);
         JsonArray fullStreamArray = pageInfoJson.getAsJsonArray("list");
         List<FullStreamResponse> list = Lists.newArrayList();
-        for (int i = 0; i < fullStreamArray.size(); i++) {
-            JsonObject fullStreamJson = (JsonObject) fullStreamArray.get(i);
+        for (int streamIndex = 0; streamIndex < fullStreamArray.size(); streamIndex++) {
+            JsonObject fullStreamJson = (JsonObject) fullStreamArray.get(streamIndex);
             FullStreamResponse fullStreamResponse = GsonUtil.fromJson(fullStreamJson.toString(),
                     FullStreamResponse.class);
             list.add(fullStreamResponse);
@@ -122,8 +122,8 @@ public class InlongParser {
             JsonArray sourceJsonArr = fullStreamJson.getAsJsonArray(SOURCE_INFO);
             List<SourceResponse> sourceResponses = Lists.newArrayList();
             fullStreamResponse.setSourceInfo(sourceResponses);
-            for (int j = 0; j < sourceJsonArr.size(); j++) {
-                JsonObject sourceJson = (JsonObject) sourceJsonArr.get(i);
+            for (int sourceIndex = 0; sourceIndex < sourceJsonArr.size(); sourceIndex++) {
+                JsonObject sourceJson = (JsonObject) sourceJsonArr.get(sourceIndex);
                 String type = sourceJson.get(SOURCE_TYPE).getAsString();
                 SourceType sourceType = SourceType.forType(type);
                 switch (sourceType) {
@@ -146,8 +146,8 @@ public class InlongParser {
             JsonArray sinkJsonArr = fullStreamJson.getAsJsonArray(SINK_INFO);
             List<SinkResponse> sinkResponses = Lists.newArrayList();
             fullStreamResponse.setSinkInfo(sinkResponses);
-            for (int j = 0; j < sinkJsonArr.size(); j++) {
-                JsonObject sinkJson = (JsonObject) sinkJsonArr.get(i);
+            for (int sinkIndex = 0; sinkIndex < sinkJsonArr.size(); sinkIndex++) {
+                JsonObject sinkJson = (JsonObject) sinkJsonArr.get(sinkIndex);
                 String type = sinkJson.get(SINK_TYPE).getAsString();
                 SinkType sinkType = SinkType.forType(type);
                 switch (sinkType) {
