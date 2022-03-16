@@ -202,11 +202,12 @@
         </trim>
     </insert>
 
-    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <select id="selectByIdForUpdate" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source
         where id = #{id,jdbcType=INTEGER}
+        for update
     </select>
     <select id="selectCount" resultType="java.lang.Integer">
         select count(1)
@@ -275,6 +276,7 @@
             <if test="sourceType != null and sourceType != ''">
                 and source_type = #{sourceType, jdbcType=VARCHAR}
             </if>
+            for update
         </where>
     </select>
     <select id="selectByStatusForUpdate" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
@@ -290,7 +292,7 @@
             limit 2 for update
         </where>
     </select>
-    <select id="selectByStatusAndIp" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <select id="selectByStatusAndIpForUpdate" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source
@@ -304,6 +306,7 @@
             <if test="uuid != null and uuid != ''">
                 and uuid = #{uuid, jdbcType=VARCHAR}
             </if>
+            for update
         </where>
     </select>
     <select id="selectSourceType" resultType="java.lang.String">
@@ -317,12 +320,16 @@
             <if test="streamId != null and streamId != ''">
                 and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
             </if>
+            for update
         </where>
     </select>
     <select id="selectTempStatusSource" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select id, agent_ip, uuid, status
         from stream_source
-        where status >= 200
+        <where>
+            status >= 200
+            for update
+        </where>
     </select>
 
     <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
@@ -449,9 +456,14 @@
         where id = #{id,jdbcType=INTEGER}
     </update>
 
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <delete id="deleteByRelatedId">
         delete
         from stream_source
-        where id = #{id,jdbcType=INTEGER}
+        where
+        is_deleted = 0
+        and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        <if test="streamId != null and streamId != ''">
+            and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+        </if>
     </delete>
 </mapper>

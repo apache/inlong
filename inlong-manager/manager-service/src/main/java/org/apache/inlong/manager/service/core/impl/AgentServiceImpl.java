@@ -110,6 +110,7 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public TaskResult reportAndGetTask(TaskRequest request) {
         LOGGER.debug("begin to get agent task: {}", request);
         if (request == null || request.getAgentIp() == null) {
@@ -133,7 +134,7 @@ public class AgentServiceImpl implements AgentService {
 
         for (CommandEntity command : request.getCommandInfo()) {
             Integer taskId = command.getTaskId();
-            StreamSourceEntity current = sourceMapper.selectByPrimaryKey(taskId);
+            StreamSourceEntity current = sourceMapper.selectByIdForUpdate(taskId);
             if (current == null) {
                 continue;
             }
@@ -171,8 +172,7 @@ public class AgentServiceImpl implements AgentService {
     /**
      * Get task result by the request
      */
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    TaskResult getTaskResult(TaskRequest request) {
+    private TaskResult getTaskResult(TaskRequest request) {
         // Query the tasks that needed to add or active - without agentIp and uuid
         List<Integer> addedStatusList = Arrays.asList(SourceState.TO_BE_ISSUED_ADD.getCode(),
                 SourceState.TO_BE_ISSUED_ACTIVE.getCode());
@@ -185,7 +185,7 @@ public class AgentServiceImpl implements AgentService {
                 SourceState.TO_BE_ISSUED_REDO_METRIC.getCode(), SourceState.TO_BE_ISSUED_MAKEUP.getCode());
         String agentIp = request.getAgentIp();
         String uuid = request.getUuid();
-        List<StreamSourceEntity> entityList = sourceMapper.selectByStatusAndIp(statusList, agentIp, uuid);
+        List<StreamSourceEntity> entityList = sourceMapper.selectByStatusAndIpForUpdate(statusList, agentIp, uuid);
         entityList.addAll(addList);
 
         List<DataConfig> dataConfigs = Lists.newArrayList();

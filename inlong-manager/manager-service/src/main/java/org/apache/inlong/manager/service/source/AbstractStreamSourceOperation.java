@@ -30,6 +30,8 @@ import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -63,8 +65,9 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     protected abstract SourceResponse getResponse();
 
     @Override
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public SourceResponse getById(@NotNull Integer id) {
-        StreamSourceEntity entity = sourceMapper.selectByPrimaryKey(id);
+        StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
@@ -73,12 +76,13 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void updateOpt(SourceRequest request, String operator) {
-        StreamSourceEntity entity = sourceMapper.selectByPrimaryKey(request.getId());
+        StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         if (!SourceState.ALLOWED_UPDATE.contains(entity.getStatus())) {
             throw new RuntimeException(String.format("Source=%s is not allowed to update, "
-                    + "please stop / frozen / delete it firstly", entity));
+                    + "please wait until its changed to final status or stop / frozen / delete it firstly", entity));
         }
 
         // Setting updated parameters of stream source entity.
@@ -110,8 +114,9 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void stopOpt(SourceRequest request, String operator) {
-        StreamSourceEntity snapshot = sourceMapper.selectByPrimaryKey(request.getId());
+        StreamSourceEntity snapshot = sourceMapper.selectByIdForUpdate(request.getId());
         SourceState curState = SourceState.forCode(snapshot.getStatus());
         SourceState nextState = SourceState.TO_BE_ISSUED_FROZEN;
         if (!SourceState.isAllowedTransition(curState, nextState)) {
@@ -125,8 +130,9 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void restartOpt(SourceRequest request, String operator) {
-        StreamSourceEntity snapshot = sourceMapper.selectByPrimaryKey(request.getId());
+        StreamSourceEntity snapshot = sourceMapper.selectByIdForUpdate(request.getId());
         SourceState curState = SourceState.forCode(snapshot.getStatus());
         SourceState nextState = SourceState.TO_BE_ISSUED_ACTIVE;
         if (!SourceState.isAllowedTransition(curState, nextState)) {
@@ -141,9 +147,10 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void deleteOpt(SourceRequest request, String operator) {
         Integer id = request.getId();
-        StreamSourceEntity existEntity = sourceMapper.selectByPrimaryKey(id);
+        StreamSourceEntity existEntity = sourceMapper.selectByIdForUpdate(id);
         SourceState curState = SourceState.forCode(existEntity.getStatus());
         SourceState nextState = SourceState.TO_BE_ISSUED_DELETE;
         if (!SourceState.isAllowedTransition(curState, nextState)) {
