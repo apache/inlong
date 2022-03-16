@@ -18,9 +18,6 @@
 package org.apache.inlong.manager.service.thirdparty.sort;
 
 import com.google.common.collect.Lists;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -49,6 +46,10 @@ import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class DisableZkForSortTest extends WorkflowServiceImplTest {
 
@@ -85,10 +86,9 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         hiveSinkRequest.setPassword("password");
         hiveSinkRequest.setDbName("default");
         hiveSinkRequest.setTableName("kip_test");
-        hiveSinkRequest.setJdbcUrl("jdbc:hive2://172.17.12.135:7001");
+        hiveSinkRequest.setJdbcUrl("jdbc:hive2://localhost:7001");
         hiveSinkRequest.setFileFormat("TextFile");
-        hiveSinkRequest.setHdfsDefaultFs("hdfs://172.17.12.235:4007");
-        hiveSinkRequest.setWarehouseDir("/user/hive/warehouse");
+        hiveSinkRequest.setDataPath("hdfs://localhost:4007/user/hive/warehouse/default");
         hiveSinkRequest.setFileFormat(StandardCharsets.UTF_8.name());
         hiveSinkRequest.setDataSeparator("124");
         streamSinkService.save(hiveSinkRequest, OPERATOR);
