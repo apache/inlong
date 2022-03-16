@@ -73,9 +73,9 @@ public class InlongStreamImpl extends InlongStream {
             this.streamSinks = sinkList.stream()
                     .map(sinkResponse -> InlongStreamSinkTransfer.parseStreamSink(sinkResponse, null))
                     .collect(Collectors.toMap(StreamSink::getSinkName, streamSink -> streamSink,
-                            (sinkName1, sinkName2) -> {
+                            (sink1, sink2) -> {
                                 throw new RuntimeException(
-                                        String.format("duplicate sinkName:%s in stream:%s", sinkName1, this.name));
+                                        String.format("duplicate sinkName:%s in stream:%s", sink1.getSinkName(), this.name));
                             }));
         }
         List<SourceResponse> sourceList = fullStreamResponse.getSourceInfo();
@@ -83,9 +83,10 @@ public class InlongStreamImpl extends InlongStream {
             this.streamSources = sourceList.stream()
                     .map(sourceResponse -> InlongStreamSourceTransfer.parseStreamSource(sourceResponse))
                     .collect(Collectors.toMap(StreamSource::getSourceName, streamSource -> streamSource,
-                            (sourceName1, sourceName2) -> {
+                            (source1, source2) -> {
                                 throw new RuntimeException(
-                                        String.format("duplicate sourceName:%s in stream:%s", sourceName1, this.name));
+                                        String.format("duplicate sourceName:%s in stream:%s",
+                                                source1.getSourceName(), this.name));
                             }
                     ));
         }

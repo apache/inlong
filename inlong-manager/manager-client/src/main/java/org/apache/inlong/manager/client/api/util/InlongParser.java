@@ -123,7 +123,7 @@ public class InlongParser {
             List<SourceResponse> sourceResponses = Lists.newArrayList();
             fullStreamResponse.setSourceInfo(sourceResponses);
             for (int j = 0; j < sourceJsonArr.size(); j++) {
-                JsonObject sourceJson = (JsonObject) sourceJsonArr.get(i);
+                JsonObject sourceJson = (JsonObject) sourceJsonArr.get(j);
                 String type = sourceJson.get(SOURCE_TYPE).getAsString();
                 SourceType sourceType = SourceType.forType(type);
                 switch (sourceType) {
@@ -147,7 +147,7 @@ public class InlongParser {
             List<SinkResponse> sinkResponses = Lists.newArrayList();
             fullStreamResponse.setSinkInfo(sinkResponses);
             for (int j = 0; j < sinkJsonArr.size(); j++) {
-                JsonObject sinkJson = (JsonObject) sinkJsonArr.get(i);
+                JsonObject sinkJson = (JsonObject) sinkJsonArr.get(j);
                 String type = sinkJson.get(SINK_TYPE).getAsString();
                 SinkType sinkType = SinkType.forType(type);
                 switch (sinkType) {
