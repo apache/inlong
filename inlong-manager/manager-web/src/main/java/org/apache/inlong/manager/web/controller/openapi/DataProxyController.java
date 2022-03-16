@@ -71,7 +71,7 @@ public class DataProxyController {
     @GetMapping("/getAllConfig")
     @ApiOperation(value = "Get all proxy config")
     public String getAllConfig(@RequestParam("clusterName") String clusterName, @RequestParam("setName") String setName,
-            @RequestParam("md5") String md5) {
+            @RequestParam(value = "md5", required = false) String md5) {
         return dataProxyClusterService.getAllConfig(clusterName, setName, md5);
     }
 

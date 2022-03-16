@@ -78,8 +78,7 @@ public class RemoteConfigManager implements IRepository {
     private AtomicInteger managerIpListIndex = new AtomicInteger(0);
     // config
     private String dataProxyConfigMd5;
-    private DataProxyCluster currentClusterConfig;
-    private AtomicReference<DataProxyCluster> currentClusterConfigRef;
+    private AtomicReference<DataProxyCluster> currentClusterConfigRef = new AtomicReference<>();
     // flume properties
     private Map<String, String> flumeProperties;
     // inlong id map
@@ -143,13 +142,13 @@ public class RemoteConfigManager implements IRepository {
         //
         this.ipListParser.setCommonProperties(ConfigManager.getInstance().getCommonProperties());
         List<String> managerIpList = this.ipListParser.getIpList();
+        if (managerIpList == null || managerIpList.size() == 0) {
+            return;
+        }
+        int managerIpSize = managerIpList.size();
         for (int i = 0; i < managerIpList.size(); i++) {
-            String host = managerIpList.get(managerIpListIndex.getAndIncrement());
+            String host = managerIpList.get(managerIpListIndex.getAndIncrement() % managerIpSize);
             if (this.reloadDataProxyConfig(proxyClusterName, setName, host)) {
-                // parse inlong id
-                this.parseInlongIds();
-                // generate flume properties
-                this.generateFlumeProperties();
                 break;
             }
         }
@@ -187,6 +186,7 @@ public class RemoteConfigManager implements IRepository {
             // request with get
             CloseableHttpResponse response = httpClient.execute(httpGet);
             String returnStr = EntityUtils.toString(response.getEntity());
+            LOGGER.info("end to request {} to get config info:{}", url, returnStr);
             // get groupId <-> topic and m value.
 
             DataProxyConfigResponse proxyResponse = gson.fromJson(returnStr, DataProxyConfigResponse.class);
@@ -194,11 +194,18 @@ public class RemoteConfigManager implements IRepository {
                 LOGGER.info("Fail to get config info from url:{}, error code is {}", url, proxyResponse.getErrCode());
                 return false;
             }
+            if (proxyResponse.getErrCode() != DataProxyConfigResponse.SUCC) {
+                LOGGER.info("get config info from url:{}, error code is {}", url, proxyResponse.getErrCode());
+                return true;
+            }
 
             this.dataProxyConfigMd5 = proxyResponse.getMd5();
             DataProxyCluster clusterObj = proxyResponse.getData();
-            this.currentClusterConfig = clusterObj;
             this.currentClusterConfigRef.set(clusterObj);
+            // parse inlong id
+            this.parseInlongIds();
+            // generate flume properties
+            this.generateFlumeProperties();
         } catch (Exception ex) {
             LOGGER.error("exception caught", ex);
             return false;
@@ -231,8 +238,9 @@ public class RemoteConfigManager implements IRepository {
      * @return
      */
     public String getZone() {
-        if (this.currentClusterConfig != null) {
-            return this.currentClusterConfig.getProxyCluster().getZone();
+        DataProxyCluster currentClusterConfig = currentClusterConfigRef.get();
+        if (currentClusterConfig != null) {
+            return currentClusterConfig.getProxyCluster().getZone();
         }
         return null;
     }
@@ -243,8 +251,9 @@ public class RemoteConfigManager implements IRepository {
      * @return
      */
     public String getProxyClusterName() {
-        if (this.currentClusterConfig != null) {
-            return this.currentClusterConfig.getProxyCluster().getName();
+        DataProxyCluster currentClusterConfig = currentClusterConfigRef.get();
+        if (currentClusterConfig != null) {
+            return currentClusterConfig.getProxyCluster().getName();
         }
         return ConfigManager.getInstance().getCommonProperties().get(KEY_PROXY_CLUSTER_NAME);
     }
@@ -255,8 +264,9 @@ public class RemoteConfigManager implements IRepository {
      * @return
      */
     public String getSetName() {
-        if (this.currentClusterConfig != null) {
-            return this.currentClusterConfig.getProxyCluster().getSetName();
+        DataProxyCluster currentClusterConfig = currentClusterConfigRef.get();
+        if (currentClusterConfig != null) {
+            return currentClusterConfig.getProxyCluster().getSetName();
         }
         return ConfigManager.getInstance().getCommonProperties().get(KEY_SET_NAME);
     }
@@ -266,6 +276,7 @@ public class RemoteConfigManager implements IRepository {
      */
     private void parseInlongIds() {
         Map<String, InLongIdObject> newConfig = new HashMap<>();
+        DataProxyCluster currentClusterConfig = currentClusterConfigRef.get();
         ProxyClusterObject proxyClusterObject = currentClusterConfig.getProxyCluster();
         for (InLongIdObject obj : proxyClusterObject.getInlongIds()) {
             String inlongId = obj.getInlongId();
@@ -298,6 +309,7 @@ public class RemoteConfigManager implements IRepository {
      */
     private void generateFlumeChannels(Map<String, String> newConfig) {
         StringBuilder builder = new StringBuilder();
+        DataProxyCluster currentClusterConfig = currentClusterConfigRef.get();
         ProxyClusterObject proxyClusterObject = currentClusterConfig.getProxyCluster();
         String proxyClusterName = proxyClusterObject.getName();
         // channels
@@ -315,6 +327,17 @@ public class RemoteConfigManager implements IRepository {
                 newConfig.put(builder.toString(), entry.getValue());
             }
         }
+        // summary
+        builder.setLength(0);
+        builder.append(proxyClusterName).append(".channels");
+        String key = builder.toString();
+        builder.setLength(0);
+        proxyClusterObject.getChannels().forEach((channel) -> {
+            builder.append(channel.getName()).append(" ");
+        });
+        if (builder.length() > 0) {
+            newConfig.put(key, builder.substring(0, builder.length() - 1));
+        }
     }
 
     /**
@@ -325,6 +348,7 @@ public class RemoteConfigManager implements IRepository {
      */
     private void generateFlumeSinks(Map<String, String> newConfig) {
         StringBuilder builder = new StringBuilder();
+        DataProxyCluster currentClusterConfig = currentClusterConfigRef.get();
         ProxyClusterObject proxyClusterObject = currentClusterConfig.getProxyCluster();
         String proxyClusterName = proxyClusterObject.getName();
         // sinks
@@ -376,6 +400,17 @@ public class RemoteConfigManager implements IRepository {
                 }
             }
         }
+        // summary
+        builder.setLength(0);
+        builder.append(proxyClusterName).append(".sinks");
+        String key = builder.toString();
+        builder.setLength(0);
+        proxyClusterObject.getSinks().forEach((sink) -> {
+            builder.append(sink.getName()).append(" ");
+        });
+        if (builder.length() > 0) {
+            newConfig.put(key, builder.substring(0, builder.length() - 1));
+        }
     }
 
     /**
@@ -386,6 +421,7 @@ public class RemoteConfigManager implements IRepository {
      */
     private void generateFlumeSources(Map<String, String> newConfig) {
         StringBuilder builder = new StringBuilder();
+        DataProxyCluster currentClusterConfig = currentClusterConfigRef.get();
         ProxyClusterObject proxyClusterObject = currentClusterConfig.getProxyCluster();
         String proxyClusterName = proxyClusterObject.getName();
         // sources
@@ -418,6 +454,17 @@ public class RemoteConfigManager implements IRepository {
                 newConfig.put(builder.toString(), entry.getValue());
             }
         }
+        // summary
+        builder.setLength(0);
+        builder.append(proxyClusterName).append(".sources");
+        String key = builder.toString();
+        builder.setLength(0);
+        proxyClusterObject.getSources().forEach((source) -> {
+            builder.append(source.getName()).append(" ");
+        });
+        if (builder.length() > 0) {
+            newConfig.put(key, builder.substring(0, builder.length() - 1));
+        }
     }
 
     /**
@@ -445,6 +492,7 @@ public class RemoteConfigManager implements IRepository {
      * @return
      */
     public DataProxyCluster getCurrentClusterConfig() {
+        DataProxyCluster currentClusterConfig = currentClusterConfigRef.get();
         return currentClusterConfig;
     }
 

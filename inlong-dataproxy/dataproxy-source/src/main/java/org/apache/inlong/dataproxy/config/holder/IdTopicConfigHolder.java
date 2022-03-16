@@ -63,6 +63,7 @@ public class IdTopicConfigHolder implements Configurable {
         this.context = context;
         this.reloadInterval = context.getLong(RELOAD_INTERVAL, 60000L);
         String loaderType = context.getString(IDTOPIC_CONFIG_TYPE, ContextIdTopicConfigLoader.class.getName());
+        LOG.info("Init IdTopicConfigLoader,loaderType:{}", loaderType);
         try {
             Class<?> loaderClass = ClassUtils.getClass(loaderType);
             Object loaderObject = loaderClass.getDeclaredConstructor().newInstance();
