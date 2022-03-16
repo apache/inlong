@@ -57,11 +57,8 @@ public class HiveSink extends StreamSink {
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @ApiModelProperty("HDFS defaultFS, etc hdfs://${ip}:${port}")
-    private String hdfsDefaultFs;
-
-    @ApiModelProperty("Warehouse directory, etc /usr/hive/warehouse")
-    private String warehouseDir;
+    @ApiModelProperty("Data path, such as: hdfs://ip:port/usr/hive/warehouse/test.db")
+    private String dataPath;
 
     @ApiModelProperty("Data encoding format: UTF-8, GBK")
     private Charset charset = StandardCharsets.UTF_8;

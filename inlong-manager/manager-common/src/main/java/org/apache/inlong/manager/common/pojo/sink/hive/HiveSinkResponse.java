@@ -34,10 +34,6 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 @ApiModel(value = "Response of the Hive sink")
 public class HiveSinkResponse extends SinkResponse {
 
-    public HiveSinkResponse() {
-        this.sinkType = Constant.SINK_HIVE;
-    }
-
     @ApiModelProperty("Hive JDBC URL")
     private String jdbcUrl;
 
@@ -53,11 +49,8 @@ public class HiveSinkResponse extends SinkResponse {
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @ApiModelProperty("HDFS defaultFS")
-    private String hdfsDefaultFs;
-
-    @ApiModelProperty("Warehouse directory")
-    private String warehouseDir;
+    @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
+    private String dataPath;
 
     @ApiModelProperty("Partition interval, support: 1 H, 1 D, 30 I, 10 I")
     private Integer partitionInterval;
@@ -82,5 +75,9 @@ public class HiveSinkResponse extends SinkResponse {
 
     @ApiModelProperty("Data field separator")
     private String dataSeparator;
+
+    public HiveSinkResponse() {
+        this.sinkType = Constant.SINK_HIVE;
+    }
 
 }

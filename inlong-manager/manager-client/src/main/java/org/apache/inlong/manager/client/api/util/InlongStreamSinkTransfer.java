@@ -211,9 +211,8 @@ public class InlongStreamSinkTransfer {
         hiveSinkRequest.setDataSeparator(String.valueOf(hiveSink.getDataSeparator().getAsciiCode()));
         hiveSinkRequest.setDbName(hiveSink.getDbName());
         hiveSinkRequest.setTableName(hiveSink.getTableName());
-        hiveSinkRequest.setHdfsDefaultFs(hiveSink.getHdfsDefaultFs());
+        hiveSinkRequest.setDataPath(hiveSink.getDataPath());
         hiveSinkRequest.setJdbcUrl(hiveSink.getJdbcUrl());
-        hiveSinkRequest.setWarehouseDir(hiveSink.getWarehouseDir());
         hiveSinkRequest.setFileFormat(hiveSink.getFileFormat().name());
         hiveSinkRequest.setSinkType(hiveSink.getSinkType().name());
         DefaultAuthentication defaultAuthentication = hiveSink.getAuthentication();
@@ -256,12 +255,11 @@ public class InlongStreamSinkTransfer {
             hiveSink.setDataSeparator(snapshot.getDataSeparator());
             hiveSink.setCharset(snapshot.getCharset());
             hiveSink.setAuthentication(snapshot.getAuthentication());
-            hiveSink.setWarehouseDir(snapshot.getWarehouseDir());
             hiveSink.setFileFormat(snapshot.getFileFormat());
             hiveSink.setJdbcUrl(snapshot.getJdbcUrl());
             hiveSink.setTableName(snapshot.getTableName());
             hiveSink.setDbName(snapshot.getDbName());
-            hiveSink.setHdfsDefaultFs(snapshot.getHdfsDefaultFs());
+            hiveSink.setDataPath(snapshot.getDataPath());
             hiveSink.setSecondaryPartition(snapshot.getSecondaryPartition());
             hiveSink.setPrimaryPartition(snapshot.getPrimaryPartition());
         } else {
@@ -271,12 +269,11 @@ public class InlongStreamSinkTransfer {
             String password = sinkResponse.getPassword();
             String uname = sinkResponse.getUsername();
             hiveSink.setAuthentication(new DefaultAuthentication(uname, password));
-            hiveSink.setWarehouseDir(sinkResponse.getWarehouseDir());
             hiveSink.setFileFormat(FileFormat.forName(sinkResponse.getFileFormat()));
             hiveSink.setJdbcUrl(sinkResponse.getJdbcUrl());
             hiveSink.setTableName(sinkResponse.getTableName());
             hiveSink.setDbName(sinkResponse.getDbName());
-            hiveSink.setHdfsDefaultFs(sinkResponse.getHdfsDefaultFs());
+            hiveSink.setDataPath(sinkResponse.getDataPath());
             hiveSink.setSecondaryPartition(sinkResponse.getSecondaryPartition());
             hiveSink.setPrimaryPartition(sinkResponse.getPrimaryPartition());
         }

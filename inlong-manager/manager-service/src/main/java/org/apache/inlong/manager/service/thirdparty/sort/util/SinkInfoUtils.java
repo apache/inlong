@@ -162,22 +162,13 @@ public class SinkInfoUtils {
             partitionList.add(new HiveSinkInfo.HiveFieldPartitionInfo(hiveInfo.getSecondaryPartition()));
         }
 
-        // dataPath = hdfsUrl + / + warehouseDir + / + dbName + .db/ + tableName
+        // dataPath = dataPath + / + tableName
         StringBuilder dataPathBuilder = new StringBuilder();
-        String hdfsUrl = hiveInfo.getHdfsDefaultFs();
-        String warehouseDir = hiveInfo.getWarehouseDir();
-        if (hdfsUrl.endsWith("/")) {
-            dataPathBuilder.append(hdfsUrl, 0, hdfsUrl.length() - 1);
-        } else {
-            dataPathBuilder.append(hdfsUrl);
+        String dataPath = hiveInfo.getDataPath();
+        if (!dataPath.endsWith("/")) {
+            dataPathBuilder.append(dataPath).append("/");
         }
-        if (warehouseDir.endsWith("/")) {
-            dataPathBuilder.append(warehouseDir, 0, warehouseDir.length() - 1);
-        } else {
-            dataPathBuilder.append(warehouseDir);
-        }
-        String dataPath = dataPathBuilder.append("/").append(hiveInfo.getDbName())
-                .append(".db/").append(hiveInfo.getTableName()).toString();
+        dataPath = dataPathBuilder.append(hiveInfo.getTableName()).toString();
 
         return new HiveSinkInfo(sinkFields.toArray(new FieldInfo[0]), hiveInfo.getJdbcUrl(),
                 hiveInfo.getDbName(), hiveInfo.getTableName(), hiveInfo.getUsername(), hiveInfo.getPassword(),
