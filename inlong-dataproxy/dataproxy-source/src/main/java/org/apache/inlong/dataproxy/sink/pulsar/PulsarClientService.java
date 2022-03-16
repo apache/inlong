@@ -207,7 +207,6 @@ public class PulsarClientService {
                 MessageId msgId = producer.newMessage().key(partitionKey)
                         .properties(proMap).value(event.getBody())
                         .send();
-                sendResponse((OrderEvent)event);
                 sendMessageCallBack.handleMessageSendSuccess(topic, msgId, es);
                 AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
                 forCallBackP.setCanUseSend(true);
@@ -220,7 +219,7 @@ public class PulsarClientService {
                 forCallBackP.setCanUseSend(false);
                 sendMessageCallBack.handleMessageSendException(topic, es, ex);
             }
-
+            sendResponse((OrderEvent)event);
         } else {
             producer.newMessage().properties(proMap).value(event.getBody())
                     .sendAsync().thenAccept((msgId) -> {
@@ -246,6 +245,9 @@ public class PulsarClientService {
      * @param orderEvent orderEvent
      */
     private void sendResponse(OrderEvent orderEvent) {
+        if ("false".equals(orderEvent.getHeaders().get(AttributeConstants.MESSAGE_IS_ACK))) {
+            return;
+        }
         if (orderEvent.getCtx() != null && orderEvent.getCtx().channel().isActive()) {
             orderEvent.getCtx().channel().eventLoop().execute(() -> {
                 ByteBuf binBuffer = MessageUtils.getResponsePackage("",

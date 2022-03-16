@@ -442,6 +442,10 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     headers.put(AttributeConstants.DATA_TIME, String.valueOf(System.currentTimeMillis()));
                 }
 
+                if ("false".equals(commonAttrMap.get(AttributeConstants.MESSAGE_IS_ACK))) {
+                    headers.put(AttributeConstants.MESSAGE_IS_ACK, "false");
+                }
+
                 String syncSend = commonAttrMap.get(AttributeConstants.MESSAGE_SYNC_SEND);
                 if (StringUtils.isNotEmpty(syncSend)) {
                     headers.put(AttributeConstants.MESSAGE_SYNC_SEND, syncSend);
@@ -525,7 +529,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             Channel remoteChannel,
             SocketAddress remoteSocketAddress,
             MsgType msgType) throws Exception {
-        if (!commonAttrMap.containsKey("isAck") || "true".equals(commonAttrMap.get("isAck"))) {
+        String isAck = commonAttrMap.get(AttributeConstants.MESSAGE_IS_ACK);
+        if (isAck == null || "true".equals(isAck)) {
             if (MsgType.MSG_ACK_SERVICE.equals(msgType) || MsgType.MSG_ORIGINAL_RETURN
                     .equals(msgType)
                     || MsgType.MSG_MULTI_BODY.equals(msgType) || MsgType.MSG_MULTI_BODY_ATTR
