@@ -61,7 +61,7 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     }
 
     private String getRequestUrlWithParam() {
-        return clientContext.getConfig().getManagerApiUrl() + "?sortClusterName=" + clientContext.getConfig()
+        return clientContext.getConfig().getManagerApiUrl() + "?clusterName=" + clientContext.getConfig()
                 .getSortClusterName() + "&sortTaskId=" + clientContext.getConfig().getSortTaskId() + "&md5=" + md5
                 + "&apiVersion=" + clientContext.getConfig().getManagerApiVersion();
     }
@@ -166,11 +166,10 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
         CacheZoneConfig cacheZoneConfig = response.getData();
         Map<String, List<InLongTopic>> newGroupTopicsMap = new HashMap<>();
         for (Map.Entry<String, CacheZone> entry : cacheZoneConfig.getCacheZones().entrySet()) {
-            String sortId = entry.getKey();
             CacheZone cacheZone = entry.getValue();
 
-            List<InLongTopic> topics = newGroupTopicsMap.computeIfAbsent(sortId, k -> new ArrayList<>());
-
+            List<InLongTopic> topics = newGroupTopicsMap.computeIfAbsent(cacheZoneConfig.getSortTaskId(),
+                    k -> new ArrayList<>());
             CacheZoneCluster cacheZoneCluster = new CacheZoneCluster(cacheZone.getZoneName(),
                     cacheZone.getServiceUrl(), cacheZone.getAuthentication());
             for (Topic topicInfo : cacheZone.getTopics()) {
