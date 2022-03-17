@@ -251,7 +251,7 @@
         </where>
     </select>
 
-    <select id="selectByRelatedId" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <select id="selectByRelatedIdForUpdate" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source
@@ -261,9 +261,13 @@
             <if test="streamId != null and streamId != ''">
                 and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
             </if>
+            <if test="sourceName != null and sourceName != ''">
+                and source_name = #{sourceName, jdbcType=VARCHAR},
+            </if>
+            for update
         </where>
     </select>
-    <select id="selectByIdAndType" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <select id="selectByRelatedIdAndTypeForUpdate" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source
@@ -299,7 +303,7 @@
         <where>
             is_deleted = 0
             and status in
-            <foreach item="item" index="index" collection="list" open="(" close=")" separator=",">
+            <foreach item="item" index="index" collection="statusList" open="(" close=")" separator=",">
                 #{item}
             </foreach>
             and agent_ip = #{agentIp, jdbcType=VARCHAR}
