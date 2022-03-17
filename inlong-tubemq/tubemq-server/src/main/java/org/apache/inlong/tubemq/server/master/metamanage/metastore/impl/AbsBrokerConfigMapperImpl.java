@@ -137,6 +137,15 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
+        // check whether changed
+        if (curEntity.getManageStatus() == newMngStatus) {
+            result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+                    strBuff.append("Unchanged  ").append(WebFieldDef.MANAGESTATUS.name)
+                            .append("(").append(newMngStatus.getDescription())
+                            .append(")!").toString());
+            strBuff.delete(0, strBuff.length());
+            return result.isSuccess();
+        }
         // Build the entity that need to be updated
         BrokerConfEntity newEntity = curEntity.clone();
         newEntity.updBaseModifyInfo(opEntity);
