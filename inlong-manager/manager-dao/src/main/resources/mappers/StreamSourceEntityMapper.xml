@@ -45,7 +45,8 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, inlong_group_id, inlong_stream_id, source_type, source_name, agent_ip, uuid,
+        id
+        , inlong_group_id, inlong_stream_id, source_type, source_name, agent_ip, uuid,
         server_id, server_name, cluster_id, cluster_name, snapshot, report_time, ext_params,
         status, previous_status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
@@ -262,7 +263,7 @@
                 and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
             </if>
             <if test="sourceName != null and sourceName != ''">
-                and source_name = #{sourceName, jdbcType=VARCHAR},
+                and source_name = #{sourceName, jdbcType=VARCHAR}
             </if>
             for update
         </where>
