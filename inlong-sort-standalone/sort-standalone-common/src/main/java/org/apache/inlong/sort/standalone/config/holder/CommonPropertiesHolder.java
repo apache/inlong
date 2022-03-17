@@ -35,10 +35,10 @@ import org.slf4j.Logger;
 public class CommonPropertiesHolder {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(CommonPropertiesHolder.class);
-    public static final String KEY_COMMON_PROPERTIES = "common-properties-loader";
+    public static final String KEY_COMMON_PROPERTIES = "common_properties_loader";
     public static final String DEFAULT_LOADER = ClassResourceCommonPropertiesLoader.class.getName();
     public static final String KEY_CLUSTER_ID = "clusterId";
-    public static final String KEY_MANAGER_URL = "sortClusterConfig.managerUrl";
+    public static final String KEY_SOURCE_CONFIG_MANAGER_URL = "sortSourceConfig.managerUrl";
 
     private static Map<String, String> props;
     private static Context context;
@@ -202,8 +202,8 @@ public class CommonPropertiesHolder {
      *
      * @return Manager URL
      */
-    public static String getManagerUrl() {
-        return getString(KEY_MANAGER_URL);
+    public static String getSourceConfigManagerUrl() {
+        return getString(KEY_SOURCE_CONFIG_MANAGER_URL);
     }
 
     /**

@@ -175,7 +175,7 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
                             SortSdkSource.defaultStrategy, InetAddress.getLocalHost().getHostAddress());
             final FetchCallback callback = FetchCallback.Factory.create(sortId, getChannelProcessor(), context);
             clientConfig.setCallback(callback);
-            clientConfig.setManagerApiUrl(CommonPropertiesHolder.getManagerUrl());
+            clientConfig.setManagerApiUrl(CommonPropertiesHolder.getSourceConfigManagerUrl());
             SortClient client = SortClientFactory.createSortClient(clientConfig);
             client.init();
             // temporary use to ACK fetched msg.
