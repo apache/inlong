@@ -30,13 +30,13 @@ import org.slf4j.LoggerFactory;
 
 public class TestBinlogOffsetManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestTextFileReader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestBinlogOffsetManager.class);
     private static Path testDir;
     private static AgentBaseTestsHelper helper;
 
     @BeforeClass
     public static void setup() {
-        helper = new AgentBaseTestsHelper(TestTextFileReader.class.getName()).setupAgentHome();
+        helper = new AgentBaseTestsHelper(TestBinlogOffsetManager.class.getName()).setupAgentHome();
         testDir = helper.getTestRootDir();
     }
 
