@@ -160,6 +160,7 @@ public class PulsarClientService {
         try {
             producerInfo = getProducerInfo(poolIndex, topic, inlongGroupId, inlongStreamId);
         } catch (Exception e) {
+            checkAndResponse(event);
             if (logPrinterA.shouldPrint()) {
                 /*
                  * If it is not an IllegalTopicException,
@@ -185,6 +186,7 @@ public class PulsarClientService {
              * After 30s, reopen the topic check, if it is still a null value,
              *  put it back into the illegal map
              */
+            checkAndResponse(event);
             sendMessageCallBack.handleMessageSendException(topic, es, new Exception("producer "
                     + " info is null"));
             return false;
@@ -238,6 +240,12 @@ public class PulsarClientService {
             });
         }
         return true;
+    }
+
+    private void checkAndResponse(Event event) {
+        if (MessageUtils.isSyncSendForOrder(event) && (event instanceof OrderEvent)) {
+            sendResponse((OrderEvent)event);
+        }
     }
 
     /**
@@ -527,8 +535,8 @@ public class PulsarClientService {
                 }
                 isFinishInit = true;
             } catch (PulsarClientException e) {
-                logger.error("create pulsar client has error e = {} inlongGroupId = {}, "
-                        + "inlongStreamId= {}", e, inlongGroupId, inlongStreamId);
+                logger.error("create pulsar client has error , topic = {}, inlongGroupId"
+                        + " = {}, inlongStreamId= {}", topic, inlongGroupId, inlongStreamId, e);
                 isFinishInit = false;
                 for (int i = 0; i < sinkThreadPoolSize; i++) {
                     if (producers[i] != null) {
