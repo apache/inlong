@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,24 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.standalone.config.loader;
+package org.apache.inlong.common.pojo.sortstandalone;
 
-import org.apache.flume.conf.Configurable;
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/**
- * 
- * SortClusterConfigLoader
- */
-public interface SortClusterConfigLoader extends Configurable {
+import java.util.List;
 
-    String SORT_CLUSTER_CONFIG_TYPE = "sortClusterConfig.type";
-    String SORT_CLUSTER_CONFIG_MANAGER = "sortClusterConfig.managerUrl";
-
-    /**
-     * load
-     * 
-     * @return
-     */
-    SortClusterConfig load();
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class SortClusterConfig {
+    String clusterName;
+    List<SortTaskConfig> sortTasks;
 }

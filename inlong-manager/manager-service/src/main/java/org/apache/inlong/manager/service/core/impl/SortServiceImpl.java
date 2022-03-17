@@ -19,13 +19,13 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
 import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse;
 import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse.CacheZone;
 import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse.SortSourceConfig;
 import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
-import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.SinkType;
-import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse.SortTaskConfig;
+import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.manager.service.core.SortClusterConfigService;
 import org.apache.inlong.manager.service.core.SortSourceService;
 import org.apache.inlong.manager.service.core.SortTaskIdParamService;
@@ -61,14 +61,14 @@ public class SortServiceImpl implements SortService {
     @Autowired private SortSourceService sortSourceService;
 
     @Override
-    public SortClusterConfigResponse getClusterConfig(String clusterName, String md5) {
+    public SortClusterResponse getClusterConfig(String clusterName, String md5) {
         LOGGER.info("start getClusterConfig");
 
         // check if cluster name is valid or not.
         if (StringUtils.isBlank(clusterName)) {
             String errMsg = "Blank cluster name, return nothing";
             LOGGER.info(errMsg);
-            return SortClusterConfigResponse.builder().msg(errMsg).build();
+            return SortClusterResponse.builder().msg(errMsg).build();
         }
 
         // check if there is any task.
@@ -77,7 +77,10 @@ public class SortServiceImpl implements SortService {
         if (tasks == null || tasks.isEmpty()) {
             String errMsg = "There is not any task for cluster" + clusterName;
             LOGGER.info(errMsg);
-            return SortClusterConfigResponse.builder().msg(errMsg).build();
+            return SortClusterResponse.builder()
+                    .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
+                    .msg(errMsg)
+                    .build();
         }
 
         // add task configs
@@ -87,22 +90,34 @@ public class SortServiceImpl implements SortService {
         } catch (IllegalArgumentException ex) {
             String errMsg = "Got illegal sink type from db, " + ex.getMessage();
             LOGGER.info(errMsg);
-            return SortClusterConfigResponse.builder().msg(errMsg).build();
+            return SortClusterResponse.builder()
+                    .code(RESPONSE_CODE_FAIL)
+                    .msg(errMsg)
+                    .build();
         }
 
-        return SortClusterConfigResponse.builder().tasks(taskConfigs).msg("success").build();
+        SortClusterConfig clusterConfig = SortClusterConfig.builder()
+                .clusterName(clusterName)
+                .sortTasks(taskConfigs)
+                .build();
+
+        return SortClusterResponse.builder()
+                .code(RESPONSE_CODE_SUCCESS)
+                .data(clusterConfig)
+                .msg("success")
+                .build();
     }
 
     private SortTaskConfig getTaskConfig(SortClusterConfigEntity clusterConfig) {
-        SinkType sinkType = SinkType.valueOf(clusterConfig.getSinkType().toUpperCase());
+        String sinkType = clusterConfig.getSinkType().toUpperCase();
         List<Map<String, String>> idParams =
                 sortTaskIdParamService.selectByTaskName(clusterConfig.getTaskName());
         Map<String, String> sinkParams =
                 sortTaskSinkParamService
                         .selectByTaskNameAndType(clusterConfig.getTaskName(), clusterConfig.getSinkType());
         return SortTaskConfig.builder()
-                .taskName(clusterConfig.getTaskName())
-                .sinkType(sinkType)
+                .name(clusterConfig.getTaskName())
+                .type(sinkType)
                 .idParams(idParams)
                 .sinkParams(sinkParams)
                 .build();

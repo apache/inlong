@@ -19,9 +19,9 @@ package org.apache.inlong.sort.standalone.source.sortsdk;
 
 import org.apache.flume.Context;
 import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
+import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
-import org.apache.inlong.sort.standalone.config.pojo.SortClusterConfig;
-import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,7 +64,7 @@ public class TestSortSdkSource {
     }
 
     private SortClusterConfig prepareSortClusterConfig(final int size) {
-        final SortClusterConfig testConfig = new SortClusterConfig();
+        final SortClusterConfig testConfig = SortClusterConfig.builder().build();
         testConfig.setClusterName("testConfig");
         testConfig.setSortTasks(prepareSortTaskConfig(size));
         return testConfig;
@@ -74,7 +74,7 @@ public class TestSortSdkSource {
         List<SortTaskConfig> configs = new ArrayList<>();
 
         for (int i = 0; i < size; i++) {
-            SortTaskConfig config = new SortTaskConfig();
+            SortTaskConfig config = SortTaskConfig.builder().build();
             config.setName("testConfig" + i);
             configs.add(config);
         }

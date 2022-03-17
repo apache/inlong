@@ -21,7 +21,7 @@ import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.flume.Context;
-import org.apache.inlong.sort.standalone.config.pojo.SortClusterConfig;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
@@ -53,7 +53,7 @@ public class ClassResourceSortClusterConfigLoader implements SortClusterConfigLo
         } catch (Exception e) {
             LOG.error("fail to load properties, file ={}, and e= {}", FILENAME, e);
         }
-        return new SortClusterConfig();
+        return SortClusterConfig.builder().build();
     }
 
     /**
