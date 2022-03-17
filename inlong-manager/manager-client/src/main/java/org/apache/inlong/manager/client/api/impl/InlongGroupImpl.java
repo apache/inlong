@@ -237,7 +237,7 @@ public class InlongGroupImpl implements InlongGroup {
                             groupLogs.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getRemark());
                         }
                     });
-            inlongGroupContext.setErrMsgs(errMsgs);
+            inlongGroupContext.setGroupErrLogs(errMsgs);
             inlongGroupContext.setGroupLogs(groupLogs);
         }
         //Fetch stream logs
@@ -254,7 +254,7 @@ public class InlongGroupImpl implements InlongGroup {
                             String log = GsonUtil.toJson(streamLog);
                             streamLogs.computeIfAbsent(componentName, Lists::newArrayList).add(log);
                         });
-                inlongGroupContext.getStreamLogs().put(streamName, streamLogs);
+                inlongGroupContext.getStreamErrLogs().put(streamName, streamLogs);
             }
         });
         return inlongGroupContext;

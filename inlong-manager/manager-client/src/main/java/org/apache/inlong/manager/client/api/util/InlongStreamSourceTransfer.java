@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.KafkaOffset;
 import org.apache.inlong.manager.client.api.StreamSource;
+import org.apache.inlong.manager.client.api.StreamSource.State;
 import org.apache.inlong.manager.client.api.StreamSource.SyncType;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.source.KafkaSource;
@@ -88,6 +89,7 @@ public class InlongStreamSourceTransfer {
         kafkaSource.setConsumerGroup(kafkaSourceResponse.getGroupId());
         DataFormat dataFormat = DataFormat.forName(kafkaSourceResponse.getSerializationType());
         kafkaSource.setDataFormat(dataFormat);
+        kafkaSource.setState(State.parseByStatus(kafkaSourceResponse.getStatus()));
         kafkaSource.setAgentIp(kafkaSourceResponse.getAgentIp());
         kafkaSource.setTopic(kafkaSourceResponse.getTopic());
         kafkaSource.setBootstrapServers(kafkaSourceResponse.getBootstrapServers());
@@ -106,7 +108,7 @@ public class InlongStreamSourceTransfer {
         KafkaSource kafkaSource = new KafkaSource();
         kafkaSource.setSourceName(kafkaResponse.getSourceName());
         kafkaSource.setConsumerGroup(kafkaResponse.getGroupId());
-
+        kafkaSource.setState(State.parseByStatus(kafkaResponse.getStatus()));
         DataFormat dataFormat = DataFormat.forName(kafkaResponse.getSerializationType());
         kafkaSource.setDataFormat(dataFormat);
         kafkaSource.setTopic(kafkaResponse.getTopic());
@@ -128,6 +130,7 @@ public class InlongStreamSourceTransfer {
         binlogSource.setDataFormat(DataFormat.NONE);
         binlogSource.setPort(response.getPort());
         binlogSource.setAgentIp(response.getAgentIp());
+        binlogSource.setState(State.parseByStatus(response.getStatus()));
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
                 response.getUser(),
                 response.getPassword());
@@ -153,6 +156,7 @@ public class InlongStreamSourceTransfer {
         binlogSource.setHostname(response.getHostname());
         binlogSource.setDataFormat(DataFormat.NONE);
         binlogSource.setPort(response.getPort());
+        binlogSource.setState(State.parseByStatus(response.getStatus()));
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
                 response.getUser(),
                 response.getPassword());
