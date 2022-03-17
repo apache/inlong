@@ -27,10 +27,10 @@ import java.util.TimerTask;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Context;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
+import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sort.standalone.config.loader.ClassResourceSortClusterConfigLoader;
 import org.apache.inlong.sort.standalone.config.loader.SortClusterConfigLoader;
-import org.apache.inlong.sort.standalone.config.pojo.SortClusterConfig;
-import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 

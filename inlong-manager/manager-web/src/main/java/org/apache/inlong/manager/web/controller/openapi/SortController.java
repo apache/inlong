@@ -19,7 +19,7 @@ package org.apache.inlong.manager.web.controller.openapi;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse;
 import org.apache.inlong.manager.service.core.SortService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +38,7 @@ public class SortController {
 
     @GetMapping("/getClusterConfig")
     @ApiOperation(value = "get sort cluster config")
-    public SortClusterConfigResponse getSortClusterConfig(
+    public SortClusterResponse getSortClusterConfig(
             @RequestParam String clusterName,
             @RequestParam String md5) {
         return sortService.getClusterConfig(clusterName, md5);
