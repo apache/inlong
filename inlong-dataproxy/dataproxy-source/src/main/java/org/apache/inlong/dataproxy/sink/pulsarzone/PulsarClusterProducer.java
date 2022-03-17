@@ -55,6 +55,9 @@ public class PulsarClusterProducer implements LifecycleAware {
 
     public static final Logger LOG = LoggerFactory.getLogger(PulsarClusterProducer.class);
 
+    public static final String KEY_TENANT = "tenant";
+    public static final String KEY_NAMESPACE = "namespace";
+
     public static final String KEY_SERVICE_URL = "serviceUrl";
     public static final String KEY_AUTHENTICATION = "authentication";
 
@@ -81,6 +84,9 @@ public class PulsarClusterProducer implements LifecycleAware {
     private final String cacheClusterName;
     private LifecycleState state;
 
+    private String tenant;
+    private String namespace;
+
     /**
      * pulsar client
      */
@@ -103,6 +109,8 @@ public class PulsarClusterProducer implements LifecycleAware {
         this.context = context.getProducerContext();
         this.state = LifecycleState.IDLE;
         this.cacheClusterName = config.getClusterName();
+        this.tenant = config.getParams().getOrDefault(KEY_TENANT, "pulsar");
+        this.namespace = config.getParams().getOrDefault(KEY_NAMESPACE, "inlong");
     }
 
     /**
@@ -211,26 +219,27 @@ public class PulsarClusterProducer implements LifecycleAware {
     public boolean send(DispatchProfile event) {
         try {
             // topic
-            String topic = sinkContext.getIdTopicHolder().getTopic(event.getUid());
-            if (topic == null) {
+            String baseTopic = sinkContext.getIdTopicHolder().getTopic(event.getUid());
+            if (baseTopic == null) {
                 sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
                 return false;
             }
             // get producer
-            Producer<byte[]> producer = this.producerMap.get(topic);
+            String producerTopic = tenant + '/' + namespace + '/' + baseTopic;
+            Producer<byte[]> producer = this.producerMap.get(producerTopic);
             if (producer == null) {
                 try {
-                    LOG.info("try to new a object for topic " + topic);
+                    LOG.info("try to new a object for topic " + producerTopic);
                     SecureRandom secureRandom = new SecureRandom(
-                            (workerName + "-" + cacheClusterName + "-" + topic + System.currentTimeMillis())
+                            (workerName + "-" + cacheClusterName + "-" + producerTopic + System.currentTimeMillis())
                                     .getBytes());
-                    String producerName = workerName + "-" + cacheClusterName + "-" + topic + "-"
+                    String producerName = workerName + "-" + cacheClusterName + "-" + producerTopic + "-"
                             + secureRandom.nextLong();
-                    producer = baseBuilder.clone().topic(topic)
+                    producer = baseBuilder.clone().topic(producerTopic)
                             .producerName(producerName)
                             .create();
                     LOG.info("create new producer success:{}", producer.getProducerName());
-                    Producer<byte[]> oldProducer = this.producerMap.putIfAbsent(topic, producer);
+                    Producer<byte[]> oldProducer = this.producerMap.putIfAbsent(producerTopic, producer);
                     if (oldProducer != null) {
                         producer.close();
                         LOG.info("close producer success:{}", producer.getProducerName());
@@ -243,7 +252,7 @@ public class PulsarClusterProducer implements LifecycleAware {
             // create producer failed
             if (producer == null) {
                 sinkContext.getDispatchQueue().offer(event);
-                sinkContext.addSendResultMetric(event, topic, false, 0);
+                sinkContext.addSendResultMetric(event, producerTopic, false, 0);
                 return false;
             }
             // headers
@@ -260,9 +269,9 @@ public class PulsarClusterProducer implements LifecycleAware {
                     LOG.error("Send fail:{}", ex.getMessage());
                     LOG.error(ex.getMessage(), ex);
                     sinkContext.getDispatchQueue().offer(event);
-                    sinkContext.addSendResultMetric(event, topic, false, sendTime);
+                    sinkContext.addSendResultMetric(event, producerTopic, false, sendTime);
                 } else {
-                    sinkContext.addSendResultMetric(event, topic, true, sendTime);
+                    sinkContext.addSendResultMetric(event, producerTopic, true, sendTime);
                 }
             });
             return true;

@@ -129,6 +129,7 @@ public class IdTopicConfigHolder implements Configurable {
             Map<String, IdTopicConfig> newConfigMap = new ConcurrentHashMap<>();
             for (IdTopicConfig config : newConfigList) {
                 newConfigMap.put(config.getUid(), config);
+                config.formatTopicName();
             }
             this.configList = newConfigList;
             this.configMap = newConfigMap;
