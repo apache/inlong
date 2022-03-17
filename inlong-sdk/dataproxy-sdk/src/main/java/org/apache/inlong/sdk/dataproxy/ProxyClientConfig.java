@@ -21,11 +21,9 @@ package org.apache.inlong.sdk.dataproxy;
 import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ProxyClientConfig {
-    private static final Logger logger = LoggerFactory.getLogger(ProxyClientConfig.class);
+
     private int aliveConnections;
     private int syncThreadPoolSize;
     private int asyncCallbackSize;
@@ -58,8 +56,7 @@ public class ProxyClientConfig {
     private int managerConnectionTimeout = 10000;
     private boolean readProxyIPFromLocal = false;
     /**
-     * Default connection, handshake, and initial request timeout in
-     * milliseconds.
+     * Default connection, handshake, and initial request timeout in milliseconds.
      */
     private long connectTimeoutMillis;
     private long requestTimeoutMillis;
@@ -96,14 +93,15 @@ public class ProxyClientConfig {
 
     /*pay attention to the last url parameter ip*/
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
-                           int managerPort, String groupId, String netTag) throws ProxysdkException {
+            int managerPort, String groupId, String netTag) throws ProxysdkException {
         if (Utils.isBlank(localHost)) {
             throw new ProxysdkException("localHost is blank!");
         }
         if (Utils.isBlank(managerIp)) {
             throw new IllegalArgumentException("managerIp is Blank!");
         }
-        this.proxyIPServiceURL = "http://" + managerIp + ":" + managerPort + "/api/inlong/manager/openapi/dataproxy/getIpList";
+        this.proxyIPServiceURL =
+                "http://" + managerIp + ":" + managerPort + "/api/inlong/manager/openapi/dataproxy/getIpList";
         this.groupId = groupId;
         this.netTag = netTag;
         this.isLocalVisit = isLocalVisit;
@@ -156,6 +154,10 @@ public class ProxyClientConfig {
         return managerIP;
     }
 
+    public String getManagerIpLocalPath() {
+        return managerIpLocalPath;
+    }
+
     public void setManagerIpLocalPath(String managerIpLocalPath) throws ProxysdkException {
         if (StringUtils.isEmpty(managerIpLocalPath)) {
             throw new ProxysdkException("managerIpLocalPath is empty.");
@@ -166,16 +168,12 @@ public class ProxyClientConfig {
         this.managerIpLocalPath = managerIpLocalPath + "/.managerIps";
     }
 
-    public String getManagerIpLocalPath() {
-        return managerIpLocalPath;
+    public boolean isEnableSaveManagerVIps() {
+        return enableSaveManagerVIps;
     }
 
     public void setEnableSaveManagerVIps(boolean enable) {
         this.enableSaveManagerVIps = enable;
-    }
-
-    public boolean isEnableSaveManagerVIps() {
-        return enableSaveManagerVIps;
     }
 
     public String getConfStoreBasePath() {
@@ -186,12 +184,16 @@ public class ProxyClientConfig {
         this.confStoreBasePath = confStoreBasePath;
     }
 
+    public int getAliveConnections() {
+        return this.aliveConnections;
+    }
+
     public void setAliveConnections(int aliveConnections) {
         this.aliveConnections = aliveConnections;
     }
 
-    public int getAliveConnections() {
-        return this.aliveConnections;
+    public int getSyncThreadPoolSize() {
+        return syncThreadPoolSize;
     }
 
     public void setSyncThreadPoolSize(int syncThreadPoolSize) {
@@ -201,24 +203,16 @@ public class ProxyClientConfig {
         this.syncThreadPoolSize = syncThreadPoolSize;
     }
 
-    public int getSyncThreadPoolSize() {
-        return syncThreadPoolSize;
+    public int getTotalAsyncCallbackSize() {
+        return asyncCallbackSize;
     }
 
     public void setTotalAsyncCallbackSize(int asyncCallbackSize) {
         this.asyncCallbackSize = asyncCallbackSize;
     }
 
-    public int getTotalAsyncCallbackSize() {
-        return asyncCallbackSize;
-    }
-
     public String getProxyIPServiceURL() {
         return proxyIPServiceURL;
-    }
-
-    public void setProxyUpdateIntervalMinutes(int proxyUpdateIntervalMinutes) {
-        this.proxyUpdateIntervalMinutes = proxyUpdateIntervalMinutes;
     }
 
     public int getMaxTimeoutCnt() {
@@ -236,12 +230,16 @@ public class ProxyClientConfig {
         return proxyUpdateIntervalMinutes;
     }
 
-    public void setProxyUpdateMaxRetry(int proxyUpdateMaxRetry) {
-        this.proxyUpdateMaxRetry = proxyUpdateMaxRetry;
+    public void setProxyUpdateIntervalMinutes(int proxyUpdateIntervalMinutes) {
+        this.proxyUpdateIntervalMinutes = proxyUpdateIntervalMinutes;
     }
 
     public int getProxyUpdateMaxRetry() {
         return proxyUpdateMaxRetry;
+    }
+
+    public void setProxyUpdateMaxRetry(int proxyUpdateMaxRetry) {
+        this.proxyUpdateMaxRetry = proxyUpdateMaxRetry;
     }
 
     public long getConnectTimeoutMillis() {
@@ -281,7 +279,7 @@ public class ProxyClientConfig {
     }
 
     public void setAuthenticationInfo(boolean needAuthentication, boolean needDataEncry,
-                                      final String userName, final String secretKey) {
+            final String userName, final String secretKey) {
         this.needAuthentication = needAuthentication;
         this.isNeedDataEncry = needDataEncry;
         if (this.needAuthentication || this.isNeedDataEncry) {

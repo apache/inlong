@@ -17,16 +17,6 @@
 
 package org.apache.inlong.dataproxy.utils;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-
 import org.apache.flume.Channel;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;
@@ -40,8 +30,17 @@ import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.TypedMessageBuilder;
 import org.powermock.api.mockito.PowerMockito;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+
 /**
- * 
  * MockUtils
  */
 public class MockUtils {
@@ -59,10 +58,6 @@ public class MockUtils {
 
     /**
      * mockChannel
-     * 
-     * @return
-     *
-     * @throws Exception
      */
     public static Channel mockChannel() throws Exception {
         Transaction transaction = PowerMockito.mock(Transaction.class);
@@ -79,36 +74,27 @@ public class MockUtils {
 
     /**
      * mockEvent
-     * 
-     * @return
-     *
-     * @throws Exception
      */
     public static Event mockEvent() throws Exception {
         Map<String, String> headers = new HashMap<>();
         String sourceTime = String.valueOf(System.currentTimeMillis());
-        headers.put(Constants.HEADER_KEY_MSG_TIME, String.valueOf(sourceTime));
+        headers.put(Constants.HEADER_KEY_MSG_TIME, sourceTime);
         headers.put(Constants.HEADER_KEY_SOURCE_IP, CONTAINER_IP);
         headers.put(Constants.HEADER_KEY_SOURCE_TIME, sourceTime);
         headers.put(Constants.INLONG_GROUP_ID, INLONG_GROUP_ID1);
         headers.put(Constants.TOPIC, SINK_DATA_ID);
         byte[] body = "testContent".getBytes();
-        Event event = EventBuilder.withBody(body, headers);
-        return event;
+        return EventBuilder.withBody(body, headers);
     }
 
     /**
      * mockPulsarClient
-     * 
-     * @return
-     *
-     * @throws Exception
      */
     @SuppressWarnings("unchecked")
     public static PulsarClient mockPulsarClient() throws Exception {
         ClientBuilder clientBuilder = PowerMockito.mock(ClientBuilder.class);
         PowerMockito.mockStatic(PulsarClient.class);
-        //
+
         PowerMockito.when(PulsarClient.builder()).thenReturn(clientBuilder);
         PowerMockito.when(clientBuilder.serviceUrl(anyString())).thenReturn(clientBuilder);
         PowerMockito.when(clientBuilder.authentication(any())).thenReturn(clientBuilder);
@@ -117,7 +103,7 @@ public class MockUtils {
         PowerMockito.when(clientBuilder.connectionsPerBroker(anyInt())).thenReturn(clientBuilder);
         PulsarClient client = PowerMockito.mock(PulsarClient.class);
         PowerMockito.when(clientBuilder.build()).thenReturn(client);
-        //
+
         ProducerBuilder<byte[]> producerBuilder = PowerMockito.mock(ProducerBuilder.class);
         PowerMockito.when(client.newProducer()).thenReturn(producerBuilder);
         PowerMockito.when(producerBuilder.sendTimeout(anyInt(), any())).thenReturn(producerBuilder);
@@ -136,7 +122,7 @@ public class MockUtils {
 
         PowerMockito.when(producerBuilder.hashingScheme(any())).thenReturn(producerBuilder);
         PowerMockito.when(producerBuilder.batcherBuilder(any())).thenReturn(producerBuilder);
-        //
+
         Producer<byte[]> producer = mockProducer();
         PowerMockito.when(producerBuilder.clone()).thenReturn(producerBuilder);
         PowerMockito.when(producerBuilder.topic(anyString())).thenReturn(producerBuilder);
@@ -147,10 +133,6 @@ public class MockUtils {
 
     /**
      * mockProducer
-     * 
-     * @return
-     *
-     * @throws Exception
      */
     @SuppressWarnings({"unchecked"})
     public static Producer<byte[]> mockProducer() throws Exception {
@@ -169,11 +151,10 @@ public class MockUtils {
 
     /**
      * mockMetricRegister
-     * 
-     * @throws Exception
      */
     public static void mockMetricRegister() throws Exception {
         PowerMockito.mockStatic(MetricRegister.class);
         PowerMockito.doNothing().when(MetricRegister.class, "register", any());
     }
+
 }

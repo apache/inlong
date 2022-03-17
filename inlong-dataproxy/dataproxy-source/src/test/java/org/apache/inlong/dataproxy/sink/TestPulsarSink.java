@@ -17,9 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink;
 
-import static org.apache.inlong.common.reporpter.StreamConfigLogMetric.CONFIG_LOG_REPORT_ENABLE;
-import static org.mockito.ArgumentMatchers.any;
-
+import com.google.common.base.Charsets;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;
@@ -31,51 +29,33 @@ import org.apache.inlong.dataproxy.config.ConfigManager.ReloadConfigWorker;
 import org.apache.inlong.dataproxy.utils.MockUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.testng.PowerMockTestCase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Charsets;
+import static org.apache.inlong.common.reporpter.StreamConfigLogMetric.CONFIG_LOG_REPORT_ENABLE;
+import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
 @PrepareForTest({MetricRegister.class, ReloadConfigWorker.class})
 public class TestPulsarSink extends PowerMockTestCase {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(TestPulsarSink.class);
-    private static final String hostname = "127.0.0.1";
-    private static final Integer port = 1234;
-    private String zkStr = "127.0.0.1:2181";
-    private String zkRoot = "/meta";
-    private int batchSize = 1;
-
-    private PulsarSink sink;
     private MemoryChannel channel;
-//    private ThirdPartyClusterConfig pulsarConfig = new ThirdPartyClusterConfig();
-//    private Map<String, String> url2token;
-
-    @Mock
-    private static ConfigManager configManager;
 
     public void setUp() throws Exception {
         // mock
         MockUtils.mockMetricRegister();
         PowerMockito.mockStatic(ReloadConfigWorker.class);
         ReloadConfigWorker worker = PowerMockito.mock(ReloadConfigWorker.class);
-//        PowerMockito.doNothing().when(worker, "setDaemon", true);
         PowerMockito.doNothing().when(worker, "start");
         PowerMockito.when(ReloadConfigWorker.class, "create", any()).thenReturn(worker);
         ConfigManager.getInstance().getCommonProperties().put(CONFIG_LOG_REPORT_ENABLE, "false");
         // prepare
-        sink = new PulsarSink();
+        PulsarSink sink = new PulsarSink();
         channel = new MemoryChannel();
-//        url2token = ConfigManager.getInstance().getThirdPartyClusterUrl2Token();
         Context context = new Context();
         context.put("type", "org.apache.inlong.dataproxy.sink.PulsarSink");
         sink.setChannel(channel);
@@ -89,7 +69,6 @@ public class TestPulsarSink extends PowerMockTestCase {
         Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
 
         Transaction transaction = channel.getTransaction();
-
         transaction.begin();
         for (int i = 0; i < 10; i++) {
             channel.put(event);

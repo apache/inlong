@@ -18,13 +18,8 @@
 
 package org.apache.inlong.sdk.dataproxy.threads;
 
-import java.io.Closeable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.FileCallback;
+import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.metric.MessageRecord;
@@ -35,10 +30,18 @@ import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 /**
  * metric worker
  */
 public class MetricWorkerThread extends Thread implements Closeable {
+
+    private static final String DEFAULT_KEY_ITEM = "";
+    private static final String DEFAULT_KEY_SPLITTER = "#";
     private final Logger logger = LoggerFactory.getLogger(MetricWorkerThread.class);
 
     private final SequentialID idGenerator = new SequentialID(Utils.getLocalIp());
@@ -49,14 +52,13 @@ public class MetricWorkerThread extends Thread implements Closeable {
 
     private final ConcurrentHashMap<String, MetricTimeNumSummary> metricDtMap = new ConcurrentHashMap<>();
 
-    private static final String DEFAULT_KEY_ITEM = "";
-    private static final String DEFAULT_KEY_SPLITTER = "#";
     private final ProxyClientConfig proxyClientConfig;
-    private volatile boolean bShutdown = false;
+
     private final long delayTime;
     private final Sender sender;
     private final boolean enableSlaMetric;
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private volatile boolean bShutdown = false;
 
     public MetricWorkerThread(ProxyClientConfig proxyClientConfig, Sender sender) {
         this.proxyClientConfig = proxyClientConfig;
@@ -74,11 +76,6 @@ public class MetricWorkerThread extends Thread implements Closeable {
 
     /**
      * get string key
-     *
-     * @param groupId     - groupId
-     * @param streamId     - streamId
-     * @param localIp - ip
-     * @return
      */
     private String getKeyStringByConfig(String groupId, String streamId, String localIp, long keyTime) {
         StringBuilder builder = new StringBuilder();
@@ -96,16 +93,16 @@ public class MetricWorkerThread extends Thread implements Closeable {
     /**
      * record num
      *
-     * @param msgId    - msg uuid
-     * @param groupId      - groupId
-     * @param streamId      - streamId
-     * @param localIp  - ip
-     * @param packTime - package time
-     * @param dt       - dt
-     * @param num      - num
+     * @param msgId msg uuid
+     * @param groupId groupId
+     * @param streamId streamId
+     * @param localIp ip
+     * @param packTime package time
+     * @param dt dt
+     * @param num num
      */
     public void recordNumByKey(String msgId, String groupId, String streamId,
-                               String localIp, long packTime, long dt, int num) {
+            String localIp, long packTime, long dt, int num) {
         if (!enableSlaMetric) {
             return;
         }
@@ -116,7 +113,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
     }
 
     private MetricTimeNumSummary getMetricSummary(String keyName, MetricTimeNumSummary summary,
-                                                  ConcurrentHashMap<String, MetricTimeNumSummary> cacheMap) {
+            ConcurrentHashMap<String, MetricTimeNumSummary> cacheMap) {
         MetricTimeNumSummary finalSummary = cacheMap.putIfAbsent(keyName, summary);
         if (finalSummary == null) {
             finalSummary = summary;
@@ -127,7 +124,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
     /**
      * record success num
      *
-     * @param msgId - msg id
+     * @param msgId msg id
      */
     public void recordSuccessByMessageId(String msgId) {
         if (!enableSlaMetric) {
@@ -135,7 +132,6 @@ public class MetricWorkerThread extends Thread implements Closeable {
         }
         MessageRecord messageRecord = metricValueCache.remove(msgId);
         if (messageRecord != null) {
-
             String packTimeKeyName = getKeyStringByConfig(messageRecord.getGroupId(), messageRecord.getStreamId(),
                     messageRecord.getLocalIp(), messageRecord.getPackTime());
             String dtKeyName = getKeyStringByConfig(messageRecord.getGroupId(), messageRecord.getStreamId(),
@@ -155,12 +151,11 @@ public class MetricWorkerThread extends Thread implements Closeable {
     /**
      * record failed num
      *
-     * @param msgId - msg id
+     * @param msgId msg id
      */
     public void recordFailedByMessageId(String msgId) {
         MessageRecord messageRecord = metricValueCache.remove(msgId);
         if (messageRecord != null) {
-
             String packTimeKeyName = getKeyStringByConfig(messageRecord.getGroupId(), messageRecord.getStreamId(),
                     messageRecord.getLocalIp(), messageRecord.getPackTime());
             String dtKeyName = getKeyStringByConfig(messageRecord.getGroupId(), messageRecord.getStreamId(),
@@ -185,7 +180,7 @@ public class MetricWorkerThread extends Thread implements Closeable {
 
     @Override
     public void run() {
-        logger.info("MetricWorkerThread Thread=" + Thread.currentThread().getId() + " started !");
+        logger.info("MetricWorkerThread Thread=" + Thread.currentThread().getId() + " started!");
         while (!bShutdown) {
             // check metric
             try {
@@ -270,12 +265,11 @@ public class MetricWorkerThread extends Thread implements Closeable {
     /**
      * flush metric
      *
-     * @param isClosing - whether is closing
+     * @param isClosing whether is closing
      */
     private void flushMetric(boolean isClosing) {
         lock.writeLock().lock();
         try {
-
             flushRecords(isClosing);
         } finally {
             lock.writeLock().unlock();
@@ -287,16 +281,16 @@ public class MetricWorkerThread extends Thread implements Closeable {
         private final EncodeObject encodeObject;
         private int retryCount = 0;
 
+        public MetricSendCallBack(EncodeObject encodeObject) {
+            this.encodeObject = encodeObject;
+        }
+
         public void increaseRetry() {
             retryCount += 1;
         }
 
         public int getRetryCount() {
             return retryCount;
-        }
-
-        public MetricSendCallBack(EncodeObject encodeObject) {
-            this.encodeObject = encodeObject;
         }
 
         @Override
