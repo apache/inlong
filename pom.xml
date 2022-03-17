@@ -98,8 +98,8 @@
         <module>inlong-manager</module>
         <module>inlong-sort</module>
         <module>inlong-sort-standalone</module>
-        <!--module>inlong-dashboard</module>
-        <module>inlong-distribution</module-->
+        <module>inlong-dashboard</module>
+        <module>inlong-distribution</module>
     </modules>
 
 
