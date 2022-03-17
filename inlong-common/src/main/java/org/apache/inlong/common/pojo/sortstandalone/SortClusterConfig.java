@@ -15,50 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sort;
+package org.apache.inlong.common.pojo.sortstandalone;
 
-import io.swagger.annotations.ApiModel;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 @Builder
-@ApiModel("Sort cluster config")
-public class SortClusterConfigResponse {
-    String msg;
-    int code;
-    String md5;
-    SortClusterConfig data;
-
-    @Builder
-    @Data
-    public static class SortClusterConfig {
-        String clusterName;
-        List<SortTaskConfig> sortTasks;
-    }
-
-    @Builder
-    @Data
-    public static class SortTaskConfig {
-        String name;
-        SinkType type;
-        List<Map<String, String>> idParams;
-        Map<String, String> sinkParams;
-    }
-
-    public enum SinkType {
-        /** kafka */
-        KAFKA,
-        /** pulsar */
-        PULSAR,
-        /** hive */
-        HIVE,
-        /** es */
-        ElasticSearch,
-        /** unknown */
-        UNKNOWN
-    }
+public class SortClusterConfig {
+    String clusterName;
+    List<SortTaskConfig> sortTasks;
 }

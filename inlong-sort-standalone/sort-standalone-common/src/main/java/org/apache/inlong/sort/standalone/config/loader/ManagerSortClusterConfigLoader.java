@@ -28,9 +28,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
-import org.apache.inlong.sort.standalone.config.pojo.SortClusterConfig;
-import org.apache.inlong.sort.standalone.config.pojo.SortClusterResponse;
 import org.slf4j.Logger;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
@@ -101,10 +101,10 @@ public class ManagerSortClusterConfigLoader implements SortClusterConfigLoader {
             // get groupId <-> topic and m value.
 
             SortClusterResponse clusterResponse = gson.fromJson(returnStr, SortClusterResponse.class);
-            int errCode = clusterResponse.getErrCode();
+            int errCode = clusterResponse.getCode();
             if (errCode != SortClusterResponse.SUCC && errCode != SortClusterResponse.NOUPDATE) {
                 LOG.info("Fail to get config info from url:{}, error code is {}, msg is {}",
-                        url, clusterResponse.getErrCode(), clusterResponse.getMsg());
+                        url, clusterResponse.getCode(), clusterResponse.getMsg());
                 return null;
             }
 
