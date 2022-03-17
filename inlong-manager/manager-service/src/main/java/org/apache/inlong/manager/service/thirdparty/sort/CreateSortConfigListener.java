@@ -63,11 +63,11 @@ public class CreateSortConfigListener implements SortOperateListener {
 
     @Override
     public TaskEvent event() {
-        return TaskEvent.CREATE;
+        return TaskEvent.COMPLETE;
     }
 
     @Override
-    public ListenerResult listen(WorkflowContext context) throws Exception {
+    public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         LOGGER.info("Create sort config for context={}", context);
         ProcessForm form = context.getProcessForm();
         if (form instanceof UpdateGroupProcessForm) {
@@ -90,21 +90,26 @@ public class CreateSortConfigListener implements SortOperateListener {
             return ListenerResult.success();
         }
 
-        Map<String, DataFlowInfo> dataFlowInfoMap = sinkResponseList.stream().map(sink -> {
-                    DataFlowInfo flowInfo = commonOperateService.createDataFlow(groupInfo, sink);
-                    return Pair.of(sink.getInlongStreamId(), flowInfo);
-                }
-        ).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+        try {
+            Map<String, DataFlowInfo> dataFlowInfoMap = sinkResponseList.stream().map(sink -> {
+                        DataFlowInfo flowInfo = commonOperateService.createDataFlow(groupInfo, sink);
+                        return Pair.of(sink.getInlongStreamId(), flowInfo);
+                    }
+            ).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
 
-        String dataFlows = OBJECT_MAPPER.writeValueAsString(dataFlowInfoMap);
-        InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
-        extInfo.setInlongGroupId(groupId);
-        extInfo.setKeyName(InlongGroupSettings.DATA_FLOW);
-        extInfo.setKeyValue(dataFlows);
-        if (groupInfo.getExtList() == null) {
-            groupInfo.setExtList(Lists.newArrayList());
+            String dataFlows = OBJECT_MAPPER.writeValueAsString(dataFlowInfoMap);
+            InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
+            extInfo.setInlongGroupId(groupId);
+            extInfo.setKeyName(InlongGroupSettings.DATA_FLOW);
+            extInfo.setKeyValue(dataFlows);
+            if (groupInfo.getExtList() == null) {
+                groupInfo.setExtList(Lists.newArrayList());
+            }
+            upsertDataFlow(groupInfo, extInfo);
+        } catch (Exception e) {
+            LOGGER.error("create sort config failed for sink list={} ", sinkResponseList, e);
+            throw new WorkflowListenerException("create sort config failed: " + e.getMessage());
         }
-        upsertDataFlow(groupInfo, extInfo);
 
         return ListenerResult.success();
     }
