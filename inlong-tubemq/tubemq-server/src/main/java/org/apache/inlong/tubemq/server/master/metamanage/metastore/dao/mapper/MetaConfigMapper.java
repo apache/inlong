@@ -77,30 +77,6 @@ public interface MetaConfigMapper extends KeepAliveService {
     ClusterSettingEntity getClusterDefSetting(boolean isMustConf);
 
     // ////////////////////////////////////////////////////////////
-    /**
-     * Add or update broker configure information
-     *
-     * @param isAddOp        whether add operation
-     * @param opEntity       operator information
-     * @param brokerId       broker id
-     * @param brokerIp       broker ip
-     * @param brokerPort     broker port
-     * @param brokerTlsPort  broker tls port
-     * @param brokerWebPort  broker web port
-     * @param regionId       region id
-     * @param groupId        group id
-     * @param mngStatus      manage status
-     * @param topicProps     default topic property information
-     * @param strBuff        the print information string buffer
-     * @param result         the process result return
-     * @return true if success otherwise false
-     */
-    boolean addOrUpdBrokerConfig(boolean isAddOp, BaseEntity opEntity,
-                                 int brokerId, String brokerIp, int brokerPort,
-                                 int brokerTlsPort, int brokerWebPort,
-                                 int regionId, int groupId, ManageStatus mngStatus,
-                                 TopicPropGroup topicProps, StringBuilder strBuff,
-                                 ProcessResult result);
 
     /**
      * Add or update broker configure information
@@ -178,24 +154,6 @@ public interface MetaConfigMapper extends KeepAliveService {
     BrokerConfEntity getBrokerConfByBrokerIp(String brokerIp);
 
     // ////////////////////////////////////////////////////////////
-
-    /**
-     * Add or Update topic control configure info
-     *
-     * @param isAddOp        whether add operation
-     * @param opEntity       operator information
-     * @param topicName      topic name
-     * @param topicNameId    the topic name id
-     * @param enableTopicAuth  whether enable topic authentication
-     * @param maxMsgSizeInMB   the max message size in MB
-     * @param strBuff          the print info string buffer
-     * @param result           the process result return
-     * @return true if success otherwise false
-     */
-    boolean addOrUpdTopicCtrlConf(boolean isAddOp, BaseEntity opEntity,
-                                  String topicName, int topicNameId,
-                                  Boolean enableTopicAuth, int maxMsgSizeInMB,
-                                  StringBuilder strBuff, ProcessResult result);
 
     /**
      * Add or Update topic control configure info
@@ -283,24 +241,15 @@ public interface MetaConfigMapper extends KeepAliveService {
     // ////////////////////////////////////////////////////////////
 
     /**
-     * Add or update topic deploy information
+     * Add system topic deploy information
      *
-     * @param isAddOp         whether add operation
-     * @param opEntity        the operation information
      * @param brokerId        the broker id
-     * @param topicName       the topic name
-     * @param deployStatus    the deploy status
-     * @param topicPropInfo   the topic property set
+     * @param brokerPort      the broker port
+     * @param brokerIp        the broker ip
      * @param strBuff         the string buffer
-     * @param result          the process result
-     * @return                true if success otherwise false
      */
-    boolean addOrUpdTopicDeployInfo(boolean isAddOp, BaseEntity opEntity,
-                                    int brokerId, String topicName,
-                                    TopicStatus deployStatus,
-                                    TopicPropGroup topicPropInfo,
-                                    StringBuilder strBuff,
-                                    ProcessResult result);
+    void addSystemTopicDeploy(int brokerId, int brokerPort,
+                              String brokerIp, StringBuilder strBuff);
 
     /**
      * Add or update topic deploy configure info
@@ -328,6 +277,19 @@ public interface MetaConfigMapper extends KeepAliveService {
     boolean updTopicDeployStatusInfo(BaseEntity opEntity, int brokerId,
                                      String topicName, TopicStatus topicStatus,
                                      StringBuilder strBuff, ProcessResult result);
+
+    /**
+     * delete topic deploy configure info from store
+     *
+     * @param operator   the operator
+     * @param brokerId   the broker id
+     * @param topicName  the topic name need to delete
+     * @param strBuff    the string buffer
+     * @param result     the process result
+     * @return           whether success
+     */
+    boolean delTopicDeployInfo(String operator, int brokerId, String topicName,
+                               StringBuilder strBuff, ProcessResult result);
 
     /**
      * Get broker topic entity, if query entity is null, return all topic entity
@@ -361,30 +323,47 @@ public interface MetaConfigMapper extends KeepAliveService {
     Map<String, List<TopicDeployEntity>> getTopicConfInfoByTopicAndBrokerIds(
             Set<String> topicNameSet, Set<Integer> brokerIdSet);
 
-    // ////////////////////////////////////////////////////////////
+    /**
+     * Get configured topic information in the special broker node
+     *
+     * @param brokerId   the broker id need to query
+     * @return topic entity map
+     */
+    Map<String, TopicDeployEntity> getConfiguredTopicInfo(int brokerId);
 
     /**
-     * Add or update group resource configure information
+     * Get topic deploy information by the broker id and topic name
      *
-     * @param isAddOp        whether add operation
-     * @param opEntity       operator information
-     * @param groupName      the group name
-     * @param resCheckEnable  whether check resource rate
-     * @param allowedBClientRate  the allowed broker-client rate
-     * @param qryPriorityId  the query priority id
-     * @param flowCtrlEnable enable or disable flow control
-     * @param flowRuleCnt    the flow control rule count
-     * @param flowCtrlInfo   the flow control information
-     * @param strBuff        the print information string buffer
-     * @param result         the process result return
-     * @return true if success otherwise false
+     * @param brokerId   the broker id need to query
+     * @param topicName  the topic name need to query
+     * @return topic entity map
      */
-    boolean addOrUpdGroupResCtrlConf(boolean isAddOp, BaseEntity opEntity,
-                                     String groupName, Boolean resCheckEnable,
-                                     int allowedBClientRate, int qryPriorityId,
-                                     Boolean flowCtrlEnable, int flowRuleCnt,
-                                     String flowCtrlInfo, StringBuilder strBuff,
-                                     ProcessResult result);
+    TopicDeployEntity getConfiguredTopicInfo(int brokerId, String topicName);
+
+    /**
+     * Get configured topic name in the special brokers
+     *
+     * @param brokerIdSet   the broker id set need to query
+     * @return brokerid - topic name map
+     */
+    Map<Integer/* brokerId */, Set<String>> getConfiguredTopicInfo(Set<Integer> brokerIdSet);
+
+    /**
+     * Get deployed broker id and ip information for the special topic name set
+     *
+     * @param topicNameSet   the topic name set need to query
+     * @return  the topic - <broker id, broker ip>  map
+     */
+    Map<String, Map<Integer, String>> getTopicBrokerInfo(Set<String> topicNameSet);
+
+    /**
+     * Get deployed topic set
+     *
+     * @return  the deployed topic set
+     */
+    Set<String> getConfiguredTopicSet();
+
+    // ////////////////////////////////////////////////////////////
 
     /**
      * Add group resource control configure info
@@ -474,27 +453,6 @@ public interface MetaConfigMapper extends KeepAliveService {
     // //////////////////////////////////////////////////////////////////
 
     /**
-     * Add or update group resource configure information
-     *
-     * @param isAddOp        whether add operation
-     * @param opEntity       operator information
-     * @param groupName      the group name
-     * @param topicName      the topic name
-     * @param enableCsm      enable or disable consume
-     * @param disableRsn     the disable reason
-     * @param enableFlt      enable or disable filter
-     * @param fltCondStr     the filter conditions
-     * @param strBuff        the print information string buffer
-     * @param result         the process result return
-     * @return true if success otherwise false
-     */
-    boolean addOrUpdConsumeCtrlInfo(boolean isAddOp, BaseEntity opEntity,
-                                    String groupName, String topicName,
-                                    Boolean enableCsm, String disableRsn,
-                                    Boolean enableFlt, String fltCondStr,
-                                    StringBuilder strBuff, ProcessResult result);
-
-    /**
      * add or update group's consume control information
      *
      * @param isAddOp   whether add operation
@@ -560,6 +518,15 @@ public interface MetaConfigMapper extends KeepAliveService {
     List<GroupConsumeCtrlEntity> getConsumeCtrlByTopic(String topicName);
 
     /**
+     * Get consume control record
+     *
+     * @param groupName  the group name need to query
+     * @param topicName  the topic name need to query
+     * @return group consume control list
+     */
+    GroupConsumeCtrlEntity getConsumeCtrlByGroupAndTopic(String groupName, String topicName);
+
+    /**
      * Get all disable consumed topic for a specific group
      *
      * @param groupName  the queried group name
@@ -578,4 +545,19 @@ public interface MetaConfigMapper extends KeepAliveService {
     Map<String, List<GroupConsumeCtrlEntity>> getGroupConsumeCtrlConf(
             Set<String> groupSet, Set<String> topicSet, GroupConsumeCtrlEntity qryEntry);
 
+    /**
+     * Judge whether the group in use
+     *
+     * @param groupName the group name
+     * @return  whether in use
+     */
+    boolean isGroupInUse(String groupName);
+
+    /**
+     * Judge whether the topic in use
+     *
+     * @param topicName the topic name
+     * @return  whether in use
+     */
+    boolean isTopicInUse(String topicName);
 }

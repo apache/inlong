@@ -19,6 +19,7 @@ package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
@@ -188,20 +190,6 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     }
 
     // //////////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public boolean addOrUpdBrokerConfig(boolean isAddOp, BaseEntity opEntity,
-                                 int brokerId, String brokerIp, int brokerPort,
-                                 int brokerTlsPort, int brokerWebPort,
-                                 int regionId, int groupId, ManageStatus mngStatus,
-                                 TopicPropGroup topicProps, StringBuilder strBuff,
-                                 ProcessResult result) {
-        BrokerConfEntity entity =
-                new BrokerConfEntity(opEntity, brokerId, brokerIp);
-        entity.updModifyInfo(opEntity.getDataVerId(), brokerPort,
-                brokerTlsPort, brokerWebPort, regionId, groupId, mngStatus, topicProps);
-        return addOrUpdBrokerConfig(isAddOp, entity, strBuff, result);
-    }
 
     @Override
     public boolean addOrUpdBrokerConfig(boolean isAddOp, BrokerConfEntity entity,
@@ -369,17 +357,6 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     }
 
     // ///////////////////////////////////////////////////////////////////////////////
-
-    public boolean addOrUpdTopicCtrlConf(boolean isAddOp, BaseEntity opEntity,
-                                         String topicName, int topicNameId,
-                                         Boolean enableTopicAuth, int maxMsgSizeInMB,
-                                         StringBuilder sBuffer, ProcessResult result) {
-        TopicCtrlEntity entity =
-                new TopicCtrlEntity(opEntity, topicName);
-        entity.updModifyInfo(opEntity.getDataVerId(),
-                topicNameId, maxMsgSizeInMB, enableTopicAuth);
-        return addOrUpdTopicCtrlConf(isAddOp, entity, sBuffer, result);
-    }
 
     @Override
     public boolean addOrUpdTopicCtrlConf(boolean isAddOp, TopicCtrlEntity entity,
@@ -583,17 +560,17 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     // ///////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public boolean addOrUpdTopicDeployInfo(boolean isAddOp, BaseEntity opEntity,
-                                           int brokerId, String topicName,
-                                           TopicStatus deployStatus,
-                                           TopicPropGroup topicPropInfo,
-                                           StringBuilder strBuff, ProcessResult result) {
+    public void addSystemTopicDeploy(int brokerId, int brokerPort,
+                                     String brokerIp, StringBuilder strBuff) {
+        BaseEntity opEntity = new BaseEntity("system-self", new Date());
+        TopicPropGroup topicPropInfo = new TopicPropGroup();
+        topicPropInfo.setNumTopicStores(TServerConstants.OFFSET_HISTORY_NUMSTORES);
+        topicPropInfo.setNumPartitions(TServerConstants.OFFSET_HISTORY_NUMPARTS);
         TopicDeployEntity entity =
-                new TopicDeployEntity(opEntity, brokerId, topicName);
-        entity.updModifyInfo(opEntity.getDataVerId(),
-                TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
-                null, deployStatus, topicPropInfo);
-        return addOrUpdTopicDeployInfo(isAddOp, entity, strBuff, result);
+                new TopicDeployEntity(opEntity, brokerId, TServerConstants.OFFSET_HISTORY_NAME);
+        entity.updModifyInfo(opEntity.getDataVerId(), TBaseConstants.META_VALUE_UNDEFINED,
+                brokerPort,brokerIp, TopicStatus.STATUS_TOPIC_OK, topicPropInfo);
+        addOrUpdTopicDeployInfo(true, entity, strBuff, new ProcessResult());
     }
 
     @Override
@@ -729,7 +706,6 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
                     result.setSuccResult(null);
                     return result.isSuccess();
                 }
-                printPrefix = "[updTopicDeployConf], ";
                 // update record
                 topicDeployMapper.updTopicDeployStatus(opEntity,
                         brokerId, topicName, topicStatus, strBuff, result);
@@ -752,6 +728,58 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
                     .append(" updated topic deploy configure from ")
                     .append(curEntity).append(" to ").append(newEntity);
             logger.info(strBuff.toString());
+            strBuff.delete(0, strBuff.length());
+        }
+        return result.isSuccess();
+    }
+
+    @Override
+    public boolean delTopicDeployInfo(String operator, int brokerId, String topicName,
+                                      StringBuilder strBuff, ProcessResult result) {
+        TopicDeployEntity curEntity;
+        String printPrefix = "[delTopicDeployConf], ";
+        Integer topicLockId = null;
+        Integer brokerLockId = null;
+        // execute add or update operation
+        try {
+            // lock topicName meta-lock
+            topicLockId = metaRowLock.getLock(null,
+                    StringUtils.getBytesUtf8(topicName), true);
+            try {
+                // lock brokerId meta-lock
+                brokerLockId = metaRowLock.getLock(null,
+                        StringUtils.getBytesUtf8(String.valueOf(brokerId)), true);
+                // check broker configure exist
+                BrokerConfEntity brokerEntity = brokerConfigMapper.getBrokerConfByBrokerId(brokerId);
+                if (brokerEntity == null) {
+                    result.setSuccResult(null);
+                    return result.isSuccess();
+                }
+                // check topic deploy configure
+                curEntity = topicDeployMapper.getTopicConf(brokerId, topicName);
+                if (curEntity == null) {
+                    result.setSuccResult(null);
+                    return result.isSuccess();
+                }
+                // delete record
+                topicDeployMapper.delTopicDeployConf(curEntity.getRecordKey(), strBuff, result);
+            } finally {
+                if (brokerLockId != null) {
+                    metaRowLock.releaseRowLock(brokerLockId);
+                }
+            }
+        } catch (Throwable e) {
+            return logExceptionInfo(e, printPrefix, strBuff, result);
+        } finally {
+            if (topicLockId != null) {
+                metaRowLock.releaseRowLock(topicLockId);
+            }
+        }
+        // print log to file
+        if (result.isSuccess()) {
+            logger.info(strBuff.append(printPrefix).append(operator)
+                    .append(" deleted topic deploy configure: ")
+                    .append(curEntity).toString());
             strBuff.delete(0, strBuff.length());
         }
         return result.isSuccess();
@@ -781,21 +809,32 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
         return topicDeployMapper.getTopicConfMapByTopicAndBrokerIds(topicNameSet, brokerIdSet);
     }
 
-    // //////////////////////////////////////////////////////////////////////////////
+    @Override
+    public Map<String, TopicDeployEntity> getConfiguredTopicInfo(int brokerId) {
+        return topicDeployMapper.getConfiguredTopicInfo(brokerId);
+    }
 
     @Override
-    public boolean addOrUpdGroupResCtrlConf(boolean isAddOp, BaseEntity opEntity,
-                                            String groupName, Boolean resCheckEnable,
-                                            int allowedBClientRate, int qryPriorityId,
-                                            Boolean flowCtrlEnable, int flowRuleCnt,
-                                            String flowCtrlInfo, StringBuilder strBuff,
-                                            ProcessResult result) {
-        GroupResCtrlEntity entity =
-                new GroupResCtrlEntity(opEntity, groupName);
-        entity.updModifyInfo(opEntity.getDataVerId(), resCheckEnable, allowedBClientRate,
-                qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo);
-        return addOrUpdGroupResCtrlConf(isAddOp, entity, strBuff, result);
+    public TopicDeployEntity getConfiguredTopicInfo(int brokerId, String topicName) {
+        return topicDeployMapper.getTopicConf(brokerId, topicName);
     }
+
+    @Override
+    public Map<Integer/* brokerId */, Set<String>> getConfiguredTopicInfo(Set<Integer> brokerIdSet) {
+        return topicDeployMapper.getConfiguredTopicInfo(brokerIdSet);
+    }
+
+    @Override
+    public Map<String, Map<Integer, String>> getTopicBrokerInfo(Set<String> topicNameSet) {
+        return topicDeployMapper.getTopicBrokerInfo(topicNameSet);
+    }
+
+    @Override
+    public Set<String> getConfiguredTopicSet() {
+        return topicDeployMapper.getConfiguredTopicSet();
+    }
+
+    // //////////////////////////////////////////////////////////////////////////////
 
     @Override
     public boolean addOrUpdGroupResCtrlConf(boolean isAddOp, GroupResCtrlEntity entity,
@@ -989,19 +1028,6 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     // //////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public boolean addOrUpdConsumeCtrlInfo(boolean isAddOp, BaseEntity opEntity,
-                                           String groupName, String topicName,
-                                           Boolean enableCsm, String disableRsn,
-                                           Boolean enableFlt, String fltCondStr,
-                                           StringBuilder strBuff, ProcessResult result) {
-        GroupConsumeCtrlEntity entity =
-                new GroupConsumeCtrlEntity(opEntity, groupName, topicName);
-        entity.updModifyInfo(opEntity.getDataVerId(),
-                enableCsm, disableRsn, enableFlt, fltCondStr);
-        return addOrUpdConsumeCtrlConf(true, isAddOp, entity, strBuff, result);
-    }
-
-    @Override
     public boolean addOrUpdConsumeCtrlInfo(boolean isAddOp, GroupConsumeCtrlEntity entity,
                                            StringBuilder strBuff, ProcessResult result) {
         return addOrUpdConsumeCtrlConf(true, isAddOp, entity, strBuff, result);
@@ -1166,6 +1192,11 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     }
 
     @Override
+    public GroupConsumeCtrlEntity getConsumeCtrlByGroupAndTopic(String groupName, String topicName) {
+        return consumeCtrlMapper.getConsumeCtrlByGroupAndTopic(groupName, topicName);
+    }
+
+    @Override
     public Set<String> getDisableTopicByGroupName(String groupName) {
         Set<String> disTopicSet = new HashSet<>();
         List<GroupConsumeCtrlEntity> qryResult =
@@ -1185,6 +1216,16 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     public Map<String, List<GroupConsumeCtrlEntity>> getGroupConsumeCtrlConf(
             Set<String> groupSet, Set<String> topicSet, GroupConsumeCtrlEntity qryEntry) {
         return consumeCtrlMapper.getConsumeCtrlInfoMap(groupSet, topicSet, qryEntry);
+    }
+
+    @Override
+    public boolean isGroupInUse(String groupName) {
+        return consumeCtrlMapper.isGroupNameInUse(groupName);
+    }
+
+    @Override
+    public boolean isTopicInUse(String topicName) {
+        return consumeCtrlMapper.isTopicNameInUse(topicName);
     }
 
     /**
