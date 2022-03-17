@@ -17,17 +17,18 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.dataproxy.config.ConfigHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.inlong.dataproxy.config.ConfigHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * save to list
@@ -40,7 +41,7 @@ public class FileConfigHolder extends ConfigHolder {
 
     public FileConfigHolder(String fileName) {
         super(fileName);
-        holder = new ArrayList<String>();
+        holder = new ArrayList<>();
     }
 
     @Override
@@ -56,12 +57,10 @@ public class FileConfigHolder extends ConfigHolder {
     }
 
     /**
-     * deep copy holder
-     *
-     * @return
+     * deep copy for holder
      */
     public List<String> forkHolder() {
-        List<String> tmpHolder = new ArrayList<String>();
+        List<String> tmpHolder = new ArrayList<>();
         if (holder != null) {
             tmpHolder.addAll(holder);
         }
@@ -69,18 +68,23 @@ public class FileConfigHolder extends ConfigHolder {
     }
 
     private List<String> loadFile() {
-        ArrayList<String> arrayList = new ArrayList<String>();
+        ArrayList<String> arrayList = new ArrayList<>();
+        String filePath = getFilePath();
+        if (StringUtils.isBlank(filePath)) {
+            LOG.error("fail to load file as the file path is empty");
+            return arrayList;
+        }
         FileReader reader = null;
         BufferedReader br = null;
         try {
-            reader = new FileReader(getFilePath());
+            reader = new FileReader(filePath);
             br = new BufferedReader(reader);
             String line;
             while ((line = br.readLine()) != null) {
                 arrayList.add(line);
             }
         } catch (Exception e) {
-            LOG.error("fail to load file, file ={}, and e= {}", getFilePath(), e);
+            LOG.error("fail to load file, file ={}, and e= {}", filePath, e);
         } finally {
             IOUtils.closeQuietly(reader);
             IOUtils.closeQuietly(br);

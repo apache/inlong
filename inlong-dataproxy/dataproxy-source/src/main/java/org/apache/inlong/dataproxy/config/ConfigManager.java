@@ -75,20 +75,15 @@ public class ConfigManager {
 
     /**
      * get instance for manager
-     *
-     * @return
      */
     public static ConfigManager getInstance() {
-
         if (isInit && instance != null) {
             return instance;
         }
         synchronized (ConfigManager.class) {
             if (!isInit) {
                 instance = new ConfigManager();
-
                 for (ConfigHolder holder : CONFIG_HOLDER_LIST) {
-
                     holder.loadFromFileToHolder();
                 }
                 ReloadConfigWorker reloadProperties = ReloadConfigWorker.create(instance);

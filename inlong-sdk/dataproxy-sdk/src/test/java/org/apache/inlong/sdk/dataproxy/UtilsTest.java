@@ -18,38 +18,16 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.apache.inlong.sdk.dataproxy.network.Utils;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest extends TestCase {
+public class UtilsTest {
 
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest(String testName) {
-        super(testName);
-    }
-
-    /**
-     * suite
-     *
-     * @return the suite of tests being tested
-     */
-    public static Test suite() {
-        return new TestSuite(AppTest.class);
-    }
-
-    /**
-     * Rigorous Test :-)
-     */
-    public void testApp() {
-        assertTrue(true);
+    @Test
+    public void getLocalIp() {
+        String ip = Utils.getLocalIp();
+        Assert.assertNotNull(ip);
     }
 
 }
