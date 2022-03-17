@@ -386,7 +386,7 @@ CREATE TABLE `inlong_stream_ext`
     `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     KEY `index_stream_id` (`inlong_stream_id`),
-    UNIQUE KEY `group_stream_key_idx` (`inlong_group_id`, `inlong_stream_id`, `key_name`)
+    UNIQUE KEY `unique_group_stream_key` (`inlong_group_id`, `inlong_stream_id`, `key_name`)
 );
 
 -- ----------------------------
@@ -582,7 +582,7 @@ CREATE TABLE `stream_source`
     `create_time`      timestamp    NULL     DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NULL     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `source_idx` (`inlong_group_id`, `inlong_stream_id`, `source_name`, `is_deleted`)
+    UNIQUE KEY `unique_source_name` (`inlong_group_id`, `inlong_stream_id`, `source_name`, `is_deleted`)
 );
 
 -- ----------------------------
@@ -608,7 +608,7 @@ CREATE TABLE `stream_sink`
     `create_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `sink_idx` (`inlong_group_id`, `inlong_stream_id`, `sink_name`, `is_deleted`)
+    UNIQUE KEY `unique_sink_name` (`inlong_group_id`, `inlong_stream_id`, `sink_name`, `is_deleted`)
 );
 
 -- ----------------------------

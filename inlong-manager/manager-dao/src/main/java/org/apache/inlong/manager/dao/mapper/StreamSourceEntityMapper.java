@@ -35,40 +35,25 @@ public interface StreamSourceEntityMapper {
 
     /**
      * According to the inlong group id and inlong stream id, query the number of valid source
-     *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
-     * @return Source entity size
      */
     int selectCount(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
      * Paging query source list based on conditions
-     *
-     * @param request Paging query conditions
-     * @return Source entity list
      */
     List<StreamSourceEntity> selectByCondition(@Param("request") SourcePageRequest request);
 
     /**
-     * Query valid source list by the given group id and stream id.
-     *
-     * @param groupId Inlong group id.
-     * @param streamId Inlong stream id.
-     * @return Source entity list.
+     * Query valid source list by the given group id, stream id and source name.
      */
-    List<StreamSourceEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    List<StreamSourceEntity> selectByRelatedIdForUpdate(@Param("groupId") String groupId,
+            @Param("streamId") String streamId, @Param("sourceName") String sourceName);
 
     /**
      * According to the group id, stream id and source type, query valid source entity list.
-     *
-     * @param groupId Inlong group id.
-     * @param streamId Inlong stream id.
-     * @param sourceType Source type.
-     * @return Source entity list.
      */
-    List<StreamSourceEntity> selectByIdAndType(@Param("groupId") String groupId, @Param("streamId") String streamId,
-            @Param("sourceType") String sourceType);
+    List<StreamSourceEntity> selectByRelatedIdAndTypeForUpdate(@Param("groupId") String groupId,
+            @Param("streamId") String streamId, @Param("sourceType") String sourceType);
 
     /**
      * Query the tasks that need to be added.
@@ -78,7 +63,7 @@ public interface StreamSourceEntityMapper {
     /**
      * Query the sources with status 20x by the given agent IP and agent UUID.
      */
-    List<StreamSourceEntity> selectByStatusAndIpForUpdate(@Param("list") List<Integer> list,
+    List<StreamSourceEntity> selectByStatusAndIpForUpdate(@Param("statusList") List<Integer> statusList,
             @Param("agentIp") String agentIp, @Param("uuid") String uuid);
 
     /**

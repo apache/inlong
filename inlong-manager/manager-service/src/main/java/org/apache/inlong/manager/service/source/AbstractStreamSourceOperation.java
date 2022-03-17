@@ -17,10 +17,12 @@
 
 package org.apache.inlong.manager.service.source;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.SourceState;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -35,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.List;
 
 public abstract class AbstractStreamSourceOperation implements StreamSourceOperation {
 
@@ -94,7 +97,17 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public Integer saveOpt(SourceRequest request, Integer groupStatus, String operator) {
+        String groupId = request.getInlongGroupId();
+        String streamId = request.getInlongStreamId();
+        String sourceName = request.getSourceName();
+        List<StreamSourceEntity> existList = sourceMapper.selectByRelatedIdForUpdate(groupId, streamId, sourceName);
+        if (CollectionUtils.isNotEmpty(existList)) {
+            String err = "stream source already exists with groupId=%s, streamId=%s, sourceName=%s";
+            throw new BusinessException(String.format(err, groupId, streamId, sourceName));
+        }
+
         StreamSourceEntity entity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
         if (GroupState.forCode(groupStatus).equals(GroupState.CONFIG_SUCCESSFUL)) {
             entity.setStatus(SourceState.TO_BE_ISSUED_ADD.getCode());
