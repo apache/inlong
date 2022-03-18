@@ -252,7 +252,7 @@
         </where>
     </select>
 
-    <select id="selectByRelatedIdForUpdate" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <select id="selectByRelatedId" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source
@@ -265,7 +265,6 @@
             <if test="sourceName != null and sourceName != ''">
                 and source_name = #{sourceName, jdbcType=VARCHAR}
             </if>
-            for update
         </where>
     </select>
     <select id="selectByRelatedIdAndTypeForUpdate" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">

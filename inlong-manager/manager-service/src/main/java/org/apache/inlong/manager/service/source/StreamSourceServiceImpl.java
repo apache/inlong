@@ -109,7 +109,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         LOGGER.debug("begin to list source by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
 
-        List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedIdForUpdate(groupId, streamId, null);
+        List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
         }
@@ -253,7 +253,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             nextStatus = SourceState.SOURCE_DISABLE.getCode();
         }
         Date now = new Date();
-        List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedIdForUpdate(groupId, streamId, null);
+        List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isNotEmpty(entityList)) {
             for (StreamSourceEntity entity : entityList) {
                 Integer id = entity.getId();

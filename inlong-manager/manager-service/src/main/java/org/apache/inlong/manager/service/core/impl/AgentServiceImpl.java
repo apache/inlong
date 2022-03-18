@@ -112,7 +112,7 @@ public class AgentServiceImpl implements AgentService {
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public TaskResult reportAndGetTask(TaskRequest request) {
-        LOGGER.debug("begin to get agent task: {}", request);
+        LOGGER.info("begin to get agent task: {}", request);
         if (request == null || request.getAgentIp() == null) {
             LOGGER.warn("agent request was empty, just return");
             return null;
@@ -164,6 +164,7 @@ public class AgentServiceImpl implements AgentService {
                 }
 
                 sourceMapper.updateStatus(taskId, nextStatus);
+                LOGGER.info("update stream source status to [{}] for id [{}] ", nextStatus, taskId);
             }
             // Other tasks with status 20x will change to 30x in next getTaskResult method
         }
@@ -195,7 +196,9 @@ public class AgentServiceImpl implements AgentService {
             int status = entity.getStatus();
             int op = status % MODULUS_100;
             if (status / MODULUS_100 == UNISSUED_STATUS) {
-                sourceMapper.updateStatus(id, ISSUED_STATUS * MODULUS_100 + op);
+                int nextStatus = ISSUED_STATUS * MODULUS_100 + op;
+                sourceMapper.updateStatus(id, nextStatus);
+                LOGGER.info("update stream source status to [{}] for id [{}] ", nextStatus, id);
             } else {
                 LOGGER.info("skip task status not in 20x, id={}", id);
                 continue;
@@ -210,6 +213,7 @@ public class AgentServiceImpl implements AgentService {
         // Update agentIp and uuid for the added and active tasks
         for (StreamSourceEntity entity : addList) {
             sourceMapper.updateIpAndUuid(entity.getId(), agentIp, uuid);
+            LOGGER.info("update stream source ip to [{}], uuid to [{}] for id [{}] ", agentIp, uuid, entity.getId());
         }
 
         return TaskResult.builder().dataConfigs(dataConfigs).cmdConfigs(cmdConfigs).build();

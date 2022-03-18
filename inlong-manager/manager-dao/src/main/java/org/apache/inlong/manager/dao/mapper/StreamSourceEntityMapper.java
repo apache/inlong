@@ -46,8 +46,8 @@ public interface StreamSourceEntityMapper {
     /**
      * Query valid source list by the given group id, stream id and source name.
      */
-    List<StreamSourceEntity> selectByRelatedIdForUpdate(@Param("groupId") String groupId,
-            @Param("streamId") String streamId, @Param("sourceName") String sourceName);
+    List<StreamSourceEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId,
+            @Param("sourceName") String sourceName);
 
     /**
      * According to the group id, stream id and source type, query valid source entity list.

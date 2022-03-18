@@ -102,7 +102,7 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
         String groupId = request.getInlongGroupId();
         String streamId = request.getInlongStreamId();
         String sourceName = request.getSourceName();
-        List<StreamSourceEntity> existList = sourceMapper.selectByRelatedIdForUpdate(groupId, streamId, sourceName);
+        List<StreamSourceEntity> existList = sourceMapper.selectByRelatedId(groupId, streamId, sourceName);
         if (CollectionUtils.isNotEmpty(existList)) {
             String err = "stream source already exists with groupId=%s, streamId=%s, sourceName=%s";
             throw new BusinessException(String.format(err, groupId, streamId, sourceName));
