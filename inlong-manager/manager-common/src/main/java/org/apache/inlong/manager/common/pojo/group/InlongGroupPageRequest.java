@@ -37,10 +37,10 @@ public class InlongGroupPageRequest extends PageRequest {
     private String keyWord;
 
     @ApiModelProperty(value = "Inlong group name list")
-    private List<String> names;
+    private List<String> nameList;
 
     @ApiModelProperty(value = "Inlong group id list")
-    private List<String> inlongGroupIds;
+    private List<String> groupIdList;
 
     @ApiModelProperty(value = "MQ resource object")
     private String middlewareType;
