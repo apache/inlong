@@ -162,7 +162,7 @@ CREATE TABLE `third_party_cluster`
     `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `name`        varchar(128) NOT NULL COMMENT 'Cluster name',
     `type`        varchar(32)  NOT NULL COMMENT 'Cluster type, including TUBE, PULSAR, etc.',
-    `ip`          varchar(64)  NULL COMMENT 'Cluster IP',
+    `ip`          text         NULL COMMENT 'Cluster IP',
     `port`        int(11)      NULL COMMENT 'Cluster port',
     `token`       varchar(512) COMMENT 'Cluster token',
     `url`         varchar(512)      DEFAULT NULL COMMENT 'Cluster URL',
@@ -310,7 +310,7 @@ CREATE TABLE `data_proxy_cluster`
     `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `cluster_name` (`name`, `is_deleted`)
+    UNIQUE KEY `unique_dp_cluster_name` (`name`, `is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='DataProxy cluster table';
 

@@ -23,7 +23,6 @@ import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterResponse;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
 
 import java.util.List;
@@ -80,12 +79,12 @@ public interface ThirdPartyClusterService {
     Boolean delete(Integer id, String operator);
 
     /**
-     * Query data proxy ip list
+     * Query data proxy ip list by the given cluster name.
      *
-     * @param request query request param
-     * @return data proxy ip list
+     * @param clusterName Cluster name.
+     * @return Data proxy info list.
      */
-    List<DataProxyResponse> getIpList(DataProxyRequest request);
+    List<DataProxyResponse> getIpList(String clusterName);
 
     /**
      * query data proxy config by cluster id
