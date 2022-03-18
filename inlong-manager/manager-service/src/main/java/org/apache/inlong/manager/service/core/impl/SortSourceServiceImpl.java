@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.google.gson.Gson;
 import jodd.util.StringUtil;
-import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse.CacheZone;
-import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse.Topic;
+import org.apache.inlong.common.pojo.sdk.CacheZone;
+import org.apache.inlong.common.pojo.sdk.Topic;
 import org.apache.inlong.manager.dao.entity.SortSourceConfigEntity;
 import org.apache.inlong.manager.dao.mapper.SortSourceConfigEntityMapper;
 import org.apache.inlong.manager.service.core.SortSourceService;

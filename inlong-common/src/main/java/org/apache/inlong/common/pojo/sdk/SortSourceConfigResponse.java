@@ -15,22 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.common.pojo.sdk;
 
-import org.apache.inlong.common.pojo.sdk.CacheZone;
+import lombok.Builder;
+import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
-/**
- * Sort source service.
- */
-public interface SortSourceService {
+@Data
+@Builder
+public class SortSourceConfigResponse {
+    String msg;
+    int code;
+    String md5;
+    CacheZoneConfig data;
 
-    /**
-     * Get cache zones by cluster name and task name.
-     * @param clusterName Target cluster name.
-     * @param taskName Target task name.
-     * @return SortSourceConfigResponse
-     */
-    Map<String, CacheZone> getCacheZones(String clusterName, String taskName);
 }
+
+

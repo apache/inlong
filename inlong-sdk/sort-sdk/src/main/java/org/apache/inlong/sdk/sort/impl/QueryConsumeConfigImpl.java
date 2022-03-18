@@ -31,15 +31,15 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.inlong.common.pojo.sdk.CacheZone;
+import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
+import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
+import org.apache.inlong.common.pojo.sdk.Topic;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
-import org.apache.inlong.sdk.sort.entity.CacheZone;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
-import org.apache.inlong.sdk.sort.entity.CacheZoneConfig;
 import org.apache.inlong.sdk.sort.entity.ConsumeConfig;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
-import org.apache.inlong.sdk.sort.entity.ManagerResponse;
-import org.apache.inlong.sdk.sort.entity.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,8 +67,8 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     }
 
     // HTTP GET
-    private ManagerResponse doGetRequest() throws Exception {
-        ManagerResponse managerResponse;
+    private SortSourceConfigResponse doGetRequest() throws Exception {
+        SortSourceConfigResponse managerResponse;
         HttpGet request = getHttpGet();
 
         try (CloseableHttpResponse response = httpClient.execute(request)) {
@@ -82,7 +82,7 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
             String result = EntityUtils.toString(entity);
             logger.debug("response String result:{}", result);
             try {
-                managerResponse = new Gson().fromJson(result, ManagerResponse.class);
+                managerResponse = new Gson().fromJson(result, SortSourceConfigResponse.class);
                 return managerResponse;
             } catch (Exception e) {
                 logger.error("parse json to ManagerResponse error:{}", e.getMessage(), e);
@@ -107,12 +107,12 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     public void reload() {
         logger.debug("start to reload sort task config.");
         try {
-            ManagerResponse managerResponse = doGetRequest();
+            SortSourceConfigResponse managerResponse = doGetRequest();
             if (managerResponse == null) {
                 logger.info("## reload managerResponse == null");
                 return;
             }
-            if (handleSortTaskConfResult(managerResponse, managerResponse.getErrCode())) {
+            if (handleSortTaskConfResult(managerResponse, managerResponse.getCode())) {
                 return;
             }
         } catch (Throwable e) {
@@ -136,7 +136,7 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
      * @param respCodeValue int
      * @return true/false
      */
-    private boolean handleSortTaskConfResult(ManagerResponse response, int respCodeValue) throws Exception {
+    private boolean handleSortTaskConfResult(SortSourceConfigResponse response, int respCodeValue) throws Exception {
         switch (respCodeValue) {
             case NOUPDATE_VALUE:
                 logger.debug("manager conf noupdate");
@@ -162,7 +162,7 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
         return false;
     }
 
-    private void updateSortTaskConf(ManagerResponse response) {
+    private void updateSortTaskConf(SortSourceConfigResponse response) {
         CacheZoneConfig cacheZoneConfig = response.getData();
         Map<String, List<InLongTopic>> newGroupTopicsMap = new HashMap<>();
         for (Map.Entry<String, CacheZone> entry : cacheZoneConfig.getCacheZones().entrySet()) {

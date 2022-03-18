@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sort;
+package org.apache.inlong.common.pojo.sdk;
 
-import io.swagger.annotations.ApiModel;
 import lombok.Builder;
 import lombok.Data;
 
@@ -26,39 +25,11 @@ import java.util.Map;
 
 @Data
 @Builder
-@ApiModel("Sort source sdk config")
-public class SortSourceConfigResponse {
-    String msg;
-    int code;
-    String md5;
-    SortSourceConfig data;
-
-    @Data
-    @Builder
-    public static class SortSourceConfig {
-        String sortClusterName;
-        String sortTaskId;
-        Map<String, CacheZone> cacheZones;
-    }
-
-    @Data
-    @Builder
-    public static class CacheZone {
-        String zoneName;
-        String serviceUrl;
-        String authentication;
-        List<Topic> topics;
-        Map<String, String> cacheZoneProperties;
-        String zoneType;
-    }
-
-    @Data
-    @Builder
-    public static class Topic {
-        String topic;
-        int partitionCnt;
-        Map<String, String> topicProperties;
-    }
+public class CacheZone {
+    String zoneName;
+    String serviceUrl;
+    String authentication;
+    List<Topic> topics;
+    Map<String, String> cacheZoneProperties;
+    String zoneType;
 }
-
-
