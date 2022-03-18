@@ -29,6 +29,7 @@ import {
   toFormValues,
   toSubmitValues,
 } from '@/components/MetaData/DataSourcesBinLog';
+import { FormItemProps } from '@/components/FormGenerator';
 
 export interface Props extends ModalProps {
   type: 'BINLOG' | 'FILE';
@@ -37,7 +38,7 @@ export interface Props extends ModalProps {
   // Pass when editing, directly echo the record data
   record?: Record<string, any>;
   // Additional form configuration
-  content?: any[];
+  content?: FormItemProps[];
 }
 
 const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }) => {
@@ -81,12 +82,14 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
         form.setFieldsValue(toFormVals(record));
         setCurrentValues(toFormVals(record));
       }
+    } else {
+      setCurrentValues({});
     }
   }, [modalProps.visible]);
 
   const { run: getData } = useRequest(
     id => ({
-      url: `source/get/${id}`,
+      url: `/source/get/${id}`,
       params: {
         sourceType: type,
       },
@@ -103,10 +106,18 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
 
   const getCreateFormContent = useMemo(
     () => currentValues => {
-      return {
+      const config = {
         BINLOG: getDataSourcesBinLogFields,
         FILE: getFileCreateFormContent,
-      }[type]('form', { currentValues });
+      }[type]('form', { currentValues }) as FormItemProps[];
+      return [
+        {
+          name: 'sourceName',
+          type: 'input',
+          label: '数据源名称',
+          rules: [{ required: true }],
+        } as FormItemProps,
+      ].concat(config);
     },
     [type],
   );
