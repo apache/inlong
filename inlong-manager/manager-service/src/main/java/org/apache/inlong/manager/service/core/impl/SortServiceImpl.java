@@ -19,11 +19,11 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.pojo.sdk.CacheZone;
+import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
-import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse;
-import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse.CacheZone;
-import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse.SortSourceConfig;
+import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.manager.service.core.SortClusterConfigService;
@@ -160,7 +160,7 @@ public class SortServiceImpl implements SortService {
                     .build();
         }
 
-        SortSourceConfig data = SortSourceConfig.builder()
+        CacheZoneConfig data = CacheZoneConfig.builder()
                 .sortClusterName(clusterName)
                 .sortTaskId(sortTaskId)
                 .cacheZones(cacheZones)

@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
-import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse;
+import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 
 /**
  * Sort Service
