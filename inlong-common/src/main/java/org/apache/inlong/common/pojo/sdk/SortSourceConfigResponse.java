@@ -17,14 +17,15 @@
 
 package org.apache.inlong.common.pojo.sdk;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.List;
-import java.util.Map;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class SortSourceConfigResponse {
     String msg;
     int code;
