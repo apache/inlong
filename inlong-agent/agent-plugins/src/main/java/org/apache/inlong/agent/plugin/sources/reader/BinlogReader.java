@@ -77,7 +77,7 @@ public class BinlogReader implements Reader {
      * pair.left: table name
      * pair.right: actual data
      */
-    private static LinkedBlockingQueue<Pair<String, String>> binlogMessagesQueue =
+    private LinkedBlockingQueue<Pair<String, String>> binlogMessagesQueue =
         new LinkedBlockingQueue<>();
 
     private boolean finished = false;
