@@ -17,15 +17,13 @@
 
 package org.apache.inlong.audit.send;
 
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SenderHandler extends SimpleChannelHandler {
+public class SenderHandler extends SimpleChannelInboundHandler<ByteBuf> {
     private static final Logger logger = LoggerFactory.getLogger(SenderHandler.class);
     private SenderManager manager;
 
@@ -42,7 +40,7 @@ public class SenderHandler extends SimpleChannelHandler {
      * Message Received
      */
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
+    public void channelRead0(io.netty.channel.ChannelHandlerContext ctx, ByteBuf e)  {
         try {
             manager.onMessageReceived(ctx, e);
         } catch (Throwable ex) {
@@ -54,7 +52,7 @@ public class SenderHandler extends SimpleChannelHandler {
      * Caught exception
      */
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) {
         try {
             manager.onExceptionCaught(ctx, e);
         } catch (Throwable ex) {
@@ -66,9 +64,9 @@ public class SenderHandler extends SimpleChannelHandler {
      * Disconnected channel
      */
     @Override
-    public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) {
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         try {
-            super.channelDisconnected(ctx, e);
+            super.channelInactive(ctx);
         } catch (Throwable ex) {
             logger.error(ex.getMessage());
         }
@@ -78,9 +76,9 @@ public class SenderHandler extends SimpleChannelHandler {
      * Closed channel
      */
     @Override
-    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) {
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
         try {
-            super.channelClosed(ctx, e);
+            super.channelUnregistered(ctx);
         } catch (Throwable ex) {
             logger.error(ex.getMessage());
         }

@@ -17,14 +17,13 @@
 
 package org.apache.inlong.audit.util;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.buffer.DynamicChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.frame.FrameDecoder;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToMessageDecoder;
+import java.util.List;
 
-public class Decoder extends FrameDecoder {
+public class Decoder extends MessageToMessageDecoder<ByteBuf> {
     // Maximum return packet size
     private static final int MAX_RESPONSE_LENGTH = 8 * 1024 * 1024;
 
@@ -32,7 +31,8 @@ public class Decoder extends FrameDecoder {
      * decoding
      */
     @Override
-    protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf buffer,
+            List<Object> out) throws Exception {
         // Every time you need to read the complete package (that is, read to the end of the package),
         // otherwise only the first one will be parsed correctly,
         // which will adversely affect the parsing of the subsequent package
@@ -41,16 +41,15 @@ public class Decoder extends FrameDecoder {
         int totalLen = buffer.readInt();
         // Respond to abnormal channel, interrupt in time to avoid stuck
         if (totalLen > MAX_RESPONSE_LENGTH) {
-            channel.close();
-            return null;
+            ctx.channel().close();
+            return;
         }
         // If the package is not complete, continue to wait for the return package
         if (buffer.readableBytes() < totalLen) {
             buffer.resetReaderIndex();
-            return null;
+            return;
         }
-        ChannelBuffer returnBuffer = new DynamicChannelBuffer(ChannelBuffers.BIG_ENDIAN, totalLen);
+        ByteBuf returnBuffer = ByteBufAllocator.DEFAULT.buffer(totalLen);
         buffer.readBytes(returnBuffer, 0, totalLen);
-        return returnBuffer;
     }
 }

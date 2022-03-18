@@ -92,7 +92,7 @@ run_audit() {
   if [ ${CLEAN_FLAG} -ne 0 ]; then
     set -x
   fi
-  $EXEC $JAVA_HOME/bin/java $JAVA_OPTS -cp "$AUDIT_CLASSPATH" -Djava.library.path=$AUDIT_JAVA_LIBRARY_PATH "$AUDIT_APPLICATION_CLASS" $*
+  $EXEC $JAVA_HOME/bin/java $JAVA_OPTS -cp "$AUDIT_CLASSPATH" -Daudit.log.path=$LOG_PATH -Djava.library.path=$AUDIT_JAVA_LIBRARY_PATH "$AUDIT_APPLICATION_CLASS" $*
 }
 
 ################################
@@ -211,6 +211,8 @@ if [ -n "${AUDIT_CLASSPATH}" ] ; then
 else
   AUDIT_CLASSPATH="${AUDIT_HOME}/lib/*"
 fi
+
+LOG_PATH="${AUDIT_HOME}/logs"
 
 # find java
 if [ -z "${JAVA_HOME}" ] ; then

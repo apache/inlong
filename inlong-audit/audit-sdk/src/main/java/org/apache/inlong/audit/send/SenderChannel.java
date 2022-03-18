@@ -18,8 +18,7 @@
 package org.apache.inlong.audit.send;
 
 import org.apache.inlong.audit.util.IpPort;
-import org.jboss.netty.channel.Channel;
-
+import io.netty.channel.Channel;
 import java.util.concurrent.Semaphore;
 
 public class SenderChannel {
@@ -38,7 +37,6 @@ public class SenderChannel {
         this.channel = channel;
         this.ipPort = ipPort;
         this.packToken = new Semaphore(maxSynchRequest);
-        this.channel.getConfig().setConnectTimeoutMillis(5000);
     }
 
     /**

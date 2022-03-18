@@ -87,20 +87,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             .trimResults().withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
 
     private static final ThreadLocal<SimpleDateFormat> dateFormator =
-            new ThreadLocal<SimpleDateFormat>() {
-                @Override
-                protected SimpleDateFormat initialValue() {
-                    return new SimpleDateFormat("yyyyMMddHHmm");
-                }
-            };
+            ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyyMMddHHmm"));
 
-    private static final ThreadLocal<SimpleDateFormat> dateFormator4Transfer =
-            new ThreadLocal<SimpleDateFormat>() {
-                @Override
-                protected SimpleDateFormat initialValue() {
-                    return new SimpleDateFormat("yyyyMMddHHmmss");
-                }
-            };
     private AbstractSource source;
 
     private final ChannelGroup allChannels;
@@ -269,7 +257,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         logger.error("channel inactive {}", ctx.channel());
         ctx.fireChannelInactive();
         allChannels.remove(ctx.channel());
