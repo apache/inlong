@@ -18,7 +18,7 @@
 #
 FROM openjdk:8-jdk
 RUN apt-get update \
-    && apt-get install -y libsnappy-java net-tools \
+    && apt-get install -y libsnappy-java net-tools vim \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /opt/inlong-agent
 # add tarball from target output

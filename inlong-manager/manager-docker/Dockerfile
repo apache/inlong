@@ -17,8 +17,10 @@
 # under the License.
 #
 FROM openjdk:8-jdk
+RUN apt-get update \
+    && apt-get install -y net-tools vim \
+    && rm -rf /var/lib/apt/lists/*
 EXPOSE 8083
-
 # profile and env virables
 ENV ACTIVE_PROFILE=prod
 ENV JDBC_URL=127.0.0.1:3306
