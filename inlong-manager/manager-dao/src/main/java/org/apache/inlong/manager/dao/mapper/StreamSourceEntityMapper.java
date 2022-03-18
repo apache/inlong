@@ -31,6 +31,8 @@ public interface StreamSourceEntityMapper {
 
     int insertSelective(StreamSourceEntity record);
 
+    StreamSourceEntity selectById(Integer id);
+
     StreamSourceEntity selectByIdForUpdate(Integer id);
 
     /**

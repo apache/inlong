@@ -74,7 +74,7 @@ public class UpdateGroupProcessForm extends BaseProcessForm {
      * Used to control the operation to update inlong group workflow
      */
     public enum OperateType {
-        SUSPEND, RESTART, DELETE
+        INIT, SUSPEND, RESTART, DELETE
     }
 
 }

@@ -70,7 +70,7 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public SourceResponse getById(@NotNull Integer id) {
-        StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
+        StreamSourceEntity entity = sourceMapper.selectById(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
