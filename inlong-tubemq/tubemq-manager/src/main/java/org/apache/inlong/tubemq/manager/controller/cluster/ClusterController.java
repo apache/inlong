@@ -153,7 +153,7 @@ public class ClusterController {
         List<ClusterVo> clusterVos = Lists.newArrayList();
         for (ClusterEntry cluster : allClusters) {
             MasterEntry masterNode = masterService.getMasterNode(cluster.getClusterId());
-            Map<String, Integer> allCount = getAllCount(cluster.getClusterId());
+            Map<String, Integer> allCount = getAllCount(Integer.valueOf((int)cluster.getClusterId()));
             ClusterVo clusterVo = ConvertUtils.convertToClusterVo(cluster, masterNode, allCount);
             clusterVos.add(clusterVo);
         }
@@ -190,11 +190,11 @@ public class ClusterController {
         return masterService.queryMaster(url);
     }
 
-    public Map<String, Integer> getAllCount(long clusterId) {
+    public Map<String, Integer> getAllCount(Integer clusterId) {
         int brokerSize = getBrokerSize(clusterId);
         Map<String, Integer> mapCount = getTopicAndPartitionCount(clusterId);
-        int consumerGroupCount = gitConsumerGroupCount(clusterId);
-        int consumerCount = gitConsumerCount(clusterId);
+        int consumerGroupCount = getConsumerGroupCount(clusterId);
+        int consumerCount = getConsumerCount(clusterId);
         Map<String, Integer> map = new HashMap<>();
         map.put("brokerSize", brokerSize);
         map.put("topicCount", mapCount.get("topicCount"));
@@ -209,7 +209,7 @@ public class ClusterController {
      * @param clusterId
      * @return
      */
-    public int getBrokerSize(long clusterId) {
+    public int getBrokerSize(Integer clusterId) {
         String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.BROKER_RUN_STATUS);
         String s = masterService.queryMaster(queryUrl);
         JsonObject jsonObject = gson.fromJson(s, JsonObject.class);
@@ -222,7 +222,7 @@ public class ClusterController {
      * @param clusterId
      * @return
      */
-    public Map<String, Integer> getTopicAndPartitionCount(long clusterId) {
+    public Map<String, Integer> getTopicAndPartitionCount(Integer clusterId) {
         String url = masterService.getQueryCountUrl(clusterId, TubeConst.TOPIC_CONFIG_INFO);
         String s = masterService.queryMaster(url);
         JsonObject jsonObject = gson.fromJson(s, JsonObject.class);
@@ -230,14 +230,14 @@ public class ClusterController {
         JsonElement dataCount = jsonObject.get("dataCount");
         Integer topicSize = gson.fromJson(dataCount, Integer.class);
         List<Map> list = gson.fromJson(data, List.class);
-        int count = 0;
+        int partitionCount = 0;
         for (Map map : list) {
             Double totalRunNumPartCount = Double.valueOf(map.get("totalRunNumPartCount").toString());
-            count = count + (int)Math.ceil(totalRunNumPartCount);
+            partitionCount = partitionCount + (int)Math.ceil(totalRunNumPartCount);
         }
         Map<String, Integer> map = new HashMap<>();
         map.put("topicCount", topicSize);
-        map.put("partitionCount", count);
+        map.put("partitionCount", partitionCount);
         return map;
     }
 
@@ -246,9 +246,9 @@ public class ClusterController {
      * @param clusterId
      * @return
      */
-    public int gitConsumerGroupCount(long clusterId) {
+    public int getConsumerGroupCount(Integer clusterId) {
         String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.QUERY_CONSUMER_GROUP_INFO);
-        int count = 0;
+        int consumerGroupCount = 0;
         String groupData = masterService.queryMaster(queryUrl);
         JsonObject jsonObject1 = gson.fromJson(groupData, JsonObject.class);
         JsonElement data1 = jsonObject1.get("data");
@@ -256,9 +256,9 @@ public class ClusterController {
         for (JsonElement jsonElement : jsonElements1) {
             Map map1 = gson.fromJson(jsonElement, Map.class);
             Double groupCount = Double.valueOf(map1.get("groupCount").toString());
-            count = count + (int)Math.ceil(groupCount);
+            consumerGroupCount = consumerGroupCount + (int)Math.ceil(groupCount);
         }
-        return count;
+        return consumerGroupCount;
     }
 
     /**
@@ -266,19 +266,19 @@ public class ClusterController {
      * @param clusterId
      * @return
      */
-    public int gitConsumerCount(long clusterId) {
+    public int getConsumerCount(Integer clusterId) {
         String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.QUERY_CONSUMER_INFO);
         String s = masterService.queryMaster(queryUrl);
         JsonObject jsonObject = gson.fromJson(s, JsonObject.class);
         JsonElement data = jsonObject.get("data");
         JsonArray jsonData = gson.fromJson(data, JsonArray.class);
-        int count = 0;
+        int consumerCount = 0;
         for (JsonElement jsonDatum : jsonData) {
             Map map1 = gson.fromJson(jsonDatum, Map.class);
             Double groupCount = Double.valueOf(map1.get("consumerNum").toString());
-            count = (int)Math.ceil(groupCount);
+            consumerCount = (int)Math.ceil(groupCount);
         }
-        return count;
+        return consumerCount;
     }
 
 }

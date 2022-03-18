@@ -93,6 +93,6 @@ public interface MasterService {
      */
     TubeMQResult checkMasterNodeStatus(String masterIp, Integer masterPort);
 
-    String getQueryCountUrl(long clusterId, String method);
+    String getQueryCountUrl(Integer clusterId, String method);
 
 }
