@@ -111,11 +111,18 @@ public class ConvertUtils {
         return StringUtils.join(queryList, "&");
     }
 
-    public static ClusterVo convertToClusterVo(ClusterEntry clusterEntry, MasterEntry masterEntry) {
+    public static ClusterVo convertToClusterVo(ClusterEntry clusterEntry,
+                                               MasterEntry masterEntry, Map<String, Integer> map) {
         ClusterVo cluster = new ClusterVo();
         cluster.setClusterId(clusterEntry.getClusterId());
         cluster.setMasterIp(masterEntry.getIp());
         cluster.setClusterName(clusterEntry.getClusterName());
+        cluster.setReloadBrokerSize(clusterEntry.getReloadBrokerSize());
+        cluster.setBrokerCount(map.get("brokerSize"));
+        cluster.setTopicCount(map.get("topicCount"));
+        cluster.setPartitionCount(map.get("partitionCount"));
+        cluster.setConsumerGroupCount(map.get("consumerGroupCount"));
+        cluster.setConsumerCount(map.get("consumerCount"));
         return cluster;
     }
 

@@ -20,9 +20,13 @@ package org.apache.inlong.tubemq.manager.controller.cluster;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
@@ -132,9 +136,9 @@ public class ClusterController {
         }
 
         MasterEntry masterNode = masterService.getMasterNode(clusterEntry.getClusterId());
-
+        Map<String, Integer> allCount = getAllCount(clusterId);
         TubeMQResult result = new TubeMQResult();
-        result.setData(Lists.newArrayList(ConvertUtils.convertToClusterVo(clusterEntry, masterNode)));
+        result.setData(Lists.newArrayList(ConvertUtils.convertToClusterVo(clusterEntry, masterNode, allCount)));
         return result;
     }
 
@@ -149,7 +153,8 @@ public class ClusterController {
         List<ClusterVo> clusterVos = Lists.newArrayList();
         for (ClusterEntry cluster : allClusters) {
             MasterEntry masterNode = masterService.getMasterNode(cluster.getClusterId());
-            ClusterVo clusterVo = ConvertUtils.convertToClusterVo(cluster, masterNode);
+            Map<String, Integer> allCount = getAllCount(cluster.getClusterId());
+            ClusterVo clusterVo = ConvertUtils.convertToClusterVo(cluster, masterNode, allCount);
             clusterVos.add(clusterVo);
         }
         result.setData(clusterVos);
@@ -183,6 +188,97 @@ public class ClusterController {
             @RequestParam Map<String, String> queryBody) throws Exception {
         String url = masterService.getQueryUrl(queryBody);
         return masterService.queryMaster(url);
+    }
+
+    public Map<String, Integer> getAllCount(long clusterId) {
+        int brokerSize = getBrokerSize(clusterId);
+        Map<String, Integer> mapCount = getTopicAndPartitionCount(clusterId);
+        int consumerGroupCount = gitConsumerGroupCount(clusterId);
+        int consumerCount = gitConsumerCount(clusterId);
+        Map<String, Integer> map = new HashMap<>();
+        map.put("brokerSize", brokerSize);
+        map.put("topicCount", mapCount.get("topicCount"));
+        map.put("partitionCount", mapCount.get("partitionCount"));
+        map.put("consumerGroupCount", consumerGroupCount);
+        map.put("consumerCount", consumerCount);
+        return map;
+    }
+
+    /**
+     * query borker size
+     * @param clusterId
+     * @return
+     */
+    public int getBrokerSize(long clusterId) {
+        String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.BROKER_RUN_STATUS);
+        String s = masterService.queryMaster(queryUrl);
+        JsonObject jsonObject = gson.fromJson(s, JsonObject.class);
+        JsonElement count = jsonObject.get("count");
+        return gson.fromJson(count, int.class);
+    }
+
+    /**
+     * query topic and partition count
+     * @param clusterId
+     * @return
+     */
+    public Map<String, Integer> getTopicAndPartitionCount(long clusterId) {
+        String url = masterService.getQueryCountUrl(clusterId, TubeConst.TOPIC_CONFIG_INFO);
+        String s = masterService.queryMaster(url);
+        JsonObject jsonObject = gson.fromJson(s, JsonObject.class);
+        JsonElement data = jsonObject.get("data");
+        JsonElement dataCount = jsonObject.get("dataCount");
+        Integer topicSize = gson.fromJson(dataCount, Integer.class);
+        List<Map> list = gson.fromJson(data, List.class);
+        int count = 0;
+        for (Map map : list) {
+            Double totalRunNumPartCount = Double.valueOf(map.get("totalRunNumPartCount").toString());
+            count = count + (int)Math.ceil(totalRunNumPartCount);
+        }
+        Map<String, Integer> map = new HashMap<>();
+        map.put("topicCount", topicSize);
+        map.put("partitionCount", count);
+        return map;
+    }
+
+    /**
+     * query Consumer group count
+     * @param clusterId
+     * @return
+     */
+    public int gitConsumerGroupCount(long clusterId) {
+        String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.QUERY_CONSUMER_GROUP_INFO);
+        int count = 0;
+        String groupData = masterService.queryMaster(queryUrl);
+        JsonObject jsonObject1 = gson.fromJson(groupData, JsonObject.class);
+        JsonElement data1 = jsonObject1.get("data");
+        JsonArray jsonElements1 = gson.fromJson(data1, JsonArray.class);
+        for (JsonElement jsonElement : jsonElements1) {
+            Map map1 = gson.fromJson(jsonElement, Map.class);
+            Double groupCount = Double.valueOf(map1.get("groupCount").toString());
+            count = count + (int)Math.ceil(groupCount);
+        }
+        return count;
+    }
+
+    /**
+     * query consumer count
+     * @param clusterId
+     * @return
+     */
+    public int gitConsumerCount(long clusterId) {
+        String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.QUERY_CONSUMER_INFO);
+        String s = masterService.queryMaster(queryUrl);
+        JsonObject jsonObject = gson.fromJson(s, JsonObject.class);
+        JsonElement data = jsonObject.get("data");
+        JsonArray jsonData = gson.fromJson(data, JsonArray.class);
+        int count = 0;
+        for (JsonElement jsonDatum : jsonData) {
+            Map map1 = gson.fromJson(jsonDatum, Map.class);
+            Double groupCount = Double.valueOf(map1.get("consumerNum").toString());
+            count = (int)Math.ceil(groupCount);
+        }
+        return count;
     }
 
 }

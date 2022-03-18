@@ -167,6 +167,14 @@ public class MasterServiceImpl implements MasterService {
     }
 
     @Override
+    public String getQueryCountUrl(long clusterId, String method) {
+        MasterEntry masterEntry =
+                masterRepository.findMasterEntryByClusterIdEquals(clusterId);
+        return TubeConst.SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
+                + method + "&" + "clusterId=" + clusterId;
+    }
+
+    @Override
     public TubeMQResult checkMasterNodeStatus(String masterIp, Integer masterWebPort) {
         String url = TubeConst.SCHEMA + masterIp + ":" + masterWebPort + TubeConst.BROKER_RUN_STATUS;
         return requestMaster(url);
