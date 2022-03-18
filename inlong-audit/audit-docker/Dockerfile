@@ -18,6 +18,9 @@
 #
 FROM openjdk:8-jdk
 # add tarball from target output
+RUN apt-get update \
+    && apt-get install -y net-tools vim \
+    && rm -rf /var/lib/apt/lists/*
 ARG AUDIT_TARBALL
 ADD ${AUDIT_TARBALL} /opt/inlong-audit
 ENV JDBC_URL='jdbc:mysql:\/\/127.0.0.1:3306\/apache_inlong_audit?useSSL=false\&allowPublicKeyRetrieval=true\&characterEncoding=UTF-8\&nullCatalogMeansCurrent=true\&serverTimezone=GMT%2b8'
