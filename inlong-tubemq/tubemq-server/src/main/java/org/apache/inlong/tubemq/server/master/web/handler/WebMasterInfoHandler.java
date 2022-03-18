@@ -265,6 +265,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         int brokerCount = 0;
         int totalCfgNumPartCount = 0;
         int totalRunNumPartCount = 0;
+        int totalCfgTopicStoreCount = 0;
+        int totalRunTopicStoreCount = 0;
         boolean isSrvAcceptPublish = false;
         boolean isSrvAcceptSubscribe = false;
         boolean isAcceptPublish = false;
@@ -276,6 +278,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                 sBuffer.append(",");
             }
             brokerCount = 0;
+            totalCfgTopicStoreCount = 0;
+            totalRunTopicStoreCount = 0;
             totalCfgNumPartCount = 0;
             totalRunNumPartCount = 0;
             isSrvAcceptPublish = false;
@@ -286,6 +290,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             for (TopicDeployEntity entity : entry.getValue()) {
                 brokerCount++;
                 TopicPropGroup topicProps = entity.getTopicProps();
+                totalCfgTopicStoreCount += topicProps.getNumTopicStores();
                 totalCfgNumPartCount +=
                         topicProps.getNumPartitions() * topicProps.getNumTopicStores();
                 BrokerConfEntity brokerConfEntity =
@@ -306,6 +311,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                     if (isAcceptSubscribe && topicInfo.isAcceptSubscribe()) {
                         isSrvAcceptSubscribe = true;
                     }
+                    totalRunTopicStoreCount += topicInfo.getTopicStoreNum();
                     totalRunNumPartCount +=
                             topicInfo.getPartitionNum() * topicInfo.getTopicStoreNum();
                 }
@@ -317,6 +323,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             }
             sBuffer.append("{\"topicName\":\"").append(entry.getKey())
                     .append("\",\"totalCfgBrokerCnt\":").append(brokerCount)
+                    .append(",\"totalCfgNumStore\":").append(totalCfgTopicStoreCount)
+                    .append(",\"totalRunNumStore\":").append(totalRunTopicStoreCount)
                     .append(",\"totalCfgNumPart\":").append(totalCfgNumPartCount)
                     .append(",\"totalRunNumPartCount\":").append(totalRunNumPartCount)
                     .append(",\"isSrvAcceptPublish\":").append(isSrvAcceptPublish)
