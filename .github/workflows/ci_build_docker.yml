@@ -42,14 +42,15 @@ jobs:
         with:
           python-version: 3.7
 
-      - name: Cache Maven packages
+      - name: Cache Maven and Docker packages
         uses: actions/cache@v2
         with:
           path: |
             ~/.m2/repository
+            /var/lib/docker
             !~/.m2/repository/org/apache/inlong
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          key: ${{ runner.os }}-m2-docker-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2-docker
 
       - name: Build docker image
         run: mvn --batch-mode --update-snapshots -e -V clean package -DskipTests -Pdocker
