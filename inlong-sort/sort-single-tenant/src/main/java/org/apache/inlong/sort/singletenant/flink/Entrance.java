@@ -262,7 +262,6 @@ public class Entrance {
                         ((KafkaSinkInfo) sinkInfo).getSerializationInfo());
                 sourceStream
                         .addSink(buildKafkaSink((KafkaSinkInfo) sinkInfo, properties, schema, config))
-                        .uid(Constants.SINK_UID)
                         .name("Kafka Sink")
                         .setParallelism(sinkParallelism);
                 break;
