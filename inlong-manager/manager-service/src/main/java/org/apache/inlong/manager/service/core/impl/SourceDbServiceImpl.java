@@ -96,7 +96,6 @@ public class SourceDbServiceImpl implements SourceDbService {
 
     @Override
     public SourceDbBasicInfo getBasicByIdentifier(String groupId, String streamId) {
-        LOGGER.info("begin to get db data source basic by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
         Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
 
@@ -109,7 +108,7 @@ public class SourceDbServiceImpl implements SourceDbService {
         }
         BeanUtils.copyProperties(entity, basicInfo);
 
-        LOGGER.info("success to get db data source basic");
+        LOGGER.debug("success to get db data source basic");
         return basicInfo;
     }
 
@@ -188,7 +187,6 @@ public class SourceDbServiceImpl implements SourceDbService {
 
     @Override
     public SourceDbDetailInfo getDetailById(Integer id) {
-        LOGGER.info("begin to get db data source detail by id={}", id);
         Preconditions.checkNotNull(id, "db data source detail's id is null");
 
         SourceDbDetailEntity entity = dbDetailMapper.selectByPrimaryKey(id);
@@ -198,13 +196,12 @@ public class SourceDbServiceImpl implements SourceDbService {
         }
         SourceDbDetailInfo detailInfo = CommonBeanUtils.copyProperties(entity, SourceDbDetailInfo::new);
 
-        LOGGER.info("success to get db data source detail");
+        LOGGER.debug("success to get db data source detail");
         return detailInfo;
     }
 
     @Override
     public List<SourceDbDetailInfo> listDetailByIdentifier(String groupId, String streamId) {
-        LOGGER.info("begin to list db data source detail by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
 
         List<SourceDbDetailEntity> entities = dbDetailMapper.selectByIdentifier(groupId, streamId);
@@ -215,14 +212,12 @@ public class SourceDbServiceImpl implements SourceDbService {
         }
         List<SourceDbDetailInfo> infoList = CommonBeanUtils.copyListProperties(entities, SourceDbDetailInfo::new);
 
-        LOGGER.info("success to list db data source detail");
+        LOGGER.debug("success to list db data source detail");
         return infoList;
     }
 
     @Override
     public PageInfo<SourceDbDetailListVO> listByCondition(SourceDbDetailPageRequest request) {
-        LOGGER.info("begin to list db data source detail page by {}", request);
-
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<SourceDbDetailEntity> entityPage = (Page<SourceDbDetailEntity>) dbDetailMapper.selectByCondition(request);
         List<SourceDbDetailListVO> detailList = CommonBeanUtils
@@ -232,7 +227,7 @@ public class SourceDbServiceImpl implements SourceDbService {
         PageInfo<SourceDbDetailListVO> page = new PageInfo<>(detailList);
         page.setTotal(entityPage.getTotal());
 
-        LOGGER.info("success to list db data source detail");
+        LOGGER.debug("success to list db data source detail");
         return page;
     }
 

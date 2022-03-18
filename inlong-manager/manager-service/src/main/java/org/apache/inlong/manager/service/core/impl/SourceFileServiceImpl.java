@@ -96,7 +96,6 @@ public class SourceFileServiceImpl implements SourceFileService {
 
     @Override
     public SourceFileBasicInfo getBasicByIdentifier(String groupId, String streamId) {
-        LOGGER.info("begin to get file data source basic by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
         Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
 
@@ -109,7 +108,7 @@ public class SourceFileServiceImpl implements SourceFileService {
         }
         CommonBeanUtils.copyProperties(entity, basicInfo);
 
-        LOGGER.info("success to get file data source basic");
+        LOGGER.debug("success to get file data source basic");
         return basicInfo;
     }
 
@@ -210,7 +209,6 @@ public class SourceFileServiceImpl implements SourceFileService {
 
     @Override
     public SourceFileDetailInfo getDetailById(Integer id) {
-        LOGGER.info("begin to get file data source detail by id={}", id);
         Preconditions.checkNotNull(id, "file data source detail's id is null");
 
         SourceFileDetailEntity entity = fileDetailMapper.selectByPrimaryKey(id);
@@ -220,13 +218,12 @@ public class SourceFileServiceImpl implements SourceFileService {
         }
         SourceFileDetailInfo detailInfo = CommonBeanUtils.copyProperties(entity, SourceFileDetailInfo::new);
 
-        LOGGER.info("success to get file data source detail");
+        LOGGER.debug("success to get file data source detail");
         return detailInfo;
     }
 
     @Override
     public List<SourceFileDetailInfo> listDetailByIdentifier(String groupId, String streamId) {
-        LOGGER.info("begin list file data source detail by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
 
         List<SourceFileDetailEntity> entities = fileDetailMapper.selectByIdentifier(groupId, streamId);
@@ -237,14 +234,12 @@ public class SourceFileServiceImpl implements SourceFileService {
         }
 
         List<SourceFileDetailInfo> infoList = CommonBeanUtils.copyListProperties(entities, SourceFileDetailInfo::new);
-        LOGGER.info("success to list file data source detail");
+        LOGGER.debug("success to list file data source detail");
         return infoList;
     }
 
     @Override
     public PageInfo<SourceFileDetailListVO> listByCondition(SourceFileDetailPageRequest request) {
-        LOGGER.info("begin to list file data source detail page by {}", request);
-
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<SourceFileDetailEntity> page = (Page<SourceFileDetailEntity>) fileDetailMapper.selectByCondition(request);
         List<SourceFileDetailListVO> detailList = CommonBeanUtils.copyListProperties(page, SourceFileDetailListVO::new);
@@ -253,7 +248,7 @@ public class SourceFileServiceImpl implements SourceFileService {
         PageInfo<SourceFileDetailListVO> pageInfo = new PageInfo<>(detailList);
         pageInfo.setTotal(page.getTotal());
 
-        LOGGER.info("success to list file data source detail");
+        LOGGER.debug("success to list file data source detail");
         return pageInfo;
     }
 
