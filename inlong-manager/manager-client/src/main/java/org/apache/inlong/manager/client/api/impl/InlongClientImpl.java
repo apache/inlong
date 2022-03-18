@@ -30,7 +30,9 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
+import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 
 import java.io.IOException;
@@ -44,12 +46,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class InlongClientImpl implements InlongClient {
 
+    private static final String URL_SPLITTER = ",";
+    private static final String HOST_SPLITTER = ":";
     @Getter
     private ClientConfiguration configuration;
-
-    private static final String URL_SPLITTER = ",";
-
-    private static final String HOST_SPLITTER = ":";
 
     public InlongClientImpl(String serviceUrl, ClientConfiguration configuration) {
         Map<String, String> hostPorts = Splitter.on(URL_SPLITTER).withKeyValueSeparator(HOST_SPLITTER)
@@ -96,6 +96,19 @@ public class InlongClientImpl implements InlongClient {
                 return new InlongGroupImpl(groupConf, this);
             }).collect(Collectors.toList());
         }
+    }
+
+    /**
+     * List group
+     *
+     * @param request The request
+     * @return PageInfo of group
+     * @throws Exception
+     */
+    @Override
+    public Response<PageInfo<InlongGroupListResponse>> listGroup(InlongGroupPageRequest request) throws Exception {
+        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
+        return managerClient.listGroups(request);
     }
 
     @Override

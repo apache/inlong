@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.api.inner;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,6 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
@@ -37,8 +37,10 @@ import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.client.api.util.InlongParser;
+import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
@@ -51,6 +53,7 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListRes
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.List;
 
@@ -112,11 +115,11 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             assert response.body() != null;
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             if (responseBody.getErrMsg() != null) {
                 if (responseBody.getErrMsg().contains("Inlong group does not exist")) {
                     return null;
@@ -151,11 +154,11 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             assert response.body() != null;
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             if (responseBody.getErrMsg() != null) {
                 if (responseBody.getErrMsg().contains("Inlong group does not exist")) {
                     return null;
@@ -168,6 +171,34 @@ public class InnerInlongManagerClient {
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong group get failed: %s", e.getMessage()), e);
         }
+    }
+
+    /**
+     * List inlong group
+     *
+     * @param inlongGroupRequest The inlongGroupRequest
+     * @return Response encapsulate of inlong group list
+     * @throws Exception may throws exception
+     */
+    public Response<PageInfo<InlongGroupListResponse>> listGroups(
+            InlongGroupPageRequest inlongGroupRequest)
+            throws Exception {
+        String requestParams = GsonUtil.toJson(inlongGroupRequest);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), requestParams);
+        String path = HTTP_PATH + "/group/list";
+        final String url = formatUrl(path);
+        Request request = new Request.Builder().get()
+                .url(url)
+                .method("GET", requestBody)
+                .build();
+        Call call = httpClient.newCall(request);
+        okhttp3.Response response = call.execute();
+        assert response.body() != null;
+        String body = response.body().string();
+        AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
+        return JsonUtils.parse(body,
+                new TypeReference<Response<PageInfo<InlongGroupListResponse>>>() {
+                });
     }
 
     /**
@@ -185,11 +216,11 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             assert response.body() != null;
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData().toString();
@@ -215,11 +246,11 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             assert response.body() != null;
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             return Pair.of(responseBody.getData().toString(), responseBody.getErrMsg());
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong group update failed: %s", e.getMessage()), e);
@@ -238,11 +269,11 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             assert response.body() != null;
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData().toString();
@@ -274,10 +305,10 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             if (responseBody.getData() != null) {
                 return Pair.of(Boolean.valueOf(responseBody.getData().toString()), responseBody.getErrMsg());
             } else {
@@ -298,10 +329,10 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             if (responseBody.getErrMsg() != null) {
                 if (responseBody.getErrMsg().contains("Inlong stream does not exist")) {
                     return null;
@@ -326,11 +357,11 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             assert response.body() != null;
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return InlongParser.parseStreamList(responseBody);
@@ -351,11 +382,11 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             assert response.body() != null;
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData().toString();
@@ -381,10 +412,10 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed:%s", responseBody.getErrMsg()));
             PageInfo<SourceListResponse> sourceListResponsePageInfo = InlongParser.parseSourceList(
@@ -407,10 +438,10 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             if (responseBody.getData() != null) {
                 return Pair.of(Boolean.valueOf(responseBody.getData().toString()), responseBody.getErrMsg());
             } else {
@@ -433,11 +464,11 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             assert response.body() != null;
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData().toString();
@@ -463,10 +494,10 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed:%s", responseBody.getErrMsg()));
             PageInfo<SinkListResponse> sinkListResponsePageInfo = InlongParser.parseSinkList(
@@ -489,10 +520,10 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed:%s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             if (responseBody.getData() != null) {
                 return Pair.of(Boolean.valueOf(responseBody.getData().toString()), responseBody.getErrMsg());
             } else {
@@ -516,11 +547,11 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             assert response.body() != null;
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return InlongParser.parseWorkflowResult(responseBody);
@@ -552,11 +583,11 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             assert response.body() != null;
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return InlongParser.parseWorkflowResult(responseBody);
@@ -597,11 +628,11 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             assert response.body() != null;
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             String errMsg = responseBody.getErrMsg();
             return errMsg == null || !errMsg.contains("current status was not allowed");
         } catch (Exception e) {
@@ -630,11 +661,11 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             assert response.body() != null;
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return Boolean.parseBoolean(responseBody.getData().toString());
@@ -658,11 +689,11 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             assert response.body() != null;
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             PageInfo<EventLogView> pageInfo = InlongParser.parseEventLogViewList(responseBody);
@@ -686,11 +717,11 @@ public class InnerInlongManagerClient {
 
         Call call = httpClient.newCall(request);
         try {
-            Response response = call.execute();
+            okhttp3.Response response = call.execute();
             assert response.body() != null;
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
-            org.apache.inlong.manager.common.beans.Response responseBody = InlongParser.parseResponse(body);
+            Response responseBody = InlongParser.parseResponse(body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             PageInfo<InlongStreamConfigLogListResponse> pageInfo = InlongParser.parseStreamLogList(responseBody);
