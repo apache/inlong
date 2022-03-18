@@ -38,6 +38,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -60,8 +61,8 @@ public class InlongClientImpl implements InlongClient {
         boolean isConnective = false;
         for (Map.Entry<String, String> hostPort : hostPorts.entrySet()) {
             String host = hostPort.getKey();
-            int port = Integer.valueOf(hostPort.getValue());
-            if (checkConnectivity(host, port, configuration.getReadTimeout())) {
+            int port = Integer.parseInt(hostPort.getValue());
+            if (checkConnectivity(host, port, configuration.getReadTimeout(), configuration.getTimeUnit())) {
                 configuration.setBindHost(host);
                 configuration.setBindPort(port);
                 isConnective = true;
@@ -109,15 +110,21 @@ public class InlongClientImpl implements InlongClient {
         return new InlongGroupImpl(groupConf, this);
     }
 
-    private boolean checkConnectivity(String host, int port, int connectTimeout) {
+    private boolean checkConnectivity(String host, int port, int connectTimeout, TimeUnit timeUnit) {
         InetSocketAddress socketAddress = new InetSocketAddress(host, port);
         Socket socket = new Socket();
         try {
-            socket.connect(socketAddress, connectTimeout * 1000);
+            socket.connect(socketAddress, (int) timeUnit.toMillis(connectTimeout));
             return socket.isConnected();
         } catch (IOException e) {
             log.error(String.format("%s:%s connected failed with err msg:%s", host, port, e.getMessage()));
             return false;
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                log.warn("colse connection from {}:{} failed", host, port, e);
+            }
         }
     }
 }
