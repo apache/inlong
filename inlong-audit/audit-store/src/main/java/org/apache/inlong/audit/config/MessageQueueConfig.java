@@ -25,7 +25,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Getter
 @Setter
-public class PulsarConfig {
+public class MessageQueueConfig {
+
     @Value("${audit.pulsar.server.url}")
     private String pulsarServerUrl;
 
@@ -46,5 +47,28 @@ public class PulsarConfig {
 
     @Value("${audit.pulsar.client.concurrent.consumer.num:1}")
     private int concurrentConsumerNum = 1;
+
+    @Value("${audit.tube.masterlist}")
+    private String tubeMasterList;
+
+    @Value("${audit.tube.topic}")
+    private String tubeTopic;
+
+    @Value("${audit.tube.consumer.group.name}")
+    private String tubeConsumerGroupName;
+
+    @Value("${audit.tube.consumer.thread.num:4}")
+    private int tubeThreadNum;
+
+    @Value("${audit.config.proxy.type:pulsar}")
+    private String mqType;
+
+    public boolean isPulsar() {
+        return mqType.trim().equalsIgnoreCase("pulsar");
+    }
+
+    public boolean isTube() {
+        return mqType.trim().equalsIgnoreCase("tube");
+    }
 
 }
