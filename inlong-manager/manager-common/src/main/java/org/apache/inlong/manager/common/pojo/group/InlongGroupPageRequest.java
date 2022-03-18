@@ -23,6 +23,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.beans.PageRequest;
 
+import java.util.List;
+
 /**
  * Inlong group query request
  */
@@ -33,6 +35,12 @@ public class InlongGroupPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Keywords")
     private String keyWord;
+
+    @ApiModelProperty(value = "Inlong group name list")
+    private List<String> names;
+
+    @ApiModelProperty(value = "Inlong group id list")
+    private List<String> inlongGroupIds;
 
     @ApiModelProperty(value = "MQ resource object")
     private String middlewareType;

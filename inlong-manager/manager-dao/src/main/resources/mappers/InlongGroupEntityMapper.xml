@@ -115,6 +115,18 @@
             <if test="keyWord != null and keyWord != ''">
                 and (inlong_group_id like CONCAT('%',#{keyWord},'%') or id like CONCAT('%',#{keyWord},'%'))
             </if>
+            <if test="inlongGroupIds != null and inlongGroupIds.size() > 0">
+                and inlong_group_id in
+                <foreach collection="inlongGroupIds" item="inlongGroupId" index="index" open="(" close=")" separator=",">
+                    #{inlongGroupId}
+                </foreach>
+            </if>
+            <if test="names != null and names.size() > 0">
+                and name in
+                <foreach collection="names" item="name" index="index" open="(" close=")" separator=",">
+                    #{name}
+                </foreach>
+            </if>
             <if test="middlewareType != null and middlewareType != ''">
                 and middleware_type = #{middlewareType, jdbcType=VARCHAR}
             </if>
