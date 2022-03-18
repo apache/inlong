@@ -23,6 +23,7 @@ import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.group.listener.UpdateGroupCompleteListener;
+import org.apache.inlong.manager.service.workflow.group.listener.UpdateGroupFailedListener;
 import org.apache.inlong.manager.service.workflow.group.listener.UpdateGroupListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
@@ -44,6 +45,8 @@ public class DeleteGroupWorkflowDefinition implements WorkflowDefinition {
     @Autowired
     private UpdateGroupCompleteListener updateGroupCompleteListener;
     @Autowired
+    private UpdateGroupFailedListener updateGroupFailedListener;
+    @Autowired
     private ServiceTaskListenerFactory serviceTaskListenerFactory;
 
     @Override
@@ -52,6 +55,7 @@ public class DeleteGroupWorkflowDefinition implements WorkflowDefinition {
         WorkflowProcess process = new WorkflowProcess();
         process.addListener(updateGroupListener);
         process.addListener(updateGroupCompleteListener);
+        process.addListener(updateGroupFailedListener);
         process.setType("Group Resource Delete");
         process.setName(getProcessName().name());
         process.setDisplayName(getProcessName().getDisplayName());

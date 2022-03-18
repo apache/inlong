@@ -202,7 +202,12 @@
             </if>
         </trim>
     </insert>
-
+    <select id="selectById" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        where id = #{id,jdbcType=INTEGER}
+    </select>
     <select id="selectByIdForUpdate" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
