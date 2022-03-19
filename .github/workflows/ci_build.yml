@@ -19,9 +19,38 @@ name: InLong Build
 
 on:
   push:
-    branches: [ master, 'INLONG-*' ]
+    paths:
+      - '.github/workflows/ci_build.yml'
+      - '**/pom.xml'
+      - '!*.md'
+      - 'inlong-agent/**'
+      - 'inlong-audit/**'
+      - 'inlong-common/**'
+      - 'inlong-dashboard/**'
+      - 'inlong-dataproxy/**'
+      - 'inlong-distribution/**'
+      - 'inlong-manager/**'
+      - 'inlong-sdk/**'
+      - 'inlong-sort/**'
+      - 'inlong-sort-standalone/**'
+      - 'inlong-tubemq/**'
+
   pull_request:
-    branches: [ master, 'INLONG-*' ]
+    paths:
+      - '.github/workflows/ci_build.yml'
+      - '**/pom.xml'
+      - '!*.md'
+      - 'inlong-agent/**'
+      - 'inlong-audit/**'
+      - 'inlong-common/**'
+      - 'inlong-dashboard/**'
+      - 'inlong-dataproxy/**'
+      - 'inlong-distribution/**'
+      - 'inlong-manager/**'
+      - 'inlong-sdk/**'
+      - 'inlong-sort/**'
+      - 'inlong-sort-standalone/**'
+      - 'inlong-tubemq/**'
 
 jobs:
   build:
