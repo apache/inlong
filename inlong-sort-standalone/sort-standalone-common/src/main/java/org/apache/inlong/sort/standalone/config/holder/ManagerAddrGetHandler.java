@@ -46,7 +46,9 @@ public class ManagerAddrGetHandler implements Configurable {
     /**
      * Delete no argument constructor.
      */
-    private ManagerAddrGetHandler() {}
+    private ManagerAddrGetHandler() {
+
+    }
 
     /**
      * Get URL where SortSdk request SortSourceConfig.
@@ -56,8 +58,8 @@ public class ManagerAddrGetHandler implements Configurable {
     public static String getSortSourceConfigUrl() {
         String url = get().context.getString(KEY_SORT_SOURCE_CONFIG_MANAGER_URL);
         if (StringUtils.isBlank(url)) {
-            LOG.error("Get SortSourceConfigUrl from CommonPropertiesHolder failed, " +
-                    "please check if there is any property of key {}.", KEY_SORT_SOURCE_CONFIG_MANAGER_URL);
+            LOG.error("Get SortSourceConfigUrl from CommonPropertiesHolder failed, "
+                    + "please check if there is any property of key {}.", KEY_SORT_SOURCE_CONFIG_MANAGER_URL);
         }
         return url;
     }
@@ -70,8 +72,8 @@ public class ManagerAddrGetHandler implements Configurable {
     public static String getSortClusterConfigUrl() {
         String url = get().context.getString(KEY_SORT_CLUSTER_CONFIG_MANAGER_URL);
         if (StringUtils.isBlank(url)) {
-            LOG.error("Get SortClusterConfigUrl from CommonPropertiesHolder failed, " +
-                    "please check if there is any property of key {}.", KEY_SORT_CLUSTER_CONFIG_MANAGER_URL);
+            LOG.error("Get SortClusterConfigUrl from CommonPropertiesHolder failed, "
+                    + "please check if there is any property of key {}.", KEY_SORT_CLUSTER_CONFIG_MANAGER_URL);
         }
         return url;
     }
@@ -98,6 +100,7 @@ public class ManagerAddrGetHandler implements Configurable {
         }
         return instance;
     }
+
     @Override
     public void configure(Context context) {
         Optional.ofNullable(context).ifPresent(c -> this.context = c);
