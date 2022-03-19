@@ -79,11 +79,15 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assert.assertEquals(p2, ipList.get(1).getPort());
 
         this.deleteOpt(id);
+    }
 
-        // Save the url without port, default port is p1
-        url = "127.0.0.1";
-        id = this.saveOpt(CLUSTER_NAME + "2", Constant.CLUSTER_DATA_PROXY, url, p1);
-        ipList = clusterService.getIpList(CLUSTER_NAME + "2");
+    @Test
+    public void testSaveAndGetDirtyDataProxy() {
+        // Simulate saving and parsing dirty url without port, default port is p1
+        Integer p1 = 46801;
+        String url = ":,,, :127.0 .0.1:,: ,,,";
+        Integer id = this.saveOpt(CLUSTER_NAME, Constant.CLUSTER_DATA_PROXY, url, p1);
+        List<DataProxyResponse> ipList = clusterService.getIpList(CLUSTER_NAME);
         // The result port is p1
         Assert.assertEquals(p1, ipList.get(0).getPort());
 

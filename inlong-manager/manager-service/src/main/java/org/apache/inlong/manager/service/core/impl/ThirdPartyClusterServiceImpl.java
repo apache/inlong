@@ -37,6 +37,7 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterResponse;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.InLongStringUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity;
@@ -188,9 +189,15 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
             return null;
         }
 
+        String ipStr = entity.getIp();
+        while (ipStr.startsWith(Constant.URL_SPLITTER) || ipStr.endsWith(Constant.URL_SPLITTER)
+                || ipStr.startsWith(Constant.HOST_SPLITTER) || ipStr.endsWith(Constant.HOST_SPLITTER)) {
+            ipStr = InLongStringUtils.trimFirstAndLastChar(ipStr, Constant.URL_SPLITTER);
+            ipStr = InLongStringUtils.trimFirstAndLastChar(ipStr, Constant.HOST_SPLITTER);
+        }
+
         List<DataProxyResponse> responseList = new ArrayList<>();
         Integer id = entity.getId();
-        String ipStr = entity.getIp();
         Integer defaultPort = entity.getPort();
         int index = ipStr.indexOf(Constant.URL_SPLITTER);
         if (index <= 0) {
