@@ -207,7 +207,7 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
      * @param config The config to be updated.
      */
     private void updateClientConfig(SortClientConfig config) {
-        config.setManagerApiUrl(CommonPropertiesHolder.getManagerUrl());
+        config.setManagerApiUrl(CommonPropertiesHolder.getSourceConfigManagerUrl());
     }
 
     /**
