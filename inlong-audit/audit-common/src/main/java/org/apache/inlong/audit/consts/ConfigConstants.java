@@ -46,7 +46,17 @@ public class ConfigConstants {
     public static final String TRAFFIC_CLASS = "trafficClass";
 
     public static final String MAX_THREADS = "max-threads";
-    
+
     public static final int MSG_MAX_LENGTH_BYTES = 20 * 1024 * 1024;
+
+    public static final String LINK_MAX_ALLOWED_DELAYED_MSG_COUNT = "link_max_allowed_delayed_msg_count";
+
+    public static final String SESSION_WARN_DELAYED_MSG_COUNT = "session_warn_delayed_msg_count";
+
+    public static final String SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT = "session_max_allowed_delayed_msg_count";
+
+    public static final String NETTY_WRITE_BUFFER_HIGH_WATER_MARK = "netty_write_buffer_high_water_mark";
+
+    public static final String RECOVER_THREAD_COUNT = "recover_thread_count";
 
 }
