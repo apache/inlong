@@ -151,7 +151,7 @@ CREATE TABLE `third_party_cluster`
     `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `name`        varchar(128) NOT NULL COMMENT 'Cluster name',
     `type`        varchar(32)  NOT NULL COMMENT 'Cluster type, including TUBE, PULSAR, etc.',
-    `ip`          text         NOT NULL COMMENT 'Cluster IP',
+    `ip`          text         NULL COMMENT 'Cluster IP, separated by commas, such as: 127.0.0.1:8080,host2:8081',
     `port`        int(11)      NOT NULL COMMENT 'Cluster port',
     `token`       varchar(512) COMMENT 'Cluster token',
     `url`         varchar(512)      DEFAULT NULL COMMENT 'Cluster URL',

@@ -179,9 +179,20 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
     @Override
     public List<DataProxyResponse> getIpList(String clusterName) {
         LOGGER.debug("begin to list data proxy by clusterName={}", clusterName);
-        ThirdPartyClusterEntity entity = thirdPartyClusterMapper.selectByName(clusterName);
+        ThirdPartyClusterEntity entity;
+        if (StringUtils.isNotBlank(clusterName)) {
+            entity = thirdPartyClusterMapper.selectByName(clusterName);
+        } else {
+            List<ThirdPartyClusterEntity> list = thirdPartyClusterMapper.selectByType(Constant.CLUSTER_DATA_PROXY);
+            if (CollectionUtils.isEmpty(list)) {
+                LOGGER.warn("data proxy cluster not found by type=" + Constant.CLUSTER_DATA_PROXY);
+                return null;
+            }
+            entity = list.get(0);
+        }
+
         if (entity == null || StringUtils.isBlank(entity.getIp())) {
-            LOGGER.warn("data proxy cluster not found for name={}", clusterName);
+            LOGGER.warn("data proxy cluster not found by name={}", clusterName);
             return null;
         }
         if (!Constant.CLUSTER_DATA_PROXY.equals(entity.getType())) {
