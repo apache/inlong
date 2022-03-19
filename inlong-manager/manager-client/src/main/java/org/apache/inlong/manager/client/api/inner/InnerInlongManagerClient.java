@@ -189,7 +189,7 @@ public class InnerInlongManagerClient {
         final String url = formatUrl(path);
         Request request = new Request.Builder().get()
                 .url(url)
-                .method("GET", requestBody)
+                .method("POST", requestBody)
                 .build();
         Call call = httpClient.newCall(request);
         okhttp3.Response response = call.execute();

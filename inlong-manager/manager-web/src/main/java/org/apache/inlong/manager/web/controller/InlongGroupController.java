@@ -69,9 +69,9 @@ public class InlongGroupController {
         return Response.success(groupService.get(groupId).genResponse());
     }
 
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ApiOperation(value = "Query inlong group list according to conditions")
-    public Response<PageInfo<InlongGroupListResponse>> listByCondition(InlongGroupPageRequest request) {
+    public Response<PageInfo<InlongGroupListResponse>> listByCondition(@RequestBody InlongGroupPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(groupService.listByCondition(request));
     }
