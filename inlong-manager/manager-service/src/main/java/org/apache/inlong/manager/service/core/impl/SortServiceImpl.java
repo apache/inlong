@@ -101,10 +101,23 @@ public class SortServiceImpl implements SortService {
                 .sortTasks(taskConfigs)
                 .build();
 
+        JSONObject job = new JSONObject(clusterConfig);
+        String localMd5 = DigestUtils.md5Hex(job.toString());
+
+        // no update
+        if (localMd5.equals(md5)) {
+            return SortClusterResponse.builder()
+                    .code(RESPONSE_CODE_NO_UPDATE)
+                    .msg("No update")
+                    .md5(localMd5)
+                    .build();
+        }
+
         return SortClusterResponse.builder()
                 .code(RESPONSE_CODE_SUCCESS)
                 .data(clusterConfig)
                 .msg("success")
+                .md5(localMd5)
                 .build();
     }
 
