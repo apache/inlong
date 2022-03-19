@@ -20,6 +20,7 @@ package org.apache.inlong.sort.standalone.config.holder;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.Context;
@@ -35,15 +36,16 @@ import org.slf4j.Logger;
 public class CommonPropertiesHolder {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(CommonPropertiesHolder.class);
-    public static final String KEY_COMMON_PROPERTIES = "common_properties_loader";
     public static final String DEFAULT_LOADER = ClassResourceCommonPropertiesLoader.class.getName();
+    public static final String KEY_COMMON_PROPERTIES = "common_properties_loader";
     public static final String KEY_CLUSTER_ID = "clusterId";
-    public static final String KEY_SOURCE_CONFIG_MANAGER_URL = "sortSourceConfig.managerUrl";
+    public static final String KEY_IS_MANAGER_ADDR_NEED_UPDATE = "isManagerAddrNeedUpdate";
 
     private static Map<String, String> props;
     private static Context context;
 
     private static long auditFormatInterval = 60000L;
+    private static boolean managerAddrNeedUpdate = false;
 
     /**
      * init
@@ -63,6 +65,8 @@ public class CommonPropertiesHolder {
                         LOG.info("loaderClass:{},properties:{}", loaderClassName, props);
                         auditFormatInterval = NumberUtils
                                 .toLong(CommonPropertiesHolder.getString("auditFormatInterval"), 60000L);
+                        managerAddrNeedUpdate = BooleanUtils
+                                .toBoolean(CommonPropertiesHolder.getString(KEY_IS_MANAGER_ADDR_NEED_UPDATE));
                     }
                 } catch (Throwable t) {
                     LOG.error("Fail to init CommonPropertiesLoader,loaderClass:{},error:{}",
@@ -89,7 +93,7 @@ public class CommonPropertiesHolder {
 
     /**
      * get context
-     * 
+     *
      * @return the context
      */
     public static Context getContext() {
@@ -196,22 +200,22 @@ public class CommonPropertiesHolder {
     public static String getClusterId() {
         return getString(KEY_CLUSTER_ID);
     }
-
-    /**
-     * Get manager URL
-     *
-     * @return Manager URL
-     */
-    public static String getSourceConfigManagerUrl() {
-        return getString(KEY_SOURCE_CONFIG_MANAGER_URL);
-    }
-
+    
     /**
      * getAuditFormatInterval
-     * 
+     *
      * @return
      */
     public static long getAuditFormatInterval() {
         return auditFormatInterval;
+    }
+
+    /**
+     * get if managerAddrNeedUpdate
+     *
+     * @return
+     */
+    public static boolean isManagerAddrNeedUpdate() {
+        return managerAddrNeedUpdate;
     }
 }

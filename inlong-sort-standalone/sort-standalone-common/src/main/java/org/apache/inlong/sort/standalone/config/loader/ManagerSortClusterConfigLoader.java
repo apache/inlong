@@ -31,6 +31,7 @@ import org.apache.http.util.EntityUtils;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.config.holder.ManagerAddrGetHandler;
 import org.slf4j.Logger;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
@@ -85,7 +86,7 @@ public class ManagerSortClusterConfigLoader implements SortClusterConfigLoader {
         HttpGet httpGet = null;
         try {
             String clusterName = this.context.getString(CommonPropertiesHolder.KEY_CLUSTER_ID);
-            String url = this.context.getString(SORT_CLUSTER_CONFIG_MANAGER) + "?apiVersion=1.0&clusterName="
+            String url = ManagerAddrGetHandler.getSortClusterConfigUrl() + "?apiVersion=1.0&clusterName="
                     + clusterName + "&md5=";
             if (StringUtils.isNotBlank(this.md5)) {
                 url += this.md5;
