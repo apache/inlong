@@ -29,9 +29,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceDbBasicInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceDbDetailInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceFileBasicInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceFileDetailInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullPageUpdateRequest;
@@ -70,7 +68,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
