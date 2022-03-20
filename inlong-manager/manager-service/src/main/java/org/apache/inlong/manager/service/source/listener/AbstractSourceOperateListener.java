@@ -108,6 +108,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
             } else if (sourceState == SourceState.SOURCE_FAILED || sourceState == SourceState.SOURCE_DISABLE) {
                 return false;
             } else {
+                log.warn("StreamSource={} cannot be operated for state={}", sourceResponse, sourceState);
                 TimeUnit.SECONDS.sleep(5);
                 sourceResponse = streamSourceService.get(sourceResponse.getId(), sourceResponse.getSourceType());
             }
