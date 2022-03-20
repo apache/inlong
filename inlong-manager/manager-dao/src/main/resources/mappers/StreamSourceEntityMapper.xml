@@ -434,15 +434,13 @@
     <update id="updateStatus">
         update stream_source
         set previous_status = status,
-            status          = #{nextStatus, jdbcType=INTEGER},
-            modify_time     = modify_time
+            status          = #{nextStatus, jdbcType=INTEGER}
         where id = #{id, jdbcType=INTEGER}
     </update>
     <update id="updateStatusByRelatedId">
         update stream_source
         set previous_status = status,
-        status = #{nextStatus, jdbcType=INTEGER},
-        modify_time = modify_time
+        status = #{nextStatus, jdbcType=INTEGER}
         <where>
             inlong_group_id = #{groupId, jdbcType=VARCHAR}
             <if test="streamId != null">
@@ -453,15 +451,13 @@
     <update id="updateIpAndUuid">
         update stream_source
         set agent_ip    = #{agentIp,jdbcType=VARCHAR},
-            uuid        = #{uuid,jdbcType=VARCHAR},
-            modify_time = modify_time
+            uuid        = #{uuid,jdbcType=VARCHAR}
         where id = #{id, jdbcType=INTEGER}
     </update>
     <update id="updateSnapshot" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         update stream_source
         set snapshot    = #{snapshot,jdbcType=LONGVARCHAR},
-            report_time = #{reportTime,jdbcType=TIMESTAMP},
-            modify_time = modify_time
+            report_time = #{reportTime,jdbcType=TIMESTAMP}
         where id = #{id,jdbcType=INTEGER}
     </update>
 
