@@ -231,8 +231,8 @@ public class PulsarZoneSinkContext extends SinkContext {
         fillInlongId(currentRecord, dimensions);
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
         dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, bid);
-        long msgTime = currentRecord.getDispatchTime();
-        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        long dispatchTime = currentRecord.getDispatchTime();
+        long auditFormatTime = dispatchTime - dispatchTime % CommonPropertiesHolder.getAuditFormatInterval();
         dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         DataProxyMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
         long count = currentRecord.getCount();
@@ -247,11 +247,11 @@ public class PulsarZoneSinkContext extends SinkContext {
                 long currentTime = System.currentTimeMillis();
                 currentRecord.getEvents().forEach((event) -> {
                     long sinkDuration = currentTime - sendTime;
-                    long nodeDuration = currentTime - event.getMsgTime();
-                    long wholeDuration = currentTime - msgTime;
-                    metricItem.sinkDuration.addAndGet(sinkDuration * count);
-                    metricItem.nodeDuration.addAndGet(nodeDuration * count);
-                    metricItem.wholeDuration.addAndGet(wholeDuration * count);
+                    long nodeDuration = currentTime - event.getSourceTime();
+                    long wholeDuration = currentTime - event.getMsgTime();
+                    metricItem.sinkDuration.addAndGet(sinkDuration);
+                    metricItem.nodeDuration.addAndGet(nodeDuration);
+                    metricItem.wholeDuration.addAndGet(wholeDuration);
                 });
             }
         } else {
