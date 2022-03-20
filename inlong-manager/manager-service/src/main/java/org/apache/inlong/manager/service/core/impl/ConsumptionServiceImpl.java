@@ -164,7 +164,14 @@ public class ConsumptionServiceImpl implements ConsumptionService {
      */
     private void savePulsarInfo(ConsumptionMqExtBase mqExtBase, ConsumptionEntity entity) {
         Preconditions.checkNotNull(mqExtBase, "Pulsar info cannot be empty, as the middleware is Pulsar");
-        ConsumptionPulsarInfo pulsarInfo = (ConsumptionPulsarInfo) mqExtBase;
+        // If it is transmitted from the web without specifying consumptionpulsarinfo,
+        // the mqextbase is not consumptionpulsarinfo and cannot be converted directly
+        ConsumptionPulsarInfo pulsarInfo;
+        if (mqExtBase instanceof ConsumptionPulsarInfo) {
+            pulsarInfo = (ConsumptionPulsarInfo) mqExtBase;
+        } else {
+            pulsarInfo = new ConsumptionPulsarInfo();
+        }
 
         // Prerequisite for RLQ to be turned on: DLQ must be turned on
         boolean dlqEnable = (pulsarInfo.getIsDlq() != null && pulsarInfo.getIsDlq() == 1);
@@ -444,6 +451,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
                 Preconditions.checkEmpty(topicSet, "topic [" + topicSet + "] not belong to inlong group " + groupId);
             }
         }
+        info.setMiddlewareType(mqType);
     }
 
 }
