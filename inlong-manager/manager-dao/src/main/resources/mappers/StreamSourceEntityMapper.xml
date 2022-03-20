@@ -435,6 +435,9 @@
         update stream_source
         set previous_status = status,
             status          = #{nextStatus, jdbcType=INTEGER}
+        <if test="modifyTime != null">
+            ,modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+        </if>
         where id = #{id, jdbcType=INTEGER}
     </update>
     <update id="updateStatusByRelatedId">
@@ -452,6 +455,9 @@
         update stream_source
         set agent_ip    = #{agentIp,jdbcType=VARCHAR},
             uuid        = #{uuid,jdbcType=VARCHAR}
+        <if test="modifyTime != null">
+            ,modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+        </if>
         where id = #{id, jdbcType=INTEGER}
     </update>
     <update id="updateSnapshot" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">

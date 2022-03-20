@@ -170,7 +170,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public boolean updateStatus(Integer id, Integer targetStatus, String operator) {
-        sourceMapper.updateStatus(id, targetStatus);
+        sourceMapper.updateStatus(id, targetStatus, null);
         LOGGER.info("success to update source status={} for id={} by {}", targetStatus, id, operator);
         return true;
     }

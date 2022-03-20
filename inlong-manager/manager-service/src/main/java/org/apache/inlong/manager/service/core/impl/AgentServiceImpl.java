@@ -163,7 +163,7 @@ public class AgentServiceImpl implements AgentService {
                     nextStatus = SourceState.SOURCE_FAILED.getCode();
                 }
 
-                sourceMapper.updateStatus(taskId, nextStatus);
+                sourceMapper.updateStatus(taskId, nextStatus, current.getModifyTime());
                 LOGGER.info("update stream source status to [{}] for id [{}] ", nextStatus, taskId);
             }
             // Other tasks with status 20x will change to 30x in next getTaskResult method
@@ -197,7 +197,7 @@ public class AgentServiceImpl implements AgentService {
             int op = status % MODULUS_100;
             if (status / MODULUS_100 == UNISSUED_STATUS) {
                 int nextStatus = ISSUED_STATUS * MODULUS_100 + op;
-                sourceMapper.updateStatus(id, nextStatus);
+                sourceMapper.updateStatus(id, nextStatus, entity.getModifyTime());
                 LOGGER.info("update stream source status to [{}] for id [{}] ", nextStatus, id);
             } else {
                 LOGGER.info("skip task status not in 20x, id={}", id);
@@ -212,7 +212,7 @@ public class AgentServiceImpl implements AgentService {
 
         // Update agentIp and uuid for the added and active tasks
         for (StreamSourceEntity entity : addList) {
-            sourceMapper.updateIpAndUuid(entity.getId(), agentIp, uuid);
+            sourceMapper.updateIpAndUuid(entity.getId(), agentIp, uuid, entity.getModifyTime());
             LOGGER.info("update stream source ip to [{}], uuid to [{}] for id [{}] ", agentIp, uuid, entity.getId());
         }
 
