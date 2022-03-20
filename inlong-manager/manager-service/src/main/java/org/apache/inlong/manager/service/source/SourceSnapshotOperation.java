@@ -132,7 +132,8 @@ public class SourceSnapshotOperation implements AutoCloseable {
                 // Update the status from temporary to normal
                 Integer status = idStatusMap.get(id);
                 if (SourceState.TEMP_TO_NORMAL.contains(status)) {
-                    sourceMapper.updateStatus(id, SourceState.SOURCE_NORMAL.getCode());
+                    StreamSourceEntity source = sourceMapper.selectByIdForUpdate(id);
+                    sourceMapper.updateStatus(id, SourceState.SOURCE_NORMAL.getCode(), source.getModifyTime());
                 }
             }
 
@@ -143,10 +144,12 @@ public class SourceSnapshotOperation implements AutoCloseable {
                 Integer cacheId = entry.getKey();
                 Integer cacheStatus = entry.getValue();
                 if (!currentTaskIdSet.contains(cacheId)) {
+                    StreamSourceEntity source = sourceMapper.selectByIdForUpdate(cacheId);
                     if (Objects.equal(cacheStatus, SourceState.BEEN_ISSUED_DELETE.getCode())) {
-                        sourceMapper.updateStatus(cacheId, SourceState.SOURCE_DISABLE.getCode());
+                        sourceMapper.updateStatus(cacheId, SourceState.SOURCE_DISABLE.getCode(),
+                                source.getModifyTime());
                     } else if (Objects.equal(cacheStatus, SourceState.BEEN_ISSUED_FROZEN.getCode())) {
-                        sourceMapper.updateStatus(cacheId, SourceState.SOURCE_FROZEN.getCode());
+                        sourceMapper.updateStatus(cacheId, SourceState.SOURCE_FROZEN.getCode(), source.getModifyTime());
                     }
                 }
             }

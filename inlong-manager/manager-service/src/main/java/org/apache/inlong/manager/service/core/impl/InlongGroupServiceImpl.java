@@ -230,9 +230,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // Check whether the current status can be modified
         this.checkGroupCanUpdate(entity, groupRequest, operator);
         CommonBeanUtils.copyProperties(groupRequest, entity, true);
-        if (GroupState.CONFIG_FAILED.getCode().equals(entity.getStatus())) {
-            entity.setStatus(GroupState.TO_BE_SUBMIT.getCode());
-        }
 
         entity.setModifier(operator);
         groupMapper.updateByIdentifierSelective(entity);
