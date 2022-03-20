@@ -147,10 +147,8 @@ public class RocksDbImp implements Db {
         try {
             byte[] bytes =
                 db.get(columnHandlesMap.get(defaultFamilyName), key.getBytes());
-            if (bytes == null) {
-                return null;
-            }
-            return GSON.fromJson(new String(bytes), KeyValueEntity.class);
+            return bytes == null ? null :
+                GSON.fromJson(new String(bytes), KeyValueEntity.class);
         } catch (Exception e) {
             throw new RuntimeException("get key value entity error", e);
         }
@@ -161,10 +159,8 @@ public class RocksDbImp implements Db {
         try {
             byte[] bytes = db
                 .get(columnHandlesMap.get(commandFamilyName), commandId.getBytes());
-            if (bytes == null) {
-                return null;
-            }
-            return GSON.fromJson(new String(bytes), CommandEntity.class);
+            return bytes == null ? null :
+                GSON.fromJson(new String(bytes), CommandEntity.class);
         } catch (Exception e) {
             throw new RuntimeException("get command value error", e);
         }
