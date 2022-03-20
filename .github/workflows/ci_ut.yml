@@ -22,7 +22,6 @@ on:
     paths:
       - '.github/workflows/ci_ut.yml'
       - '**/pom.xml'
-      - '!*.md'
       - 'inlong-agent/**'
       - 'inlong-audit/**'
       - 'inlong-common/**'
@@ -34,12 +33,12 @@ on:
       - 'inlong-sort/**'
       - 'inlong-sort-standalone/**'
       - 'inlong-tubemq/**'
+      - '!*.md'
 
   pull_request:
     paths:
       - '.github/workflows/ci_ut.yml'
       - '**/pom.xml'
-      - '!*.md'
       - 'inlong-agent/**'
       - 'inlong-audit/**'
       - 'inlong-common/**'
@@ -51,6 +50,7 @@ on:
       - 'inlong-sort/**'
       - 'inlong-sort-standalone/**'
       - 'inlong-tubemq/**'
+      - '!*.md'
 
 jobs:
   unit-test:
