@@ -102,6 +102,9 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
         }
 
         CommonDbServerEntity record = CommonBeanUtils.copyProperties(info, CommonDbServerEntity::new);
+        if (record.getAccessType() == null || record.getAccessType().isEmpty()) {
+            record.setAccessType("Agent");
+        }
         record.setStatus(0);
         String userName = LoginUserUtils.getLoginUserDetail().getUserName();
         record.setCreator(userName);

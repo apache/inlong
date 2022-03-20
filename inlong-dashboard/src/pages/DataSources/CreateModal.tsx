@@ -56,7 +56,7 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
       submitData.inCharges = values.inCharges.join(',');
     }
     await request({
-      url: `/commonserver/${isUpdate ? 'update' : 'save'}`,
+      url: `/commonserver/db/${isUpdate ? 'update' : 'create'}`,
       method: 'POST',
       data: submitData,
     });
@@ -78,7 +78,7 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
 
   const { data, run: getData } = useRequest(
     id => ({
-      url: `/commonserver/get/${id}`,
+      url: `/commonserver/db/get/${id}`,
       params: {
         serverType: type,
       },

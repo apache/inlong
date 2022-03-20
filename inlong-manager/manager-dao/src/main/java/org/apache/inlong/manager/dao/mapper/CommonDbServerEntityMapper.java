@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerPageRequest;
 import org.apache.inlong.manager.dao.entity.CommonDbServerEntity;
 import org.springframework.stereotype.Repository;
@@ -37,7 +39,10 @@ public interface CommonDbServerEntityMapper {
 
     int updateByPrimaryKey(CommonDbServerEntity record);
 
-    List<CommonDbServerEntity> selectByUsernameAndIpPort(String username, String dbType, String dbServerIp, int port);
+    List<CommonDbServerEntity> selectByUsernameAndIpPort(@Param("username") String username,
+                                                         @Param("dbType") String dbType,
+                                                         @Param("dbServerIp") String dbServerIp,
+                                                         @Param("port") int port);
 
     List<CommonDbServerEntity> selectAll();
 
