@@ -32,21 +32,23 @@ import java.util.Optional;
  * <p> Used to acquire the ip and port of manager, which sort sdk and sort-standalone request config from. </p>
  * <p> The default implementation is base on {@link CommonPropertiesHolder} to acquire properties. </p>
  */
-public class ManagerAddrGetHandler implements Configurable {
+public class ManagerUrlHandler implements Configurable {
 
-    private static final Logger LOG = InlongLoggerFactory.getLogger(ManagerAddrGetHandler.class);
-    private static final String KEY_MANAGER_ADDR_GET_HANDLER_TYPE = "ManagerAddrGetHandler";
+    private static final Logger LOG = InlongLoggerFactory.getLogger(ManagerUrlHandler.class);
+    private static final String KEY_MANAGER_URL_HANDLER_TYPE = "ManagerUrlHandler";
     private static final String KEY_SORT_CLUSTER_CONFIG_MANAGER_URL = "sortClusterConfig.managerUrl";
     private static final String KEY_SORT_SOURCE_CONFIG_MANAGER_URL = "sortSourceConfig.managerUrl";
 
-    private static ManagerAddrGetHandler instance;
+    private static ManagerUrlHandler instance;
+    private static String sortSourceConfigUrl;
+    private static String sortClusterConfigUrl;
 
     public Context context;
 
     /**
      * Delete no argument constructor.
      */
-    private ManagerAddrGetHandler() {
+    private ManagerUrlHandler() {
 
     }
 
@@ -56,12 +58,18 @@ public class ManagerAddrGetHandler implements Configurable {
      * @return URL to get SortSourceConfig.
      */
     public static String getSortSourceConfigUrl() {
-        String url = get().context.getString(KEY_SORT_SOURCE_CONFIG_MANAGER_URL);
-        if (StringUtils.isBlank(url)) {
-            LOG.error("Get SortSourceConfigUrl from CommonPropertiesHolder failed, "
-                    + "please check if there is any property of key {}.", KEY_SORT_SOURCE_CONFIG_MANAGER_URL);
+        if (sortSourceConfigUrl != null) {
+            return sortSourceConfigUrl;
         }
-        return url;
+        sortSourceConfigUrl = get().context.getString(KEY_SORT_SOURCE_CONFIG_MANAGER_URL);
+        if (StringUtils.isBlank(sortSourceConfigUrl)) {
+            String warnMsg = "Get key" + KEY_SORT_SOURCE_CONFIG_MANAGER_URL
+                    + " from CommonPropertiesHolder failed, it's a optional property use to specify "
+                    + "the url where SortSdk request SortSourceConfig.";
+            LOG.warn(warnMsg);
+            sortSourceConfigUrl = warnMsg;
+        }
+        return sortSourceConfigUrl;
     }
 
     /**
@@ -70,27 +78,32 @@ public class ManagerAddrGetHandler implements Configurable {
      * @return URL to get SortClusterConfig.
      */
     public static String getSortClusterConfigUrl() {
-        String url = get().context.getString(KEY_SORT_CLUSTER_CONFIG_MANAGER_URL);
-        if (StringUtils.isBlank(url)) {
-            LOG.error("Get SortClusterConfigUrl from CommonPropertiesHolder failed, "
-                    + "please check if there is any property of key {}.", KEY_SORT_CLUSTER_CONFIG_MANAGER_URL);
+        if (sortClusterConfigUrl != null) {
+            return sortClusterConfigUrl;
         }
-        return url;
+        sortClusterConfigUrl = get().context.getString(KEY_SORT_CLUSTER_CONFIG_MANAGER_URL);
+        if (StringUtils.isBlank(sortClusterConfigUrl)) {
+            String warnMsg = "Get key" + KEY_SORT_CLUSTER_CONFIG_MANAGER_URL
+                    + " from CommonPropertiesHolder failed, it's a optional property use to specify "
+                    + "the url where Sort-Standalone request SortSourceConfig.";
+            LOG.warn(warnMsg);
+        }
+        return sortClusterConfigUrl;
     }
 
-    private static ManagerAddrGetHandler get() {
+    private static ManagerUrlHandler get() {
         if (instance != null) {
             return instance;
         }
-        synchronized (ManagerAddrGetHandler.class) {
+        synchronized (ManagerUrlHandler.class) {
             String handlerType = CommonPropertiesHolder
-                    .getString(KEY_MANAGER_ADDR_GET_HANDLER_TYPE, ManagerAddrGetHandler.class.getName());
-            LOG.info("Start to load ManagerAddrGetHandler, type is {}.", handlerType);
+                    .getString(KEY_MANAGER_URL_HANDLER_TYPE, ManagerUrlHandler.class.getName());
+            LOG.info("Start to load ManagerUrlHandler, type is {}.", handlerType);
             try {
                 Class<?> handlerClass = ClassUtils.getClass(handlerType);
                 Object handlerObj = handlerClass.getDeclaredConstructor().newInstance();
-                if (handlerObj instanceof ManagerAddrGetHandler) {
-                    instance = (ManagerAddrGetHandler) handlerObj;
+                if (handlerObj instanceof ManagerUrlHandler) {
+                    instance = (ManagerUrlHandler) handlerObj;
                 }
             } catch (Throwable t) {
                 LOG.error("Got exception when load ManagerAddrGetHandler, type is {}, err is {}",

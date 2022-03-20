@@ -43,7 +43,7 @@ import org.apache.inlong.sdk.sort.api.SortClientFactory;
 import org.apache.inlong.sdk.sort.impl.ManagerReportHandlerImpl;
 import org.apache.inlong.sdk.sort.impl.MetricReporterImpl;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
-import org.apache.inlong.sort.standalone.config.holder.ManagerAddrGetHandler;
+import org.apache.inlong.sort.standalone.config.holder.ManagerUrlHandler;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -220,7 +220,7 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
      * @param config The config to be updated.
      */
     private void updateClientConfig(SortClientConfig config) {
-        config.setManagerApiUrl(ManagerAddrGetHandler.getSortSourceConfigUrl());
+        config.setManagerApiUrl(ManagerUrlHandler.getSortSourceConfigUrl());
     }
 
     /**

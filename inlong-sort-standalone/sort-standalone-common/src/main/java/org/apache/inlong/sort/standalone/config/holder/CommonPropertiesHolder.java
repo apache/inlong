@@ -39,13 +39,11 @@ public class CommonPropertiesHolder {
     public static final String DEFAULT_LOADER = ClassResourceCommonPropertiesLoader.class.getName();
     public static final String KEY_COMMON_PROPERTIES = "common_properties_loader";
     public static final String KEY_CLUSTER_ID = "clusterId";
-    public static final String KEY_IS_MANAGER_ADDR_NEED_UPDATE = "isManagerAddrNeedUpdate";
 
     private static Map<String, String> props;
     private static Context context;
 
     private static long auditFormatInterval = 60000L;
-    private static boolean managerAddrNeedUpdate = false;
 
     /**
      * init
@@ -65,8 +63,6 @@ public class CommonPropertiesHolder {
                         LOG.info("loaderClass:{},properties:{}", loaderClassName, props);
                         auditFormatInterval = NumberUtils
                                 .toLong(CommonPropertiesHolder.getString("auditFormatInterval"), 60000L);
-                        managerAddrNeedUpdate = BooleanUtils
-                                .toBoolean(CommonPropertiesHolder.getString(KEY_IS_MANAGER_ADDR_NEED_UPDATE));
                     }
                 } catch (Throwable t) {
                     LOG.error("Fail to init CommonPropertiesLoader,loaderClass:{},error:{}",
@@ -200,7 +196,7 @@ public class CommonPropertiesHolder {
     public static String getClusterId() {
         return getString(KEY_CLUSTER_ID);
     }
-    
+
     /**
      * getAuditFormatInterval
      *
@@ -210,12 +206,4 @@ public class CommonPropertiesHolder {
         return auditFormatInterval;
     }
 
-    /**
-     * get if managerAddrNeedUpdate
-     *
-     * @return
-     */
-    public static boolean isManagerAddrNeedUpdate() {
-        return managerAddrNeedUpdate;
-    }
 }
