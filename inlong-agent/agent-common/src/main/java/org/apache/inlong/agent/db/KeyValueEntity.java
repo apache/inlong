@@ -59,6 +59,10 @@ public class KeyValueEntity {
         return key;
     }
 
+    public String getFileName() {
+        return fileName;
+    }
+
     public StateSearchKey getStateSearchKey() {
         return stateSearchKey;
     }
