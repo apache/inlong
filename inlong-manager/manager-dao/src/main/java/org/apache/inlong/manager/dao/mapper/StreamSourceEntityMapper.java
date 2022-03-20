@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -89,7 +90,8 @@ public interface StreamSourceEntityMapper {
      *
      * @apiNote Should not change the modify_time
      */
-    int updateStatus(@Param("id") Integer id, @Param("nextStatus") Integer nextStatus);
+    int updateStatus(@Param("id") Integer id, @Param("nextStatus") Integer nextStatus,
+            @Param("modifyTime") Date modifyTime);
 
     /**
      * Update the status to `nextStatus` by the given group id and stream id.
@@ -104,7 +106,8 @@ public interface StreamSourceEntityMapper {
      *
      * @apiNote Should not change the modify_time
      */
-    int updateIpAndUuid(@Param("id") Integer id, @Param("agentIp") String agentIp, @Param("uuid") String uuid);
+    int updateIpAndUuid(@Param("id") Integer id, @Param("agentIp") String agentIp, @Param("uuid") String uuid,
+            @Param("modifyTime") Date modifyTime);
 
     int updateSnapshot(StreamSourceEntity entity);
 
