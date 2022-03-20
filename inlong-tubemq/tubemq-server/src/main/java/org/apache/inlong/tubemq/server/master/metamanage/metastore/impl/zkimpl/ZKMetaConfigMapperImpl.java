@@ -31,6 +31,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.cluster.NodeAddrInfo;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.common.zookeeper.ZKUtil;
 import org.apache.inlong.tubemq.server.common.zookeeper.ZooKeeperWatcher;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
@@ -90,6 +91,15 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         this.haNodesPath = strBuff.append(tubeZkRoot).append(TokenConstants.SLASH)
                 .append(TZKNodeKeys.ZK_BRANCH_HA).append("/nodeIds").toString();
         strBuff.delete(0, strBuff.length());
+        try {
+            this.zkWatcher = new ZooKeeperWatcher(masterConfig.getZkMetaConfig());
+        } catch (Throwable e) {
+            BrokerSrvStatsHolder.incZKExcCnt();
+            logger.error(strBuff.append("[ZK Impl] Failed to connect ZooKeeper server (")
+                    .append(masterConfig.getZkMetaConfig().getZkServerAddr())
+                    .append(") !").toString(), e);
+            System.exit(1);
+        }
         initMetaStore(strBuff);
         this.executorService =
                 Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {

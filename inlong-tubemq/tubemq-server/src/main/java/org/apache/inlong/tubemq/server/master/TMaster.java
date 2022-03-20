@@ -103,7 +103,8 @@ import org.apache.inlong.tubemq.server.common.utils.RowLock;
 import org.apache.inlong.tubemq.server.common.utils.Sleeper;
 import org.apache.inlong.tubemq.server.master.balance.DefaultLoadBalancer;
 import org.apache.inlong.tubemq.server.master.balance.LoadBalancer;
-import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.inlong.tubemq.server.master.metamanage.DefaultMetaDataService;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
@@ -135,7 +136,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             currentSubInfo = new ConcurrentHashMap<>();
     private final RpcServiceFactory rpcServiceFactory =     //rpc service factory
             new RpcServiceFactory();
-    private final MetaDataManager defMetaDataManager;      // meta data manager
+    private final MetaDataService defMetaDataService;      // meta data manager
     private final BrokerRunManager brokerRunManager;       // broker run status manager
     private final ConsumerEventManager consumerEventManager;    //consumer event manager
     private final TopicPSInfoManager topicPSInfoManager;        //topic publish/subscribe info manager
@@ -208,9 +209,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         new ReleaseProducer().run(nodeId, true);
                     }
                 });
-        this.defMetaDataManager = new MetaDataManager(this);
+        this.defMetaDataService = new DefaultMetaDataService(this);
         this.brokerRunManager = new DefBrokerRunManager(this);
-        this.defMetaDataManager.start();
+        this.defMetaDataService.start();
         RpcConfig rpcTcpConfig = new RpcConfig();
         rpcTcpConfig.put(RpcConstants.REQUEST_TIMEOUT,
                 masterConfig.getRpcReadTimeoutMs());
@@ -269,8 +270,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         return masterConfig;
     }
 
-    public MetaDataManager getDefMetaDataManager() {
-        return defMetaDataManager;
+    public MetaDataService getMetaDataService() {
+        return defMetaDataService;
     }
 
     public HeartbeatManager getHeartbeatManager() {
@@ -594,7 +595,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         sessionKey, sessionTime, sourceCount, isSelectBig, requiredPartMap);
         paramCheckResult =
                 PBParameterUtils.checkConsumerInputInfo(inConsumerInfo,
-                        masterConfig, defMetaDataManager, brokerRunManager, strBuffer);
+                        masterConfig, defMetaDataService, brokerRunManager, strBuffer);
         if (!paramCheckResult.result) {
             builder.setErrCode(paramCheckResult.errCode);
             builder.setErrMsg(paramCheckResult.errMsg);
@@ -611,7 +612,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         // need removed for authorize center begin
-        if (!this.defMetaDataManager
+        if (!this.defMetaDataService
                 .isConsumeTargetAuthorized(consumerId, groupName,
                         reqTopicSet, reqTopicConditions, strBuffer, result)) {
             if (strBuffer.length() > 0) {
@@ -670,9 +671,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setDefFlowControlInfo(" ");
             builder.setGroupFlowControlInfo(" ");
             ClusterSettingEntity defSetting =
-                    defMetaDataManager.getClusterDefSetting(false);
+                    defMetaDataService.getClusterDefSetting(false);
             GroupResCtrlEntity groupResCtrlConf =
-                    defMetaDataManager.confGetGroupResCtrlConf(groupName);
+                    defMetaDataService.getGroupCtrlConf(groupName);
             if (defSetting.enableFlowCtrl()) {
                 builder.setDefFlowCheckId(defSetting.getSerialId());
                 if (request.getDefFlowCheckId() != defSetting.getSerialId()) {
@@ -846,9 +847,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setDefFlowControlInfo(" ");
             builder.setGroupFlowControlInfo(" ");
             ClusterSettingEntity defSetting =
-                    defMetaDataManager.getClusterDefSetting(false);
+                    defMetaDataService.getClusterDefSetting(false);
             GroupResCtrlEntity groupResCtrlConf =
-                    defMetaDataManager.confGetGroupResCtrlConf(groupName);
+                    defMetaDataService.getGroupCtrlConf(groupName);
             if (defSetting.enableFlowCtrl()) {
                 builder.setDefFlowCheckId(defSetting.getSerialId());
                 if (request.getDefFlowCheckId() != defSetting.getSerialId()) {
@@ -964,7 +965,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         checkNodeStatus(clientId, strBuffer);
         // get optional filed
         ClusterSettingEntity defSetting =
-                defMetaDataManager.getClusterDefSetting(false);
+                defMetaDataService.getClusterDefSetting(false);
         final long reFlowCtrlId = request.hasFlowCheckId()
                 ? request.getFlowCheckId() : TBaseConstants.META_VALUE_UNDEFINED;
         final int qryPriorityId = request.hasQryPriorityId()
@@ -1111,14 +1112,14 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // create response
         brokerRunManager.setHeatBeatDownConfInfo(brokerId, strBuffer, builder);
         BrokerConfEntity brokerConfEntity =
-                defMetaDataManager.getBrokerConfByBrokerId(brokerId);
+                defMetaDataService.getBrokerConfByBrokerId(brokerId);
         builder.setTakeRemoveTopicInfo(true);
-        builder.addAllRemoveTopicConfInfo(defMetaDataManager
+        builder.addAllRemoveTopicConfInfo(defMetaDataService
                 .getBrokerRemovedTopicStrConfigInfo(brokerConfEntity, strBuffer).values());
         builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
         if (request.hasFlowCheckId()) {
             ClusterSettingEntity defSetting =
-                    defMetaDataManager.getClusterDefSetting(false);
+                    defMetaDataService.getClusterDefSetting(false);
             builder.setFlowCheckId(defSetting.getSerialId());
             builder.setQryPriorityId(defSetting.getQryPriorityId());
             if (reFlowCtrlId != defSetting.getSerialId()) {
@@ -1272,7 +1273,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         sourceCount, nodeId, reqTopicSet, reqTopicConditions,
                         opsTaskInfo.getCsmFromMaxOffsetCtrlId(), clientSyncInfo);
         // need removed for authorize center begin
-        if (!this.defMetaDataManager
+        if (!this.defMetaDataService
                 .isConsumeTargetAuthorized(consumerId, groupName,
                         reqTopicSet, reqTopicConditions, sBuffer, result)) {
             if (sBuffer.length() > 0) {
@@ -1286,7 +1287,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // check resource require
         paramCheckResult =
                 PBParameterUtils.checkConsumerInputInfo(inConsumerInfo,
-                        masterConfig, defMetaDataManager, brokerRunManager, sBuffer);
+                        masterConfig, defMetaDataService, brokerRunManager, sBuffer);
         if (!paramCheckResult.result) {
             builder.setErrCode(paramCheckResult.errCode);
             builder.setErrMsg(paramCheckResult.errMsg);
@@ -1639,11 +1640,11 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private void balance(final TMaster tMaster) {
         final StringBuilder strBuffer = new StringBuilder(512);
         final long balanceId = idGenerator.incrementAndGet();
-        if (defMetaDataManager != null) {
+        if (defMetaDataService != null) {
             logger.info(strBuffer.append("[Balance Start] ").append(balanceId)
-                    .append(", isMaster=").append(defMetaDataManager.isSelfMaster())
+                    .append(", isMaster=").append(defMetaDataService.isSelfMaster())
                     .append(", isPrimaryNodeActive=")
-                    .append(defMetaDataManager.isPrimaryNodeActive()).toString());
+                    .append(defMetaDataService.isPrimaryNodeActive()).toString());
         } else {
             logger.info(strBuffer.append("[Balance Start] ").append(balanceId)
                     .append(", BDB service is null isMaster= false, isPrimaryNodeActive=false").toString());
@@ -1817,7 +1818,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return result;
         }
         Map<String, List<TopicDeployEntity>> topicDeployInfoMap =
-                defMetaDataManager.getTopicConfMapByTopicAndBrokerIds(
+                defMetaDataService.getTopicConfMapByTopicAndBrokerIds(
                         groupInfo.getTopicSet(), null);
         if (topicDeployInfoMap == null || topicDeployInfoMap.isEmpty()) {
             return result;
@@ -1826,7 +1827,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         int statusId = 0;
         TopicInfo topicInfo;
         Set<String> fbdTopicSet =
-                defMetaDataManager.getDisableTopicByGroupName(groupInfo.getGroupName());
+                defMetaDataService.getDisableTopicByGroupName(groupInfo.getGroupName());
         for (Map.Entry<String, List<TopicDeployEntity>> entry : topicDeployInfoMap.entrySet()) {
             if (entry == null) {
                 continue;
@@ -1874,10 +1875,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // choose different load balance strategy
         if (isFirstReb) {
             finalSubInfoMap = this.loadBalancer.bukAssign(consumerHolder,
-                    brokerRunManager, groups, defMetaDataManager, strBuffer);
+                    brokerRunManager, groups, defMetaDataService, strBuffer);
         } else {
             finalSubInfoMap = this.loadBalancer.balanceCluster(currentSubInfo,
-                    consumerHolder, brokerRunManager, groups, defMetaDataManager, strBuffer);
+                    consumerHolder, brokerRunManager, groups, defMetaDataService, strBuffer);
         }
         // allocate partitions to consumers
         for (Map.Entry<String, Map<String, List<Partition>>> entry : finalSubInfoMap.entrySet()) {
@@ -1894,7 +1895,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 continue;
             }
             Set<String> blackTopicSet =
-                    defMetaDataManager.getDisableTopicByGroupName(consumerInfo.getGroupName());
+                    defMetaDataService.getDisableTopicByGroupName(consumerInfo.getGroupName());
             Map<String, List<Partition>> topicSubPartMap = entry.getValue();
             List<SubscribeInfo> deletedSubInfoList = new ArrayList<>();
             List<SubscribeInfo> addedSubInfoList = new ArrayList<>();
@@ -2009,10 +2010,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // choose different load balance strategy
         if (isFirstReb) {
             finalSubInfoMap =  this.loadBalancer.resetBukAssign(consumerHolder,
-                    brokerRunManager, groups, this.defMetaDataManager, strBuffer);
+                    brokerRunManager, groups, this.defMetaDataService, strBuffer);
         } else {
             finalSubInfoMap = this.loadBalancer.resetBalanceCluster(currentSubInfo,
-                    consumerHolder, brokerRunManager, groups, this.defMetaDataManager, strBuffer);
+                    consumerHolder, brokerRunManager, groups, this.defMetaDataService, strBuffer);
         }
         // filter
         for (Map.Entry<String, Map<String, Map<String, Partition>>> entry
@@ -2031,7 +2032,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             }
             // allocate partitions to consumers
             Set<String> blackTopicSet =
-                    defMetaDataManager.getDisableTopicByGroupName(consumerInfo.getGroupName());
+                    defMetaDataService.getDisableTopicByGroupName(consumerInfo.getGroupName());
             Map<String, Map<String, Partition>> topicSubPartMap = entry.getValue();
             List<SubscribeInfo> deletedSubInfoList = new ArrayList<>();
             List<SubscribeInfo> addedSubInfoList = new ArrayList<>();
@@ -2244,7 +2245,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         if (inClientConfig != null) {
             outClientConfig = ClientMaster.ApprovedClientConfig.newBuilder();
             ClusterSettingEntity settingEntity =
-                    this.defMetaDataManager.getClusterDefSetting(false);
+                    this.defMetaDataService.getClusterDefSetting(false);
             if (settingEntity == null) {
                 outClientConfig.setConfigId(TBaseConstants.META_VALUE_UNDEFINED);
             } else {
@@ -2267,9 +2268,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setCsmFrmMaxOffsetCtrlId(csmFromMaxCtrlId);
         }
         ClusterSettingEntity defSetting =
-                defMetaDataManager.getClusterDefSetting(false);
+                defMetaDataService.getClusterDefSetting(false);
         GroupResCtrlEntity groupResCtrlConf =
-                defMetaDataManager.confGetGroupResCtrlConf(nodeInfo.getGroupName());
+                defMetaDataService.getGroupCtrlConf(nodeInfo.getGroupName());
         if (defSetting.enableFlowCtrl()) {
             builder.setDefFlowCheckId(defSetting.getSerialId());
             if (opsTaskInfo.getDefFlowChkId() != defSetting.getSerialId()) {
@@ -2421,7 +2422,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         if (inClusterConfig != null) {
             outClsConfig = ClientMaster.ClusterConfig.newBuilder();
             ClusterSettingEntity settingEntity =
-                    this.defMetaDataManager.getClusterDefSetting(false);
+                    this.defMetaDataService.getClusterDefSetting(false);
             if (settingEntity == null) {
                 outClsConfig.setConfigId(TBaseConstants.META_VALUE_UNDEFINED);
             } else {
@@ -2475,7 +2476,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             cltExecutor.shutdown();
             stopChores();
             heartbeatManager.stop();
-            defMetaDataManager.stop();
+            defMetaDataService.stop();
             visitTokenManager.stop();
             if (!shutdownHooked.get()) {
                 Runtime.getRuntime().removeShutdownHook(shutdownHook);
@@ -2537,7 +2538,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     }
 
     private void checkNodeStatus(String clientId, final StringBuilder strBuffer) throws Exception {
-        if (!defMetaDataManager.isSelfMaster()) {
+        if (!defMetaDataService.isSelfMaster()) {
             throw new StandbyException(strBuffer.append(masterAddInfo.getHostPortStr())
                     .append(" is not master now. the connecting client id is ")
                     .append(clientId).toString());

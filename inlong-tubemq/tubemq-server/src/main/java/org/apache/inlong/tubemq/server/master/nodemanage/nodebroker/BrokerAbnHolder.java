@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.server.master.nodemanage.nodebroker;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +29,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
-import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
@@ -48,14 +47,14 @@ public class BrokerAbnHolder {
     private final ConcurrentHashMap<Integer/* brokerId */, BrokerFbdInfo> brokerForbiddenMap =
             new ConcurrentHashMap<>();
     private final int maxAutoForbiddenCnt;
-    private final MetaDataManager metaDataManager;
+    private final MetaDataService metaDataService;
     private final AtomicInteger brokerForbiddenCount =
             new AtomicInteger(0);
 
     public BrokerAbnHolder(final int maxAutoForbiddenCnt,
-                           final MetaDataManager metaDataManager) {
+                           final MetaDataService metaDataService) {
         this.maxAutoForbiddenCnt = maxAutoForbiddenCnt;
-        this.metaDataManager = metaDataManager;
+        this.metaDataService = metaDataService;
     }
 
     /**
@@ -85,7 +84,7 @@ public class BrokerAbnHolder {
             return;
         }
         BrokerConfEntity curEntry =
-                metaDataManager.getBrokerConfByBrokerId(brokerId);
+                metaDataService.getBrokerConfByBrokerId(brokerId);
         if (curEntry == null) {
             return;
         }
@@ -230,13 +229,11 @@ public class BrokerAbnHolder {
                                           ManageStatus newMngStatus,
                                           StringBuilder sBuffer) {
         ProcessResult result = new ProcessResult();
-        Set<Integer> brokerIdSet = new HashSet<>(1);
-        brokerIdSet.add(brokerId);
         BaseEntity opEntity =
                 new BaseEntity(TBaseConstants.META_VALUE_UNDEFINED,
                         "Broker AutoReport", new Date());
-        metaDataManager.changeBrokerConfStatus(opEntity,
-                brokerIdSet, newMngStatus, sBuffer, result);
+        metaDataService.changeBrokerConfStatus(opEntity,
+                brokerId, newMngStatus, sBuffer, result);
         return result.isSuccess();
     }
 
