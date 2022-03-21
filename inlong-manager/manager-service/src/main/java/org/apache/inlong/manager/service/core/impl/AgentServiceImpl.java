@@ -120,18 +120,10 @@ public class AgentServiceImpl implements AgentService {
             LOGGER.warn("agent request was empty, just return");
             return;
         }
-        this.updateTaskStatus(request);
-    }
-
-    /**
-     * Update the task status by the request
-     */
-    public void updateTaskStatus(TaskRequest request) {
         if (CollectionUtils.isEmpty(request.getCommandInfo())) {
             LOGGER.warn("task result was empty, just return");
             return;
         }
-
         for (CommandEntity command : request.getCommandInfo()) {
             updateCommandEntity(command);
             // Other tasks with status 20x will change to 30x in next getTaskResult method
