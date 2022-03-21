@@ -92,7 +92,7 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
             OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(Long.parseLong(offset[1]));
             commitOffsetMap.put(topicPartition, offsetAndMetadata);
         } else {
-            throw new Exception("offset is illegal, the correct format is int:long ,the error offset is:"+msgOffset);
+            throw new Exception("offset is illegal, the correct format is int:long ,the error offset is:" + msgOffset);
         }
     }
 
