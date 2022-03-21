@@ -50,7 +50,7 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
       serverType: type,
     };
     if (isUpdate) {
-      values.id = id;
+      submitData.id = id;
     }
     if (type === 'DB') {
       submitData.inCharges = values.inCharges.join(',');
