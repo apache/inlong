@@ -154,6 +154,11 @@ public class TestTaskWrapper {
 
         }
 
+        @Override
+        public boolean isSourceExist() {
+            return false;
+        }
+
         public int getCount() {
             return count;
         }

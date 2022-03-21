@@ -63,6 +63,7 @@ public class KafkaSource implements Source {
                                     "org.apache.kafka.common.serialization.ByteArrayDeserializer";
     private static final String KAFKA_KEY_DESERIALIZER = "key.deserializer";
     private static final String KAFKA_VALUE_DESERIALIZER = "value.deserializer";
+    private static final String KAFKA_SESSION_TIMEOUT = "session.timeout.ms";
     private static final Gson gson = new Gson();
     private static AtomicLong metricsIndex = new AtomicLong(0);
     private final SourceMetrics sourceMetrics;
@@ -88,9 +89,6 @@ public class KafkaSource implements Source {
         props.put(JOB_KAFKA_BOOTSTRAP_SERVERS.replace(JOB_KAFKAJOB_PARAM_PREFIX, StringUtils.EMPTY),
                 map.get(JOB_KAFKA_BOOTSTRAP_SERVERS));
 
-        props.put(JOB_KAFKA_GROUP_ID.replace(JOB_KAFKAJOB_PARAM_PREFIX, StringUtils.EMPTY),
-                    map.getOrDefault(JOB_KAFKA_GROUP_ID, map.get(JOB_ID) + JOB_OFFSET_DELIMITER + "group"));
-
         props.put(KAFKA_KEY_DESERIALIZER, KAFKA_DESERIALIZER_METHOD);
         props.put(KAFKA_VALUE_DESERIALIZER, KAFKA_DESERIALIZER_METHOD);
         // set offset
@@ -107,9 +105,15 @@ public class KafkaSource implements Source {
             // example:0#110_1#666_2#222
             partitionOffsets = allPartitionOffsets.split(JOB_OFFSET_DELIMITER);
         }
+        //
+        props.put(KAFKA_SESSION_TIMEOUT, 30000);
         // spilt reader reduce to partition
         if (null != partitionInfoList) {
             for (PartitionInfo partitionInfo : partitionInfoList) {
+                props.put(JOB_KAFKA_GROUP_ID.replace(JOB_KAFKAJOB_PARAM_PREFIX, StringUtils.EMPTY),
+                        map.getOrDefault(JOB_KAFKA_GROUP_ID,
+                                map.get(JOB_ID) + JOB_OFFSET_DELIMITER
+                                        + "group" + partitionInfo.partition()));
                 KafkaConsumer<String, byte[]> partitonConsumer = new KafkaConsumer<>(props);
                 partitonConsumer.assign(Collections.singletonList(
                         new TopicPartition(partitionInfo.topic(), partitionInfo.partition())));
