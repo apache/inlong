@@ -25,10 +25,10 @@ import org.apache.inlong.tubemq.server.master.web.simplemvc.conf.WebConfig;
 
 public class RequestContext extends MappedContext {
 
-    private WebConfig config;
+    private final WebConfig config;
 
-    private HttpServletRequest req;
-    private HttpServletResponse resp;
+    private final HttpServletRequest req;
+    private final HttpServletResponse resp;
 
     private String target;
     private String requestPath;

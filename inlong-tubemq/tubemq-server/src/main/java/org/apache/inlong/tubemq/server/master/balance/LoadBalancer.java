@@ -19,9 +19,8 @@ package org.apache.inlong.tubemq.server.master.balance;
 
 import java.util.List;
 import java.util.Map;
-
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
-import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfo;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
@@ -33,7 +32,7 @@ public interface LoadBalancer {
             ConsumerInfoHolder consumerHolder,
             BrokerRunManager brokerRunManager,
             List<String> groups,
-            MetaDataManager metaDataManager,
+            MetaDataService defMetaDataService,
             StringBuilder sBuilder);
 
     Map<String, Map<String, Map<String, Partition>>> resetBalanceCluster(
@@ -41,19 +40,19 @@ public interface LoadBalancer {
             ConsumerInfoHolder consumerHolder,
             BrokerRunManager brokerRunManager,
             List<String> groups,
-            MetaDataManager metaDataManager,
+            MetaDataService defMetaDataService,
             final StringBuilder sBuilder);
 
     Map<String, Map<String, List<Partition>>> bukAssign(ConsumerInfoHolder consumerHolder,
                                                         BrokerRunManager brokerRunManager,
                                                         List<String> groups,
-                                                        MetaDataManager metaDataManager,
+                                                        MetaDataService defMetaDataService,
                                                         StringBuilder sBuilder);
 
     Map<String, Map<String, Map<String, Partition>>> resetBukAssign(ConsumerInfoHolder consumerHolder,
                                                                     BrokerRunManager brokerRunManager,
                                                                     List<String> groups,
-                                                                    MetaDataManager metaDataManager,
+                                                                    MetaDataService defMetaDataService,
                                                                     StringBuilder sBuilder);
 
     Map<String, List<Partition>> roundRobinAssignment(List<Partition> partitions,

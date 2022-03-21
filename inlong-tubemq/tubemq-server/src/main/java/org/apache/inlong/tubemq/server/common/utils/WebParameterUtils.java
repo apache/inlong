@@ -45,7 +45,7 @@ import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
-import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicPropGroup;
 
@@ -810,7 +810,7 @@ public class WebParameterUtils {
      * Get and valid topicName value
      *
      * @param req        Http Servlet Request
-     * @param confManager  configure manager
+     * @param defMetaDataService  configure manager
      * @param required   a boolean value represent whether the parameter is must required
      * @param defValue   a default value returned if the field not exist
      * @param sBuffer     string buffer
@@ -818,7 +818,7 @@ public class WebParameterUtils {
      * @return process result
      */
     public static boolean getAndValidTopicNameInfo(HttpServletRequest req,
-                                                   MetaDataManager confManager,
+                                                   MetaDataService defMetaDataService,
                                                    boolean required,
                                                    String defValue,
                                                    StringBuilder sBuffer,
@@ -829,7 +829,7 @@ public class WebParameterUtils {
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         Set<String> existedTopicSet =
-                confManager.getTotalConfiguredTopicNames();
+                defMetaDataService.getTotalConfiguredTopicNames();
         for (String topic : topicNameSet) {
             if (!existedTopicSet.contains(topic)) {
                 result.setFailResult(sBuffer.append(WebFieldDef.COMPSTOPICNAME.name)

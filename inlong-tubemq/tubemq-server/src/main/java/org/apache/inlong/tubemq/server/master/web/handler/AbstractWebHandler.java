@@ -19,16 +19,16 @@ package org.apache.inlong.tubemq.server.master.web.handler;
 
 import static org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.registerWebMethod;
 import org.apache.inlong.tubemq.server.master.TMaster;
-import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
 
 public abstract class AbstractWebHandler {
 
     protected TMaster master;
-    protected MetaDataManager metaDataManager;
+    protected MetaDataService defMetaDataService;
 
     public AbstractWebHandler(TMaster master) {
         this.master = master;
-        this.metaDataManager = this.master.getDefMetaDataManager();
+        this.defMetaDataService = this.master.getMetaDataService();
     }
 
     public abstract void registerWebApiMethod();

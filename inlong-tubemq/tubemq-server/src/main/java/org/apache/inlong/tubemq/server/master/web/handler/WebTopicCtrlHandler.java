@@ -88,7 +88,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         // query matched records
         Map<String, TopicCtrlEntity> topicCtrlMap =
-                metaDataManager.getTopicCtrlConf(topicNameSet, qryEntity);
+                defMetaDataService.getTopicCtrlConf(topicNameSet, qryEntity);
         // build query result
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
@@ -189,7 +189,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         // delete records
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (String topicName : topicNameSet) {
-            metaDataManager.delTopicCtrlConf(opEntity.getModifyUser(), topicName, sBuffer, result);
+            defMetaDataService.delTopicCtrlConf(opEntity.getModifyUser(), topicName, sBuffer, result);
             retInfo.add(new TopicProcessResult(
                     TBaseConstants.META_VALUE_UNDEFINED, topicName, result));
         }
@@ -232,7 +232,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         Boolean enableTopicAuth = (Boolean) result.getRetData();
         // check and get max message size
         ClusterSettingEntity defClusterSetting =
-                metaDataManager.getClusterDefSetting(false);
+                defMetaDataService.getClusterDefSetting(false);
         int maxMsgSizeMB = defClusterSetting.getMaxMsgSizeInMB();
         // check max message size
         if (!WebParameterUtils.getIntParamValue(req,
@@ -247,7 +247,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         // add or update records
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (String topicName : topicNameSet) {
-            retInfo.add(metaDataManager.addOrUpdTopicCtrlConf(isAddOp, opEntity,
+            retInfo.add(defMetaDataService.addOrUpdTopicCtrlConf(isAddOp, opEntity,
                     topicName, topicNameId, enableTopicAuth, maxMsgSizeMB, sBuffer, result));
         }
         return buildRetInfo(retInfo, sBuffer);
@@ -272,7 +272,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
                 (Map<String, TopicCtrlEntity>) result.getRetData();
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (TopicCtrlEntity topicCtrlInfo : addRecordMap.values()) {
-            retInfo.add(metaDataManager.addOrUpdTopicCtrlConf(
+            retInfo.add(defMetaDataService.addOrUpdTopicCtrlConf(
                     isAddOp, topicCtrlInfo, sBuffer, result));
         }
         return buildRetInfo(retInfo, sBuffer);
@@ -289,7 +289,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
                 (List<Map<String, String>>) result.getRetData();
         // get default max message size
         ClusterSettingEntity defClusterSetting =
-                metaDataManager.getClusterDefSetting(false);
+                defMetaDataService.getClusterDefSetting(false);
         int defMaxMsgSizeMB = defClusterSetting.getMaxMsgSizeInMB();
         // check and get topic control configure
         TopicCtrlEntity itemConf;

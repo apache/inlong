@@ -32,7 +32,7 @@ import org.apache.inlong.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
-import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumeType;
@@ -203,14 +203,14 @@ public class PBParameterUtils {
      *
      * @param inConsumerInfo      the consumer information
      * @param masterConfig        the master configure
-     * @param defMetaDataManager  the cluster meta information
+     * @param defMetaDataService  the cluster meta information
      * @param brokerRunManager    the broker running information
      * @param strBuffer           the string buffer used to construct the result
      * @return the check result
      */
     public static ParamCheckResult checkConsumerInputInfo(ConsumerInfo inConsumerInfo,
                                                           MasterConfig masterConfig,
-                                                          MetaDataManager defMetaDataManager,
+                                                          MetaDataService defMetaDataService,
                                                           BrokerRunManager brokerRunManager,
                                                           StringBuilder strBuffer) throws Exception {
         ParamCheckResult retResult = new ParamCheckResult();
@@ -232,7 +232,7 @@ public class PBParameterUtils {
             return retResult;
         }
         GroupResCtrlEntity offsetResetGroupEntity =
-                defMetaDataManager.confGetGroupResCtrlConf(inConsumerInfo.getGroupName());
+                defMetaDataService.getGroupCtrlConf(inConsumerInfo.getGroupName());
         if (masterConfig.isStartOffsetResetCheck()) {
             if (offsetResetGroupEntity == null) {
                 retResult.setCheckResult(false,

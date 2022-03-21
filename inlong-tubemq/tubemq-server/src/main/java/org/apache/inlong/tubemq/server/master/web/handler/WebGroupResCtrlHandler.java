@@ -108,7 +108,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
                 resCheckEnable, TBaseConstants.META_VALUE_UNDEFINED, inQryPriorityId,
                 flowCtrlEnable, TBaseConstants.META_VALUE_UNDEFINED, null);
         Map<String, GroupResCtrlEntity> groupResCtrlEntityMap =
-                metaDataManager.confGetGroupResCtrlConf(inGroupSet, qryEntity);
+                defMetaDataService.getGroupCtrlConf(inGroupSet, qryEntity);
         // build return result
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
@@ -206,9 +206,11 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         }
         Set<String> batchGroupNames = (Set<String>) result.getRetData();
         // delete group resource record
-        List<GroupProcessResult> retInfo =
-                metaDataManager.delGroupResCtrlConf(opEntity.getModifyUser(),
-                        batchGroupNames, sBuffer, result);
+        List<GroupProcessResult> retInfo = new ArrayList<>();
+        for (String groupName : batchGroupNames) {
+            retInfo.add(defMetaDataService.delGroupResCtrlConf(
+                    opEntity.getModifyUser(), groupName, sBuffer, result));
+        }
         return buildRetInfo(retInfo, sBuffer);
     }
 
@@ -247,7 +249,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         int allowedBClientRate = (int) result.getRetData();
         // get def cluster setting info
         ClusterSettingEntity defClusterSetting =
-                metaDataManager.getClusterDefSetting(false);
+                defMetaDataService.getClusterDefSetting(false);
         // get and valid qryPriorityId info
         if (!WebParameterUtils.getQryPriorityIdParameter(req,
                 false, (isAddOp ? defClusterSetting.getQryPriorityId()
@@ -275,7 +277,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         // add group resource record
         List<GroupProcessResult> retInfo = new ArrayList<>();
         for (String groupName : batchGroupNames) {
-            retInfo.add(metaDataManager.addOrUpdGroupResCtrlConf(isAddOp, opEntity, groupName,
+            retInfo.add(defMetaDataService.addOrUpdGroupCtrlConf(isAddOp, opEntity, groupName,
                     resCheckEnable, allowedBClientRate, qryPriorityId,
                     flowCtrlEnable, flowRuleCnt, flowCtrlInfo, sBuffer, result));
         }
@@ -302,7 +304,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         // add or update group resource record
         List<GroupProcessResult> retInfo = new ArrayList<>();
         for (GroupResCtrlEntity newResCtrlEntity : addRecordMap.values()) {
-            retInfo.add(metaDataManager.addOrUpdGroupResCtrlConf(
+            retInfo.add(defMetaDataService.addOrUpdGroupCtrlConf(
                     isAddOp, newResCtrlEntity, sBuffer, result));
         }
         return buildRetInfo(retInfo, sBuffer);
@@ -319,7 +321,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
                 (List<Map<String, String>>) result.getRetData();
         // get default qryPriorityId
         ClusterSettingEntity defClusterSetting =
-                metaDataManager.getClusterDefSetting(false);
+                defMetaDataService.getClusterDefSetting(false);
         int defQryPriorityId = defClusterSetting.getQryPriorityId();
         // check and get topic control configure
         GroupResCtrlEntity itemEntity;

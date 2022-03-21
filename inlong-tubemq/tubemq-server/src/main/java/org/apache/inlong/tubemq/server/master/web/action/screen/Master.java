@@ -33,7 +33,7 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.corerpc.exception.StandbyException;
 import org.apache.inlong.tubemq.server.master.TMaster;
-import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.TopicPSInfoManager;
@@ -43,7 +43,7 @@ import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
 
 public class Master implements Action {
 
-    private TMaster master;
+    private final TMaster master;
 
     public Master(TMaster master) {
         this.master = master;
@@ -57,9 +57,9 @@ public class Master implements Action {
             if (this.master.isStopped()) {
                 throw new Exception("Sever is stopping...");
             }
-            MetaDataManager metaDataManager =
-                    this.master.getDefMetaDataManager();
-            if (!metaDataManager.isSelfMaster()) {
+            MetaDataService defMetaDataService =
+                    this.master.getMetaDataService();
+            if (!defMetaDataService.isSelfMaster()) {
                 throw new StandbyException("Please send your request to the master Node.");
             }
             String type = req.getParameter("type");
@@ -234,7 +234,7 @@ public class Master implements Action {
         }
         if (brokerInfoMap != null) {
             int index = 1;
-            MetaDataManager metaDataManager = master.getDefMetaDataManager();
+            MetaDataService defMetaDataService = master.getMetaDataService();
             for (BrokerInfo broker : brokerInfoMap.values()) {
                 sBuilder.append("\n################################## ")
                         .append(index).append(". ").append(broker.toString())
@@ -242,7 +242,7 @@ public class Master implements Action {
                 List<TopicInfo> topicInfoList =
                         brokerRunManager.getPubBrokerPushedTopicInfo(broker.getBrokerId());
                 Map<String, TopicDeployEntity> topicConfigMap =
-                        metaDataManager.getBrokerTopicConfEntitySet(broker.getBrokerId());
+                        defMetaDataService.getBrokerTopicConfEntitySet(broker.getBrokerId());
                 if (topicConfigMap == null) {
                     for (TopicInfo info : topicInfoList) {
                         sBuilder = info.toStrBuilderString(sBuilder);
