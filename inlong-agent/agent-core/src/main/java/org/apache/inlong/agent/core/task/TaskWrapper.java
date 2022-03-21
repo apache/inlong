@@ -84,29 +84,25 @@ public class TaskWrapper extends AbstractStateWrapper {
      * @return CompletableFuture
      */
     private CompletableFuture<?> submitReadThread() {
-    return CompletableFuture.runAsync(
-        () -> {
-          Message message = null;
-          while (!isException() && !task.isReadFinished()) {
-            // if source deleted,then failed
-            if (!task.getReader().isSourceExist()) {
-              doChangeState(State.FAILED);
-            } else {
-              if (message == null
-                  || task.getChannel().push(message, pushMaxWaitTime, TimeUnit.SECONDS)) {
-                message = task.getReader().read();
-              }
+        return CompletableFuture.runAsync(() -> {
+            Message message = null;
+            while (!isException() && !task.isReadFinished()) {
+                // if source deleted,then failed
+                if (!task.getReader().isSourceExist()) {
+                    doChangeState(State.FAILED);
+                } else {
+                    if (message == null
+                            || task.getChannel().push(message, pushMaxWaitTime, TimeUnit.SECONDS)) {
+                        message = task.getReader().read();
+                    }
+                }
             }
-          }
-          LOGGER.info(
-              "read end, task exception status is {}, read finish status is {}",
-              isException(),
-              task.isReadFinished());
-          // write end message
-          task.getChannel().push(new EndMessage());
-          task.getReader().destroy();
-        },
-        executorService);
+            LOGGER.info("read end, task exception status is {}, read finish status is {}", isException(),
+                            task.isReadFinished());
+            // write end message
+            task.getChannel().push(new EndMessage());
+            task.getReader().destroy();
+        }, executorService);
     }
 
     /**
