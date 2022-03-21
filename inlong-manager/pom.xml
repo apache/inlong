@@ -37,7 +37,7 @@
         <module>manager-workflow</module>
         <module>manager-web</module>
         <module>manager-docker</module>
-        <module>manager-plugin-examples</module>
+        <module>manager-plugins</module>
         <module>manager-client</module>
         <module>manager-client-examples</module>
     </modules>
@@ -86,6 +86,7 @@
         <okhttp.version>3.14.9</okhttp.version>
         <fastjson.version>1.2.76</fastjson.version>
         <powermock.version>2.0.2</powermock.version>
+        <flink-clients.version>1.13.5</flink-clients.version>
         <docker.organization>inlong</docker.organization>
     </properties>
 
@@ -146,6 +147,11 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-validation</artifactId>
                 <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-clients_2.11</artifactId>
+                <version>${flink-clients.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>

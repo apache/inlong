@@ -1,0 +1,154 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.inlong.manager.plugin.listener;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.settings.InlongGroupSettings;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.plugin.dto.FlinkConf;
+import org.apache.inlong.manager.plugin.dto.LoginConf;
+import org.apache.inlong.manager.plugin.flink.Constants;
+import org.apache.inlong.manager.plugin.flink.FlinkService;
+import org.apache.inlong.manager.plugin.flink.ManagerFlinkTask;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
+import org.apache.inlong.manager.workflow.event.task.TaskEvent;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.apache.inlong.manager.plugin.flink.FlinkUtils.translateFromEndpont;
+
+@Slf4j
+public class StartupSortListener implements SortOperateListener {
+    @Override
+    public TaskEvent event() {
+        return TaskEvent.COMPLETE;
+    }
+
+    @Override
+    public ListenerResult listen(WorkflowContext context) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) context.getProcessForm();
+        InlongGroupInfo inlongGroupInfo = groupResourceProcessForm.getGroupInfo();
+        List<InlongGroupExtInfo> inlongGroupExtInfos = inlongGroupInfo.getExtList();
+        log.info("inlongGroupExtInfos:{}", inlongGroupExtInfos);
+        Map<String, String> kvConf = inlongGroupExtInfos.stream().filter(v -> StringUtils.isNotEmpty(v.getKeyName())
+                && StringUtils.isNotEmpty(v.getKeyValue())).collect(Collectors.toMap(
+                InlongGroupExtInfo::getKeyName,
+                InlongGroupExtInfo::getKeyValue));
+        String dataFlows = kvConf.get(InlongGroupSettings.DATA_FLOW);
+        String inlongGroupId = context.getProcessForm().getInlongGroupId();
+        if (StringUtils.isEmpty(dataFlows)) {
+            String message = String.format("inlongGroupId:%s not exec startupProcess listener,dataflows is empty",
+                    inlongGroupId);
+            log.warn(message);
+            return ListenerResult.fail(message);
+        }
+        Map<String, JsonNode> dataflowMap = objectMapper.convertValue(objectMapper.readTree(dataFlows),
+                new TypeReference<Map<String, JsonNode>>(){});
+        Optional<JsonNode> dataflowOptional = dataflowMap.values().stream().findFirst();
+        JsonNode dataFlow = null;
+        if (dataflowOptional.isPresent()) {
+            dataFlow = dataflowOptional.get();
+        }
+        if (Objects.isNull(dataFlow)) {
+            String message = String.format("inlongGroupId:%s not exec startupProcess listener,dataflow is empty",
+                    inlongGroupId);
+            log.warn(message);
+            ListenerResult.fail(message);
+        }
+
+        String sortExt = kvConf.get(InlongGroupSettings.SORT_PROPERTIES);
+
+        if (StringUtils.isNotEmpty(sortExt)) {
+            Map<String, String> result = objectMapper.convertValue(objectMapper.readTree(sortExt),
+                    new TypeReference<Map<String, String>>(){});
+            kvConf.putAll(result);
+        }
+        FlinkConf flinkConf = new FlinkConf();
+        parseDataflow(dataFlow, flinkConf);
+
+        flinkConf.setClusterId(kvConf.get(InlongGroupSettings.CLUSTER_ID));
+
+        String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
+        Preconditions.checkNotEmpty(sortUrl, "flink sortUrl is empty");
+        flinkConf.setEndpoint(sortUrl);
+
+        LoginConf loginConf = translateFromEndpont(kvConf.get(InlongGroupSettings.SORT_URL));
+        flinkConf.setAddress(loginConf.getRestAddress());
+        flinkConf.setPort(loginConf.getRestPort());
+        String jobName = Constants.INLONG + context.getProcessForm().getInlongGroupId();
+        flinkConf.setJobName(jobName);
+        FlinkService flinkService = new FlinkService(flinkConf.getAddress(),flinkConf.getPort());
+        ManagerFlinkTask managerFlinkTask = new ManagerFlinkTask(flinkService);
+        managerFlinkTask.genPath(flinkConf, dataFlow.toString());
+
+        try {
+            String jobId = managerFlinkTask.start(flinkConf);
+            log.info("the jobId {} submit success",jobId);
+        } catch (Exception e) {
+            log.warn("startup start exception [{}]", e.getMessage());
+            managerFlinkTask.pollFlinkStatus(flinkConf, true);
+        }
+        // save job id
+        saveInfo(context.getProcessForm().getInlongGroupId(), InlongGroupSettings.SORT_JOB_ID, flinkConf.getJobId(),
+                inlongGroupExtInfos);
+
+        managerFlinkTask.pollFlinkStatus(flinkConf, false);
+        return ListenerResult.success();
+    }
+
+    private void saveInfo(String inlongGroupId, String keyName, String keyValue,
+            List<InlongGroupExtInfo> inlongGroupExtInfos) {
+        InlongGroupExtInfo inlongGroupExtInfo = new InlongGroupExtInfo();
+        inlongGroupExtInfo.setInlongGroupId(inlongGroupId);
+        inlongGroupExtInfo.setKeyName(keyName);
+        inlongGroupExtInfo.setKeyValue(keyValue);
+        inlongGroupExtInfos.add(inlongGroupExtInfo);
+    }
+
+    private void parseDataflow(JsonNode dataflow, FlinkConf flinkConf)  {
+        JsonNode sourceInfo = dataflow.get(Constants.SOURCE_INFO);
+        String sourceType = sourceInfo.get(Constants.TYPE).asText();
+        flinkConf.setSourceType(sourceType);
+        JsonNode sinkInfo = dataflow.get(Constants.SINK_INFO);
+        String sinkType = sinkInfo.get(Constants.TYPE).asText();
+        JsonNode data = sinkInfo.get(Constants.DATA_PATH);
+        if (data != null) {
+            flinkConf.setDataPath(data.asText());
+        }
+        flinkConf.setSinkType(sinkType);
+    }
+
+    @Override
+    public boolean async() {
+        return false;
+    }
+}
