@@ -33,6 +33,7 @@ import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.FileAgentDataGenerateRule;
 import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.agent.AgentStatusReportRequest;
 import org.apache.inlong.manager.common.pojo.agent.CheckAgentTaskConfRequest;
 import org.apache.inlong.manager.common.pojo.agent.ConfirmAgentIpRequest;
@@ -41,7 +42,6 @@ import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo.CommandInfoBean;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataSourceCmdConfigEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
@@ -54,7 +54,6 @@ import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperation;
-import org.apache.inlong.manager.service.source.binlog.BinlogStreamSourceOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,8 +96,6 @@ public class AgentServiceImpl implements AgentService {
     private InlongStreamFieldEntityMapper streamFieldMapper;
     @Autowired
     private InlongStreamEntityMapper streamMapper;
-    @Autowired
-    private BinlogStreamSourceOperation binlogStreamSourceOperation;
 
     /**
      * If the reported task time and the modification time in the database exceed this value,
@@ -117,12 +114,10 @@ public class AgentServiceImpl implements AgentService {
             propagation = Propagation.REQUIRES_NEW)
     public void report(TaskRequest request) {
         LOGGER.info("begin to get agent task: {}", request);
-        if (request == null) {
-            LOGGER.warn("agent request was empty, just return");
-            return;
+        if (request == null || StringUtils.isBlank(request.getAgentIp())) {
+            throw new BusinessException("agent request or agent ip was empty, just return");
         }
-        Preconditions.checkNotEmpty(request.getAgentIp(),
-                String.format("AgentIp should not be null in request=%s", request));
+
         if (CollectionUtils.isEmpty(request.getCommandInfo())) {
             LOGGER.warn("task result was empty, just return");
             return;
@@ -137,6 +132,7 @@ public class AgentServiceImpl implements AgentService {
         Integer taskId = command.getTaskId();
         StreamSourceEntity current = sourceMapper.selectByIdForUpdate(taskId);
         if (current == null) {
+            LOGGER.warn("stream source not found by id={}, just return", taskId);
             return;
         }
 
@@ -176,12 +172,10 @@ public class AgentServiceImpl implements AgentService {
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED,
             propagation = Propagation.REQUIRES_NEW)
     public TaskResult getTaskResult(TaskRequest request) {
-        if (request == null) {
-            LOGGER.warn("agent request was empty, just return");
-            return null;
+        if (request == null || StringUtils.isBlank(request.getAgentIp())) {
+            throw new BusinessException("agent request or agent ip was empty, just return");
         }
-        Preconditions.checkNotEmpty(request.getAgentIp(),
-                String.format("AgentIp should not be null in request=%s", request));
+
         // Query the tasks that needed to add or active - without agentIp and uuid
         List<Integer> addedStatusList = Arrays.asList(SourceState.TO_BE_ISSUED_ADD.getCode(),
                 SourceState.TO_BE_ISSUED_ACTIVE.getCode());
@@ -189,16 +183,13 @@ public class AgentServiceImpl implements AgentService {
 
         String agentIp = request.getAgentIp();
         String uuid = request.getUuid();
-        if (StringUtils.isNotEmpty(agentIp)) {
-            // Query other tasks by agentIp and uuid - not included status with TO_BE_ISSUED_ADD and TO_BE_ISSUED_ACTIVE
-            List<Integer> statusList = Arrays.asList(SourceState.TO_BE_ISSUED_DELETE.getCode(),
-                    SourceState.TO_BE_ISSUED_RETRY.getCode(), SourceState.TO_BE_ISSUED_BACKTRACK.getCode(),
-                    SourceState.TO_BE_ISSUED_FROZEN.getCode(), SourceState.TO_BE_ISSUED_CHECK.getCode(),
-                    SourceState.TO_BE_ISSUED_REDO_METRIC.getCode(), SourceState.TO_BE_ISSUED_MAKEUP.getCode());
-            List<StreamSourceEntity> agentAddList = sourceMapper.selectByStatusAndIpForUpdate(statusList, agentIp,
-                    uuid);
-            entityList.addAll(agentAddList);
-        }
+        // Query other tasks by agentIp and uuid - not included status with TO_BE_ISSUED_ADD and TO_BE_ISSUED_ACTIVE
+        List<Integer> statusList = Arrays.asList(SourceState.TO_BE_ISSUED_DELETE.getCode(),
+                SourceState.TO_BE_ISSUED_RETRY.getCode(), SourceState.TO_BE_ISSUED_BACKTRACK.getCode(),
+                SourceState.TO_BE_ISSUED_FROZEN.getCode(), SourceState.TO_BE_ISSUED_CHECK.getCode(),
+                SourceState.TO_BE_ISSUED_REDO_METRIC.getCode(), SourceState.TO_BE_ISSUED_MAKEUP.getCode());
+        List<StreamSourceEntity> addedList = sourceMapper.selectByStatusAndIpForUpdate(statusList, agentIp, uuid);
+        entityList.addAll(addedList);
 
         List<DataConfig> dataConfigs = Lists.newArrayList();
         for (StreamSourceEntity entity : entityList) {
@@ -223,11 +214,9 @@ public class AgentServiceImpl implements AgentService {
 
         // Update agentIp and uuid for the added and active tasks
         for (StreamSourceEntity entity : entityList) {
-            if (StringUtils.isNotEmpty(agentIp)
-                    && StringUtils.isEmpty(entity.getAgentIp())) {
+            if (StringUtils.isEmpty(entity.getAgentIp())) {
                 sourceMapper.updateIpAndUuid(entity.getId(), agentIp, uuid, entity.getModifyTime());
-                LOGGER.info("update stream source ip to [{}], uuid to [{}] for id [{}] ", agentIp, uuid,
-                        entity.getId());
+                LOGGER.info("update stream source ip to [{}], uuid to [{}] for id [{}]", agentIp, uuid, entity.getId());
             }
         }
 
@@ -247,8 +236,7 @@ public class AgentServiceImpl implements AgentService {
         dataConfig.setTaskName(entity.getSourceName());
         dataConfig.setSnapshot(entity.getSnapshot());
         dataConfig.setExtParams(entity.getExtParams());
-        LocalDateTime dateTime = LocalDateTime.ofInstant(entity.getModifyTime().toInstant(),
-                ZoneId.systemDefault());
+        LocalDateTime dateTime = LocalDateTime.ofInstant(entity.getModifyTime().toInstant(), ZoneId.systemDefault());
         dataConfig.setDeliveryTime(dateTime.format(TIME_FORMATTER));
 
         String groupId = entity.getInlongGroupId();
