@@ -17,7 +17,7 @@
 #
 
 file_path=$(cd "$(dirname "$0")"/../;pwd)
-local_ip=$(ifconfig $ETH_NETWORK | grep "inet addr" | awk '{ print $2}' | awk -F: '{print $2}')
+local_ip=$(ifconfig $ETH_NETWORK | grep "inet" | grep -v "inet6" | awk '{print $2}')
 # config
 cat <<EOF > ${file_path}/conf/agent.properties
 agent.fetcher.classname=org.apache.inlong.agent.plugin.fetcher.ManagerFetcher
