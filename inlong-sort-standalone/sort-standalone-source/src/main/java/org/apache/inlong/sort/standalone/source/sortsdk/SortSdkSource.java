@@ -30,15 +30,21 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.api.SortClientFactory;
+import org.apache.inlong.sdk.sort.impl.ManagerReportHandlerImpl;
+import org.apache.inlong.sdk.sort.impl.MetricReporterImpl;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.config.holder.ManagerUrlHandler;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +66,10 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
 
     // Log of {@link SortSdkSource}.
     private static final Logger LOG = LoggerFactory.getLogger(SortSdkSource.class);
+
+    // KEY of QueryConsumeConfig Type
+    private static final String KEY_QUERY_CONSUME_CONFIG_TYPE =
+            "sortSourceConfig.QueryConsumeConfigType";
 
     // Default pool of {@link ScheduledExecutorService}.
     private static final int CORE_POOL_SIZE = 1;
@@ -120,6 +130,7 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
         this.context = new SortSdkSourceContext(getName(), context);
         this.reloadInterval = this.context.getReloadInterval();
         this.initReloadExecutor();
+
     }
 
     /**
@@ -169,7 +180,7 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
     /**
      * Stop an expiry client from SortTaskConfig.
      * <p>
-     *     If the sortId is not in active clients, but not in configs, stop it.
+     *     If the sortId is in active clients, but not in configs, stop it.
      * </p>
      *
      * @param configs Updated SortTaskConfig
@@ -180,9 +191,10 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
                 .collect(Collectors.toSet());
 
         clients.keySet().stream()
-                .filter(updatedSortIds::contains)
+                .filter(sortId -> !updatedSortIds.contains(sortId))
                 .forEach(sortId -> {
                     final SortClient client = clients.get(sortId);
+                    LOG.info("Close sort client {}.", sortId);
                     try {
                         client.close();
                     } catch (Throwable th) {
@@ -207,7 +219,7 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
      * @param config The config to be updated.
      */
     private void updateClientConfig(SortClientConfig config) {
-        config.setManagerApiUrl(CommonPropertiesHolder.getSourceConfigManagerUrl());
+        config.setManagerApiUrl(ManagerUrlHandler.getSortSourceConfigUrl());
     }
 
     /**
@@ -228,7 +240,19 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
             final FetchCallback callback = FetchCallback.Factory.create(sortId, getChannelProcessor(), context);
             clientConfig.setCallback(callback);
             this.updateClientConfig(clientConfig);
-            SortClient client = SortClientFactory.createSortClient(clientConfig);
+            SortClient client;
+            QueryConsumeConfig queryConsumeConfigImpl = this.getQueryConfigImpl();
+            if (queryConsumeConfigImpl != null) {
+                // if it specifies the type of QueryConsumeConfig.
+                LOG.info("Create sort sdk client in custom way.");
+                client = SortClientFactory.createSortClient(clientConfig,
+                                queryConsumeConfigImpl,
+                                new MetricReporterImpl(clientConfig),
+                                new ManagerReportHandlerImpl());
+            } else {
+                LOG.info("Create sort sdk client in default way.");
+                client = SortClientFactory.createSortClient(clientConfig);
+            }
             client.init();
             // temporary use to ACK fetched msg.
             callback.setClient(client);
@@ -237,6 +261,27 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
             LOG.error("Got one UnknownHostException when init client of id: " + sortId, ex);
         } catch (Throwable th) {
             LOG.error("Got one throwable when init client of id: " + sortId, th);
+        }
+        return null;
+    }
+
+    private QueryConsumeConfig getQueryConfigImpl() {
+        String className = CommonPropertiesHolder.getString(KEY_QUERY_CONSUME_CONFIG_TYPE);
+        if (StringUtils.isBlank(className)) {
+            LOG.info("There is no property of {}, use default implementation.", KEY_QUERY_CONSUME_CONFIG_TYPE);
+            return null;
+        }
+        LOG.info("Start to load QueryConfig class {}.", className);
+        try {
+            Class<?> queryConfigType = ClassUtils.getClass(className);
+            Object obj = queryConfigType.getDeclaredConstructor().newInstance();
+            if (obj instanceof QueryConsumeConfig) {
+                LOG.info("Load {} successfully.", className);
+                return (QueryConsumeConfig) obj;
+            }
+        } catch (Throwable t) {
+            LOG.error("Got exception when load QueryConfigImpl, class name is " + className + ". Exception is "
+                    + t.getMessage(), t);
         }
         return null;
     }
