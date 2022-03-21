@@ -112,22 +112,21 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public TaskResult reportAndGetTask(TaskRequest request) {
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED,
+            propagation = Propagation.REQUIRES_NEW)
+    public void report(TaskRequest request) {
         LOGGER.info("begin to get agent task: {}", request);
-        if (request == null || request.getAgentIp() == null) {
+        if (request == null) {
             LOGGER.warn("agent request was empty, just return");
-            return null;
+            return;
         }
-
         this.updateTaskStatus(request);
-
-        return this.getTaskResult(request);
     }
 
     /**
      * Update the task status by the request
      */
-    protected void updateTaskStatus(TaskRequest request) {
+    public void updateTaskStatus(TaskRequest request) {
         if (CollectionUtils.isEmpty(request.getCommandInfo())) {
             LOGGER.warn("task result was empty, just return");
             return;
@@ -139,9 +138,7 @@ public class AgentServiceImpl implements AgentService {
         }
     }
 
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED,
-            propagation = Propagation.REQUIRES_NEW)
-    protected void updateCommandEntity(CommandEntity command) {
+    public void updateCommandEntity(CommandEntity command) {
         Integer taskId = command.getTaskId();
         StreamSourceEntity current = sourceMapper.selectByIdForUpdate(taskId);
         if (current == null) {
@@ -180,9 +177,14 @@ public class AgentServiceImpl implements AgentService {
     /**
      * Get task result by the request
      */
+    @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED,
             propagation = Propagation.REQUIRES_NEW)
-    protected TaskResult getTaskResult(TaskRequest request) {
+    public TaskResult getTaskResult(TaskRequest request) {
+        if (request == null) {
+            LOGGER.warn("agent request was empty, just return");
+            return null;
+        }
         // Query the tasks that needed to add or active - without agentIp and uuid
         List<Integer> addedStatusList = Arrays.asList(SourceState.TO_BE_ISSUED_ADD.getCode(),
                 SourceState.TO_BE_ISSUED_ACTIVE.getCode());
