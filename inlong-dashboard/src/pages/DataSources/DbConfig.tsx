@@ -28,7 +28,7 @@ export const getCreateFormContent = (defaultValues = {}) => {
     {
       type: 'input',
       label: i18n.t('pages.Datasources.DbConfig.ServerName'),
-      name: 'serverName',
+      name: 'connectionName',
       rules: [{ required: true }],
       props: {
         maxLength: 128,
@@ -55,7 +55,7 @@ export const getCreateFormContent = (defaultValues = {}) => {
     {
       type: 'input',
       label: 'DB IP',
-      name: 'dbIp',
+      name: 'dbServerIp',
       rules: [
         { required: true },
         {
@@ -67,7 +67,7 @@ export const getCreateFormContent = (defaultValues = {}) => {
     {
       type: 'inputnumber',
       label: i18n.t('pages.Datasources.DbConfig.Port'),
-      name: 'dbPort',
+      name: 'port',
       rules: [
         { required: true },
         {
@@ -79,7 +79,7 @@ export const getCreateFormContent = (defaultValues = {}) => {
     {
       type: 'input',
       label: i18n.t('pages.Datasources.DbConfig.BackupDbIp'),
-      name: 'backupDbIp',
+      name: 'backupDbServerIp',
       rules: [
         {
           pattern: rulesPattern.ip,
@@ -137,7 +137,7 @@ export const getCreateFormContent = (defaultValues = {}) => {
 export const tableColumns: ColumnsType = [
   {
     title: i18n.t('pages.Datasources.DbConfig.ServerName'),
-    dataIndex: 'serverName',
+    dataIndex: 'connectionName',
   },
   {
     title: i18n.t('pages.Datasources.DbConfig.Type'),
@@ -145,11 +145,11 @@ export const tableColumns: ColumnsType = [
   },
   {
     title: 'DB IP',
-    dataIndex: 'dbIp',
+    dataIndex: 'dbServerIp',
   },
   {
     title: i18n.t('pages.Datasources.DbConfig.Port'),
-    dataIndex: 'dbPort',
+    dataIndex: 'port',
   },
   {
     title: i18n.t('pages.Datasources.DbConfig.DbName'),
