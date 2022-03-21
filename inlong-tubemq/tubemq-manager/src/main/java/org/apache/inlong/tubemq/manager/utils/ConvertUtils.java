@@ -33,6 +33,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.tubemq.manager.controller.cluster.vo.ClusterCountVo;
 import org.apache.inlong.tubemq.manager.controller.cluster.vo.ClusterVo;
 import org.apache.inlong.tubemq.manager.controller.topic.request.RebalanceConsumerReq;
 import org.apache.inlong.tubemq.manager.controller.topic.request.RebalanceGroupReq;
@@ -111,11 +112,19 @@ public class ConvertUtils {
         return StringUtils.join(queryList, "&");
     }
 
-    public static ClusterVo convertToClusterVo(ClusterEntry clusterEntry, MasterEntry masterEntry) {
+    public static ClusterVo convertToClusterVo(ClusterEntry clusterEntry,
+                                               MasterEntry masterEntry,  ClusterCountVo clusterCountVo) {
         ClusterVo cluster = new ClusterVo();
         cluster.setClusterId(clusterEntry.getClusterId());
         cluster.setMasterIp(masterEntry.getIp());
         cluster.setClusterName(clusterEntry.getClusterName());
+        cluster.setReloadBrokerSize(clusterEntry.getReloadBrokerSize());
+        cluster.setBrokerCount(clusterCountVo.getBrokerCount());
+        cluster.setTopicCount(clusterCountVo.getTopicCount());
+        cluster.setPartitionCount(clusterCountVo.getPartitionCount());
+        cluster.setConsumerGroupCount(clusterCountVo.getConsumerGroupCount());
+        cluster.setConsumerCount(clusterCountVo.getConsumerCount());
+        cluster.setStoreCount(clusterCountVo.getStoreCount());
         return cluster;
     }
 
