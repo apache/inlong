@@ -45,15 +45,14 @@ public interface AgentService {
     /**
      * Agent report the task result.
      *
-     * @param request Request of the task result.
-     * @return Task result.
+     * @param request Result of the task.
      */
     void report(TaskRequest request);
 
     /**
-     *  Pull task config to operate.
+     * Agent pull task config.
      *
-     * @param request Request of the task result.
+     * @param request Request of the task.
      * @return Task result.
      */
     TaskResult getTaskResult(TaskRequest request);
