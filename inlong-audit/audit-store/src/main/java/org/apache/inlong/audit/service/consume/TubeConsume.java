@@ -58,6 +58,8 @@ public class TubeConsume extends BaseConsume {
         topic = mqConfig.getTubeTopic();
         Preconditions.checkArgument(StringUtils.isNotEmpty(topic), "no tube topic specified");
         fetchThreadCnt = mqConfig.getTubeThreadNum();
+        Preconditions.checkArgument(StringUtils.isNotEmpty(mqConfig.getTubeConsumerGroupName()),
+                "no tube consumer groupName specified");
 
         initConsumer();
 
@@ -100,6 +102,7 @@ public class TubeConsume extends BaseConsume {
             // wait partition status ready
             while (true) {
                 if (pullMessageConsumer.isPartitionsReady(5000) || pullMessageConsumer.isShutdown()) {
+                    LOG.warn("tube partition is not ready or consumer is shutdown!");
                     break;
                 }
             }
@@ -124,7 +127,6 @@ public class TubeConsume extends BaseConsume {
                         }
                         pullMessageConsumer.confirmConsume(csmResult.getConfirmContext(), true);
                     } else {
-                        //TODO improve error handle
                         LOG.error("receive messages errorCode is {}, error meddage is {}", csmResult.getErrCode(),
                                 csmResult.getErrMsg());
                     }

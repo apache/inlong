@@ -17,6 +17,7 @@
 
 package org.apache.inlong.audit.service.consume;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
@@ -49,7 +50,13 @@ public class PulsarConsume extends BaseConsume {
 
     @Override
     public void start() {
-        PulsarClient pulsarClient = getOrCreatePulsarClient(mqConfig.getPulsarServerUrl());
+        String pulsarUrl = mqConfig.getPulsarServerUrl();
+        Preconditions.checkArgument(StringUtils.isNotEmpty(pulsarUrl), "no pulsar server url specified");
+        Preconditions.checkArgument(StringUtils.isNotEmpty(mqConfig.getPulsarTopic()),
+                "no pulsar topic specified");
+        Preconditions.checkArgument(StringUtils.isNotEmpty(mqConfig.getPulsarConsumerSubName()),
+                "no pulsar consumeSubName specified");
+        PulsarClient pulsarClient = getOrCreatePulsarClient(pulsarUrl);
         updateConcurrentConsumer(pulsarClient);
     }
 

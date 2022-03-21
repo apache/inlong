@@ -27,13 +27,13 @@ import org.springframework.stereotype.Component;
 @Setter
 public class MessageQueueConfig {
 
-    @Value("${audit.pulsar.server.url}")
+    @Value("${audit.pulsar.server.url:}")
     private String pulsarServerUrl;
 
-    @Value("${audit.pulsar.topic}")
+    @Value("${audit.pulsar.topic:}")
     private String pulsarTopic;
 
-    @Value("${audit.pulsar.consumer.sub.name}")
+    @Value("${audit.pulsar.consumer.sub.name:}")
     private String pulsarConsumerSubName;
 
     @Value("${audit.pulsar.consumer.enable.retry:false}")
@@ -48,13 +48,13 @@ public class MessageQueueConfig {
     @Value("${audit.pulsar.client.concurrent.consumer.num:1}")
     private int concurrentConsumerNum = 1;
 
-    @Value("${audit.tube.masterlist}")
+    @Value("${audit.tube.masterlist:}")
     private String tubeMasterList;
 
-    @Value("${audit.tube.topic}")
+    @Value("${audit.tube.topic:}")
     private String tubeTopic;
 
-    @Value("${audit.tube.consumer.group.name}")
+    @Value("${audit.tube.consumer.group.name:}")
     private String tubeConsumerGroupName;
 
     @Value("${audit.tube.consumer.thread.num:4}")
