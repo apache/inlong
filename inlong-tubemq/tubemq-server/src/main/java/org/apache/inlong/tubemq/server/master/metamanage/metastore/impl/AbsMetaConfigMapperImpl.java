@@ -204,7 +204,13 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
             lid = metaRowLock.getLock(null,
                     StringUtils.getBytesUtf8(String.valueOf(entity.getBrokerId())), true);
             if (isAddOp) {
-                brokerConfigMapper.addBrokerConf(entity, strBuff, result);
+                newEntity = new BrokerConfEntity(entity, entity.getBrokerId(),
+                        entity.getBrokerIp(), getClusterDefSetting(false));
+                newEntity.updModifyInfo(entity.getDataVerId(), entity.getBrokerPort(),
+                        entity.getBrokerTLSPort(), entity.getBrokerWebPort(),
+                        entity.getRegionId(), entity.getGroupId(), entity.getManageStatus(),
+                        entity.getTopicProps());
+                brokerConfigMapper.addBrokerConf(newEntity, strBuff, result);
             } else {
                 printPrefix = "[updBrokerConf], ";
                 curEntity = brokerConfigMapper.getBrokerConfByBrokerId(entity.getBrokerId());
@@ -446,7 +452,9 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
         int maxMsgSizeInMB = clusterSettingEntity.getMaxMsgSizeInMB();
         TopicCtrlEntity topicCtrlEntity = topicCtrlMapper.getTopicCtrlConf(topicName);
         if (topicCtrlEntity != null) {
-            maxMsgSizeInMB = topicCtrlEntity.getMaxMsgSizeInMB();
+            if (topicCtrlEntity.getMaxMsgSizeInMB() != TBaseConstants.META_VALUE_UNDEFINED) {
+                maxMsgSizeInMB = topicCtrlEntity.getMaxMsgSizeInMB();
+            }
         }
         return maxMsgSizeInMB;
     }
@@ -466,7 +474,7 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
      * Add if absent topic control configure info
      *
      * @param opEntity  the operation info
-     * @param topicName the topic name will be add
+     * @param topicName the topic name will be added
      * @param strBuff   the print info string buffer
      * @param result    the process result return
      * @return true if success otherwise false
@@ -562,7 +570,7 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     @Override
     public void addSystemTopicDeploy(int brokerId, int brokerPort,
                                      String brokerIp, StringBuilder strBuff) {
-        BaseEntity opEntity = new BaseEntity("system-self", new Date());
+        BaseEntity opEntity = new BaseEntity("systemSelf", new Date());
         TopicPropGroup topicPropInfo = new TopicPropGroup();
         topicPropInfo.setNumTopicStores(TServerConstants.OFFSET_HISTORY_NUMSTORES);
         topicPropInfo.setNumPartitions(TServerConstants.OFFSET_HISTORY_NUMPARTS);
@@ -621,7 +629,15 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
                         return result.isSuccess();
                     }
                     // add record
-                    topicDeployMapper.addTopicDeployConf(entity, strBuff, result);
+                    TopicPropGroup newProps =
+                            getClusterDefSetting(false).getClsDefTopicProps().clone();
+                    newProps.updModifyInfo(brokerEntity.getTopicProps());
+                    newEntity = new TopicDeployEntity(entity,
+                            entity.getBrokerId(), entity.getTopicName(), newProps);
+                    newEntity.updModifyInfo(entity.getDataVerId(), entity.getTopicId(),
+                            brokerEntity.getBrokerPort(), brokerEntity.getBrokerIp(),
+                            entity.getTopicStatus(), entity.getTopicProps());
+                    topicDeployMapper.addTopicDeployConf(newEntity, strBuff, result);
                 } else {
                     printPrefix = "[updTopicDeployConf], ";
                     if (curEntity == null) {

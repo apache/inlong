@@ -972,9 +972,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
      * @return         the query result, null if query failure
      */
     private Map<String, TopicDeployEntity> getTopicDeployInfos(StringBuilder strBuff) {
-        // http://127.0.0.1:8080/webapi.htm?method=admin_query_topic_deploy_info
+        // http://127.0.0.1:8080/webapi.htm?method=admin_query_topic_deploy_configure
         JsonObject jsonRes = qryDataFromMaster(
-                "admin_query_topic_deploy_info", new HashMap<>(), strBuff);
+                "admin_query_topic_deploy_configure", new HashMap<>(), strBuff);
         // check return result
         if (!jsonRes.get("result").getAsBoolean()) {
             logger.info(strBuff.append("Query topic deploy configurations info failure:")

@@ -227,7 +227,8 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
             sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
-        brokerEntry.getBrokerDefaultConfInfo(sBuffer);
+        brokerEntry.getBrokerDefaultConfInfo(
+                metaDataService.getClusterDefSetting(false), sBuffer);
         String brokerConfInfo = sBuffer.toString();
         sBuffer.delete(0, sBuffer.length());
         Map<String, String> topicConfInfoMap =
@@ -330,7 +331,8 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
         BrokerConfEntity brokerConfEntity =
                 metaDataService.getBrokerConfByBrokerId(brokerId);
         if (brokerConfEntity != null) {
-            brokerConfEntity.getBrokerDefaultConfInfo(sBuffer);
+            brokerConfEntity.getBrokerDefaultConfInfo(
+                    metaDataService.getClusterDefSetting(false), sBuffer);
             brokerConfInfo = sBuffer.toString();
             sBuffer.delete(0, sBuffer.length());
             manageStatus = brokerConfEntity.getManageStatus();

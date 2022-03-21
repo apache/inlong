@@ -18,8 +18,9 @@
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.zkimpl;
 
 public class TZKNodeKeys {
-    public static final String ZK_BRANCH_HA = "masterHA";
     public static final String ZK_BRANCH_META_DATA = "metaData";
+    public static final String ZK_BRANCH_MASTER_HA = "masterHA";
+    public static final String ZK_LEAF_MASTER_HA_NODEID = "nodeId";
     public static final String ZK_LEAF_CLUSTER_CONFIG = "clusterConfig";
     public static final String ZK_LEAF_BROKER_CONFIG = "brokerConfig";
     public static final String ZK_LEAF_CONSUME_CTRL_CONFIG = "consumeCtrlConfig";
