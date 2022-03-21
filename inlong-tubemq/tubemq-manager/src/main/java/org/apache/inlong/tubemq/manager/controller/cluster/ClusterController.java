@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.manager.controller.cluster;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +32,7 @@ import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.cluster.dto.ClusterDto;
 import org.apache.inlong.tubemq.manager.controller.cluster.request.AddClusterReq;
 import org.apache.inlong.tubemq.manager.controller.cluster.request.DeleteClusterReq;
+import org.apache.inlong.tubemq.manager.controller.cluster.vo.ClusterCountVo;
 import org.apache.inlong.tubemq.manager.controller.cluster.vo.ClusterVo;
 import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
@@ -136,7 +136,7 @@ public class ClusterController {
         }
 
         MasterEntry masterNode = masterService.getMasterNode(clusterEntry.getClusterId());
-        Map<String, Integer> allCount = getAllCount(clusterId);
+        ClusterCountVo allCount = getAllCount(clusterId);
         TubeMQResult result = new TubeMQResult();
         result.setData(Lists.newArrayList(ConvertUtils.convertToClusterVo(clusterEntry, masterNode, allCount)));
         return result;
@@ -153,7 +153,7 @@ public class ClusterController {
         List<ClusterVo> clusterVos = Lists.newArrayList();
         for (ClusterEntry cluster : allClusters) {
             MasterEntry masterNode = masterService.getMasterNode(cluster.getClusterId());
-            Map<String, Integer> allCount = getAllCount(Integer.valueOf((int)cluster.getClusterId()));
+            ClusterCountVo allCount = getAllCount(Integer.valueOf((int)cluster.getClusterId()));
             ClusterVo clusterVo = ConvertUtils.convertToClusterVo(cluster, masterNode, allCount);
             clusterVos.add(clusterVo);
         }
@@ -190,18 +190,18 @@ public class ClusterController {
         return masterService.queryMaster(url);
     }
 
-    public Map<String, Integer> getAllCount(Integer clusterId) {
+    public ClusterCountVo getAllCount(Integer clusterId) {
+        ClusterCountVo clusterCountVo = new ClusterCountVo();
         int brokerSize = getBrokerSize(clusterId);
-        Map<String, Integer> mapCount = getTopicAndPartitionCount(clusterId);
+        ClusterCountVo countVo = getTopicAndPartitionCount(clusterId);
         int consumerGroupCount = getConsumerGroupCount(clusterId);
         int consumerCount = getConsumerCount(clusterId);
-        Map<String, Integer> map = new HashMap<>();
-        map.put("brokerSize", brokerSize);
-        map.put("topicCount", mapCount.get("topicCount"));
-        map.put("partitionCount", mapCount.get("partitionCount"));
-        map.put("consumerGroupCount", consumerGroupCount);
-        map.put("consumerCount", consumerCount);
-        return map;
+        clusterCountVo.setBrokerCount(brokerSize);
+        clusterCountVo.setTopicCount(countVo.getTopicCount());
+        clusterCountVo.setPartitionCount(countVo.getPartitionCount());
+        clusterCountVo.setConsumerGroupCount(consumerGroupCount);
+        clusterCountVo.setConsumerCount(consumerCount);
+        return clusterCountVo;
     }
 
     /**
@@ -222,7 +222,8 @@ public class ClusterController {
      * @param clusterId
      * @return
      */
-    public Map<String, Integer> getTopicAndPartitionCount(Integer clusterId) {
+    public ClusterCountVo getTopicAndPartitionCount(Integer clusterId) {
+        ClusterCountVo clusterCountVo = new ClusterCountVo();
         String url = masterService.getQueryCountUrl(clusterId, TubeConst.TOPIC_CONFIG_INFO);
         String s = masterService.queryMaster(url);
         JsonObject jsonObject = gson.fromJson(s, JsonObject.class);
@@ -235,10 +236,9 @@ public class ClusterController {
             Double totalRunNumPartCount = Double.valueOf(map.get("totalRunNumPartCount").toString());
             partitionCount = partitionCount + (int)Math.ceil(totalRunNumPartCount);
         }
-        Map<String, Integer> map = new HashMap<>();
-        map.put("topicCount", topicSize);
-        map.put("partitionCount", partitionCount);
-        return map;
+        clusterCountVo.setTopicCount(topicSize);
+        clusterCountVo.setPartitionCount(partitionCount);
+        return clusterCountVo;
     }
 
     /**
