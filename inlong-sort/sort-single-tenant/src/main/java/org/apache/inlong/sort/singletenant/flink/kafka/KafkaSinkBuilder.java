@@ -47,7 +47,7 @@ public class KafkaSinkBuilder {
                 schema,
                 producerProperties,
                 new FlinkFixedPartitioner<>(),
-                FlinkKafkaProducer.Semantic.EXACTLY_ONCE,
+                FlinkKafkaProducer.Semantic.AT_LEAST_ONCE,
                 config.getInteger(SINK_KAFKA_PRODUCER_POOL_SIZE)
         );
     }
