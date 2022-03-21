@@ -50,7 +50,7 @@ const Comp = ({ inlongGroupId, middlewareType }: Props, ref) => {
       data: {
         pageSize: 100,
         pageNum: 1,
-        inlongGroupId: inlongGroupId,
+        inlongGroupId,
       },
     },
     {

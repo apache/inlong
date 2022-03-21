@@ -191,7 +191,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
             data: {
               pageNum: 1,
               pageSize: 1000,
-              inlongGroupId: inlongGroupId,
+              inlongGroupId,
               dataSourceType: options.sourceType,
             },
           },

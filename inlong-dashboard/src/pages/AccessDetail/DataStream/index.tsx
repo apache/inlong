@@ -69,7 +69,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
       method: 'POST',
       data: {
         ...options,
-        inlongGroupId: inlongGroupId,
+        inlongGroupId,
       },
     },
     {
