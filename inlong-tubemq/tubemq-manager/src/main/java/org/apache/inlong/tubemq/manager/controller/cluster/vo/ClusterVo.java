@@ -26,4 +26,11 @@ public class ClusterVo {
     private Long clusterId;
     private String clusterName;
     private String masterIp;
+    private int reloadBrokerSize;
+    private int brokerCount;
+    private int topicCount;
+    private int storeCount;
+    private int partitionCount;
+    private int consumerGroupCount;
+    private int consumerCount;
 }

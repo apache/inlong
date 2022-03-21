@@ -34,6 +34,10 @@ public class TubeConst {
             "/webapi.htm?type=op_modify&method=admin_add_new_topic_record";
     public static final String RELOAD_BROKER =
             "/webapi.htm?type=op_modify&method=admin_reload_broker_configure";
+    public static final String QUERY_CONSUMER_GROUP_INFO =
+            "/webapi.htm?type=op_query&method=admin_query_topic_authorize_control";
+    public static final String QUERY_CONSUMER_INFO =
+            "/webapi.htm?type=op_query&method=admin_query_sub_info";
 
     /**
      * http method type

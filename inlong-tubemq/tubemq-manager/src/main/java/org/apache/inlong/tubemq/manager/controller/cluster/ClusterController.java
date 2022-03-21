@@ -23,6 +23,9 @@ import com.google.gson.Gson;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
@@ -133,8 +136,9 @@ public class ClusterController {
 
         MasterEntry masterNode = masterService.getMasterNode(clusterEntry.getClusterId());
 
+        ClusterVo allCount = getAllCount(clusterId);
         TubeMQResult result = new TubeMQResult();
-        result.setData(Lists.newArrayList(ConvertUtils.convertToClusterVo(clusterEntry, masterNode)));
+        result.setData(Lists.newArrayList(ConvertUtils.convertToClusterVo(clusterEntry, masterNode, allCount)));
         return result;
     }
 
@@ -149,7 +153,8 @@ public class ClusterController {
         List<ClusterVo> clusterVos = Lists.newArrayList();
         for (ClusterEntry cluster : allClusters) {
             MasterEntry masterNode = masterService.getMasterNode(cluster.getClusterId());
-            ClusterVo clusterVo = ConvertUtils.convertToClusterVo(cluster, masterNode);
+            ClusterVo allCount = getAllCount(Integer.valueOf((int)cluster.getClusterId()));
+            ClusterVo clusterVo = ConvertUtils.convertToClusterVo(cluster, masterNode, allCount);
             clusterVos.add(clusterVo);
         }
         result.setData(clusterVos);
@@ -183,6 +188,118 @@ public class ClusterController {
             @RequestParam Map<String, String> queryBody) throws Exception {
         String url = masterService.getQueryUrl(queryBody);
         return masterService.queryMaster(url);
+    }
+
+    public ClusterVo getAllCount(Integer clusterId) {
+        ClusterVo clusterVo = new ClusterVo();
+        int brokerSize = getBrokerSize(clusterId);
+        ClusterVo countVo = getTopicAndPartitionCount(clusterId);
+        int consumerGroupCount = getConsumerGroupCount(clusterId);
+        int consumerCount = getConsumerCount(clusterId);
+        int storeCount = getStoreCount(clusterId);
+        clusterVo.setBrokerCount(brokerSize);
+        clusterVo.setTopicCount(countVo.getTopicCount());
+        clusterVo.setPartitionCount(countVo.getPartitionCount());
+        clusterVo.setConsumerGroupCount(consumerGroupCount);
+        clusterVo.setConsumerCount(consumerCount);
+        clusterVo.setStoreCount(storeCount);
+        return clusterVo;
+    }
+
+    /**
+     * query borker size
+     * @param clusterId
+     * @return
+     */
+    public int getBrokerSize(Integer clusterId) {
+        String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.BROKER_RUN_STATUS);
+        String s = masterService.queryMaster(queryUrl);
+        JsonObject jsonObject = gson.fromJson(s, JsonObject.class);
+        JsonElement count = jsonObject.get("count");
+        return gson.fromJson(count, int.class);
+    }
+
+    /**
+     * query topic and partition count
+     * @param clusterId
+     * @return
+     */
+    public ClusterVo getTopicAndPartitionCount(Integer clusterId) {
+        ClusterVo clusterVo = new ClusterVo();
+        String url = masterService.getQueryCountUrl(clusterId, TubeConst.TOPIC_CONFIG_INFO);
+        String s = masterService.queryMaster(url);
+        JsonObject jsonObject = gson.fromJson(s, JsonObject.class);
+        JsonElement data = jsonObject.get("data");
+        JsonElement dataCount = jsonObject.get("dataCount");
+        Integer topicSize = gson.fromJson(dataCount, Integer.class);
+        List<Map> list = gson.fromJson(data, List.class);
+        int partitionCount = 0;
+        for (Map map : list) {
+            Double totalRunNumPartCount = Double.valueOf(map.get("totalRunNumPartCount").toString());
+            partitionCount = partitionCount + (int)Math.ceil(totalRunNumPartCount);
+        }
+        clusterVo.setTopicCount(topicSize);
+        clusterVo.setPartitionCount(partitionCount);
+        return clusterVo;
+    }
+
+    /**
+     * query Consumer group count
+     * @param clusterId
+     * @return
+     */
+    public int getConsumerGroupCount(Integer clusterId) {
+        String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.QUERY_CONSUMER_GROUP_INFO);
+        int consumerGroupCount = 0;
+        String groupData = masterService.queryMaster(queryUrl);
+        JsonObject jsonObject1 = gson.fromJson(groupData, JsonObject.class);
+        JsonElement data1 = jsonObject1.get("data");
+        JsonArray jsonElements1 = gson.fromJson(data1, JsonArray.class);
+        for (JsonElement jsonElement : jsonElements1) {
+            Map map1 = gson.fromJson(jsonElement, Map.class);
+            Double groupCount = Double.valueOf(map1.get("groupCount").toString());
+            consumerGroupCount = consumerGroupCount + (int)Math.ceil(groupCount);
+        }
+        return consumerGroupCount;
+    }
+
+    /**
+     * query consumer count
+     * @param clusterId
+     * @return
+     */
+    public int getConsumerCount(Integer clusterId) {
+        String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.QUERY_CONSUMER_INFO);
+        String queryMaster = masterService.queryMaster(queryUrl);
+        JsonObject jsonObject = gson.fromJson(queryMaster, JsonObject.class);
+        JsonElement data = jsonObject.get("data");
+        JsonArray jsonData = gson.fromJson(data, JsonArray.class);
+        int consumerCount = 0;
+        for (JsonElement jsonDatum : jsonData) {
+            Map map1 = gson.fromJson(jsonDatum, Map.class);
+            Double groupCount = Double.valueOf(map1.get("consumerNum").toString());
+            consumerCount = (int)Math.ceil(groupCount);
+        }
+        return consumerCount;
+    }
+
+    /**
+     * query store count
+     * @param clusterId
+     * @return
+     */
+    public int getStoreCount(Integer clusterId) {
+        String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.TOPIC_VIEW);
+        JsonObject jsonObject = gson.fromJson(masterService.queryMaster(queryUrl), JsonObject.class);
+        JsonElement getData = jsonObject.get("data");
+        JsonArray jsonData = gson.fromJson(getData, JsonArray.class);
+        int storeCount = 0;
+        for (JsonElement jsonDatum : jsonData) {
+            Map map1 = gson.fromJson(jsonDatum, Map.class);
+            Double numStore = Double.valueOf(map1.get("totalCfgNumStore").toString());
+            storeCount = storeCount + (int)Math.ceil(numStore);
+        }
+        return storeCount;
     }
 
 }
