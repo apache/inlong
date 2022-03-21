@@ -74,7 +74,7 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
                 return false;
             }
             this.bootstrapServers = bootstrapServers;
-            String threadName = "sort_sdk_fetch_thread_" + StringUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss");
+            String threadName = "sort_sdk_fetch_thread_" + StringUtil.formatDate(new Date());
             this.fetchThread = new Thread(new Fetcher(), threadName);
             this.fetchThread.start();
         } catch (Exception e) {
@@ -91,6 +91,8 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
             TopicPartition topicPartition = new TopicPartition(inLongTopic.getTopic(), Integer.parseInt(offset[0]));
             OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(Long.parseLong(offset[1]));
             commitOffsetMap.put(topicPartition, offsetAndMetadata);
+        } else {
+            throw new Exception("offset is illegal, the correct format is int:long ,the error offset is:"+msgOffset);
         }
     }
 
@@ -123,7 +125,7 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
 
     @Override
     public boolean isClosed() {
-        return false;
+        return closed;
     }
 
     @Override
