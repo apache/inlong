@@ -41,6 +41,7 @@ import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo.CommandInfoBean;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig;
 import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataSourceCmdConfigEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
@@ -120,6 +121,8 @@ public class AgentServiceImpl implements AgentService {
             LOGGER.warn("agent request was empty, just return");
             return;
         }
+        Preconditions.checkNotEmpty(request.getAgentIp(),
+                String.format("AgentIp should not be null in request=%s", request));
         if (CollectionUtils.isEmpty(request.getCommandInfo())) {
             LOGGER.warn("task result was empty, just return");
             return;
@@ -177,6 +180,8 @@ public class AgentServiceImpl implements AgentService {
             LOGGER.warn("agent request was empty, just return");
             return null;
         }
+        Preconditions.checkNotEmpty(request.getAgentIp(),
+                String.format("AgentIp should not be null in request=%s", request));
         // Query the tasks that needed to add or active - without agentIp and uuid
         List<Integer> addedStatusList = Arrays.asList(SourceState.TO_BE_ISSUED_ADD.getCode(),
                 SourceState.TO_BE_ISSUED_ACTIVE.getCode());
