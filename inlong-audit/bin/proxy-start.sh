@@ -19,8 +19,35 @@
 # under the License.
 #
 cd "$(dirname "$0")"/../
+
+error() {
+  local msg=$1
+  local exit_code=$2
+
+  echo "Error: $msg" >&2
+
+  if [ -n "$exit_code" ]; then
+    exit $exit_code
+  fi
+}
+
 prepare_file=conf/server.properties
 if [ ! -f "$prepare_file" ]; then
   touch "$prepare_file"
 fi
-nohup bin/audit-proxy agent --conf conf/ -f conf/audit-proxy.conf -n agent1 --no-reload-conf  > audit-proxy.log 2>&1 &
+
+MQ_TYPE=pulsar
+if [ -n "$1" ]; then
+  MQ_TYPE=$1
+fi
+
+basedir="$(pwd)"
+CONFIG_FILE="audit-proxy-${MQ_TYPE}.conf"
+CONFIG_FILE_WITH_COFING_PATH="conf/${CONFIG_FILE}"
+CONFIG_FILE_WITH_PATH="${basedir}/conf/${CONFIG_FILE}"
+
+if [ -f "$CONFIG_FILE_WITH_PATH" ]; then
+  nohup bin/audit-proxy agent --conf conf/ -f "${CONFIG_FILE_WITH_COFING_PATH}" -n agent1 --no-reload-conf >audit-proxy.log 2>&1 &
+else
+  error "${CONFIG_FILE_WITH_PATH} is not exist! start failed!" 1
+fi
