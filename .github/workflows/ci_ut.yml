@@ -19,9 +19,38 @@ name: InLong Unit Test
 
 on:
   push:
-    branches: [ master, 'INLONG-*' ]
+    paths:
+      - '.github/workflows/ci_ut.yml'
+      - '**/pom.xml'
+      - 'inlong-agent/**'
+      - 'inlong-audit/**'
+      - 'inlong-common/**'
+      - 'inlong-dashboard/**'
+      - 'inlong-dataproxy/**'
+      - 'inlong-distribution/**'
+      - 'inlong-manager/**'
+      - 'inlong-sdk/**'
+      - 'inlong-sort/**'
+      - 'inlong-sort-standalone/**'
+      - 'inlong-tubemq/**'
+      - '!*.md'
+
   pull_request:
-    branches: [ master, 'INLONG-*' ]
+    paths:
+      - '.github/workflows/ci_ut.yml'
+      - '**/pom.xml'
+      - 'inlong-agent/**'
+      - 'inlong-audit/**'
+      - 'inlong-common/**'
+      - 'inlong-dashboard/**'
+      - 'inlong-dataproxy/**'
+      - 'inlong-distribution/**'
+      - 'inlong-manager/**'
+      - 'inlong-sdk/**'
+      - 'inlong-sort/**'
+      - 'inlong-sort-standalone/**'
+      - 'inlong-tubemq/**'
+      - '!*.md'
 
 jobs:
   unit-test:
