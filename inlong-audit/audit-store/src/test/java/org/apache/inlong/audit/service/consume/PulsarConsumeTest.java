@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.service;
+package org.apache.inlong.audit.service.consume;
 
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.impl.PulsarClientImpl;
@@ -31,10 +31,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class AuditStoreTest {
+public class PulsarConsumeTest {
 
     private PulsarClientImpl client;
-    private AuditMsgConsumerServer auditMsgConsumerServer;
+    private PulsarConsume pulsarConsume;
 
     static <T> PulsarClientImpl createPulsarClientMock() {
         PulsarClientImpl mockClient = mock(PulsarClientImpl.class, Mockito.RETURNS_DEEP_STUBS);
@@ -56,14 +56,14 @@ public class AuditStoreTest {
         clientConf.setStatsIntervalSeconds(0);
 
         Consumer<byte[]> consumer = client.newConsumer().subscribe();
-        auditMsgConsumerServer = mock(AuditMsgConsumerServer.class);
-        when(auditMsgConsumerServer.createConsumer(any(), any())).thenReturn(consumer);
+        pulsarConsume = mock(PulsarConsume.class);
+        when(pulsarConsume.createConsumer(any(), any())).thenReturn(consumer);
     }
 
     @Test
     public void testConsumer() {
         String topic = "non-persistent://public/default/audit-test";
-        auditMsgConsumerServer.createConsumer(client, topic);
+        pulsarConsume.createConsumer(client, topic);
     }
 
 }

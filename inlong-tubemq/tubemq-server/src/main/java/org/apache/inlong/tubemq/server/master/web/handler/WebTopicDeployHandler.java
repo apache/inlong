@@ -61,6 +61,8 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         // register query method
         registerQueryWebMethod("admin_query_topic_deploy_info",
                 "adminNewQueryTopicCfgAndRunInfo");
+        registerQueryWebMethod("admin_query_topic_deploy_configure",
+                "innQueryTopicDeployConfInfo");
         registerQueryWebMethod("admin_query_broker_topic_config_info",
                 "adminQueryBrokerTopicCfgAndRunInfo");
         registerQueryWebMethod("admin_query_topicName",
@@ -258,7 +260,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         }
         Set<Integer> brokerIdSet = (Set<Integer>) result.getRetData();
         Map<Integer, List<TopicDeployEntity>> queryResult =
-                metaDataManager.getTopicDeployInfoMap(topicNameSet, brokerIdSet);
+                defMetaDataService.getTopicDeployInfoMap(topicNameSet, brokerIdSet);
         // build query result
         int dataCount = 0;
         int totalStoreNum = 0;
@@ -270,7 +272,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 continue;
             }
             BrokerConfEntity brokerConf =
-                    metaDataManager.getBrokerConfByBrokerId(entry.getKey());
+                    defMetaDataService.getBrokerConfByBrokerId(entry.getKey());
             if (brokerConf == null) {
                 continue;
             }
@@ -350,7 +352,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         }
         Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
         Map<Integer, Set<String>> brokerTopicConfigMap =
-                metaDataManager.getBrokerTopicConfigInfo(brokerIds);
+                defMetaDataService.getBrokerTopicConfigInfo(brokerIds);
         // build query result
         int dataCount = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
@@ -397,7 +399,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         }
         boolean withIp = (Boolean) result.getRetData();
         Map<String, Map<Integer, String>> topicBrokerConfigMap =
-                metaDataManager.getTopicBrokerConfigInfo(topicNameSet);
+                defMetaDataService.getTopicBrokerConfigInfo(topicNameSet);
         // build query result
         int dataCount = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
@@ -427,6 +429,80 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             sBuffer.append("],\"brokerCnt\":").append(topicCnt).append("}");
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, dataCount);
+        return sBuffer;
+    }
+
+    /**
+     * Query topic info
+     *
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
+     */
+    private StringBuilder innQueryTopicDeployConfInfo(HttpServletRequest req,
+                                                      StringBuilder sBuffer,
+                                                      ProcessResult result) {
+        TopicDeployEntity qryEntity = new TopicDeployEntity();
+        // get queried operation info, for createUser, modifyUser, dataVersionId
+        if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        // check and get topicName field
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        final Set<String> topicNameSet = (Set<String>) result.getRetData();
+        // check and get brokerId field
+        if (!WebParameterUtils.getIntParamValue(req,
+                WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        final Set<Integer> brokerIdSet = (Set<Integer>) result.getRetData();
+        // get brokerPort field
+        if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
+                false, TBaseConstants.META_VALUE_UNDEFINED, 1, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        final int brokerPort = (int) result.getRetData();
+        // get and valid topicProps info
+        if (!WebParameterUtils.getTopicPropInfo(req, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        TopicPropGroup topicProps = (TopicPropGroup) result.getRetData();
+        // get and valid TopicStatusId info
+        if (!WebParameterUtils.getTopicStatusParamValue(req,
+                false, TopicStatus.STATUS_TOPIC_UNDEFINED, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        TopicStatus topicStatus = (TopicStatus) result.getRetData();
+        qryEntity.updModifyInfo(qryEntity.getDataVerId(),
+                TBaseConstants.META_VALUE_UNDEFINED,
+                brokerPort, null, topicStatus, topicProps);
+        Map<String, List<TopicDeployEntity>> topicDeployInfoMap =
+                defMetaDataService.getTopicDeployInfoMap(topicNameSet, brokerIdSet, qryEntity);
+        // build query result
+        int totalCnt = 0;
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        for (Map.Entry<String, List<TopicDeployEntity>> entry : topicDeployInfoMap.entrySet()) {
+            if (entry.getValue() == null || entry.getValue().isEmpty()) {
+                continue;
+            }
+            for (TopicDeployEntity entity : entry.getValue()) {
+                if (totalCnt++ > 0) {
+                    sBuffer.append(",");
+                }
+                entity.toWebJsonStr(sBuffer, true, true);
+            }
+        }
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         return sBuffer;
     }
 
@@ -493,7 +569,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 TBaseConstants.META_VALUE_UNDEFINED,
                 brokerPort, null, topicStatus, topicProps);
         Map<String, List<TopicDeployEntity>> topicDeployInfoMap =
-                metaDataManager.getTopicConfEntityMap(topicNameSet, brokerIdSet, qryEntity);
+                defMetaDataService.getTopicDeployInfoMap(topicNameSet, brokerIdSet, qryEntity);
         // build query result
         if (isNewVer) {
             return buildNewQueryResult(withGroupAuthInfo, sBuffer, topicDeployInfoMap);
@@ -517,7 +593,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         ManageStatus manageStatus;
         Tuple2<Boolean, Boolean> pubSubStatus;
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
-        ClusterSettingEntity defSetting = metaDataManager.getClusterDefSetting(false);
+        ClusterSettingEntity defSetting = defMetaDataService.getClusterDefSetting(false);
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (Map.Entry<String, List<TopicDeployEntity>> entry : topicDeployInfoMap.entrySet()) {
             totalCfgNumPartCount = 0;
@@ -528,7 +604,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             isAcceptSubscribe = false;
             enableAuthCtrl = false;
             TopicCtrlEntity ctrlEntity =
-                    metaDataManager.getTopicCtrlByTopicName(entry.getKey());
+                    defMetaDataService.getTopicCtrlByTopicName(entry.getKey());
             if (ctrlEntity == null) {
                 continue;
             }
@@ -536,7 +612,9 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 sBuffer.append(",");
             }
             maxMsgSizeInMB = defSetting.getMaxMsgSizeInMB();
-            maxMsgSizeInMB = ctrlEntity.getMaxMsgSizeInMB();
+            if (ctrlEntity.getMaxMsgSizeInMB() != TBaseConstants.META_VALUE_UNDEFINED) {
+                maxMsgSizeInMB = ctrlEntity.getMaxMsgSizeInMB();
+            }
             enableAuthCtrl = ctrlEntity.getAuthCtrlStatus().isEnable();
             sBuffer.append("{\"topicName\":\"").append(entry.getKey())
                     .append("\",\"maxMsgSizeInMB\":").append(maxMsgSizeInMB)
@@ -550,7 +628,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 entity.toWebJsonStr(sBuffer, true, false);
                 sBuffer.append(",\"runInfo\":{");
                 BrokerConfEntity brokerConfEntity =
-                        metaDataManager.getBrokerConfByBrokerId(entity.getBrokerId());
+                        defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
                 String strManageStatus = "-";
                 if (brokerConfEntity != null) {
                     manageStatus = brokerConfEntity.getManageStatus();
@@ -600,7 +678,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                         .append("\",\"createDate\":\"").append(ctrlEntity.getModifyDateStr())
                         .append("\",\"authConsumeGroup\":[");
                 List<GroupConsumeCtrlEntity> groupCtrlInfoLst =
-                        metaDataManager.getConsumeCtrlByTopic(entry.getKey());
+                        defMetaDataService.getConsumeCtrlByTopic(entry.getKey());
                 int itemCount = 0;
                 for (GroupConsumeCtrlEntity groupEntity : groupCtrlInfoLst) {
                     if (itemCount++ > 0) {
@@ -668,7 +746,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             isAcceptPublish = false;
             isAcceptSubscribe = false;
             TopicCtrlEntity ctrlEntity =
-                    metaDataManager.getTopicCtrlByTopicName(entry.getKey());
+                    defMetaDataService.getTopicCtrlByTopicName(entry.getKey());
             if (ctrlEntity == null) {
                 continue;
             }
@@ -686,7 +764,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 entity.toWebJsonStr(sBuffer, true, false);
                 sBuffer.append(",\"runInfo\":{");
                 BrokerConfEntity brokerConfEntity =
-                        metaDataManager.getBrokerConfByBrokerId(entity.getBrokerId());
+                        defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
 
                 String strManageStatus = "-";
                 if (brokerConfEntity != null) {
@@ -733,7 +811,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             if (withAuthInfo) {
                 sBuffer.append(",\"groupAuthInfo\":[");
                 List<GroupConsumeCtrlEntity> groupCtrlInfoLst =
-                        metaDataManager.getConsumeCtrlByTopic(entry.getKey());
+                        defMetaDataService.getConsumeCtrlByTopic(entry.getKey());
                 int countJ = 0;
                 for (GroupConsumeCtrlEntity groupEntity : groupCtrlInfoLst) {
                     if (countJ++ > 0) {
@@ -788,7 +866,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (String topicName : topicNameSet) {
             for (Integer brokerId : brokerIdSet) {
-                retInfo.add(metaDataManager.addOrUpdTopicDeployInfo(isAddOp,
+                retInfo.add(defMetaDataService.addOrUpdTopicDeployInfo(isAddOp,
                         opEntity, brokerId, topicName, topicStatus,
                         topicPropInfo, sBuffer, result));
             }
@@ -815,7 +893,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 (Map<String, TopicDeployEntity>) result.getRetData();
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (TopicDeployEntity topicDeployInfo : addRecordMap.values()) {
-            retInfo.add(metaDataManager.addOrUpdTopicDeployInfo(isAddOp,
+            retInfo.add(defMetaDataService.addOrUpdTopicDeployInfo(isAddOp,
                     topicDeployInfo, sBuffer, result));
         }
         return buildRetInfo(retInfo, sBuffer);
@@ -861,7 +939,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             // get topicNameId field
             int topicNameId = TBaseConstants.META_VALUE_UNDEFINED;
             TopicCtrlEntity topicCtrlEntity =
-                    metaDataManager.getTopicCtrlByTopicName(topicName);
+                    defMetaDataService.getTopicCtrlByTopicName(topicName);
             if (topicCtrlEntity != null) {
                 topicNameId = topicCtrlEntity.getTopicId();
             }
@@ -899,7 +977,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         }
         int brokerId = (int) result.getRetData();
         BrokerConfEntity curEntity =
-                metaDataManager.getBrokerConfByBrokerId(brokerId);
+                defMetaDataService.getBrokerConfByBrokerId(brokerId);
         if (curEntity == null) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
                     sBuffer.append("Not found broker configure by ")
@@ -964,7 +1042,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (Integer brokerId : brokerIdSet) {
             for (String topicName : topicNameSet) {
-                retInfo.add(metaDataManager.updTopicDeployStatusInfo(opEntity,
+                retInfo.add(defMetaDataService.updTopicDeployStatusInfo(opEntity,
                         brokerId, topicName, chgType, sBuffer, result));
             }
         }

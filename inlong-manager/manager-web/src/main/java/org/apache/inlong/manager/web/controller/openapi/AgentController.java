@@ -73,7 +73,8 @@ public class AgentController {
     @PostMapping("/reportAndGetTask")
     @ApiOperation(value = "Report source task snapshot")
     public Response<TaskResult> reportAndGetTask(@RequestBody TaskRequest request) {
-        return Response.success(agentService.reportAndGetTask(request));
+        agentService.report(request);
+        return Response.success(agentService.getTaskResult(request));
     }
 
     @Deprecated

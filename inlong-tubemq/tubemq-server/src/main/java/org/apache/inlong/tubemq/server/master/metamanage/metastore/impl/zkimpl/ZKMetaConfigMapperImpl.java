@@ -31,6 +31,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.cluster.NodeAddrInfo;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.common.zookeeper.ZKUtil;
 import org.apache.inlong.tubemq.server.common.zookeeper.ZooKeeperWatcher;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
@@ -52,7 +53,10 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     // the meta data path in ZooKeeper
     private final String metaZkRoot;
     // the ha path in ZooKeeper
+    private final String haParentPath;
+    // the ha path in ZooKeeper
     private final String haNodesPath;
+
     // whether is the first start
     private volatile boolean isFirstChk = true;
     // the ZooKeeper watcher
@@ -87,9 +91,21 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         this.metaZkRoot = strBuff.append(tubeZkRoot).append(TokenConstants.SLASH)
                 .append(TZKNodeKeys.ZK_BRANCH_META_DATA).toString();
         strBuff.delete(0, strBuff.length());
-        this.haNodesPath = strBuff.append(tubeZkRoot).append(TokenConstants.SLASH)
-                .append(TZKNodeKeys.ZK_BRANCH_HA).append("/nodeIds").toString();
+        this.haParentPath = strBuff.append(tubeZkRoot).append(TokenConstants.SLASH)
+                .append(TZKNodeKeys.ZK_BRANCH_MASTER_HA).toString();
         strBuff.delete(0, strBuff.length());
+        this.haNodesPath = strBuff.append(this.haParentPath).append(TokenConstants.SLASH)
+                .append(TZKNodeKeys.ZK_LEAF_MASTER_HA_NODEID).append(TokenConstants.ATTR_SEP).toString();
+        strBuff.delete(0, strBuff.length());
+        try {
+            this.zkWatcher = new ZooKeeperWatcher(masterConfig.getZkMetaConfig());
+        } catch (Throwable e) {
+            BrokerSrvStatsHolder.incZKExcCnt();
+            logger.error(strBuff.append("[ZK Impl] Failed to connect ZooKeeper server (")
+                    .append(masterConfig.getZkMetaConfig().getZkServerAddr())
+                    .append(") !").toString(), e);
+            System.exit(1);
+        }
         initMetaStore(strBuff);
         this.executorService =
                 Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
@@ -163,7 +179,7 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             return null;
         }
         if (!clusterNodeMap.isEmpty()) {
-            return clusterNodeMap.get(queryResult.getF1()).split(":")[0];
+            return clusterNodeMap.get(queryResult.getF1()).split(TokenConstants.ATTR_SEP)[0];
         }
         return null;
     }
@@ -198,8 +214,9 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         List<ClusterNodeVO> clusterNodeVOs = new ArrayList<>();
         for (Map.Entry<Long, String> entry : clusterNodeMap.entrySet()) {
             nodeAdd = entry.getValue();
-            clusterNodeVOs.add(new ClusterNodeVO(nodeAdd, nodeAdd.split(":")[0],
-                    Integer.parseInt(nodeAdd.split(":")[1]),
+            clusterNodeVOs.add(new ClusterNodeVO(nodeAdd,
+                    nodeAdd.split(TokenConstants.ATTR_SEP)[0],
+                    Integer.parseInt(nodeAdd.split(TokenConstants.ATTR_SEP)[1]),
                     entry.getKey().equals(queryResult.getF1()) ? "Master" : "Slave", 0));
         }
         if (clusterNodeMap.isEmpty()) {
@@ -235,9 +252,9 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             try {
                 if (isFirstChk) {
                     // check whether the HA directory already exists on ZK
-                    if (ZKUtil.checkExists(zkWatcher, haNodesPath) == -1) {
+                    if (ZKUtil.checkExists(zkWatcher, haParentPath) == -1) {
                         // create path if not exists
-                        ZKUtil.createWithParents(zkWatcher, haNodesPath);
+                        ZKUtil.createWithParents(zkWatcher, haParentPath);
                     } else {
                         isFirstChk = false;
                     }
@@ -310,14 +327,14 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         boolean foundSelf = false;
         long minNodeId = Long.MAX_VALUE;
         List<ZKUtil.NodeAndData> childNodes =
-                ZKUtil.getChildDataAndWatchForNewChildren(zkWatcher, haNodesPath);
+                ZKUtil.getChildDataAndWatchForNewChildren(zkWatcher, haParentPath);
         for (ZKUtil.NodeAndData child : childNodes) {
             // select the first registered node as Master
             if (child == null) {
                 continue;
             }
             nodeAdd = new String(child.getData());
-            materNodeId = Long.parseLong(child.getNode().split(":")[1]);
+            materNodeId = Long.parseLong(child.getNode().split(TokenConstants.ATTR_SEP)[1]);
             if (minNodeId > materNodeId) {
                 minNodeId = materNodeId;
             }

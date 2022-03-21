@@ -17,11 +17,7 @@
 
 name: InLong Check License Header
 
-on:
-  push:
-    branches: [ master, 'INLONG-*' ]
-  pull_request:
-    branches: [ master, 'INLONG-*' ]
+on: [ push, pull_request ]
 
 jobs:
   build:

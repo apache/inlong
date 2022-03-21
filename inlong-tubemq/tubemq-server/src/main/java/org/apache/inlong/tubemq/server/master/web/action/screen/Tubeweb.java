@@ -18,13 +18,13 @@
 package org.apache.inlong.tubemq.server.master.web.action.screen;
 
 import org.apache.inlong.tubemq.server.master.TMaster;
-import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
 
 public class Tubeweb implements Action {
 
-    private TMaster master;
+    private final TMaster master;
 
     public Tubeweb(TMaster master) {
         this.master = master;
@@ -32,8 +32,8 @@ public class Tubeweb implements Action {
 
     @Override
     public void execute(RequestContext context) {
-        MetaDataManager metaDataManager = this.master.getDefMetaDataManager();
-        String masterAdd = metaDataManager.getMasterAddress();
+        MetaDataService defMetaDataService = this.master.getMetaDataService();
+        String masterAdd = defMetaDataService.getMasterAddress();
         if (master.getMasterConfig().isUseWebProxy() || masterAdd == null) {
             // use absolute path
             context.put("tubemqRemoteAddr", "");

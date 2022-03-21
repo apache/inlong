@@ -31,7 +31,7 @@ import java.util.TreeMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
-import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumeGroupInfo;
@@ -59,7 +59,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
      * @param consumerHolder
      * @param brokerRunManager
      * @param groupSet
-     * @param metaDataManager
+     * @param defMetaDataService
      * @param strBuffer
      * @return
      */
@@ -69,7 +69,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             ConsumerInfoHolder consumerHolder,
             BrokerRunManager brokerRunManager,
             List<String> groupSet,
-            MetaDataManager metaDataManager,
+            MetaDataService defMetaDataService,
             StringBuilder strBuffer) {
         // #lizard forgives
         // load balance according to group
@@ -110,7 +110,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             if (consumeGroupInfo.needResourceCheck()) {
                 // check if current client meet minimal requirements
                 GroupResCtrlEntity offsetResetGroupEntity =
-                        metaDataManager.confGetGroupResCtrlConf(group);
+                        defMetaDataService.getGroupCtrlConf(group);
                 int confAllowBClientRate = (offsetResetGroupEntity != null
                         && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
                         ? offsetResetGroupEntity.getAllowedBrokerClientRate() : -2;
@@ -463,7 +463,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
      * @param consumerHolder
      * @param brokerRunManager
      * @param groupSet
-     * @param metaDataManager
+     * @param defMetaDataService
      * @param strBuffer
      * @return
      */
@@ -472,7 +472,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             ConsumerInfoHolder consumerHolder,
             BrokerRunManager brokerRunManager,
             List<String> groupSet,
-            MetaDataManager metaDataManager,
+            MetaDataService defMetaDataService,
             StringBuilder strBuffer) {
         // #lizard forgives
         // regular consumer allocate operation
@@ -493,7 +493,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             // check if current client meet minimal requirements
             Set<String> topicSet = consumeGroupInfo.getTopicSet();
             GroupResCtrlEntity offsetResetGroupEntity =
-                    metaDataManager.confGetGroupResCtrlConf(group);
+                    defMetaDataService.getGroupCtrlConf(group);
             int confAllowBClientRate = (offsetResetGroupEntity != null
                     && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
                     ? offsetResetGroupEntity.getAllowedBrokerClientRate() : -2;
@@ -554,17 +554,17 @@ public class DefaultLoadBalancer implements LoadBalancer {
      * @param consumerHolder
      * @param brokerRunManager
      * @param groupSet
-     * @param metaDataManager
+     * @param defMetaDataService
      * @param strBuffer
      * @return
      */
     @Override
     public Map<String, Map<String, Map<String, Partition>>> resetBukAssign(
             ConsumerInfoHolder consumerHolder, BrokerRunManager brokerRunManager,
-            List<String> groupSet, MetaDataManager metaDataManager,
+            List<String> groupSet, MetaDataService defMetaDataService,
             final StringBuilder strBuffer) {
         return inReBalanceCluster(false, consumerHolder,
-                brokerRunManager, groupSet, metaDataManager, strBuffer);
+                brokerRunManager, groupSet, defMetaDataService, strBuffer);
     }
 
     /**
@@ -574,7 +574,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
      * @param consumerHolder
      * @param brokerRunManager
      * @param groupSet
-     * @param metaDataManager
+     * @param defMetaDataService
      * @param strBuffer
      * @return
      */
@@ -582,9 +582,9 @@ public class DefaultLoadBalancer implements LoadBalancer {
     public Map<String, Map<String, Map<String, Partition>>> resetBalanceCluster(
             Map<String, Map<String, Map<String, Partition>>> clusterState,
             ConsumerInfoHolder consumerHolder, BrokerRunManager brokerRunManager,
-            List<String> groupSet, MetaDataManager metaDataManager, StringBuilder strBuffer) {
+            List<String> groupSet, MetaDataService defMetaDataService, StringBuilder strBuffer) {
         return inReBalanceCluster(true, consumerHolder,
-                brokerRunManager, groupSet, metaDataManager, strBuffer);
+                brokerRunManager, groupSet, defMetaDataService, strBuffer);
     }
 
     // #lizard forgives
@@ -593,7 +593,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             ConsumerInfoHolder consumerHolder,
             BrokerRunManager brokerRunManager,
             List<String> groupSet,
-            MetaDataManager metaDataManager,
+            MetaDataService defMetaDataService,
             StringBuilder strBuffer) {
         // band consume reset offset
         Map<String, Map<String, Map<String, Partition>>> finalSubInfoMap =
