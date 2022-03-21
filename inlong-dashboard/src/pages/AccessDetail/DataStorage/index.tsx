@@ -88,6 +88,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   const { data: streamList = [] } = useRequest(
     {
       url: '/stream/list',
+      method: 'POST',
       params: {
         pageNum: 1,
         pageSize: 1000,

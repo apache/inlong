@@ -87,10 +87,11 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
         requestAuto: true,
         requestService: {
           url: '/stream/list',
-          params: {
+          method: 'POST',
+          data: {
             pageNum: 1,
             pageSize: 1000,
-            inlongGroupId,
+            inlongGroupId: inlongGroupId,
           },
         },
         requestParams: {

@@ -66,9 +66,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
   const { data = realTimeValues, run: getList, mutate } = useRequest(
     {
       url: '/stream/listAll',
-      params: {
+      method: 'POST',
+      data: {
         ...options,
-        inlongGroupId,
+        inlongGroupId: inlongGroupId,
       },
     },
     {
@@ -162,7 +163,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
           url: '/stream/delete',
           method: 'DELETE',
           params: {
-            inlongGroupId,
+            groupId: inlongGroupId,
             streamId: record?.inlongStreamId,
           },
         });
