@@ -98,7 +98,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                     context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
                             inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                             .addAckFailTimes(1L);
-                    logger.error("consumer == null");
+                    logger.error("consumer == null {}", inLongTopic);
                     return;
                 }
                 MessageId messageId = offsetCache.get(msgOffset);
@@ -106,13 +106,13 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                     context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
                             inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                             .addAckFailTimes(1L);
-                    logger.error("messageId == null");
+                    logger.error("messageId == null {}", inLongTopic);
                     return;
                 }
                 consumer.acknowledgeAsync(messageId)
                         .thenAccept(consumer -> ackSucc(msgOffset))
                         .exceptionally(exception -> {
-                            logger.error("ack fail:{}", msgOffset);
+                            logger.error("ack fail:{} {}", inLongTopic, msgOffset);
                             context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
                                     inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                                     .addAckFailTimes(1L);
@@ -160,15 +160,6 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
             return false;
         }
         return true;
-    }
-
-    /**
-     * isValidState
-     */
-    public void isValidState() {
-        if (closed) {
-            throw new IllegalStateException(inLongTopic + " closed.");
-        }
     }
 
     /**

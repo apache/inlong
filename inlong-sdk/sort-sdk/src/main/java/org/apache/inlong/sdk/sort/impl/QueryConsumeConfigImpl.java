@@ -121,7 +121,6 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
                             e.getMessage());
             logger.error(msg, e);
         }
-        logger.debug("end to reload manager config.");
     }
 
     /**
