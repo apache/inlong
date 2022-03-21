@@ -50,7 +50,7 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
       serverType: type,
     };
     if (isUpdate) {
-      values.id = id;
+      submitData.id = id;
     }
     if (type === 'DB') {
       submitData.inCharges = values.inCharges.join(',');
@@ -78,7 +78,7 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
 
   const { data, run: getData } = useRequest(
     id => ({
-      url: `/commonserver/db/get/${id}`,
+      url: `/commonserver/db/getById/${id}`,
       params: {
         serverType: type,
       },
