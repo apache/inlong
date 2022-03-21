@@ -190,6 +190,11 @@ public class ClusterController {
         return masterService.queryMaster(url);
     }
 
+    /**
+     * get all count
+     * @param clusterId
+     * @return
+     */
     public ClusterVo getAllCount(Integer clusterId) {
         ClusterVo clusterVo = new ClusterVo();
         int brokerSize = getBrokerSize(clusterId);
