@@ -59,4 +59,11 @@ public class ConfigConstants {
 
     public static final String RECOVER_THREAD_COUNT = "recover_thread_count";
 
+    public static final long DEFAULT_LINK_MAX_ALLOWED_DELAYED_MSG_COUNT = 80000L;
+
+    public static final long DEFAULT_SESSION_WARN_DELAYED_MSG_COUNT = 2000000L;
+
+    public static final long DEFAULT_SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT = 4000000L;
+
+    public static final long DEFAULT_NETTY_WRITE_BUFFER_HIGH_WATER_MARK = 15 * 1024 * 1024L;
 }
