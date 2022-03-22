@@ -88,7 +88,7 @@ public class TestTaskWrapper {
         manager = new AgentManager();
         reader = new ReaderImpl();
         writer = new WriterImpl();
-        task = new Task("test", reader, writer,
+        task = new Task("11111", reader, writer,
             new MockChannel(), JobProfile.parseJsonStr(""));
     }
 
@@ -101,7 +101,7 @@ public class TestTaskWrapper {
     @Test
     public void testTaskRunning() throws Exception {
         manager.getTaskManager().submitTask(task);
-        String jobId = "test";
+        String jobId = "111";
         TaskWrapper wrapper = manager.getTaskManager().getTaskWrapper(jobId);
         assert wrapper != null;
         while (!wrapper.isSuccess()) {
@@ -156,7 +156,7 @@ public class TestTaskWrapper {
 
         @Override
         public boolean isSourceExist() {
-            return false;
+            return true;
         }
 
         public int getCount() {
