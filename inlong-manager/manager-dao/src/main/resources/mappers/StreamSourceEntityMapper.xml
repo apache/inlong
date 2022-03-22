@@ -256,6 +256,16 @@
         </where>
     </select>
 
+    <select id="selectByAgentIp" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            and agent_ip = #{agentIp, jdbcType=VARCHAR}
+        </where>
+    </select>
+
     <select id="selectByRelatedId" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
@@ -328,14 +338,6 @@
             <if test="streamId != null and streamId != ''">
                 and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
             </if>
-            for update
-        </where>
-    </select>
-    <select id="selectTempStatusSource" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
-        select id, agent_ip, uuid, status
-        from stream_source
-        <where>
-            status >= 200
             for update
         </where>
     </select>
