@@ -288,20 +288,21 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             isAcceptPublish = false;
             isAcceptSubscribe = false;
             for (TopicDeployEntity entity : entry.getValue()) {
+                BrokerConfEntity brokerConfEntity =
+                        defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
+                if (brokerConfEntity == null) {
+                    continue;
+                }
                 brokerCount++;
+                Tuple2<Boolean, Boolean> pubSubStatus =
+                        WebParameterUtils.getPubSubStatusByManageStatus(
+                                brokerConfEntity.getManageStatus().getCode());
+                isAcceptPublish = pubSubStatus.getF0();
+                isAcceptSubscribe = pubSubStatus.getF1();
                 TopicPropGroup topicProps = entity.getTopicProps();
                 totalCfgTopicStoreCount += topicProps.getNumTopicStores();
                 totalCfgNumPartCount +=
                         topicProps.getNumPartitions() * topicProps.getNumTopicStores();
-                BrokerConfEntity brokerConfEntity =
-                        defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
-                if (brokerConfEntity != null) {
-                    Tuple2<Boolean, Boolean> pubSubStatus =
-                            WebParameterUtils.getPubSubStatusByManageStatus(
-                                    brokerConfEntity.getManageStatus().getCode());
-                    isAcceptPublish = pubSubStatus.getF0();
-                    isAcceptSubscribe = pubSubStatus.getF1();
-                }
                 TopicInfo topicInfo =
                         brokerRunManager.getPubBrokerTopicInfo(entity.getBrokerId(), entity.getTopicName());
                 if (topicInfo != null) {

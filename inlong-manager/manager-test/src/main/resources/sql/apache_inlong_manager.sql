@@ -97,7 +97,7 @@ CREATE TABLE `inlong_group`
     `zookeeper_enabled`   int(4)                DEFAULT '1' COMMENT 'Need zookeeper support, 0 false 1 true',
     `proxy_cluster_id`    int(11)               DEFAULT NULL COMMENT 'The id of dataproxy cluster',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`, `modify_time`)
+    UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`)
 );
 
 -- ----------------------------
@@ -139,7 +139,7 @@ CREATE TABLE `inlong_group_ext`
     `modify_time`     timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     KEY `index_group_id` (`inlong_group_id`),
-    UNIQUE KEY `group_key_idx` (`inlong_group_id`, `key_name`)
+    UNIQUE KEY `unique_inlong_group_key` (`inlong_group_id`, `key_name`)
 );
 
 -- ----------------------------
@@ -310,7 +310,7 @@ CREATE TABLE `data_schema`
     `sort_type`          int(11)      NOT NULL COMMENT 'sort logic rules, 0, 5, 9, 10, 13, 15',
     `time_offset`        varchar(10)  NOT NULL COMMENT 'time offset',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `name` (`name`)
+    UNIQUE KEY `unique_schema_name` (`name`)
 );
 
 -- create default data schema
@@ -368,7 +368,7 @@ CREATE TABLE `inlong_stream`
     `modify_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `temp_view`              text              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_inlong_stream` (`inlong_stream_id`, `inlong_group_id`, `is_deleted`, `modify_time`)
+    UNIQUE KEY `unique_inlong_stream` (`inlong_stream_id`, `inlong_group_id`, `is_deleted`)
 );
 
 -- ----------------------------
@@ -386,7 +386,7 @@ CREATE TABLE `inlong_stream_ext`
     `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     KEY `index_stream_id` (`inlong_stream_id`),
-    UNIQUE KEY `unique_group_stream_key` (`inlong_group_id`, `inlong_stream_id`, `key_name`)
+    UNIQUE KEY `unique_inlong_stream_key` (`inlong_group_id`, `inlong_stream_id`, `key_name`)
 );
 
 -- ----------------------------
@@ -582,7 +582,9 @@ CREATE TABLE `stream_source`
     `create_time`      timestamp    NULL     DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NULL     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_source_name` (`inlong_group_id`, `inlong_stream_id`, `source_name`, `is_deleted`)
+    UNIQUE KEY `unique_source_name` (`inlong_group_id`, `inlong_stream_id`, `source_name`, `is_deleted`),
+    KEY `status_idx` (`status`,`is_deleted`),
+    KEY `agent_ip_idx` (`agent_ip`,`is_deleted`)
 );
 
 -- ----------------------------

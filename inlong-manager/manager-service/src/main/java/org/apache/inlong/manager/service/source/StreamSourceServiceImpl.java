@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     private CommonOperateService commonOperateService;
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public Integer save(SourceRequest request, String operator) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("begin to save source info=" + request);
@@ -149,7 +150,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
+            isolation = Isolation.READ_COMMITTED)
     public boolean update(SourceRequest request, String operator) {
         LOGGER.debug("begin to update source info=" + request);
         this.checkParams(request);
@@ -168,7 +170,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
+            isolation = Isolation.READ_COMMITTED)
     public boolean updateStatus(Integer id, Integer targetStatus, String operator) {
         sourceMapper.updateStatus(id, targetStatus, null);
         LOGGER.info("success to update source status={} for id={} by {}", targetStatus, id, operator);
@@ -176,7 +179,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
+            isolation = Isolation.READ_COMMITTED)
     public boolean updateStatus(String groupId, String streamId, Integer targetStatus, String operator) {
         sourceMapper.updateStatusByRelatedId(groupId, streamId, targetStatus);
         LOGGER.info("success to update source status={} for groupId={}, streamId={} by {}",
@@ -185,7 +189,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
+            isolation = Isolation.READ_COMMITTED)
     public boolean delete(Integer id, String sourceType, String operator) {
         LOGGER.info("begin to delete source by id={}, sourceType={}", id, sourceType);
         Preconditions.checkNotNull(id, Constant.ID_IS_EMPTY);
@@ -204,7 +209,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
+            isolation = Isolation.READ_COMMITTED)
     public boolean restart(Integer id, String sourceType, String operator) {
         LOGGER.info("begin to restart source by id={}, sourceType={}", id, sourceType);
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
@@ -221,7 +227,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
+            isolation = Isolation.READ_COMMITTED)
     public boolean stop(Integer id, String sourceType, String operator) {
         LOGGER.info("begin to stop source by id={}, sourceType={}", id, sourceType);
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
@@ -238,7 +245,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
+            isolation = Isolation.READ_COMMITTED)
     public boolean logicDeleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to logic delete all source info by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
@@ -272,7 +280,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
+            isolation = Isolation.READ_COMMITTED)
     public boolean deleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to delete all source by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);

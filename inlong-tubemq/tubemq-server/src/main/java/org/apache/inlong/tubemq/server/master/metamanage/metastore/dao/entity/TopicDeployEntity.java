@@ -51,6 +51,15 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
         this.recordKey = KeyBuilderUtils.buildTopicConfRecKey(brokerId, topicName);
     }
 
+    public TopicDeployEntity(BaseEntity opInfoEntity, int brokerId,
+                             String topicName, TopicPropGroup topicProps) {
+        super(opInfoEntity);
+        this.brokerId = brokerId;
+        this.topicName = topicName;
+        this.recordKey = KeyBuilderUtils.buildTopicConfRecKey(brokerId, topicName);
+        this.topicProps.updModifyInfo(topicProps);
+    }
+
     /**
      * Constructor by BdbTopicConfEntity
      *

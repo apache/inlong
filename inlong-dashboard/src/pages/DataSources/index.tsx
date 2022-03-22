@@ -93,7 +93,7 @@ const Comp: React.FC = () => {
       title: i18n.t('basic.DeleteConfirm'),
       onOk: async () => {
         await request({
-          url: `/commonserver/db/delete/${id}`,
+          url: `/commonserver/db/deleteById/${id}`,
           method: 'DELETE',
           params: {
             serverType: options.type,

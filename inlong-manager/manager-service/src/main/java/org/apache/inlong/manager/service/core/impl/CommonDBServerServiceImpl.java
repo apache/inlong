@@ -121,7 +121,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
     }
 
     private void checkValidity(CommonDbServerInfo commonDbServerInfo) throws Exception {
-        if (commonDbServerInfo.getId() > 0) {
+        if (commonDbServerInfo.getId() != null && commonDbServerInfo.getId() > 0) {
             throw new IllegalArgumentException("CommonDbServer id [" + commonDbServerInfo.getId()
                     + "] has already exists, please check");
         }

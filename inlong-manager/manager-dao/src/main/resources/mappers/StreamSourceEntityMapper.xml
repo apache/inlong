@@ -45,8 +45,7 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id
-        , inlong_group_id, inlong_stream_id, source_type, source_name, agent_ip, uuid,
+        id, inlong_group_id, inlong_stream_id, source_type, source_name, agent_ip, uuid,
         server_id, server_name, cluster_id, cluster_name, snapshot, report_time, ext_params,
         status, previous_status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
@@ -257,6 +256,16 @@
         </where>
     </select>
 
+    <select id="selectByAgentIp" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            and agent_ip = #{agentIp, jdbcType=VARCHAR}
+        </where>
+    </select>
+
     <select id="selectByRelatedId" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
@@ -272,7 +281,7 @@
             </if>
         </where>
     </select>
-    <select id="selectByRelatedIdAndTypeForUpdate" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <select id="selectByRelatedIdForUpdate" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source
@@ -329,14 +338,6 @@
             <if test="streamId != null and streamId != ''">
                 and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
             </if>
-            for update
-        </where>
-    </select>
-    <select id="selectTempStatusSource" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
-        select id, agent_ip, uuid, status
-        from stream_source
-        <where>
-            status >= 200
             for update
         </where>
     </select>
@@ -434,7 +435,7 @@
     <update id="updateStatus">
         update stream_source
         set previous_status = status,
-            status          = #{nextStatus, jdbcType=INTEGER}
+        status = #{nextStatus, jdbcType=INTEGER}
         <if test="modifyTime != null">
             ,modify_time = #{modifyTime,jdbcType=TIMESTAMP}
         </if>
@@ -453,8 +454,8 @@
     </update>
     <update id="updateIpAndUuid">
         update stream_source
-        set agent_ip    = #{agentIp,jdbcType=VARCHAR},
-            uuid        = #{uuid,jdbcType=VARCHAR}
+        set agent_ip = #{agentIp,jdbcType=VARCHAR},
+        uuid = #{uuid,jdbcType=VARCHAR}
         <if test="modifyTime != null">
             ,modify_time = #{modifyTime,jdbcType=TIMESTAMP}
         </if>
@@ -463,7 +464,8 @@
     <update id="updateSnapshot" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         update stream_source
         set snapshot    = #{snapshot,jdbcType=LONGVARCHAR},
-            report_time = #{reportTime,jdbcType=TIMESTAMP}
+            report_time = #{reportTime,jdbcType=TIMESTAMP},
+            modify_time = modify_time
         where id = #{id,jdbcType=INTEGER}
     </update>
 

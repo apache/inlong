@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
 import org.apache.inlong.common.pojo.agent.CmdConfig;
@@ -32,6 +33,7 @@ import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.FileAgentDataGenerateRule;
 import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.agent.AgentStatusReportRequest;
 import org.apache.inlong.manager.common.pojo.agent.CheckAgentTaskConfRequest;
 import org.apache.inlong.manager.common.pojo.agent.ConfirmAgentIpRequest;
@@ -52,13 +54,13 @@ import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperation;
-import org.apache.inlong.manager.service.source.binlog.BinlogStreamSourceOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -94,8 +96,6 @@ public class AgentServiceImpl implements AgentService {
     private InlongStreamFieldEntityMapper streamFieldMapper;
     @Autowired
     private InlongStreamEntityMapper streamMapper;
-    @Autowired
-    private BinlogStreamSourceOperation binlogStreamSourceOperation;
 
     /**
      * If the reported task time and the modification time in the database exceed this value,
@@ -110,84 +110,86 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
-    public TaskResult reportAndGetTask(TaskRequest request) {
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED,
+            propagation = Propagation.REQUIRES_NEW)
+    public void report(TaskRequest request) {
         LOGGER.info("begin to get agent task: {}", request);
-        if (request == null || request.getAgentIp() == null) {
-            LOGGER.warn("agent request was empty, just return");
-            return null;
+        if (request == null || StringUtils.isBlank(request.getAgentIp())) {
+            throw new BusinessException("agent request or agent ip was empty, just return");
         }
 
-        this.updateTaskStatus(request);
-
-        return this.getTaskResult(request);
-    }
-
-    /**
-     * Update the task status by the request
-     */
-    private void updateTaskStatus(TaskRequest request) {
         if (CollectionUtils.isEmpty(request.getCommandInfo())) {
             LOGGER.warn("task result was empty, just return");
             return;
         }
-
         for (CommandEntity command : request.getCommandInfo()) {
-            Integer taskId = command.getTaskId();
-            StreamSourceEntity current = sourceMapper.selectByIdForUpdate(taskId);
-            if (current == null) {
-                continue;
-            }
-
-            LocalDateTime localDateTime = LocalDateTime.parse(command.getDeliveryTime(), TIME_FORMATTER);
-            Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
-            if (current.getModifyTime().getTime() - instant.toEpochMilli() > maxModifyTime) {
-                LOGGER.warn("task {} receive result delay more than {} ms, skip it", taskId, maxModifyTime);
-                continue;
-            }
-
-            int result = command.getCommandResult();
-            int previousStatus = current.getStatus();
-            int nextStatus = SourceState.SOURCE_NORMAL.getCode();
-            // Change the status from 30x to normal / disable / frozen
-            if (previousStatus / MODULUS_100 == ISSUED_STATUS) {
-                if (Constants.RESULT_SUCCESS == result) {
-                    if (SourceState.TEMP_TO_NORMAL.contains(previousStatus)) {
-                        nextStatus = SourceState.SOURCE_NORMAL.getCode();
-                    } else if (SourceState.BEEN_ISSUED_DELETE.getCode() == previousStatus) {
-                        nextStatus = SourceState.SOURCE_DISABLE.getCode();
-                    } else if (SourceState.BEEN_ISSUED_FROZEN.getCode() == previousStatus) {
-                        nextStatus = SourceState.SOURCE_FROZEN.getCode();
-                    }
-                } else if (Constants.RESULT_FAIL == result) {
-                    nextStatus = SourceState.SOURCE_FAILED.getCode();
-                }
-
-                sourceMapper.updateStatus(taskId, nextStatus, current.getModifyTime());
-                LOGGER.info("update stream source status to [{}] for id [{}] ", nextStatus, taskId);
-            }
+            updateCommandEntity(command);
             // Other tasks with status 20x will change to 30x in next getTaskResult method
+        }
+    }
+
+    public void updateCommandEntity(CommandEntity command) {
+        Integer taskId = command.getTaskId();
+        StreamSourceEntity current = sourceMapper.selectByIdForUpdate(taskId);
+        if (current == null) {
+            LOGGER.warn("stream source not found by id={}, just return", taskId);
+            return;
+        }
+
+        LocalDateTime localDateTime = LocalDateTime.parse(command.getDeliveryTime(), TIME_FORMATTER);
+        Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+        if (current.getModifyTime().getTime() - instant.toEpochMilli() > maxModifyTime) {
+            LOGGER.warn("task {} receive result delay more than {} ms, skip it", taskId, maxModifyTime);
+            return;
+        }
+
+        int result = command.getCommandResult();
+        int previousStatus = current.getStatus();
+        int nextStatus = SourceState.SOURCE_NORMAL.getCode();
+        // Change the status from 30x to normal / disable / frozen
+        if (previousStatus / MODULUS_100 == ISSUED_STATUS) {
+            if (Constants.RESULT_SUCCESS == result) {
+                if (SourceState.TEMP_TO_NORMAL.contains(previousStatus)) {
+                    nextStatus = SourceState.SOURCE_NORMAL.getCode();
+                } else if (SourceState.BEEN_ISSUED_DELETE.getCode() == previousStatus) {
+                    nextStatus = SourceState.SOURCE_DISABLE.getCode();
+                } else if (SourceState.BEEN_ISSUED_FROZEN.getCode() == previousStatus) {
+                    nextStatus = SourceState.SOURCE_FROZEN.getCode();
+                }
+            } else if (Constants.RESULT_FAIL == result) {
+                nextStatus = SourceState.SOURCE_FAILED.getCode();
+            }
+
+            sourceMapper.updateStatus(taskId, nextStatus, current.getModifyTime());
+            LOGGER.info("update stream source status to [{}] for id [{}] ", nextStatus, taskId);
         }
     }
 
     /**
      * Get task result by the request
      */
-    private TaskResult getTaskResult(TaskRequest request) {
+    @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED,
+            propagation = Propagation.REQUIRES_NEW)
+    public TaskResult getTaskResult(TaskRequest request) {
+        if (request == null || StringUtils.isBlank(request.getAgentIp())) {
+            throw new BusinessException("agent request or agent ip was empty, just return");
+        }
+
         // Query the tasks that needed to add or active - without agentIp and uuid
         List<Integer> addedStatusList = Arrays.asList(SourceState.TO_BE_ISSUED_ADD.getCode(),
                 SourceState.TO_BE_ISSUED_ACTIVE.getCode());
-        List<StreamSourceEntity> addList = sourceMapper.selectByStatusForUpdate(addedStatusList);
+        List<StreamSourceEntity> entityList = sourceMapper.selectByStatusForUpdate(addedStatusList);
 
+        String agentIp = request.getAgentIp();
+        String uuid = request.getUuid();
         // Query other tasks by agentIp and uuid - not included status with TO_BE_ISSUED_ADD and TO_BE_ISSUED_ACTIVE
         List<Integer> statusList = Arrays.asList(SourceState.TO_BE_ISSUED_DELETE.getCode(),
                 SourceState.TO_BE_ISSUED_RETRY.getCode(), SourceState.TO_BE_ISSUED_BACKTRACK.getCode(),
                 SourceState.TO_BE_ISSUED_FROZEN.getCode(), SourceState.TO_BE_ISSUED_CHECK.getCode(),
                 SourceState.TO_BE_ISSUED_REDO_METRIC.getCode(), SourceState.TO_BE_ISSUED_MAKEUP.getCode());
-        String agentIp = request.getAgentIp();
-        String uuid = request.getUuid();
-        List<StreamSourceEntity> entityList = sourceMapper.selectByStatusAndIpForUpdate(statusList, agentIp, uuid);
-        entityList.addAll(addList);
+        List<StreamSourceEntity> addedList = sourceMapper.selectByStatusAndIpForUpdate(statusList, agentIp, uuid);
+        entityList.addAll(addedList);
 
         List<DataConfig> dataConfigs = Lists.newArrayList();
         for (StreamSourceEntity entity : entityList) {
@@ -211,9 +213,11 @@ public class AgentServiceImpl implements AgentService {
         List<CmdConfig> cmdConfigs = getAgentCmdConfigs(request);
 
         // Update agentIp and uuid for the added and active tasks
-        for (StreamSourceEntity entity : addList) {
-            sourceMapper.updateIpAndUuid(entity.getId(), agentIp, uuid, entity.getModifyTime());
-            LOGGER.info("update stream source ip to [{}], uuid to [{}] for id [{}] ", agentIp, uuid, entity.getId());
+        for (StreamSourceEntity entity : entityList) {
+            if (StringUtils.isEmpty(entity.getAgentIp())) {
+                sourceMapper.updateIpAndUuid(entity.getId(), agentIp, uuid, entity.getModifyTime());
+                LOGGER.info("update stream source ip to [{}], uuid to [{}] for id [{}]", agentIp, uuid, entity.getId());
+            }
         }
 
         return TaskResult.builder().dataConfigs(dataConfigs).cmdConfigs(cmdConfigs).build();
@@ -232,8 +236,7 @@ public class AgentServiceImpl implements AgentService {
         dataConfig.setTaskName(entity.getSourceName());
         dataConfig.setSnapshot(entity.getSnapshot());
         dataConfig.setExtParams(entity.getExtParams());
-        LocalDateTime dateTime = LocalDateTime.ofInstant(entity.getModifyTime().toInstant(),
-                ZoneId.systemDefault());
+        LocalDateTime dateTime = LocalDateTime.ofInstant(entity.getModifyTime().toInstant(), ZoneId.systemDefault());
         dataConfig.setDeliveryTime(dateTime.format(TIME_FORMATTER));
 
         String groupId = entity.getInlongGroupId();

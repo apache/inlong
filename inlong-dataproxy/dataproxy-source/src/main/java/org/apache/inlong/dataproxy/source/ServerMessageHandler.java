@@ -337,7 +337,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void updateMsgList(List<ProxyMessage> msgList, Map<String, String> commonAttrMap,
+    private boolean updateMsgList(List<ProxyMessage> msgList, Map<String, String> commonAttrMap,
             Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
             String strRemoteIP, MsgType msgType) {
         for (ProxyMessage message : msgList) {
@@ -347,15 +347,18 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
             AtomicReference<String> topicInfo = new AtomicReference<>(topic);
             checkGroupIdInfo(message, commonAttrMap, attrMap, topicInfo);
+            String groupId = message.getGroupId();
+            String streamId = message.getStreamId();
             topic = topicInfo.get();
-
+            if (StringUtils.isEmpty(topic)) {
+                logger.warn("Topic for message is null , inlongGroupId = {}, inlongStreamId",
+                        groupId, streamId);
+                return false;
+            }
             //                if(groupId==null)groupId="b_test";//default groupId
 
             message.setTopic(topic);
             commonAttrMap.put(AttributeConstants.NODE_IP, strRemoteIP);
-
-            String groupId = message.getGroupId();
-            String streamId = message.getStreamId();
 
             // whether sla
             if (SLA_METRIC_GROUPID.equals(groupId)) {
@@ -396,6 +399,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     .computeIfAbsent(streamId, k -> new ArrayList<>());
             streamIdMsgList.add(message);
         }
+        return true;
     }
 
     private void formatMessagesAndSend(ChannelHandlerContext ctx, Map<String, String> commonAttrMap,
@@ -650,6 +654,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             }
 
             List<ProxyMessage> msgList = (List<ProxyMessage>) resultMap.get(ConfigConstants.MSG_LIST);
+
+            boolean checkMessageTopic = true;
             if (msgList != null
                     && !commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)
                     && !commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
@@ -657,11 +663,12 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         new HashMap<String, HashMap<String, List<ProxyMessage>>>(
                                 msgList.size());
 
-                updateMsgList(msgList, commonAttrMap, messageMap, strRemoteIP, msgType);
-
-                formatMessagesAndSend(ctx, commonAttrMap, messageMap,
-                        strRemoteIP, msgType);
-
+                checkMessageTopic = updateMsgList(msgList, commonAttrMap, messageMap, strRemoteIP,
+                        msgType);
+                if (checkMessageTopic) {
+                    formatMessagesAndSend(ctx, commonAttrMap, messageMap,
+                            strRemoteIP, msgType);
+                }
             } else if (msgList != null && commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)) {
                 Map<String, String> headers = new HashMap<String, String>();
                 headers.put("msgtype", "filestatus");
@@ -714,7 +721,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 }
             }
             SocketAddress remoteSocketAddress = remoteChannel.remoteAddress();
-            if (!MessageUtils.isSyncSendForOrder(commonAttrMap
+            if (!checkMessageTopic || !MessageUtils.isSyncSendForOrder(commonAttrMap
                     .get(AttributeConstants.MESSAGE_SYNC_SEND))) {
                 responsePackage(ctx, commonAttrMap, resultMap, remoteChannel,
                         remoteSocketAddress, msgType);
@@ -775,7 +782,11 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         if (result) {
             metricItem.readSuccessCount.incrementAndGet();
             metricItem.readSuccessSize.addAndGet(size);
-            AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
+            try {
+                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
+            } catch (Exception e) {
+                logger.error("add metric has exception e= {}", e);
+            }
         } else {
             metricItem.readFailCount.incrementAndGet();
             metricItem.readFailSize.addAndGet(size);
