@@ -58,7 +58,6 @@ public class CommandDb {
         CommandEntity entity = new CommandEntity();
         entity.setId(CommandEntity.generateCommandId(profile.getTriggerId(), profile.getOpType()));
         entity.setTaskId(Integer.parseInt(profile.getTriggerId()));
-        entity.setDeliveryTime(profile.getDeliveryTime());
         entity.setCommandResult(success ? Constants.RESULT_SUCCESS : Constants.RESULT_FAIL);
         entity.setVersion(profile.getInt(JOB_VERSION, DEFAULT_JOB_VERSION));
         entity.setAcked(false);
