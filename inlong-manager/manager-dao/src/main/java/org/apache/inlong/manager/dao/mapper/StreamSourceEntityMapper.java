@@ -37,6 +37,11 @@ public interface StreamSourceEntityMapper {
     StreamSourceEntity selectByIdForUpdate(Integer id);
 
     /**
+     * Query valid source list by the given agentIp
+     */
+    List<StreamSourceEntity> selectByAgentIp(@Param("agentIp") String agentIp);
+
+    /**
      * According to the inlong group id and inlong stream id, query the number of valid source
      */
     int selectCount(@Param("groupId") String groupId, @Param("streamId") String streamId);
@@ -73,13 +78,6 @@ public interface StreamSourceEntityMapper {
      * Get the distinct source type from the given groupId and streamId
      */
     List<String> selectSourceType(@Param("groupId") String groupId, @Param("streamId") String streamId);
-
-    /**
-     * Get all sources in temporary status.
-     *
-     * @apiNote Do not need to filter sources that is_deleted > 0.
-     */
-    List<StreamSourceEntity> selectTempStatusSource();
 
     int updateByPrimaryKeySelective(StreamSourceEntity record);
 

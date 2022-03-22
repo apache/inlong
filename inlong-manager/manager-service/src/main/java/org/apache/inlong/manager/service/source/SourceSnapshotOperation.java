@@ -18,8 +18,12 @@
 package org.apache.inlong.manager.service.source;
 
 import com.google.common.base.Objects;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.enums.SourceState;
@@ -55,7 +59,23 @@ public class SourceSnapshotOperation implements AutoCloseable {
     /**
      * Cache the task ip and task status, the key is task ip
      */
-    private static ConcurrentHashMap<String, ConcurrentHashMap<Integer, Integer>> taskIpToIdAndStatusMap;
+    private Cache<String, ConcurrentHashMap<Integer, Integer>> agentTaskCache = CacheBuilder.newBuilder()
+            .maximumSize(1000).expireAfterWrite(30, TimeUnit.SECONDS).build(
+                    new CacheLoader<String, ConcurrentHashMap<Integer, Integer>>() {
+                        @Override
+                        public ConcurrentHashMap<Integer, Integer> load(String agentIp) throws Exception {
+                            List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIp(agentIp);
+                            if (CollectionUtils.isEmpty(sourceEntities)) {
+                                return null;
+                            } else {
+                                ConcurrentHashMap<Integer, Integer> tmpMap = new ConcurrentHashMap<>();
+                                for (StreamSourceEntity entity : sourceEntities) {
+                                    tmpMap.put(entity.getId(), entity.getStatus());
+                                }
+                                return tmpMap;
+                            }
+                        }
+                    });
 
     public final ExecutorService executorService = new ThreadPoolExecutor(
             1,
@@ -73,9 +93,6 @@ public class SourceSnapshotOperation implements AutoCloseable {
      * The queue for transfer source snapshot
      */
     private LinkedBlockingQueue<TaskSnapshotRequest> snapshotQueue = null;
-
-    @Value("${stream.source.snapshot.batch.size:100}")
-    private int batchSize = 100;
 
     @Value("${stream.source.snapshot.queue.size:10000}")
     private int queueSize = 10000;
@@ -116,11 +133,12 @@ public class SourceSnapshotOperation implements AutoCloseable {
             snapshotQueue.offer(request);
 
             // Modify the task status based on the tasks reported in the snapshot and the tasks in the cache.
-            if (taskIpToIdAndStatusMap == null || taskIpToIdAndStatusMap.get(agentIp) == null) {
+            ConcurrentHashMap<Integer, Integer> idStatusMap = agentTaskCache.getIfPresent(agentIp);
+            if (MapUtils.isEmpty(idStatusMap)) {
                 LOGGER.info("success report snapshot for ip={}, task status cache is null", agentIp);
                 return true;
             }
-            ConcurrentHashMap<Integer, Integer> idStatusMap = taskIpToIdAndStatusMap.get(agentIp);
+            boolean isInvalid = false;
             Set<Integer> currentTaskIdSet = new HashSet<>();
             for (TaskSnapshotMessage snapshot : snapshotList) {
                 Integer id = snapshot.getJobId();
@@ -132,6 +150,7 @@ public class SourceSnapshotOperation implements AutoCloseable {
                 // Update the status from temporary to normal
                 Integer status = idStatusMap.get(id);
                 if (SourceState.TEMP_TO_NORMAL.contains(status)) {
+                    isInvalid = true;
                     StreamSourceEntity source = sourceMapper.selectByIdForUpdate(id);
                     sourceMapper.updateStatus(id, SourceState.SOURCE_NORMAL.getCode(), source.getModifyTime());
                 }
@@ -139,19 +158,24 @@ public class SourceSnapshotOperation implements AutoCloseable {
 
             // If the id in the snapshot does not contain pending deletion or pending freezing tasks,
             // then update the status to disable or frozen.
-            Set<Entry<Integer, Integer>> idStatusCacheSet = idStatusMap.entrySet();
-            for (Entry<Integer, Integer> entry : idStatusCacheSet) {
+            for (Entry<Integer, Integer> entry : idStatusMap.entrySet()) {
                 Integer cacheId = entry.getKey();
                 Integer cacheStatus = entry.getValue();
                 if (!currentTaskIdSet.contains(cacheId)) {
                     StreamSourceEntity source = sourceMapper.selectByIdForUpdate(cacheId);
                     if (Objects.equal(cacheStatus, SourceState.BEEN_ISSUED_DELETE.getCode())) {
+                        isInvalid = true;
                         sourceMapper.updateStatus(cacheId, SourceState.SOURCE_DISABLE.getCode(),
                                 source.getModifyTime());
                     } else if (Objects.equal(cacheStatus, SourceState.BEEN_ISSUED_FROZEN.getCode())) {
-                        sourceMapper.updateStatus(cacheId, SourceState.SOURCE_FROZEN.getCode(), source.getModifyTime());
+                        isInvalid = true;
+                        sourceMapper.updateStatus(cacheId, SourceState.SOURCE_FROZEN.getCode(),
+                                source.getModifyTime());
                     }
                 }
+            }
+            if (isInvalid) {
+                agentTaskCache.invalidate(agentIp);
             }
 
             return true;
@@ -167,32 +191,12 @@ public class SourceSnapshotOperation implements AutoCloseable {
     }
 
     /**
-     * Get all tasks in a temporary state, and set up an ip-id-status map,
-     * the temporary state is greater than or equal to 200.
-     *
-     * @see org.apache.inlong.manager.common.enums.SourceState
-     */
-    private ConcurrentHashMap<String, ConcurrentHashMap<Integer, Integer>> getTaskIpAndStatusMap() {
-        ConcurrentHashMap<String, ConcurrentHashMap<Integer, Integer>> ipTaskMap = new ConcurrentHashMap<>(16);
-        List<StreamSourceEntity> sourceList = sourceMapper.selectTempStatusSource();
-        for (StreamSourceEntity entity : sourceList) {
-            String ip = entity.getAgentIp();
-            ConcurrentHashMap<Integer, Integer> tmpMap = ipTaskMap.getOrDefault(ip, new ConcurrentHashMap<>());
-            tmpMap.put(entity.getId(), entity.getStatus());
-            ipTaskMap.put(ip, tmpMap);
-        }
-
-        return ipTaskMap;
-    }
-
-    /**
      * The task of saving source task snapshot into DB.
      */
     private class SaveSnapshotTaskRunnable implements Runnable {
 
         @Override
         public void run() {
-            int cnt = 0;
             while (!isClose) {
                 try {
                     TaskSnapshotRequest request = snapshotQueue.poll(1, TimeUnit.SECONDS);
@@ -210,11 +214,6 @@ public class SourceSnapshotOperation implements AutoCloseable {
 
                         // update snapshot
                         sourceMapper.updateSnapshot(entity);
-                    }
-                    // After processing the batchSize heartbeats, get all tasks in a temporary state.
-                    if (++cnt > batchSize) {
-                        cnt = 0;
-                        taskIpToIdAndStatusMap = getTaskIpAndStatusMap();
                     }
                 } catch (Throwable t) {
                     LOGGER.error("source snapshot task runnable error", t);
