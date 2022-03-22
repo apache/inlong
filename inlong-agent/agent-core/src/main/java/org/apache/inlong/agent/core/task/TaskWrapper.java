@@ -207,11 +207,6 @@ public class TaskWrapper extends AbstractStateWrapper {
             submitThreadsAndWait();
             if (!isException()) {
                 doChangeState(State.SUCCEEDED);
-            } else {
-                CommandEntity command = new CommandEntity();
-                command.setTaskId(Integer.valueOf(task.getTaskId()));
-                command.setCommandResult(Constants.RESULT_FAIL);
-                db.storeCommand(command);
             }
             LOGGER.info("start to destroy task {}", task.getTaskId());
             task.destroy();

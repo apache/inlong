@@ -27,8 +27,11 @@ import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.core.task.Task;
 import org.apache.inlong.agent.core.task.TaskManager;
+import org.apache.inlong.agent.db.CommandDb;
 import org.apache.inlong.agent.state.AbstractStateWrapper;
 import org.apache.inlong.agent.state.State;
+import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.db.CommandEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +49,7 @@ public class JobWrapper extends AbstractStateWrapper {
     private final Job job;
 
     private final List<Task> allTasks;
+    private CommandDb db;
 
     public JobWrapper(AgentManager manager, Job job) {
         super();
@@ -55,6 +59,7 @@ public class JobWrapper extends AbstractStateWrapper {
         this.job = job;
         this.allTasks = new ArrayList<>();
         doChangeState(State.ACCEPTED);
+        this.db = manager.getCommandDb();
     }
 
     /**
@@ -76,6 +81,10 @@ public class JobWrapper extends AbstractStateWrapper {
             doChangeState(State.SUCCEEDED);
         } else {
             doChangeState(State.FAILED);
+            CommandEntity command = new CommandEntity();
+            command.setTaskId(Integer.valueOf(job.getJobInstanceId()));
+            command.setCommandResult(Constants.RESULT_FAIL);
+            db.storeCommand(command);
         }
     }
 
