@@ -47,7 +47,8 @@ const Comp: React.FC<MyAccessModalProps> = ({ ...modalProps }) => {
   const { run: getData, data, loading } = useRequest(
     {
       url: '/group/list',
-      params: {
+      method: 'POST',
+      data: {
         ...options,
         status: 130,
       },
