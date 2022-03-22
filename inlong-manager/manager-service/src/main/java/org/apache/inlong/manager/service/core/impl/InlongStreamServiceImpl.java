@@ -246,7 +246,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             this.updateField(groupId, streamId, streamInfo.getFieldList());
         }
 
-        LOGGER.info("success to update inlong group for groupId={}", groupId);
+        LOGGER.info("success to update inlong stream for groupId={}", groupId);
         return true;
     }
 

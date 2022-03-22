@@ -64,14 +64,26 @@ public interface StreamSourceEntityMapper {
             @Param("streamId") String streamId, @Param("sourceType") String sourceType);
 
     /**
-     * Query the tasks that need to be added.
+     * Query the tasks that need to be added for update.
      */
     List<StreamSourceEntity> selectByStatusForUpdate(@Param("list") List<Integer> list);
+
+
+    /**
+     * Query the tasks that need to be added.
+     */
+    List<StreamSourceEntity> selectByStatus(@Param("list") List<Integer> list);
+
+    /**
+     * Query the sources with status 20x by the given agent IP and agent UUID for update.
+     */
+    List<StreamSourceEntity> selectByStatusAndIpForUpdate(@Param("statusList") List<Integer> statusList,
+            @Param("agentIp") String agentIp, @Param("uuid") String uuid);
 
     /**
      * Query the sources with status 20x by the given agent IP and agent UUID.
      */
-    List<StreamSourceEntity> selectByStatusAndIpForUpdate(@Param("statusList") List<Integer> statusList,
+    List<StreamSourceEntity> selectByStatusAndIp(@Param("statusList") List<Integer> statusList,
             @Param("agentIp") String agentIp, @Param("uuid") String uuid);
 
     /**
