@@ -47,7 +47,7 @@ public class AgentConstants {
     public static final String DEFAULT_AGENT_DB_INSTANCE_NAME = "agent";
 
     public static final String AGENT_DB_CLASSNAME = "agent.db.classname";
-    public static final String DEFAULT_AGENT_DB_CLASSNAME = "org.apache.inlong.agent.db.BerkeleyDbImp";
+    public static final String DEFAULT_AGENT_DB_CLASSNAME = "org.apache.inlong.agent.db.RocksDbImp";
 
     // default is empty.
     public static final String AGENT_FETCHER_CLASSNAME = "agent.fetcher.classname";
