@@ -43,12 +43,19 @@ public interface AgentService {
     Boolean reportSnapshot(TaskSnapshotRequest request);
 
     /**
-     * Agent report the task result, and pull task config to operate.
+     * Agent report the task result.
      *
-     * @param request Request of the task result.
+     * @param request Result of the task.
+     */
+    void report(TaskRequest request);
+
+    /**
+     * Agent pull task config.
+     *
+     * @param request Request of the task.
      * @return Task result.
      */
-    TaskResult reportAndGetTask(TaskRequest request);
+    TaskResult getTaskResult(TaskRequest request);
 
     @Deprecated
     FileAgentTaskInfo getFileAgentTask(FileAgentCommandInfo info);

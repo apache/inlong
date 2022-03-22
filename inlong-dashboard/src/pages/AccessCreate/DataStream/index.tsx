@@ -46,7 +46,8 @@ const Comp = ({ inlongGroupId, middlewareType }: Props, ref) => {
   useRequest(
     {
       url: '/stream/listAll',
-      params: {
+      method: 'POST',
+      data: {
         pageSize: 100,
         pageNum: 1,
         inlongGroupId,

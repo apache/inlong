@@ -151,7 +151,7 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
 
     @Override
     public boolean isClosed() {
-        return this.closed;
+        return closed;
     }
 
     @Override
@@ -161,7 +161,7 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
 
     @Override
     public boolean isConsumeStop() {
-        return this.isStopConsume;
+        return isStopConsume;
     }
 
     @Override
@@ -177,15 +177,6 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
     @Override
     public long getAckedOffset() {
         return 0L;
-    }
-
-    /**
-     * isValidState
-     */
-    public void isValidState() {
-        if (closed) {
-            throw new IllegalStateException(inLongTopic + " closed.");
-        }
     }
 
     public class Fetcher implements Runnable {

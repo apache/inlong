@@ -187,7 +187,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         options: {
           requestService: {
             url: '/stream/list',
-            params: {
+            method: 'POST',
+            data: {
               pageNum: 1,
               pageSize: 1000,
               inlongGroupId,

@@ -271,8 +271,7 @@ public class DefaultMetaDataService implements MetaDataService {
                 continue;
             }
             String allowedCondStr = ctrlEntity.getFilterCondStr();
-            if (allowedCondStr.length() == 2
-                    && allowedCondStr.equals(TServerConstants.BLANK_FILTER_ITEM_STR)) {
+            if (allowedCondStr.equals(TServerConstants.BLANK_FILTER_ITEM_STR)) {
                 result.setFailResult(TErrCodeConstants.CONSUME_CONTENT_FORBIDDEN,
                         strBuff.append("[Restricted Group] ").append(consumerId)
                                 .append(" : ").append(groupName)
@@ -724,59 +723,70 @@ public class DefaultMetaDataService implements MetaDataService {
             }
             strBuff.append(topicEntity.getTopicName());
             TopicPropGroup topicProps = topicEntity.getTopicProps();
-            if (topicProps.getNumPartitions() == defTopicProps.getNumPartitions()) {
+            if (topicProps.getNumPartitions() == TBaseConstants.META_VALUE_UNDEFINED
+                    || topicProps.getNumPartitions() == defTopicProps.getNumPartitions()) {
                 strBuff.append(TokenConstants.ATTR_SEP).append(" ");
             } else {
                 strBuff.append(TokenConstants.ATTR_SEP).append(topicProps.getNumPartitions());
             }
-            if (topicProps.isAcceptPublish() == defTopicProps.isAcceptPublish()) {
+            if (topicProps.getAcceptPublish() == null
+                    || topicProps.isAcceptPublish() == defTopicProps.isAcceptPublish()) {
                 strBuff.append(TokenConstants.ATTR_SEP).append(" ");
             } else {
                 strBuff.append(TokenConstants.ATTR_SEP).append(topicProps.isAcceptPublish());
             }
-            if (topicProps.isAcceptSubscribe() == defTopicProps.isAcceptSubscribe()) {
+            if (topicProps.getAcceptSubscribe() == null
+                    || topicProps.isAcceptSubscribe() == defTopicProps.isAcceptSubscribe()) {
                 strBuff.append(TokenConstants.ATTR_SEP).append(" ");
             } else {
                 strBuff.append(TokenConstants.ATTR_SEP).append(topicProps.isAcceptSubscribe());
             }
-            if (topicProps.getUnflushThreshold() == defTopicProps.getUnflushThreshold()) {
+            if (topicProps.getUnflushThreshold() == TBaseConstants.META_VALUE_UNDEFINED
+                    || topicProps.getUnflushThreshold() == defTopicProps.getUnflushThreshold()) {
                 strBuff.append(TokenConstants.ATTR_SEP).append(" ");
             } else {
                 strBuff.append(TokenConstants.ATTR_SEP).append(topicProps.getUnflushThreshold());
             }
-            if (topicProps.getUnflushInterval() == defTopicProps.getUnflushInterval()) {
+            if (topicProps.getUnflushInterval() == TBaseConstants.META_VALUE_UNDEFINED
+                    || topicProps.getUnflushInterval() == defTopicProps.getUnflushInterval()) {
                 strBuff.append(TokenConstants.ATTR_SEP).append(" ");
             } else {
                 strBuff.append(TokenConstants.ATTR_SEP).append(topicProps.getUnflushInterval());
             }
             strBuff.append(TokenConstants.ATTR_SEP).append(" ");
-            if (topicProps.getDeletePolicy().equals(defTopicProps.getDeletePolicy())) {
+            if (TStringUtils.isEmpty(topicProps.getDeletePolicy())
+                    || topicProps.getDeletePolicy().equals(defTopicProps.getDeletePolicy())) {
                 strBuff.append(TokenConstants.ATTR_SEP).append(" ");
             } else {
                 strBuff.append(TokenConstants.ATTR_SEP).append(topicProps.getDeletePolicy());
             }
-            if (topicProps.getNumTopicStores() == defTopicProps.getNumTopicStores()) {
+            if (topicProps.getNumTopicStores() == TBaseConstants.META_VALUE_UNDEFINED
+                    || topicProps.getNumTopicStores() == defTopicProps.getNumTopicStores()) {
                 strBuff.append(TokenConstants.ATTR_SEP).append(" ");
             } else {
                 strBuff.append(TokenConstants.ATTR_SEP).append(topicProps.getNumTopicStores());
             }
             strBuff.append(TokenConstants.ATTR_SEP).append(topicEntity.getTopicStatusId());
-            if (topicProps.getUnflushDataHold() == defTopicProps.getUnflushDataHold()) {
+            if (topicProps.getUnflushDataHold() == TBaseConstants.META_VALUE_UNDEFINED
+                    || topicProps.getUnflushDataHold() == defTopicProps.getUnflushDataHold()) {
                 strBuff.append(TokenConstants.ATTR_SEP).append(" ");
             } else {
                 strBuff.append(TokenConstants.ATTR_SEP).append(topicProps.getUnflushDataHold());
             }
-            if (topicProps.getMemCacheMsgSizeInMB() == defTopicProps.getMemCacheMsgSizeInMB()) {
+            if (topicProps.getMemCacheMsgSizeInMB() == TBaseConstants.META_VALUE_UNDEFINED
+                    || topicProps.getMemCacheMsgSizeInMB() == defTopicProps.getMemCacheMsgSizeInMB()) {
                 strBuff.append(TokenConstants.ATTR_SEP).append(" ");
             } else {
                 strBuff.append(TokenConstants.ATTR_SEP).append(topicProps.getMemCacheMsgSizeInMB());
             }
-            if (topicProps.getMemCacheMsgCntInK() == defTopicProps.getMemCacheMsgCntInK()) {
+            if (topicProps.getMemCacheMsgCntInK() == TBaseConstants.META_VALUE_UNDEFINED
+                    || topicProps.getMemCacheMsgCntInK() == defTopicProps.getMemCacheMsgCntInK()) {
                 strBuff.append(TokenConstants.ATTR_SEP).append(" ");
             } else {
                 strBuff.append(TokenConstants.ATTR_SEP).append(topicProps.getMemCacheMsgCntInK());
             }
-            if (topicProps.getMemCacheFlushIntvl() == defTopicProps.getMemCacheFlushIntvl()) {
+            if (topicProps.getMemCacheFlushIntvl() == TBaseConstants.META_VALUE_UNDEFINED
+                    || topicProps.getMemCacheFlushIntvl() == defTopicProps.getMemCacheFlushIntvl()) {
                 strBuff.append(TokenConstants.ATTR_SEP).append(" ");
             } else {
                 strBuff.append(TokenConstants.ATTR_SEP).append(topicProps.getMemCacheFlushIntvl());
