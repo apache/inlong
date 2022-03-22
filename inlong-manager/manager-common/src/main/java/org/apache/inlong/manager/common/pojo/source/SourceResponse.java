@@ -66,6 +66,9 @@ public class SourceResponse {
     @ApiModelProperty("Snapshot of this source task")
     private String snapshot;
 
+    @ApiModelProperty("Version")
+    private Integer version;
+
     @ApiModelProperty("Status")
     private Integer status;
 

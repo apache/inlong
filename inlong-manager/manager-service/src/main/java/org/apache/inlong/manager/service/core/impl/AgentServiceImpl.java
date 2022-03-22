@@ -63,23 +63,19 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 public class AgentServiceImpl implements AgentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentServiceImpl.class);
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final int UNISSUED_STATUS = 2;
     private static final int ISSUED_STATUS = 3;
     private static final int MODULUS_100 = 100;
@@ -136,10 +132,9 @@ public class AgentServiceImpl implements AgentService {
             return;
         }
 
-        LocalDateTime localDateTime = LocalDateTime.parse(command.getDeliveryTime(), TIME_FORMATTER);
-        Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
-        if (current.getModifyTime().getTime() - instant.toEpochMilli() > maxModifyTime) {
-            LOGGER.warn("task {} receive result delay more than {} ms, skip it", taskId, maxModifyTime);
+        if (!Objects.equals(command.getVersion(), current.getVersion())) {
+            LOGGER.warn("task result version [{}] not equals to current [{}] for id [{}], skip update",
+                    command.getVersion(), current.getVersion(), taskId);
             return;
         }
 
@@ -236,8 +231,7 @@ public class AgentServiceImpl implements AgentService {
         dataConfig.setTaskName(entity.getSourceName());
         dataConfig.setSnapshot(entity.getSnapshot());
         dataConfig.setExtParams(entity.getExtParams());
-        LocalDateTime dateTime = LocalDateTime.ofInstant(entity.getModifyTime().toInstant(), ZoneId.systemDefault());
-        dataConfig.setDeliveryTime(dateTime.format(TIME_FORMATTER));
+        dataConfig.setVersion(entity.getVersion());
 
         String groupId = entity.getInlongGroupId();
         String streamId = entity.getInlongStreamId();

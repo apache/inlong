@@ -32,9 +32,6 @@ public class SourceListResponse {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Status")
-    private Integer status;
-
     @ApiModelProperty(value = "Inlong group id")
     private String inlongGroupId;
 
@@ -58,6 +55,12 @@ public class SourceListResponse {
 
     @ApiModelProperty("Name of the cluster that collected this source")
     private String clusterName;
+
+    @ApiModelProperty(value = "Status")
+    private Integer status;
+
+    @ApiModelProperty("Version")
+    private Integer version;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;

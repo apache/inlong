@@ -30,14 +30,14 @@ public interface StreamSourceEntityMapper {
 
     int insert(StreamSourceEntity record);
 
-    int insertSelective(StreamSourceEntity record);
-
     StreamSourceEntity selectById(Integer id);
 
     StreamSourceEntity selectByIdForUpdate(Integer id);
 
     /**
-     * Query valid source list by the given agentIp
+     * Query un-deleted sources by the given agentIp.
+     *
+     * @apiNote Sources with is_deleted > 0 need to be filtered.
      */
     List<StreamSourceEntity> selectByAgentIp(@Param("agentIp") String agentIp);
 
