@@ -55,7 +55,6 @@ public class TaskWrapper extends AbstractStateWrapper {
     private final int pushMaxWaitTime;
     private final int pullMaxWaitTime;
     private ExecutorService executorService;
-    private CommandDb db;
 
     public TaskWrapper(AgentManager manager, Task task) {
         super();
@@ -75,7 +74,6 @@ public class TaskWrapper extends AbstractStateWrapper {
                     new AgentThreadFactory("task-reader-writer"));
         }
         doChangeState(State.ACCEPTED);
-        this.db = manager.getCommandDb();
     }
 
     /**
@@ -207,11 +205,6 @@ public class TaskWrapper extends AbstractStateWrapper {
             submitThreadsAndWait();
             if (!isException()) {
                 doChangeState(State.SUCCEEDED);
-            } else {
-                CommandEntity command = new CommandEntity();
-                command.setTaskId(Integer.valueOf(task.getTaskId()));
-                command.setCommandResult(Constants.RESULT_FAIL);
-                db.storeCommand(command);
             }
             LOGGER.info("start to destroy task {}", task.getTaskId());
             task.destroy();
