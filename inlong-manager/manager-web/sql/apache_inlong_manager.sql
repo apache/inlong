@@ -613,7 +613,7 @@ CREATE TABLE `stream_source`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_source_name` (`inlong_group_id`, `inlong_stream_id`, `source_name`, `is_deleted`),
     KEY `status_idx` (`status`,`is_deleted`),
-    KEY `agent_ip_idx` (`agent_ip`)
+    KEY `agent_ip_idx` (`agent_ip`,`is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream source table';
 
