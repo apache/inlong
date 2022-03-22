@@ -26,7 +26,7 @@
     </parent>
     <artifactId>manager-plugins</artifactId>
     <modelVersion>4.0.0</modelVersion>
-    <name>Apache InLong - Manager Plugin Examples</name>
+    <name>Apache InLong - Manager Plugins</name>
 
     <dependencies>
         <dependency>
@@ -54,6 +54,6 @@
                 </includes>
             </resource>
         </resources>
-        <finalName>manager-plugin-example</finalName>
+        <finalName>manager-plugins</finalName>
     </build>
 </project>

@@ -35,7 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Slf4j
-public class DiProcessPlugin implements ProcessPlugin {
+public class FlinkSortProcessPlugin implements ProcessPlugin {
 
     @Override
     public Map<DataSourceOperateListener, EventSelector> createSourceOperateListeners() {

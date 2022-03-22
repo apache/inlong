@@ -19,21 +19,9 @@ package org.apache.inlong.manager.plugin.flink;
 
 public class Constants {
 
-    public static final String HIVE = "hive";
-
     public static final String SOURCE_INFO = "source_info";
 
     public static final String SINK_INFO = "sink_info";
-
-    public static final String PULSAR = "pulsar";
-
-    public static final String TUBEMQ = "tubemq";
-
-    public static final String CLICKHOUSE = "clickhouse";
-
-    public static final String KAFKA = "kafka";
-
-    public static final String ICEBERG = "iceberg";
 
     public static final String TYPE = "type";
 
@@ -51,19 +39,9 @@ public class Constants {
     public static final Integer PARALLELISM = 1;
 
     // flag
-    public static final String REMOTE_FORWARD = "Forward";
-
     public static final String RESOURCE_ID = "resource_id";
 
-    public static final String REMOTE_ENDPOINT = "remoteEndpoint";
-
-    public static final String REMOTE_PARAM = "remoteParam";
-
     public static final String DATA_PATH = "data_path";
-
-    public static final String COS = "cosn://";
-
-    public static final String CHDFS = "ofs://";
 
     //REST API URL
     public static final String JOB_URL = "/jobs";
