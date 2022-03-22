@@ -148,7 +148,7 @@ public class KafkaReader<K, V> implements Reader {
             }
         } else {
             // commit offset
-            if (!isSourceExist()) {
+            if (isSourceExist()) {
                 consumer.commitAsync();
             }
             fetchData(5000);
