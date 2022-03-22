@@ -463,7 +463,8 @@
     <update id="updateSnapshot" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         update stream_source
         set snapshot    = #{snapshot,jdbcType=LONGVARCHAR},
-            report_time = #{reportTime,jdbcType=TIMESTAMP}
+            report_time = #{reportTime,jdbcType=TIMESTAMP},
+            modify_time = modify_time
         where id = #{id,jdbcType=INTEGER}
     </update>
 

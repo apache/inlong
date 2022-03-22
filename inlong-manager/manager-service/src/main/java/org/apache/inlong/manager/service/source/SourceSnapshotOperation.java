@@ -91,6 +91,7 @@ public class SourceSnapshotOperation implements AutoCloseable {
             snapshotQueue = new LinkedBlockingQueue<>(queueSize);
         }
         SaveSnapshotTaskRunnable taskRunnable = new SaveSnapshotTaskRunnable();
+        taskIpToIdAndStatusMap = getTaskIpAndStatusMap();
         this.executorService.execute(taskRunnable);
         LOGGER.info("source snapshot operate thread started successfully");
     }
