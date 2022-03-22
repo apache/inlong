@@ -105,7 +105,7 @@ public class KafkaSource implements Source {
             // example:0#110_1#666_2#222
             partitionOffsets = allPartitionOffsets.split(JOB_OFFSET_DELIMITER);
         }
-        //
+        // set consumer session timeout
         props.put(KAFKA_SESSION_TIMEOUT, 30000);
         // spilt reader reduce to partition
         if (null != partitionInfoList) {
