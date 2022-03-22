@@ -102,8 +102,7 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED,
-            propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.NOT_SUPPORTED)
     public SourceResponse getById(@NotNull Integer id) {
         StreamSourceEntity entity = sourceMapper.selectById(id);
         log.info("stream entity={}", entity);
