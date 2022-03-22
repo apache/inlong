@@ -138,7 +138,7 @@ public class SourceSnapshotOperation implements AutoCloseable {
                 LOGGER.info("success report snapshot for ip={}, task status cache is null", agentIp);
                 return true;
             }
-
+            boolean isInvalid = false;
             Set<Integer> currentTaskIdSet = new HashSet<>();
             for (TaskSnapshotMessage snapshot : snapshotList) {
                 Integer id = snapshot.getJobId();
@@ -150,6 +150,7 @@ public class SourceSnapshotOperation implements AutoCloseable {
                 // Update the status from temporary to normal
                 Integer status = idStatusMap.get(id);
                 if (SourceState.TEMP_TO_NORMAL.contains(status)) {
+                    isInvalid = true;
                     StreamSourceEntity source = sourceMapper.selectByIdForUpdate(id);
                     sourceMapper.updateStatus(id, SourceState.SOURCE_NORMAL.getCode(), source.getModifyTime());
                 }
@@ -157,20 +158,24 @@ public class SourceSnapshotOperation implements AutoCloseable {
 
             // If the id in the snapshot does not contain pending deletion or pending freezing tasks,
             // then update the status to disable or frozen.
-            Set<Entry<Integer, Integer>> idStatusCacheSet = idStatusMap.entrySet();
-            for (Entry<Integer, Integer> entry : idStatusCacheSet) {
+            for (Entry<Integer, Integer> entry : idStatusMap.entrySet()) {
                 Integer cacheId = entry.getKey();
                 Integer cacheStatus = entry.getValue();
                 if (!currentTaskIdSet.contains(cacheId)) {
                     StreamSourceEntity source = sourceMapper.selectByIdForUpdate(cacheId);
                     if (Objects.equal(cacheStatus, SourceState.BEEN_ISSUED_DELETE.getCode())) {
+                        isInvalid = true;
                         sourceMapper.updateStatus(cacheId, SourceState.SOURCE_DISABLE.getCode(),
                                 source.getModifyTime());
                     } else if (Objects.equal(cacheStatus, SourceState.BEEN_ISSUED_FROZEN.getCode())) {
+                        isInvalid = true;
                         sourceMapper.updateStatus(cacheId, SourceState.SOURCE_FROZEN.getCode(),
                                 source.getModifyTime());
                     }
                 }
+            }
+            if (isInvalid) {
+                agentTaskCache.invalidate(agentIp);
             }
 
             return true;
