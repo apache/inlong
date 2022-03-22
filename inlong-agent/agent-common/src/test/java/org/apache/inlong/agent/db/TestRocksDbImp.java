@@ -72,7 +72,12 @@ public class TestRocksDbImp {
 
     @Test
     public void testCommandDb() {
-        CommandEntity commandEntity = new CommandEntity("1", 0, false, 1, "1");
+        CommandEntity commandEntity = new CommandEntity();
+        commandEntity.setId("1");
+        commandEntity.setCommandResult(0);
+        commandEntity.setAcked(false);
+        commandEntity.setTaskId(1);
+        commandEntity.setVersion(1);
         db.putCommand(commandEntity);
         CommandEntity command = db.getCommand("1");
         Assert.assertEquals("1", command.getId());

@@ -574,6 +574,7 @@ CREATE TABLE `stream_source`
     `snapshot`         text                  DEFAULT NULL COMMENT 'Snapshot of this source task',
     `report_time`      timestamp    NULL COMMENT 'Snapshot time',
     `ext_params`       text                  DEFAULT NULL COMMENT 'Another fields will saved as JSON string, such as filePath, dbName, tableName, etc',
+    `version`          int(11)               DEFAULT '1' COMMENT 'Stream source version',
     `status`           int(4)                DEFAULT '0' COMMENT 'Data source status',
     `previous_status`  int(4)                DEFAULT '0' COMMENT 'Previous status',
     `is_deleted`       int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
@@ -583,8 +584,8 @@ CREATE TABLE `stream_source`
     `modify_time`      timestamp    NULL     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_source_name` (`inlong_group_id`, `inlong_stream_id`, `source_name`, `is_deleted`),
-    KEY `status_idx` (`status`,`is_deleted`),
-    KEY `agent_ip_idx` (`agent_ip`,`is_deleted`)
+    KEY `source_status_idx` (`status`, `is_deleted`),
+    KEY `source_agent_ip_idx` (`agent_ip`, `is_deleted`)
 );
 
 -- ----------------------------
