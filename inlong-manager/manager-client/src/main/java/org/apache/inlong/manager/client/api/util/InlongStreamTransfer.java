@@ -23,15 +23,15 @@ import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.client.api.StreamField;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class InlongStreamTransfer {
 
-    public static InlongStreamInfo createStreamInfo(InlongStreamConf streamConf, InlongGroupInfo groupInfo) {
-        InlongStreamInfo dataStreamInfo = new InlongStreamInfo();
+    public static InlongStreamResponse createStreamInfo(InlongStreamConf streamConf, InlongGroupInfo groupInfo) {
+        InlongStreamResponse dataStreamInfo = new InlongStreamResponse();
         dataStreamInfo.setInlongGroupId(groupInfo.getInlongGroupId());
         final String streamId = "b_" + streamConf.getName();
         dataStreamInfo.setInlongStreamId(streamId);
@@ -58,7 +58,7 @@ public class InlongStreamTransfer {
 
     public static List<InlongStreamFieldInfo> createStreamFields(
             List<StreamField> fieldList,
-            InlongStreamInfo streamInfo) {
+            InlongStreamResponse streamInfo) {
         List<InlongStreamFieldInfo> fieldInfos = fieldList.stream().map(streamField -> {
             InlongStreamFieldInfo fieldInfo = new InlongStreamFieldInfo();
             fieldInfo.setInlongStreamId(streamInfo.getInlongStreamId());

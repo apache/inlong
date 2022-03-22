@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.workflow.group.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -69,9 +69,9 @@ public class StartCreateGroupProcessListener implements ProcessEventListener {
         processForm.setGroupInfo(groupService.get(groupId));
         String username = context.getApplicant();
         List<InlongStreamEntity> inlongStreamEntityList = streamMapper.selectByGroupId(groupId);
-        List<InlongStreamInfo> inlongStreamInfoList = CommonBeanUtils.copyListProperties(inlongStreamEntityList,
-                InlongStreamInfo::new);
-        processForm.setInlongStreamInfoList(inlongStreamInfoList);
+        List<InlongStreamResponse> streamList = CommonBeanUtils.copyListProperties(inlongStreamEntityList,
+                InlongStreamResponse::new);
+        processForm.setStreamList(streamList);
         workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm);
         return ListenerResult.success();
     }

@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.core.impl;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
@@ -193,9 +193,9 @@ public class InlongGroupProcessOperation {
         if (OperateType.RESTART == operateType) {
             List<InlongStreamEntity> inlongStreamEntityList =
                     streamMapper.selectByGroupId(groupInfo.getInlongGroupId());
-            List<InlongStreamInfo> inlongStreamInfoList = CommonBeanUtils.copyListProperties(inlongStreamEntityList,
-                    InlongStreamInfo::new);
-            form.setInlongStreamInfoList(inlongStreamInfoList);
+            List<InlongStreamResponse> streamList = CommonBeanUtils.copyListProperties(inlongStreamEntityList,
+                    InlongStreamResponse::new);
+            form.setStreamList(streamList);
         }
         form.setGroupInfo(groupInfo);
         form.setOperateType(operateType);

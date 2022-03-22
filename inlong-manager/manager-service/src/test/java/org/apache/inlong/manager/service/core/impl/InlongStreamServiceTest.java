@@ -17,7 +17,8 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,11 +45,11 @@ public class InlongStreamServiceTest {
      * Test save inlong stream
      */
     public Integer saveInlongStream(String groupId, String streamId, String operator) {
-        InlongStreamInfo streamInfo;
+        ;
         try {
-            streamInfo = streamService.get(groupId, streamId);
-            if (streamInfo != null) {
-                return streamInfo.getId();
+            InlongStreamResponse response = streamService.get(groupId, streamId);
+            if (response != null) {
+                return response.getId();
             }
         } catch (Exception e) {
             // ignore
@@ -56,12 +57,12 @@ public class InlongStreamServiceTest {
 
         groupServiceTest.saveGroup(globalGroupName, operator);
 
-        streamInfo = new InlongStreamInfo();
-        streamInfo.setInlongGroupId(groupId);
-        streamInfo.setInlongStreamId(streamId);
-        streamInfo.setDataEncoding("UTF-8");
+        InlongStreamRequest request = new InlongStreamRequest();
+        request.setInlongGroupId(groupId);
+        request.setInlongStreamId(streamId);
+        request.setDataEncoding("UTF-8");
 
-        return streamService.save(streamInfo, operator);
+        return streamService.save(request, operator);
     }
 
     @Test

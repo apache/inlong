@@ -27,6 +27,7 @@ import java.util.Locale;
  */
 public enum SourceType {
 
+    AUTO_PUSH("AUTO_PUSH", null),
     FILE("FILE", TaskTypeEnum.FILE),
     SQL("SQL", TaskTypeEnum.SQL),
     BINLOG("BINLOG", TaskTypeEnum.BINLOG),

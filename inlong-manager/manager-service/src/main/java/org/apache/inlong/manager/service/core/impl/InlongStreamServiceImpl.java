@@ -31,16 +31,17 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceDbDetailInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceFileDetailInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.stream.FullPageUpdateRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -66,6 +67,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -97,11 +99,11 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public Integer save(InlongStreamInfo streamInfo, String operator) {
-        LOGGER.debug("begin to save inlong stream info={}", streamInfo);
-        Preconditions.checkNotNull(streamInfo, "inlong stream info is empty");
-        String groupId = streamInfo.getInlongGroupId();
-        String streamId = streamInfo.getInlongStreamId();
+    public Integer save(InlongStreamRequest request, String operator) {
+        LOGGER.debug("begin to save inlong stream info={}", request);
+        Preconditions.checkNotNull(request, "inlong stream info is empty");
+        String groupId = request.getInlongGroupId();
+        String streamId = request.getInlongStreamId();
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
         Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
 
@@ -114,29 +116,24 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             LOGGER.error("inlong stream id [{}] has already exists", streamId);
             throw new BusinessException(ErrorCodeEnum.STREAM_ID_DUPLICATE);
         }
-        if (StringUtils.isEmpty(streamInfo.getMqResourceObj())) {
-            streamInfo.setMqResourceObj(streamId);
+        if (StringUtils.isEmpty(request.getMqResourceObj())) {
+            request.setMqResourceObj(streamId);
         }
         // Processing inlong stream
-        InlongStreamEntity streamEntity = CommonBeanUtils.copyProperties(streamInfo, InlongStreamEntity::new);
-        Date date = new Date();
+        InlongStreamEntity streamEntity = CommonBeanUtils.copyProperties(request, InlongStreamEntity::new);
         streamEntity.setStatus(EntityStatus.STREAM_NEW.getCode());
-        streamEntity.setModifier(operator);
-        streamEntity.setCreateTime(date);
+        streamEntity.setCreator(operator);
+        streamEntity.setCreateTime(new Date());
 
         streamMapper.insertSelective(streamEntity);
-
-        // Processing extended information
-        this.saveExt(groupId, streamId, streamInfo.getExtList(), date);
-        // WorkflowProcess data source fields
-        this.saveField(groupId, streamId, streamInfo.getFieldList());
+        this.saveField(groupId, streamId, request.getFieldList());
 
         LOGGER.info("success to save inlong stream info for groupId={}", groupId);
         return streamEntity.getId();
     }
 
     @Override
-    public InlongStreamInfo get(String groupId, String streamId) {
+    public InlongStreamResponse get(String groupId, String streamId) {
         LOGGER.debug("begin to get inlong stream by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
         Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
@@ -147,11 +144,12 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
         }
 
-        InlongStreamInfo streamInfo = CommonBeanUtils.copyProperties(streamEntity, InlongStreamInfo::new);
-        this.setStreamExtAndField(groupId, streamId, streamInfo);
+        InlongStreamResponse response = CommonBeanUtils.copyProperties(streamEntity, InlongStreamResponse::new);
+        List<InlongStreamFieldInfo> streamFields = this.getStreamFields(groupId, streamId);
+        response.setFieldList(streamFields);
 
         LOGGER.info("success to get inlong stream for groupId={}", groupId);
-        return streamInfo;
+        return response;
     }
 
     @Override
@@ -163,20 +161,13 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     /**
      * Query and set the extended information and data source fields of the inlong stream
-     *
-     * @param groupId Inlong group id
-     * @param streamId Inlong stream id
-     * @param streamInfo Inlong stream that needs to be filled
      */
-    private void setStreamExtAndField(String groupId, String streamId, InlongStreamInfo streamInfo) {
-        List<InlongStreamExtEntity> extEntityList = streamExtMapper.selectByIdentifier(groupId, streamId);
-        if (CollectionUtils.isNotEmpty(extEntityList)) {
-            streamInfo.setExtList(CommonBeanUtils.copyListProperties(extEntityList, InlongStreamExtInfo::new));
-        }
+    private List<InlongStreamFieldInfo> getStreamFields(String groupId, String streamId) {
         List<InlongStreamFieldEntity> fieldEntityList = streamFieldMapper.selectByIdentifier(groupId, streamId);
-        if (CollectionUtils.isNotEmpty(fieldEntityList)) {
-            streamInfo.setFieldList(CommonBeanUtils.copyListProperties(fieldEntityList, InlongStreamFieldInfo::new));
+        if (CollectionUtils.isEmpty(fieldEntityList)) {
+            return Collections.emptyList();
         }
+        return CommonBeanUtils.copyListProperties(fieldEntityList, InlongStreamFieldInfo::new);
     }
 
     @Override
@@ -217,34 +208,34 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean update(InlongStreamInfo streamInfo, String operator) {
-        LOGGER.debug("begin to update inlong stream info={}", streamInfo);
-        Preconditions.checkNotNull(streamInfo, "inlong stream info is empty");
-        String groupId = streamInfo.getInlongGroupId();
+    public Boolean update(InlongStreamRequest request, String operator) {
+        LOGGER.debug("begin to update inlong stream info={}", request);
+        Preconditions.checkNotNull(request, "inlong stream request is empty");
+        String groupId = request.getInlongGroupId();
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
-        String streamId = streamInfo.getInlongStreamId();
+        String streamId = request.getInlongStreamId();
         Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be modified
         InlongGroupEntity inlongGroupEntity = this.checkBizIsTempStatus(groupId);
 
-        // Add if it doesn't exist, modify if it exists
+        // Make sure the stream was exists
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
         if (streamEntity == null) {
-            this.save(streamInfo, operator);
-        } else {
-            // Check whether the current inlong group status supports modification
-            this.checkCanUpdate(inlongGroupEntity.getStatus(), streamEntity, streamInfo);
-
-            CommonBeanUtils.copyProperties(streamInfo, streamEntity, true);
-            streamEntity.setModifier(operator);
-            streamEntity.setStatus(EntityStatus.GROUP_CONFIG_ING.getCode());
-            streamMapper.updateByIdentifierSelective(streamEntity);
-
-            // Update extended information, field information
-            this.updateExt(groupId, streamId, streamInfo.getExtList());
-            this.updateField(groupId, streamId, streamInfo.getFieldList());
+            LOGGER.error("inlong stream not found by groupId={}, streamId={}", groupId, streamId);
+            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
         }
+
+        // Check whether the current inlong group status supports modification
+        this.checkCanUpdate(inlongGroupEntity.getStatus(), streamEntity, request);
+
+        CommonBeanUtils.copyProperties(request, streamEntity, true);
+        streamEntity.setModifier(operator);
+        streamEntity.setStatus(EntityStatus.GROUP_CONFIG_ING.getCode());
+        streamMapper.updateByIdentifierSelective(streamEntity);
+
+        // Update field information
+        this.updateField(groupId, streamId, request.getFieldList());
 
         LOGGER.info("success to update inlong stream for groupId={}", groupId);
         return true;
@@ -252,13 +243,13 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean delete(String groupId, String streamId, String operator) {
+    public Boolean delete(String groupId, String streamId, String operator) {
         LOGGER.debug("begin to delete inlong stream, groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
         Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
 
         // Check if it can be deleted
-        InlongGroupEntity inlongGroupEntity = this.checkBizIsTempStatus(groupId);
+        this.checkBizIsTempStatus(groupId);
 
         InlongStreamEntity entity = streamMapper.selectByIdentifier(groupId, streamId);
         if (entity == null) {
@@ -266,27 +257,23 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
         }
 
-        // If there is an undeleted data source, the deletion fails
-        boolean dataSourceExist = hasDataSource(groupId, streamId, entity.getDataSourceType());
-        if (dataSourceExist) {
-            LOGGER.error("inlong stream has undeleted data sources, delete failed");
+        // If there is undeleted stream source, the deletion fails
+        Integer sourceCount = sourceService.getCount(groupId, streamId);
+        if (sourceCount > 0) {
+            LOGGER.error("inlong stream has undeleted sources, delete failed");
             throw new BusinessException(ErrorCodeEnum.STREAM_DELETE_HAS_SOURCE);
         }
 
-        // If there is undeleted data sink information, the deletion fails
+        // If there is undeleted stream sink, the deletion fails
         int sinkCount = sinkService.getCount(groupId, streamId);
         if (sinkCount > 0) {
             LOGGER.error("inlong stream has undeleted sinks, delete failed");
             throw new BusinessException(ErrorCodeEnum.STREAM_DELETE_HAS_SINK);
         }
 
-        entity.setIsDeleted(1);
+        entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
         streamMapper.updateByPrimaryKey(entity);
-
-        // To logically delete the associated extension table
-        LOGGER.debug("begin to delete inlong stream ext property, groupId={}, streamId={}", groupId, streamId);
-        streamExtMapper.logicDeleteAllByIdentifier(groupId, streamId);
 
         // Logically delete the associated field table
         LOGGER.debug("begin to delete inlong stream field, streamId={}", streamId);
@@ -298,7 +285,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean logicDeleteAll(String groupId, String operator) {
+    public Boolean logicDeleteAll(String groupId, String operator) {
         LOGGER.debug("begin to delete all inlong stream by groupId={}", groupId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
 
@@ -317,14 +304,9 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             streamMapper.updateByIdentifierSelective(entity);
 
             String streamId = entity.getInlongStreamId();
-            // To logically delete the associated extension table
-            streamExtMapper.logicDeleteAllByIdentifier(groupId, streamId);
-            // Logically delete the associated field table
+            // Logically delete the associated field, source and sink info
             streamFieldMapper.logicDeleteAllByIdentifier(groupId, streamId);
-            // Tombstone the associated data source
-            sourceFileService.logicDeleteAllByIdentifier(groupId, streamId, operator);
-            sourceDbService.logicDeleteAllByIdentifier(groupId, streamId, operator);
-            // Logical deletion of associated data sink information
+            sourceService.logicDeleteAll(groupId, streamId, operator);
             sinkService.logicDeleteAll(groupId, streamId, operator);
         }
 
@@ -376,36 +358,23 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             LOGGER.debug("begin to save all stream page info: {}", fullStreamRequest);
         }
         Preconditions.checkNotNull(fullStreamRequest, "fullStreamRequest is empty");
-        InlongStreamInfo streamInfo = fullStreamRequest.getStreamInfo();
-        Preconditions.checkNotNull(streamInfo, "inlong stream info is empty");
+        InlongStreamRequest streamRequest = fullStreamRequest.getStreamInfo();
+        Preconditions.checkNotNull(streamRequest, "inlong stream info is empty");
 
         // Check whether it can be added: check by lower-level specific services
         // this.checkBizIsTempStatus(streamInfo.getInlongGroupId());
 
         // 1. Save inlong stream
-        this.save(streamInfo, operator);
+        this.save(streamRequest, operator);
 
-        // 2.1 Save file data source information
-        if (fullStreamRequest.getFileBasicInfo() != null) {
-            sourceFileService.saveBasic(fullStreamRequest.getFileBasicInfo(), operator);
-        }
-        if (CollectionUtils.isNotEmpty(fullStreamRequest.getFileDetailInfoList())) {
-            for (SourceFileDetailInfo detailInfo : fullStreamRequest.getFileDetailInfoList()) {
-                sourceFileService.saveDetail(detailInfo, operator);
+        // 2 Save source info
+        if (CollectionUtils.isNotEmpty(fullStreamRequest.getSourceInfo())) {
+            for (SourceRequest source : fullStreamRequest.getSourceInfo()) {
+                sourceService.save(source, operator);
             }
         }
 
-        // 2.2 Save DB data source information
-        if (fullStreamRequest.getDbBasicInfo() != null) {
-            sourceDbService.saveBasic(fullStreamRequest.getDbBasicInfo(), operator);
-        }
-        if (CollectionUtils.isNotEmpty(fullStreamRequest.getDbDetailInfoList())) {
-            for (SourceDbDetailInfo detailInfo : fullStreamRequest.getDbDetailInfoList()) {
-                sourceDbService.saveDetail(detailInfo, operator);
-            }
-        }
-
-        // 3. Save data sink information
+        // 3. Save sink info
         if (CollectionUtils.isNotEmpty(fullStreamRequest.getSinkInfo())) {
             for (SinkRequest sinkInfo : fullStreamRequest.getSinkInfo()) {
                 sinkService.save(sinkInfo, operator);
@@ -425,7 +394,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         LOGGER.info("begin to batch save all stream page info, batch size={}", fullStreamRequestList.size());
 
         // Check if it can be added
-        InlongStreamInfo firstStream = fullStreamRequestList.get(0).getStreamInfo();
+        InlongStreamRequest firstStream = fullStreamRequestList.get(0).getStreamInfo();
         Preconditions.checkNotNull(firstStream, "inlong stream info is empty");
         String groupId = firstStream.getInlongGroupId();
         this.checkBizIsTempStatus(groupId);
@@ -438,17 +407,14 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         for (FullStreamRequest pageInfo : fullStreamRequestList) {
             // 1.1 Delete the inlong stream extensions and fields corresponding to groupId and streamId
-            InlongStreamInfo streamInfo = pageInfo.getStreamInfo();
+            InlongStreamRequest streamInfo = pageInfo.getStreamInfo();
             String streamId = streamInfo.getInlongStreamId();
-
-            streamExtMapper.deleteAllByIdentifier(groupId, streamId);
             streamFieldMapper.deleteAllByIdentifier(groupId, streamId);
 
-            // 2. Delete file data source, DB data source information
-            sourceFileService.deleteAllByIdentifier(groupId, streamId);
-            sourceDbService.deleteAllByIdentifier(groupId, streamId);
+            // 2. Delete all stream source
+            sourceService.deleteAll(groupId, streamId, operator);
 
-            // 3. Delete data sink information
+            // 3. Delete all stream sink
             sinkService.deleteAll(groupId, streamId, operator);
 
             // 4. Save the inlong stream of this batch
@@ -477,16 +443,16 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongStreamEntity> page = (Page<InlongStreamEntity>) streamMapper.selectByCondition(request);
-        List<InlongStreamInfo> streamInfoList = CommonBeanUtils.copyListProperties(page, InlongStreamInfo::new);
+        List<InlongStreamResponse> streamInfoList = CommonBeanUtils.copyListProperties(page, InlongStreamResponse::new);
 
         // Convert and encapsulate the paged results
         List<FullStreamResponse> responseList = new ArrayList<>(streamInfoList.size());
-        for (InlongStreamInfo streamInfo : streamInfoList) {
-            // 2.1 Set the extended information and field information of the inlong stream
+        for (InlongStreamResponse streamInfo : streamInfoList) {
+            // 2Set the field information of the inlong stream
             String streamId = streamInfo.getInlongStreamId();
-            setStreamExtAndField(groupId, streamId, streamInfo);
+            List<InlongStreamFieldInfo> streamFields = getStreamFields(groupId, streamId);
+            streamInfo.setFieldList(streamFields);
 
-            // 2.3 Set the inlong stream to the result sub-object
             FullStreamResponse pageInfo = new FullStreamResponse();
             pageInfo.setStreamInfo(streamInfo);
 
@@ -511,28 +477,11 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean updateAll(FullPageUpdateRequest updateInfo, String operator) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to update all stream page info: {}", updateInfo);
-        }
-        Preconditions.checkNotNull(updateInfo, "updateInfo is empty");
-        Preconditions.checkNotNull(updateInfo.getStreamInfo(), "inlong stream info is empty");
+    public boolean updateAll(InlongStreamRequest request, String operator) {
+        LOGGER.info("begin to update all stream page info: " + request);
+        Preconditions.checkNotNull(request, "request is empty");
 
-        // 1. Modify the inlong stream (inlong stream information cannot be empty)
-        this.update(updateInfo.getStreamInfo(), operator);
-
-        // 2. Modify the basic information of the file data source
-        if (updateInfo.getFileBasicInfo() != null) {
-            sourceFileService.updateBasic(updateInfo.getFileBasicInfo(), operator);
-        }
-
-        // 3. Save the basic information of the DB data source
-        if (updateInfo.getDbBasicInfo() != null) {
-            sourceDbService.updateBasic(updateInfo.getDbBasicInfo(), operator);
-        }
-
-        // TODO Update stream source info
-
+        this.update(request, operator);
         LOGGER.info("success to update all stream page info");
         return true;
     }
@@ -720,16 +669,16 @@ public class InlongStreamServiceImpl implements InlongStreamService {
      *
      * @param groupStatus Inlong group status
      * @param streamEntity Original inlong stream entity
-     * @param streamInfo New inlong stream information
+     * @param request New inlong stream information
      */
-    private void checkCanUpdate(Integer groupStatus, InlongStreamEntity streamEntity, InlongStreamInfo streamInfo) {
-        if (streamEntity == null || streamInfo == null) {
+    private void checkCanUpdate(Integer groupStatus, InlongStreamEntity streamEntity, InlongStreamRequest request) {
+        if (streamEntity == null || request == null) {
             return;
         }
 
         // Fields that are not allowed to be modified when the inlong group [configuration is successful]
         if (EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode().equals(groupStatus)) {
-            checkUpdatedFields(streamEntity, streamInfo);
+            checkUpdatedFields(streamEntity, request);
         }
 
         // Inlong group [Waiting to submit] [Approval rejected] [Configuration failed], if there is a
@@ -739,14 +688,13 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                 EntityStatus.GROUP_APPROVE_REJECTED.getCode(),
                 EntityStatus.GROUP_CONFIG_FAILED.getCode());
         if (statusList.contains(groupStatus)) {
-            String groupId = streamInfo.getInlongGroupId();
-            String streamId = streamInfo.getInlongStreamId();
-            // Whether there is an undeleted data source
-            boolean dataSourceExist = hasDataSource(groupId, streamId, streamInfo.getDataSourceType());
-            // Whether there is undeleted stream sink
+            String groupId = request.getInlongGroupId();
+            String streamId = request.getInlongStreamId();
+            // Whether there is undeleted stream source and sink
+            int sourceCount = sourceService.getCount(groupId, streamId);
             int sinkCount = sinkService.getCount(groupId, streamId);
-            if (dataSourceExist || sinkCount > 0) {
-                checkUpdatedFields(streamEntity, streamInfo);
+            if (sourceCount > 0 || sinkCount > 0) {
+                checkUpdatedFields(streamEntity, request);
             }
         }
     }
@@ -754,23 +702,17 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     /**
      * Check that groupId, streamId, and dataSourceType are not allowed to be modified
      */
-    private void checkUpdatedFields(InlongStreamEntity streamEntity, InlongStreamInfo streamInfo) {
-        String newGroupId = streamInfo.getInlongGroupId();
+    private void checkUpdatedFields(InlongStreamEntity streamEntity, InlongStreamRequest request) {
+        String newGroupId = request.getInlongGroupId();
         if (newGroupId != null && !newGroupId.equals(streamEntity.getInlongGroupId())) {
             LOGGER.error("current status was not allowed to update inlong group id");
             throw new BusinessException(ErrorCodeEnum.STREAM_ID_UPDATE_NOT_ALLOWED);
         }
 
-        String newDsid = streamInfo.getInlongStreamId();
-        if (newDsid != null && !newDsid.equals(streamEntity.getInlongStreamId())) {
+        String newStreamId = request.getInlongStreamId();
+        if (newStreamId != null && !newStreamId.equals(streamEntity.getInlongStreamId())) {
             LOGGER.error("current status was not allowed to update inlong stream id");
             throw new BusinessException(ErrorCodeEnum.STREAM_ID_UPDATE_NOT_ALLOWED);
-        }
-
-        String newSourceType = streamInfo.getDataSourceType();
-        if (newSourceType != null && !newSourceType.equals(streamEntity.getDataSourceType())) {
-            LOGGER.error("current status was not allowed to update data source type");
-            throw new BusinessException(ErrorCodeEnum.STREAM_SOURCE_UPDATE_NOT_ALLOWED);
         }
     }
 

@@ -18,14 +18,14 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
-import org.apache.inlong.manager.common.pojo.stream.FullPageUpdateRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 
 import java.util.List;
@@ -33,18 +33,19 @@ import java.util.List;
 /**
  * Inlong stream service layer interface
  *
- * @apiNote It is associated with various DataSources, the upstream is StreamSource, and the downstream is StreamSink
+ * @apiNote It is associated with various DataSources, the upstream is StreamSource, and the downstream is
+ *         StreamSink
  */
 public interface InlongStreamService {
 
     /**
-     * Save inlong stream information
+     * Save inlong stream information.
      *
-     * @param streamInfo Basic inlong stream information
-     * @param operator Edit person's name
-     * @return Inlong stream id after successful save
+     * @param request Inlong stream information.
+     * @param operator The name of operator.
+     * @return Id after successful save.
      */
-    Integer save(InlongStreamInfo streamInfo, String operator);
+    Integer save(InlongStreamRequest request, String operator);
 
     /**
      * Query the details of the specified inlong stream
@@ -53,7 +54,7 @@ public interface InlongStreamService {
      * @param streamId Inlong stream id
      * @return inlong stream details
      */
-    InlongStreamInfo get(String groupId, String streamId);
+    InlongStreamResponse get(String groupId, String streamId);
 
     /**
      * Query whether the inlong stream ID exists
@@ -75,11 +76,11 @@ public interface InlongStreamService {
     /**
      * InlongStream info that needs to be modified
      *
-     * @param streamInfo inlong stream information that needs to be modified
+     * @param request inlong stream info that needs to be modified
      * @param operator Edit person's name
      * @return whether succeed
      */
-    boolean update(InlongStreamInfo streamInfo, String operator);
+    Boolean update(InlongStreamRequest request, String operator);
 
     /**
      * Delete the specified inlong stream
@@ -89,7 +90,7 @@ public interface InlongStreamService {
      * @param operator Edit person's name
      * @return whether succeed
      */
-    boolean delete(String groupId, String streamId, String operator);
+    Boolean delete(String groupId, String streamId, String operator);
 
     /**
      * Logically delete all inlong streams under the specified groupId
@@ -98,7 +99,7 @@ public interface InlongStreamService {
      * @param operator Edit person's name
      * @return whether succeed
      */
-    boolean logicDeleteAll(String groupId, String operator);
+    Boolean logicDeleteAll(String groupId, String operator);
 
     /**
      * Obtain the flow of inlong stream according to groupId
@@ -145,7 +146,7 @@ public interface InlongStreamService {
      * @apiNote The data source details and data sink information are modified separately,
      *         not in this all modification interface
      */
-    boolean updateAll(FullPageUpdateRequest updateInfo, String operator);
+    boolean updateAll(InlongStreamRequest updateInfo, String operator);
 
     /**
      * According to the group id, query the number of valid inlong streams belonging to this service

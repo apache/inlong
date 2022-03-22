@@ -21,10 +21,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceDbBasicInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceDbDetailInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceFileBasicInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceFileDetailInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 
 import java.util.List;
@@ -37,19 +33,7 @@ import java.util.List;
 public class FullStreamResponse {
 
     @ApiModelProperty("Inlong stream information")
-    private InlongStreamInfo streamInfo;
-
-    @ApiModelProperty("Basic information of file source")
-    private SourceFileBasicInfo fileBasicInfo;
-
-    @ApiModelProperty("File source details")
-    private List<SourceFileDetailInfo> fileDetailInfoList;
-
-    @ApiModelProperty("DB source basic information")
-    private SourceDbBasicInfo dbBasicInfo;
-
-    @ApiModelProperty("DB source details")
-    private List<SourceDbDetailInfo> dbDetailInfoList;
+    private InlongStreamResponse streamInfo;
 
     @ApiModelProperty("Stream source information")
     private List<SourceResponse> sourceInfo;

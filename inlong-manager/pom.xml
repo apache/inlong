@@ -116,6 +116,10 @@
                     <artifactId>android-json</artifactId>
                     <groupId>com.vaadin.external.google</groupId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.jayway.jsonpath</groupId>
+                    <artifactId>json-path</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -448,6 +452,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-test</artifactId>
                 <version>${spring-boot.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
