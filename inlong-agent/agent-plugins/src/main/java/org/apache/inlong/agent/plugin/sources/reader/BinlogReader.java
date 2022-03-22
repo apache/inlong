@@ -289,6 +289,11 @@ public class BinlogReader implements Reader {
         finished = true;
     }
 
+    @Override
+    public boolean isSourceExist() {
+        return true;
+    }
+
     private String tryToInitAndGetHistoryPath() {
         String historyPath = agentConf.get(
             AgentConstants.AGENT_HISTORY_PATH, AgentConstants.DEFAULT_AGENT_HISTORY_PATH);

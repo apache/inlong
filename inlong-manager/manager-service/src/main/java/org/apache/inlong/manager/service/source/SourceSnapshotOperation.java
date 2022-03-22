@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.source;
 
-import com.google.common.base.Objects;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -36,10 +35,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -55,6 +51,16 @@ import java.util.concurrent.TimeUnit;
 public class SourceSnapshotOperation implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SourceSnapshotOperation.class);
+    private final ExecutorService executorService = new ThreadPoolExecutor(
+            1,
+            1,
+            10L,
+            TimeUnit.SECONDS,
+            new ArrayBlockingQueue<>(100),
+            new ThreadFactoryBuilder().setNameFormat("stream-source-snapshot-%s").build(),
+            new CallerRunsPolicy());
+    @Autowired
+    private StreamSourceEntityMapper sourceMapper;
 
     /**
      * Cache the task ip and task status, the key is task ip
@@ -63,7 +69,7 @@ public class SourceSnapshotOperation implements AutoCloseable {
             .maximumSize(1000).expireAfterWrite(30, TimeUnit.SECONDS).build(
                     new CacheLoader<String, ConcurrentHashMap<Integer, Integer>>() {
                         @Override
-                        public ConcurrentHashMap<Integer, Integer> load(String agentIp) throws Exception {
+                        public ConcurrentHashMap<Integer, Integer> load(String agentIp) {
                             List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIp(agentIp);
                             if (CollectionUtils.isEmpty(sourceEntities)) {
                                 return null;
@@ -76,19 +82,6 @@ public class SourceSnapshotOperation implements AutoCloseable {
                             }
                         }
                     });
-
-    public final ExecutorService executorService = new ThreadPoolExecutor(
-            1,
-            1,
-            10L,
-            TimeUnit.SECONDS,
-            new ArrayBlockingQueue<>(100),
-            new ThreadFactoryBuilder().setNameFormat("stream-source-snapshot-%s").build(),
-            new CallerRunsPolicy());
-
-    @Autowired
-    private StreamSourceEntityMapper sourceMapper;
-
     /**
      * The queue for transfer source snapshot
      */
@@ -139,14 +132,12 @@ public class SourceSnapshotOperation implements AutoCloseable {
                 return true;
             }
             boolean isInvalid = false;
-            Set<Integer> currentTaskIdSet = new HashSet<>();
             for (TaskSnapshotMessage snapshot : snapshotList) {
                 Integer id = snapshot.getJobId();
                 if (id == null) {
                     continue;
                 }
 
-                currentTaskIdSet.add(id);
                 // Update the status from temporary to normal
                 Integer status = idStatusMap.get(id);
                 if (SourceState.TEMP_TO_NORMAL.contains(status)) {
@@ -156,28 +147,9 @@ public class SourceSnapshotOperation implements AutoCloseable {
                 }
             }
 
-            // If the id in the snapshot does not contain pending deletion or pending freezing tasks,
-            // then update the status to disable or frozen.
-            for (Entry<Integer, Integer> entry : idStatusMap.entrySet()) {
-                Integer cacheId = entry.getKey();
-                Integer cacheStatus = entry.getValue();
-                if (!currentTaskIdSet.contains(cacheId)) {
-                    StreamSourceEntity source = sourceMapper.selectByIdForUpdate(cacheId);
-                    if (Objects.equal(cacheStatus, SourceState.BEEN_ISSUED_DELETE.getCode())) {
-                        isInvalid = true;
-                        sourceMapper.updateStatus(cacheId, SourceState.SOURCE_DISABLE.getCode(),
-                                source.getModifyTime());
-                    } else if (Objects.equal(cacheStatus, SourceState.BEEN_ISSUED_FROZEN.getCode())) {
-                        isInvalid = true;
-                        sourceMapper.updateStatus(cacheId, SourceState.SOURCE_FROZEN.getCode(),
-                                source.getModifyTime());
-                    }
-                }
-            }
             if (isInvalid) {
                 agentTaskCache.invalidate(agentIp);
             }
-
             return true;
         } catch (Throwable t) {
             LOGGER.error("put source snapshot error", t);

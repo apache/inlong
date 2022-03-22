@@ -159,11 +159,11 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         // Check if it can be modified
         String groupId = request.getInlongGroupId();
-        commonOperateService.checkGroupStatus(groupId, operator);
+        InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
 
         String sourceType = request.getSourceType();
         StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
-        operation.updateOpt(request, operator);
+        operation.updateOpt(request, groupEntity.getStatus(), operator);
 
         LOGGER.info("success to update source info");
         return true;
@@ -265,12 +265,12 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         if (CollectionUtils.isNotEmpty(entityList)) {
             for (StreamSourceEntity entity : entityList) {
                 Integer id = entity.getId();
+                entity.setVersion(entity.getVersion() + 1);
                 entity.setPreviousStatus(entity.getStatus());
                 entity.setStatus(nextStatus);
                 entity.setIsDeleted(id);
                 entity.setModifier(operator);
                 entity.setModifyTime(now);
-
                 sourceMapper.updateByPrimaryKeySelective(entity);
             }
         }

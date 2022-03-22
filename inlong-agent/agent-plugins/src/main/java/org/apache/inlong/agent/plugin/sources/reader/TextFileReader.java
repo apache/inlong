@@ -150,6 +150,11 @@ public class TextFileReader extends AbstractReader {
         destroy();
     }
 
+    @Override
+    public boolean isSourceExist() {
+        return true;
+    }
+
     public void addPatternValidator(String pattern) {
         if (pattern.isEmpty()) {
             return;

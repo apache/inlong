@@ -41,6 +41,10 @@ public class CommandEntity {
     private boolean isAcked;
     private Integer taskId;
     /**
+     * The task version.
+     */
+    private Integer version;
+    /**
      * The task delivery time, format is 'yyyy-MM-dd HH:mm:ss'.
      */
     private String deliveryTime;

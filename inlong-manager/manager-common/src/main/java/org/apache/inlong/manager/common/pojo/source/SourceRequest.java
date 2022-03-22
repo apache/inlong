@@ -74,4 +74,8 @@ public class SourceRequest {
 
     @ApiModelProperty("Data Serialization, support: json, canal, avro, etc")
     private String serializationType;
+
+    @ApiModelProperty("Version")
+    private Integer version;
+
 }

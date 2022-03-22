@@ -68,34 +68,6 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     protected abstract SourceResponse getResponse();
 
     @Override
-    public SourceResponse getById(@NotNull Integer id) {
-        StreamSourceEntity entity = sourceMapper.selectById(id);
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
-        String existType = entity.getSourceType();
-        Preconditions.checkTrue(getSourceType().equals(existType),
-                String.format(Constant.SOURCE_TYPE_NOT_SAME, getSourceType(), existType));
-        return this.getFromEntity(entity, this::getResponse);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
-    public void updateOpt(SourceRequest request, String operator) {
-        StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(request.getId());
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
-        if (!SourceState.ALLOWED_UPDATE.contains(entity.getStatus())) {
-            throw new RuntimeException(String.format("Source=%s is not allowed to update, "
-                    + "please wait until its changed to final status or stop / frozen / delete it firstly", entity));
-        }
-
-        // Setting updated parameters of stream source entity.
-        setTargetEntity(request, entity);
-        entity.setModifier(operator);
-        entity.setModifyTime(new Date());
-        sourceMapper.updateByPrimaryKeySelective(entity);
-        LOGGER.info("success to update source of type={}", request.getSourceType());
-    }
-
-    @Override
     @Transactional(rollbackFor = Throwable.class)
     public Integer saveOpt(SourceRequest request, Integer groupStatus, String operator) {
         String groupId = request.getInlongGroupId();
@@ -108,6 +80,7 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
         }
 
         StreamSourceEntity entity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
+        entity.setVersion(1);
         if (GroupState.forCode(groupStatus).equals(GroupState.CONFIG_SUCCESSFUL)) {
             entity.setStatus(SourceState.TO_BE_ISSUED_ADD.getCode());
         } else {
@@ -126,15 +99,50 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     }
 
     @Override
+    public SourceResponse getById(@NotNull Integer id) {
+        StreamSourceEntity entity = sourceMapper.selectById(id);
+        Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
+        String existType = entity.getSourceType();
+        Preconditions.checkTrue(getSourceType().equals(existType),
+                String.format(Constant.SOURCE_TYPE_NOT_SAME, getSourceType(), existType));
+        return this.getFromEntity(entity, this::getResponse);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
+    public void updateOpt(SourceRequest request, Integer groupStatus, String operator) {
+        StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(request.getId());
+        Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
+        if (!SourceState.ALLOWED_UPDATE.contains(entity.getStatus())) {
+            throw new RuntimeException(String.format("Source=%s is not allowed to update, "
+                    + "please wait until its changed to final status or stop / frozen / delete it firstly", entity));
+        }
+
+        // Setting updated parameters of stream source entity.
+        setTargetEntity(request, entity);
+        entity.setVersion(entity.getVersion() + 1);
+        if (GroupState.forCode(groupStatus).equals(GroupState.CONFIG_SUCCESSFUL)) {
+            entity.setStatus(SourceState.TO_BE_ISSUED_ADD.getCode());
+        } else {
+            entity.setStatus(SourceState.SOURCE_NEW.getCode());
+        }
+        entity.setModifier(operator);
+        entity.setModifyTime(new Date());
+        sourceMapper.updateByPrimaryKeySelective(entity);
+        LOGGER.info("success to update source of type={}", request.getSourceType());
+    }
+
+    @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void stopOpt(SourceRequest request, String operator) {
-        StreamSourceEntity snapshot = sourceMapper.selectByIdForUpdate(request.getId());
-        SourceState curState = SourceState.forCode(snapshot.getStatus());
+        StreamSourceEntity existEntity = sourceMapper.selectByIdForUpdate(request.getId());
+        SourceState curState = SourceState.forCode(existEntity.getStatus());
         SourceState nextState = SourceState.TO_BE_ISSUED_FROZEN;
         if (!SourceState.isAllowedTransition(curState, nextState)) {
-            throw new RuntimeException(String.format("Source=%s is not allowed to stop", snapshot));
+            throw new RuntimeException(String.format("Source=%s is not allowed to stop", existEntity));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
+        curEntity.setVersion(existEntity.getVersion() + 1);
         curEntity.setModifyTime(new Date());
         curEntity.setPreviousStatus(curState.getCode());
         curEntity.setStatus(nextState.getCode());
@@ -144,13 +152,14 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void restartOpt(SourceRequest request, String operator) {
-        StreamSourceEntity snapshot = sourceMapper.selectByIdForUpdate(request.getId());
-        SourceState curState = SourceState.forCode(snapshot.getStatus());
+        StreamSourceEntity existEntity = sourceMapper.selectByIdForUpdate(request.getId());
+        SourceState curState = SourceState.forCode(existEntity.getStatus());
         SourceState nextState = SourceState.TO_BE_ISSUED_ACTIVE;
         if (!SourceState.isAllowedTransition(curState, nextState)) {
-            throw new RuntimeException(String.format("Source=%s is not allowed to restart", snapshot));
+            throw new RuntimeException(String.format("Source=%s is not allowed to restart", existEntity));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
+        curEntity.setVersion(existEntity.getVersion() + 1);
         curEntity.setModifyTime(new Date());
         curEntity.setPreviousStatus(curState.getCode());
         curEntity.setStatus(nextState.getCode());
@@ -169,10 +178,11 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
             throw new RuntimeException(String.format("Source=%s is not allowed to delete", existEntity));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        curEntity.setModifyTime(new Date());
+        curEntity.setVersion(existEntity.getVersion() + 1);
         curEntity.setPreviousStatus(curState.getCode());
         curEntity.setStatus(nextState.getCode());
         curEntity.setIsDeleted(id);
+        curEntity.setModifyTime(new Date());
         sourceMapper.updateByPrimaryKeySelective(curEntity);
     }
 }
