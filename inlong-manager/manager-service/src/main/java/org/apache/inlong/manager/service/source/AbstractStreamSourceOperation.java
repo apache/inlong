@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.source;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -33,12 +34,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 public abstract class AbstractStreamSourceOperation implements StreamSourceOperation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStreamSourceOperation.class);
@@ -99,8 +102,11 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED,
+            propagation = Propagation.REQUIRES_NEW)
     public SourceResponse getById(@NotNull Integer id) {
         StreamSourceEntity entity = sourceMapper.selectById(id);
+        log.info("stream entity={}", entity);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
