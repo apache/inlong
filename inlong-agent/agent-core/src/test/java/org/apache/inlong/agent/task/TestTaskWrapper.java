@@ -88,7 +88,7 @@ public class TestTaskWrapper {
         manager = new AgentManager();
         reader = new ReaderImpl();
         writer = new WriterImpl();
-        task = new Task("11111", reader, writer,
+        task = new Task("111", reader, writer,
             new MockChannel(), JobProfile.parseJsonStr(""));
     }
 
