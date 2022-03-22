@@ -51,6 +51,7 @@ import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -350,9 +351,13 @@ public class InnerInlongManagerClient {
     public List<FullStreamResponse> listStreamInfo(String inlongGroupId) {
         final String path = HTTP_PATH + "/stream/listAll";
         String url = formatUrl(path);
-        url = url + "&inlongGroupId=" + inlongGroupId;
-        Request request = new Request.Builder().get()
+        InlongStreamPageRequest inlongStreamPageRequest = new InlongStreamPageRequest();
+        inlongStreamPageRequest.setInlongGroupId(inlongGroupId);
+        final String source = GsonUtil.toJson(inlongStreamPageRequest);
+        final RequestBody sourceBody = RequestBody.create(MediaType.parse("application/json"), source);
+        Request request = new Request.Builder()
                 .url(url)
+                .post(sourceBody)
                 .build();
 
         Call call = httpClient.newCall(request);
