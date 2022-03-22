@@ -30,9 +30,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.cluster.dto.ClusterDto;
+import org.apache.inlong.tubemq.manager.controller.group.result.ConsumerGroupInfoRes;
+import org.apache.inlong.tubemq.manager.controller.group.result.ConsumerInfoRes;
+import org.apache.inlong.tubemq.manager.controller.topic.result.TopicQueryRes;
 import org.apache.inlong.tubemq.manager.controller.cluster.request.AddClusterReq;
 import org.apache.inlong.tubemq.manager.controller.cluster.request.DeleteClusterReq;
 import org.apache.inlong.tubemq.manager.controller.cluster.vo.ClusterVo;
+import org.apache.inlong.tubemq.manager.controller.topic.result.TopicViewRes;
 import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
 import org.apache.inlong.tubemq.manager.service.TubeConst;
@@ -218,8 +222,8 @@ public class ClusterController {
      */
     public int getBrokerSize(Integer clusterId) {
         String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.BROKER_RUN_STATUS);
-        String s = masterService.queryMaster(queryUrl);
-        JsonObject jsonObject = gson.fromJson(s, JsonObject.class);
+        String queryData = masterService.queryMaster(queryUrl);
+        JsonObject jsonObject = gson.fromJson(queryData, JsonObject.class);
         JsonElement count = jsonObject.get("count");
         return gson.fromJson(count, int.class);
     }
@@ -240,8 +244,9 @@ public class ClusterController {
         List<Map> list = gson.fromJson(data, List.class);
         int partitionCount = 0;
         for (Map map : list) {
-            Double totalRunNumPartCount = Double.valueOf(map.get("totalRunNumPartCount").toString());
-            partitionCount = partitionCount + (int)Math.ceil(totalRunNumPartCount);
+            TopicQueryRes queryInfo = gson.fromJson(gson.toJson(map), TopicQueryRes.class);
+            String totalCfgNumPart = queryInfo.getTotalCfgNumPart();
+            partitionCount = partitionCount + (int)Math.ceil(Double.valueOf(totalCfgNumPart));
         }
         clusterVo.setTopicCount(topicSize);
         clusterVo.setPartitionCount(partitionCount);
@@ -261,9 +266,8 @@ public class ClusterController {
         JsonElement data1 = jsonObject1.get("data");
         JsonArray jsonElements1 = gson.fromJson(data1, JsonArray.class);
         for (JsonElement jsonElement : jsonElements1) {
-            Map map1 = gson.fromJson(jsonElement, Map.class);
-            Double groupCount = Double.valueOf(map1.get("groupCount").toString());
-            consumerGroupCount = consumerGroupCount + (int)Math.ceil(groupCount);
+            ConsumerGroupInfoRes groupInfoRes = gson.fromJson(jsonElement, ConsumerGroupInfoRes.class);
+            consumerGroupCount = consumerGroupCount + (int)Math.ceil(groupInfoRes.getGroupCount());
         }
         return consumerGroupCount;
     }
@@ -281,9 +285,8 @@ public class ClusterController {
         JsonArray jsonData = gson.fromJson(data, JsonArray.class);
         int consumerCount = 0;
         for (JsonElement jsonDatum : jsonData) {
-            Map map1 = gson.fromJson(jsonDatum, Map.class);
-            Double groupCount = Double.valueOf(map1.get("consumerNum").toString());
-            consumerCount = (int)Math.ceil(groupCount);
+            ConsumerInfoRes consumerInfoRes = gson.fromJson(jsonDatum, ConsumerInfoRes.class);
+            consumerCount = (int)Math.ceil(consumerInfoRes.getConsumerNum());
         }
         return consumerCount;
     }
@@ -300,9 +303,8 @@ public class ClusterController {
         JsonArray jsonData = gson.fromJson(getData, JsonArray.class);
         int storeCount = 0;
         for (JsonElement jsonDatum : jsonData) {
-            Map map1 = gson.fromJson(jsonDatum, Map.class);
-            Double numStore = Double.valueOf(map1.get("totalCfgNumStore").toString());
-            storeCount = storeCount + (int)Math.ceil(numStore);
+            TopicViewRes topicViewRes = gson.fromJson(jsonDatum, TopicViewRes.class);
+            storeCount = storeCount + (int)Math.ceil(topicViewRes.getTotalCfgNumStore());
         }
         return storeCount;
     }
