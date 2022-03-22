@@ -65,7 +65,7 @@ public interface Reader extends Stage {
     void finishRead();
 
     /**
-     * source deleted
+     * source is exist
      * @return
      */
     boolean isSourceExist();
