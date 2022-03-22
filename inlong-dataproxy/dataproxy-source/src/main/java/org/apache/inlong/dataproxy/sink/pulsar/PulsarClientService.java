@@ -160,7 +160,7 @@ public class PulsarClientService {
         try {
             producerInfo = getProducerInfo(poolIndex, topic, inlongGroupId, inlongStreamId);
         } catch (Exception e) {
-            checkAndResponse(event);
+            producerInfo = null;
             if (logPrinterA.shouldPrint()) {
                 /*
                  * If it is not an IllegalTopicException,
@@ -186,7 +186,7 @@ public class PulsarClientService {
              * After 30s, reopen the topic check, if it is still a null value,
              *  put it back into the illegal map
              */
-            checkAndResponse(event);
+            checkAndResponse(event, inlongGroupId, inlongStreamId);
             sendMessageCallBack.handleMessageSendException(topic, es, new Exception("producer "
                     + " info is null"));
             return false;
@@ -199,6 +199,7 @@ public class PulsarClientService {
         TopicProducerInfo forCallBackP = producerInfo;
         Producer producer = producerInfo.getProducer(poolIndex);
         if (producer == null) {
+            checkAndResponse(event, inlongGroupId, inlongStreamId);
             sendMessageCallBack.handleMessageSendException(topic, es, new Exception("producer is "
                     + "null"));
             return false;
@@ -221,7 +222,7 @@ public class PulsarClientService {
                 forCallBackP.setCanUseSend(false);
                 sendMessageCallBack.handleMessageSendException(topic, es, ex);
             }
-            sendResponse((OrderEvent)event);
+            sendResponse((OrderEvent)event, inlongGroupId, inlongStreamId);
         } else {
             producer.newMessage().properties(proMap).value(event.getBody())
                     .sendAsync().thenAccept((msgId) -> {
@@ -242,9 +243,9 @@ public class PulsarClientService {
         return true;
     }
 
-    private void checkAndResponse(Event event) {
+    private void checkAndResponse(Event event, String inlongGroupId, String inlongStreamId) {
         if (MessageUtils.isSyncSendForOrder(event) && (event instanceof OrderEvent)) {
-            sendResponse((OrderEvent)event);
+            sendResponse((OrderEvent)event, inlongGroupId, inlongStreamId);
         }
     }
 
@@ -252,15 +253,23 @@ public class PulsarClientService {
      * send Response
      * @param orderEvent orderEvent
      */
-    private void sendResponse(OrderEvent orderEvent) {
+    private void sendResponse(OrderEvent orderEvent, String inlongGroupId, String inlongStreamId) {
+        String sequenceId = orderEvent.getHeaders().get(AttributeConstants.UNIQ_ID);
         if ("false".equals(orderEvent.getHeaders().get(AttributeConstants.MESSAGE_IS_ACK))) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Not need to rsp message: seqId = {}, inlongGroupId = {}, "
+                                + "inlongStreamId = {}",inlongGroupId, inlongStreamId, sequenceId);
+            }
             return;
         }
         if (orderEvent.getCtx() != null && orderEvent.getCtx().channel().isActive()) {
             orderEvent.getCtx().channel().eventLoop().execute(() -> {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("order message rsp: seqId = {}, inlongGroupId = {}, "
+                            + "inlongStreamId = {}",inlongGroupId, inlongStreamId, sequenceId);
+                }
                 ByteBuf binBuffer = MessageUtils.getResponsePackage("",
-                        MsgType.MSG_BIN_MULTI_BODY,
-                        orderEvent.getHeaders().get(AttributeConstants.UNIQ_ID));
+                        MsgType.MSG_BIN_MULTI_BODY, sequenceId);
                 orderEvent.getCtx().writeAndFlush(binBuffer);
             });
         }
