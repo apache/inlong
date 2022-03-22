@@ -182,4 +182,7 @@ public class AgentConstants {
     public static final String AGENT_HISTORY_PATH = "agent.history.path";
     public static final String DEFAULT_AGENT_HISTORY_PATH = ".history";
 
+    public static final String JOB_VERSION = "job.version";
+    public static final Integer DEFAULT_JOB_VERSION = 1;
+
 }

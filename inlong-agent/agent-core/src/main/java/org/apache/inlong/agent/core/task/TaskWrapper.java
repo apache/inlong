@@ -28,13 +28,10 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentManager;
-import org.apache.inlong.agent.db.CommandDb;
 import org.apache.inlong.agent.message.EndMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.state.AbstractStateWrapper;
 import org.apache.inlong.agent.state.State;
-import org.apache.inlong.common.constant.Constants;
-import org.apache.inlong.common.db.CommandEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +52,6 @@ public class TaskWrapper extends AbstractStateWrapper {
     private final int pushMaxWaitTime;
     private final int pullMaxWaitTime;
     private ExecutorService executorService;
-    private CommandDb db;
 
     public TaskWrapper(AgentManager manager, Task task) {
         super();
@@ -75,7 +71,6 @@ public class TaskWrapper extends AbstractStateWrapper {
                     new AgentThreadFactory("task-reader-writer"));
         }
         doChangeState(State.ACCEPTED);
-        this.db = manager.getCommandDb();
     }
 
     /**
@@ -207,11 +202,6 @@ public class TaskWrapper extends AbstractStateWrapper {
             submitThreadsAndWait();
             if (!isException()) {
                 doChangeState(State.SUCCEEDED);
-            } else {
-                CommandEntity command = new CommandEntity();
-                command.setTaskId(Integer.valueOf(task.getTaskId()));
-                command.setCommandResult(Constants.RESULT_FAIL);
-                db.storeCommand(command);
             }
             LOGGER.info("start to destroy task {}", task.getTaskId());
             task.destroy();
