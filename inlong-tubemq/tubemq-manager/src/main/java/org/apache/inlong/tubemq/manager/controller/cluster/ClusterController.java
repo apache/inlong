@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.manager.controller.cluster;
 
 import com.google.common.collect.Lists;
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
 import java.util.List;
@@ -71,7 +72,7 @@ public class ClusterController {
 
     @PostMapping("")
     public @ResponseBody
-        TubeMQResult clusterMethodProxy(@RequestParam String method, @RequestBody String req) {
+    TubeMQResult clusterMethodProxy(@RequestParam String method, @RequestBody String req) {
         switch (method) {
             case TubeConst.ADD:
                 return addNewCluster(gson.fromJson(req, AddClusterReq.class));
@@ -157,7 +158,7 @@ public class ClusterController {
         List<ClusterVo> clusterVos = Lists.newArrayList();
         for (ClusterEntry cluster : allClusters) {
             MasterEntry masterNode = masterService.getMasterNode(cluster.getClusterId());
-            ClusterVo allCount = getAllCount(Integer.valueOf((int)cluster.getClusterId()));
+            ClusterVo allCount = getAllCount(Integer.valueOf((int) cluster.getClusterId()));
             ClusterVo clusterVo = ConvertUtils.convertToClusterVo(cluster, masterNode, allCount);
             clusterVos.add(clusterVo);
         }
@@ -188,7 +189,7 @@ public class ClusterController {
     @RequestMapping(value = "/query", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-        String queryInfo(
+    String queryInfo(
             @RequestParam Map<String, String> queryBody) throws Exception {
         String url = masterService.getQueryUrl(queryBody);
         return masterService.queryMaster(url);
@@ -196,8 +197,8 @@ public class ClusterController {
 
     /**
      * get all count
+     *
      * @param clusterId
-     * @return
      */
     public ClusterVo getAllCount(Integer clusterId) {
         ClusterVo clusterVo = new ClusterVo();
@@ -217,8 +218,8 @@ public class ClusterController {
 
     /**
      * query borker size
+     *
      * @param clusterId
-     * @return
      */
     public int getBrokerSize(Integer clusterId) {
         String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.BROKER_RUN_STATUS);
@@ -230,23 +231,25 @@ public class ClusterController {
 
     /**
      * query topic and partition count
+     *
      * @param clusterId
-     * @return
      */
     public ClusterVo getTopicAndPartitionCount(Integer clusterId) {
         ClusterVo clusterVo = new ClusterVo();
         String url = masterService.getQueryCountUrl(clusterId, TubeConst.TOPIC_CONFIG_INFO);
-        String s = masterService.queryMaster(url);
-        JsonObject jsonObject = gson.fromJson(s, JsonObject.class);
+        String queryMaster = masterService.queryMaster(url);
+        JsonObject jsonObject = gson.fromJson(queryMaster, JsonObject.class);
         JsonElement data = jsonObject.get("data");
         JsonElement dataCount = jsonObject.get("dataCount");
         Integer topicSize = gson.fromJson(dataCount, Integer.class);
-        List<Map> list = gson.fromJson(data, List.class);
+        JsonArray jsonData = gson.fromJson(data, JsonArray.class);
         int partitionCount = 0;
-        for (Map map : list) {
-            TopicQueryRes queryInfo = gson.fromJson(gson.toJson(map), TopicQueryRes.class);
-            String totalCfgNumPart = queryInfo.getTotalCfgNumPart();
-            partitionCount = partitionCount + (int)Math.ceil(Double.valueOf(totalCfgNumPart));
+        List<TopicQueryRes> topicQueryResList = gson.fromJson(jsonData.toString(),
+                new TypeToken<List<TopicQueryRes>>() {
+                }.getType());
+        for (TopicQueryRes topicQueryRes : topicQueryResList) {
+            String totalCfgNumPart = topicQueryRes.getTotalCfgNumPart();
+            partitionCount = partitionCount + (int) Math.ceil(Double.parseDouble(totalCfgNumPart));
         }
         clusterVo.setTopicCount(topicSize);
         clusterVo.setPartitionCount(partitionCount);
@@ -255,6 +258,7 @@ public class ClusterController {
 
     /**
      * query Consumer group count
+     *
      * @param clusterId
      * @return
      */
@@ -263,19 +267,19 @@ public class ClusterController {
         int consumerGroupCount = 0;
         String groupData = masterService.queryMaster(queryUrl);
         JsonObject jsonObject1 = gson.fromJson(groupData, JsonObject.class);
-        JsonElement data1 = jsonObject1.get("data");
-        JsonArray jsonElements1 = gson.fromJson(data1, JsonArray.class);
-        for (JsonElement jsonElement : jsonElements1) {
-            ConsumerGroupInfoRes groupInfoRes = gson.fromJson(jsonElement, ConsumerGroupInfoRes.class);
-            consumerGroupCount = consumerGroupCount + (int)Math.ceil(groupInfoRes.getGroupCount());
+        JsonElement data = jsonObject1.get("data");
+        JsonArray jsonData = gson.fromJson(data, JsonArray.class);
+        List<ConsumerGroupInfoRes> groupList = gson.fromJson(jsonData.toString(),
+                new TypeToken<List<ConsumerGroupInfoRes>>() {
+                }.getType());
+        for (ConsumerGroupInfoRes groupInfoRes : groupList) {
+            consumerGroupCount = consumerGroupCount + (int) Math.ceil(groupInfoRes.getGroupCount());
         }
         return consumerGroupCount;
     }
 
     /**
      * query consumer count
-     * @param clusterId
-     * @return
      */
     public int getConsumerCount(Integer clusterId) {
         String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.QUERY_CONSUMER_INFO);
@@ -284,17 +288,17 @@ public class ClusterController {
         JsonElement data = jsonObject.get("data");
         JsonArray jsonData = gson.fromJson(data, JsonArray.class);
         int consumerCount = 0;
-        for (JsonElement jsonDatum : jsonData) {
-            ConsumerInfoRes consumerInfoRes = gson.fromJson(jsonDatum, ConsumerInfoRes.class);
-            consumerCount = (int)Math.ceil(consumerInfoRes.getConsumerNum());
+        List<ConsumerInfoRes> topicViewResList = gson.fromJson(jsonData.toString(),
+                new TypeToken<List<ConsumerInfoRes>>() {
+                }.getType());
+        for (ConsumerInfoRes consumerInfoRes : topicViewResList) {
+            consumerCount = (int) Math.ceil(consumerInfoRes.getConsumerNum());
         }
         return consumerCount;
     }
 
     /**
      * query store count
-     * @param clusterId
-     * @return
      */
     public int getStoreCount(Integer clusterId) {
         String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.TOPIC_VIEW);
@@ -302,9 +306,11 @@ public class ClusterController {
         JsonElement getData = jsonObject.get("data");
         JsonArray jsonData = gson.fromJson(getData, JsonArray.class);
         int storeCount = 0;
-        for (JsonElement jsonDatum : jsonData) {
-            TopicViewRes topicViewRes = gson.fromJson(jsonDatum, TopicViewRes.class);
-            storeCount = storeCount + (int)Math.ceil(topicViewRes.getTotalCfgNumStore());
+        List<TopicViewRes> topicViewResList = gson.fromJson(jsonData.toString(),
+                new TypeToken<List<TopicViewRes>>() {
+                }.getType());
+        for (TopicViewRes topicViewRes : topicViewResList) {
+            storeCount = storeCount + (int) Math.ceil(topicViewRes.getTotalCfgNumStore());
         }
         return storeCount;
     }
