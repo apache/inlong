@@ -25,6 +25,8 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BYTE_SPEED
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_RECORD_SPEED_LIMIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_TOPIC;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
@@ -89,6 +92,7 @@ public class KafkaReader<K, V> implements Reader {
     private String snapshot;
     private boolean isFinished = false;
     private boolean destroyed = false;
+    private String topic;
 
     /**
      * init attribute
@@ -111,6 +115,7 @@ public class KafkaReader<K, V> implements Reader {
         this.byteSpeed = Long.valueOf(paraMap.getOrDefault(JOB_KAFKA_BYTE_SPEED_LIMIT, String.valueOf(1024 * 1024)));
         this.flowControlInterval = Long.valueOf(paraMap.getOrDefault(KAFKA_SOURCE_READ_MIN_INTERVAL, "1000"));
         this.lastTimestamp = System.currentTimeMillis();
+        this.topic = paraMap.get(JOB_KAFKA_TOPIC);
 
         LOGGER.info("KAFKA_SOURCE_READ_RECORD_SPEED = {}", this.recordSpeed);
         LOGGER.info("KAFKA_SOURCE_READ_BYTE_SPEED = {}", this.byteSpeed);
@@ -143,7 +148,9 @@ public class KafkaReader<K, V> implements Reader {
             }
         } else {
             // commit offset
-            consumer.commitAsync();
+            if (isSourceExist()) {
+                consumer.commitAsync();
+            }
             fetchData(5000);
         }
         AgentUtils.silenceSleepInMs(waitTimeout);
@@ -230,6 +237,11 @@ public class KafkaReader<K, V> implements Reader {
     @Override
     public void finishRead() {
         isFinished = true;
+    }
+
+    @Override
+    public boolean isSourceExist() {
+        return !CollectionUtils.isEmpty(consumer.partitionsFor(topic));
     }
 
     private boolean fetchData(long fetchDataTimeout) {
