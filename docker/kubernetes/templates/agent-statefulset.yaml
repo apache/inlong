@@ -90,6 +90,10 @@ spec:
               value: {{ include "inlong.dataproxy.hostname" . | quote }}
             - name: DATAPROXY_PORT
               value: {{ .Values.agent.ports.dataProxy }}
+            {{- range $key, $value := .Values.agent.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           ports:
             - name: {{ .Values.agent.component }}-port
               containerPort: 8008

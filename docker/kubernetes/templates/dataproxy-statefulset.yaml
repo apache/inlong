@@ -68,6 +68,10 @@ spec:
               value: {{ include "inlong.manager.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
               value: {{ .Values.dataproxy.managerOpenApiPort }}
+            {{- range $key, $value := .Values.dataproxy.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           ports:
             - name: {{ .Values.dataproxy.component }}-port
               containerPort: 46801

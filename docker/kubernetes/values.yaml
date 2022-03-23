@@ -72,6 +72,10 @@ agent:
     agent: 8008
     managerOpenApi: ${manager.containerPort}
     dataProxy: ${dataproxy.containerPort}
+  env:
+    JAVA_OPTS: "-Xms512m -Xmx1g -Xmn512m"
+    AGENT_FETCH_INTERVAL: 10
+    AGENT_HEARTBEAT_INTERVAL: 10
 
 dashboard:
   component: "dashboard"
@@ -95,6 +99,8 @@ dataproxy:
       memory: "512Mi"
   containerPort: 46801
   managerOpenApiPort: ${manager.containerPort}
+  env:
+    JAVA_OPTS: "-Xms512m -Xmx1g -Xmn512m"
 
 tubemqManager:
   component: "tubemq-manager"
@@ -104,6 +110,9 @@ tubemqManager:
       cpu: 0.5
       memory: "512Mi"
   containerPort: 8089
+  env:
+    JAVA_OPTS: "-Xms512m -Xmx1g -Xmn512m"
+    TUBE_MASTER_TOKEN: "abc"
 
 manager:
   component: "manager"
@@ -116,6 +125,10 @@ manager:
     webPort: 8083
   username: "root"
   password: "inlong"
+  env:
+    JAVA_OPTS: "-Xms512m -Xmx1g -Xmn512m"
+    ACTIVE_PROFILE: "prod"
+    PLUGINS_URL: "default"
 
 audit:
   component: "audit"
@@ -126,6 +139,8 @@ audit:
       memory: "512Mi"
   ports:
     webPort: 10081
+  env:
+    JAVA_OPTS: "-Xms512m -Xmx1g -Xmn512m"
 
 # If not exists external MySQL, InLong will use it.
 mysql:
@@ -220,6 +235,9 @@ tubemqMaster:
   pdb:
     usePolicy: true
     maxUnavailable: 1
+  env:
+    JAVA_OPTS: "-Xms512m -Xmx1g -Xmn512m"
+    MASTER_JVM_SIZE: "-Xms512m -Xmx1g"
 
 tubemqBroker:
   component: "tubemq-broker"
@@ -257,6 +275,9 @@ tubemqBroker:
   pdb:
     usePolicy: true
     maxUnavailable: 1
+  env:
+    JAVA_OPTS: "-Xms512m -Xmx1g -Xmn512m"
+    BROKER_JVM_SIZE: "-Xms512m -Xmx1g"
 
 # InLong will use the external Services.
 external:
