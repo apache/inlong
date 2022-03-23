@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
@@ -217,7 +218,9 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         int topicNameId = TBaseConstants.META_VALUE_UNDEFINED;
         if (topicNameSet.size() == 1) {
             if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.TOPICNAMEID,
-                    false, TBaseConstants.META_VALUE_UNDEFINED, 0, sBuffer, result)) {
+                    false, (isAddOp ? TServerConstants.TOPIC_ID_MIN
+                            : TBaseConstants.META_VALUE_UNDEFINED),
+                    TServerConstants.TOPIC_ID_MIN, sBuffer, result)) {
                 WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
                 return sBuffer;
             }
@@ -318,7 +321,9 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
             final int itemMaxMsgSizeMB = (int) result.getRetData();
             // get topicNameId field
             if (!WebParameterUtils.getIntParamValue(itemConfMap, WebFieldDef.TOPICNAMEID,
-                    false, TBaseConstants.META_VALUE_UNDEFINED, 0, sBuffer, result)) {
+                    false, (isAddOp ? TServerConstants.TOPIC_ID_MIN
+                            : TBaseConstants.META_VALUE_UNDEFINED),
+                    TServerConstants.TOPIC_ID_MIN, sBuffer, result)) {
                 return result.isSuccess();
             }
             int itemTopicNameId = (int) result.getRetData();

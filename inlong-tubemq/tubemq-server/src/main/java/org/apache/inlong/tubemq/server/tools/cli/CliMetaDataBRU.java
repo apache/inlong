@@ -28,8 +28,11 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.inlong.tubemq.corebase.cluster.MasterInfo;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
@@ -63,6 +66,12 @@ public class CliMetaDataBRU extends CliAbstractBase {
     private static final List<String> allowedOpTypeList = Arrays.asList("backup", "recovery");
     private static final int maxDataLength = 150000;
     private static final String curOperator = "SystemCliAdmin";
+    private static final String storeFileNameClusterConf = "clusterConfig";
+    private static final String storeFileNameBrokerConf = "brokerConfig";
+    private static final String storeFileNameTopicCtrl = "topicControlConfig";
+    private static final String storeFileNameTopicDeploy = "topicDeployConfig";
+    private static final String storeFileNameGroupCtrl = "groupCtrlConfig";
+    private static final String storeFileNameCsmCtrl = "groupConsumeConfig";
     // cli parameters
     private String masterServers = null;
     private String operationType = null;
@@ -120,7 +129,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
         }
         if (!allowedOpTypeList.contains(operationType)) {
             throw new Exception(CliArgDef.OPERATIONTYPE.longOpt
-                    + " only supports " + allowedOpTypeList.toString());
+                    + " only supports " + allowedOpTypeList);
         }
         // get metadata backup and recovery path
         if (cli.hasOption(CliArgDef.METAFILEPATH.longOpt)) {
@@ -194,219 +203,32 @@ public class CliMetaDataBRU extends CliAbstractBase {
      * @param strBuff  the string buffer
      */
     private void backupMetaData(StringBuilder strBuff) {
-        logger.info("Backup meta-data begin: start query data from remote, total 6 items");
+        logger.info("[Backup meta-data] begin, start query data from remote");
         // a. cluster setting
-        logger.info("No 1.1-6: download cluster setting configurations from Master");
-        Map<String, ClusterSettingEntity> clusterSettingMap = getClusterConfInfo(strBuff);
-        if (clusterSettingMap == null) {
-            logger.error("    download cluster setting configurations failure!");
+        if (!backupClusterConfig(strBuff)) {
             return;
-        }
-        logger.info("No 1.2-6: store cluster setting configurations to local file");
-        storeObjectToFile(clusterSettingMap, backupAndRecoveryPath, "clusterConfig");
-        logger.info("No 1.3-6: verify configurations ");
-        Map<String, ClusterSettingEntity> storedSettingMap =
-                (Map<String, ClusterSettingEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, "clusterConfig");
-        if (storedSettingMap == null) {
-            logger.error(strBuff
-                    .append("    local cluster setting configurations read failure!, clusterConfig in ")
-                    .append(backupAndRecoveryPath).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        if (storedSettingMap.size() != clusterSettingMap.size()) {
-            logger.error("    verify failure, stored clusterConfig size not equal!");
-            return;
-        }
-        for (Map.Entry<String, ClusterSettingEntity> qryEntry : clusterSettingMap.entrySet()) {
-            ClusterSettingEntity targetEntity = storedSettingMap.get(qryEntry.getKey());
-            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("    verify failure, stored clusterConfig value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
-                strBuff.delete(0, strBuff.length());
-                return;
-            }
         }
         // b. broker configurations
-        logger.info("No 2.1-6: download broker configurations from Master");
-        Map<String, BrokerConfEntity> brokerConfMap = getBrokerConfInfos(strBuff);
-        if (brokerConfMap == null) {
-            logger.error("    download broker configurations is null!");
+        if (!backupBrokerConfig(strBuff)) {
             return;
-        }
-        logger.info("No 2.2-6: store broker configurations to local file");
-        storeObjectToFile(brokerConfMap, backupAndRecoveryPath, "brokerConfig");
-        logger.info("No 2.3-6: verify configurations");
-        Map<String, BrokerConfEntity> storedBrokerConfigMap =
-                (Map<String, BrokerConfEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, "brokerConfig");
-        if (storedBrokerConfigMap == null) {
-            logger.error(strBuff
-                    .append("    local broker configurations read failure!, brokerConfig in ")
-                    .append(backupAndRecoveryPath).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        if (storedBrokerConfigMap.size() != brokerConfMap.size()) {
-            logger.error("    verify failure, stored brokerConfig size not equal!");
-            return;
-        }
-        for (Map.Entry<String, BrokerConfEntity> qryEntry : brokerConfMap.entrySet()) {
-            BrokerConfEntity targetEntity = storedBrokerConfigMap.get(qryEntry.getKey());
-            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("    verify failure, stored brokerConfig value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
-                return;
-            }
         }
         // c. topic control configurations
-        logger.info("No 3.1-6: download topic control configurations from Master");
-        Map<String, TopicCtrlEntity> topicCtrlMap = getTopicControlInfos(strBuff);
-        if (topicCtrlMap == null) {
-            logger.error("    download topic control configure is null!");
+        if (!backupTopicCtrlConfig(strBuff)) {
             return;
-        }
-        logger.info("No 3.2-6: store topic control configurations to local file");
-        storeObjectToFile(topicCtrlMap, backupAndRecoveryPath, "topicControlConfig");
-        logger.info("No 3.3-6: verify configurations");
-        Map<String, TopicCtrlEntity> storedTopicCtrlMap =
-                (Map<String, TopicCtrlEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, "topicControlConfig");
-        if (storedTopicCtrlMap == null) {
-            logger.error(strBuff
-                    .append("    local topic control configurations read failure!, topicControlConfig in ")
-                    .append(backupAndRecoveryPath).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        if (storedTopicCtrlMap.size() != topicCtrlMap.size()) {
-            logger.error("    verify failure, stored topicControlConfig size not equal!");
-            return;
-        }
-        for (Map.Entry<String, TopicCtrlEntity> qryEntry : topicCtrlMap.entrySet()) {
-            TopicCtrlEntity targetEntity = storedTopicCtrlMap.get(qryEntry.getKey());
-            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("    verify failure, stored topicControlConfig value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
-                return;
-            }
         }
         // d. topic deploy configurations
-        logger.info("No 4.1-6: download topic deploy configurations from Master");
-        Map<String, TopicDeployEntity> topicDeployMap = getTopicDeployInfos(strBuff);
-        if (topicDeployMap == null) {
-            logger.error("    download topic deploy configurations is null!");
+        if (!backupTopicDeployConfig(strBuff)) {
             return;
-        }
-        logger.info("No 4.2-6: store topic deploy configurations to local file");
-        storeObjectToFile(topicDeployMap, backupAndRecoveryPath, "topicDeployConfig");
-        logger.info("No 4.3-6: verify configurations");
-        Map<String, TopicDeployEntity> storedTopicDeployMap =
-                (Map<String, TopicDeployEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, "topicDeployConfig");
-        if (storedTopicDeployMap == null) {
-            logger.error(strBuff
-                    .append("    local topic deploy configurations read failure!, topicControlConfig in ")
-                    .append(backupAndRecoveryPath).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        if (storedTopicDeployMap.size() != topicDeployMap.size()) {
-            logger.error("    verify failure, stored topicDeployConfig size not equal!");
-            return;
-        }
-        for (Map.Entry<String, TopicDeployEntity> qryEntry : topicDeployMap.entrySet()) {
-            TopicDeployEntity targetEntity = storedTopicDeployMap.get(qryEntry.getKey());
-            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("    verify failure, stored topicDeployConfig value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
-                return;
-            }
         }
         // e. group control configurations
-        logger.info("No 5.1-6: download group control configurations from Master");
-        Map<String, GroupResCtrlEntity> groupCtrlMap = getGroupResCtrlInfos(strBuff);
-        if (groupCtrlMap == null) {
-            logger.error("    download group control configurations is null!");
+        if (!backupGroupCtrlConfig(strBuff)) {
             return;
-        }
-        logger.info("No 5.2-6: store group control configurations to local file");
-        storeObjectToFile(groupCtrlMap, backupAndRecoveryPath, "groupCtrlConfig");
-        logger.info("No 5.3-6: verify configurations");
-        Map<String, GroupResCtrlEntity> storedGroupCtrlMap =
-                (Map<String, GroupResCtrlEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, "groupCtrlConfig");
-        if (storedGroupCtrlMap == null) {
-            logger.error(strBuff
-                    .append("    local group control configurations read failure!, groupCtrlConfig in ")
-                    .append(backupAndRecoveryPath).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        if (storedGroupCtrlMap.size() != groupCtrlMap.size()) {
-            logger.error("    verify failure, stored groupCtrlConfig size not equal!");
-            return;
-        }
-        for (Map.Entry<String, GroupResCtrlEntity> qryEntry : groupCtrlMap.entrySet()) {
-            GroupResCtrlEntity targetEntity = storedGroupCtrlMap.get(qryEntry.getKey());
-            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("    verify failure, stored groupCtrlConfig value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
-                return;
-            }
         }
         // f. group consume control configurations
-        logger.info("No 6.1-6: download group consume configurations from Master");
-        Map<String, GroupConsumeCtrlEntity> groupCsmInfoMap = getGroupCsmCtrlInfos(strBuff);
-        if (groupCsmInfoMap == null) {
-            logger.error("    download group consume configurations is null!");
+        if (!backupConsumeCtrlConfig(strBuff)) {
             return;
         }
-        logger.info("No 6.2-6: store group consume configurations to local file");
-        storeObjectToFile(groupCsmInfoMap, backupAndRecoveryPath, "groupConsumeConfig");
-        logger.info("No 6.3-6: verify configurations");
-        Map<String, GroupConsumeCtrlEntity> storedGroupCsmMap =
-                (Map<String, GroupConsumeCtrlEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, "groupConsumeConfig");
-        if (storedGroupCsmMap == null) {
-            logger.error(strBuff
-                    .append("    local group consume configurations read failure!, groupConsumeConfig in ")
-                    .append(backupAndRecoveryPath).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        if (storedGroupCsmMap.size() != groupCsmInfoMap.size()) {
-            logger.error("    verify failure, stored groupConsumeConfig size not equal!");
-            return;
-        }
-        for (Map.Entry<String, GroupConsumeCtrlEntity> qryEntry : groupCsmInfoMap.entrySet()) {
-            GroupConsumeCtrlEntity targetEntity = storedGroupCsmMap.get(qryEntry.getKey());
-            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("    verify failure, stored groupConsumeConfig value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
-                return;
-            }
-        }
-        logger.info("Backup finished!");
+        logger.info("[Backup meta-data] end, backup finished!");
     }
 
     /**
@@ -419,260 +241,131 @@ public class CliMetaDataBRU extends CliAbstractBase {
      * @param strBuff  the string buffer
      */
     private void recoveryMetaData(StringBuilder strBuff) {
-        logger.info("Recovery meta-data begin: start read data from local path");
-        // a. read cluster configurations
-        logger.info("No 1.1-6  recovery cluster configurations");
-        Map<String, ClusterSettingEntity> storedSettingMap =
-                (Map<String, ClusterSettingEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, "clusterConfig");
-        if (storedSettingMap == null) {
-            logger.error(strBuff
-                    .append("    local cluster setting configurations read failure!, clusterConfig in ")
-                    .append(backupAndRecoveryPath).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        logger.info("No 1.2-6  upload cluster configurations to master");
         ProcessResult result = new ProcessResult();
-        if (!writeClusterConfInfo(storedSettingMap, strBuff, result)) {
-            logger.error(strBuff.append("    write cluster configurations failure!")
-                    .append(result.getErrMsg()).toString());
-            strBuff.delete(0, strBuff.length());
+        logger.info("[Recovery meta-data] begin, start read data from local path");
+        // a. read cluster configurations
+        if (!recoveryClusterConfig(strBuff, result)) {
             return;
         }
-        logger.info("No 1.3-6  read restored cluster configurations from master");
+        // b. read broker configurations
+        if (!recoveryBrokerConfig(strBuff, result)) {
+            return;
+        }
+        // c. read topic control configurations
+        if (!recoveryTopicCtrlConfig(strBuff, result)) {
+            return;
+        }
+        // d. read topic deploy configurations
+        if (!recoveryTopicDeployConfig(strBuff, result)) {
+            return;
+        }
+        // e. group control configurations
+        if (!recoveryGroupCtrlConfig(strBuff, result)) {
+            return;
+        }
+        // f. group consume control configurations
+        if (!recoveryConsumeCtrlConfig(strBuff, result)) {
+            return;
+        }
+        logger.info("[Recovery meta-data] end, recovery finished!");
+    }
+
+    /**
+     * Backup Cluster configurations
+     *
+     * @param strBuff  the string buffer
+     * @return         true for success, false for failure
+     */
+    private boolean backupClusterConfig(StringBuilder strBuff) {
+        logger.info("[Backup Cluster Conf] begin ");
         Map<String, ClusterSettingEntity> clusterSettingMap = getClusterConfInfo(strBuff);
         if (clusterSettingMap == null) {
-            logger.error("    read restored cluster setting configurations failure!");
-            return;
+            logger.error("  download cluster configurations failure!");
+            return false;
         }
-        logger.info("No 1.4-6: verify configurations");
+        logger.info("[Backup Cluster Conf] store cluster configurations to local file");
+        storeObjectToFile(clusterSettingMap, backupAndRecoveryPath, storeFileNameClusterConf);
+        logger.info("[Backup Cluster Conf] verify configurations ");
+        Map<String, ClusterSettingEntity> storedSettingMap =
+                (Map<String, ClusterSettingEntity>) readObjectFromFile(
+                        backupAndRecoveryPath, storeFileNameClusterConf);
+        if (storedSettingMap == null) {
+            logger.error(strBuff.append("  read configure file ")
+                    .append(backupAndRecoveryPath).append("/")
+                    .append(storeFileNameClusterConf).append(" failure!").toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
         if (storedSettingMap.size() != clusterSettingMap.size()) {
-            logger.error("    verify failure, restored clusterConfig size not equal!");
-            return;
+            logger.error("  verify failure, stored cluster configurations size not equal!");
+            return false;
+        }
+        for (Map.Entry<String, ClusterSettingEntity> qryEntry : clusterSettingMap.entrySet()) {
+            ClusterSettingEntity targetEntity = storedSettingMap.get(qryEntry.getKey());
+            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
+                logger.error(strBuff
+                        .append("  verify failure, stored cluster configure value not equal!")
+                        .append(" data in server is ").append(qryEntry.getValue().toString())
+                        .append(", data stored is ").append((targetEntity == null)
+                                ? null : targetEntity.toString()).toString());
+                strBuff.delete(0, strBuff.length());
+                return false;
+            }
+        }
+        logger.info("[Backup Cluster Conf] end, success!");
+        return true;
+    }
+
+    /**
+     * Recovery Cluster configurations
+     *
+     * @param strBuff  the string buffer
+     * @param result   the process result
+     * @return         true for success, false for failure
+     */
+    private boolean recoveryClusterConfig(StringBuilder strBuff, ProcessResult result) {
+        logger.info("[Recovery Cluster Conf] begin ");
+        Map<String, ClusterSettingEntity> storedSettingMap =
+                (Map<String, ClusterSettingEntity>) readObjectFromFile(
+                        backupAndRecoveryPath, storeFileNameClusterConf);
+        if (storedSettingMap == null) {
+            logger.error(strBuff.append("  read configure file ")
+                    .append(backupAndRecoveryPath).append("/")
+                    .append(storeFileNameClusterConf).append(" failure!").toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        logger.info("[Recovery Cluster Conf] upload cluster configurations to master");
+        if (!writeClusterConfInfo(storedSettingMap, strBuff, result)) {
+            logger.error(strBuff.append("  write cluster configurations failure!")
+                    .append(result.getErrMsg()).toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        logger.info("[Recovery Cluster Conf] read restored cluster configurations from master");
+        Map<String, ClusterSettingEntity> clusterSettingMap = getClusterConfInfo(strBuff);
+        if (clusterSettingMap == null) {
+            logger.error("  read restored cluster setting configurations failure!");
+            return false;
+        }
+        logger.info("[Recovery Cluster Conf] verify configurations");
+        if (storedSettingMap.size() != clusterSettingMap.size()) {
+            logger.error("  verify failure, restored cluster configure size not equal!");
+            return false;
         }
         for (Map.Entry<String, ClusterSettingEntity> qryEntry : storedSettingMap.entrySet()) {
             ClusterSettingEntity targetEntity = clusterSettingMap.get(qryEntry.getKey());
             if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
                 logger.error(strBuff
-                        .append("    verify failure, stored clusterConfig value not equal!")
+                        .append("  verify failure, stored cluster configure value not equal!")
                         .append(" data in server is ").append(qryEntry.getValue().toString())
                         .append(", data stored is ").append((targetEntity == null)
                                 ? null : targetEntity.toString()).toString());
-                return;
+                return false;
             }
         }
-        // b. read cluster configurations
-        logger.info("No 2.1-6  recovery broker configurations");
-        Map<String, BrokerConfEntity> storedBrokerConfigMap =
-                (Map<String, BrokerConfEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, "brokerConfig");
-        if (storedBrokerConfigMap == null) {
-            logger.error(strBuff
-                    .append("    local broker configurations read failure!, brokerConfig in ")
-                    .append(backupAndRecoveryPath).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        logger.info("No 2.2-6  upload broker configurations to master");
-        if (!writeBrokerConfInfo(storedBrokerConfigMap, strBuff, result)) {
-            logger.error(strBuff.append("    write broker configurations failure!")
-                    .append(result.getErrMsg()).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        logger.info("No 2.3-6  read restored broker configurations from master");
-        Map<String, BrokerConfEntity> brokerConfMap = getBrokerConfInfos(strBuff);
-        if (brokerConfMap == null) {
-            logger.error("    read restored broker configurations failure!");
-            return;
-        }
-        logger.info("No 2.4-6: verify configurations");
-        if (brokerConfMap.size() != storedBrokerConfigMap.size()) {
-            logger.error("    verify failure, restored brokerConfig size not equal!");
-            return;
-        }
-        for (Map.Entry<String, BrokerConfEntity> qryEntry : storedBrokerConfigMap.entrySet()) {
-            BrokerConfEntity targetEntity = brokerConfMap.get(qryEntry.getKey());
-            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("    verify failure, stored brokerConfig value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
-                return;
-            }
-        }
-        // c. read topic control configurations
-        logger.info("No 3.1-6  recovery topic control configurations");
-        Map<String, TopicCtrlEntity> storedTopicCtrlMap =
-                (Map<String, TopicCtrlEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, "topicControlConfig");
-        if (storedTopicCtrlMap == null) {
-            logger.error(strBuff
-                    .append("    local topic control configurations read failure!, topicControlConfig in ")
-                    .append(backupAndRecoveryPath).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        logger.info("No 3.2-6  upload topic control configurations to master");
-        if (!writeTopicCtrlInfo(storedTopicCtrlMap, strBuff, result)) {
-            logger.error(strBuff.append("    write topic control configurations failure!")
-                    .append(result.getErrMsg()).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        logger.info("No 3.3-6  read restored topic control configurations from master");
-        Map<String, TopicCtrlEntity> topicCtrlMap = getTopicControlInfos(strBuff);
-        if (topicCtrlMap == null) {
-            logger.error("    download topic control configure is null!");
-            return;
-        }
-        logger.info("No 3.4-6: verify configurations");
-        if (topicCtrlMap.size() != storedTopicCtrlMap.size()) {
-            logger.error("    verify failure, restored topicControlConfig size not equal!");
-            return;
-        }
-        for (Map.Entry<String, TopicCtrlEntity> qryEntry : storedTopicCtrlMap.entrySet()) {
-            TopicCtrlEntity targetEntity = topicCtrlMap.get(qryEntry.getKey());
-            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("    verify failure, stored topicControlConfig value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
-                return;
-            }
-        }
-        // d. read topic deploy configurations
-        logger.info("No 4.1-6  recovery topic deploy configurations");
-        Map<String, TopicDeployEntity> storedTopicDeployMap =
-                (Map<String, TopicDeployEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, "topicDeployConfig");
-        if (storedTopicDeployMap == null) {
-            logger.error(strBuff
-                    .append("    local topic deploy configurations read failure!, topicDeployConfig in ")
-                    .append(backupAndRecoveryPath).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        logger.info("No 4.2-6  upload topic deploy configurations to master");
-        if (!writeTopicDeployInfo(storedTopicDeployMap, strBuff, result)) {
-            logger.error(strBuff.append("    write topic deploy configurations failure!")
-                    .append(result.getErrMsg()).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        logger.info("No 4.3-6  read restored topic deploy configurations from master");
-        Map<String, TopicDeployEntity> topicDeployMap = getTopicDeployInfos(strBuff);
-        if (topicDeployMap == null) {
-            logger.error("    download topic deploy configurations is null!");
-            return;
-        }
-        logger.info("No 4.4-6: verify configurations");
-        if (topicDeployMap.size() != storedTopicDeployMap.size()) {
-            logger.error("    verify failure, stored topicDeployConfig size not equal!");
-            return;
-        }
-        for (Map.Entry<String, TopicDeployEntity> qryEntry : storedTopicDeployMap.entrySet()) {
-            TopicDeployEntity targetEntity = topicDeployMap.get(qryEntry.getKey());
-            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("    verify failure, stored topicDeployConfig value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
-                return;
-            }
-        }
-        // e. group control configurations
-        logger.info("No 5.1-6  recovery group control configurations");
-        Map<String, GroupResCtrlEntity> storedGroupCtrlMap =
-                (Map<String, GroupResCtrlEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, "groupCtrlConfig");
-        if (storedGroupCtrlMap == null) {
-            logger.error(strBuff
-                    .append("    local group control configurations read failure!, groupCtrlConfig in ")
-                    .append(backupAndRecoveryPath).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        logger.info("No 5.2-6  upload group control configurations to master");
-        if (!writeGroupResCtrlInfo(storedGroupCtrlMap, strBuff, result)) {
-            logger.error(strBuff.append("    write group control configurations failure!")
-                    .append(result.getErrMsg()).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        logger.info("No 5.3-6  read restored group control configurations from master");
-        Map<String, GroupResCtrlEntity> groupCtrlMap = getGroupResCtrlInfos(strBuff);
-        if (groupCtrlMap == null) {
-            logger.error("    download group control configurations is null!");
-            return;
-        }
-        logger.info("No 5.4-6: verify configurations");
-        if (groupCtrlMap.size() != storedGroupCtrlMap.size()) {
-            logger.error("    verify failure, stored groupCtrlConfig size not equal!");
-            return;
-        }
-        for (Map.Entry<String, GroupResCtrlEntity> qryEntry : storedGroupCtrlMap.entrySet()) {
-            GroupResCtrlEntity targetEntity = groupCtrlMap.get(qryEntry.getKey());
-            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("    verify failure, stored groupCtrlConfig value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
-                return;
-            }
-        }
-        // f. group consume control configurations
-        logger.info("No 6.1-6  recovery group consume control configurations");
-        Map<String, GroupConsumeCtrlEntity> storedGroupCsmMap =
-                (Map<String, GroupConsumeCtrlEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, "groupConsumeConfig");
-        if (storedGroupCsmMap == null) {
-            logger.error(strBuff
-                    .append("    local group consume configurations read failure!, groupConsumeConfig in ")
-                    .append(backupAndRecoveryPath).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        logger.info("No 6.2-6  upload group consume control configurations to master");
-        if (!writeGroupCsmInfo(storedGroupCsmMap, strBuff, result)) {
-            logger.error(strBuff.append("    write group consume control configurations failure!")
-                    .append(result.getErrMsg()).toString());
-            strBuff.delete(0, strBuff.length());
-            return;
-        }
-        logger.info("No 6.3-6  read restored group consume control configurations from master");
-        Map<String, GroupConsumeCtrlEntity> groupCsmInfoMap = getGroupCsmCtrlInfos(strBuff);
-        if (groupCsmInfoMap == null) {
-            logger.error("    download group consume configurations is null!");
-            return;
-        }
-        logger.info("No 6.4-6: verify configurations");
-        if (groupCsmInfoMap.size() != storedGroupCsmMap.size()) {
-            logger.error("    verify failure, stored groupConsumeConfig size not equal!");
-            return;
-        }
-        for (Map.Entry<String, GroupConsumeCtrlEntity> qryEntry : storedGroupCsmMap.entrySet()) {
-            GroupConsumeCtrlEntity targetEntity = groupCsmInfoMap.get(qryEntry.getKey());
-            if (targetEntity == null
-                    || !targetEntity.isDataEquals(qryEntry.getValue())
-                    || !targetEntity.isMatched(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("    verify failure, stored groupCtrlConfig value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
-
-                logger.error("    verify failure, stored groupConsumeConfig value not equal!");
-                return;
-            }
-        }
-        logger.info("Recovery finished!");
-
+        logger.info("[Recovery Cluster Conf] end, success!");
+        return true;
     }
 
     /**
@@ -723,8 +416,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 clusterSettingMap.put(settingEntity.getRecordKey(), settingEntity);
             } catch (Throwable e) {
                 logger.error(strBuff.append("Parse cluster configurations(")
-                        .append(jsonItem.toString()).append(") throw exception ")
-                        .append(e.toString()).toString());
+                        .append(jsonItem).append(") throw exception ").append(e).toString());
                 strBuff.delete(0, strBuff.length());
                 throw e;
             }
@@ -745,7 +437,6 @@ public class CliMetaDataBRU extends CliAbstractBase {
         if (clusterConfMap.isEmpty()) {
             return true;
         }
-        int count = 0;
         Map<String, String> inParamMap = new HashMap<>();
         for (ClusterSettingEntity entity : clusterConfMap.values()) {
             // build cluster setting configurations
@@ -756,6 +447,104 @@ public class CliMetaDataBRU extends CliAbstractBase {
             }
             inParamMap.clear();
         }
+        return true;
+    }
+
+    /**
+     * Backup broker configurations
+     *
+     * @param strBuff  the string buffer
+     * @return         true for success, false for failure
+     */
+    private boolean backupBrokerConfig(StringBuilder strBuff) {
+        logger.info("[Backup Broker Conf] begin ");
+        Map<String, BrokerConfEntity> brokerConfMap = getBrokerConfInfos(strBuff);
+        if (brokerConfMap == null) {
+            logger.error("  download broker configurations is null!");
+            return false;
+        }
+        logger.info("[Backup Broker Conf] store broker configurations to local file");
+        storeObjectToFile(brokerConfMap, backupAndRecoveryPath, storeFileNameBrokerConf);
+        logger.info("[Backup Broker Conf] verify configurations");
+        Map<String, BrokerConfEntity> storedBrokerConfigMap =
+                (Map<String, BrokerConfEntity>) readObjectFromFile(
+                        backupAndRecoveryPath, storeFileNameBrokerConf);
+        if (storedBrokerConfigMap == null) {
+            logger.error(strBuff.append("  read configure file ")
+                    .append(backupAndRecoveryPath).append("/")
+                    .append(storeFileNameBrokerConf).append(" failure!").toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        if (storedBrokerConfigMap.size() != brokerConfMap.size()) {
+            logger.error("  verify failure, stored brokerConfig size not equal!");
+            return false;
+        }
+        for (Map.Entry<String, BrokerConfEntity> qryEntry : brokerConfMap.entrySet()) {
+            BrokerConfEntity targetEntity = storedBrokerConfigMap.get(qryEntry.getKey());
+            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
+                logger.error(strBuff
+                        .append("  verify failure, stored brokerConfig value not equal!")
+                        .append(" data in server is ").append(qryEntry.getValue().toString())
+                        .append(", data stored is ").append((targetEntity == null)
+                                ? null : targetEntity.toString()).toString());
+                strBuff.delete(0, strBuff.length());
+                return false;
+            }
+        }
+        logger.info("[Backup Broker Conf] end, success!");
+        return true;
+    }
+
+    /**
+     * Recovery broker configurations
+     *
+     * @param strBuff  the string buffer
+     * @param result   the process result
+     * @return         true for success, false for failure
+     */
+    private boolean recoveryBrokerConfig(StringBuilder strBuff, ProcessResult result) {
+        logger.info("[Recovery Broker Conf] begin ");
+        Map<String, BrokerConfEntity> storedBrokerConfigMap =
+                (Map<String, BrokerConfEntity>) readObjectFromFile(
+                        backupAndRecoveryPath, storeFileNameBrokerConf);
+        if (storedBrokerConfigMap == null) {
+            logger.error(strBuff.append("  read configure file ")
+                    .append(backupAndRecoveryPath).append("/")
+                    .append(storeFileNameBrokerConf).append(" failure!").toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        logger.info("[Recovery Broker Conf]  upload broker configurations to master");
+        if (!writeBrokerConfInfo(storedBrokerConfigMap, strBuff, result)) {
+            logger.error(strBuff.append("  write broker configurations failure!")
+                    .append(result.getErrMsg()).toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        logger.info("[Recovery Broker Conf] read restored broker configurations from master");
+        Map<String, BrokerConfEntity> brokerConfMap = getBrokerConfInfos(strBuff);
+        if (brokerConfMap == null) {
+            logger.error("  read restored broker configurations failure!");
+            return false;
+        }
+        logger.info("[Recovery Broker Conf] verify configurations");
+        if (brokerConfMap.size() != storedBrokerConfigMap.size()) {
+            logger.error("  verify failure, restored brokerConfig size not equal!");
+            return false;
+        }
+        for (Map.Entry<String, BrokerConfEntity> qryEntry : storedBrokerConfigMap.entrySet()) {
+            BrokerConfEntity targetEntity = brokerConfMap.get(qryEntry.getKey());
+            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
+                logger.error(strBuff
+                        .append("  verify failure, stored brokerConfig value not equal!")
+                        .append(" data in server is ").append(qryEntry.getValue().toString())
+                        .append(", data stored is ").append((targetEntity == null)
+                                ? null : targetEntity.toString()).toString());
+                return false;
+            }
+        }
+        logger.info("[Recovery Broker Conf] end, success!");
         return true;
     }
 
@@ -808,8 +597,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 brokerInfoMap.put(brokerIp, brokerConfEntity);
             } catch (Throwable e) {
                 logger.error(strBuff.append("Parse broker configurations(")
-                        .append(jsonItem.toString()).append(") throw exception ")
-                        .append(e.toString()).toString());
+                        .append(jsonItem).append(") throw exception ").append(e).toString());
                 strBuff.delete(0, strBuff.length());
                 throw e;
             }
@@ -868,6 +656,120 @@ public class CliMetaDataBRU extends CliAbstractBase {
     }
 
     /**
+     * Backup topic control configurations
+     *
+     * @param strBuff  the string buffer
+     * @return         true for success, false for failure
+     */
+    private boolean backupTopicCtrlConfig(StringBuilder strBuff) {
+        logger.info("[Backup Topic Ctrl] begin ");
+        Map<String, TopicCtrlEntity> topicCtrlMap = getTopicControlInfos(strBuff);
+        if (topicCtrlMap == null) {
+            logger.error("    download topic-control configures is null!");
+            return false;
+        }
+        logger.info("[Backup Topic Ctrl] store topic-control configurations to local file");
+        storeObjectToFile(topicCtrlMap, backupAndRecoveryPath, storeFileNameTopicCtrl);
+        logger.info("[Backup Topic Ctrl] verify configurations");
+        Map<String, TopicCtrlEntity> storedTopicCtrlMap =
+                (Map<String, TopicCtrlEntity>) readObjectFromFile(
+                        backupAndRecoveryPath, storeFileNameTopicCtrl);
+        if (storedTopicCtrlMap == null) {
+            logger.error(strBuff.append("  read configure file ")
+                    .append(backupAndRecoveryPath).append("/")
+                    .append(storeFileNameTopicCtrl).append(" failure!").toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        if (storedTopicCtrlMap.size() != topicCtrlMap.size()) {
+            logger.error("  verify failure, stored topic-control size not equal!");
+            return false;
+        }
+        for (Map.Entry<String, TopicCtrlEntity> qryEntry : topicCtrlMap.entrySet()) {
+            TopicCtrlEntity targetEntity = storedTopicCtrlMap.get(qryEntry.getKey());
+            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
+                logger.error(strBuff
+                        .append("  verify failure, stored topic-control value not equal!")
+                        .append(" data in server is ").append(qryEntry.getValue().toString())
+                        .append(", data stored is ").append((targetEntity == null)
+                                ? null : targetEntity.toString()).toString());
+                strBuff.delete(0, strBuff.length());
+                return false;
+            }
+        }
+        logger.info("[Backup Topic Ctrl] end, success!");
+        return true;
+    }
+
+    /**
+     * Recovery topic control configurations
+     *
+     * @param strBuff  the string buffer
+     * @param result   the process result
+     * @return         true for success, false for failure
+     */
+    private boolean recoveryTopicCtrlConfig(StringBuilder strBuff,
+                                            ProcessResult result) {
+        logger.info("[Recovery Topic Ctrl] begin ");
+        Map<String, TopicCtrlEntity> storedTopicCtrlMap =
+                (Map<String, TopicCtrlEntity>) readObjectFromFile(
+                        backupAndRecoveryPath, storeFileNameTopicCtrl);
+        if (storedTopicCtrlMap == null) {
+            logger.error(strBuff.append("  read configure file ")
+                    .append(backupAndRecoveryPath).append("/")
+                    .append(storeFileNameTopicCtrl).append(" failure!").toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        logger.info("[Recovery Topic Ctrl] upload topic-control configurations to master");
+        if (!writeTopicCtrlInfo(storedTopicCtrlMap, strBuff, result)) {
+            logger.error(strBuff.append("  write topic-control configurations failure!")
+                    .append(result.getErrMsg()).toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        logger.info("[Recovery Topic Ctrl] read restored topic-control configurations from master");
+        Map<String, TopicCtrlEntity> topicCtrlMap = getTopicControlInfos(strBuff);
+        if (topicCtrlMap == null) {
+            logger.error("  download topic-control configurations are null!");
+            return false;
+        }
+        logger.info("[Recovery Topic Ctrl] verify configurations");
+        Set<String> srcTopicSet = new HashSet<>(storedTopicCtrlMap.keySet());
+        Set<String> tgtTopicSet = new HashSet<>(topicCtrlMap.keySet());
+        srcTopicSet.remove(TServerConstants.OFFSET_HISTORY_NAME);
+        tgtTopicSet.remove(TServerConstants.OFFSET_HISTORY_NAME);
+        if (srcTopicSet.size() != tgtTopicSet.size()) {
+            logger.error("  verify failure, restored topic-control configurations size not equal!");
+            return false;
+        }
+        for (Map.Entry<String, TopicCtrlEntity> qryEntry : storedTopicCtrlMap.entrySet()) {
+            TopicCtrlEntity targetEntity = topicCtrlMap.get(qryEntry.getKey());
+            if (targetEntity == null) {
+                logger.error(strBuff
+                        .append("  verify failure, stored topic-control value not equal!")
+                        .append(" data in server is ").append(qryEntry.getValue().toString())
+                        .append(", data stored is null").toString());
+                strBuff.delete(0, strBuff.length());
+                return false;
+            }
+            if ((targetEntity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)
+                    && (!targetEntity.isMatched(qryEntry.getValue(), false)))
+                    || (!targetEntity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)
+                    && !targetEntity.isDataEquals(qryEntry.getValue()))) {
+                logger.error(strBuff
+                        .append("  verify failure, stored topic-control value not equal!")
+                        .append(" data in server is ").append(qryEntry.getValue().toString())
+                        .append(", data stored is ").append(targetEntity).toString());
+                strBuff.delete(0, strBuff.length());
+                return false;
+            }
+        }
+        logger.info("[Recovery Topic Ctrl] end, success!");
+        return true;
+    }
+
+    /**
      * Query topic control configurations
      *
      * @param strBuff  the string buffer
@@ -906,8 +808,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 topicCtrlMap.put(topicCtrlEntity.getTopicName(), topicCtrlEntity);
             } catch (Throwable e) {
                 logger.error(strBuff.append("Parse topic control configurations(")
-                        .append(jsonItem.toString()).append(") throw exception ")
-                        .append(e.toString()).toString());
+                        .append(jsonItem).append(") throw exception ").append(e).toString());
                 strBuff.delete(0, strBuff.length());
                 throw e;
             }
@@ -931,6 +832,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
         int count = 0;
         Map<String, String> inParamMap = new HashMap<>();
         for (TopicCtrlEntity entity : topicCtrlMap.values()) {
+            if (entity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)) {
+                continue;
+            }
             if (count++ > 0) {
                 strBuff.append(",");
             }
@@ -962,6 +866,143 @@ public class CliMetaDataBRU extends CliAbstractBase {
             }
             strBuff.delete(0, strBuff.length());
         }
+        // modify system topic
+        TopicCtrlEntity entity =
+                topicCtrlMap.get(TServerConstants.OFFSET_HISTORY_NAME);
+        if (entity == null) {
+            return true;
+        }
+        inParamMap.clear();
+        entity.toWebJsonStr(strBuff, true, true);
+        inParamMap.put("topicCtrlJsonSet", "[" + strBuff.toString() + "]");
+        strBuff.delete(0, strBuff.length());
+        inParamMap.put("createUser", curOperator);
+        inParamMap.put("modifyUser", curOperator);
+        if (!writeDataToMaster("admin_batch_update_topic_control_info",
+                authToken, inParamMap, strBuff, result)) {
+            return false;
+        }
+        strBuff.delete(0, strBuff.length());
+        return true;
+    }
+
+    /**
+     * Backup topic deploy configurations
+     *
+     * @param strBuff  the string buffer
+     * @return         true for success, false for failure
+     */
+    private boolean backupTopicDeployConfig(StringBuilder strBuff) {
+        logger.info("[Backup Topic Deploy] begin ");
+        Map<String, TopicDeployEntity> topicDeployMap = getTopicDeployInfos(strBuff);
+        if (topicDeployMap == null) {
+            logger.error("  download topic-deploy configurations is null!");
+            return false;
+        }
+        logger.info("[Backup Topic Deploy] store topic-deploy configurations to local file");
+        storeObjectToFile(topicDeployMap, backupAndRecoveryPath, storeFileNameTopicDeploy);
+        logger.info("[Backup Topic Deploy] verify configurations");
+        Map<String, TopicDeployEntity> storedTopicDeployMap =
+                (Map<String, TopicDeployEntity>) readObjectFromFile(
+                        backupAndRecoveryPath, storeFileNameTopicDeploy);
+        if (storedTopicDeployMap == null) {
+            logger.error(strBuff.append("  read configure file ")
+                    .append(backupAndRecoveryPath).append("/")
+                    .append(storeFileNameTopicDeploy).append(" failure!").toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        if (storedTopicDeployMap.size() != topicDeployMap.size()) {
+            logger.error("  verify failure, stored topic-deploy configures size not equal!");
+            return false;
+        }
+        for (Map.Entry<String, TopicDeployEntity> qryEntry : topicDeployMap.entrySet()) {
+            TopicDeployEntity targetEntity = storedTopicDeployMap.get(qryEntry.getKey());
+            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
+                logger.error(strBuff
+                        .append("  verify failure, stored topic-deploy value not equal!")
+                        .append(" data in server is ").append(qryEntry.getValue().toString())
+                        .append(", data stored is ").append((targetEntity == null)
+                                ? null : targetEntity.toString()).toString());
+                return false;
+            }
+        }
+        logger.info("[Backup Topic Deploy] end, success!");
+        return true;
+    }
+
+    /**
+     * Recovery topic deploy configurations
+     *
+     * @param strBuff  the string buffer
+     * @param result   the process result
+     * @return         true for success, false for failure
+     */
+    private boolean recoveryTopicDeployConfig(StringBuilder strBuff, ProcessResult result) {
+        logger.info("[Recovery Topic Deploy] begin ");
+        Map<String, TopicDeployEntity> storedTopicDeployMap =
+                (Map<String, TopicDeployEntity>) readObjectFromFile(
+                        backupAndRecoveryPath, storeFileNameTopicDeploy);
+        if (storedTopicDeployMap == null) {
+            logger.error(strBuff.append("  read configure file ")
+                    .append(backupAndRecoveryPath).append("/")
+                    .append(storeFileNameTopicDeploy).append(" failure!").toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        logger.info("[Recovery Topic Deploy] upload topic-deploy configurations to master");
+        if (!writeTopicDeployInfo(storedTopicDeployMap, strBuff, result)) {
+            logger.error(strBuff.append("  write topic-deploy configurations failure!")
+                    .append(result.getErrMsg()).toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        logger.info("[Recovery Topic Deploy] read topic-deploy configurations from master");
+        Map<String, TopicDeployEntity> topicDeployMap = getTopicDeployInfos(strBuff);
+        if (topicDeployMap == null) {
+            logger.error("  download topic deploy configurations is null!");
+            return false;
+        }
+        logger.info("[Recovery Topic Deploy] verify configurations");
+        Set<String> srcTopicSet = new HashSet<>();
+        for (TopicDeployEntity entity : storedTopicDeployMap.values()) {
+            if (entity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)) {
+                continue;
+            }
+            srcTopicSet.add(entity.getRecordKey());
+        }
+        Set<String> tgtTopicSet = new HashSet<>();
+        for (TopicDeployEntity entity : topicDeployMap.values()) {
+            if (entity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)) {
+                continue;
+            }
+            tgtTopicSet.add(entity.getRecordKey());
+        }
+        if (srcTopicSet.size() != tgtTopicSet.size()) {
+            logger.error("  verify failure, stored topic-deploy configurations size not equal!");
+            return false;
+        }
+        for (Map.Entry<String, TopicDeployEntity> qryEntry : storedTopicDeployMap.entrySet()) {
+            TopicDeployEntity targetEntity = topicDeployMap.get(qryEntry.getKey());
+            if (targetEntity == null) {
+                logger.error(strBuff
+                        .append("  verify failure, stored topic-deploy value not equal!")
+                        .append(" data in server is ").append(qryEntry.getValue().toString())
+                        .append(", data stored is null!").toString());
+                return false;
+            }
+            if ((targetEntity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)
+                    && (!targetEntity.isMatched(qryEntry.getValue(), false)))
+                    || (!targetEntity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)
+                    && !targetEntity.isDataEquals(qryEntry.getValue()))) {
+                logger.error(strBuff
+                        .append("  verify failure, stored topic-deploy value not equal!")
+                        .append(" data in server is ").append(qryEntry.getValue().toString())
+                        .append(", data stored is ").append(targetEntity).toString());
+                return false;
+            }
+        }
+        logger.info("[Recovery Topic Deploy] end, success!");
         return true;
     }
 
@@ -1011,8 +1052,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 topicDeployMap.put(topicDeployEntity.getRecordKey(), topicDeployEntity);
             } catch (Throwable e) {
                 logger.error(strBuff.append("Parse topic deploy configurations(")
-                        .append(jsonItem.toString()).append(") throw exception ")
-                        .append(e.toString()).toString());
+                        .append(jsonItem).append(") throw exception ").append(e).toString());
                 strBuff.delete(0, strBuff.length());
                 throw e;
             }
@@ -1035,7 +1075,12 @@ public class CliMetaDataBRU extends CliAbstractBase {
         }
         int count = 0;
         Map<String, String> inParamMap = new HashMap<>();
+        Map<String, TopicDeployEntity> sysTopicDeployMap = new HashMap<>();
         for (TopicDeployEntity entity : topicDeployMap.values()) {
+            if (entity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)) {
+                sysTopicDeployMap.put(entity.getRecordKey(), entity);
+                continue;
+            }
             if (count++ > 0) {
                 strBuff.append(",");
             }
@@ -1067,6 +1112,139 @@ public class CliMetaDataBRU extends CliAbstractBase {
             }
             strBuff.delete(0, strBuff.length());
         }
+        // update system topic deploy information
+        count = 0;
+        inParamMap.clear();
+        for (TopicDeployEntity entity : sysTopicDeployMap.values()) {
+            if (count++ > 0) {
+                strBuff.append(",");
+            }
+            // build topic deploy configurations in json format
+            entity.toWebJsonStr(strBuff, true, true);
+            if (strBuff.length() > maxDataLength
+                    || count % TServerConstants.CFG_BATCH_BROKER_OPERATE_MAX_COUNT == 0) {
+                inParamMap.put("topicJsonSet", "[" + strBuff.toString() + "]");
+                strBuff.delete(0, strBuff.length());
+                inParamMap.put("createUser", curOperator);
+                inParamMap.put("modifyUser", curOperator);
+                if (!writeDataToMaster("admin_batch_update_topic_deploy_info",
+                        authToken, inParamMap, strBuff, result)) {
+                    return false;
+                }
+                count = 0;
+                inParamMap.clear();
+                strBuff.delete(0, strBuff.length());
+            }
+        }
+        if (strBuff.length() > 0) {
+            inParamMap.put("topicJsonSet", "[" + strBuff.toString() + "]");
+            strBuff.delete(0, strBuff.length());
+            inParamMap.put("createUser", curOperator);
+            inParamMap.put("modifyUser", curOperator);
+            if (!writeDataToMaster("admin_batch_update_topic_deploy_info",
+                    authToken, inParamMap, strBuff, result)) {
+                return false;
+            }
+            strBuff.delete(0, strBuff.length());
+        }
+        return true;
+    }
+
+    /**
+     * Backup group control configurations
+     *
+     * @param strBuff  the string buffer
+     * @return         true for success, false for failure
+     */
+    private boolean backupGroupCtrlConfig(StringBuilder strBuff) {
+        logger.info("[Backup Group Ctrl] begin ");
+        Map<String, GroupResCtrlEntity> groupCtrlMap = getGroupResCtrlInfos(strBuff);
+        if (groupCtrlMap == null) {
+            logger.error("  download group-control configurations are null!");
+            return false;
+        }
+        logger.info("[Backup Group Ctrl] store group-control configurations to local file");
+        storeObjectToFile(groupCtrlMap, backupAndRecoveryPath, storeFileNameGroupCtrl);
+        logger.info("[Backup Group Ctrl] verify configurations");
+        Map<String, GroupResCtrlEntity> storedGroupCtrlMap =
+                (Map<String, GroupResCtrlEntity>) readObjectFromFile(
+                        backupAndRecoveryPath, storeFileNameGroupCtrl);
+        if (storedGroupCtrlMap == null) {
+            logger.error(strBuff.append("  read configure file ")
+                    .append(backupAndRecoveryPath).append("/")
+                    .append(storeFileNameGroupCtrl).append(" failure!").toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        if (storedGroupCtrlMap.size() != groupCtrlMap.size()) {
+            logger.error("  verify failure, stored group-control configurations size not equal!");
+            return false;
+        }
+        for (Map.Entry<String, GroupResCtrlEntity> qryEntry : groupCtrlMap.entrySet()) {
+            GroupResCtrlEntity targetEntity = storedGroupCtrlMap.get(qryEntry.getKey());
+            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
+                logger.error(strBuff
+                        .append("  verify failure, stored group-control value not equal!")
+                        .append(" data in server is ").append(qryEntry.getValue().toString())
+                        .append(", data stored is ").append((targetEntity == null)
+                                ? null : targetEntity.toString()).toString());
+                strBuff.delete(0, strBuff.length());
+                return false;
+            }
+        }
+        logger.info("[Backup Group Ctrl] end, success!");
+        return true;
+    }
+
+    /**
+     * Recovery group control configurations
+     *
+     * @param strBuff  the string buffer
+     * @param result   the process result
+     * @return         true for success, false for failure
+     */
+    private boolean recoveryGroupCtrlConfig(StringBuilder strBuff, ProcessResult result) {
+        logger.info("[Recovery Group Ctrl] begin ");
+        Map<String, GroupResCtrlEntity> storedGroupCtrlMap =
+                (Map<String, GroupResCtrlEntity>) readObjectFromFile(
+                        backupAndRecoveryPath, storeFileNameGroupCtrl);
+        if (storedGroupCtrlMap == null) {
+            logger.error(strBuff.append("  read configure file ")
+                    .append(backupAndRecoveryPath).append("/")
+                    .append(storeFileNameGroupCtrl).append(" failure!").toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        logger.info("[Recovery Group Ctrl] upload group-control configurations to master");
+        if (!writeGroupResCtrlInfo(storedGroupCtrlMap, strBuff, result)) {
+            logger.error(strBuff.append("  write group-control configurations failure!")
+                    .append(result.getErrMsg()).toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        logger.info("[Recovery Group Ctrl] read restored group-control configurations from master");
+        Map<String, GroupResCtrlEntity> groupCtrlMap = getGroupResCtrlInfos(strBuff);
+        if (groupCtrlMap == null) {
+            logger.error("  download group-control configurations is null!");
+            return false;
+        }
+        logger.info("[Recovery Group Ctrl] verify configurations");
+        if (groupCtrlMap.size() != storedGroupCtrlMap.size()) {
+            logger.error("  verify failure, stored group-control configurations size not equal!");
+            return false;
+        }
+        for (Map.Entry<String, GroupResCtrlEntity> qryEntry : storedGroupCtrlMap.entrySet()) {
+            GroupResCtrlEntity targetEntity = groupCtrlMap.get(qryEntry.getKey());
+            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
+                logger.error(strBuff
+                        .append("  verify failure, stored group-control value not equal!")
+                        .append(" data in server is ").append(qryEntry.getValue().toString())
+                        .append(", data stored is ").append((targetEntity == null)
+                                ? null : targetEntity.toString()).toString());
+                return false;
+            }
+        }
+        logger.info("[Recovery Group Ctrl] end, success!");
         return true;
     }
 
@@ -1115,8 +1293,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 groupResCtrlMap.put(groupResCtrlEntity.getGroupName(), groupResCtrlEntity);
             } catch (Throwable e) {
                 logger.error(strBuff.append("Parse group resource control configurations(")
-                        .append(jsonItem.toString()).append(") throw exception ")
-                        .append(e.toString()).toString());
+                        .append(jsonItem).append(") throw exception ").append(e).toString());
                 strBuff.delete(0, strBuff.length());
                 throw e;
             }
@@ -1175,6 +1352,107 @@ public class CliMetaDataBRU extends CliAbstractBase {
     }
 
     /**
+     * Backup consume control configurations
+     *
+     * @param strBuff  the string buffer
+     * @return         true for success, false for failure
+     */
+    private boolean backupConsumeCtrlConfig(StringBuilder strBuff) {
+        logger.info("[Backup Csm Ctrl] begin ");
+        Map<String, GroupConsumeCtrlEntity> groupCsmInfoMap = getGroupCsmCtrlInfos(strBuff);
+        if (groupCsmInfoMap == null) {
+            logger.error("  download consume-ctrl configurations is null!");
+            return false;
+        }
+        logger.info("[Backup Csm Ctrl] store consume-ctrl configurations to local file");
+        storeObjectToFile(groupCsmInfoMap, backupAndRecoveryPath, storeFileNameCsmCtrl);
+        logger.info("[Backup Csm Ctrl] verify configurations");
+        Map<String, GroupConsumeCtrlEntity> storedGroupCsmMap =
+                (Map<String, GroupConsumeCtrlEntity>) readObjectFromFile(
+                        backupAndRecoveryPath, storeFileNameCsmCtrl);
+        if (storedGroupCsmMap == null) {
+            logger.error(strBuff.append("  read configure file ")
+                    .append(backupAndRecoveryPath).append("/")
+                    .append(storeFileNameCsmCtrl).append(" failure!").toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        if (storedGroupCsmMap.size() != groupCsmInfoMap.size()) {
+            logger.error("  verify failure, stored consume-ctrl configures size not equal!");
+            return false;
+        }
+        for (Map.Entry<String, GroupConsumeCtrlEntity> qryEntry : groupCsmInfoMap.entrySet()) {
+            GroupConsumeCtrlEntity targetEntity = storedGroupCsmMap.get(qryEntry.getKey());
+            if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
+                logger.error(strBuff
+                        .append("  verify failure, stored consume-ctrl value not equal!")
+                        .append(" data in server is ").append(qryEntry.getValue().toString())
+                        .append(", data stored is ").append((targetEntity == null)
+                                ? null : targetEntity.toString()).toString());
+                strBuff.delete(0, strBuff.length());
+                return false;
+            }
+        }
+        logger.info("[Backup Csm Ctrl] end, success!");
+        return true;
+    }
+
+    /**
+     * Recovery consume control configurations
+     *
+     * @param strBuff  the string buffer
+     * @param result   the process result
+     * @return         true for success, false for failure
+     */
+    private boolean recoveryConsumeCtrlConfig(StringBuilder strBuff, ProcessResult result) {
+        logger.info("[Recovery Csm Ctrl] begin ");
+        Map<String, GroupConsumeCtrlEntity> storedGroupCsmMap =
+                (Map<String, GroupConsumeCtrlEntity>) readObjectFromFile(
+                        backupAndRecoveryPath, storeFileNameCsmCtrl);
+        if (storedGroupCsmMap == null) {
+            logger.error(strBuff.append("  read configure file ")
+                    .append(backupAndRecoveryPath).append("/")
+                    .append(storeFileNameCsmCtrl).append(" failure!").toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        logger.info("[Recovery Csm Ctrl] upload consume-control configurations to master");
+        if (!writeGroupCsmInfo(storedGroupCsmMap, strBuff, result)) {
+            logger.error(strBuff.append("  write consume-control configurations failure!")
+                    .append(result.getErrMsg()).toString());
+            strBuff.delete(0, strBuff.length());
+            return false;
+        }
+        logger.info("[Recovery Csm Ctrl] read restored consume-control configurations from master");
+        Map<String, GroupConsumeCtrlEntity> groupCsmInfoMap = getGroupCsmCtrlInfos(strBuff);
+        if (groupCsmInfoMap == null) {
+            logger.error("  download consume-control configurations are null!");
+            return false;
+        }
+        logger.info("[Recovery Csm Ctrl] verify configurations");
+        if (groupCsmInfoMap.size() != storedGroupCsmMap.size()) {
+            logger.error("  verify failure, stored consume-control configurations size not equal!");
+            return false;
+        }
+        for (Map.Entry<String, GroupConsumeCtrlEntity> qryEntry : storedGroupCsmMap.entrySet()) {
+            GroupConsumeCtrlEntity targetEntity = groupCsmInfoMap.get(qryEntry.getKey());
+            if (targetEntity == null
+                    || !targetEntity.isDataEquals(qryEntry.getValue())
+                    || !targetEntity.isMatched(qryEntry.getValue())) {
+                logger.error(strBuff
+                        .append("  verify failure, stored consume-control value not equal!")
+                        .append(" data in server is ").append(qryEntry.getValue().toString())
+                        .append(", data stored is ").append((targetEntity == null)
+                                ? null : targetEntity.toString()).toString());
+                strBuff.delete(0, strBuff.length());
+                return false;
+            }
+        }
+        logger.info("[Recovery Csm Ctrl] end, success!");
+        return true;
+    }
+
+    /**
      * Query group consume control configurations
      *
      * @param strBuff  the string buffer
@@ -1216,8 +1494,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 groupCsmCtrlMap.put(groupCsmCtrlEntity.getRecordKey(), groupCsmCtrlEntity);
             } catch (Throwable e) {
                 logger.error(strBuff.append("Parse group consume control configurations(")
-                        .append(jsonItem.toString()).append(") throw exception ")
-                        .append(e.toString()).toString());
+                        .append(jsonItem).append(") throw exception ").append(e).toString());
                 strBuff.delete(0, strBuff.length());
                 throw e;
             }
@@ -1403,9 +1680,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
      */
     private Object readObjectFromFile(String configPath, String fileName) {
         FileInputStream fis = null;
-        ObjectInputStream is = null;
+        ObjectInputStream is;
         try {
-            File file = null;
+            File file;
             if (configPath.lastIndexOf(File.separator) != configPath.length() - 1) {
                 file = new File(configPath + File.separator + fileName + ".conf");
             } else {
@@ -1443,9 +1720,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
      */
     private void storeObjectToFile(Object storeObj, String configPath, String fileName) {
         FileOutputStream fos = null;
-        ObjectOutputStream p = null;
+        ObjectOutputStream p;
         try {
-            File file = null;
+            File file;
             if (configPath.lastIndexOf(File.separator) != configPath.length() - 1) {
                 file = new File(configPath + File.separator + fileName + ".conf");
             } else {

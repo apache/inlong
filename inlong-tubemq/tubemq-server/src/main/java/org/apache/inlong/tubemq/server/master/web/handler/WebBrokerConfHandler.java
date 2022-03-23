@@ -769,6 +769,12 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             return sBuffer;
         }
         TopicPropGroup brokerProps = (TopicPropGroup) result.getRetData();
+        // get and valid broker manage status info
+        if (!getManageStatusParamValue(req, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        ManageStatus mngStatus = (ManageStatus) result.getRetData();
         // add record and process result
         List<BrokerProcessResult> retInfo = new ArrayList<>();
         if (isAddOp) {
@@ -779,17 +785,15 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             }
             Tuple2<Integer, String> brokerIdAndIpTuple =
                     (Tuple2<Integer, String>) result.getRetData();
+            // set the initial status
+            if (mngStatus == ManageStatus.STATUS_MANAGE_UNDEFINED) {
+                mngStatus = ManageStatus.STATUS_MANAGE_APPLY;
+            }
             retInfo.add(defMetaDataService.addOrUpdBrokerConfig(isAddOp, opEntity,
                     brokerIdAndIpTuple.getF0(), brokerIdAndIpTuple.getF1(), brokerPort,
                     brokerTlsPort, brokerWebPort, regionId, groupId,
-                    ManageStatus.STATUS_MANAGE_APPLY, brokerProps, sBuffer, result));
+                    mngStatus, brokerProps, sBuffer, result));
         } else {
-            // get and valid broker manage status info
-            if (!getManageStatusParamValue(req, sBuffer, result)) {
-                WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
-                return sBuffer;
-            }
-            ManageStatus mngStatus = (ManageStatus) result.getRetData();
             // check and get brokerId field
             if (!WebParameterUtils.getIntParamValue(req,
                     WebFieldDef.COMPSBROKERID, true, sBuffer, result)) {
@@ -981,6 +985,11 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 return result.isSuccess();
             }
             TopicPropGroup brokerProps = (TopicPropGroup) result.getRetData();
+            // get and valid broker manage status info
+            if (!getManageStatusParamValue(brokerObject, sBuffer, result)) {
+                return result.isSuccess();
+            }
+            ManageStatus mngStatus = (ManageStatus) result.getRetData();
             if (isAddOp) {
                 // get brokerIp and brokerId field
                 if (!getBrokerIpAndIdParamValue(brokerObject, sBuffer, result)) {
@@ -988,19 +997,18 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 }
                 Tuple2<Integer, String> brokerIdAndIpTuple =
                         (Tuple2<Integer, String>) result.getRetData();
+                // set the initial status
+                if (mngStatus == ManageStatus.STATUS_MANAGE_UNDEFINED) {
+                    mngStatus = ManageStatus.STATUS_MANAGE_APPLY;
+                }
                 // buid new record
                 itemEntity = new BrokerConfEntity(itemOpEntity,
                         brokerIdAndIpTuple.getF0(), brokerIdAndIpTuple.getF1());
                 itemEntity.updModifyInfo(itemOpEntity.getDataVerId(), brokerPort,
                         brokerTlsPort, brokerWebPort, regionId, groupId,
-                        ManageStatus.STATUS_MANAGE_APPLY, brokerProps);
+                        mngStatus, brokerProps);
                 addedRecordMap.put(itemEntity.getBrokerId(), itemEntity);
             } else {
-                // get and valid broker manage status info
-                if (!getManageStatusParamValue(req, sBuffer, result)) {
-                    return result.isSuccess();
-                }
-                ManageStatus mngStatus = (ManageStatus) result.getRetData();
                 // check and get brokerId field
                 if (!WebParameterUtils.getIntParamValue(brokerObject,
                         WebFieldDef.BROKERID, true, sBuffer, result)) {

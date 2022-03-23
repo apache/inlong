@@ -69,6 +69,12 @@ public final class TServerConstants {
     public static final int BROKER_GROUP_ID_MIN = 0;
     public static final int BROKER_GROUP_ID_DEF = 0;
 
+    public static final int TOPIC_ID_MIN = 0;
+    public static final int TOPIC_ID_DEF = 0;
+
+    public static final int DATA_VERSION_ID_MIN = 0;
+    public static final int DATA_VERSION_ID_DEF = 0;
+
     public static final int CFG_MODAUTHTOKEN_MAX_LENGTH = 128;
     public static final int CFG_ROWLOCK_DEFAULT_DURATION = 30000;
     public static final int CFG_ZK_COMMIT_DEFAULT_RETRIES = 10;

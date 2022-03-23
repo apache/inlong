@@ -524,7 +524,26 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
                     strBuff.delete(0, strBuff.length());
                     return result.isSuccess();
                 }
-                topicCtrlMapper.addTopicCtrlConf(entity, strBuff, result);
+                if (entity.getTopicId() == TBaseConstants.META_VALUE_UNDEFINED
+                        || entity.getMaxMsgSizeInMB() == TBaseConstants.META_VALUE_UNDEFINED) {
+                    int topicId = entity.getTopicId();
+                    int maxMsgSizeInMB = entity.getMaxMsgSizeInMB();
+                    if (topicId == TBaseConstants.META_VALUE_UNDEFINED) {
+                        topicId = TServerConstants.TOPIC_ID_DEF;
+                    }
+                    if (maxMsgSizeInMB == TBaseConstants.META_VALUE_UNDEFINED) {
+                        maxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
+                        ClusterSettingEntity defSetting = getClusterDefSetting(false);
+                        if (defSetting != null) {
+                            maxMsgSizeInMB = defSetting.getMaxMsgSizeInMB();
+                        }
+                    }
+                    newEntity = new TopicCtrlEntity(entity, entity.getTopicName(), topicId, maxMsgSizeInMB);
+                    topicCtrlMapper.addTopicCtrlConf(newEntity, strBuff, result);
+
+                } else {
+                    topicCtrlMapper.addTopicCtrlConf(entity, strBuff, result);
+                }
             } else {
                 if (isAddOpOrOnlyAdd) {
                     if (chkConsistent) {
@@ -577,7 +596,7 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
         TopicDeployEntity entity =
                 new TopicDeployEntity(opEntity, brokerId, TServerConstants.OFFSET_HISTORY_NAME);
         entity.updModifyInfo(opEntity.getDataVerId(), TBaseConstants.META_VALUE_UNDEFINED,
-                brokerPort,brokerIp, TopicStatus.STATUS_TOPIC_OK, topicPropInfo);
+                brokerPort, brokerIp, TopicStatus.STATUS_TOPIC_OK, topicPropInfo);
         addOrUpdTopicDeployInfo(true, entity, strBuff, new ProcessResult());
     }
 
@@ -634,7 +653,11 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
                     newProps.updModifyInfo(brokerEntity.getTopicProps());
                     newEntity = new TopicDeployEntity(entity,
                             entity.getBrokerId(), entity.getTopicName(), newProps);
-                    newEntity.updModifyInfo(entity.getDataVerId(), entity.getTopicId(),
+                    int topicId = entity.getTopicId();
+                    if (entity.getTopicId() == TBaseConstants.META_VALUE_UNDEFINED) {
+                        topicId = TServerConstants.TOPIC_ID_DEF;
+                    }
+                    newEntity.updModifyInfo(entity.getDataVerId(), topicId,
                             brokerEntity.getBrokerPort(), brokerEntity.getBrokerIp(),
                             entity.getTopicStatus(), entity.getTopicProps());
                     topicDeployMapper.addTopicDeployConf(newEntity, strBuff, result);
