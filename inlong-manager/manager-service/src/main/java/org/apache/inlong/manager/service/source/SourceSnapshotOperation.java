@@ -142,8 +142,7 @@ public class SourceSnapshotOperation implements AutoCloseable {
                 Integer status = idStatusMap.get(id);
                 if (SourceState.TEMP_TO_NORMAL.contains(status)) {
                     isInvalid = true;
-                    StreamSourceEntity source = sourceMapper.selectByIdForUpdate(id);
-                    sourceMapper.updateStatus(id, SourceState.SOURCE_NORMAL.getCode(), source.getModifyTime());
+                    sourceMapper.updateStatus(id, SourceState.SOURCE_NORMAL.getCode(), false);
                 }
             }
 

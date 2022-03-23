@@ -71,9 +71,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public Integer save(SourceRequest request, String operator) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to save source info=" + request);
-        }
+        LOGGER.info("begin to save source info: {}", request);
         this.checkParams(request);
 
         // Check if it can be added
@@ -85,16 +83,15 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
         int id = operation.saveOpt(request, groupEntity.getStatus(), operator);
 
-        LOGGER.info("success to save source info");
+        LOGGER.info("success to save source info: {}", request);
         return id;
     }
 
     @Override
     public SourceResponse get(Integer id, String sourceType) {
-        LOGGER.debug("begin to get source by id={}, sourceType={}", id, sourceType);
         StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
         SourceResponse sourceResponse = operation.getById(id);
-        LOGGER.debug("success to get source info");
+        LOGGER.debug("success to get source by id={}", id);
         return sourceResponse;
     }
 
@@ -107,27 +104,20 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
     @Override
     public List<SourceResponse> listSource(String groupId, String streamId) {
-        LOGGER.debug("begin to list source by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
-
         List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
         }
         List<SourceResponse> responseList = new ArrayList<>();
         entityList.forEach(entity -> responseList.add(this.get(entity.getId(), entity.getSourceType())));
-
-        LOGGER.info("success to list source");
+        LOGGER.debug("success to list source by groupId={}, streamId={}", groupId, streamId);
         return responseList;
     }
 
     @Override
     public PageInfo<? extends SourceListResponse> listByCondition(SourcePageRequest request) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to list source page by " + request);
-        }
         Preconditions.checkNotNull(request.getInlongGroupId(), Constant.GROUP_ID_IS_EMPTY);
-
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         List<StreamSourceEntity> entityPage = sourceMapper.selectByCondition(request);
 
@@ -145,7 +135,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             sourceListResponses.addAll(pageInfo.getList());
         }
         PageInfo<? extends SourceListResponse> pageInfo = PageInfo.of(sourceListResponses);
-        LOGGER.debug("success to list source page");
+
+        LOGGER.debug("success to list source page, result size {}", pageInfo.getSize());
         return pageInfo;
     }
 
@@ -153,7 +144,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
             isolation = Isolation.READ_COMMITTED)
     public boolean update(SourceRequest request, String operator) {
-        LOGGER.debug("begin to update source info=" + request);
+        LOGGER.info("begin to update source info: {}", request);
         this.checkParams(request);
         Preconditions.checkNotNull(request.getId(), Constant.ID_IS_EMPTY);
 
@@ -165,16 +156,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
         operation.updateOpt(request, groupEntity.getStatus(), operator);
 
-        LOGGER.info("success to update source info");
-        return true;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED)
-    public boolean updateStatus(Integer id, Integer targetStatus, String operator) {
-        sourceMapper.updateStatus(id, targetStatus, null);
-        LOGGER.info("success to update source status={} for id={} by {}", targetStatus, id, operator);
+        LOGGER.info("success to update source info: {}", request);
         return true;
     }
 
@@ -204,7 +186,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         CommonBeanUtils.copyProperties(entity, sourceRequest, true);
         operation.deleteOpt(sourceRequest, operator);
 
-        LOGGER.info("success to delete source info:{}", entity);
+        LOGGER.info("success to delete source info: {}", entity);
         return true;
     }
 
@@ -222,7 +204,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         CommonBeanUtils.copyProperties(entity, sourceRequest, true);
         operation.restartOpt(sourceRequest, operator);
 
-        LOGGER.info("success to restart source info:{}", entity);
+        LOGGER.info("success to restart source info: {}", entity);
         return true;
     }
 
@@ -240,7 +222,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         CommonBeanUtils.copyProperties(entity, sourceRequest, true);
         operation.stopOpt(sourceRequest, operator);
 
-        LOGGER.info("success to stop source info:{}", entity);
+        LOGGER.info("success to stop source info: {}", entity);
         return true;
     }
 

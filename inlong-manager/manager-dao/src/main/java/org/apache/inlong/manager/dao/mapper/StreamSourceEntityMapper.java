@@ -22,7 +22,6 @@ import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -36,8 +35,6 @@ public interface StreamSourceEntityMapper {
 
     /**
      * Query un-deleted sources by the given agentIp.
-     *
-     * @apiNote Sources with is_deleted > 0 need to be filtered.
      */
     List<StreamSourceEntity> selectByAgentIp(@Param("agentIp") String agentIp);
 
@@ -58,30 +55,14 @@ public interface StreamSourceEntityMapper {
             @Param("sourceName") String sourceName);
 
     /**
-     * According to the group id, stream id and source type, query valid source entity list.
-     */
-    List<StreamSourceEntity> selectByRelatedIdForUpdate(@Param("groupId") String groupId,
-            @Param("streamId") String streamId, @Param("sourceType") String sourceType);
-
-    /**
-     * Query the tasks that need to be added for update.
-     */
-    List<StreamSourceEntity> selectByStatusForUpdate(@Param("list") List<Integer> list);
-
-
-    /**
-     * Query the tasks that need to be added.
+     * Query the tasks by the given status list.
      */
     List<StreamSourceEntity> selectByStatus(@Param("list") List<Integer> list);
 
     /**
-     * Query the sources with status 20x by the given agent IP and agent UUID for update.
-     */
-    List<StreamSourceEntity> selectByStatusAndIpForUpdate(@Param("statusList") List<Integer> statusList,
-            @Param("agentIp") String agentIp, @Param("uuid") String uuid);
-
-    /**
      * Query the sources with status 20x by the given agent IP and agent UUID.
+     *
+     * @apiNote Sources with is_deleted > 0 need to be filtered.
      */
     List<StreamSourceEntity> selectByStatusAndIp(@Param("statusList") List<Integer> statusList,
             @Param("agentIp") String agentIp, @Param("uuid") String uuid);
@@ -97,11 +78,9 @@ public interface StreamSourceEntityMapper {
 
     /**
      * Update the status to `nextStatus` by the given id.
-     *
-     * @apiNote Should not change the modify_time
      */
     int updateStatus(@Param("id") Integer id, @Param("nextStatus") Integer nextStatus,
-            @Param("modifyTime") Date modifyTime);
+            @Param("changeTime") Boolean changeModifyTime);
 
     /**
      * Update the status to `nextStatus` by the given group id and stream id.
@@ -113,11 +92,9 @@ public interface StreamSourceEntityMapper {
 
     /**
      * Update the agentIp and uuid.
-     *
-     * @apiNote Should not change the modify_time
      */
     int updateIpAndUuid(@Param("id") Integer id, @Param("agentIp") String agentIp, @Param("uuid") String uuid,
-            @Param("modifyTime") Date modifyTime);
+            @Param("changeTime") Boolean changeModifyTime);
 
     int updateSnapshot(StreamSourceEntity entity);
 
