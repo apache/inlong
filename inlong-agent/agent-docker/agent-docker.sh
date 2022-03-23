@@ -22,6 +22,8 @@ local_ip=$(ifconfig $ETH_NETWORK | grep "inet" | grep -v "inet6" | awk '{print $
 cat <<EOF > ${file_path}/conf/agent.properties
 agent.fetcher.classname=org.apache.inlong.agent.plugin.fetcher.ManagerFetcher
 agent.local.ip=$local_ip
+agent.fetcher.interval=$AGENT_FETCH_INTERVAL
+agent.heartbeat.interval=$AGENT_HEARTBEAT_INTERVAL
 agent.manager.vip.http.host=$MANAGER_OPENAPI_IP
 agent.manager.vip.http.port=$MANAGER_OPENAPI_PORT
 agent.dataproxy.http.host=$DATAPROXY_IP
