@@ -20,10 +20,6 @@ package org.apache.inlong.tubemq.manager.controller.cluster;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-
-import java.util.List;
-import java.util.Map;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -31,12 +27,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.cluster.dto.ClusterDto;
-import org.apache.inlong.tubemq.manager.controller.group.result.ConsumerGroupInfoRes;
-import org.apache.inlong.tubemq.manager.controller.group.result.ConsumerInfoRes;
-import org.apache.inlong.tubemq.manager.controller.topic.result.TopicQueryRes;
 import org.apache.inlong.tubemq.manager.controller.cluster.request.AddClusterReq;
 import org.apache.inlong.tubemq.manager.controller.cluster.request.DeleteClusterReq;
 import org.apache.inlong.tubemq.manager.controller.cluster.vo.ClusterVo;
+import org.apache.inlong.tubemq.manager.controller.group.result.ConsumerGroupInfoRes;
+import org.apache.inlong.tubemq.manager.controller.group.result.ConsumerInfoRes;
+import org.apache.inlong.tubemq.manager.controller.topic.result.TopicQueryRes;
 import org.apache.inlong.tubemq.manager.controller.topic.result.TopicViewRes;
 import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
@@ -54,6 +50,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
 
 import static org.apache.inlong.tubemq.manager.service.TubeConst.SUCCESS_CODE;
 
@@ -266,8 +265,8 @@ public class ClusterController {
         String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.QUERY_CONSUMER_GROUP_INFO);
         int consumerGroupCount = 0;
         String groupData = masterService.queryMaster(queryUrl);
-        JsonObject jsonObject1 = gson.fromJson(groupData, JsonObject.class);
-        JsonElement data = jsonObject1.get("data");
+        JsonObject jsonObject = gson.fromJson(groupData, JsonObject.class);
+        JsonElement data = jsonObject.get("data");
         JsonArray jsonData = gson.fromJson(data, JsonArray.class);
         List<ConsumerGroupInfoRes> groupList = gson.fromJson(jsonData.toString(),
                 new TypeToken<List<ConsumerGroupInfoRes>>() {
