@@ -23,8 +23,10 @@ package org.apache.inlong.agent.constant;
 public class FetcherConstants {
 
     public static final String AGENT_FETCHER_INTERVAL = "agent.fetcher.interval";
-    public static final int DEFAULT_AGENT_FETCHER_INTERVAL = 60;
+    public static final int DEFAULT_AGENT_FETCHER_INTERVAL = 10;
 
+    public static final String AGENT_HEARTBEAT_INTERVAL = "agent.heartbeat.interval";
+    public static final int DEFAULT_AGENT_HEARTBEAT_INTERVAL = 10;
     public static final String AGENT_MANAGER_REQUEST_TIMEOUT = "agent.manager.request.timeout";
     // default is 30s
     public static final int DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT = 30;

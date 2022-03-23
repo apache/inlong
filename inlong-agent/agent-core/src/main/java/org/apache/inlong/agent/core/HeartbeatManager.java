@@ -36,13 +36,14 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HEARTBEAT_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_HEARTBEAT_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
-import static org.apache.inlong.agent.core.task.TaskPositionManager.DEFAULT_FLUSH_TIMEOUT;
 
 public class HeartbeatManager extends AbstractDaemon {
 
@@ -60,9 +61,9 @@ public class HeartbeatManager extends AbstractDaemon {
      * Init heartbeat manager.
      */
     public HeartbeatManager(AgentManager agentManager) {
+        this.conf = AgentConfiguration.getAgentConf();
         this.agentManager = agentManager;
         jobmanager = agentManager.getJobManager();
-        conf = AgentConfiguration.getAgentConf();
         httpManager = new HttpManager(conf);
         baseManagerUrl = buildBaseUrl();
         reportSnapshotUrl = builReportSnapShotUrl(baseManagerUrl);
@@ -129,7 +130,9 @@ public class HeartbeatManager extends AbstractDaemon {
                     TaskSnapshotRequest taskSnapshotRequest = getHeartBeat();
                     httpManager.doSentPost(reportSnapshotUrl, taskSnapshotRequest);
                     LOGGER.info(" {} report to manager", taskSnapshotRequest);
-                    TimeUnit.SECONDS.sleep(DEFAULT_FLUSH_TIMEOUT);
+                    int heartbeatInterval = conf.getInt(AGENT_HEARTBEAT_INTERVAL,
+                            DEFAULT_AGENT_HEARTBEAT_INTERVAL);
+                    TimeUnit.SECONDS.sleep(heartbeatInterval);
                 } catch (Exception ex) {
                     LOGGER.error("error caught", ex);
                 }
