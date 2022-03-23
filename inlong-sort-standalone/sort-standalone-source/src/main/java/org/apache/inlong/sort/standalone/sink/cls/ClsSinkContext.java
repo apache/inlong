@@ -38,6 +38,7 @@ import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,7 @@ public class ClsSinkContext extends SinkContext {
     private int keywordMaxLength = DEFAULT_KEYWORD_MAX_LENGTH;
 
     private final Map<String, AsyncProducerClient> clientMap;
-    private List<AsyncProducerClient> deletingClients;
+    private List<AsyncProducerClient> deletingClients = new ArrayList<>();
     private Context sinkContext;
     private Map<String, ClsIdConfig> idConfigMap = new ConcurrentHashMap<>();
     private IEvent2LogItemHandler event2LogItemHandler;
