@@ -24,6 +24,7 @@ import org.apache.flume.sink.AbstractSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,7 +39,7 @@ public class ClsSink extends AbstractSink implements Configurable {
 
     private Context parentContext;
     private ClsSinkContext context;
-    private List<ClsChannelWorker> workers;
+    private List<ClsChannelWorker> workers = new ArrayList<>();
 
     /**
      * Start {@link ClsChannelWorker}.
