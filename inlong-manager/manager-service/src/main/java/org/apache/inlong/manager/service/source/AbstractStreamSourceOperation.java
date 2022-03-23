@@ -105,7 +105,6 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.NOT_SUPPORTED)
     public SourceResponse getById(@NotNull Integer id) {
         StreamSourceEntity entity = sourceMapper.selectById(id);
-        log.info("stream entity={}", entity);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
