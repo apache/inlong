@@ -38,6 +38,9 @@ public class PulsarEventSelector implements EventSelector {
         String mqType = form.getGroupInfo().getMiddlewareType();
         if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
             InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) form.getGroupInfo().getMqExtInfo();
+            if (pulsarInfo == null) {
+                return false;
+            }
             return pulsarInfo.getEnableCreateResource() == 1;
         }
         log.warn("no need to create pulsar subscription group for groupId={}, as the middlewareType={}",

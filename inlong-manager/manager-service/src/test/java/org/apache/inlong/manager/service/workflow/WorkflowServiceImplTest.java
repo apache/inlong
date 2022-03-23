@@ -83,7 +83,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     public static final String DATA_ENCODING = "UTF-8";
 
-    protected String subType;
+    protected String subType = "default";
 
     @Autowired
     protected WorkflowServiceImpl workflowService;
