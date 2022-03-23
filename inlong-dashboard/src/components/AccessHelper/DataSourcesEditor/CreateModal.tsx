@@ -114,12 +114,15 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
         {
           name: 'sourceName',
           type: 'input',
-          label: '数据源名称',
+          label: t('components.AccessHelper.DataSourcesEditor.CreateModal.DataSourceName'),
           rules: [{ required: true }],
+          props: {
+            disabled: !!id,
+          },
         } as FormItemProps,
       ].concat(config);
     },
-    [type],
+    [type, id, t],
   );
 
   return (
