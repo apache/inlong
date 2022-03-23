@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.workflow.group.listener;
 
-import java.util.List;
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -35,6 +33,9 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Approve pass listener for new inlong group
@@ -61,15 +62,14 @@ public class GroupPassTaskListener implements TaskEventListener {
         InlongGroupApproveForm form = (InlongGroupApproveForm) context.getActionContext().getForm();
 
         InlongGroupApproveRequest approveInfo = form.getGroupApproveInfo();
-
         // Only the [Wait approval] status allowed the passing operation
         String groupId = approveInfo.getInlongGroupId();
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             throw new WorkflowListenerException("inlong group not found with group id=" + groupId);
         }
-        if (!Objects.equals(GroupState.GROUP_WAIT_APPROVAL.getCode(), entity.getStatus())) {
-            throw new WorkflowListenerException("current status was not allowed to approve inlong group");
+        if (!Objects.equals(GroupState.TO_BE_APPROVAL.getCode(), entity.getStatus())) {
+            throw new WorkflowListenerException("inlong group status is [wait_approval], not allowed to approve again");
         }
 
         // Save the inlong group information after approval

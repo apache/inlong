@@ -173,6 +173,7 @@ public class InternalHttpSender {
      * @param timeUnit
      * @param hostInfo
      * @return
+     *
      * @throws Exception
      */
     private SendResult sendByHttp(List<String> bodies, String groupId, String streamId, long dt,

@@ -17,15 +17,14 @@
 
 package org.apache.inlong.tubemq.server.master.web.action.screen;
 
-import java.net.InetSocketAddress;
 import org.apache.inlong.tubemq.server.master.TMaster;
-import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
 
 public class Tubeweb implements Action {
 
-    private TMaster master;
+    private final TMaster master;
 
     public Tubeweb(TMaster master) {
         this.master = master;
@@ -33,14 +32,14 @@ public class Tubeweb implements Action {
 
     @Override
     public void execute(RequestContext context) {
-        MetaDataManager metaDataManager = this.master.getDefMetaDataManager();
-        InetSocketAddress masterAddr = metaDataManager.getMasterAddress();
-        if (master.getMasterConfig().isUseWebProxy() || masterAddr == null) {
+        MetaDataService defMetaDataService = this.master.getMetaDataService();
+        String masterAdd = defMetaDataService.getMasterAddress();
+        if (master.getMasterConfig().isUseWebProxy() || masterAdd == null) {
             // use absolute path
             context.put("tubemqRemoteAddr", "");
         } else {
             // use the whole path of the active master
-            context.put("tubemqRemoteAddr", "http://" + masterAddr.getAddress().getHostAddress() + ":"
+            context.put("tubemqRemoteAddr", "http://" + masterAdd + ":"
                     + master.getMasterConfig().getWebPort());
         }
     }

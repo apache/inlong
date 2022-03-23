@@ -18,20 +18,22 @@
 package org.apache.inlong.tubemq.server.master.metamanage;
 
 public enum DataOpErrCode {
-    DERR_SUCCESS(200, "Success."),
+    DERR_SUCCESS(200, "Success"),
     DERR_SUCCESS_UNCHANGED(201, "Success, but unchanged"),
-    DERR_NOT_EXIST(401, "Record not exist."),
-    DERR_EXISTED(402, "Record has existed."),
-    DERR_UNCHANGED(403, "Record not changed."),
-    DERR_UNCLEANED(404, "Related configuration is not cleaned up."),
+    DERR_NOT_EXIST(401, "Record not exist"),
+    DERR_EXISTED(402, "Record has existed"),
+    DERR_UNCHANGED(403, "Record not changed"),
+    DERR_UNCLEANED(404, "Related configuration is not cleaned up"),
     DERR_CONDITION_LACK(405, "The preconditions are not met"),
     DERR_ILLEGAL_STATUS(406, "Illegal operate status"),
     DERR_ILLEGAL_VALUE(407, "Illegal data format or value"),
-    DERR_STORE_ABNORMAL(501, "Store layer throw exception."),
-    DERR_UPD_NOT_EXIST(502, "Record updated but not exist."),
-    DERR_STORE_STOPPED(510, "Store stopped."),
-    DERR_STORE_NOT_MASTER(511, "Store not active master."),
-    DERR_MASTER_UNKNOWN(599, "Unknown error.");
+    DERR_CONFLICT_VALUE(408, "Conflicted configure value"),
+    DERR_STORE_ABNORMAL(501, "Store layer throw exception"),
+    DERR_UPD_NOT_EXIST(502, "Record updated but not exist"),
+    DERR_STORE_STOPPED(510, "Store stopped"),
+    DERR_STORE_NOT_MASTER(511, "Store not active master"),
+    DERR_STORE_LOCK_FAILURE(512, "Failed to lock metadata lock"),
+    DERR_MASTER_UNKNOWN(599, "Unknown error");
 
     private int code;
     private String description;

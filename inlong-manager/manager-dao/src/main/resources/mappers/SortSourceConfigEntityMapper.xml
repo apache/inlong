@@ -140,8 +140,10 @@
   <select id="selectByClusterAndTask" resultMap="ResultMapWithBLOBs">
     select
     <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
     from sort_source_config
-    where cluster_name = #{clusterName,jdbcType=INTEGER}
+    where cluster_name = #{clusterName,jdbcType=VARCHAR}
     AND task_name = #{taskName,jdbcType=VARCHAR}
   </select>
 </mapper>

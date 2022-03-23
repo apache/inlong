@@ -40,6 +40,8 @@ import org.slf4j.LoggerFactory;
 
 public class DefaultMessageSender implements MessageSender {
     private static final Logger logger = LoggerFactory.getLogger(DefaultMessageSender.class);
+    private static final long DEFAULT_SEND_TIMEOUT = 100;
+    private static final TimeUnit DEFAULT_SEND_TIMEUNIT = TimeUnit.MILLISECONDS;
     private final Sender sender;
     private final SequentialID idGenerator;
     private String groupId;
@@ -454,6 +456,38 @@ public class DefaultMessageSender implements MessageSender {
             }
         }
 
+    }
+
+    /**
+     * asyncSendMessage
+     * 
+     * @param  inlongGroupId
+     * @param  inlongStreamId
+     * @param  body
+     * @param  callback
+     * @throws ProxysdkException
+     */
+    @Override
+    public void asyncSendMessage(String inlongGroupId, String inlongStreamId, byte[] body,
+            SendMessageCallback callback) throws ProxysdkException {
+        this.asyncSendMessage(callback, body, inlongGroupId, inlongStreamId, System.currentTimeMillis(),
+                idGenerator.getNextId(), DEFAULT_SEND_TIMEOUT, DEFAULT_SEND_TIMEUNIT);
+    }
+
+    /**
+     * asyncSendMessage
+     * 
+     * @param  inlongGroupId
+     * @param  inlongStreamId
+     * @param  bodyList
+     * @param  callback
+     * @throws ProxysdkException
+     */
+    @Override
+    public void asyncSendMessage(String inlongGroupId, String inlongStreamId, List<byte[]> bodyList,
+            SendMessageCallback callback) throws ProxysdkException {
+        this.asyncSendMessage(callback, bodyList, inlongGroupId, inlongStreamId, System.currentTimeMillis(),
+                idGenerator.getNextId(), DEFAULT_SEND_TIMEOUT, DEFAULT_SEND_TIMEUNIT);
     }
 
     private void addIndexCnt(String groupId, String streamId, long cnt) {

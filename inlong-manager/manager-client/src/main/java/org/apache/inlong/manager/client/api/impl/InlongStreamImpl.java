@@ -18,26 +18,28 @@
 package org.apache.inlong.manager.client.api.impl;
 
 import com.google.common.collect.Maps;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.compress.utils.Lists;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.StreamField;
-import org.apache.inlong.manager.client.api.StreamField.FieldType;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.StreamSource;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.InlongStreamSinkTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamSourceTransfer;
+import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -50,33 +52,44 @@ public class InlongStreamImpl extends InlongStream {
 
     private Map<String, StreamSink> streamSinks = Maps.newHashMap();
 
-    private List<StreamField> streamFields;
+    private List<StreamField> streamFields = Lists.newArrayList();
 
     public InlongStreamImpl(FullStreamResponse fullStreamResponse) {
         InlongStreamInfo streamInfo = fullStreamResponse.getStreamInfo();
         this.name = streamInfo.getName();
         List<InlongStreamFieldInfo> streamFieldInfos = streamInfo.getFieldList();
-        this.streamFields = streamFieldInfos.stream().map(streamFieldInfo -> {
-            return new StreamField(streamFieldInfo.getId(),
-                    FieldType.forName(streamFieldInfo.getFieldType()),
-                    streamFieldInfo.getFieldName(),
-                    streamFieldInfo.getFieldComment(),
-                    streamFieldInfo.getFieldValue()
-            );
-        }).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(streamFieldInfos)) {
+            this.streamFields = streamFieldInfos.stream()
+                    .map(streamFieldInfo -> new StreamField(
+                            streamFieldInfo.getId(),
+                            FieldType.forName(streamFieldInfo.getFieldType()),
+                            streamFieldInfo.getFieldName(),
+                            streamFieldInfo.getFieldComment(),
+                            streamFieldInfo.getFieldValue())
+                    ).collect(Collectors.toList());
+        }
         List<SinkResponse> sinkList = fullStreamResponse.getSinkInfo();
         if (CollectionUtils.isNotEmpty(sinkList)) {
             this.streamSinks = sinkList.stream()
-                    .map(sinkResponse -> {
-                        return InlongStreamSinkTransfer.parseStreamSink(sinkResponse, null);
-                    }).collect(Collectors.toMap(StreamSink::getSinkName, streamSink -> streamSink));
+                    .map(sinkResponse -> InlongStreamSinkTransfer.parseStreamSink(sinkResponse, null))
+                    .collect(Collectors.toMap(StreamSink::getSinkName, streamSink -> streamSink,
+                            (sink1, sink2) -> {
+                                throw new RuntimeException(
+                                        String.format("duplicate sinkName:%s in stream:%s", sink1.getSinkName(),
+                                                this.name));
+                            }));
         }
         List<SourceResponse> sourceList = fullStreamResponse.getSourceInfo();
         if (CollectionUtils.isNotEmpty(sourceList)) {
             this.streamSources = sourceList.stream()
-                    .map(sourceResponse -> {
-                        return InlongStreamSourceTransfer.parseStreamSource(sourceResponse);
-                    }).collect(Collectors.toMap(StreamSource::getSourceName, streamSource -> streamSource));
+                    .map(sourceResponse -> InlongStreamSourceTransfer.parseStreamSource(sourceResponse))
+                    .collect(Collectors.toMap(StreamSource::getSourceName, streamSource -> streamSource,
+                            (source1, source2) -> {
+                                throw new RuntimeException(
+                                        String.format("duplicate sourceName:%s in stream:%s",
+                                                source1.getSourceName(), this.name));
+                            }
+                    ));
         }
 
     }

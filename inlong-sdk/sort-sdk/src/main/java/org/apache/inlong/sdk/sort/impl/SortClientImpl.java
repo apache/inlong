@@ -123,6 +123,11 @@ public class SortClientImpl extends SortClient {
         return (cleanInLongTopicManager && cleanContext);
     }
 
+    @Override
+    public SortClientConfig getConfig() {
+        return this.sortClientConfig;
+    }
+
     private InLongTopicFetcher getFetcher(String msgKey) throws NotExistException {
         InLongTopicFetcher inLongTopicFetcher = inLongTopicManager.getFetcher(msgKey);
         if (inLongTopicFetcher == null) {

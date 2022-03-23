@@ -91,10 +91,9 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         hiveSinkRequest.setPassword("password");
         hiveSinkRequest.setDbName("default");
         hiveSinkRequest.setTableName("kip_test");
-        hiveSinkRequest.setJdbcUrl("jdbc:hive2://172.17.12.135:7001");
+        hiveSinkRequest.setJdbcUrl("jdbc:hive2://localhost:7001");
         hiveSinkRequest.setFileFormat("TextFile");
-        hiveSinkRequest.setHdfsDefaultFs("hdfs://172.17.12.235:4007");
-        hiveSinkRequest.setWarehouseDir("/user/hive/warehouse");
+        hiveSinkRequest.setDataPath("hdfs://localhost:4007/user/hive/warehouse/default");
         hiveSinkRequest.setFileFormat(StandardCharsets.UTF_8.name());
         hiveSinkRequest.setDataSeparator("124");
         streamSinkService.save(hiveSinkRequest, OPERATOR);
@@ -115,7 +114,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
     //    @Test
     public void testCreateSortConfigInCreateWorkflow() {
         InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test21");
-        groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
+        groupInfo.setStatus(GroupState.CONFIG_SUCCESSFUL.getCode());
         groupInfo.setZookeeperEnabled(0);
         groupService.update(groupInfo.genRequest(), OPERATOR);
         InlongStreamInfo streamInfo = createStreamInfo(groupInfo);
@@ -143,7 +142,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
     public void testCreateSortConfigInUpdateWorkflow() {
         InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test20");
         groupInfo.setZookeeperEnabled(0);
-        groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
+        groupInfo.setStatus(GroupState.CONFIG_SUCCESSFUL.getCode());
         groupService.update(groupInfo.genRequest(), OPERATOR);
         InlongStreamInfo streamInfo = createStreamInfo(groupInfo);
         createHiveSink(streamInfo);

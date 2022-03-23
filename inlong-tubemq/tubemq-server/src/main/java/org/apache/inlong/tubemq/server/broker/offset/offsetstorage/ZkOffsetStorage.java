@@ -43,19 +43,16 @@ public class ZkOffsetStorage implements OffsetStorage {
 
     static {
         if (Thread.getDefaultUncaughtExceptionHandler() == null) {
-            Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-                @Override
-                public void uncaughtException(Thread t, Throwable e) {
-                    if (e instanceof BindException) {
-                        logger.error("Bind failed.", e);
-                        // System.exit(1);
-                    }
-                    if (e instanceof IllegalStateException
-                            && e.getMessage().contains("Shutdown in progress")) {
-                        return;
-                    }
-                    logger.warn("Thread terminated with exception: " + t.getName(), e);
+            Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+                if (e instanceof BindException) {
+                    logger.error("Bind failed.", e);
+                    // System.exit(1);
                 }
+                if (e instanceof IllegalStateException
+                        && e.getMessage().contains("Shutdown in progress")) {
+                    return;
+                }
+                logger.warn("Thread terminated with exception: " + t.getName(), e);
             });
         }
     }
@@ -80,7 +77,7 @@ public class ZkOffsetStorage implements OffsetStorage {
         this.isBroker = isBroker;
         this.brokerId = brokerId;
         this.strBrokerId = String.valueOf(brokerId);
-        this.tubeZkRoot = normalize(this.zkConfig.getZkNodeRoot());
+        this.tubeZkRoot = ZKUtil.normalizePath(this.zkConfig.getZkNodeRoot());
         this.consumerZkDir = this.tubeZkRoot + "/consumers-v3";
         try {
             this.zkw = new ZooKeeperWatcher(zkConfig);
@@ -359,22 +356,6 @@ public class ZkOffsetStorage implements OffsetStorage {
         List<String> nodeSet = ZKUtil.getChildren(zkw, parentNode);
         if (nodeSet != null && nodeSet.isEmpty()) {
             ZKUtil.delZNode(this.zkw, parentNode);
-        }
-    }
-
-    private String normalize(String root) {
-        if (root.startsWith("/")) {
-            return this.removeLastSlash(root);
-        } else {
-            return "/" + this.removeLastSlash(root);
-        }
-    }
-
-    private String removeLastSlash(String root) {
-        if (root.endsWith("/")) {
-            return root.substring(0, root.lastIndexOf("/"));
-        } else {
-            return root;
         }
     }
 }

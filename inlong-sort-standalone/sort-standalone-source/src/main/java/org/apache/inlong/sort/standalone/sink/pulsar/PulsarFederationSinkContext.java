@@ -24,10 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
+import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
-import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.slf4j.Logger;

@@ -21,7 +21,9 @@ import com.google.common.base.Joiner;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.manager.client.api.KafkaOffset;
 import org.apache.inlong.manager.client.api.StreamSource;
+import org.apache.inlong.manager.client.api.StreamSource.State;
 import org.apache.inlong.manager.client.api.StreamSource.SyncType;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.source.KafkaSource;
@@ -53,7 +55,7 @@ public class InlongStreamSourceTransfer {
             case BINLOG:
                 return createBinlogSourceRequest((MySQLBinlogSource) streamSource, streamInfo);
             default:
-                throw new RuntimeException(String.format("Unsupport source=%s for Inlong", sourceType));
+                throw new RuntimeException(String.format("Unsupported source=%s for Inlong", sourceType));
         }
     }
 
@@ -66,7 +68,7 @@ public class InlongStreamSourceTransfer {
         if (sourceType == SourceType.BINLOG && sourceResponse instanceof BinlogSourceResponse) {
             return parseMySQLBinlogSource((BinlogSourceResponse) sourceResponse);
         }
-        throw new IllegalArgumentException(String.format("Unsupport source type : %s for Inlong", sourceType));
+        throw new IllegalArgumentException(String.format("Unsupported source type : %s for Inlong", sourceType));
     }
 
     public static StreamSource parseStreamSource(SourceListResponse sourceListResponse) {
@@ -78,7 +80,7 @@ public class InlongStreamSourceTransfer {
         if (sourceType == SourceType.BINLOG && sourceListResponse instanceof BinlogSourceListResponse) {
             return parseMySQLBinlogSource((BinlogSourceListResponse) sourceListResponse);
         }
-        throw new IllegalArgumentException(String.format("Unsupport source type : %s for Inlong", sourceType));
+        throw new IllegalArgumentException(String.format("Unsupported source type : %s for Inlong", sourceType));
     }
 
     private static KafkaSource parseKafkaSource(KafkaSourceResponse kafkaSourceResponse) {
@@ -87,6 +89,7 @@ public class InlongStreamSourceTransfer {
         kafkaSource.setConsumerGroup(kafkaSourceResponse.getGroupId());
         DataFormat dataFormat = DataFormat.forName(kafkaSourceResponse.getSerializationType());
         kafkaSource.setDataFormat(dataFormat);
+        kafkaSource.setState(State.parseByStatus(kafkaSourceResponse.getStatus()));
         kafkaSource.setAgentIp(kafkaSourceResponse.getAgentIp());
         kafkaSource.setTopic(kafkaSourceResponse.getTopic());
         kafkaSource.setBootstrapServers(kafkaSourceResponse.getBootstrapServers());
@@ -94,20 +97,28 @@ public class InlongStreamSourceTransfer {
         kafkaSource.setTopicPartitionOffset(kafkaSourceResponse.getTopicPartitionOffset());
         kafkaSource.setRecordSpeedLimit(kafkaSourceResponse.getRecordSpeedLimit());
         kafkaSource.setSyncType(SyncType.FULL);
+        kafkaSource.setDatabasePattern(kafkaSourceResponse.getDatabasePattern());
+        kafkaSource.setTablePattern(kafkaSourceResponse.getTablePattern());
+        kafkaSource.setIgnoreParseErrors(kafkaSourceResponse.isIgnoreParseErrors());
+        kafkaSource.setTimestampFormatStandard(kafkaSourceResponse.getTimestampFormatStandard());
         return kafkaSource;
     }
 
-    private static KafkaSource parseKafkaSource(KafkaSourceListResponse kafkaSourceResponse) {
+    private static KafkaSource parseKafkaSource(KafkaSourceListResponse kafkaResponse) {
         KafkaSource kafkaSource = new KafkaSource();
-        kafkaSource.setSourceName(kafkaSourceResponse.getSourceName());
-        kafkaSource.setConsumerGroup(kafkaSourceResponse.getGroupId());
-        DataFormat dataFormat = DataFormat.forName(kafkaSourceResponse.getSerializationType());
+        kafkaSource.setSourceName(kafkaResponse.getSourceName());
+        kafkaSource.setConsumerGroup(kafkaResponse.getGroupId());
+        kafkaSource.setState(State.parseByStatus(kafkaResponse.getStatus()));
+        DataFormat dataFormat = DataFormat.forName(kafkaResponse.getSerializationType());
         kafkaSource.setDataFormat(dataFormat);
-        kafkaSource.setTopic(kafkaSourceResponse.getTopic());
-        kafkaSource.setBootstrapServers(kafkaSourceResponse.getBootstrapServers());
-        kafkaSource.setByteSpeedLimit(kafkaSourceResponse.getByteSpeedLimit());
-        kafkaSource.setTopicPartitionOffset(kafkaSourceResponse.getTopicPartitionOffset());
-        kafkaSource.setRecordSpeedLimit(kafkaSourceResponse.getRecordSpeedLimit());
+        kafkaSource.setTopic(kafkaResponse.getTopic());
+        kafkaSource.setBootstrapServers(kafkaResponse.getBootstrapServers());
+        kafkaSource.setByteSpeedLimit(kafkaResponse.getByteSpeedLimit());
+        kafkaSource.setTopicPartitionOffset(kafkaResponse.getTopicPartitionOffset());
+
+        KafkaOffset offset = KafkaOffset.forName(kafkaResponse.getAutoOffsetReset());
+        kafkaSource.setAutoOffsetReset(offset);
+        kafkaSource.setRecordSpeedLimit(kafkaResponse.getRecordSpeedLimit());
         kafkaSource.setSyncType(SyncType.FULL);
         return kafkaSource;
     }
@@ -119,6 +130,7 @@ public class InlongStreamSourceTransfer {
         binlogSource.setDataFormat(DataFormat.NONE);
         binlogSource.setPort(response.getPort());
         binlogSource.setAgentIp(response.getAgentIp());
+        binlogSource.setState(State.parseByStatus(response.getStatus()));
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
                 response.getUser(),
                 response.getPassword());
@@ -144,6 +156,7 @@ public class InlongStreamSourceTransfer {
         binlogSource.setHostname(response.getHostname());
         binlogSource.setDataFormat(DataFormat.NONE);
         binlogSource.setPort(response.getPort());
+        binlogSource.setState(State.parseByStatus(response.getStatus()));
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
                 response.getUser(),
                 response.getPassword());
@@ -175,8 +188,13 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setRecordSpeedLimit(kafkaSource.getRecordSpeedLimit());
         sourceRequest.setByteSpeedLimit(kafkaSource.getByteSpeedLimit());
         sourceRequest.setTopicPartitionOffset(kafkaSource.getTopicPartitionOffset());
+        sourceRequest.setAutoOffsetReset(kafkaSource.getAutoOffsetReset().getName());
         sourceRequest.setGroupId(kafkaSource.getConsumerGroup());
         sourceRequest.setSerializationType(kafkaSource.getDataFormat().getName());
+        sourceRequest.setDatabasePattern(kafkaSource.getDatabasePattern());
+        sourceRequest.setTablePattern(kafkaSource.getTablePattern());
+        sourceRequest.setIgnoreParseErrors(kafkaSource.isIgnoreParseErrors());
+        sourceRequest.setTimestampFormatStandard(kafkaSource.getTimestampFormatStandard());
         return sourceRequest;
     }
 

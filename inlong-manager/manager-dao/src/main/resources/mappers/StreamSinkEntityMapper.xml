@@ -106,8 +106,7 @@
           and s.inlong_group_id = #{groupId, jdbcType=VARCHAR}
           and s.inlong_stream_id = #{streamId, jdbcType=VARCHAR}
     </select>
-    <select id="selectByIdentifier"
-            resultType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
+    <select id="selectByRelatedId" resultType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_sink
@@ -119,8 +118,7 @@
             </if>
         </where>
     </select>
-    <select id="selectByIdAndType"
-            resultType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
+    <select id="selectByIdAndType" resultType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_sink
@@ -143,8 +141,7 @@
             and sink_type = #{sinkType, jdbcType=VARCHAR}
             and is_deleted = 0
             and inlong_stream_id in
-            <foreach collection="streamIdList" open="(" close=")" separator="," index="index"
-                    item="item">
+            <foreach collection="streamIdList" open="(" close=")" separator="," index="index" item="item">
                 #{item}
             </foreach>
         </where>
@@ -162,8 +159,7 @@
             </if>
         </where>
     </select>
-    <select id="selectAllConfig"
-            resultType="org.apache.inlong.manager.common.pojo.sink.SinkForSortDTO">
+    <select id="selectAllConfig" resultType="org.apache.inlong.manager.common.pojo.sink.SinkForSortDTO">
         select sink.id,
         sink.inlong_group_id,
         sink.inlong_stream_id,
@@ -204,19 +200,15 @@
         insert into stream_sink (id, inlong_group_id, inlong_stream_id,
                                  sink_type, sink_name, storage_period,
                                  enable_create_resource, ext_params,
-                                 operate_log, status,
-                                 previous_status, is_deleted, creator,
-                                 modifier, create_time, modify_time)
-        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR},
-                #{inlongStreamId,jdbcType=VARCHAR},
-                #{sinkType,jdbcType=VARCHAR}, #{sinkName,jdbcType=VARCHAR},
-                #{storagePeriod,jdbcType=INTEGER},
+                                 operate_log, status, previous_status,
+                                 is_deleted, creator, modifier,
+                                 create_time, modify_time)
+        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
+                #{sinkType,jdbcType=VARCHAR}, #{sinkName,jdbcType=VARCHAR}, #{storagePeriod,jdbcType=INTEGER},
                 #{enableCreateResource,jdbcType=TINYINT}, #{extParams,jdbcType=VARCHAR},
-                #{operateLog,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
-                #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
-                #{creator,jdbcType=VARCHAR},
-                #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
-                #{modifyTime,jdbcType=TIMESTAMP})
+                #{operateLog,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER},
+                #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
+                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
@@ -375,8 +367,7 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKey"
-            parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
+    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         update stream_sink
         set inlong_group_id        = #{inlongGroupId,jdbcType=VARCHAR},
             inlong_stream_id       = #{inlongStreamId,jdbcType=VARCHAR},

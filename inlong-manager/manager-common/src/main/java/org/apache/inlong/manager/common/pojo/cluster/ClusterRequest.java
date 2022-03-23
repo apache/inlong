@@ -36,19 +36,43 @@ import lombok.NoArgsConstructor;
 @ApiModel("Cluster Information Query Conditions")
 public class ClusterRequest {
 
-    @ApiModelProperty(value = "cluster type")
+    @ApiModelProperty(value = "Incremental primary key")
+    private Integer id;
+
+    @ApiModelProperty(value = "Cluster name")
+    private String name;
+
+    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, etc.")
     private String type;
 
     @ApiModelProperty(value = "Cluster IP")
     private String ip;
 
-    @ApiModelProperty(value = "Whether to backup the cluster")
-    private Integer isBackup;
+    @ApiModelProperty(value = "Cluster port")
+    private Integer port;
 
-    @ApiModelProperty(value = "Status")
-    private Integer status;
+    @ApiModelProperty(value = "Cluster token")
+    private String token;
+
+    @ApiModelProperty(value = "Cluster URL address")
+    private String url;
+
+    @ApiModelProperty(value = "Whether it is a backup cluster, 0: no, 1: yes")
+    private Integer isBackup;
 
     @ApiModelProperty(value = "MQ set name")
     private String mqSetName;
+
+    @ApiModelProperty(value = "MQ config info")
+    private String extParams;
+
+    @ApiModelProperty(value = "Name of in charges, separated by commas")
+    private String inCharges;
+
+    @ApiModelProperty(value = "Name of in creator")
+    private String creator;
+
+    @ApiModelProperty(value = "Cluster status")
+    private Integer status;
 
 }

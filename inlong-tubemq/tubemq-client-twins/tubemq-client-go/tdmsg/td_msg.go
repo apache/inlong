@@ -42,11 +42,13 @@ const (
 	TubeMQTDMsgV4MsgExtFieldOffset = 9
 )
 
+// DataItem represents the parsed data.
 type DataItem struct {
 	Length uint32
 	Data   []byte
 }
 
+// TubeMQTDMsg represents the structure of td msg.
 type TubeMQTDMsg struct {
 	IsNumBid   bool
 	Version    int32
@@ -93,16 +95,19 @@ func (m *TubeMQTDMsg) parseTDMsg(data []byte) error {
 func (m *TubeMQTDMsg) parseV4(data []byte) error {
 	rem := len(data)
 	if rem < TubeMQTDMsgV4MsgFormatSize {
-		return errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for v4 msg fixed data")
+		return errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for v4 msg fixed data")
 	}
 	if rem < 2 {
-		return errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for v4 msgCount parameter")
+		return errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for v4 msgCount parameter")
 	}
 	m.MsgCount = uint32(binary.BigEndian.Uint16(data[TubeMQTDMsgV4MsgCountOffset : TubeMQTDMsgV4MsgCountOffset+2]))
 	rem -= 2
 
 	if rem < 2 {
-		return errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for v4 extendField parameter")
+		return errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for v4 extendField parameter")
 	}
 	isNumBid := uint32(binary.BigEndian.Uint16(data[TubeMQTDMsgV4MsgExtFieldOffset : TubeMQTDMsgV4MsgExtFieldOffset+2]))
 	isNumBid &= 0x4
@@ -150,7 +155,8 @@ func (m *TubeMQTDMsg) parseBinMsg(data []byte) error {
 	bodyPos := uint32(0)
 	for bodyRemained > 0 && bm.msgCount > 0 {
 		if bodyRemained < 4 {
-			return errs.New(errs.RetTDMsgParseFailure, fmt.Sprintf("parse message error: no enough data length for v%d item's msgLength parameter", v4))
+			return errs.New(errs.RetTDMsgParseFailure,
+				fmt.Sprintf("parse message error: no enough data length for v%d item's msgLength parameter", v4))
 		}
 		di, err := parseDataItem(body[bodyPos : bodyPos+bodyRemained])
 		if err != nil {
@@ -169,7 +175,8 @@ func (m *TubeMQTDMsg) parseBinMsg(data []byte) error {
 			bodyPos += 4
 			bodyRemained -= 4
 			if singleAttrLen <= 0 || singleAttrLen > bodyRemained {
-				return errs.New(errs.RetTDMsgParseFailure, fmt.Sprintf("parse message error: invalid v4 attr's attr Length"))
+				return errs.New(errs.RetTDMsgParseFailure,
+					fmt.Sprintf("parse message error: invalid v4 attr's attr Length"))
 			}
 			singleAttr := body[bodyPos : bodyPos+singleAttrLen]
 			finalAttr := util.SplitToMap(string(singleAttr), "&", "=")
@@ -200,7 +207,8 @@ func (m *TubeMQTDMsg) parseDefault(data []byte, ver int32) error {
 
 	if m.Version >= 2 {
 		if rem < 4 {
-			return errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for msgCount parameter")
+			return errs.New(errs.RetTDMsgParseFailure,
+				"parse message error: no enough data length for msgCount parameter")
 		}
 		m.MsgCount = binary.BigEndian.Uint32(data[pos : pos+4])
 		pos += 4
@@ -208,7 +216,8 @@ func (m *TubeMQTDMsg) parseDefault(data []byte, ver int32) error {
 	}
 
 	if rem < 4 {
-		return errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for attrCount parameter")
+		return errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for attrCount parameter")
 	}
 	m.AttrCount = binary.BigEndian.Uint32(data[pos : pos+4])
 
@@ -221,7 +230,8 @@ func (m *TubeMQTDMsg) parseDefaultBody(data []byte, ver int32) error {
 	for i := uint32(0); i < m.AttrCount; i++ {
 		if rem <= 2 {
 			if i == 0 {
-				return errs.New(errs.RetTDMsgParseFailure, "parse message error: invalid data body length length")
+				return errs.New(errs.RetTDMsgParseFailure,
+					"parse message error: invalid data body length length")
 			} else {
 				break
 			}
@@ -240,24 +250,28 @@ func (m *TubeMQTDMsg) parseDefaultBody(data []byte, ver int32) error {
 		if m.Version == v2 {
 			// For dataCount
 			if rem < 4 {
-				return errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for data count parameter")
+				return errs.New(errs.RetTDMsgParseFailure,
+					"parse message error: no enough data length for data count parameter")
 			}
 			pos += 4
 			rem -= 4
 		}
 
 		if rem < 4 {
-			return errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for data len parameter")
+			return errs.New(errs.RetTDMsgParseFailure,
+				"parse message error: no enough data length for data len parameter")
 		}
 		bodyDataLen := binary.BigEndian.Uint32(data[pos : pos+4])
 		pos += 4
 		rem -= 4
 		if bodyDataLen <= 0 || bodyDataLen > rem {
-			return errs.New(errs.RetTDMsgParseFailure, "parse message error: invalid data length")
+			return errs.New(errs.RetTDMsgParseFailure,
+				"parse message error: invalid data length")
 		}
 
 		if rem < 1 {
-			return errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough char data length")
+			return errs.New(errs.RetTDMsgParseFailure,
+				"parse message error: no enough char data length")
 		}
 		compress := data[pos]
 		pos += 1
@@ -279,7 +293,8 @@ func (m *TubeMQTDMsg) parseDefaultBody(data []byte, ver int32) error {
 		itemRem := uint32(bodyLen)
 		for itemRem > 0 {
 			if itemRem < 4 {
-				return errs.New(errs.RetTDMsgParseFailure, fmt.Sprintf("parse message error: no enough data length for v%d item's msgLength parameter", ver))
+				return errs.New(errs.RetTDMsgParseFailure,
+					fmt.Sprintf("parse message error: no enough data length for v%d item's msgLength parameter", ver))
 			}
 			di, err := parseDataItem(body[itemPos : itemPos+itemRem])
 			if err != nil {
@@ -293,13 +308,15 @@ func (m *TubeMQTDMsg) parseDefaultBody(data []byte, ver int32) error {
 			attr := commAttr
 			if ver == v3 && itemRem > 0 {
 				if itemRem < 4 {
-					return errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for v3 attr's single length parameter")
+					return errs.New(errs.RetTDMsgParseFailure,
+						"parse message error: no enough data length for v3 attr's single length parameter")
 				}
 				singleAttrLen := binary.BigEndian.Uint32(body[itemPos:itemRem])
 				itemPos += 4
 				itemRem -= 4
 				if singleAttrLen <= 0 || singleAttrLen > itemRem {
-					return errs.New(errs.RetTDMsgParseFailure, "parse message error: invalid v3 attr's attr Length")
+					return errs.New(errs.RetTDMsgParseFailure,
+						"parse message error: invalid v3 attr's attr Length")
 				}
 				attr = body[itemPos : itemPos+singleAttrLen]
 				itemPos += singleAttrLen
@@ -311,6 +328,7 @@ func (m *TubeMQTDMsg) parseDefaultBody(data []byte, ver int32) error {
 	return nil
 }
 
+// ParseAttrValue parses the given attrs to a map of attr to value.
 func (m *TubeMQTDMsg) ParseAttrValue(attr string) (map[string]string, error) {
 	if len(attr) == 0 {
 		return nil, errors.New("parameter attr value is empty")
@@ -354,7 +372,8 @@ func getMagic(data []byte) (int32, error) {
 func getCreateTime(data []byte) (uint64, error) {
 	remain := len(data)
 	if remain < 8 {
-		return 0, errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for createTime data")
+		return 0, errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for createTime data")
 	}
 	return binary.BigEndian.Uint64(data[0:8]), nil
 }
@@ -362,12 +381,14 @@ func getCreateTime(data []byte) (uint64, error) {
 func getDecodedData(data []byte, ver int32) ([]byte, error) {
 	decodedLen, err := snappy.DecodedLen(data)
 	if err != nil {
-		return nil, errs.New(errs.RetTDMsgParseFailure, fmt.Sprintf("parse message error:  snappy uncompressed v%d's compress's length failure", ver))
+		return nil, errs.New(errs.RetTDMsgParseFailure,
+			fmt.Sprintf("parse message error:  snappy uncompressed v%d's compress's length failure", ver))
 	}
 	decodedData := make([]byte, 0, decodedLen)
 	decodedData, err = snappy.Decode(decodedData, data)
 	if err != nil {
-		return nil, errs.New(errs.RetTDMsgParseFailure, fmt.Sprintf("parse message error:  snappy uncompressed v%d's compress's data failure", ver))
+		return nil, errs.New(errs.RetTDMsgParseFailure,
+			fmt.Sprintf("parse message error:  snappy uncompressed v%d's compress's data failure", ver))
 	}
 	return decodedData, nil
 }

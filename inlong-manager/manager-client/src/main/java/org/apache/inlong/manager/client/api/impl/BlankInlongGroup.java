@@ -17,13 +17,14 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import java.util.List;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
+
+import java.util.List;
 
 public class BlankInlongGroup implements InlongGroup {
 
@@ -58,12 +59,27 @@ public class BlankInlongGroup implements InlongGroup {
     }
 
     @Override
+    public InlongGroupContext suspend(boolean async) throws Exception {
+        throw new UnsupportedOperationException("Inlong group is not exists");
+    }
+
+    @Override
     public InlongGroupContext restart() throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 
     @Override
+    public InlongGroupContext restart(boolean async) throws Exception {
+        throw new UnsupportedOperationException("Inlong group is not exists");
+    }
+
+    @Override
     public InlongGroupContext delete() throws Exception {
+        throw new UnsupportedOperationException("Inlong group is not exists");
+    }
+
+    @Override
+    public InlongGroupContext delete(boolean async) throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 

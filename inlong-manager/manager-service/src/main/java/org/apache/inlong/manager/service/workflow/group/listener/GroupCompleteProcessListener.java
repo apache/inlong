@@ -22,7 +22,6 @@ import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
@@ -64,20 +63,18 @@ public class GroupCompleteProcessListener implements ProcessEventListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-
         String groupId = form.getInlongGroupId();
         String applicant = context.getApplicant();
+        // Update inlong group status and other info
+        groupService.updateStatus(groupId, GroupState.CONFIG_SUCCESSFUL.getCode(), applicant);
+        groupService.update(form.getGroupInfo().genRequest(), applicant);
 
-        InlongGroupInfo groupInfo = form.getGroupInfo();
-        groupInfo.setStatus(GroupState.GROUP_CONFIG_SUCCESSFUL.getCode());
-
-        // Update inlong group
-        groupService.update(groupInfo.genRequest(), applicant);
-        // Update inlong stream status
+        // Update status of other related configs
         streamService.updateStatus(groupId, null, EntityStatus.STREAM_CONFIG_SUCCESSFUL.getCode(), applicant);
+
+        // TODO Remove update source file / db detail status
         // Update file data source status
         fileDetailMapper.updateStatusAfterApprove(groupId, null, EntityStatus.AGENT_ADD.getCode(), applicant);
-        // TODO Update source db detail status
         // dbDetailMapper.updateStatusAfterApprove(bid, null, EntityStatus.AGENT_WAIT_CREATE.getCode(), username);
 
         // Update stream source status

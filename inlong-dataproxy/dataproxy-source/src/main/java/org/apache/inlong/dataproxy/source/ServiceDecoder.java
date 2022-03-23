@@ -27,10 +27,11 @@ public interface ServiceDecoder {
 
     /**
      * extract data from buffer and convert it into map.
+     * 
      * @param cb
      * @param channel
-     * @return
-     * @throws
+     * @return Map
+     * @throws Exception
      */
     Map<String, Object> extractData(ByteBuf cb, Channel channel) throws Exception;
 }

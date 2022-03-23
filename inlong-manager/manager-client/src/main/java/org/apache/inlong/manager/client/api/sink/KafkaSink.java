@@ -24,12 +24,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.DataFormat;
-import org.apache.inlong.manager.client.api.StreamField;
+import org.apache.inlong.manager.client.api.SinkField;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.common.enums.SinkType;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -54,8 +53,5 @@ public class KafkaSink extends StreamSink {
     private boolean needCreated;
 
     @ApiModelProperty("Field definitions for kafka")
-    private List<StreamField> streamFields;
-
-    @ApiModelProperty("Other properties if need")
-    private Map<String, String> properties;
+    private List<SinkField> sinkFields;
 }

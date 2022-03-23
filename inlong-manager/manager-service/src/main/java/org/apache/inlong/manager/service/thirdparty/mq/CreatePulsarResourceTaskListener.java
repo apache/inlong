@@ -77,7 +77,7 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
         if (groupInfo == null) {
             throw new WorkflowListenerException("inlong group or pulsar cluster not found for groupId=" + groupId);
         }
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo();
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMiddlewareType());
         try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
             for (String cluster : pulsarClusters) {

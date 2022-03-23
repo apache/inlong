@@ -26,6 +26,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,8 +36,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class GsonUtil {

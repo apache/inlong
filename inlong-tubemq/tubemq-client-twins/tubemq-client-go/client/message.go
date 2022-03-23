@@ -17,6 +17,7 @@
 
 package client
 
+// Message represents a TubeMQ message.
 type Message struct {
 	Topic      string
 	Data       []byte

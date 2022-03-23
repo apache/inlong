@@ -18,19 +18,23 @@
 #
 FROM openjdk:8-jdk
 RUN apt-get update \
-    && apt-get install -y libsnappy-java net-tools \
+    && apt-get install -y libsnappy-java net-tools vim \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /opt/inlong-agent
 # add tarball from target output
 ARG AGENT_TARBALL
 ADD ${AGENT_TARBALL} /opt/inlong-agent
 RUN cp /usr/share/java/snappy-java.jar lib/snappy-java-*.jar
+# add mysql connector
+RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.26/mysql-connector-java-8.0.26.jar
 EXPOSE 8008
 ENV MANAGER_OPENAPI_IP=127.0.0.1
 ENV MANAGER_OPENAPI_PORT=8082
 ENV DATAPROXY_IP=127.0.0.1
 ENV DATAPROXY_PORT=46801
 ENV ETH_NETWORK=eth0
+ENV AGENT_FETCH_INTERVAL=10
+ENV AGENT_HEARTBEAT_INTERVAL=10
 ADD agent-docker.sh bin/
 RUN chmod +x bin/agent-docker.sh
 CMD ["bin/agent-docker.sh"]

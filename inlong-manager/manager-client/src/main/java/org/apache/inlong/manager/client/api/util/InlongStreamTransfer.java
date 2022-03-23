@@ -17,13 +17,16 @@
 
 package org.apache.inlong.manager.client.api.util;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.client.api.StreamField;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class InlongStreamTransfer {
 
@@ -34,7 +37,11 @@ public class InlongStreamTransfer {
         dataStreamInfo.setInlongStreamId(streamId);
         dataStreamInfo.setName(streamConf.getName());
         dataStreamInfo.setDataEncoding(streamConf.getCharset().name());
-        dataStreamInfo.setMqResourceObj(streamId);
+        if (StringUtils.isEmpty(streamConf.getTopic())) {
+            dataStreamInfo.setMqResourceObj(streamId);
+        } else {
+            dataStreamInfo.setMqResourceObj(streamConf.getTopic());
+        }
         dataStreamInfo.setSyncSend(streamConf.isStrictlyOrdered() ? 1 : 0);
         dataStreamInfo.setDataSeparator(String.valueOf(streamConf.getDataSeparator().getAsciiCode()));
         dataStreamInfo.setDescription(streamConf.getDescription());
@@ -43,6 +50,9 @@ public class InlongStreamTransfer {
         dataStreamInfo.setDailyStorage(streamConf.getDailyStorage());
         dataStreamInfo.setPeakRecords(streamConf.getPeakRecords());
         dataStreamInfo.setHavePredefinedFields(0);
+        if (CollectionUtils.isNotEmpty(streamConf.getStreamFields())) {
+            dataStreamInfo.setFieldList(createStreamFields(streamConf.getStreamFields(), dataStreamInfo));
+        }
         return dataStreamInfo;
     }
 

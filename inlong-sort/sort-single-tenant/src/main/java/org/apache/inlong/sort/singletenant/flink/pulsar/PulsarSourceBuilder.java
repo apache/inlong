@@ -21,7 +21,9 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.flink.pulsar.PulsarDeserializationSchema;
 import org.apache.inlong.sort.flink.pulsar.PulsarSourceFunction;
+import org.apache.inlong.sort.flink.pulsar.TDMQPulsarSourceFunction;
 import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
+import org.apache.inlong.sort.protocol.source.TDMQPulsarSourceInfo;
 import org.apache.inlong.sort.singletenant.flink.SerializedRecord;
 import org.apache.pulsar.client.api.Message;
 
@@ -52,6 +54,31 @@ public class PulsarSourceBuilder {
                 sourceInfo.getTopic(),
                 sourceInfo.getSubscriptionName(),
                 sourceInfo.getAuthentication(),
+                new PulsarDeserializationSchemaImpl(),
+                flinkConfig
+        );
+    }
+
+    public static TDMQPulsarSourceFunction<SerializedRecord> buildTDMQPulsarSource(
+            TDMQPulsarSourceInfo tdmqPulsarSourceInfo,
+            Configuration config,
+            Map<String, Object> properties
+    ) {
+        Map<String, String> configMap = config.toMap();
+        if (properties != null && !properties.isEmpty()) {
+            for (Map.Entry<String, Object> entry : properties.entrySet()) {
+                configMap.put(entry.getKey(), entry.getValue().toString());
+            }
+        }
+
+        org.apache.flink.configuration.Configuration flinkConfig =
+                org.apache.flink.configuration.Configuration.fromMap(configMap);
+
+        return new TDMQPulsarSourceFunction<>(
+                tdmqPulsarSourceInfo.getServiceUrl(),
+                tdmqPulsarSourceInfo.getTopic(),
+                tdmqPulsarSourceInfo.getSubscriptionName(),
+                tdmqPulsarSourceInfo.getAuthentication(),
                 new PulsarDeserializationSchemaImpl(),
                 flinkConfig
         );

@@ -24,7 +24,7 @@
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
-        <result column="ip" jdbcType="VARCHAR" property="ip"/>
+        <result column="ip" jdbcType="LONGVARCHAR" property="ip"/>
         <result column="port" jdbcType="INTEGER" property="port"/>
         <result column="url" jdbcType="VARCHAR" property="url"/>
         <result column="token" jdbcType="VARCHAR" property="token"/>
@@ -43,17 +43,7 @@
         id, name, type, ip, port, url, token, is_backup, mq_set_name, ext_params, in_charges,
         status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
-    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from third_party_cluster
-        where id = #{id,jdbcType=INTEGER}
-    </select>
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-        delete
-        from third_party_cluster
-        where id = #{id,jdbcType=INTEGER}
-    </delete>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
         insert into third_party_cluster (id, name, type,
@@ -63,7 +53,7 @@
                                          status, is_deleted, creator,
                                          modifier, create_time, modify_time)
         values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
-                #{ip,jdbcType=VARCHAR}, #{port,jdbcType=INTEGER}, #{url,jdbcType=VARCHAR},
+                #{ip,jdbcType=LONGVARCHAR}, #{port,jdbcType=INTEGER}, #{url,jdbcType=VARCHAR},
                 #{token,jdbcType=VARCHAR}, #{isBackup,jdbcType=INTEGER}, #{mqSetName,jdbcType=VARCHAR},
                 #{extParams,jdbcType=LONGVARCHAR}, #{inCharges,jdbcType=VARCHAR},
                 #{status,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
@@ -136,7 +126,7 @@
                 #{type,jdbcType=VARCHAR},
             </if>
             <if test="ip != null">
-                #{ip,jdbcType=VARCHAR},
+                #{ip,jdbcType=LONGVARCHAR},
             </if>
             <if test="port != null">
                 #{port,jdbcType=INTEGER},
@@ -179,6 +169,78 @@
             </if>
         </trim>
     </insert>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from third_party_cluster
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectByCondition" parameterType="org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest"
+            resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from third_party_cluster
+        <where>
+            is_deleted = 0
+            <if test="type != null and type != ''">
+                and `type` = #{type, jdbcType=VARCHAR}
+            </if>
+            <if test="ip != null and ip != ''">
+                and ip like CONCAT('%',#{ip},'%')
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status, jdbcType=INTEGER}
+            </if>
+            <if test="mqSetName != null and mqSetName != ''">
+                and mq_set_name = #{mqSetName, jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by modify_time desc
+    </select>
+    <select id="selectByIdList" resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from third_party_cluster
+        <where>
+            <if test="idList != null and idList.size()>0">
+                and id in
+                <foreach item="item" index="index" collection="idList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="selectByType" resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from third_party_cluster
+        where is_deleted = 0
+        and `type` = #{type, jdbcType=VARCHAR}
+    </select>
+    <select id="selectByName" resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from third_party_cluster
+        where is_deleted = 0
+        and name = #{name, jdbcType=VARCHAR}
+    </select>
+    <select id="selectMQCluster" resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from third_party_cluster
+        <where>
+            is_deleted = 0
+            and mq_set_name = #{mqSetName, jdbcType=VARCHAR}
+            <if test="typeList != null and typeList.size()>0">
+                and `type` in
+                <foreach item="item" index="index" collection="typeList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
     <update id="updateByPrimaryKeySelective"
             parameterType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
         update third_party_cluster
@@ -190,7 +252,7 @@
                 type = #{type,jdbcType=VARCHAR},
             </if>
             <if test="ip != null">
-                ip = #{ip,jdbcType=VARCHAR},
+                ip = #{ip,jdbcType=LONGVARCHAR},
             </if>
             <if test="port != null">
                 port = #{port,jdbcType=INTEGER},
@@ -238,7 +300,7 @@
         update third_party_cluster
         set name        = #{name,jdbcType=VARCHAR},
             type        = #{type,jdbcType=VARCHAR},
-            ip          = #{ip,jdbcType=VARCHAR},
+            ip          = #{ip,jdbcType=LONGVARCHAR},
             port        = #{port,jdbcType=INTEGER},
             url         = #{url,jdbcType=VARCHAR},
             token       = #{token,jdbcType=VARCHAR},
@@ -255,41 +317,9 @@
         where id = #{id,jdbcType=INTEGER}
     </update>
 
-    <select id="selectByCondition" parameterType="org.apache.inlong.manager.common.pojo.cluster.ClusterRequest"
-            resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
-        select
-        <include refid="Base_Column_List"/>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
         from third_party_cluster
-        <where>
-            is_deleted = 0
-            <if test="type != null and type != ''">
-                and `type` = #{type, jdbcType=VARCHAR}
-            </if>
-            <if test="ip != null and ip != ''">
-                and ip like CONCAT('%',#{ip},'%')
-            </if>
-            <if test="isBackup != null and isBackup != ''">
-                and is_backup = #{isBackup, jdbcType=INTEGER}
-            </if>
-            <if test="status != null and status != ''">
-                and status = #{status, jdbcType=INTEGER}
-            </if>
-            <if test="mqSetName != null and mqSetName != ''">
-                and mq_set_name = #{mqSetName, jdbcType=VARCHAR}
-            </if>
-        </where>
-    </select>
-    <select id="selectByIdList" resultType="org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity">
-        select
-        <include refid="Base_Column_List"/>
-        from third_party_cluster
-        <where>
-            <if test="idList != null and idList.size()>0">
-                and id in
-                <foreach item="item" index="index" collection="idList" open="(" close=")" separator=",">
-                    #{item}
-                </foreach>
-            </if>
-        </where>
-    </select>
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
 </mapper>

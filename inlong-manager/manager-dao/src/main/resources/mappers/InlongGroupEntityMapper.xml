@@ -79,6 +79,13 @@
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
         and is_deleted = 0
     </select>
+    <select id="selectByGroupIdForUpdate" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_group
+        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        and is_deleted = 0 for update
+    </select>
     <select id="selectIdentifierExist" resultType="java.lang.Integer">
         select count(1)
         from inlong_group
@@ -106,7 +113,19 @@
                 )
             </if>
             <if test="keyWord != null and keyWord != ''">
-                and (inlong_group_id like CONCAT('%',#{keyWord},'%') or id like CONCAT('%',#{keyWord},'%'))
+                and (inlong_group_id like CONCAT('%',#{keyWord},'%') or name like CONCAT('%',#{keyWord},'%'))
+            </if>
+            <if test="groupIdList != null and groupIdList.size() > 0">
+                and inlong_group_id in
+                <foreach collection="groupIdList" item="inlongGroupId" index="index" open="(" close=")" separator=",">
+                    #{inlongGroupId}
+                </foreach>
+            </if>
+            <if test="nameList != null and nameList.size() > 0">
+                and name in
+                <foreach collection="nameList" item="name" index="index" open="(" close=")" separator=",">
+                    #{name}
+                </foreach>
             </if>
             <if test="middlewareType != null and middlewareType != ''">
                 and middleware_type = #{middlewareType, jdbcType=VARCHAR}

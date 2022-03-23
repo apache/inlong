@@ -75,11 +75,12 @@ public class PulsarZoneSinkContext extends SinkContext {
         Map<String, String> producerParams = context.getSubProperties(PREFIX_PRODUCER);
         this.producerContext = new Context(producerParams);
         // idTopicHolder
+        Context commonPropertiesContext = new Context(CommonPropertiesHolder.get());
         this.idTopicHolder = new IdTopicConfigHolder();
-        this.idTopicHolder.configure(context);
+        this.idTopicHolder.configure(commonPropertiesContext);
         // cacheHolder
         this.cacheHolder = new CacheClusterConfigHolder();
-        this.cacheHolder.configure(context);
+        this.cacheHolder.configure(commonPropertiesContext);
     }
 
     /**
@@ -171,7 +172,7 @@ public class PulsarZoneSinkContext extends SinkContext {
      */
     public void addSendMetric(DispatchProfile currentRecord, String bid) {
         Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
         // metric
         fillInlongId(currentRecord, dimensions);
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
@@ -191,7 +192,7 @@ public class PulsarZoneSinkContext extends SinkContext {
      */
     public void addSendFailMetric() {
         Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
         long msgTime = System.currentTimeMillis();
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
@@ -225,13 +226,13 @@ public class PulsarZoneSinkContext extends SinkContext {
      */
     public void addSendResultMetric(DispatchProfile currentRecord, String bid, boolean result, long sendTime) {
         Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
         // metric
         fillInlongId(currentRecord, dimensions);
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
         dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, bid);
-        long msgTime = currentRecord.getDispatchTime();
-        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        long dispatchTime = currentRecord.getDispatchTime();
+        long auditFormatTime = dispatchTime - dispatchTime % CommonPropertiesHolder.getAuditFormatInterval();
         dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         DataProxyMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
         long count = currentRecord.getCount();
@@ -246,11 +247,11 @@ public class PulsarZoneSinkContext extends SinkContext {
                 long currentTime = System.currentTimeMillis();
                 currentRecord.getEvents().forEach((event) -> {
                     long sinkDuration = currentTime - sendTime;
-                    long nodeDuration = currentTime - event.getMsgTime();
-                    long wholeDuration = currentTime - msgTime;
-                    metricItem.sinkDuration.addAndGet(sinkDuration * count);
-                    metricItem.nodeDuration.addAndGet(nodeDuration * count);
-                    metricItem.wholeDuration.addAndGet(wholeDuration * count);
+                    long nodeDuration = currentTime - event.getSourceTime();
+                    long wholeDuration = currentTime - event.getMsgTime();
+                    metricItem.sinkDuration.addAndGet(sinkDuration);
+                    metricItem.nodeDuration.addAndGet(nodeDuration);
+                    metricItem.wholeDuration.addAndGet(wholeDuration);
                 });
             }
         } else {

@@ -17,8 +17,13 @@
 
 package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
+import com.github.pagehelper.PageInfo;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterResponse;
+import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
 
 import java.util.List;
 
@@ -27,56 +32,70 @@ import java.util.List;
  */
 public interface ThirdPartyClusterService {
 
+
+    /**
+     * Save cluster info.
+     *
+     * @param request Cluster info.
+     * @param operator Current operator.
+     * @return ID after saving.
+     */
+    Integer save(ClusterRequest request, String operator);
+
+    /**
+     * Get cluster info by id.
+     *
+     * @param id Cluster ID.
+     * @return Cluster info.
+     */
+    ClusterResponse get(Integer id);
+
+    /**
+     * Paging query clusters according to conditions.
+     *
+     * @param request Query conditions.
+     * @return Cluster list.
+     */
+    PageInfo<ClusterResponse> list(ClusterPageRequest request);
+
     List<String> listClusterIpByType(String type);
-
-    /**
-     * Find cluster information based on type
-     *
-     * @param request Query conditions
-     * @return Cluster information
-     */
-    List<ClusterInfo> list(ClusterRequest request);
-
-    /**
-     * Query cluster information according to the list of cluster IDs
-     *
-     * @param clusterIdList Cluster ID list
-     * @return Cluster information
-     */
-    List<ClusterInfo> getClusterInfoByIdList(List<Integer> clusterIdList);
-
-    /**
-     * Save cluster information
-     *
-     * @param clusterInfo Cluster information
-     * @param operator Current operator
-     * @return ID after saving
-     */
-    Integer save(ClusterInfo clusterInfo, String operator);
 
     /**
      * Change cluster information
      *
-     * @param clusterInfo The information to be modified
+     * @param request The cluster info to be modified
      * @param operator Current operator
      * @return Whether succeed
      */
-    Boolean update(ClusterInfo clusterInfo, String operator);
+    Boolean update(ClusterRequest request, String operator);
 
     /**
      * Delete cluster information
      *
-     * @param id       Cluster ID to be deleted
+     * @param id Cluster ID to be deleted
      * @param operator Current operator
      * @return Whether succeed
      */
     Boolean delete(Integer id, String operator);
 
     /**
-     * Save cluster information
+     * Query data proxy ip list by the given cluster name.
      *
-     * @param id Cluster ID
-     * @return Cluster information succeed
+     * @param clusterName Cluster name.
+     * @return Data proxy info list.
      */
-    ClusterInfo get(Integer id);
+    List<DataProxyResponse> getIpList(String clusterName);
+
+    /**
+     * query data proxy config by cluster id
+     *
+     * @return data proxy config
+     */
+    List<DataProxyConfig> getConfig();
+
+    /**
+     * query data proxy config by cluster id, result includes pulsar cluster configs and topic etc
+     */
+    ThirdPartyClusterDTO getConfigV2(String dataproxyClusterName);
+
 }

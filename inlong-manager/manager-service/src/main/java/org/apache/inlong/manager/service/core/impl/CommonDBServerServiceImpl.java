@@ -102,6 +102,9 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
         }
 
         CommonDbServerEntity record = CommonBeanUtils.copyProperties(info, CommonDbServerEntity::new);
+        if (record.getAccessType() == null || record.getAccessType().isEmpty()) {
+            record.setAccessType("Agent");
+        }
         record.setStatus(0);
         String userName = LoginUserUtils.getLoginUserDetail().getUserName();
         record.setCreator(userName);
@@ -118,7 +121,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
     }
 
     private void checkValidity(CommonDbServerInfo commonDbServerInfo) throws Exception {
-        if (commonDbServerInfo.getId() > 0) {
+        if (commonDbServerInfo.getId() != null && commonDbServerInfo.getId() > 0) {
             throw new IllegalArgumentException("CommonDbServer id [" + commonDbServerInfo.getId()
                     + "] has already exists, please check");
         }

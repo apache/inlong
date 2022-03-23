@@ -20,6 +20,7 @@ file_path=$(cd "$(dirname "$0")";pwd)
 # config
 cat <<EOF > ${file_path}/../conf/application.properties
 spring.jpa.hibernate.ddl-auto=update
+spring.mvc.pathmatch.matching-strategy = ANT_PATH_MATCHER
 # configuration for admin
 topic.config.schedule=0/5 * * * * ?
 broker.reload.schedule=0/5 * * * * ?

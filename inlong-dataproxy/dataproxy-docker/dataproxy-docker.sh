@@ -18,11 +18,8 @@
 
 file_path=$(cd "$(dirname "$0")"/../;pwd)
 # config
-cat <<EOF > ${file_path}/conf/common.properties
-manager_hosts=$MANAGER_OPENAPI_IP:$MANAGER_OPENAPI_PORT
-EOF
+sed -i "s/127.0.0.1:8083/$MANAGER_OPENAPI_IP:$MANAGER_OPENAPI_PORT/g" ${file_path}/conf/common.properties
 # start
-bash +x ${file_path}/bin/prepare_env.sh
 bash +x ${file_path}/bin/dataproxy-start.sh
 sleep 3
 # keep alive

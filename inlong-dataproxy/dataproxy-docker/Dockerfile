@@ -17,12 +17,15 @@
 # under the License.
 #
 FROM openjdk:8-jdk
+RUN apt-get update \
+    && apt-get install -y net-tools vim \
+    && rm -rf /var/lib/apt/lists/*
 # add tarball from target output
 ARG DATAPROXY_TARBALL
 ADD ${DATAPROXY_TARBALL} /opt/inlong-dataproxy
 EXPOSE 46801
 ENV MANAGER_OPENAPI_IP=127.0.0.1
-ENV MANAGER_OPENAPI_PORT=8082
+ENV MANAGER_OPENAPI_PORT=8083
 WORKDIR /opt/inlong-dataproxy
 ADD dataproxy-docker.sh bin/
 RUN chmod +x bin/dataproxy-docker.sh

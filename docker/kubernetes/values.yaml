@@ -125,7 +125,7 @@ audit:
       cpu: 0.5
       memory: "512Mi"
   ports:
-    webPort: 8008
+    webPort: 10081
 
 # If not exists external MySQL, InLong will use it.
 mysql:

@@ -51,6 +51,15 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
         this.recordKey = KeyBuilderUtils.buildTopicConfRecKey(brokerId, topicName);
     }
 
+    public TopicDeployEntity(BaseEntity opInfoEntity, int brokerId,
+                             String topicName, TopicPropGroup topicProps) {
+        super(opInfoEntity);
+        this.brokerId = brokerId;
+        this.topicName = topicName;
+        this.recordKey = KeyBuilderUtils.buildTopicConfRecKey(brokerId, topicName);
+        this.topicProps.updModifyInfo(topicProps);
+    }
+
     /**
      * Constructor by BdbTopicConfEntity
      *
@@ -256,13 +265,16 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
      * Check whether the specified query item value matches
      * Allowed query items:
      *   brokerId, topicId, topicName, topicStatus
+     *
+     * @param target  the matched object
+     * @param fullMatch  whether match parent parameters
      * @return true: matched, false: not match
      */
-    public boolean isMatched(TopicDeployEntity target) {
+    public boolean isMatched(TopicDeployEntity target, boolean fullMatch) {
         if (target == null) {
             return true;
         }
-        if (!super.isMatched(target)) {
+        if (fullMatch && !super.isMatched(target)) {
             return false;
         }
         return (target.getBrokerId() == TBaseConstants.META_VALUE_UNDEFINED
@@ -286,7 +298,7 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
      * @param sBuilder   build container
      * @param isLongName if return field key is long name
      * @param fullFormat if return full format json
-     * @return
+     * @return  the serialized content
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
                                       boolean isLongName,

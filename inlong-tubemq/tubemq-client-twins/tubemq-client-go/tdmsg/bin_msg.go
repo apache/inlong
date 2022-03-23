@@ -57,67 +57,78 @@ func newBinMsg(data []byte) (*binMsg, error) {
 	bm := &binMsg{}
 	rem := uint32(len(data))
 	if rem < 4 {
-		return nil, errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for data v4 totalLen parameter")
+		return nil, errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for data v4 totalLen parameter")
 	}
 	rem -= 4
 
 	if rem < 1 {
-		return nil, errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for data v4 msgType parameter")
+		return nil, errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for data v4 msgType parameter")
 	}
 	bm.msgType = data[binMsgMsgTypeOffset]
 	rem -= 1
 
 	if rem < 2 {
-		return nil, errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for data v4 bidNum parameter")
+		return nil, errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for data v4 bidNum parameter")
 	}
 	bm.bidNum = binary.BigEndian.Uint16(data[binMsgBidOffset : binMsgBidOffset+2])
 	rem -= 2
 
 	if rem < 2 {
-		return nil, errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for data v4 tidNum parameter")
+		return nil, errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for data v4 tidNum parameter")
 	}
 	bm.tidNum = binary.BigEndian.Uint16(data[binMsgTidOffset : binMsgTidOffset+2])
 	rem -= 2
 
 	if rem < 2 {
-		return nil, errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for data v4 extField parameter")
+		return nil, errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for data v4 extField parameter")
 	}
 	bm.extField = binary.BigEndian.Uint16(data[binMsgExtFieldOffset : binMsgExtFieldOffset+2])
 	rem -= 2
 
 	if rem < 4 {
-		return nil, errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for data v4 dataTime parameter")
+		return nil, errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for data v4 dataTime parameter")
 	}
 	dateTime := binary.BigEndian.Uint32(data[binMsgDateTimeOffset : binMsgDateTimeOffset+4])
 	rem -= 4
 	bm.dateTime = uint64(dateTime) * 1000
 
 	if rem < 2 {
-		return nil, errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for data v4 cnt parameter")
+		return nil, errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for data v4 cnt parameter")
 	}
 	bm.msgCount = binary.BigEndian.Uint16(data[binMsgCountOffset : binMsgCountOffset+2])
 	rem -= 2
 
 	// for uniqueID
 	if rem < 4 {
-		return nil, errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for data v4 uniq parameter")
+		return nil, errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for data v4 uniq parameter")
 	}
 	rem -= 4
 
 	if rem < 4 {
-		return nil, errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for data v4 bodyLen parameter")
+		return nil, errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for data v4 bodyLen parameter")
 	}
 	bm.bodyLen = binary.BigEndian.Uint32(data[binMsgBodyLenOffset : binMsgBodyLenOffset+4])
 	rem -= 4
 
 	if rem < bm.bodyLen+2 {
-		return nil, errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for data v4 attr_len parameter")
+		return nil, errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for data v4 attr_len parameter")
 	}
 	attrLenPos := binMsgBodyOffset + bm.bodyLen
 	bm.attrLen = binary.BigEndian.Uint16(data[attrLenPos : attrLenPos+binMsgAttrLenSize])
 
 	if rem < uint32(bm.attrLen)+2 {
-		return nil, errs.New(errs.RetTDMsgParseFailure, "parse message error: no enough data length for v4 msgMagic data")
+		return nil, errs.New(errs.RetTDMsgParseFailure,
+			"parse message error: no enough data length for v4 msgMagic data")
 	}
 	magicPos := binMsgBodyOffset + bm.bodyLen + binMsgAttrLenSize + uint32(bm.attrLen)
 	bm.magic = binary.BigEndian.Uint16(data[magicPos : magicPos+binMsgMagicSize])

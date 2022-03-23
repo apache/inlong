@@ -20,27 +20,27 @@ package org.apache.inlong.agent.plugin.metrics;
 public interface PluginMetric {
 
     /**
-     * @return The tag name of plugin metrics.
+     * The tag name of plugin metrics.
      */
     String getTagName();
 
     /**
-     * Increment the count of the read number metric.
+     *  Increment the count of the read number metric.
      */
     void incReadNum();
 
     /**
-     * @return Count of the read number metric.
+     *  Count of the read number metric.
      */
     long getReadNum();
 
     /**
-     * Increment the count of the send number metric.
+     *  Increment the count of the send number metric.
      */
     void incSendNum();
 
     /**
-     * @return Count of the send number metric.
+     *  Count of the send number metric.
      */
     long getSendNum();
 
@@ -50,7 +50,7 @@ public interface PluginMetric {
     void incReadFailedNum();
 
     /**
-     * @return Count of the read failed number metric.
+     *  Count of the read failed number metric.
      */
     long getReadFailedNum();
 
@@ -60,7 +60,7 @@ public interface PluginMetric {
     void incSendFailedNum();
 
     /**
-     * @return Count of the send failed number metric.
+     *  Count of the send failed number metric.
      */
     long getSendFailedNum();
 
@@ -70,7 +70,7 @@ public interface PluginMetric {
     void incReadSuccessNum();
 
     /**
-     * @return Count of the read success number metric.
+     *  Count of the read success number metric.
      */
     long getReadSuccessNum();
 
@@ -87,7 +87,7 @@ public interface PluginMetric {
     void incSendSuccessNum(int delta);
 
     /**
-     * @return Count of the send success number metric.
+     *  Count of the send success number metric.
      */
     long getSendSuccessNum();
 

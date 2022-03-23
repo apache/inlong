@@ -36,6 +36,9 @@ public abstract class AbstractFileConfig {
     protected static final String SECT_TOKEN_TLS = "tlsSetting";
     protected static final String SECT_TOKEN_ZKEEPER = "zookeeper";
     protected static final String SECT_TOKEN_REPLICATION = "replication";
+    protected static final String SECT_TOKEN_META_BDB = "meta_bdb";
+    protected static final String SECT_TOKEN_META_ZK = "meta_zookeeper";
+
     private static final Logger logger =
             LoggerFactory.getLogger(AbstractFileConfig.class);
     private String basePath;

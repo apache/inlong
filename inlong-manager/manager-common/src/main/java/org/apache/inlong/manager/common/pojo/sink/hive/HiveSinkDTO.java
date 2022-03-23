@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * Hive sink info
@@ -55,11 +56,8 @@ public class HiveSinkDTO {
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @ApiModelProperty("HDFS defaultFS")
-    private String hdfsDefaultFs;
-
-    @ApiModelProperty("Warehouse directory")
-    private String warehouseDir;
+    @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
+    private String dataPath;
 
     @ApiModelProperty("Partition interval, support: 1 H, 1 D, 30 I, 10 I")
     private Integer partitionInterval;
@@ -85,6 +83,9 @@ public class HiveSinkDTO {
     @ApiModelProperty("Data field separator")
     private String dataSeparator;
 
+    @ApiModelProperty("Properties for hive")
+    private Map<String, Object> properties;
+
     /**
      * Get the dto instance from the request
      */
@@ -95,8 +96,7 @@ public class HiveSinkDTO {
                 .password(request.getPassword())
                 .dbName(request.getDbName())
                 .tableName(request.getTableName())
-                .hdfsDefaultFs(request.getHdfsDefaultFs())
-                .warehouseDir(request.getWarehouseDir())
+                .dataPath(request.getDataPath())
                 .partitionInterval(request.getPartitionInterval())
                 .partitionUnit(request.getPartitionUnit())
                 .primaryPartition(request.getPrimaryPartition())
@@ -105,6 +105,7 @@ public class HiveSinkDTO {
                 .fileFormat(request.getFileFormat())
                 .dataEncoding(request.getDataEncoding())
                 .dataSeparator(request.getDataSeparator())
+                .properties(request.getProperties())
                 .build();
     }
 

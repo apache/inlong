@@ -17,11 +17,6 @@
 
 package org.apache.inlong.dataproxy.source.tcp;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,11 +27,18 @@ import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.source.SourceContext;
 import org.apache.inlong.sdk.commons.protocol.EventUtils;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
+import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessagePack;
+import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessagePackHeader;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResponseInfo;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResultCode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 
 /**
  * InlongTcpChannelHandler
@@ -126,7 +128,8 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
         byte[] msgBytes = new byte[bodyLength];
         cb.readBytes(msgBytes);
         // decode
-        List<ProxyEvent> events = EventUtils.decodeSdkPack(msgBytes, 0, bodyLength);
+        MessagePack packObject = MessagePack.parseFrom(msgBytes);
+        List<ProxyEvent> events = EventUtils.decodeSdkPack(packObject);
         // topic
         for (ProxyEvent event : events) {
             String uid = event.getUid();
@@ -141,11 +144,11 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
             } catch (Throwable ex) {
                 LOG.error("Process Controller Event error can't write event to channel.", ex);
                 this.addMetric(false, event.getBody().length, event);
-                this.responsePackage(ctx, ResultCode.ERR_REJECT);
+                this.responsePackage(ctx, ResultCode.ERR_REJECT, packObject);
                 return;
             }
         }
-        this.responsePackage(ctx, ResultCode.SUCCUSS);
+        this.responsePackage(ctx, ResultCode.SUCCUSS, packObject);
     }
 
     /**
@@ -176,14 +179,16 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
     /**
      * responsePackage
      *
-     * @param ctx
+     * @param  ctx
      * @param  code
      * @throws Exception
      */
-    private void responsePackage(ChannelHandlerContext ctx, ResultCode code)
+    private void responsePackage(ChannelHandlerContext ctx, ResultCode code, MessagePack packObject)
             throws Exception {
         ResponseInfo.Builder builder = ResponseInfo.newBuilder();
         builder.setResult(code);
+        MessagePackHeader header = packObject.getHeader();
+        builder.setPackId(header.getPackId());
 
         // encode
         byte[] responseBytes = builder.build().toByteArray();
@@ -228,7 +233,7 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
     /**
      * channelInactive
      *
-     * @param ctx
+     * @param  ctx
      * @throws Exception
      */
     @Override
@@ -248,7 +253,7 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
     /**
      * channelActive
      *
-     * @param ctx
+     * @param  ctx
      * @throws Exception
      */
     @Override

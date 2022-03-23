@@ -75,23 +75,18 @@ public class ConfigManager {
 
     /**
      * get instance for manager
-     *
-     * @return
      */
     public static ConfigManager getInstance() {
-
         if (isInit && instance != null) {
             return instance;
         }
         synchronized (ConfigManager.class) {
             if (!isInit) {
                 instance = new ConfigManager();
-
                 for (ConfigHolder holder : CONFIG_HOLDER_LIST) {
-
                     holder.loadFromFileToHolder();
                 }
-                ReloadConfigWorker reloadProperties = new ReloadConfigWorker(instance);
+                ReloadConfigWorker reloadProperties = ReloadConfigWorker.create(instance);
                 reloadProperties.setDaemon(true);
                 reloadProperties.start();
             }
@@ -217,15 +212,19 @@ public class ConfigManager {
     /**
      * load worker
      */
-    private static class ReloadConfigWorker extends Thread {
+    public static class ReloadConfigWorker extends Thread {
 
         private static final Logger LOG = LoggerFactory.getLogger(ReloadConfigWorker.class);
         private final ConfigManager configManager;
         private final CloseableHttpClient httpClient;
         private final Gson gson = new Gson();
         private boolean isRunning = true;
+        
+        public static ReloadConfigWorker create(ConfigManager managerInstance) {
+            return new ReloadConfigWorker(managerInstance);
+        }
 
-        public ReloadConfigWorker(ConfigManager managerInstance) {
+        private ReloadConfigWorker(ConfigManager managerInstance) {
             this.configManager = managerInstance;
             this.httpClient = constructHttpClient();
         }
@@ -351,10 +350,12 @@ public class ConfigManager {
         }
 
         private void checkRemoteConfig() {
-
             try {
                 String managerHosts = configManager.getCommonProperties().get("manager_hosts");
                 String proxyClusterName = configManager.getCommonProperties().get("proxy_cluster_name");
+                if (StringUtils.isEmpty(managerHosts) || StringUtils.isEmpty(proxyClusterName)) {
+                    return;
+                }
                 String[] hostList = StringUtils.split(managerHosts, ",");
                 for (String host : hostList) {
 

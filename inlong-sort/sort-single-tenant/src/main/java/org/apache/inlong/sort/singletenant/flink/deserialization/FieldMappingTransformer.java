@@ -98,9 +98,11 @@ public class FieldMappingTransformer implements Serializable {
             case MYSQL_METADATA_TABLE:
                 return attributes.get(MysqlBinLogData.MYSQL_METADATA_TABLE);
             case MYSQL_METADATA_IS_DDL:
-                return BooleanFormatInfo.INSTANCE.deserialize(attributes.get(MysqlBinLogData.MYSQL_METADATA_IS_DDL));
+                String isDdlStr = attributes.get(MysqlBinLogData.MYSQL_METADATA_IS_DDL);
+                return isDdlStr == null ? null : BooleanFormatInfo.INSTANCE.deserialize(isDdlStr);
             case MYSQL_METADATA_EVENT_TIME:
-                return LongFormatInfo.INSTANCE.deserialize(attributes.get(MysqlBinLogData.MYSQL_METADATA_EVENT_TIME));
+                String eventTimeStr = attributes.get(MysqlBinLogData.MYSQL_METADATA_EVENT_TIME);
+                return eventTimeStr == null ? null : LongFormatInfo.INSTANCE.deserialize(eventTimeStr);
             case MYSQL_METADATA_EVENT_TYPE:
                 return kind.shortString();
             case MYSQL_METADATA_DATA:

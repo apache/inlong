@@ -28,9 +28,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
-import org.apache.inlong.sort.standalone.config.pojo.SortClusterConfig;
-import org.apache.inlong.sort.standalone.config.pojo.SortClusterResponse;
+import org.apache.inlong.sort.standalone.config.holder.ManagerUrlHandler;
 import org.slf4j.Logger;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
@@ -85,7 +86,7 @@ public class ManagerSortClusterConfigLoader implements SortClusterConfigLoader {
         HttpGet httpGet = null;
         try {
             String clusterName = this.context.getString(CommonPropertiesHolder.KEY_CLUSTER_ID);
-            String url = this.context.getString(SORT_CLUSTER_CONFIG_MANAGER) + "?apiVersion=1.0&clusterName="
+            String url = ManagerUrlHandler.getSortClusterConfigUrl() + "?apiVersion=1.0&clusterName="
                     + clusterName + "&md5=";
             if (StringUtils.isNotBlank(this.md5)) {
                 url += this.md5;
@@ -101,8 +102,10 @@ public class ManagerSortClusterConfigLoader implements SortClusterConfigLoader {
             // get groupId <-> topic and m value.
 
             SortClusterResponse clusterResponse = gson.fromJson(returnStr, SortClusterResponse.class);
-            if (!clusterResponse.isResult()) {
-                LOG.info("Fail to get config info from url:{}, error code is {}", url, clusterResponse.getErrCode());
+            int errCode = clusterResponse.getCode();
+            if (errCode != SortClusterResponse.SUCC && errCode != SortClusterResponse.NOUPDATE) {
+                LOG.info("Fail to get config info from url:{}, error code is {}, msg is {}",
+                        url, clusterResponse.getCode(), clusterResponse.getMsg());
                 return null;
             }
 

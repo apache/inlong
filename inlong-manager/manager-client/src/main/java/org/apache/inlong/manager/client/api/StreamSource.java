@@ -20,11 +20,45 @@ package org.apache.inlong.manager.client.api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.enums.SourceType;
 
 @Data
 @ApiModel("Stream source configuration")
 public abstract class StreamSource {
+
+    public enum State {
+        INIT, NORMAL, FROZING, FROZEN, FAILED, DELETING, DELETE;
+
+        public static State parseByStatus(int status) {
+            SourceState sourceState = SourceState.forCode(status);
+            switch (sourceState) {
+                case SOURCE_NEW:
+                case TO_BE_ISSUED_ADD:
+                case BEEN_ISSUED_ADD:
+                case TO_BE_ISSUED_ACTIVE:
+                case BEEN_ISSUED_ACTIVE:
+                    return INIT;
+                case SOURCE_NORMAL:
+                    return NORMAL;
+                case TO_BE_ISSUED_FROZEN:
+                case BEEN_ISSUED_FROZEN:
+                    return FROZING;
+                case SOURCE_FROZEN:
+                    return FROZEN;
+                case SOURCE_FAILED:
+                    return FAILED;
+                case TO_BE_ISSUED_DELETE:
+                case BEEN_ISSUED_DELETE:
+                    return DELETING;
+                case SOURCE_DISABLE:
+                    return DELETE;
+                default:
+                    throw new IllegalStateException(
+                            String.format("Unsupported source state=%s for Inlong", sourceState));
+            }
+        }
+    }
 
     public enum SyncType {
         FULL, INCREMENT
@@ -39,10 +73,12 @@ public abstract class StreamSource {
     @ApiModelProperty("Mac uuid of the agent running the task")
     private String uuid = "";
 
+    @ApiModelProperty("State of stream source")
+    private State state;
+
     public abstract SourceType getSourceType();
 
     public abstract SyncType getSyncType();
 
     public abstract DataFormat getDataFormat();
-
 }

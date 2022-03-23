@@ -106,8 +106,8 @@ public class TubeClusterProducer implements LifecycleAware {
 
     /**
      * initTubeConfig
-     * 
      * @return
+     *
      * @throws Exception
      */
     private TubeClientConfig initTubeConfig() throws Exception {

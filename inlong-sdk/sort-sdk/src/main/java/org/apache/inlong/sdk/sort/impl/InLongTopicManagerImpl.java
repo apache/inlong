@@ -209,7 +209,6 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
             return true;
         } catch (Throwable th) {
             logger.error("close error " + sortTaskId, th);
-
         }
         return false;
     }
@@ -283,19 +282,19 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
         }
 
         List<InLongTopic> newConsumeConfig = new ArrayList<>(currentConsumeConfig);
-        logger.info("newConsumeConfig List:{}", Arrays.toString(newConsumeConfig.toArray()));
+        logger.debug("newConsumeConfig List:{}", Arrays.toString(newConsumeConfig.toArray()));
         List<String> newTopics = getNewTopics(newConsumeConfig);
-        logger.info("newTopics :{}", Arrays.toString(newTopics.toArray()));
+        logger.debug("newTopics :{}", Arrays.toString(newTopics.toArray()));
 
         List<String> oldInLongTopics = new ArrayList<>(fetchers.keySet());
-        logger.info("oldInLongTopics :{}", Arrays.toString(oldInLongTopics.toArray()));
+        logger.debug("oldInLongTopics :{}", Arrays.toString(oldInLongTopics.toArray()));
         //get need be offlined topics
         oldInLongTopics.removeAll(newTopics);
-        logger.info("removed oldInLongTopics :{}", Arrays.toString(oldInLongTopics.toArray()));
+        logger.debug("removed oldInLongTopics :{}", Arrays.toString(oldInLongTopics.toArray()));
 
         //get new topics
         newTopics.removeAll(new ArrayList<>(fetchers.keySet()));
-        logger.info("really new topics :{}", Arrays.toString(newTopics.toArray()));
+        logger.debug("really new topics :{}", Arrays.toString(newTopics.toArray()));
         //offline need be offlined topics
         offlineRmovedTopic(oldInLongTopics);
         //online new topics
@@ -305,7 +304,7 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
     /**
      * offline inlong topic which not belong the sortTaskId
      *
-     * @param oldInLongTopics {@link List<String>}
+     * @param oldInLongTopics {@link List}
      */
     private void offlineRmovedTopic(List<String> oldInLongTopics) {
         for (String fetchKey : oldInLongTopics) {
@@ -338,7 +337,7 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
     private void onlineNewTopic(List<InLongTopic> newSubscribedInLongTopics, List<String> reallyNewTopic) {
         for (InLongTopic inLongTopic : newSubscribedInLongTopics) {
             if (!reallyNewTopic.contains(inLongTopic.getTopicKey())) {
-                logger.info("!reallyNewTopic.contains(inLongTopic.getTopicKey())");
+                logger.debug("!reallyNewTopic.contains(inLongTopic.getTopicKey())");
                 continue;
             }
             onlineTopic(inLongTopic);
@@ -377,7 +376,7 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
                             .authentication(AuthenticationFactory.token(inLongTopic.getInLongCluster().getToken()))
                             .build();
                     pulsarClients.put(inLongTopic.getInLongCluster().getClusterId(), pulsarClient);
-                    logger.info("create pulsar client succ {}",
+                    logger.debug("create pulsar client succ {}",
                             new String[]{inLongTopic.getInLongCluster().getClusterId(),
                                     inLongTopic.getInLongCluster().getBootstraps(),
                                     inLongTopic.getInLongCluster().getToken()});
@@ -387,7 +386,7 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
                     return false;
                 }
             } else {
-                logger.info("bootstrap is null {}", inLongTopic.getInLongCluster());
+                logger.error("bootstrap is null {}", inLongTopic.getInLongCluster());
                 return false;
             }
         }
@@ -405,7 +404,7 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
                     TubeConsumerCreater tubeConsumerCreater = new TubeConsumerCreater(messageSessionFactory,
                             tubeConfig);
                     tubeFactories.put(inLongTopic.getInLongCluster().getClusterId(), tubeConsumerCreater);
-                    logger.info("create tube client succ {} {} {}",
+                    logger.debug("create tube client succ {} {} {}",
                             new String[]{inLongTopic.getInLongCluster().getClusterId(),
                                     inLongTopic.getInLongCluster().getBootstraps(),
                                     inLongTopic.getInLongCluster().getToken()});

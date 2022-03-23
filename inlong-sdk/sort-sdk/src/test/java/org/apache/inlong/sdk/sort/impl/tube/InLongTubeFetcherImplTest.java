@@ -70,12 +70,6 @@ public class InLongTubeFetcherImplTest {
     }
 
     @Test
-    public void isValidState() {
-        InLongTubeFetcherImpl inLongTopicFetcher = new InLongTubeFetcherImpl(inLongTopic, clientContext);
-        inLongTopicFetcher.isValidState();
-    }
-
-    @Test
     public void pause() {
         InLongTubeFetcherImpl inLongTopicFetcher = new InLongTubeFetcherImpl(inLongTopic, clientContext);
         inLongTopicFetcher.pause();

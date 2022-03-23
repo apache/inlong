@@ -17,16 +17,22 @@
 
 package org.apache.inlong.manager.client.api;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.Data;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.inlong.manager.client.api.StreamSource.State;
+import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
+import org.apache.inlong.manager.client.api.util.AssertUtil;
+import org.apache.inlong.manager.client.api.util.GsonUtil;
+import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import lombok.Data;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
-import org.apache.inlong.manager.client.api.util.AssertUtil;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 
 @Data
 public class InlongGroupContext implements Serializable {
@@ -45,14 +51,19 @@ public class InlongGroupContext implements Serializable {
     private Map<String, String> extensions;
 
     /**
-     * Error message for Inlong group, taskName->logs.
+     * Logs for Inlong group, taskName->logs.
      */
-    private Map<String, List<String>> errMsgs;
+    private Map<String, List<String>> groupLogs;
+
+    /**
+     * Error message for Inlong group, taskName->exceptionMsg.
+     */
+    private Map<String, List<String>> groupErrLogs;
 
     /**
      * Logs for each stream, key: streamName, value: componentName->log
      */
-    private Map<String, Map<String, List<String>>> streamLogs = Maps.newHashMap();
+    private Map<String, Map<String, List<String>>> streamErrLogs = Maps.newHashMap();
 
     private InlongGroupState state;
 
@@ -63,8 +74,10 @@ public class InlongGroupContext implements Serializable {
         this.groupName = groupInfo.getName();
         this.groupConf = streamGroupConf;
         this.inlongStreamMap = groupContext.getStreamMap();
-        this.errMsgs = Maps.newHashMap();
+        this.groupErrLogs = Maps.newHashMap();
+        this.groupLogs = Maps.newHashMap();
         this.state = InlongGroupState.parseByBizStatus(groupInfo.getStatus());
+        recheckState();
         this.extensions = Maps.newHashMap();
         List<InlongGroupExtInfo> extInfos = groupInfo.getExtList();
         if (CollectionUtils.isNotEmpty(extInfos)) {
@@ -74,36 +87,63 @@ public class InlongGroupContext implements Serializable {
         }
     }
 
+    private void recheckState() {
+        if (MapUtils.isEmpty(this.inlongStreamMap)) {
+            return;
+        }
+        List<StreamSource> failedSources = Lists.newArrayList();
+        this.inlongStreamMap.values().stream().forEach(inlongStream -> {
+            Map<String, StreamSource> sources = inlongStream.getSources();
+            if (MapUtils.isNotEmpty(sources)) {
+                for (Map.Entry<String, StreamSource> entry : sources.entrySet()) {
+                    StreamSource source = entry.getValue();
+                    if (source.getState() == State.FAILED) {
+                        failedSources.add(source);
+                    }
+                }
+            }
+        });
+        if (CollectionUtils.isNotEmpty(failedSources)) {
+            this.state = InlongGroupState.FAILED;
+            for (StreamSource failedSource : failedSources) {
+                this.groupErrLogs.computeIfAbsent("failedSources", Lists::newArrayList)
+                        .add(GsonUtil.toJson(failedSource));
+            }
+        }
+    }
+
     public enum InlongGroupState {
         CREATE, REJECTED, INITIALIZING, OPERATING, STARTED, FAILED, STOPPED, FINISHED, DELETED;
 
         // Reference to  org.apache.inlong.manager.common.enums.GroupState code
         public static InlongGroupState parseByBizStatus(int bizCode) {
 
-            switch (bizCode) {
-                case 0:
-                case 100:
+            GroupState groupState = GroupState.forCode(bizCode);
+
+            switch (groupState) {
+                case DRAFT:
+                case TO_BE_SUBMIT:
                     return CREATE;
-                case 41:
-                case 141:
-                case 151:
+                case DELETING:
+                case SUSPENDING:
+                case RESTARTING:
                     return OPERATING;
-                case 102:
+                case APPROVE_REJECTED:
                     return REJECTED;
-                case 101:
-                case 103:
-                case 110:
+                case TO_BE_APPROVAL:
+                case APPROVE_PASSED:
+                case CONFIG_ING:
                     return INITIALIZING;
-                case 120:
+                case CONFIG_FAILED:
                     return FAILED;
-                case 130:
-                case 150:
+                case CONFIG_SUCCESSFUL:
+                case RESTARTED:
                     return STARTED;
-                case 140:
+                case SUSPENDED:
                     return STOPPED;
-                case 131:
+                case FINISH:
                     return FINISHED;
-                case 40:
+                case DELETED:
                     return DELETED;
                 default:
                     throw new IllegalArgumentException(String.format("Unsupported status %s for group", bizCode));

@@ -18,14 +18,15 @@
 package org.apache.inlong.manager.client.api.inner;
 
 import com.google.common.collect.Maps;
-import java.util.List;
-import java.util.Map;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+
+import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor

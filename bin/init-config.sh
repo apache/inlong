@@ -39,7 +39,7 @@ init_inlong_audit() {
   if [ $source_type == "pulsar" ]; then
     echo "Init audit configuration parameters"
     cd $INLONG_HOME/inlong-audit/conf
-    sed -i 's#pulsar://.*#'''${pulsar_service_url}'''#g' audit-proxy.conf
+    sed -i 's#pulsar://.*#'''${pulsar_service_url}'''#g' audit-proxy-pulsar.conf
     sed -i 's#pulsar://.*#'''${pulsar_service_url}'''#g' application.properties
     sed -i 's#jdbc:mysql://.*apache_inlong_audit#'''jdbc:mysql://${spring_datasource_hostname}:${spring_datasource_port}/apache_inlong_audit'''#g' application.properties
     sed -i 's/spring.datasource.druid.username=.*/'''spring.datasource.druid.username=${spring_datasource_username}'''/g' application.properties

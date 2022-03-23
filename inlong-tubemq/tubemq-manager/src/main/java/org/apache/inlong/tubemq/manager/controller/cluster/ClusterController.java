@@ -98,9 +98,10 @@ public class ClusterController {
         if (!req.legal()) {
             return TubeMQResult.errorResult(TubeMQErrorConst.PARAM_ILLEGAL);
         }
-        List<String> masterIps = req.getMasterIps();
-        for (String masterIp : masterIps) {
-            TubeMQResult checkResult = masterService.checkMasterNodeStatus(masterIp, req.getMasterWebPort());
+        List<MasterEntry> masterEntries = req.getMasterEntries();
+        for (MasterEntry masterEntry : masterEntries) {
+            TubeMQResult checkResult = masterService.checkMasterNodeStatus(masterEntry.getIp(),
+                    masterEntry.getWebPort());
             if (checkResult.getErrCode() != SUCCESS_CODE) {
                 return TubeMQResult.errorResult("please check master ip and webPort");
             }
@@ -160,10 +161,14 @@ public class ClusterController {
      */
     public TubeMQResult deleteCluster(DeleteClusterReq req) {
         // 1. validate params
-        if (req.getClusterId() == null || StringUtils.isEmpty(req.getModifyUser())) {
-            return TubeMQResult.errorResult("please input clusterId and modifyUser");
+        if (req.getClusterId() == null || StringUtils.isEmpty(req.getToken())) {
+            return TubeMQResult.errorResult("please input clusterId and token");
         }
         // 2. delete cluster
+        MasterEntry masterNode = masterService.getMasterNode(req.getClusterId());
+        if (!req.getToken().equals(masterNode.getToken())) {
+            return TubeMQResult.errorResult("please enter the correct token");
+        }
         clusterService.deleteCluster(req.getClusterId());
         return new TubeMQResult();
     }

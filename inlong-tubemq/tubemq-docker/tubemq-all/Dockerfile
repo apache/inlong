@@ -17,7 +17,8 @@
 FROM zookeeper:3.4
 # install tools for debug
 RUN apt-get update \
-    && apt-get install iputils-ping curl procps -y
+    && apt-get install -y net-tools vim \
+    && rm -rf /var/lib/apt/lists/*
 # add tarball from target output
 ARG TUBEMQ_TARBALL
 ADD ${TUBEMQ_TARBALL} /opt/tubemq-server

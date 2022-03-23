@@ -155,9 +155,8 @@ public class TubeSink extends AbstractSink implements Configurable {
 
     /**
      * when masterUrlLists change, update tubeClient
-     *
-     * @param originalCluster, previous masterHostAndPortList set
-     * @param endCluster, new masterHostAndPortList set
+     * @param originalCluster previous masterHostAndPortList set
+     * @param endCluster new masterHostAndPortList set
      */
     public void diffUpdateTubeClient(Set<String> originalCluster, Set<String> endCluster) {
         if (SetUtils.isEqualSet(originalCluster, endCluster)) {
@@ -225,6 +224,7 @@ public class TubeSink extends AbstractSink implements Configurable {
      *
      * @param topic
      * @return
+     *
      * @throws TubeClientException
      */
     private MessageProducer getProducer(String topic) throws TubeClientException {

@@ -42,6 +42,7 @@ public class CanalDeserializationInfo implements DeserializationInfo {
     @JsonProperty("timestamp_format_standard")
     private final String timestampFormatStandard;
 
+    @Deprecated
     @JsonProperty("include_metadata")
     private final boolean includeMetadata;
 

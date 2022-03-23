@@ -102,7 +102,7 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
                 TBaseConstants.META_VALUE_UNDEFINED, inQryPriorityId,
                 flowCtrlEnable, TBaseConstants.META_VALUE_UNDEFINED, null);
         Map<String, GroupResCtrlEntity> groupResCtrlEntityMap =
-                metaDataManager.confGetGroupResCtrlConf(groupNameSet, qryEntity);
+                defMetaDataService.getGroupCtrlConf(groupNameSet, qryEntity);
         // build return result
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
@@ -174,7 +174,7 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
         // add or modify records
         List<GroupProcessResult> retInfoList = new ArrayList<>();
         for (String groupName : groupNameSet) {
-            retInfoList.add(metaDataManager.addOrUpdGroupResCtrlConf(opEntity, groupName,
+            retInfoList.add(defMetaDataService.insertGroupCtrlConf(opEntity, groupName,
                     TServerConstants.QRY_PRIORITY_DEF_VALUE, Boolean.FALSE,
                     0, TServerConstants.BLANK_FLOWCTRL_RULES, sBuffer, result));
         }
@@ -232,7 +232,7 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
         // add or modify records
         List<GroupProcessResult> retInfoList = new ArrayList<>();
         for (String groupName : groupNameSet) {
-            retInfoList.add(metaDataManager.addOrUpdGroupResCtrlConf(opEntity, groupName,
+            retInfoList.add(defMetaDataService.insertGroupCtrlConf(opEntity, groupName,
                     qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo, sBuffer, result));
         }
         return buildRetInfo(retInfoList, sBuffer);

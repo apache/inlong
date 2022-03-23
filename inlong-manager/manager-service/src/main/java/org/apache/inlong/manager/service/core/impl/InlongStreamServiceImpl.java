@@ -29,9 +29,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceDbBasicInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceDbDetailInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceFileBasicInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceFileDetailInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullPageUpdateRequest;
@@ -70,7 +68,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
@@ -249,7 +246,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             this.updateField(groupId, streamId, streamInfo.getFieldList());
         }
 
-        LOGGER.info("success to update inlong group for groupId={}", groupId);
+        LOGGER.info("success to update inlong stream for groupId={}", groupId);
         return true;
     }
 
@@ -493,41 +490,15 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             FullStreamResponse pageInfo = new FullStreamResponse();
             pageInfo.setStreamInfo(streamInfo);
 
-            // 3. Query the basic and detailed information of the data source
-            String dataSourceType = streamInfo.getDataSourceType();
-            if (StringUtils.isEmpty(dataSourceType)) {
-                continue;
-            }
-            switch (dataSourceType.toUpperCase(Locale.ROOT)) {
-                case Constant.DATA_SOURCE_FILE:
-                    SourceFileBasicInfo fileBasicInfo = sourceFileService.getBasicByIdentifier(groupId, streamId);
-                    pageInfo.setFileBasicInfo(fileBasicInfo);
-                    List<SourceFileDetailInfo> fileDetailInfoList = sourceFileService.listDetailByIdentifier(groupId,
-                            streamId);
-                    pageInfo.setFileDetailInfoList(fileDetailInfoList);
-                    break;
-                case Constant.DATA_SOURCE_DB:
-                    SourceDbBasicInfo dbBasicInfo = sourceDbService.getBasicByIdentifier(groupId, streamId);
-                    pageInfo.setDbBasicInfo(dbBasicInfo);
-                    List<SourceDbDetailInfo> dbDetailInfoList = sourceDbService.listDetailByIdentifier(groupId,
-                            streamId);
-                    pageInfo.setDbDetailInfoList(dbDetailInfoList);
-                    break;
-                case Constant.DATA_SOURCE_AUTO_PUSH:
-                    break;
-                default:
-                    throw new BusinessException(ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORTED);
-            }
-
-            // 4. Query stream sources information
+            // 3. Query stream sources information
             List<SourceResponse> sourceList = sourceService.listSource(groupId, streamId);
             pageInfo.setSourceInfo(sourceList);
 
-            // 5. Query various stream sinks and its extended information, field information
+            // 4. Query various stream sinks and its extended information, field information
             List<SinkResponse> sinkList = sinkService.listSink(groupId, streamId);
             pageInfo.setSinkInfo(sinkList);
 
-            // 6. Add a single result to the paginated list
+            // 5. Add a single result to the paginated list
             responseList.add(pageInfo);
         }
 

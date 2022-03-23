@@ -23,7 +23,7 @@ import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import { DataSourcesCreateModal } from '@/components/AccessHelper';
-import { dataSourcesDbColumns } from '@/components/MetaData/DataSourcesDb';
+import { dataSourcesBinLogColumns } from '@/components/MetaData/DataSourcesBinLog';
 import { dataSourcesFileColumns } from '@/components/MetaData/DataSourcesFile';
 import i18n from '@/i18n';
 import request from '@/utils/request';
@@ -39,19 +39,19 @@ const getFilterFormContent = defaultValues => [
   },
   {
     type: 'radiobutton',
-    name: 'type',
+    name: 'sourceType',
     label: i18n.t('pages.AccessDetail.DataSources.Type'),
-    initialValue: defaultValues.type,
+    initialValue: defaultValues.sourceType,
     props: {
       buttonStyle: 'solid',
       options: [
         {
           label: i18n.t('pages.AccessDetail.DataSources.File'),
-          value: 'file',
+          value: 'FILE',
         },
         {
-          label: 'DB',
-          value: 'db',
+          label: 'BinLog',
+          value: 'BINLOG',
         },
       ],
     },
@@ -63,7 +63,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     // keyWord: '',
     pageSize: defaultSize,
     pageNum: 1,
-    type: 'file',
+    sourceType: 'FILE',
   });
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
@@ -72,10 +72,9 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
 
   const { data, loading, run: getList } = useRequest(
     {
-      url: `/datasource/${options.type}/listDetail/`,
+      url: '/source/list',
       params: {
         ...options,
-        type: undefined,
         inlongGroupId,
       },
     },
@@ -89,13 +88,14 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     const submitData = {
       ...values,
       inlongGroupId: inlongGroupId,
+      sourceType: options.sourceType,
     };
     if (isUpdate) {
       submitData.id = createModal.id;
     }
 
     await request({
-      url: `/datasource/${options.type}/${isUpdate ? 'updateDetail' : 'saveDetail'}`,
+      url: `/source/${isUpdate ? 'update' : 'save'}`,
       method: 'POST',
       data: submitData,
     });
@@ -112,8 +112,11 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       title: i18n.t('pages.AccessDetail.DataSources.DeletConfirm'),
       onOk: async () => {
         await request({
-          url: `/datasource/${options.type}/deleteDetail/${id}`,
+          url: `/source/delete/${id}`,
           method: 'DELETE',
+          params: {
+            sourceType: options.sourceType,
+          },
         });
         await getList();
         message.success(i18n.t('pages.AccessDetail.DataSources.DeleteSuccessfully'));
@@ -150,7 +153,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       width: 100,
     } as any,
   ]
-    .concat(options.type === 'file' ? dataSourcesFileColumns : dataSourcesDbColumns)
+    .concat(options.sourceType === 'FILE' ? dataSourcesFileColumns : dataSourcesBinLogColumns)
     .concat([
       {
         title: i18n.t('basic.Status'),
@@ -184,11 +187,12 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         options: {
           requestService: {
             url: '/stream/list',
-            params: {
+            method: 'POST',
+            data: {
               pageNum: 1,
               pageSize: 1000,
               inlongGroupId,
-              dataSourceType: options.type,
+              dataSourceType: options.sourceType,
             },
           },
           requestParams: {
@@ -229,7 +233,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
 
       <DataSourcesCreateModal
         {...createModal}
-        type={options.type.toUpperCase() as any}
+        type={options.sourceType as any}
         content={createContent}
         visible={createModal.visible as boolean}
         onOk={async values => {

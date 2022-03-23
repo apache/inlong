@@ -41,6 +41,7 @@ public interface BucketAssigner<IN, BucketID> extends Serializable {
     BucketID getBucketId(IN element, BucketAssigner.Context context);
 
     /**
+     * capable of serializing/deserializing the elements
      * @return A {@link SimpleVersionedSerializer} capable of serializing/deserializing the elements
      *         of type {@code BucketID}. That is the type of the objects returned by the
      *         {@link #getBucketId(Object, BucketAssigner.Context)}.

@@ -38,6 +38,7 @@ import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
 @JsonSubTypes({
         @Type(value = TubeSourceInfo.class, name = Constants.SOURCE_TYPE_TUBE),
         @Type(value = PulsarSourceInfo.class, name = Constants.SOURCE_TYPE_PULSAR),
+        @Type(value = TDMQPulsarSourceInfo.class, name = Constants.SOURCE_TYPE_TDMQ_PULSAR)
 })
 public abstract class SourceInfo implements Serializable {
 

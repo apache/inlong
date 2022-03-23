@@ -39,10 +39,10 @@ public class DefaultEvent2LogItemHandler implements IEvent2LogItemHandler {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     /**
-     * Parse event to List<LogItem> format.
+     * Parse event to {@literal List<LogItem>} format.
      *
      * @param context Context of CLS sink.
-     * @param event Event to be pares to List<LogItem>
+     * @param event Event to be pares to {@literal List<LogItem>}
      * @return Prepared data structure to send.
      */
     @Override

@@ -84,6 +84,9 @@ public class EventLogView {
     @ApiModelProperty("End time")
     private Date endTime;
 
+    @ApiModelProperty("Remark")
+    private String remark;
+
     @ApiModelProperty("Exception message")
     private String exception;
 

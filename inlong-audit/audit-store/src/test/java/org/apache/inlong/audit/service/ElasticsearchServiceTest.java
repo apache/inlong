@@ -17,13 +17,13 @@
 
 package org.apache.inlong.audit.service;
 
-import org.apache.inlong.audit.Application;
 import org.apache.inlong.audit.db.entities.ESDataPo;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testng.Assert;
 
@@ -34,14 +34,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class)
+@ActiveProfiles(value = {"test"})
+@SpringBootTest(classes = ElasticsearchServiceTest.class)
 public class ElasticsearchServiceTest {
 
-//       @Autowired
     private static ElasticsearchService elasticsearchService;
 
-    private String index1 = "20220112_1";
-    private String index2 = "20220112_10";
+    private final String index = "20220112_1";
 
     @BeforeClass
     public static void setUp() throws IOException {
@@ -53,23 +52,23 @@ public class ElasticsearchServiceTest {
 
     @Test
     public void testExistsIndex() throws IOException {
-        boolean res = elasticsearchService.createIndex(index1);
-        Assert.assertEquals(res, true);
+        boolean res = elasticsearchService.createIndex(index);
+        Assert.assertTrue(res);
 
-        res = elasticsearchService.existsIndex(index1);
-        Assert.assertEquals(res, true);
+        res = elasticsearchService.existsIndex(index);
+        Assert.assertTrue(res);
     }
 
     @Test
     public void testInsertData() {
-        for (int i = 0; i < 11; i++) {
+        for (int i = 0; i < 5; i++) {
             ESDataPo po = new ESDataPo();
             po.setIp("0.0.0.0");
             po.setThreadId(String.valueOf(i));
             po.setDockerId(String.valueOf(i));
             po.setSdkTs(new Date().getTime());
             po.setLogTs(new Date());
-            po.setAuditId("3");
+            po.setAuditId("1");
             po.setCount(i);
             po.setDelay(i);
             po.setInlongGroupId(String.valueOf(i));
@@ -77,34 +76,20 @@ public class ElasticsearchServiceTest {
             po.setSize(i);
             po.setPacketId(i);
             elasticsearchService.insertData(po);
-            ESDataPo po2 = new ESDataPo();
-            po2.setIp("0.0.0.0");
-            po2.setThreadId(String.valueOf(i));
-            po2.setDockerId(String.valueOf(i));
-            po2.setSdkTs(new Date().getTime());
-            po2.setLogTs(new Date());
-            po2.setAuditId("2");
-            po2.setCount(i);
-            po2.setDelay(i);
-            po2.setInlongGroupId(String.valueOf(i));
-            po2.setInlongStreamId(String.valueOf(i));
-            po2.setSize(i);
-            po2.setPacketId(i);
-            elasticsearchService.insertData(po2);
         }
     }
 
     @Test
     public void testDeleteSingleIndex() throws IOException {
-        boolean res = elasticsearchService.createIndex(index1);
-        Assert.assertEquals(res, true);
-        res = elasticsearchService.deleteSingleIndex(index1);
-        Assert.assertEquals(res, true);
+        boolean res = elasticsearchService.createIndex(index);
+        Assert.assertTrue(res);
+        res = elasticsearchService.deleteSingleIndex(index);
+        Assert.assertTrue(res);
     }
 
     @Test
-    public void testDeleteTimeoutIndexs() throws IOException {
-        elasticsearchService.deleteTimeoutIndexs();
+    public void testDeleteTimeoutIndices() throws IOException {
+        elasticsearchService.deleteTimeoutIndices();
     }
 
 }

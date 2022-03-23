@@ -113,7 +113,7 @@ public class FetchCallback implements ReadCallback {
                 context.reportToMetric(profileEvent, sortId, "-", SortSdkSourceContext.FetchResult.SUCCESS);
             }
 
-            client.ack(messageRecord.getMsgKey(), messageRecord.getMsgKey());
+            client.ack(messageRecord.getMsgKey(), messageRecord.getOffset());
         } catch (NullPointerException npe) {
             LOG.error("Got a null pointer exception for sortId " + sortId, npe);
             context.reportToMetric(null, sortId, "-", SortSdkSourceContext.FetchResult.FAILURE);
@@ -125,7 +125,7 @@ public class FetchCallback implements ReadCallback {
     /**
      * The callback function that SortSDK invoke when fetch messages batch
      *
-     * @param messageRecordList {@link List<MessageRecord>}
+     * @param messageRecordList List
      */
     @Override
     public void onFinishedBatch(List<MessageRecord> messageRecordList) {

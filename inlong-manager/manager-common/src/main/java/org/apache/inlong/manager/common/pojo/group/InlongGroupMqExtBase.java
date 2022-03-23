@@ -32,7 +32,8 @@ import org.apache.inlong.manager.common.enums.Constant;
 @ApiModel("Extended inlong group info of different MQs")
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "middlewareType", defaultImpl = InlongGroupMqExtBase.class)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = InlongGroupPulsarInfo.class, name = Constant.MIDDLEWARE_PULSAR)
+        @JsonSubTypes.Type(value = InlongGroupPulsarInfo.class, name = Constant.MIDDLEWARE_PULSAR),
+        @JsonSubTypes.Type(value = InlongGroupPulsarInfo.class, name = Constant.MIDDLEWARE_TDMQ_PULSAR)
 })
 public class InlongGroupMqExtBase {
 
@@ -47,5 +48,8 @@ public class InlongGroupMqExtBase {
 
     @ApiModelProperty(value = "Middleware type of stream sink, high throughput: TUBE, high consistency : PULSAR")
     private String middlewareType;
+
+    @ApiModelProperty(value = "Whether to create mq resource, 0: not create, 1: create; default is 1")
+    private Integer enableCreateResource = 1;
 
 }

@@ -20,12 +20,6 @@ package org.apache.inlong.manager.client.api.impl;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -36,18 +30,26 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
+import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class InlongClientImpl implements InlongClient {
 
+    private static final String URL_SPLITTER = ",";
+    private static final String HOST_SPLITTER = ":";
     @Getter
     private ClientConfiguration configuration;
-
-    private static final String URL_SPLITTER = ",";
-
-    private static final String HOST_SPLITTER = ":";
 
     public InlongClientImpl(String serviceUrl, ClientConfiguration configuration) {
         Map<String, String> hostPorts = Splitter.on(URL_SPLITTER).withKeyValueSeparator(HOST_SPLITTER)
@@ -59,8 +61,8 @@ public class InlongClientImpl implements InlongClient {
         boolean isConnective = false;
         for (Map.Entry<String, String> hostPort : hostPorts.entrySet()) {
             String host = hostPort.getKey();
-            int port = Integer.valueOf(hostPort.getValue());
-            if (checkConnectivity(host, port, configuration.getReadTimeout())) {
+            int port = Integer.parseInt(hostPort.getValue());
+            if (checkConnectivity(host, port, configuration.getReadTimeout(), configuration.getTimeUnit())) {
                 configuration.setBindHost(host);
                 configuration.setBindPort(port);
                 isConnective = true;
@@ -96,6 +98,19 @@ public class InlongClientImpl implements InlongClient {
         }
     }
 
+    /**
+     * List group
+     *
+     * @param request The request
+     * @return PageInfo of group
+     * @throws Exception
+     */
+    @Override
+    public Response<PageInfo<InlongGroupListResponse>> listGroup(InlongGroupPageRequest request) throws Exception {
+        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
+        return managerClient.listGroups(request);
+    }
+
     @Override
     public InlongGroup getGroup(String groupName) throws Exception {
         InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
@@ -108,15 +123,21 @@ public class InlongClientImpl implements InlongClient {
         return new InlongGroupImpl(groupConf, this);
     }
 
-    private boolean checkConnectivity(String host, int port, int connectTimeout) {
+    private boolean checkConnectivity(String host, int port, int connectTimeout, TimeUnit timeUnit) {
         InetSocketAddress socketAddress = new InetSocketAddress(host, port);
         Socket socket = new Socket();
         try {
-            socket.connect(socketAddress, connectTimeout * 1000);
+            socket.connect(socketAddress, (int) timeUnit.toMillis(connectTimeout));
             return socket.isConnected();
         } catch (IOException e) {
             log.error(String.format("%s:%s connected failed with err msg:%s", host, port, e.getMessage()));
             return false;
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                log.warn("colse connection from {}:{} failed", host, port, e);
+            }
         }
     }
 }

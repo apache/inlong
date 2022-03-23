@@ -19,8 +19,10 @@ package org.apache.inlong.manager.client.api;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.io.Serializable;
 import lombok.Data;
+import org.apache.inlong.manager.common.enums.MqType;
+
+import java.io.Serializable;
 
 @Data
 @ApiModel("Base configuration for message queue")
@@ -33,23 +35,11 @@ public abstract class MqBaseConf implements Serializable {
         }
     };
 
-    public enum MqType {
-        PULSAR,
-        TUBE,
-        NONE;
-
-        public static MqType forType(String type) {
-            for (MqType mqType : values()) {
-                if (mqType.name().equals(type)) {
-                    return mqType;
-                }
-            }
-            throw new IllegalArgumentException(String.format("Unsupport queue=%s for Inlong", type));
-        }
-    }
-
     @ApiModelProperty("The number of partitions of Topic, 1-20")
     private int topicPartitionNum = 3;
+
+    @ApiModelProperty("Is need create for mq resources")
+    private boolean enableCreateResource = true;
 
     public abstract MqType getType();
 }

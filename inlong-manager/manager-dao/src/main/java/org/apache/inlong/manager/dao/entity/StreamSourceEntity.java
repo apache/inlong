@@ -44,6 +44,7 @@ public class StreamSourceEntity implements Serializable {
     // extParams saved filePath, fileRollingType, dbName, tableName, etc.
     private String extParams;
 
+    private Integer version;
     private Integer status;
     private Integer previousStatus;
     private Integer isDeleted;

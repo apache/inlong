@@ -94,7 +94,7 @@ func ParseConfirmContext(confirmContext string) (string, int64, error) {
 }
 
 // SplitToMap split the given string by the two step strings to map.
-// Source format $msgType$=metadata_journal_log,$msgTime$=202111081911,tdbusip=10.56.15.232
+// Source format $msgType$=metadata_journal_log,$msgTime$=202111081911,tdbusip=127.0.0.1
 func SplitToMap(source string, step1 string, step2 string) map[string]string {
 	m := make(map[string]string)
 	if len(source) == 0 {
@@ -119,7 +119,9 @@ func SplitToMap(source string, step1 string, step2 string) map[string]string {
 // IsValidString returns whether a string is valid.
 func IsValidString(s string) (bool, error) {
 	if matched, _ := regexp.Match("^[a-zA-Z]\\w+$", []byte(s)); !matched {
-		return false, errors.New(fmt.Sprintf("illegal parameter: %s must begin with a letter,can only contain characters,numbers,and underscores", s))
+		return false,
+			errors.New(fmt.Sprintf("illegal parameter: %s must begin with a letter, " +
+				"can only contain characters,numbers,and underscores", s))
 	}
 	return true, nil
 }

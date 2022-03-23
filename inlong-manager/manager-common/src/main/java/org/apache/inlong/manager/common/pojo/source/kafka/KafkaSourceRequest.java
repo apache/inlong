@@ -37,10 +37,6 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = Constant.SOURCE_KAFKA)
 public class KafkaSourceRequest extends SourceRequest {
 
-    public KafkaSourceRequest() {
-        this.setSourceType(SourceType.KAFKA.toString());
-    }
-
     @ApiModelProperty("Kafka topic")
     private String topic;
 
@@ -61,5 +57,25 @@ public class KafkaSourceRequest extends SourceRequest {
     @ApiModelProperty(value = "Topic partition offset",
             notes = "For example, '0#100_1#10' means the offset of partition 0 is 100, the offset of partition 1 is 10")
     private String topicPartitionOffset;
+
+    @ApiModelProperty(value = "The strategy of auto offset reset",
+            notes = "including earliest, latest (the default), none")
+    private String autoOffsetReset;
+
+    @ApiModelProperty("database pattern used for filter in canal format")
+    private String databasePattern;
+
+    @ApiModelProperty("table pattern used for filter in canal format")
+    private String tablePattern;
+
+    @ApiModelProperty("ignore parse errors, true: ignore parse error; false: not ignore parse error; default true")
+    private boolean ignoreParseErrors = true;
+
+    @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
+    private String timestampFormatStandard = "SQL";
+
+    public KafkaSourceRequest() {
+        this.setSourceType(SourceType.KAFKA.toString());
+    }
 
 }

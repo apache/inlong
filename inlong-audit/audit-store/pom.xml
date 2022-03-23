@@ -17,9 +17,9 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-audit</artifactId>
@@ -51,8 +51,8 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -163,6 +163,17 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>tubemq-client</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -240,7 +251,8 @@
                         <archive>
                             <manifest>
                                 <mainClass>${start-class}</mainClass>
-                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <addDefaultImplementationEntries>true
+                                </addDefaultImplementationEntries>
                             </manifest>
                         </archive>
                     </configuration>
@@ -252,7 +264,8 @@
                         <archive>
                             <manifest>
                                 <mainClass>${start-class}</mainClass>
-                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <addDefaultImplementationEntries>true
+                                </addDefaultImplementationEntries>
                             </manifest>
                         </archive>
                     </configuration>
@@ -281,7 +294,9 @@
                         <verbose>true</verbose>
                         <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
                         <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                        <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                        <generateGitPropertiesFilename>
+                            ${project.build.outputDirectory}/git.properties
+                        </generateGitPropertiesFilename>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -332,17 +347,22 @@
                             </goals>
                             <configuration>
                                 <transformers>
-                                    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <transformer
+                                            implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                         <resource>META-INF/spring.handlers</resource>
                                     </transformer>
-                                    <transformer implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
+                                    <transformer
+                                            implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
                                         <resource>META-INF/spring.factories</resource>
                                     </transformer>
-                                    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <transformer
+                                            implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                         <resource>META-INF/spring.schemas</resource>
                                     </transformer>
-                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <transformer
+                                            implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                    <transformer
+                                            implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                         <mainClass>${start-class}</mainClass>
                                     </transformer>
                                 </transformers>

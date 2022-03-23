@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.flume.Context;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
@@ -50,6 +51,8 @@ public class DispatchManager {
     private ConcurrentHashMap<String, DispatchProfile> profileCache = new ConcurrentHashMap<>();
     // flag that manager need to output overtime data.
     private AtomicBoolean needOutputOvertimeData = new AtomicBoolean(false);
+    private AtomicLong inCounter = new AtomicLong(0);
+    private AtomicLong outCounter = new AtomicLong(0);
 
     /**
      * Constructor
@@ -70,10 +73,6 @@ public class DispatchManager {
      * @param event
      */
     public void addEvent(ProxyEvent event) {
-        if (needOutputOvertimeData.get()) {
-            this.outputOvertimeData();
-            this.needOutputOvertimeData.set(false);
-        }
         // parse
         String eventUid = event.getUid();
         long dispatchTime = event.getMsgTime() - event.getMsgTime() % MINUTE_MS;
@@ -92,8 +91,10 @@ public class DispatchManager {
                     event.getInlongStreamId(), dispatchTime);
             DispatchProfile oldDispatchProfile = this.profileCache.put(dispatchKey, newDispatchProfile);
             this.dispatchQueue.offer(oldDispatchProfile);
+            outCounter.addAndGet(dispatchProfile.getCount());
             newDispatchProfile.addEvent(event, maxPackCount, maxPackSize);
         }
+        inCounter.incrementAndGet();
     }
 
     /**
@@ -102,6 +103,9 @@ public class DispatchManager {
      * @return
      */
     public void outputOvertimeData() {
+        if (!needOutputOvertimeData.getAndSet(false)) {
+            return;
+        }
         LOG.info("start to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{}",
                 profileCache.size(), dispatchQueue.size());
         long currentTime = System.currentTimeMillis();
@@ -118,10 +122,16 @@ public class DispatchManager {
         }
         // output
         removeKeys.forEach((key) -> {
-            dispatchQueue.offer(this.profileCache.remove(key));
+            DispatchProfile dispatchProfile = this.profileCache.remove(key);
+            if (dispatchProfile != null) {
+            dispatchQueue.offer(dispatchProfile);
+            outCounter.addAndGet(dispatchProfile.getCount());
+            }
         });
-        LOG.info("end to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{},eventCount:{}",
-                profileCache.size(), dispatchQueue.size(), eventCount);
+        LOG.info("end to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{},eventCount:{},"
+                + "inCounter:{},outCounter:{}",
+                profileCache.size(), dispatchQueue.size(), eventCount, 
+                inCounter.getAndSet(0), outCounter.getAndSet(0));
     }
 
     /**
@@ -155,6 +165,6 @@ public class DispatchManager {
      * setNeedOutputOvertimeData
      */
     public void setNeedOutputOvertimeData() {
-        this.needOutputOvertimeData.set(true);
+        this.needOutputOvertimeData.getAndSet(true);
     }
 }

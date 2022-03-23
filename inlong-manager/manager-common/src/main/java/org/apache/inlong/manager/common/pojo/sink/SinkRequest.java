@@ -19,8 +19,10 @@ package org.apache.inlong.manager.common.pojo.sink;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -61,4 +63,6 @@ public class SinkRequest {
     @ApiModelProperty("Sink field list")
     private List<SinkFieldRequest> fieldList;
 
+    @ApiModelProperty("Properties for sink")
+    private Map<String, Object> properties = Maps.newHashMap();
 }

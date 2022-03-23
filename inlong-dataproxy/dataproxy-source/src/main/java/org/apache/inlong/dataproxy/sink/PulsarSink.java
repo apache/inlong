@@ -153,6 +153,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
      * send thread pool
      */
     private Thread[] sinkThreadPool;
+    private int sinkThreadPoolSize;
     private PulsarClientService pulsarClientService;
     private LinkedBlockingQueue<Event> eventQueue;
 
@@ -227,7 +228,16 @@ public class PulsarSink extends AbstractSink implements Configurable,
         pulsarCluster = configManager.getThirdPartyClusterUrl2Token();
         pulsarConfig = configManager.getThirdPartyClusterConfig(); //pulsar common config
         commonProperties = configManager.getCommonProperties();
-        pulsarClientService = new PulsarClientService(pulsarConfig);
+        if (keepOrder) {
+            logger.info("This is order pulsar sink!");
+            sinkThreadPoolSize = 1;
+        } else {
+            sinkThreadPoolSize = pulsarConfig.getThreadNum();
+        }
+        if (sinkThreadPoolSize <= 0) {
+            sinkThreadPoolSize = 1;
+        }
+        pulsarClientService = new PulsarClientService(pulsarConfig, sinkThreadPoolSize);
         boolean enableReportConfigLog =
                 Boolean.parseBoolean(commonProperties
                         .getOrDefault(StreamConfigLogMetric.CONFIG_LOG_REPORT_ENABLE,"true"));
@@ -268,12 +278,8 @@ public class PulsarSink extends AbstractSink implements Configurable,
         resendQueue = new LinkedBlockingQueue<EventStat>(badEventQueueSize);
 
         Preconditions.checkArgument(pulsarConfig.getThreadNum() > 0, "threadNum must be > 0");
-        if (keepOrder) {
-            logger.info("This is order pulsar sink!");
-            sinkThreadPool = new Thread[1];
-        } else {
-            sinkThreadPool = new Thread[pulsarConfig.getThreadNum()];
-        }
+
+        sinkThreadPool = new Thread[sinkThreadPoolSize];
 
         eventQueueSize = pulsarConfig.getEventQueueSize();
         eventQueue = new LinkedBlockingQueue<Event>(eventQueueSize);
@@ -383,16 +389,16 @@ public class PulsarSink extends AbstractSink implements Configurable,
         this.canSend = true;
         this.canTake = true;
 
+        try {
+            initTopicSet(pulsarClientService,
+                    new HashSet<String>(topicProperties.values()));
+        } catch (Exception e) {
+            logger.info("pulsar sink start publish topic fail.", e);
+        }
+
         for (int i = 0; i < sinkThreadPool.length; i++) {
-            try {
-                initTopicSet(pulsarClientService,
-                        new HashSet<String>(topicProperties.values()));
-            } catch (Exception e) {
-                logger.info("pulsar sink start publish topic fail.", e);
-            }
-            sinkThreadPool[i] = new Thread(new SinkTask(pulsarClientService), getName()
-                    + "_pulsar_sink_sender-"
-                    + i);
+            sinkThreadPool[i] = new Thread(new SinkTask(pulsarClientService, i), getName()
+                    + "_pulsar_sink_sender-" + i);
             sinkThreadPool[i].start();
         }
         logger.debug("pulsar sink started");
@@ -736,8 +742,11 @@ public class PulsarSink extends AbstractSink implements Configurable,
 
         private PulsarClientService pulsarClientService;
 
-        public SinkTask(PulsarClientService pulsarClientService) {
+        private int poolIndex = 0;
+
+        public SinkTask(PulsarClientService pulsarClientService, int poolIndex) {
             this.pulsarClientService = pulsarClientService;
+            this.poolIndex = poolIndex;
         }
 
         @Override
@@ -838,8 +847,8 @@ public class PulsarSink extends AbstractSink implements Configurable,
                         if (pulsarConfig.getClientIdCache() && clientId != null) {
                             agentIdCache.put(clientId, System.currentTimeMillis());
                         }
-                        boolean sendResult = pulsarClientService.sendMessage(topic, event,
-                                PulsarSink.this, es);
+                        boolean sendResult = pulsarClientService.sendMessage(poolIndex, topic,
+                                event, PulsarSink.this, es);
                         /*
                          * handle producer is current is null
                          */

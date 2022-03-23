@@ -26,12 +26,10 @@ import org.apache.inlong.audit.protocol.AuditApi.BaseCommand;
 
 public class DefaultServiceDecoder implements ServiceDecoder {
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(DefaultServiceDecoder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultServiceDecoder.class);
 
     @Override
     public BaseCommand extractData(ChannelBuffer cb, Channel channel) throws Exception {
-
         /*[cmd size] | [cmd]*/
         if (null == cb) {
             LOG.error("cb == null");

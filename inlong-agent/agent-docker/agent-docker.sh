@@ -17,11 +17,13 @@
 #
 
 file_path=$(cd "$(dirname "$0")"/../;pwd)
-local_ip=$(ifconfig $ETH_NETWORK | grep "inet addr" | awk '{ print $2}' | awk -F: '{print $2}')
+local_ip=$(ifconfig $ETH_NETWORK | grep "inet" | grep -v "inet6" | awk '{print $2}')
 # config
 cat <<EOF > ${file_path}/conf/agent.properties
 agent.fetcher.classname=org.apache.inlong.agent.plugin.fetcher.ManagerFetcher
 agent.local.ip=$local_ip
+agent.fetcher.interval=$AGENT_FETCH_INTERVAL
+agent.heartbeat.interval=$AGENT_HEARTBEAT_INTERVAL
 agent.manager.vip.http.host=$MANAGER_OPENAPI_IP
 agent.manager.vip.http.port=$MANAGER_OPENAPI_PORT
 agent.dataproxy.http.host=$DATAPROXY_IP
@@ -32,7 +34,7 @@ agent.prometheus.enable=true
 agent.prometheus.exporter.port=8080
 EOF
 # start
-sh ${file_path}/bin/agent.sh start
+bash +x ${file_path}/bin/agent.sh start
 sleep 3
 # keep alive
 tail -F ${file_path}/logs/agent.log

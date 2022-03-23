@@ -82,11 +82,6 @@ public class TubemqTableSink implements AppendStreamTableSink<Row> {
     }
 
     @Override
-    public void emitDataStream(DataStream<Row> dataStream) {
-        consumeDataStream(dataStream);
-    }
-
-    @Override
     public DataStreamSink<?> consumeDataStream(DataStream<Row> dataStream) {
 
         final SinkFunction<Row> tubemqSinkFunction =

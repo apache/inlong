@@ -21,12 +21,15 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.manager.client.api.KafkaOffset;
 import org.apache.inlong.manager.client.api.StreamSource;
 import org.apache.inlong.manager.common.enums.SourceType;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel("Base configuration for Kafka collection")
@@ -62,4 +65,18 @@ public class KafkaSource extends StreamSource {
             notes = "For example, '0#100_1#10' means the offset of partition 0 is 100, the offset of partition 1 is 10")
     private String topicPartitionOffset;
 
+    @ApiModelProperty(value = "The strategy of auto offset reset")
+    private KafkaOffset autoOffsetReset;
+
+    @ApiModelProperty("database pattern used for filter in canal format")
+    private String databasePattern;
+
+    @ApiModelProperty("table pattern used for filter in canal format")
+    private String tablePattern;
+
+    @ApiModelProperty("ignore parse errors, true: ignore parse error; false: not ignore parse error; default true")
+    private boolean ignoreParseErrors = true;
+
+    @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
+    private String timestampFormatStandard = "SQL";
 }

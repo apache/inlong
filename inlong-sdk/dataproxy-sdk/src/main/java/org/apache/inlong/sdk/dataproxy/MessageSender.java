@@ -54,7 +54,7 @@ public interface MessageSender {
      * @param body         The data will be sent
      *                     
      * @param extraAttrMap The attributes you want to add,
-     *                     and each element of extraAttrMap contains a pair like <attrKey,attrValue>
+     *                     and each element of extraAttrMap contains a pair like attrKey,attrValue
      */
     public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
                                   long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap);
@@ -75,7 +75,7 @@ public interface MessageSender {
      *
      * @param bodyList     The data will be sent,which is a collection consisting of byte arrays
      * @param extraAttrMap The attributes you want to add,
-     *                     and each element of extraAttrMap contains a pair like <attrKey,attrValue>
+     *                     and each element of extraAttrMap contains a pair like attrKey,attrValue
      */
     public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
                                   long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap);
@@ -101,7 +101,7 @@ public interface MessageSender {
      *
      * @param body         The data will be sent
      * @param extraAttrMap The attributes you want to add,
-     *                     and each element of extraAttrMap contains a pair like <attrKey,attrValue>
+     *                     and each element of extraAttrMap contains a pair like attrKey,attrValue
      */
     public void asyncSendMessage(SendMessageCallback callback,
                                  byte[] body, String groupId, String streamId, long dt, String msgUUID,
@@ -136,12 +136,38 @@ public interface MessageSender {
      *
      * @param bodyList     The data will be sent,which is a collection consisting of byte arrays
      * @param extraAttrMap The attributes you want to add, and each
-     *                     element of extraAttrMap contains a pair like <attrKey,attrValue>
+     *                     element of extraAttrMap contains a pair like attrKey,attrValue
      */
     public void asyncSendMessage(SendMessageCallback callback,
                                  List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
                                  long timeout, TimeUnit timeUnit,
                                  Map<String, String> extraAttrMap) throws ProxysdkException;
+
+    /**
+     * This method provides an asynchronized function which you want to send data.<br>
+     * Sending timeout is configured by MessageSenderBuilder.<br>
+     * Message time will be current time.<br>
+     * @param inlongGroupId
+     * @param inlongStreamId
+     * @param body
+     * @param callback callback can be null
+     * @throws ProxysdkException
+     */
+    void asyncSendMessage(String inlongGroupId, String inlongStreamId, byte[] body, SendMessageCallback callback) 
+            throws ProxysdkException;
+    
+    /**
+     * This method provides an asynchronized function which you want to send datas.<br>
+     * Sending timeout is configured by MessageSenderBuilder.<br>
+     * Message time will be current time.<br>
+     * @param inlongGroupId
+     * @param inlongStreamId
+     * @param bodyList
+     * @param callback callback can be null
+     * @throws ProxysdkException
+     */
+    void asyncSendMessage(String inlongGroupId, String inlongStreamId, List<byte[]> bodyList, 
+            SendMessageCallback callback) throws ProxysdkException;
 
     public void close();
 }

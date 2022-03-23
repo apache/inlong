@@ -43,6 +43,7 @@ type Partition struct {
 	totalZeroCnt int32
 }
 
+// ConsumeData represents the consumption metadata of a partition.
 type ConsumeData struct {
 	time        int64
 	errCode     int32
@@ -61,7 +62,9 @@ type strategyData struct {
 	curSliceMsgSize   int64
 }
 
-func NewConsumeData(time int64, errCode int32, escLimit bool, msgSize int32, dltLimit int64, curDataDlt int64, requireSlow bool) *ConsumeData {
+// NewConsumeData returns a consume data.
+func NewConsumeData(time int64, errCode int32, escLimit bool, msgSize int32, dltLimit int64,
+	curDataDlt int64, requireSlow bool) *ConsumeData {
 	return &ConsumeData{
 		time:        time,
 		errCode:     errCode,
@@ -150,7 +153,8 @@ func (p *Partition) BookConsumeData(data *ConsumeData) {
 }
 
 // ProcConsumeResult processes consume result.
-func (p *Partition) ProcConsumeResult(defHandler *flowctrl.RuleHandler, groupHandler *flowctrl.RuleHandler, filterConsume bool, lastConsumed bool) int64 {
+func (p *Partition) ProcConsumeResult(defHandler *flowctrl.RuleHandler, groupHandler *flowctrl.RuleHandler,
+	filterConsume bool, lastConsumed bool) int64 {
 	dltTime := time.Now().UnixNano()/int64(time.Millisecond) - p.consumeData.time
 	p.updateStrategyData(defHandler, groupHandler)
 	p.lastConsumed = lastConsumed

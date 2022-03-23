@@ -176,6 +176,7 @@ public class JobProfileDto {
         job.setDeliveryTime(dataConfigs.getDeliveryTime());
         job.setUuid(dataConfigs.getUuid());
         job.setSink(DEFAULT_DATAPROXY_SINK);
+        job.setVersion(dataConfigs.getVersion());
         TaskTypeEnum taskType = TaskTypeEnum.getTaskType(dataConfigs.getTaskType());
         switch (requireNonNull(taskType)) {
             case SQL:
@@ -216,6 +217,7 @@ public class JobProfileDto {
         private String retryTime;
         private String deliveryTime;
         private String uuid;
+        private Integer version;
 
         private FileJob fileJob;
         private BinlogJob binlogJob;

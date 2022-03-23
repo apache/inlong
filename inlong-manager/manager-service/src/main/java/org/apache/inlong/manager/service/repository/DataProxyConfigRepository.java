@@ -121,7 +121,6 @@ public class DataProxyConfigRepository implements IRepository {
         this.reloadCacheCluster(newClusterSets);
         this.reloadCacheClusterExt(newClusterSets);
         this.reloadCacheTopic(newClusterSets);
-        this.reloadProxyCluster(newClusterSets);
         this.reloadFlumeChannel(newClusterSets);
         this.reloadFlumeChannelExt(newClusterSets);
         this.reloadFlumeSource(newClusterSets);
@@ -130,6 +129,7 @@ public class DataProxyConfigRepository implements IRepository {
         this.reloadFlumeSinkExt(newClusterSets);
         // reload inlongid
         this.reloadInlongId(newClusterSets);
+        this.reloadProxyCluster(newClusterSets);
         this.reloadProxy2Cache(newClusterSets);
         this.generateClusterJson(newClusterSets);
 
@@ -238,6 +238,14 @@ public class DataProxyConfigRepository implements IRepository {
             DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
             setObj.getProxyClusterList().add(obj);
             this.proxyClusterMap.put(obj.getName(), obj);
+            // channels
+            obj.getChannels().addAll(setObj.getProxyChannelMap().values());
+            // inlongids
+            obj.getInlongIds().addAll(setObj.getInlongIds());
+            // sinks
+            obj.getSinks().addAll(setObj.getProxySinkMap().values());
+            // sources
+            obj.getSources().addAll(setObj.getProxySourceMap().values());
         }
     }
 
@@ -420,7 +428,7 @@ public class DataProxyConfigRepository implements IRepository {
                 response.setErrCode(DataProxyConfigResponse.SUCC);
                 response.setMd5(md5);
                 response.setData(clusterObj);
-                String jsonResponse = gson.toJson(clusterObj);
+                String jsonResponse = gson.toJson(response);
                 entry.getValue().getProxyConfigJson().put(proxyObj.getName(), jsonResponse);
                 entry.getValue().getMd5Map().put(proxyObj.getName(), md5);
                 entry.getValue().setDefaultConfigJson(jsonResponse);

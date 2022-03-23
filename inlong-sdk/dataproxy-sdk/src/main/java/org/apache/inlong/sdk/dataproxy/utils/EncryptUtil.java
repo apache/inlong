@@ -239,6 +239,7 @@ public class EncryptUtil {
      * @param publicKey public key
      * @param data      data
      * @return
+     *
      * @throws Exception exception
      */
     public static byte[] rsaEncrypt(RSAPublicKey publicKey, byte[] data)
@@ -274,6 +275,7 @@ public class EncryptUtil {
      * @param privateKey    key
      * @param encryptedData data
      * @return
+     *
      * @throws Exception exception
      */
     public static byte[] decryptByPrivateKey(RSAPrivateKey privateKey, byte[] encryptedData)
@@ -341,6 +343,7 @@ public class EncryptUtil {
      * @param publicKey  public key
      * @param cipherData cipher data
      * @return
+     *
      * @throws Exception exception
      */
     public static byte[] rsaDecrypt(RSAPublicKey publicKey, byte[] cipherData)

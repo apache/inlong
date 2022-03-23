@@ -198,6 +198,12 @@
                                     </excludes>
                                 </filter>
                             </filters>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.apache.flink.formats.avro</pattern>
+                                    <shadedPattern>org.apache.inlong.shaded.flink.formats.avro</shadedPattern>
+                                </relocation>
+                            </relocations>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>

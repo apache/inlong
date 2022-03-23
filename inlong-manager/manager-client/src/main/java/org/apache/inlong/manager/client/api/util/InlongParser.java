@@ -17,15 +17,11 @@
 
 package org.apache.inlong.manager.client.api.util;
 
-import static org.apache.inlong.manager.common.enums.SourceType.BINLOG;
-import static org.apache.inlong.manager.common.enums.SourceType.KAFKA;
-
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.Constant;
@@ -53,6 +49,11 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListRes
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+
+import java.util.List;
+
+import static org.apache.inlong.manager.common.enums.SourceType.BINLOG;
+import static org.apache.inlong.manager.common.enums.SourceType.KAFKA;
 
 /**
  * Parser for Inlong entity
@@ -84,7 +85,9 @@ public class InlongParser {
         InlongGroupResponse inlongGroupResponse = GsonUtil.fromJson(GsonUtil.toJson(data), InlongGroupResponse.class);
         JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
         if (mqExtInfo != null && mqExtInfo.get(MIDDLEWARE_TYPE) != null) {
-            if (Constant.MIDDLEWARE_PULSAR.equals(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString())) {
+            String middlewareType = mqExtInfo.get(MIDDLEWARE_TYPE).getAsString();
+            if (Constant.MIDDLEWARE_PULSAR.equals(middlewareType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(
+                    middlewareType)) {
                 InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
                 inlongGroupResponse.setMqExtInfo(pulsarInfo);
             }
@@ -110,8 +113,8 @@ public class InlongParser {
         JsonObject pageInfoJson = GsonUtil.fromJson(GsonUtil.toJson(data), JsonObject.class);
         JsonArray fullStreamArray = pageInfoJson.getAsJsonArray("list");
         List<FullStreamResponse> list = Lists.newArrayList();
-        for (int i = 0; i < fullStreamArray.size(); i++) {
-            JsonObject fullStreamJson = (JsonObject) fullStreamArray.get(i);
+        for (int streamIndex = 0; streamIndex < fullStreamArray.size(); streamIndex++) {
+            JsonObject fullStreamJson = (JsonObject) fullStreamArray.get(streamIndex);
             FullStreamResponse fullStreamResponse = GsonUtil.fromJson(fullStreamJson.toString(),
                     FullStreamResponse.class);
             list.add(fullStreamResponse);
@@ -119,8 +122,8 @@ public class InlongParser {
             JsonArray sourceJsonArr = fullStreamJson.getAsJsonArray(SOURCE_INFO);
             List<SourceResponse> sourceResponses = Lists.newArrayList();
             fullStreamResponse.setSourceInfo(sourceResponses);
-            for (int j = 0; j < sourceJsonArr.size(); j++) {
-                JsonObject sourceJson = (JsonObject) sourceJsonArr.get(i);
+            for (int sourceIndex = 0; sourceIndex < sourceJsonArr.size(); sourceIndex++) {
+                JsonObject sourceJson = (JsonObject) sourceJsonArr.get(sourceIndex);
                 String type = sourceJson.get(SOURCE_TYPE).getAsString();
                 SourceType sourceType = SourceType.forType(type);
                 switch (sourceType) {
@@ -143,8 +146,8 @@ public class InlongParser {
             JsonArray sinkJsonArr = fullStreamJson.getAsJsonArray(SINK_INFO);
             List<SinkResponse> sinkResponses = Lists.newArrayList();
             fullStreamResponse.setSinkInfo(sinkResponses);
-            for (int j = 0; j < sinkJsonArr.size(); j++) {
-                JsonObject sinkJson = (JsonObject) sinkJsonArr.get(i);
+            for (int sinkIndex = 0; sinkIndex < sinkJsonArr.size(); sinkIndex++) {
+                JsonObject sinkJson = (JsonObject) sinkJsonArr.get(sinkIndex);
                 String type = sinkJson.get(SINK_TYPE).getAsString();
                 SinkType sinkType = SinkType.forType(type);
                 switch (sinkType) {
@@ -217,7 +220,9 @@ public class InlongParser {
                 InlongGroupApproveRequest.class);
         JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
         if (mqExtInfo != null && mqExtInfo.get(MIDDLEWARE_TYPE) != null) {
-            if (Constant.MIDDLEWARE_PULSAR.equals(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString())) {
+            String middlewareType = mqExtInfo.get(MIDDLEWARE_TYPE).getAsString();
+            if (Constant.MIDDLEWARE_PULSAR.equals(middlewareType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(
+                    middlewareType)) {
                 InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
                 groupApproveInfo.setAckQuorum(pulsarInfo.getAckQuorum());
                 groupApproveInfo.setEnsemble(pulsarInfo.getEnsemble());

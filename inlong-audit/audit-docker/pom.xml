@@ -72,7 +72,7 @@
               <pullNewerImage>false</pullNewerImage>
               <tag>${project.version}</tag>
               <buildArgs>
-                <AUDIT_TARBALL>target/audit-${project.version}-bin.tar.gz</AUDIT_TARBALL>
+                <AUDIT_TARBALL>target/audit-release-${project.version}-bin.tar.gz</AUDIT_TARBALL>
               </buildArgs>
             </configuration>
           </plugin>

@@ -21,7 +21,6 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSub
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
-import org.apache.inlong.sort.protocol.deserialization.DebeziumDeserializationInfo;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -30,7 +29,7 @@ import org.apache.inlong.sort.protocol.deserialization.DebeziumDeserializationIn
 @JsonSubTypes({
         @JsonSubTypes.Type(value = JsonSerializationInfo.class, name = "json"),
         @JsonSubTypes.Type(value = CanalSerializationInfo.class, name = "canal"),
-        @JsonSubTypes.Type(value = DebeziumDeserializationInfo.class, name = "debezium_json"),
+        @JsonSubTypes.Type(value = DebeziumSerializationInfo.class, name = "debezium_json"),
         @JsonSubTypes.Type(value = AvroSerializationInfo.class, name = "avro")})
 public interface SerializationInfo extends Serializable {
 

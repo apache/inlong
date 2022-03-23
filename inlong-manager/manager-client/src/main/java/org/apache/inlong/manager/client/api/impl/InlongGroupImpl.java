@@ -19,9 +19,6 @@ package org.apache.inlong.manager.client.api.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -52,6 +49,10 @@ import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class InlongGroupImpl implements InlongGroup {
 
@@ -125,6 +126,11 @@ public class InlongGroupImpl implements InlongGroup {
         } else {
             conf = this.groupConf;
         }
+        final String groupId = "b_" + conf.getGroupName();
+        InlongGroupResponse groupResponse = managerClient.getGroupInfo(groupId);
+        InlongGroupState state = InlongGroupState.parseByBizStatus(groupResponse.getStatus());
+        AssertUtil.isTrue(state != InlongGroupState.INITIALIZING,
+                "Inlong Group is in init state, should not be updated");
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(conf);
         InlongGroupRequest groupRequest = groupInfo.genRequest();
         Pair<String, String> idAndErr = managerClient.updateGroup(groupRequest);
@@ -149,33 +155,48 @@ public class InlongGroupImpl implements InlongGroup {
 
     @Override
     public InlongGroupContext suspend() throws Exception {
+        return suspend(false);
+    }
+
+    @Override
+    public InlongGroupContext suspend(boolean async) throws Exception {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
         Pair<String, String> idAndErr = managerClient.updateGroup(groupInfo.genRequest());
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
-        managerClient.operateInlongGroup(groupId, InlongGroupState.STOPPED);
+        managerClient.operateInlongGroup(groupId, InlongGroupState.STOPPED, async);
         return generateSnapshot();
     }
 
     @Override
     public InlongGroupContext restart() throws Exception {
+        return restart(false);
+    }
+
+    @Override
+    public InlongGroupContext restart(boolean async) throws Exception {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
         Pair<String, String> idAndErr = managerClient.updateGroup(groupInfo.genRequest());
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
-        managerClient.operateInlongGroup(groupId, InlongGroupState.STARTED);
+        managerClient.operateInlongGroup(groupId, InlongGroupState.STARTED, async);
         return generateSnapshot();
     }
 
     @Override
     public InlongGroupContext delete() throws Exception {
+        return delete(false);
+    }
+
+    @Override
+    public InlongGroupContext delete(boolean async) throws Exception {
         InlongGroupResponse groupResponse = managerClient.getGroupInfo(
                 groupContext.getGroupId());
-        boolean isDeleted = managerClient.deleteInlongGroup(groupResponse.getInlongGroupId());
+        boolean isDeleted = managerClient.deleteInlongGroup(groupResponse.getInlongGroupId(), async);
         if (isDeleted) {
-            groupResponse.setStatus(GroupState.GROUP_DELETE.getCode());
+            groupResponse.setStatus(GroupState.DELETED.getCode());
         }
         return generateSnapshot();
     }
@@ -200,17 +221,26 @@ public class InlongGroupImpl implements InlongGroup {
         }
         //Create group context
         InlongGroupContext inlongGroupContext = new InlongGroupContext(groupContext, groupConf);
+        //Fetch group logs
         List<EventLogView> logViews = managerClient.getInlongGroupError(inlongGroupId);
         if (CollectionUtils.isNotEmpty(logViews)) {
             Map<String, List<String>> errMsgs = Maps.newHashMap();
+            Map<String, List<String>> groupLogs = Maps.newHashMap();
             logViews.stream()
-                    .filter(x -> null != x.getElementName() && null != x.getException())
+                    .filter(x -> StringUtils.isNotEmpty(x.getElementName()))
                     .forEach(eventLogView -> {
                         String taskName = eventLogView.getElementName();
-                        errMsgs.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getException());
+                        if (StringUtils.isNotEmpty(eventLogView.getException())) {
+                            errMsgs.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getException());
+                        }
+                        if (StringUtils.isNotEmpty(eventLogView.getRemark())) {
+                            groupLogs.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getRemark());
+                        }
                     });
-            inlongGroupContext.setErrMsgs(errMsgs);
+            inlongGroupContext.setGroupErrLogs(errMsgs);
+            inlongGroupContext.setGroupLogs(groupLogs);
         }
+        //Fetch stream logs
         Map<String, InlongStream> streams = inlongGroupContext.getInlongStreamMap();
         streams.keySet().stream().forEach(streamName -> {
             String inlongStreamId = "b_" + streamName;
@@ -224,7 +254,7 @@ public class InlongGroupImpl implements InlongGroup {
                             String log = GsonUtil.toJson(streamLog);
                             streamLogs.computeIfAbsent(componentName, Lists::newArrayList).add(log);
                         });
-                inlongGroupContext.getStreamLogs().put(streamName, streamLogs);
+                inlongGroupContext.getStreamErrLogs().put(streamName, streamLogs);
             }
         });
         return inlongGroupContext;

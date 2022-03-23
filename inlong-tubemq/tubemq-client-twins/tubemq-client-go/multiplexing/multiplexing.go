@@ -72,7 +72,8 @@ func NewPool() *Pool {
 // Get will return a multiplex connection
 // 1. If no underlying TCP connection has been created, a TCP connection will be created first.
 // 2. A new multiplex connection with the serialNo will be created and returned.
-func (p *Pool) Get(ctx context.Context, address string, serialNo uint32, opts *DialOptions) (*MultiplexConnection, error) {
+func (p *Pool) Get(ctx context.Context, address string, serialNo uint32,
+	opts *DialOptions) (*MultiplexConnection, error) {
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()

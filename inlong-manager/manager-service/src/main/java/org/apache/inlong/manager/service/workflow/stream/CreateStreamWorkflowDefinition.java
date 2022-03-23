@@ -89,12 +89,12 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask createPulsarTopicTask = new ServiceTask();
         createPulsarTopicTask.setSkipResolver(c -> {
             GroupResourceProcessForm form = (GroupResourceProcessForm) c.getProcessForm();
-            String middlewareType = form.getGroupInfo().getMiddlewareType();
-            if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
+            String mqType = form.getGroupInfo().getMiddlewareType();
+            if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
                 return false;
             }
             log.warn("no need to create pulsar topic for groupId={}, streamId={}, as the middlewareType={}",
-                    form.getInlongGroupId(), form.getInlongStreamId(), middlewareType);
+                    form.getInlongGroupId(), form.getInlongStreamId(), mqType);
             return true;
         });
         createPulsarTopicTask.setName("createPulsarTopic");
@@ -105,12 +105,12 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask createPulsarSubscriptionGroupTask = new ServiceTask();
         createPulsarSubscriptionGroupTask.setSkipResolver(c -> {
             GroupResourceProcessForm form = (GroupResourceProcessForm) c.getProcessForm();
-            String middlewareType = form.getGroupInfo().getMiddlewareType();
-            if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
+            String mqType = form.getGroupInfo().getMiddlewareType();
+            if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
                 return false;
             }
             log.warn("no need to create pulsar subscription for groupId={}, streamId={}, as the middlewareType={}",
-                    form.getInlongGroupId(), form.getInlongStreamId(), middlewareType);
+                    form.getInlongGroupId(), form.getInlongStreamId(), mqType);
             return true;
         });
         createPulsarSubscriptionGroupTask.setName("createPulsarSubscription");

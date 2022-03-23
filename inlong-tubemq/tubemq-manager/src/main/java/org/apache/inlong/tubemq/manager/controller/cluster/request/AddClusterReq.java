@@ -20,19 +20,20 @@ package org.apache.inlong.tubemq.manager.controller.cluster.request;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.tubemq.manager.entry.MasterEntry;
 
 import java.util.List;
 
 @Data
 public class AddClusterReq {
-    private List<String> masterIps;
+    private Integer id;
     private String clusterName;
-    private Integer masterPort;
-    private Integer masterWebPort;
+    private List<MasterEntry> masterEntries;
     private String createUser;
     private String token;
+    private int reloadBrokerSize;
 
     public boolean legal() {
-        return CollectionUtils.isNotEmpty(masterIps) && masterPort != null && StringUtils.isNotBlank(token);
+        return CollectionUtils.isNotEmpty(masterEntries) && StringUtils.isNotBlank(token);
     }
 }

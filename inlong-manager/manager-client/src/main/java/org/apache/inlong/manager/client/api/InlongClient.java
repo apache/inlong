@@ -17,8 +17,13 @@
 
 package org.apache.inlong.manager.client.api;
 
-import java.util.List;
+import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
+import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
+
+import java.util.List;
 
 /**
  * An interface to manipulate Inlong Cluster
@@ -36,7 +41,7 @@ import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
  * InlongStreamBuilder builder = group.createStream(streamConf);
  * StreamSource source = ..
  * StreamSink sink = ..
- * List<StreamField> fields = ..
+ * List StreamField fields = ..
  * InlongStream stream = builder.source(source).sink(sink).fields(fields).init();
  * group.init();
  * </code>
@@ -47,7 +52,7 @@ public interface InlongClient {
     /**
      * Create inlong client.
      *
-     * @param serviceUrl    the service url
+     * @param serviceUrl the service url
      * @param configuration the configuration
      * @return the inlong client
      */
@@ -72,6 +77,16 @@ public interface InlongClient {
      * @throws Exception the exception
      */
     List<InlongGroup> listGroup(String expr, int status, int pageNum, int pageSize) throws Exception;
+
+
+    /**
+     * List group
+     *
+     * @param request The request
+     * @return PageInfo of group
+     * @throws Exception The exception may throws
+     */
+    Response<PageInfo<InlongGroupListResponse>> listGroup(InlongGroupPageRequest request) throws Exception;
 
     /**
      * Gets group.

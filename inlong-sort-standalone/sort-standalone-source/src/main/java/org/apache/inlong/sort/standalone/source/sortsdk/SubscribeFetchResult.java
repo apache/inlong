@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
+import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.utils.Constants;
 
 /**
@@ -66,7 +67,7 @@ public class SubscribeFetchResult {
      * @param sortId String
      * @param msgKey String
      * @param offset String
-     * @param headers {@link Map<String,String>}
+     * @param headers Map
      * @param recTime long
      * @param body byte[]
      */
@@ -78,6 +79,7 @@ public class SubscribeFetchResult {
         this.headers.put(Constants.HEADER_KEY_MESSAGE_KEY, msgKey);
         this.headers.put(Constants.HEADER_KEY_MSG_OFFSET, offset);
         this.headers.put(Constants.HEADER_KEY_MSG_TIME, String.valueOf(recTime));
+        this.headers.put(SortMetricItem.KEY_TASK_NAME, sortId);
         this.headers.putAll(headers);
         this.body = body;
     }

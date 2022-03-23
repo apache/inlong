@@ -20,9 +20,10 @@ package org.apache.inlong.manager.client.api;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Map;
 import lombok.Data;
 import org.apache.inlong.manager.client.api.auth.Authentication;
+
+import java.util.Map;
 
 @Data
 @ApiModel("Base configuration for flink cluster")

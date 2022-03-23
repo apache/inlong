@@ -28,6 +28,7 @@ public class ZKConfig {
     private int zkSyncTimeMs = 1000;
     private long zkCommitPeriodMs = 5000L;
     private int zkCommitFailRetries = TServerConstants.CFG_ZK_COMMIT_DEFAULT_RETRIES;
+    private long zkMasterCheckPeriodMs = 5000L;
 
     public ZKConfig() {
 
@@ -89,6 +90,14 @@ public class ZKConfig {
         this.zkCommitPeriodMs = zkCommitPeriodMs;
     }
 
+    public long getZkMasterCheckPeriodMs() {
+        return zkMasterCheckPeriodMs;
+    }
+
+    public void setZkMasterCheckPeriodMs(long zkMasterCheckPeriodMs) {
+        this.zkMasterCheckPeriodMs = zkMasterCheckPeriodMs;
+    }
+
     @Override
     public String toString() {
         return new StringBuilder(512)
@@ -99,6 +108,7 @@ public class ZKConfig {
                 .append(",\"zkSyncTimeMs\":").append(zkSyncTimeMs)
                 .append(",\"zkCommitPeriodMs\":").append(zkCommitPeriodMs)
                 .append(",\"zkCommitFailRetries\":").append(zkCommitFailRetries)
+                .append(",\"zkMasterCheckPeriodMs\":").append(zkMasterCheckPeriodMs)
                 .append("}").toString();
     }
 }

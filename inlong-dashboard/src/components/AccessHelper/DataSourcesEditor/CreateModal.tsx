@@ -25,19 +25,20 @@ import { useRequest, useUpdateEffect } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import { getDataSourcesFileFields as getFileCreateFormContent } from '@/components/MetaData/DataSourcesFile';
 import {
-  getDataSourcesDbFields,
+  getDataSourcesBinLogFields,
   toFormValues,
   toSubmitValues,
-} from '@/components/MetaData/DataSourcesDb';
+} from '@/components/MetaData/DataSourcesBinLog';
+import { FormItemProps } from '@/components/FormGenerator';
 
 export interface Props extends ModalProps {
-  type: 'DB' | 'FILE';
+  type: 'BINLOG' | 'FILE';
   // When editing, use the ID to call the interface for obtaining details
   id?: string;
   // Pass when editing, directly echo the record data
   record?: Record<string, any>;
   // Additional form configuration
-  content?: any[];
+  content?: FormItemProps[];
 }
 
 const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }) => {
@@ -49,7 +50,7 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
   const toFormVals = useCallback(
     v => {
       const mapFunc = {
-        DB: toFormValues,
+        BINLOG: toFormValues,
       }[type];
       return mapFunc ? mapFunc(v) : v;
     },
@@ -59,7 +60,7 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
   const toSubmitVals = useCallback(
     v => {
       const mapFunc = {
-        DB: toSubmitValues,
+        BINLOG: toSubmitValues,
       }[type];
       return mapFunc ? mapFunc(v) : v;
     },
@@ -81,12 +82,17 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
         form.setFieldsValue(toFormVals(record));
         setCurrentValues(toFormVals(record));
       }
+    } else {
+      setCurrentValues({});
     }
   }, [modalProps.visible]);
 
   const { run: getData } = useRequest(
     id => ({
-      url: `/datasource/${type.toLowerCase()}/getDetail/${id}`,
+      url: `/source/get/${id}`,
+      params: {
+        sourceType: type,
+      },
     }),
     {
       manual: true,
@@ -100,12 +106,23 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
 
   const getCreateFormContent = useMemo(
     () => currentValues => {
-      return {
-        DB: getDataSourcesDbFields,
+      const config = {
+        BINLOG: getDataSourcesBinLogFields,
         FILE: getFileCreateFormContent,
-      }[type]('form', { currentValues });
+      }[type]('form', { currentValues }) as FormItemProps[];
+      return [
+        {
+          name: 'sourceName',
+          type: 'input',
+          label: t('components.AccessHelper.DataSourcesEditor.CreateModal.DataSourceName'),
+          rules: [{ required: true }],
+          props: {
+            disabled: !!id,
+          },
+        } as FormItemProps,
+      ].concat(config);
     },
-    [type],
+    [type, id, t],
   );
 
   return (
@@ -113,7 +130,9 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
       <Modal
         {...modalProps}
         title={
-          type === 'DB' ? 'DB' : t('components.AccessHelper.DataSourcesEditor.CreateModal.File')
+          type === 'BINLOG'
+            ? 'BINLOG'
+            : t('components.AccessHelper.DataSourcesEditor.CreateModal.File')
         }
         width={666}
         onOk={onOk}

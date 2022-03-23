@@ -504,4 +504,231 @@ public class ZKUtil {
         }
     }
 
+    /**
+     * Normalize ZooKeeper path string.
+     * The ZooKeeper path must start with "/" and not end with "/"
+     *
+     * @param root   the ZooKeeper path string
+     * @return    the normalized ZooKeeper path string
+     */
+    public static String normalizePath(String root) {
+        if (root.startsWith("/")) {
+            return removeLastSlash(root);
+        } else {
+            return "/" + removeLastSlash(root);
+        }
+    }
+
+    private static String removeLastSlash(String root) {
+        if (root.endsWith("/")) {
+            return root.substring(0, root.lastIndexOf("/"));
+        } else {
+            return root;
+        }
+    }
+
+    /**
+     * Simple class to hold a node path and node data.
+     */
+    public static class NodeAndData {
+        private final String node;
+        private final byte[] data;
+
+        public NodeAndData(String node, byte[] data) {
+            this.node = node;
+            this.data = data;
+        }
+
+        public String getNode() {
+            return node;
+        }
+
+        public byte[] getData() {
+            return data;
+        }
+
+        public boolean isEmpty() {
+            return (data.length == 0);
+        }
+    }
+
+    /**
+     * Returns the date of child zNodes of the specified zNode. Also sets a watch
+     * on the specified zNode which will capture a NodeDeleted event on the
+     * specified zNode as well as NodeChildrenChanged if any children of the
+     * specified zNode are created or deleted.
+     *
+     * Returns null if the specified node does not exist. Otherwise returns a list
+     * of children of the specified node. If the node exists but it has no
+     * children, an empty list will be returned.
+     *
+     * @param zkw
+     *          zk reference
+     * @param baseNode
+     *          path of node to list and watch children of
+     * @return list of data of children of the specified node, an empty list if
+     *         the node exists but has no children, and null if the node does not
+     *         exist
+     * @throws KeeperException
+     *           if unexpected zookeeper exception
+     */
+    public static List<NodeAndData> getChildDataAndWatchForNewChildren(
+            ZooKeeperWatcher zkw, String baseNode) throws KeeperException {
+        List<String> nodes = listChildrenAndWatchForNewChildren(zkw, baseNode);
+        List<NodeAndData> newNodes = new ArrayList<NodeAndData>();
+        if (nodes != null) {
+            for (String node : nodes) {
+                String nodePath = joinZNode(baseNode, node);
+                byte[] data = getDataAndWatch(zkw, nodePath);
+                if (data != null) {
+                    newNodes.add(new NodeAndData(nodePath, data));
+                } else {
+                    logger.error("Get data is null for nodePath " + nodePath);
+                }
+            }
+        }
+        return newNodes;
+    }
+
+    /**
+     * Lists the children zNodes of the specified zNode. Also sets a watch on the
+     * specified zNode which will capture a NodeDeleted event on the specified
+     * zNode as well as NodeChildrenChanged if any children of the specified zNode
+     * are created or deleted.
+     *
+     * Returns null if the specified node does not exist. Otherwise returns a list
+     * of children of the specified node. If the node exists but it has no
+     * children, an empty list will be returned.
+     *
+     * @param zkw zk reference
+     * @param zNode
+     *          path of node to list and watch children of
+     * @return list of children of the specified node, an empty list if the node
+     *         exists but has no children, and null if the node does not exist
+     * @throws KeeperException
+     *           if unexpected zookeeper exception
+     */
+    public static List<String> listChildrenAndWatchForNewChildren(
+            ZooKeeperWatcher zkw, String zNode) throws KeeperException {
+        try {
+            List<String> children = zkw.getRecoverableZooKeeper().getChildren(zNode,
+                    zkw);
+            return children;
+        } catch (KeeperException.NoNodeException ke) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(zkw.prefix("Unable to list children of zNode " + zNode + " "
+                        + "because node does not exist (not an error)"));
+            }
+            return null;
+        } catch (KeeperException e) {
+            logger.warn(zkw.prefix("Unable to list children of zNode " + zNode + " "), e);
+            zkw.keeperException(e);
+            return null;
+        } catch (InterruptedException e) {
+            logger.warn(zkw.prefix("Unable to list children of zNode " + zNode + " "), e);
+            zkw.interruptedException(e);
+            return null;
+        }
+    }
+
+    /**
+     *
+     * Set the specified zNode to be an ephemeral node carrying the specified
+     * data.
+     *
+     * If the node is created successfully, a watcher is also set on the node.
+     *
+     * If the node is not created successfully because it already exists, this
+     * method will also set a watcher on the node.
+     *
+     * If there is another problem, a KeeperException will be thrown.
+     *
+     * @param zkw
+     *          zk reference
+     * @param zNode
+     *          path of node
+     * @param data
+     *          data of node
+     * @return true if node created, false if not, watch set in both cases
+     * @throws KeeperException
+     *           if unexpected zookeeper exception
+     */
+    public static boolean createEphemeralNodeAndWatch(ZooKeeperWatcher zkw,
+                                                      String zNode, byte[] data) throws KeeperException {
+        return createEphemeralNodeAndWatch(zkw, zNode, data, CreateMode.EPHEMERAL);
+    }
+
+    /**
+     * Set the specified zNode to be an ephemeral node carrying the specified
+     * data.
+     *
+     * If the node is created successfully, a watcher is also set on the node.
+     *
+     * If the node is not created successfully because it already exists, this
+     * method will also set a watcher on the node.
+     *
+     * If there is another problem, a KeeperException will be thrown.
+     *
+     * @param zkw     zk reference
+     * @param zNode   path of node to watch
+     * @param data    write data
+     * @param mode    create mode
+     * @return  whether success
+     * @throws KeeperException process exception
+     */
+    public static boolean createEphemeralNodeAndWatch(ZooKeeperWatcher zkw, String zNode,
+                                                      byte[] data, CreateMode mode) throws KeeperException {
+        try {
+            waitForZKConnectionIfAuthenticating(zkw);
+            zkw.getRecoverableZooKeeper().create(zNode, data, createACL(zkw, zNode),
+                    mode);
+        } catch (KeeperException.NodeExistsException nee) {
+            if (!watchAndCheckExists(zkw, zNode)) {
+                // It did exist but now it doesn't, try again
+                return createEphemeralNodeAndWatch(zkw, zNode, data, mode);
+            }
+            return false;
+        } catch (InterruptedException e) {
+            logger.info("Interrupted", e);
+            Thread.currentThread().interrupt();
+        }
+        return true;
+    }
+
+    /**
+     * Watch the specified zNode for delete/create/change events. The watcher is
+     * set whether or not the node exists. If the node already exists, the method
+     * returns true. If the node does not exist, the method returns false.
+     *
+     * @param zkw
+     *          zk reference
+     * @param zNode
+     *          path of node to watch
+     * @return true if zNode exists, false if does not exist or error
+     * @throws KeeperException
+     *           if unexpected zookeeper exception
+     */
+    public static boolean watchAndCheckExists(ZooKeeperWatcher zkw, String zNode)
+            throws KeeperException {
+        try {
+            Stat s = zkw.getRecoverableZooKeeper().exists(zNode, zkw);
+            boolean exists = (s != null);
+            if (logger.isDebugEnabled()) {
+                if (exists) {
+                    logger.debug(zkw.prefix("Set watcher on existing zNode " + zNode));
+                } else {
+                    logger.debug(zkw.prefix(zNode + " does not exist. Watcher is set."));
+                }
+            }
+            return exists;
+        } catch (KeeperException e) {
+            logger.warn(zkw.prefix("Unable to set watcher on zNode " + zNode), e);
+            zkw.keeperException(e);
+            return false;
+        } catch (InterruptedException e) {
+            logger.warn(zkw.prefix("Unable to set watcher on zNode " + zNode), e);
+            zkw.interruptedException(e);
+            return false;
+        }
+    }
 }

@@ -240,12 +240,11 @@ public abstract class BaseSource
 
     filterEmptyMsg = context.getBoolean(ConfigConstants.FILTER_EMPTY_MSG, false);
 
-    topic = context.getString(ConfigConstants.TOPIC);
+    topic = context.getString(ConfigConstants.TOPIC, "");
     attr = context.getString(ConfigConstants.ATTR);
-    Configurables.ensureRequiredNonNull(context, ConfigConstants.TOPIC, ConfigConstants.ATTR);
+    Configurables.ensureRequiredNonNull(context, ConfigConstants.ATTR);
 
     topic = topic.trim();
-    Preconditions.checkArgument(!topic.isEmpty(), "topic is empty");
     attr = attr.trim();
     Preconditions.checkArgument(!attr.isEmpty(), "attr is empty");
 

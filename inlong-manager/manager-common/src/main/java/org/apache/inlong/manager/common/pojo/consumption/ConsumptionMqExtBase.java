@@ -32,14 +32,15 @@ import org.apache.inlong.manager.common.enums.Constant;
 @ApiModel("Extended consumption information of different MQs")
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "middlewareType", defaultImpl = ConsumptionMqExtBase.class)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ConsumptionPulsarInfo.class, name = Constant.MIDDLEWARE_PULSAR)
+        @JsonSubTypes.Type(value = ConsumptionPulsarInfo.class, name = Constant.MIDDLEWARE_PULSAR),
+        @JsonSubTypes.Type(value = ConsumptionPulsarInfo.class, name = Constant.MIDDLEWARE_TDMQ_PULSAR)
 })
 public class ConsumptionMqExtBase {
 
-    @ApiModelProperty(value = "Self-incrementing primary key")
+    @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Consumer information ID")
+    @ApiModelProperty(value = "Consumption ID")
     private Integer consumptionId;
 
     @ApiModelProperty(value = "Consumer group")

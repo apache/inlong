@@ -34,10 +34,6 @@ import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 @ApiModel(value = "Response of the kafka source")
 public class KafkaSourceResponse extends SourceResponse {
 
-    public KafkaSourceResponse() {
-        this.setSourceType(SourceType.KAFKA.name());
-    }
-
     @ApiModelProperty("Kafka topic")
     private String topic;
 
@@ -55,5 +51,24 @@ public class KafkaSourceResponse extends SourceResponse {
 
     @ApiModelProperty("Topic partition offset")
     private String topicPartitionOffset;
+
+    @ApiModelProperty(value = "The strategy of auto offset reset")
+    private String autoOffsetReset;
+
+    @ApiModelProperty("database pattern used for filter in canal format")
+    private String databasePattern;
+
+    @ApiModelProperty("table pattern used for filter in canal format")
+    private String tablePattern;
+
+    @ApiModelProperty("ignore parse errors, true: ignore parse error; false: not ignore parse error; default true")
+    private boolean ignoreParseErrors;
+
+    @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
+    private String timestampFormatStandard;
+
+    public KafkaSourceResponse() {
+        this.setSourceType(SourceType.KAFKA.name());
+    }
 
 }

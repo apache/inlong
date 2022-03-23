@@ -54,11 +54,10 @@
         <log4j.configuration>log4j-test.properties</log4j.configuration>
         <tubemq.version>${project.version}</tubemq.version>
         <commons-lang3.version>3.3.2</commons-lang3.version>
-        <clickhouse-jdbc.version>0.3.0</clickhouse-jdbc.version>
+        <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
         <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
         <jsr.version>3.0.2</jsr.version>
         <snappy.version>1.1.4</snappy.version>
-        <hadoop.version>2.8.5</hadoop.version>
         <hive.version>2.3.8</hive.version>
         <pulsar.version>2.8.1</pulsar.version>
         <kafka.version>2.4.1</kafka.version>

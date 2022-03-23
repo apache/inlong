@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -17,30 +17,31 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar.federation;
 
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.config.loader.TestContextIdTopicConfigLoader;
 import org.apache.inlong.dataproxy.utils.MockUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
- * 
  * TestPulsarFederationSink
  */
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
+@PrepareForTest({MetricRegister.class})
 public class TestPulsarFederationSink {
 
     public static final Logger LOG = LoggerFactory.getLogger(TestContextIdTopicConfigLoader.class);
@@ -63,27 +64,22 @@ public class TestPulsarFederationSink {
             }
             context = new Context(result);
             sinkContext = new Context(context.getSubProperties("proxy_inlong5th_sz.sinks.pulsar-sink-more1."));
-        } catch (UnsupportedEncodingException e) {
-            LOG.error("fail to load properties, file ={}, and e= {}", "flume.conf", e);
         } catch (Exception e) {
             LOG.error("fail to load properties, file ={}, and e= {}", "flume.conf", e);
         }
-        //
         sinkObj = new PulsarFederationSink();
         sinkObj.configure(sinkContext);
     }
 
     /**
      * testResult
-     * 
-     * @throws Exception
      */
     @Test
     public void testResult() throws Exception {
+        MockUtils.mockMetricRegister();
         // mock
         Channel channel = MockUtils.mockChannel();
         sinkObj.setChannel(channel);
-        //
         sinkObj.process();
     }
 

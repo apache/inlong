@@ -17,20 +17,25 @@
 # under the License.
 #
 FROM openjdk:8-jdk
+RUN apt-get update \
+    && apt-get install -y net-tools vim \
+    && rm -rf /var/lib/apt/lists/*
 EXPOSE 8083
-
 # profile and env virables
 ENV ACTIVE_PROFILE=prod
 ENV JDBC_URL=127.0.0.1:3306
 ENV USERNAME=root
 ENV PASSWORD=inlong
 ENV ZK_URL=127.0.0.1:2181
-
+# support download plugins from remote address.
+ENV PLUGINS_URL=default
 WORKDIR /opt/inlong-manager
 
 # add tarball from manager output
 ARG MANAGER_TARBALL
 ADD ${MANAGER_TARBALL} /opt/inlong-manager
+# add mysql connector
+RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.26/mysql-connector-java-8.0.26.jar
 ADD manager-docker.sh bin/
 RUN chmod +x bin/manager-docker.sh
 CMD ["bin/manager-docker.sh"]

@@ -47,7 +47,7 @@ public class AgentConstants {
     public static final String DEFAULT_AGENT_DB_INSTANCE_NAME = "agent";
 
     public static final String AGENT_DB_CLASSNAME = "agent.db.classname";
-    public static final String DEFAULT_AGENT_DB_CLASSNAME = "org.apache.inlong.agent.db.BerkeleyDbImp";
+    public static final String DEFAULT_AGENT_DB_CLASSNAME = "org.apache.inlong.agent.db.RocksDbImp";
 
     // default is empty.
     public static final String AGENT_FETCHER_CLASSNAME = "agent.fetcher.classname";
@@ -181,5 +181,8 @@ public class AgentConstants {
 
     public static final String AGENT_HISTORY_PATH = "agent.history.path";
     public static final String DEFAULT_AGENT_HISTORY_PATH = ".history";
+
+    public static final String JOB_VERSION = "job.version";
+    public static final Integer DEFAULT_JOB_VERSION = 1;
 
 }

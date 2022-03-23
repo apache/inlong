@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.singletenant.flink.serialization;
 
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.shaded.guava18.com.google.common.annotations.VisibleForTesting;
 import org.apache.flink.types.Row;
@@ -31,7 +30,6 @@ import java.sql.Time;
 import java.sql.Timestamp;
 
 import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkNotNull;
-import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkState;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.isStandardTimestampFormat;
 
 public class CustomDateFormatSerializationSchemaWrapper implements SerializationSchema<Row> {
@@ -70,18 +68,18 @@ public class CustomDateFormatSerializationSchemaWrapper implements Serialization
     }
 
     private Object convert(Object input, FormatInfo formatInfo) {
+        if (input == null) {
+            return null;
+        }
 
         if (formatInfo instanceof DateFormatInfo && !isStandardTimestampFormat(formatInfo)) {
-            checkState(input instanceof Date);
-            return FastDateFormat.getInstance(((DateFormatInfo) formatInfo).getFormat()).format(input);
+            return ((DateFormatInfo) formatInfo).serialize((Date) input);
 
         } else if (formatInfo instanceof TimeFormatInfo && !isStandardTimestampFormat(formatInfo)) {
-            checkState(input instanceof Time);
-            return FastDateFormat.getInstance(((TimeFormatInfo) formatInfo).getFormat()).format(input);
+            return ((TimeFormatInfo) formatInfo).serialize((Time) input);
 
         } else if (formatInfo instanceof TimestampFormatInfo && !isStandardTimestampFormat(formatInfo)) {
-            checkState(input instanceof Timestamp);
-            return FastDateFormat.getInstance(((TimestampFormatInfo) formatInfo).getFormat()).format(input);
+            return ((TimestampFormatInfo) formatInfo).serialize((Timestamp) input);
 
         } else {
             return input;

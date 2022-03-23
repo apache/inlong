@@ -60,8 +60,17 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
         this.brokerIp = brokerIp;
     }
 
+    public BrokerConfEntity(BaseEntity opEntity, int brokerId,
+                            String brokerIp, ClusterSettingEntity defSetting) {
+        super(opEntity);
+        this.brokerWebPort = defSetting.getBrokerWebPort();
+        this.topicProps.updModifyInfo(defSetting.getClsDefTopicProps());
+        setBrokerIpAndAllPort(brokerId, brokerIp,
+                defSetting.getBrokerPort(), defSetting.getBrokerTLSPort());
+    }
+
     /**
-     * Initial Broker Conigure entity by BdbBrokerConfEntity
+     * Initial Broker Configure entity by BdbBrokerConfEntity
      *
      * @param bdbEntity   need initialed BdbBrokerConfEntity information
      */
@@ -383,22 +392,44 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
     /**
      * Get broker config string
      *
-     * @return config string
+     * @param defSetting  the default setting
+     * @param strBuff     the string buffer
      */
-    public String getBrokerDefaultConfInfo() {
-        return new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                .append(topicProps.getNumPartitions()).append(TokenConstants.ATTR_SEP)
-                .append(topicProps.isAcceptPublish()).append(TokenConstants.ATTR_SEP)
-                .append(topicProps.isAcceptSubscribe()).append(TokenConstants.ATTR_SEP)
-                .append(topicProps.getUnflushThreshold()).append(TokenConstants.ATTR_SEP)
-                .append(topicProps.getUnflushInterval()).append(TokenConstants.ATTR_SEP)
-                .append(" ").append(TokenConstants.ATTR_SEP)
-                .append(topicProps.getDeletePolicy()).append(TokenConstants.ATTR_SEP)
-                .append(topicProps.getNumTopicStores()).append(TokenConstants.ATTR_SEP)
-                .append(topicProps.getUnflushDataHold()).append(TokenConstants.ATTR_SEP)
-                .append(topicProps.getMemCacheMsgSizeInMB()).append(TokenConstants.ATTR_SEP)
-                .append(topicProps.getMemCacheMsgCntInK()).append(TokenConstants.ATTR_SEP)
-                .append(topicProps.getMemCacheFlushIntvl()).toString();
+    public void getBrokerDefaultConfInfo(ClusterSettingEntity defSetting,
+                                         StringBuilder strBuff) {
+        TopicPropGroup defTopicProps = defSetting.getClsDefTopicProps();
+        strBuff.append((topicProps.getNumPartitions() == TBaseConstants.META_VALUE_UNDEFINED)
+                ? defTopicProps.getNumPartitions() : topicProps.getNumPartitions())
+                .append(TokenConstants.ATTR_SEP)
+                .append((topicProps.getAcceptPublish() == null)
+                        ? defTopicProps.isAcceptPublish() : topicProps.isAcceptPublish())
+                .append(TokenConstants.ATTR_SEP)
+                .append((topicProps.getAcceptSubscribe() == null)
+                        ? defTopicProps.isAcceptSubscribe() : topicProps.isAcceptSubscribe())
+                .append(TokenConstants.ATTR_SEP)
+                .append((topicProps.getUnflushThreshold() == TBaseConstants.META_VALUE_UNDEFINED)
+                        ? defTopicProps.getUnflushThreshold() : topicProps.getUnflushThreshold())
+                .append(TokenConstants.ATTR_SEP)
+                .append((topicProps.getUnflushInterval() == TBaseConstants.META_VALUE_UNDEFINED)
+                        ? defTopicProps.getUnflushInterval() : topicProps.getUnflushInterval())
+                .append(TokenConstants.ATTR_SEP).append(" ").append(TokenConstants.ATTR_SEP)
+                .append((TStringUtils.isEmpty(topicProps.getDeletePolicy()))
+                        ? defTopicProps.getDeletePolicy() : topicProps.getDeletePolicy())
+                .append(TokenConstants.ATTR_SEP)
+                .append((topicProps.getNumTopicStores() == TBaseConstants.META_VALUE_UNDEFINED)
+                        ? defTopicProps.getNumTopicStores() : topicProps.getNumTopicStores())
+                .append(TokenConstants.ATTR_SEP)
+                .append((topicProps.getUnflushDataHold() == TBaseConstants.META_VALUE_UNDEFINED)
+                        ? defTopicProps.getUnflushDataHold() : topicProps.getUnflushDataHold())
+                .append(TokenConstants.ATTR_SEP)
+                .append((topicProps.getMemCacheMsgSizeInMB() == TBaseConstants.META_VALUE_UNDEFINED)
+                        ? defTopicProps.getMemCacheMsgSizeInMB() : topicProps.getMemCacheMsgSizeInMB())
+                .append(TokenConstants.ATTR_SEP)
+                .append((topicProps.getMemCacheMsgCntInK() == TBaseConstants.META_VALUE_UNDEFINED)
+                        ? defTopicProps.getMemCacheMsgCntInK() : topicProps.getMemCacheMsgCntInK())
+                .append(TokenConstants.ATTR_SEP)
+                .append((topicProps.getMemCacheFlushIntvl() == TBaseConstants.META_VALUE_UNDEFINED)
+                        ? defTopicProps.getMemCacheFlushIntvl() : topicProps.getMemCacheFlushIntvl());
     }
 
     /**

@@ -24,13 +24,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.DataFormat;
-import org.apache.inlong.manager.client.api.StreamField;
+import org.apache.inlong.manager.client.api.SinkField;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.SinkType;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -78,11 +77,8 @@ public class ClickHouseSink extends StreamSink {
     @ApiModelProperty("Create topic or not")
     private boolean needCreated;
 
-    @ApiModelProperty("Field definitions for kafka")
-    private List<StreamField> streamFields;
-
-    @ApiModelProperty("Other properties if need")
-    private Map<String, String> properties;
+    @ApiModelProperty("Field definitions for clickhouse")
+    private List<SinkField> sinkFields;
 
     @Override
     public DataFormat getDataFormat() {
