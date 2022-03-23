@@ -122,7 +122,7 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
         } as FormItemProps,
       ].concat(config);
     },
-    [type, id],
+    [type, id, t],
   );
 
   return (
