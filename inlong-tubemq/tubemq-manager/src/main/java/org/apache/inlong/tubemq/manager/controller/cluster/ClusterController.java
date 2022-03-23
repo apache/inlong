@@ -303,9 +303,9 @@ public class ClusterController {
         String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.TOPIC_VIEW);
         JsonObject jsonObject = gson.fromJson(masterService.queryMaster(queryUrl), JsonObject.class);
         JsonElement getData = jsonObject.get("data");
-        JsonArray jsonData = gson.fromJson(getData, JsonArray.class);
+        JsonArray fromJson = gson.fromJson(getData, JsonArray.class);
         int storeCount = 0;
-        List<TopicViewRes> topicViewResList = gson.fromJson(jsonData.toString(),
+        List<TopicViewRes> topicViewResList = gson.fromJson(fromJson.toString(),
                 new TypeToken<List<TopicViewRes>>() {
                 }.getType());
         for (TopicViewRes topicViewRes : topicViewResList) {
