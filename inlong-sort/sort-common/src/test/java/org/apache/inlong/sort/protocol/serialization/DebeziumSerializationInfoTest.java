@@ -17,20 +17,25 @@
 
 package org.apache.inlong.sort.protocol.serialization;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.inlong.sort.protocol.ProtocolBaseTest;
 
-import java.io.Serializable;
+public class DebeziumSerializationInfoTest extends ProtocolBaseTest {
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = JsonSerializationInfo.class, name = "json"),
-        @JsonSubTypes.Type(value = CanalSerializationInfo.class, name = "canal"),
-        @JsonSubTypes.Type(value = DebeziumSerializationInfo.class, name = "debezium_json"),
-        @JsonSubTypes.Type(value = AvroSerializationInfo.class, name = "avro")})
-public interface SerializationInfo extends Serializable {
+    @Override
+    public void init() {
+        expectedObject = new DebeziumSerializationInfo("SQL", "LITERAL", "null", true);
 
+        expectedJson = "{\n"
+                + "    \"type\":\"debezium_json\",\n"
+                + "    \"timestamp_format_standard\":\"SQL\",\n"
+                + "    \"map_null_key_mod\":\"LITERAL\",\n"
+                + "    \"map_null_key_literal\":\"null\",\n"
+                + "    \"encode_decimal_as_plain_number\":true\n"
+                + "}";
+
+        equalObj1 = expectedObject;
+        equalObj2 = new DebeziumSerializationInfo("SQL", "LITERAL", "null", true);
+        unequalObj = new DebeziumSerializationInfo("SQL", "LITERAL", "null", false);
+
+    }
 }
