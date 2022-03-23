@@ -93,6 +93,9 @@ public class CustomDateFormatDeserializationSchemaWrapper implements Deserializa
     }
 
     private Object convert(Object input, FormatInfo formatInfo) throws ParseException {
+        if (input == null) {
+            return null;
+        }
 
         if (formatInfo instanceof DateFormatInfo && !isStandardTimestampFormat(formatInfo)) {
             return ((DateFormatInfo) formatInfo).deserialize((String) input);

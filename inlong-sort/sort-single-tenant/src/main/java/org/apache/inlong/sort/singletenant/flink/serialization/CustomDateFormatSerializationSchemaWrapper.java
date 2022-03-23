@@ -68,6 +68,9 @@ public class CustomDateFormatSerializationSchemaWrapper implements Serialization
     }
 
     private Object convert(Object input, FormatInfo formatInfo) {
+        if (input == null) {
+            return null;
+        }
 
         if (formatInfo instanceof DateFormatInfo && !isStandardTimestampFormat(formatInfo)) {
             return ((DateFormatInfo) formatInfo).serialize((Date) input);
