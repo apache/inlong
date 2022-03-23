@@ -95,9 +95,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Integer save(SinkRequest request, String operator) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to save sink info=" + request);
-        }
+        LOGGER.info("begin to save sink info: {}", request);
         this.checkParams(request);
 
         // Check if it can be added
@@ -120,16 +118,15 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             executorService.execute(new WorkflowStartRunnable(operator, groupEntity, streamId));
         }
 
-        LOGGER.info("success to save sink info");
+        LOGGER.info("success to save sink info: {}", request);
         return id;
     }
 
     @Override
     public SinkResponse get(Integer id, String sinkType) {
-        LOGGER.debug("begin to get sink by id={}, sinkType={}", id, sinkType);
         StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
         SinkResponse sinkResponse = operation.getById(sinkType, id);
-        LOGGER.debug("success to get sink info");
+        LOGGER.debug("success to get sink by id={}, sinkType={}", id, sinkType);
         return sinkResponse;
     }
 
@@ -142,9 +139,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     public List<SinkResponse> listSink(String groupId, String streamId) {
-        LOGGER.debug("begin to list sink by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
-
         List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
@@ -152,30 +147,25 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         List<SinkResponse> responseList = new ArrayList<>();
         entityList.forEach(entity -> responseList.add(this.get(entity.getId(), entity.getSinkType())));
 
-        LOGGER.info("success to list sink");
+        LOGGER.debug("success to list sink by groupId={}, streamId={}", groupId, streamId);
         return responseList;
     }
 
     @Override
     public List<SinkBriefResponse> listBrief(String groupId, String streamId) {
-        LOGGER.debug("begin to list sink summary by groupId=" + groupId + ", streamId=" + streamId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
         Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
 
         // Query all sink information and encapsulate it in the result set
         List<SinkBriefResponse> summaryList = sinkMapper.selectSummary(groupId, streamId);
 
-        LOGGER.debug("success to list sink summary");
+        LOGGER.debug("success to list sink summary by groupId=" + groupId + ", streamId=" + streamId);
         return summaryList;
     }
 
     @Override
     public PageInfo<? extends SinkListResponse> listByCondition(SinkPageRequest request) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to list sink page by " + request);
-        }
         Preconditions.checkNotNull(request.getInlongGroupId(), Constant.GROUP_ID_IS_EMPTY);
-
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         List<StreamSinkEntity> entityPage = sinkMapper.selectByCondition(request);
         Map<SinkType, Page<StreamSinkEntity>> sinkMap = Maps.newHashMap();
@@ -193,14 +183,14 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
         PageInfo<? extends SinkListResponse> pageInfo = PageInfo.of(sinkListResponses);
 
-        LOGGER.debug("success to list sink page");
+        LOGGER.debug("success to list sink page, result size {}", pageInfo.getSize());
         return pageInfo;
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean update(SinkRequest request, String operator) {
-        LOGGER.info("begin to update sink info={}", request);
+        LOGGER.info("begin to update sink info: {}", request);
         this.checkParams(request);
         Preconditions.checkNotNull(request.getId(), Constant.ID_IS_EMPTY);
 
@@ -219,8 +209,19 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         if (EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
             executorService.execute(new WorkflowStartRunnable(operator, groupEntity, streamId));
         }
-        LOGGER.info("success to update sink info");
+        LOGGER.info("success to update sink info: {}", request);
         return true;
+    }
+
+    @Override
+    public void updateStatus(int id, int status, String log) {
+        StreamSinkEntity entity = new StreamSinkEntity();
+        entity.setId(id);
+        entity.setStatus(status);
+        entity.setOperateLog(log);
+        sinkMapper.updateStatus(entity);
+
+        LOGGER.info("success to update sink status={} for id={} with log: {}", status, id, log);
     }
 
     @Transactional(rollbackFor = Throwable.class)
@@ -240,20 +241,10 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
         sinkMapper.updateByPrimaryKeySelective(entity);
-
         sinkFieldMapper.logicDeleteAll(id);
 
-        LOGGER.info("success to delete sink info");
+        LOGGER.info("success to delete sink info: {}", entity);
         return true;
-    }
-
-    @Override
-    public void updateStatus(int id, int status, String log) {
-        StreamSinkEntity entity = new StreamSinkEntity();
-        entity.setId(id);
-        entity.setStatus(status);
-        entity.setOperateLog(log);
-        sinkMapper.updateStatus(entity);
     }
 
     @Override
@@ -322,21 +313,18 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     public List<String> getSinkTypeList(String groupId, String streamId) {
-        LOGGER.debug("begin to get sink type list by groupId={}, streamId={}", groupId, streamId);
         if (StringUtils.isEmpty(streamId)) {
             return Collections.emptyList();
         }
 
         List<String> resultList = sinkMapper.selectSinkType(groupId, streamId);
-        LOGGER.debug("success to get sink type list, result sinkType={}", resultList);
+        LOGGER.debug("success to get sink type by groupId={}, streamId={}, result={}", groupId, streamId, resultList);
         return resultList;
     }
 
     @Override
     public Boolean updateAfterApprove(List<SinkApproveDTO> approveList, String operator) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to update sink after approve={}", approveList);
-        }
+        LOGGER.info("begin to update sink after approve: {}", approveList);
         if (CollectionUtils.isEmpty(approveList)) {
             return true;
         }
@@ -358,7 +346,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             sinkMapper.updateByPrimaryKeySelective(entity);
         }
 
-        LOGGER.info("success to update sink after approve");
+        LOGGER.info("success to update sink after approve: {}", approveList);
         return true;
     }
 
@@ -392,13 +380,13 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         @Override
         public void run() {
             String groupId = inlongGroupEntity.getInlongGroupId();
-            LOGGER.info("begin start inlong stream workflow, groupId={}, streamId={}", groupId, streamId);
+            LOGGER.info("begin start inlong stream workflow for groupId={}, streamId={}", groupId, streamId);
 
             InlongGroupInfo groupInfo = CommonBeanUtils.copyProperties(inlongGroupEntity, InlongGroupInfo::new);
             GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, streamId);
 
             workflowService.start(ProcessName.CREATE_STREAM_RESOURCE, operator, form);
-            LOGGER.info("success start inlong stream workflow, groupId={}, streamId={}", groupId, streamId);
+            LOGGER.info("success start inlong stream workflow for groupId={}, streamId={}", groupId, streamId);
         }
 
         /**

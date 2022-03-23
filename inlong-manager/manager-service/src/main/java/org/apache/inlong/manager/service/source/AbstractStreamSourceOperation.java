@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.source;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -41,7 +40,9 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
-@Slf4j
+/**
+ * Default operation of stream source.
+ */
 public abstract class AbstractStreamSourceOperation implements StreamSourceOperation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStreamSourceOperation.class);

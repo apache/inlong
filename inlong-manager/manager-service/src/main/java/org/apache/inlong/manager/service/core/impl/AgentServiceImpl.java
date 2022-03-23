@@ -155,8 +155,8 @@ public class AgentServiceImpl implements AgentService {
                 nextStatus = SourceState.SOURCE_FAILED.getCode();
             }
 
-            sourceMapper.updateStatus(taskId, nextStatus, current.getModifyTime());
-            LOGGER.info("update stream source status to [{}] for id [{}] ", nextStatus, taskId);
+            sourceMapper.updateStatus(taskId, nextStatus, false);
+            LOGGER.info("update stream source status to [{}] for id [{}]", nextStatus, taskId);
         }
     }
 
@@ -172,9 +172,9 @@ public class AgentServiceImpl implements AgentService {
         }
 
         // Query the tasks that needed to add or active - without agentIp and uuid
-        List<Integer> addedStatusList = Arrays.asList(SourceState.TO_BE_ISSUED_ADD.getCode(),
+        List<Integer> needAddStatusList = Arrays.asList(SourceState.TO_BE_ISSUED_ADD.getCode(),
                 SourceState.TO_BE_ISSUED_ACTIVE.getCode());
-        List<StreamSourceEntity> entityList = sourceMapper.selectByStatus(addedStatusList);
+        List<StreamSourceEntity> entityList = sourceMapper.selectByStatus(needAddStatusList);
 
         String agentIp = request.getAgentIp();
         String uuid = request.getUuid();
@@ -183,8 +183,8 @@ public class AgentServiceImpl implements AgentService {
                 SourceState.TO_BE_ISSUED_RETRY.getCode(), SourceState.TO_BE_ISSUED_BACKTRACK.getCode(),
                 SourceState.TO_BE_ISSUED_FROZEN.getCode(), SourceState.TO_BE_ISSUED_CHECK.getCode(),
                 SourceState.TO_BE_ISSUED_REDO_METRIC.getCode(), SourceState.TO_BE_ISSUED_MAKEUP.getCode());
-        List<StreamSourceEntity> addedList = sourceMapper.selectByStatusAndIp(statusList, agentIp, uuid);
-        entityList.addAll(addedList);
+        List<StreamSourceEntity> needIssuedList = sourceMapper.selectByStatusAndIp(statusList, agentIp, uuid);
+        entityList.addAll(needIssuedList);
 
         List<DataConfig> dataConfigs = Lists.newArrayList();
         for (StreamSourceEntity entity : entityList) {
@@ -195,7 +195,7 @@ public class AgentServiceImpl implements AgentService {
             int op = status % MODULUS_100;
             if (status / MODULUS_100 == UNISSUED_STATUS) {
                 int nextStatus = ISSUED_STATUS * MODULUS_100 + op;
-                sourceMapper.updateStatus(id, nextStatus, entity.getModifyTime());
+                sourceMapper.updateStatus(id, nextStatus, false);
                 LOGGER.info("update stream source status to [{}] for id [{}] ", nextStatus, id);
             } else {
                 LOGGER.info("skip task status not in 20x, id={}", id);
@@ -211,7 +211,7 @@ public class AgentServiceImpl implements AgentService {
         // Update agentIp and uuid for the added and active tasks
         for (StreamSourceEntity entity : entityList) {
             if (StringUtils.isEmpty(entity.getAgentIp())) {
-                sourceMapper.updateIpAndUuid(entity.getId(), agentIp, uuid, entity.getModifyTime());
+                sourceMapper.updateIpAndUuid(entity.getId(), agentIp, uuid, false);
                 LOGGER.info("update stream source ip to [{}], uuid to [{}] for id [{}]", agentIp, uuid, entity.getId());
             }
         }
@@ -239,7 +239,12 @@ public class AgentServiceImpl implements AgentService {
         dataConfig.setInlongGroupId(groupId);
         dataConfig.setInlongStreamId(streamId);
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
-        dataConfig.setSyncSend(streamEntity.getSyncSend());
+        if (streamEntity != null) {
+            dataConfig.setSyncSend(streamEntity.getSyncSend());
+        } else {
+            dataConfig.setSyncSend(0);
+            LOGGER.warn("set syncSend=[0] as the stream not exists for groupId={}, streamId={}", groupId, streamId);
+        }
         return dataConfig;
     }
 
