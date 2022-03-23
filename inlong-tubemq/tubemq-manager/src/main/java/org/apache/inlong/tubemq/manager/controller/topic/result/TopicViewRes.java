@@ -15,22 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.manager.controller.cluster.vo;
+package org.apache.inlong.tubemq.manager.controller.topic.result;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-public class ClusterVo {
-    private Long clusterId;
-    private String clusterName;
-    private String masterIp;
-    private int reloadBrokerSize;
-    private int brokerCount;
-    private int topicCount;
-    private int storeCount;
-    private int partitionCount;
-    private int consumerGroupCount;
-    private int consumerCount;
+public class TopicViewRes {
+    private String topicName;
+    private double totalCfgNumStore;
+    private double totalRunNumStore;
+    private double totalCfgNumPart;
+    private double totalRunNumPartCount;
+    private boolean isSrvAcceptPublish;
+    private boolean isSrvAcceptSubscribe;
+    private boolean enableAuthControl;
 }

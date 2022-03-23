@@ -15,22 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.manager.controller.cluster.vo;
+package org.apache.inlong.tubemq.manager.controller.group.result;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-public class ClusterVo {
-    private Long clusterId;
-    private String clusterName;
-    private String masterIp;
-    private int reloadBrokerSize;
-    private int brokerCount;
-    private int topicCount;
-    private int storeCount;
-    private int partitionCount;
-    private int consumerGroupCount;
-    private int consumerCount;
+public class ConsumerInfoRes {
+    private String consumeGroup;
+    private String topicSet;
+    private Double consumerNum;
 }
