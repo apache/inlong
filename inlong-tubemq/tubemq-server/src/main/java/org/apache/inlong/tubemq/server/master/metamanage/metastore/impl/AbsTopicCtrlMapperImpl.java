@@ -119,7 +119,7 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
             retEntities.addAll(topicCtrlCache.values());
         } else {
             for (TopicCtrlEntity entity : topicCtrlCache.values()) {
-                if (entity != null && entity.isMatched(qryEntity)) {
+                if (entity != null && entity.isMatched(qryEntity, true)) {
                     retEntities.add(entity);
                 }
             }
@@ -139,7 +139,7 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
         }
         for (String topicName : qryKeySet) {
             TopicCtrlEntity entity = topicCtrlCache.get(topicName);
-            if (entity == null || (qryEntity != null && !entity.isMatched(qryEntity))) {
+            if (entity == null || (qryEntity != null && !entity.isMatched(qryEntity, true))) {
                 continue;
             }
             retEntityMap.put(topicName, entity);

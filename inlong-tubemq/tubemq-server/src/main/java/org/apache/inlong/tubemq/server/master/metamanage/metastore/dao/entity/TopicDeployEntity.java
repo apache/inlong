@@ -265,13 +265,16 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
      * Check whether the specified query item value matches
      * Allowed query items:
      *   brokerId, topicId, topicName, topicStatus
+     *
+     * @param target  the matched object
+     * @param fullMatch  whether match parent parameters
      * @return true: matched, false: not match
      */
-    public boolean isMatched(TopicDeployEntity target) {
+    public boolean isMatched(TopicDeployEntity target, boolean fullMatch) {
         if (target == null) {
             return true;
         }
-        if (!super.isMatched(target)) {
+        if (fullMatch && !super.isMatched(target)) {
             return false;
         }
         return (target.getBrokerId() == TBaseConstants.META_VALUE_UNDEFINED

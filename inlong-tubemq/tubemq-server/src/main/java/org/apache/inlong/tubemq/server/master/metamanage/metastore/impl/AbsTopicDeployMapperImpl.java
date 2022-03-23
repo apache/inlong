@@ -248,7 +248,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
             retEntities.addAll(topicDeployCache.values());
         } else {
             for (TopicDeployEntity entity : topicDeployCache.values()) {
-                if (entity != null && entity.isMatched(qryEntity)) {
+                if (entity != null && entity.isMatched(qryEntity, true)) {
                     retEntities.add(entity);
                 }
             }
@@ -279,7 +279,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
         // filter record by qryEntity
         if (matchedKeySet == null) {
             for (TopicDeployEntity entry :  topicDeployCache.values()) {
-                if (entry == null || (qryEntity != null && !entry.isMatched(qryEntity))) {
+                if (entry == null || (qryEntity != null && !entry.isMatched(qryEntity, true))) {
                     continue;
                 }
                 items = retEntityMap.computeIfAbsent(
@@ -290,7 +290,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
             TopicDeployEntity entry;
             for (String recKey : matchedKeySet) {
                 entry = topicDeployCache.get(recKey);
-                if (entry == null || (qryEntity != null && !entry.isMatched(qryEntity))) {
+                if (entry == null || (qryEntity != null && !entry.isMatched(qryEntity, true))) {
                     continue;
                 }
                 items = retEntityMap.computeIfAbsent(

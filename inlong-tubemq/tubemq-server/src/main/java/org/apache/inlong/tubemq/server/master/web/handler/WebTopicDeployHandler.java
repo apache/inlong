@@ -440,9 +440,9 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @param result    process result
      * @return    process result
      */
-    private StringBuilder innQueryTopicDeployConfInfo(HttpServletRequest req,
-                                                      StringBuilder sBuffer,
-                                                      ProcessResult result) {
+    public StringBuilder innQueryTopicDeployConfInfo(HttpServletRequest req,
+                                                     StringBuilder sBuffer,
+                                                     ProcessResult result) {
         TopicDeployEntity qryEntity = new TopicDeployEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {

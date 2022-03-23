@@ -79,7 +79,7 @@ public class TopicCtrlEntityTest {
         Assert.assertTrue(ctrlEntity2.updModifyInfo(opInfoEntry.getDataVerId(),
                 topicId2, maxMsgSizeInB2, enableAuthControl2));
         Assert.assertFalse(ctrlEntity2.isDataEquals(ctrlEntity1));
-        Assert.assertFalse(ctrlEntity2.isMatched(ctrlEntity1));
+        Assert.assertFalse(ctrlEntity2.isMatched(ctrlEntity1, true));
         // check ctrlEntity2
         Assert.assertEquals(ctrlEntity2.getTopicName(), topicName);
         Assert.assertEquals(ctrlEntity2.getTopicId(), topicId2);
