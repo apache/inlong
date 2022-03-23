@@ -17,13 +17,8 @@
 
 package org.apache.inlong.agent.task;
 
-import static org.awaitility.Awaitility.await;
-
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import org.apache.inlong.agent.core.AgentBaseTestsHelper;
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.core.AgentBaseTestsHelper;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.core.task.Task;
 import org.apache.inlong.agent.core.task.TaskWrapper;
@@ -40,6 +35,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+import static org.awaitility.Awaitility.await;
+
 public class TestTaskWrapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestTaskWrapper.class);
@@ -50,7 +51,36 @@ public class TestTaskWrapper {
     private static ReaderImpl reader;
     private static AgentBaseTestsHelper helper;
 
-    private static final String className = TestTaskWrapper.class.getName();
+    @BeforeClass
+    public static void setup() {
+        helper = new AgentBaseTestsHelper(TestTaskWrapper.class.getName()).setupAgentHome();
+        manager = new AgentManager();
+        reader = new ReaderImpl();
+        writer = new WriterImpl();
+        task = new Task("111", reader, writer, new MockChannel(), JobProfile.parseJsonStr(""));
+    }
+
+    @AfterClass
+    public static void teardown() throws Exception {
+        manager.stop();
+        helper.teardownAgentHome();
+    }
+
+    @Test
+    public void testTaskRunning() throws Exception {
+        manager.getTaskManager().submitTask(task);
+        String jobId = "111";
+        TaskWrapper wrapper = manager.getTaskManager().getTaskWrapper(jobId);
+        assert wrapper != null;
+        if (!wrapper.isSuccess()) {
+            LOGGER.info("waiting for success");
+            TimeUnit.MILLISECONDS.sleep(100);
+        }
+        await().atMost(20, TimeUnit.SECONDS).until(()
+                -> reader.getCount() == writer.getWriterCount() + 1);
+        Assert.assertEquals("reader is not equals to writer",
+                reader.getCount(), writer.getWriterCount() + 1);
+    }
 
     public static class MockChannel implements Channel {
 
@@ -80,38 +110,6 @@ public class TestTaskWrapper {
         public void destroy() {
             queue.clear();
         }
-    }
-
-    @BeforeClass
-    public static void setup() throws Exception {
-        helper = new AgentBaseTestsHelper(TestTaskWrapper.class.getName()).setupAgentHome();
-        manager = new AgentManager();
-        reader = new ReaderImpl();
-        writer = new WriterImpl();
-        task = new Task("111", reader, writer,
-            new MockChannel(), JobProfile.parseJsonStr(""));
-    }
-
-    @AfterClass
-    public static void teardown() throws Exception {
-        manager.stop();
-        helper.teardownAgentHome();
-    }
-
-    @Test
-    public void testTaskRunning() throws Exception {
-        manager.getTaskManager().submitTask(task);
-        String jobId = "111";
-        TaskWrapper wrapper = manager.getTaskManager().getTaskWrapper(jobId);
-        assert wrapper != null;
-        while (!wrapper.isSuccess()) {
-            LOGGER.info("waiting for success");
-            TimeUnit.MILLISECONDS.sleep(100);
-        }
-        await().atMost(200, TimeUnit.SECONDS).until(()
-                -> reader.getCount() == writer.getWriterCount() + 1);
-        Assert.assertEquals("reader writer not equal", reader.getCount(),
-            writer.getWriterCount() + 1);
     }
 
     private static class ReaderImpl implements Reader {
