@@ -116,10 +116,13 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
           type: 'input',
           label: '数据源名称',
           rules: [{ required: true }],
+          props: {
+            disabled: !!id,
+          },
         } as FormItemProps,
       ].concat(config);
     },
-    [type],
+    [type, id],
   );
 
   return (
