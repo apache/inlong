@@ -134,6 +134,7 @@ public class InlongGroupImpl implements InlongGroup {
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(conf);
         InlongGroupRequest groupRequest = groupInfo.genRequest();
         Pair<String, String> idAndErr = managerClient.updateGroup(groupRequest);
+        this.groupContext.setGroupInfo(groupInfo);
         String errMsg = idAndErr.getValue();
         AssertUtil.isNull(errMsg, errMsg);
     }
