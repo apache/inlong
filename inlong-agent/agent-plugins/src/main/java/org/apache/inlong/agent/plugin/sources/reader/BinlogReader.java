@@ -72,13 +72,13 @@ public class BinlogReader implements Reader {
     private static final String JOB_DATABASE_SNAPSHOT_MODE = "job.binlogJob.snapshot.mode";
     private static final String JOB_DATABASE_HISTORY_MONITOR_DDL = "job.binlogJob.ddl";
     private static final String JOB_DATABASE_PORT = "job.binlogJob.port";
+    private static final String JOB_DATABASE_QUEUE_SIZE = "job.binlogJob.queueSize";
 
     /**
      * pair.left: table name
      * pair.right: actual data
      */
-    private LinkedBlockingQueue<Pair<String, String>> binlogMessagesQueue =
-        new LinkedBlockingQueue<>();
+    private LinkedBlockingQueue<Pair<String, String>> binlogMessagesQueue;
 
     private boolean finished = false;
     private String userName;
@@ -137,7 +137,7 @@ public class BinlogReader implements Reader {
         hostName = jobConf.get(JOB_DATABASE_HOSTNAME);
         port = jobConf.get(JOB_DATABASE_PORT);
         tableWhiteList = jobConf.get(JOB_TABLE_WHITELIST, "");
-        databaseWhiteList = jobConf.get(JOB_DATABASE_WHITELIST, "");
+        databaseWhiteList = jobConf.get(JOB_DATABASE_WHITELIST, "[\\s\\S]*.*");
         serverTimeZone = jobConf.get(JOB_DATABASE_SERVER_TIME_ZONE, "");
         offsetFlushIntervalMs = jobConf.get(JOB_DATABASE_STORE_OFFSET_INTERVAL_MS, "1000");
         databaseStoreHistoryName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
@@ -147,6 +147,7 @@ public class BinlogReader implements Reader {
         snapshotMode = jobConf.get(JOB_DATABASE_SNAPSHOT_MODE, "");
         includeSchemaChanges = jobConf.get(JOB_DATABASE_INCLUDE_SCHEMA_CHANGES, "false");
         historyMonitorDdl = jobConf.get(JOB_DATABASE_HISTORY_MONITOR_DDL, "false");
+        binlogMessagesQueue = new LinkedBlockingQueue<>(jobConf.getInt(JOB_DATABASE_QUEUE_SIZE, 10000));
         instanceId = jobConf.getInstanceId();
         finished = false;
 
@@ -185,7 +186,7 @@ public class BinlogReader implements Reader {
                     for (ChangeEvent<String, String> record : records) {
                         DebeziumFormat debeziumFormat = gson
                             .fromJson(record.value(), DebeziumFormat.class);
-                        binlogMessagesQueue.add(Pair.of(debeziumFormat.getSource().getTable(),
+                        binlogMessagesQueue.put(Pair.of(debeziumFormat.getSource().getTable(),
                             record.value()));
                         committer.markProcessed(record);
                     }
