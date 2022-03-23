@@ -175,6 +175,18 @@
             limit 2 for update
         </where>
     </select>
+    <select id="selectByStatus" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            and status in
+            <foreach item="item" index="index" collection="list" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </where>
+    </select>
     <select id="selectByStatusAndIpForUpdate" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
@@ -190,6 +202,22 @@
                 and uuid = #{uuid, jdbcType=VARCHAR}
             </if>
             for update
+        </where>
+    </select>
+    <select id="selectByStatusAndIp" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            and status in
+            <foreach item="item" index="index" collection="statusList" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+            and agent_ip = #{agentIp, jdbcType=VARCHAR}
+            <if test="uuid != null and uuid != ''">
+                and uuid = #{uuid, jdbcType=VARCHAR}
+            </if>
         </where>
     </select>
     <select id="selectSourceType" resultType="java.lang.String">

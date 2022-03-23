@@ -174,7 +174,7 @@ public class AgentServiceImpl implements AgentService {
         // Query the tasks that needed to add or active - without agentIp and uuid
         List<Integer> addedStatusList = Arrays.asList(SourceState.TO_BE_ISSUED_ADD.getCode(),
                 SourceState.TO_BE_ISSUED_ACTIVE.getCode());
-        List<StreamSourceEntity> entityList = sourceMapper.selectByStatusForUpdate(addedStatusList);
+        List<StreamSourceEntity> entityList = sourceMapper.selectByStatus(addedStatusList);
 
         String agentIp = request.getAgentIp();
         String uuid = request.getUuid();
@@ -183,13 +183,14 @@ public class AgentServiceImpl implements AgentService {
                 SourceState.TO_BE_ISSUED_RETRY.getCode(), SourceState.TO_BE_ISSUED_BACKTRACK.getCode(),
                 SourceState.TO_BE_ISSUED_FROZEN.getCode(), SourceState.TO_BE_ISSUED_CHECK.getCode(),
                 SourceState.TO_BE_ISSUED_REDO_METRIC.getCode(), SourceState.TO_BE_ISSUED_MAKEUP.getCode());
-        List<StreamSourceEntity> addedList = sourceMapper.selectByStatusAndIpForUpdate(statusList, agentIp, uuid);
+        List<StreamSourceEntity> addedList = sourceMapper.selectByStatusAndIp(statusList, agentIp, uuid);
         entityList.addAll(addedList);
 
         List<DataConfig> dataConfigs = Lists.newArrayList();
         for (StreamSourceEntity entity : entityList) {
             // Change 20x to 30x
             int id = entity.getId();
+            entity = sourceMapper.selectByIdForUpdate(id);
             int status = entity.getStatus();
             int op = status % MODULUS_100;
             if (status / MODULUS_100 == UNISSUED_STATUS) {
