@@ -46,12 +46,10 @@ public class ClsIdConfig {
      */
     public List<String> getFieldList() {
         if (fieldList == null) {
-            synchronized (fieldNames) {
-                this.fieldList = new ArrayList<>();
-                if (fieldNames != null) {
-                    String[] fieldNameArray = fieldNames.split("\\s+");
-                    this.fieldList.addAll(Arrays.asList(fieldNameArray));
-                }
+            this.fieldList = new ArrayList<>();
+            if (fieldNames != null) {
+                String[] fieldNameArray = fieldNames.split("\\s+");
+                this.fieldList.addAll(Arrays.asList(fieldNameArray));
             }
         }
         return fieldList;

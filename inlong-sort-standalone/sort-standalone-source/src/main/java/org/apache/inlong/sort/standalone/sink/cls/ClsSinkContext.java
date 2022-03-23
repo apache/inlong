@@ -148,6 +148,7 @@ public class ClsSinkContext extends SinkContext {
             String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
             String jsonIdConfig = JSON.toJSONString(idParam);
             ClsIdConfig idConfig = JSON.parseObject(jsonIdConfig, ClsIdConfig.class);
+            idConfig.getFieldList();
             newIdConfigMap.put(uid, idConfig);
         }
         this.idConfigMap = newIdConfigMap;
