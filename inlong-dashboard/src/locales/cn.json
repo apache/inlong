@@ -14,6 +14,7 @@
   "basic.Yes": "是",
   "basic.No": "否",
   "components.AccessHelper.DataSourcesEditor.NewDataSource": "新建数据源",
+  "components.AccessHelper.DataSourcesEditor.CreateModal.DataSourceName": "数据源名称",
   "components.AccessHelper.DataSourcesEditor.CreateModal.File": "文件",
   "components.AccessHelper.DataSourceMetaData.File.FillInTheAbsolutePath": "填写绝对路径",
   "components.AccessHelper.DataSourceMetaData.File.DataSourceIP": "数据源IP",
