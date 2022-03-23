@@ -25,29 +25,23 @@ export const valuesToData = (values, inlongGroupId) => {
       predefinedFields = [],
       rowTypeFields = [],
       dataSourceType,
-      dataSourceBasicId,
       dataSourcesConfig = [],
       streamSink = [],
       ...rest
     } = item;
     const output = {} as any;
-    if (dataSourceType === 'DB' || dataSourceType === 'FILE') {
-      const dstLow = dataSourceType.toLowerCase();
-      output[`${dstLow}BasicInfo`] = {
-        inlongGroupId,
-        inlongStreamId,
-      };
-      if (dataSourceBasicId !== undefined) {
-        output[`${dstLow}BasicInfo`].id = dataSourceBasicId;
-      }
-      output[`${dstLow}DetailInfoList`] = dataSourcesConfig.map(k => ({
-        ...k,
-        inlongGroupId,
-        inlongStreamId,
-      }));
+    if (dataSourceType !== 'AUTO_PUSH') {
+      output.sourceInfo = dataSourcesConfig.map(k => {
+        return {
+          ...k,
+          sourceType: dataSourceType,
+          inlongGroupId,
+          inlongStreamId,
+        };
+      });
     }
 
-    output.streamSink = streamSink.reduce((acc, type) => {
+    output.sinkInfo = streamSink.reduce((acc, type) => {
       if (!type) return acc;
 
       const data = rest[`streamSink${type}`] || [];
@@ -88,32 +82,11 @@ export const valuesToData = (values, inlongGroupId) => {
 // Convert interface data to form data
 export const dataToValues = data => {
   const array = data.map(item => {
-    const {
-      fileBasicInfo,
-      fileDetailInfoList,
-      dbBasicInfo,
-      dbDetailInfoList,
-      sinkInfo,
-      streamInfo,
-    } = item;
-    let output = {} as any;
-    const dataSourceType = fileBasicInfo ? 'FILE' : dbBasicInfo ? 'DB' : '';
-    output.dataSourceType = dataSourceType;
-    if (dataSourceType === 'DB') {
-      output = {
-        ...output,
-        ...dbBasicInfo,
-      };
-      output.dataSourceBasicId = dbBasicInfo.id;
-      output.dataSourcesConfig = dbDetailInfoList;
-    } else if (dataSourceType === 'FILE') {
-      output = {
-        ...output,
-        ...fileBasicInfo,
-      };
-      output.dataSourceBasicId = fileBasicInfo.id;
-      output.dataSourcesConfig = fileDetailInfoList;
-    }
+    const { sourceInfo, sinkInfo, streamInfo } = item;
+    let output = {
+      dataSourceType: sourceInfo[0]?.sourceType || 'AUTO_PUSH',
+      dataSourcesConfig: sourceInfo,
+    } as any;
 
     sinkInfo.forEach(({ sinkType, ...item }) => {
       if (!output[`streamSink${sinkType}`]) output[`streamSink${sinkType}`] = [];
