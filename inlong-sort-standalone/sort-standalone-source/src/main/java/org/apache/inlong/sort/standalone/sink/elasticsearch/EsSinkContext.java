@@ -137,6 +137,7 @@ public class EsSinkContext extends SinkContext {
                 String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
                 String jsonIdConfig = JSON.toJSONString(idParam);
                 EsIdConfig idConfig = JSON.parseObject(jsonIdConfig, EsIdConfig.class);
+                idConfig.getFieldList();
                 newIdConfigMap.put(uid, idConfig);
             }
             // change current config
