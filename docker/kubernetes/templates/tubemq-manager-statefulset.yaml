@@ -93,6 +93,10 @@ spec:
                   key: mysql-password
             - name: TUBE_MASTER_IP
               value: {{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}
+            {{- range $key, $value := .Values.tubemqManager.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           ports:
             - name: {{ .Values.tubemqManager.component }}-port
               containerPort: 8089

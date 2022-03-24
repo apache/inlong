@@ -59,9 +59,9 @@ spec:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }}
           image: {{ .Values.images.dashboard.repository }}:{{ .Values.images.tubemqManager.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
-          {{- if .Values.tubemqBroker.resources }}
+          {{- if .Values.dashboard.resources }}
           resources:
-{{ toYaml .Values.tubemqBroker.resources | indent 12 }}
+{{ toYaml .Values.dashboard.resources | indent 12 }}
           {{- end }}
           env:
             - name: MANAGER_API_ADDRESS

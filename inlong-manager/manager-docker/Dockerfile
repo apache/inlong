@@ -29,6 +29,7 @@ ENV PASSWORD=inlong
 ENV ZK_URL=127.0.0.1:2181
 # support download plugins from remote address.
 ENV PLUGINS_URL=default
+ENV MANAGER_JVM_HEAP_OPTS="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.0 -XX:MaxRAMPercentage=80.0 -XX:-UseAdaptiveSizePolicy"
 WORKDIR /opt/inlong-manager
 
 # add tarball from manager output

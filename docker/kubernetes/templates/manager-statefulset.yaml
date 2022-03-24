@@ -56,6 +56,10 @@ spec:
                   key: mysql-password
             - name: ZK_URL
               value: "{{ template "inlong.zookeeper.hostname" . }}:{{ .Values.zookeeper.ports.client }}"
+            {{- range $key, $value := .Values.manager.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           ports:
             - name: {{ .Values.manager.component }}-port
               containerPort: 8083

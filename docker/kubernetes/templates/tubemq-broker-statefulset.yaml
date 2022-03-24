@@ -111,6 +111,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+            {{- range $key, $value := .Values.tubemqBroker.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           {{- if .Values.tubemqBroker.probe.readiness.enabled }}
           readinessProbe:
             exec:

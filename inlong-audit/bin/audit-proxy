@@ -101,7 +101,14 @@ run_audit() {
 
 # set default params
 AUDITE_CLASSPATH=""
-JAVA_OPTS="-Xmx1024m -Xms512m -Xmn512m -XX:SurvivorRatio=6"
+JAVA_OPTS="-XX:SurvivorRatio=6"
+
+if [ -z "$AUDIT_JVM_HEAP_OPTS" ]; then
+  HEAP_OPTS="-Xms512m -Xmx1024m"
+else
+  HEAP_OPTS="$AUDIT_JVM_HEAP_OPTS"
+fi
+JAVA_OPTS="${JAVA_OPTS} ${HEAP_OPTS}"
 
 opt_conf=""
 opt_classpath=""

@@ -93,7 +93,14 @@ fi
 echo "" >${LOG_FILE}
 
 # JVM Configuration
-JAVA_OPT="-server -Xms512m -Xmx1024m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m -XX:-OmitStackTraceInFastThrow "
+JAVA_OPT="-server -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m -XX:-OmitStackTraceInFastThrow"
+
+if [ -z "$MANAGER_JVM_HEAP_OPTS" ]; then
+  HEAP_OPTS="-Xms512m -Xmx1024m"
+else
+  HEAP_OPTS="$MANAGER_JVM_HEAP_OPTS"
+fi
+JAVA_OPT="${JAVA_OPT} ${HEAP_OPTS}"
 
 # outside param
 JAVA_OPT="${JAVA_OPT} $1"
