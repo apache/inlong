@@ -57,7 +57,6 @@ import org.apache.inlong.manager.service.source.SourceSnapshotOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -93,13 +92,6 @@ public class AgentServiceImpl implements AgentService {
     @Autowired
     private InlongStreamEntityMapper streamMapper;
 
-    /**
-     * If the reported task time and the modification time in the database exceed this value,
-     * it will be considered that the user has modified the task, and the result of this report will be ignored.
-     */
-    @Value("${stream.source.maxModifyTime:5000}")
-    private Integer maxModifyTime;
-
     @Override
     public Boolean reportSnapshot(TaskSnapshotRequest request) {
         return snapshotOperation.snapshot(request);
@@ -119,12 +111,12 @@ public class AgentServiceImpl implements AgentService {
             return;
         }
         for (CommandEntity command : request.getCommandInfo()) {
-            updateCommandEntity(command);
+            updateTaskStatus(command);
             // Other tasks with status 20x will change to 30x in next getTaskResult method
         }
     }
 
-    public void updateCommandEntity(CommandEntity command) {
+    public void updateTaskStatus(CommandEntity command) {
         Integer taskId = command.getTaskId();
         StreamSourceEntity current = sourceMapper.selectByIdForUpdate(taskId);
         if (current == null) {
@@ -141,22 +133,24 @@ public class AgentServiceImpl implements AgentService {
         int result = command.getCommandResult();
         int previousStatus = current.getStatus();
         int nextStatus = SourceState.SOURCE_NORMAL.getCode();
-        // Change the status from 30x to normal / disable / frozen
-        if (previousStatus / MODULUS_100 == ISSUED_STATUS) {
-            if (Constants.RESULT_SUCCESS == result) {
-                if (SourceState.TEMP_TO_NORMAL.contains(previousStatus)) {
-                    nextStatus = SourceState.SOURCE_NORMAL.getCode();
-                } else if (SourceState.BEEN_ISSUED_DELETE.getCode() == previousStatus) {
-                    nextStatus = SourceState.SOURCE_DISABLE.getCode();
-                } else if (SourceState.BEEN_ISSUED_FROZEN.getCode() == previousStatus) {
-                    nextStatus = SourceState.SOURCE_FROZEN.getCode();
-                }
-            } else if (Constants.RESULT_FAIL == result) {
-                nextStatus = SourceState.SOURCE_FAILED.getCode();
-            }
 
+        if (Constants.RESULT_FAIL == result) {
+            // TODO Need to save failed reason
+            nextStatus = SourceState.SOURCE_FAILED.getCode();
+        } else if (previousStatus / MODULUS_100 == ISSUED_STATUS) {
+            // Change the status from 30x to normal / disable / frozen
+            if (SourceState.TEMP_TO_NORMAL.contains(previousStatus)) {
+                nextStatus = SourceState.SOURCE_NORMAL.getCode();
+            } else if (SourceState.BEEN_ISSUED_DELETE.getCode() == previousStatus) {
+                nextStatus = SourceState.SOURCE_DISABLE.getCode();
+            } else if (SourceState.BEEN_ISSUED_FROZEN.getCode() == previousStatus) {
+                nextStatus = SourceState.SOURCE_FROZEN.getCode();
+            }
+        }
+
+        if (nextStatus != previousStatus) {
             sourceMapper.updateStatus(taskId, nextStatus, false);
-            LOGGER.info("update stream source status to [{}] for id [{}]", nextStatus, taskId);
+            LOGGER.info("task result=[{}], update source status to [{}] for id [{}]", result, nextStatus, taskId);
         }
     }
 
