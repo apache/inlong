@@ -88,7 +88,7 @@
         from stream_sink_field
         where sink_id = #{sinkId, jdbcType=INTEGER}
         and is_deleted = 0
-        order by rank_num asc
+        order by id asc
     </select>
     <select id="selectFields" resultMap="BaseResultMap">
         select field.*

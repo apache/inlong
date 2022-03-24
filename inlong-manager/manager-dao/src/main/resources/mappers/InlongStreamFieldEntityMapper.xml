@@ -91,7 +91,7 @@
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
         and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
         and is_deleted = 0
-        order by rank_num asc
+        order by id asc
     </select>
     <select id="selectFields" resultMap="BaseResultMap">
         select field.*
