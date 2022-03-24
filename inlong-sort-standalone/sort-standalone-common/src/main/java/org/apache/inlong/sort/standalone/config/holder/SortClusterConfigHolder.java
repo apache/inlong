@@ -83,13 +83,14 @@ public final class SortClusterConfigHolder {
                     Class<?> loaderClass = ClassUtils.getClass(loaderType);
                     Object loaderObject = loaderClass.getDeclaredConstructor().newInstance();
                     if (loaderObject instanceof SortClusterConfigLoader) {
+                        instance.loader = (SortClusterConfigLoader) loaderObject;
                     }
                 } catch (Throwable t) {
                     LOG.error("Fail to init loader,loaderType:{},error:{}", loaderType, t.getMessage());
                 }
             }
             if (instance.loader == null) {
-                instance.loader = new ClassResourceSortClusterConfigLoader();
+                instance.loader = new ManagerSortClusterConfigLoader();
             }
             try {
                 instance.loader.configure(new Context(CommonPropertiesHolder.get()));
