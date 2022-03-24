@@ -54,7 +54,7 @@ public class InlongStreamFieldInfo {
     @ApiModelProperty("Field comment")
     private String fieldComment;
 
-    @ApiModelProperty("Is source meta field, 0: no, 1: yes")
+    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
     private Integer isMetaField = 0;
 
     @ApiModelProperty(value = "field rank num")

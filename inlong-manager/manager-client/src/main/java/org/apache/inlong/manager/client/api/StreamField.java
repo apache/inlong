@@ -45,7 +45,7 @@ public class StreamField {
     @ApiModelProperty(value = "Field value for constants")
     private String fieldValue;
 
-    @ApiModelProperty("Is source meta field, 0: no, 1: yes")
+    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
     private Integer isMetaField = 0;
 
 }

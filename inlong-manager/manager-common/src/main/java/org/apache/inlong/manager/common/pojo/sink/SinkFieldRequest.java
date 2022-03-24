@@ -46,7 +46,7 @@ public class SinkFieldRequest {
     @ApiModelProperty("Source field type")
     private String sourceFieldType;
 
-    @ApiModelProperty("Is source meta field, 0: no, 1: yes")
+    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
     private Integer isMetaField = 0;
 
     @ApiModelProperty("Field order")
