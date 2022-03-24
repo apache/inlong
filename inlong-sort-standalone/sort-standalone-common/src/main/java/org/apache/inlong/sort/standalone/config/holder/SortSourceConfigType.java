@@ -15,21 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.standalone.config.loader;
-
-import org.apache.flume.conf.Configurable;
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
+package org.apache.inlong.sort.standalone.config.holder;
 
 /**
  * 
- * SortClusterConfigLoader
+ * SortSourceConfigType<br>
+ * default file name: ${taskName}Source.conf in class resource.<br>
  */
-public interface SortClusterConfigLoader extends Configurable {
+public enum SortSourceConfigType {
 
-    /**
-     * load
-     * 
-     * @return
-     */
-    SortClusterConfig load();
+    FILE, MANAGER, USER_DEFINED;
+
+    public static final String KEY_TYPE = "sortSourceConfig.QueryConsumeConfigType";
 }

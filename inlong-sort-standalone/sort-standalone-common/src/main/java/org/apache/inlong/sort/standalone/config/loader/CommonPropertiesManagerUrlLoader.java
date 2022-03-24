@@ -27,9 +27,9 @@ import java.util.Optional;
 /**
  * Default ManagerUrlLoader. acquire URLs from common.properties.
  */
-public class ClassResourceManagerUrlLoader implements ManagerUrlLoader {
+public class CommonPropertiesManagerUrlLoader implements ManagerUrlLoader {
 
-    private static final Logger LOG = InlongLoggerFactory.getLogger(ClassResourceManagerUrlLoader.class);
+    private static final Logger LOG = InlongLoggerFactory.getLogger(CommonPropertiesManagerUrlLoader.class);
     private static final String KEY_SORT_CLUSTER_CONFIG_MANAGER_URL = "sortClusterConfig.managerUrl";
     private static final String KEY_SORT_SOURCE_CONFIG_MANAGER_URL = "sortSourceConfig.managerUrl";
 
