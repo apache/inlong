@@ -92,13 +92,9 @@ public final class SortClusterConfigHolder {
             if (instance.loader == null) {
                 instance.loader = new ManagerSortClusterConfigLoader();
             }
-            try {
-                instance.loader.configure(new Context(CommonPropertiesHolder.get()));
-                instance.reload();
-                instance.setReloadTimer();
-            } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
-            }
+            instance.loader.configure(new Context(CommonPropertiesHolder.get()));
+            instance.reload();
+            instance.setReloadTimer();
         }
         return instance;
     }
