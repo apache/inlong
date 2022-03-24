@@ -292,7 +292,9 @@ public class RocksDbImp implements Db {
             while (it.isValid()) {
                 KeyValueEntity keyValueItem = GSON
                     .fromJson(new String(it.value()), KeyValueEntity.class);
-                results.add(keyValueItem);
+                if (keyValueItem.getKey().startsWith(prefix)) {
+                    results.add(keyValueItem);
+                }
                 it.next();
             }
         }
