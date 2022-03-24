@@ -29,14 +29,11 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceDbDetailInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceFileDetailInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
@@ -48,15 +45,11 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
-import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
 import org.apache.inlong.manager.service.core.InlongStreamService;
-import org.apache.inlong.manager.service.core.SourceDbService;
-import org.apache.inlong.manager.service.core.SourceFileService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.slf4j.Logger;
@@ -83,15 +76,9 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Autowired
     private InlongStreamEntityMapper streamMapper;
     @Autowired
-    private InlongStreamExtEntityMapper streamExtMapper;
-    @Autowired
     private InlongStreamFieldEntityMapper streamFieldMapper;
     @Autowired
     private InlongGroupEntityMapper groupMapper;
-    @Autowired
-    private SourceFileService sourceFileService;
-    @Autowired
-    private SourceDbService sourceDbService;
     @Autowired
     private StreamSourceService sourceService;
     @Autowired
@@ -312,23 +299,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         LOGGER.info("success to delete all inlong stream, ext property and fields by groupId={}", groupId);
         return true;
-    }
-
-    /**
-     * According to groupId and streamId, query whether there are undeleted data sources
-     */
-    private boolean hasDataSource(String groupId, String streamId, String dataSourceType) {
-        boolean exist;
-        if (Constant.DATA_SOURCE_FILE.equalsIgnoreCase(dataSourceType)) {
-            List<SourceFileDetailInfo> fileDetailList = sourceFileService.listDetailByIdentifier(groupId, streamId);
-            exist = CollectionUtils.isNotEmpty(fileDetailList);
-        } else if (Constant.DATA_SOURCE_DB.equalsIgnoreCase(dataSourceType)) {
-            List<SourceDbDetailInfo> dbDetailList = sourceDbService.listDetailByIdentifier(groupId, streamId);
-            exist = CollectionUtils.isNotEmpty(dbDetailList);
-        } else {
-            exist = false;
-        }
-        return exist;
     }
 
     @Override
@@ -576,42 +546,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     public void logicDeleteDlqOrRlq(String groupId, String topicName, String operator) {
         streamMapper.logicDeleteDlqOrRlq(groupId, topicName, operator);
         LOGGER.info("success to logic delete dlq or rlq by groupId={}, topicName={}", groupId, topicName);
-    }
-
-    /**
-     * Update extended information
-     * <p/>First physically delete the existing extended information, and then add this batch of extended information
-     */
-    @Transactional(rollbackFor = Throwable.class)
-    void updateExt(String groupId, String streamId, List<InlongStreamExtInfo> extInfoList) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to update inlong stream ext, groupId={}, streamId={}, ext={}", groupId, streamId,
-                    extInfoList);
-        }
-
-        try {
-            streamExtMapper.deleteAllByIdentifier(groupId, streamId);
-            saveExt(groupId, streamId, extInfoList, new Date());
-            LOGGER.info("success to update inlong stream ext for groupId={}", groupId);
-        } catch (Exception e) {
-            LOGGER.error("failed to update inlong stream ext: ", e);
-            throw new BusinessException(ErrorCodeEnum.STREAM_EXT_SAVE_FAILED);
-        }
-    }
-
-    @Transactional(rollbackFor = Throwable.class)
-    void saveExt(String groupId, String streamId, List<InlongStreamExtInfo> infoList, Date date) {
-        if (CollectionUtils.isEmpty(infoList)) {
-            return;
-        }
-        List<InlongStreamExtEntity> entityList = CommonBeanUtils.copyListProperties(infoList,
-                InlongStreamExtEntity::new);
-        for (InlongStreamExtEntity entity : entityList) {
-            entity.setInlongGroupId(groupId);
-            entity.setInlongStreamId(streamId);
-            entity.setModifyTime(date);
-        }
-        streamExtMapper.insertAll(entityList);
     }
 
     /**
