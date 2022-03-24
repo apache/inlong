@@ -295,7 +295,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         TaskRequest request = new TaskRequest();
         request.setAgentIp(localIp);
         request.setUuid(uuid);
-        // when job size is over limit, require new job
+        // when job size is over limit, require no new job
         request.setRequireNewJob(!agentManager.getJobManager().isJobOverLimit());
         request.setCommandInfo(unackedCommands);
         return request;
