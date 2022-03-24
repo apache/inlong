@@ -43,7 +43,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -167,35 +166,29 @@ public class ClsSinkContext extends SinkContext {
      */
     private void reloadClients() {
         // get update secretIds
-        Set<String> updateSecretIdSet = idConfigMap
-                .values()
+        Map<String, ClsIdConfig> updateConfigMap = idConfigMap.values()
                 .stream()
-                .map(ClsIdConfig::getSecretId)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toMap(ClsIdConfig::getSecretId, config -> config, (k1, k2) -> k1));
 
         // remove expire client
         clientMap.keySet()
                 .stream()
-                .filter(secretId -> !updateSecretIdSet.contains(secretId))
+                .filter(secretId -> !updateConfigMap.containsKey(secretId))
                 .forEach(this::removeExpireClient);
 
         // start new client
-        updateSecretIdSet.stream()
-                .filter(secretId -> !clientMap.containsKey(secretId))
+        updateConfigMap.values()
+                .stream()
+                .filter(config -> !clientMap.containsKey(config.getSecretId()))
                 .forEach(this::startNewClient);
     }
 
     /**
      * Start new cls client and put it to the active clientMap.
      *
-     * @param secretId SecretId of new client.
+     * @param idConfig idConfig of new client.
      */
-    private void startNewClient(String secretId) {
-        ClsIdConfig idConfig = idConfigMap.get(secretId);
-        if (idConfig == null) {
-            LOG.error("Start client failed, there is not cls config of {}", secretId);
-            return;
-        }
+    private void startNewClient(ClsIdConfig idConfig) {
         AsyncProducerConfig producerConfig = new AsyncProducerConfig(
                 idConfig.getEndpoint(),
                 idConfig.getSecretId(),
@@ -203,7 +196,7 @@ public class ClsSinkContext extends SinkContext {
                 NetworkUtils.getLocalMachineIP());
         this.setCommonClientConfig(producerConfig);
         AsyncProducerClient client = new AsyncProducerClient(producerConfig);
-        clientMap.put(secretId, client);
+        clientMap.put(idConfig.getSecretId(), client);
     }
 
     /**
