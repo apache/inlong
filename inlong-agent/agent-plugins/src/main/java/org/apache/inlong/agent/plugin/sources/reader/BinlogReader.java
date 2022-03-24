@@ -136,8 +136,8 @@ public class BinlogReader implements Reader {
         password = jobConf.get(JOB_DATABASE_PASSWORD);
         hostName = jobConf.get(JOB_DATABASE_HOSTNAME);
         port = jobConf.get(JOB_DATABASE_PORT);
-        tableWhiteList = jobConf.get(JOB_TABLE_WHITELIST, "");
-        databaseWhiteList = jobConf.get(JOB_DATABASE_WHITELIST, "[\\s\\S]*.*");
+        tableWhiteList = jobConf.get(JOB_TABLE_WHITELIST, "[\\s\\S]*.*");
+        databaseWhiteList = jobConf.get(JOB_DATABASE_WHITELIST, "");
         serverTimeZone = jobConf.get(JOB_DATABASE_SERVER_TIME_ZONE, "");
         offsetFlushIntervalMs = jobConf.get(JOB_DATABASE_STORE_OFFSET_INTERVAL_MS, "1000");
         databaseStoreHistoryName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
