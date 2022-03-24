@@ -153,7 +153,7 @@ public class InlongStreamSinkTransfer {
                 sinkFieldResponse.getFieldComment(),
                 null, sinkFieldResponse.getSourceFieldName(),
                 sinkFieldResponse.getSourceFieldType(),
-                sinkFieldResponse.getIsSourceMetaField())).collect(Collectors.toList());
+                sinkFieldResponse.getIsMetaField())).collect(Collectors.toList());
 
     }
 
@@ -231,18 +231,18 @@ public class InlongStreamSinkTransfer {
     }
 
     private static List<SinkFieldRequest> createSinkFieldRequests(List<SinkField> sinkFields) {
-        List<SinkFieldRequest> sinkFieldRequests = Lists.newArrayList();
+        List<SinkFieldRequest> fieldRequestList = Lists.newArrayList();
         for (SinkField sinkField : sinkFields) {
-            SinkFieldRequest sinkFieldRequest = new SinkFieldRequest();
-            sinkFieldRequest.setFieldName(sinkField.getFieldName());
-            sinkFieldRequest.setFieldType(sinkField.getFieldType().toString());
-            sinkFieldRequest.setFieldComment(sinkField.getFieldComment());
-            sinkFieldRequest.setSourceFieldName(sinkField.getSourceFieldName());
-            sinkFieldRequest.setSourceFieldType(sinkField.getSourceFieldType());
-            sinkFieldRequest.setIsSourceMetaField(sinkField.getIsSourceMetaField());
-            sinkFieldRequests.add(sinkFieldRequest);
+            SinkFieldRequest request = new SinkFieldRequest();
+            request.setFieldName(sinkField.getFieldName());
+            request.setFieldType(sinkField.getFieldType().toString());
+            request.setFieldComment(sinkField.getFieldComment());
+            request.setSourceFieldName(sinkField.getSourceFieldName());
+            request.setSourceFieldType(sinkField.getSourceFieldType());
+            request.setIsMetaField(sinkField.getIsMetaField());
+            fieldRequestList.add(request);
         }
-        return sinkFieldRequests;
+        return fieldRequestList;
     }
 
     private static HiveSink parseHiveSink(HiveSinkResponse sinkResponse, StreamSink sink) {

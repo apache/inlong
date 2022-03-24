@@ -31,7 +31,7 @@ import org.apache.inlong.manager.common.enums.FieldType;
 public class StreamField {
 
     @ApiModelProperty("Field index")
-    private int index;
+    private Integer id;
 
     @ApiModelProperty(value = "Field type", required = true)
     private FieldType fieldType;
@@ -44,4 +44,8 @@ public class StreamField {
 
     @ApiModelProperty(value = "Field value for constants")
     private String fieldValue;
+
+    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
+    private Integer isMetaField = 0;
+
 }
