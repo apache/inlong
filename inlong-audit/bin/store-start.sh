@@ -43,7 +43,14 @@ if [ ! -d "${base_dir}/logs" ]; then
   mkdir ${base_dir}/logs
 fi
 
-JAVA_OPTS="-server -Xms2g -Xmx2g -XX:SurvivorRatio=2 -XX:+UseParallelGC"
+JAVA_OPTS="-server -XX:SurvivorRatio=2 -XX:+UseParallelGC"
+
+if [ -z "$AUDIT_JVM_HEAP_OPTS" ]; then
+  HEAP_OPTS="-Xms2g -Xmx2g"
+else
+  HEAP_OPTS="$AUDIT_JVM_HEAP_OPTS"
+fi
+JAVA_OPTS="${JAVA_OPTS} ${HEAP_OPTS}"
 
 SERVERJAR=`ls -lt ${base_dir}/lib |grep audit-store | head -2 | tail -1 | awk '{print $NF}'`
 

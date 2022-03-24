@@ -228,7 +228,11 @@ run_flume() {
 DATAPROXY_CLASSPATH=""
 
 # Extra options to be passed to the jvm
-DATA_PROXY_MEM=${DATA_PROXY_MEM:-"-Xms2g -Xmx2g -XX:MaxDirectMemorySize=4g"}
+if [ -z "$DATAPROXY_JVM_HEAP_OPTS" ]; then
+  DATA_PROXY_MEM="-Xms2g -Xmx2g -XX:MaxDirectMemorySize=4g"
+else
+  DATA_PROXY_MEM="$DATAPROXY_JVM_HEAP_OPTS"
+fi
 
 # Garbage collection options
 DATA_PROXY_GC=${DATA_PROXY_GC:-"-XX:+UseG1GC -XX:MaxGCPauseMillis=10 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+DoEscapeAnalysis -XX:ParallelGCThreads=32 -XX:ConcGCThreads=32 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC"}
