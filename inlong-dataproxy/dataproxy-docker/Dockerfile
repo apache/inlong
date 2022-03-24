@@ -26,7 +26,7 @@ ADD ${DATAPROXY_TARBALL} /opt/inlong-dataproxy
 EXPOSE 46801
 ENV MANAGER_OPENAPI_IP=127.0.0.1
 ENV MANAGER_OPENAPI_PORT=8083
-ENV DATAPROXY_JVM_HEAP_OPTS="-XX:InitialRAMPercentage=40 -XX:MinRAMPercentage=20 -XX:MaxRAMPercentage=80 -XX:-UseAdaptiveSizePolicy"
+ENV DATAPROXY_JVM_HEAP_OPTS="-XX:InitialRAMPercentage=40 -XX:MaxRAMPercentage=80 -XX:-UseAdaptiveSizePolicy"
 WORKDIR /opt/inlong-dataproxy
 ADD dataproxy-docker.sh bin/
 RUN chmod +x bin/dataproxy-docker.sh

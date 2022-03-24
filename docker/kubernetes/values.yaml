@@ -75,7 +75,6 @@ agent:
   env:
     AGENT_JVM_HEAP_OPTS: >
       -XX:InitialRAMPercentage=40
-      -XX:MinRAMPercentage=20
       -XX:MaxRAMPercentage=80
       -XX:-UseAdaptiveSizePolicy
     AGENT_FETCH_INTERVAL: 10
@@ -106,7 +105,6 @@ dataproxy:
   env:
     DATAPROXY_JVM_HEAP_OPTS: >
       -XX:InitialRAMPercentage=40
-      -XX:MinRAMPercentage=20
       -XX:MaxRAMPercentage=80
       -XX:-UseAdaptiveSizePolicy
 
@@ -121,7 +119,6 @@ tubemqManager:
   env:
     TUBE_MANAGER_JVM_HEAP_OPTS: >
       -XX:InitialRAMPercentage=40
-      -XX:MinRAMPercentage=20
       -XX:MaxRAMPercentage=80
       -XX:-UseAdaptiveSizePolicy
     TUBE_MASTER_TOKEN: "abc"
@@ -140,7 +137,6 @@ manager:
   env:
     MANAGER_JVM_HEAP_OPTS: >
       -XX:InitialRAMPercentage=40
-      -XX:MinRAMPercentage=20
       -XX:MaxRAMPercentage=80
       -XX:-UseAdaptiveSizePolicy
     ACTIVE_PROFILE: "prod"
@@ -158,7 +154,6 @@ audit:
   env:
     AUDIT_JVM_HEAP_OPTS: >
       -XX:InitialRAMPercentage=40
-      -XX:MinRAMPercentage=20
       -XX:MaxRAMPercentage=80
       -XX:-UseAdaptiveSizePolicy
 
@@ -258,7 +253,6 @@ tubemqMaster:
   env:
     MASTER_JVM_SIZE: >
       -XX:InitialRAMPercentage=40
-      -XX:MinRAMPercentage=20
       -XX:MaxRAMPercentage=80
       -XX:-UseAdaptiveSizePolicy
 
@@ -301,7 +295,6 @@ tubemqBroker:
   env:
     BROKER_JVM_SIZE: >
       -XX:InitialRAMPercentage=40
-      -XX:MinRAMPercentage=20
       -XX:MaxRAMPercentage=80
       -XX:-UseAdaptiveSizePolicy
 

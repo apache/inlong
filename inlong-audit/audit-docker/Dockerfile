@@ -26,7 +26,7 @@ ADD ${AUDIT_TARBALL} /opt/inlong-audit
 ENV JDBC_URL='jdbc:mysql:\/\/127.0.0.1:3306\/apache_inlong_audit?useSSL=false\&allowPublicKeyRetrieval=true\&characterEncoding=UTF-8\&nullCatalogMeansCurrent=true\&serverTimezone=GMT%2b8'
 ENV USERNAME=root
 ENV PASSWORD=inlong
-ENV AUDIT_JVM_HEAP_OPTS="-XX:InitialRAMPercentage=40 -XX:MinRAMPercentage=20 -XX:MaxRAMPercentage=80 -XX:-UseAdaptiveSizePolicy"
+ENV AUDIT_JVM_HEAP_OPTS="-XX:InitialRAMPercentage=40 -XX:MaxRAMPercentage=80 -XX:-UseAdaptiveSizePolicy"
 WORKDIR /opt/inlong-audit
 # add mysql connector
 RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.26/mysql-connector-java-8.0.26.jar
