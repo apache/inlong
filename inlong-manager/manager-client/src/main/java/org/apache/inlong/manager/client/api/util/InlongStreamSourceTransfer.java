@@ -38,7 +38,7 @@ import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 
 import java.util.Arrays;
 
@@ -47,7 +47,7 @@ import java.util.Arrays;
  */
 public class InlongStreamSourceTransfer {
 
-    public static SourceRequest createSourceRequest(StreamSource streamSource, InlongStreamInfo streamInfo) {
+    public static SourceRequest createSourceRequest(StreamSource streamSource, InlongStreamResponse streamInfo) {
         SourceType sourceType = streamSource.getSourceType();
         switch (sourceType) {
             case KAFKA:
@@ -176,11 +176,11 @@ public class InlongStreamSourceTransfer {
         return binlogSource;
     }
 
-    private static KafkaSourceRequest createKafkaSourceRequest(KafkaSource kafkaSource, InlongStreamInfo streamInfo) {
+    private static KafkaSourceRequest createKafkaSourceRequest(KafkaSource kafkaSource, InlongStreamResponse stream) {
         KafkaSourceRequest sourceRequest = new KafkaSourceRequest();
         sourceRequest.setSourceName(kafkaSource.getSourceName());
-        sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
-        sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+        sourceRequest.setInlongGroupId(stream.getInlongGroupId());
+        sourceRequest.setInlongStreamId(stream.getInlongStreamId());
         sourceRequest.setSourceType(kafkaSource.getSourceType().name());
         sourceRequest.setAgentIp(kafkaSource.getAgentIp());
         sourceRequest.setBootstrapServers(kafkaSource.getBootstrapServers());
@@ -199,7 +199,7 @@ public class InlongStreamSourceTransfer {
     }
 
     private static BinlogSourceRequest createBinlogSourceRequest(MySQLBinlogSource binlogSource,
-            InlongStreamInfo streamInfo) {
+            InlongStreamResponse streamInfo) {
         BinlogSourceRequest sourceRequest = new BinlogSourceRequest();
         sourceRequest.setSourceName(binlogSource.getSourceName());
         sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());

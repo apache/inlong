@@ -35,7 +35,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -55,7 +55,7 @@ public class InlongStreamImpl extends InlongStream {
     private List<StreamField> streamFields = Lists.newArrayList();
 
     public InlongStreamImpl(FullStreamResponse fullStreamResponse) {
-        InlongStreamInfo streamInfo = fullStreamResponse.getStreamInfo();
+        InlongStreamResponse streamInfo = fullStreamResponse.getStreamInfo();
         this.name = streamInfo.getName();
         List<InlongStreamFieldInfo> streamFieldInfos = streamInfo.getFieldList();
         if (CollectionUtils.isNotEmpty(streamFieldInfos)) {

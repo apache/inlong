@@ -25,7 +25,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
@@ -44,7 +44,7 @@ public class UpdateGroupProcessForm extends BaseProcessForm {
     @ApiModelProperty(value = "OperateType to define the update operation", required = true)
     private OperateType operateType;
 
-    private List<InlongStreamInfo> inlongStreamInfoList;
+    private List<InlongStreamResponse> streamList;
 
     @Override
     public void validate() throws FormValidateException {

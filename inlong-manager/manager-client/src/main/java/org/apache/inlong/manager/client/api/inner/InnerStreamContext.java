@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -32,13 +32,13 @@ import java.util.Map;
 @NoArgsConstructor
 public class InnerStreamContext {
 
-    private InlongStreamInfo streamInfo;
+    private InlongStreamResponse streamInfo;
 
     private Map<String, SourceRequest> sourceRequests = Maps.newHashMap();
 
     private Map<String, SinkRequest> sinkRequests = Maps.newHashMap();
 
-    public InnerStreamContext(InlongStreamInfo streamInfo) {
+    public InnerStreamContext(InlongStreamResponse streamInfo) {
         this.streamInfo = streamInfo;
     }
 

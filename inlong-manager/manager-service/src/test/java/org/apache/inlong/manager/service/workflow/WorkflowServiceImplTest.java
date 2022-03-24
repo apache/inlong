@@ -25,7 +25,8 @@ import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskExecuteLogQuery;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
@@ -148,7 +149,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     /**
      * Create inlong stream
      */
-    public InlongStreamInfo createStreamInfo(InlongGroupInfo inlongGroupInfo) {
+    public InlongStreamResponse createStreamInfo(InlongGroupInfo groupInfo) {
         // delete first
         try {
             streamService.delete(GROUP_ID, OPERATOR, OPERATOR);
@@ -156,22 +157,24 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
             // ignore
         }
 
-        InlongStreamInfo streamInfo = new InlongStreamInfo();
-        streamInfo.setInlongGroupId(inlongGroupInfo.getInlongGroupId());
-        streamInfo.setInlongStreamId(STREAM_ID);
-        streamInfo.setMqResourceObj(STREAM_ID);
-        streamInfo.setDataSeparator("124");
-        streamInfo.setDataEncoding(DATA_ENCODING);
-        streamInfo.setInCharges(OPERATOR);
-        streamInfo.setCreator(OPERATOR);
-        streamInfo.setFieldList(createStreamFields(inlongGroupInfo.getInlongGroupId(), STREAM_ID));
-        streamService.save(streamInfo, OPERATOR);
-        return streamInfo;
+        InlongStreamRequest request = new InlongStreamRequest();
+        request.setInlongGroupId(groupInfo.getInlongGroupId());
+        request.setInlongStreamId(STREAM_ID);
+        request.setMqResourceObj(STREAM_ID);
+        request.setDataSeparator("124");
+        request.setDataEncoding(DATA_ENCODING);
+        request.setInCharges(OPERATOR);
+        request.setFieldList(createStreamFields(groupInfo.getInlongGroupId(), STREAM_ID));
+        streamService.save(request, OPERATOR);
+
+        return streamService.get(request.getInlongGroupId(), request.getInlongStreamId());
     }
 
-    public List<InlongStreamFieldInfo> createStreamFields(String inlongGroupId, String inlongStreamId) {
+    public List<InlongStreamFieldInfo> createStreamFields(String groupId, String streamId) {
         final List<InlongStreamFieldInfo> streamFieldInfos = new ArrayList<>();
         InlongStreamFieldInfo fieldInfo = new InlongStreamFieldInfo();
+        fieldInfo.setInlongGroupId(groupId);
+        fieldInfo.setInlongStreamId(streamId);
         fieldInfo.setFieldName("id");
         fieldInfo.setFieldType("int");
         fieldInfo.setFieldComment("idx");

@@ -49,7 +49,7 @@ public class InlongClientImpl implements InlongClient {
     private static final String URL_SPLITTER = ",";
     private static final String HOST_SPLITTER = ":";
     @Getter
-    private ClientConfiguration configuration;
+    private final ClientConfiguration configuration;
 
     public InlongClientImpl(String serviceUrl, ClientConfiguration configuration) {
         Map<String, String> hostPorts = Splitter.on(URL_SPLITTER).withKeyValueSeparator(HOST_SPLITTER)
@@ -76,13 +76,12 @@ public class InlongClientImpl implements InlongClient {
     }
 
     @Override
-    public InlongGroup forGroup(InlongGroupConf groupConf) throws Exception {
+    public InlongGroup forGroup(InlongGroupConf groupConf) {
         return new InlongGroupImpl(groupConf, this);
     }
 
     @Override
-    public List<InlongGroup> listGroup(String expr, int status,
-            int pageNum, int pageSize) throws Exception {
+    public List<InlongGroup> listGroup(String expr, int status, int pageNum, int pageSize) {
         InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
         PageInfo<InlongGroupListResponse> responsePageInfo = managerClient.listGroups(expr, status, pageNum,
                 pageSize);
@@ -103,7 +102,6 @@ public class InlongClientImpl implements InlongClient {
      *
      * @param request The request
      * @return PageInfo of group
-     * @throws Exception
      */
     @Override
     public Response<PageInfo<InlongGroupListResponse>> listGroup(InlongGroupPageRequest request) throws Exception {
@@ -112,7 +110,7 @@ public class InlongClientImpl implements InlongClient {
     }
 
     @Override
-    public InlongGroup getGroup(String groupName) throws Exception {
+    public InlongGroup getGroup(String groupName) {
         InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
         final String groupId = "b_" + groupName;
         InlongGroupResponse groupResponse = managerClient.getGroupInfo(groupId);
@@ -136,7 +134,7 @@ public class InlongClientImpl implements InlongClient {
             try {
                 socket.close();
             } catch (IOException e) {
-                log.warn("colse connection from {}:{} failed", host, port, e);
+                log.warn("close connection from {}:{} failed", host, port, e);
             }
         }
     }

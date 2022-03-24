@@ -50,8 +50,8 @@ import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -166,7 +166,7 @@ public class InnerInlongManagerClient {
             pageNum = 1;
         }
         JSONObject groupQuery = new JSONObject();
-        groupQuery.put("keyWord", pageNum);
+        groupQuery.put("keyWord", keyword);
         groupQuery.put("status", status);
         groupQuery.put("pageNum", pageNum);
         groupQuery.put("pageSize", pageSize);
@@ -205,10 +205,8 @@ public class InnerInlongManagerClient {
      *
      * @param inlongGroupRequest The inlongGroupRequest
      * @return Response encapsulate of inlong group list
-     * @throws Exception may throws exception
      */
-    public Response<PageInfo<InlongGroupListResponse>> listGroups(
-            InlongGroupPageRequest inlongGroupRequest)
+    public Response<PageInfo<InlongGroupListResponse>> listGroups(InlongGroupPageRequest inlongGroupRequest)
             throws Exception {
         String requestParams = GsonUtil.toJson(inlongGroupRequest);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), requestParams);
@@ -284,7 +282,7 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public String createStreamInfo(InlongStreamInfo streamInfo) {
+    public String createStreamInfo(InlongStreamResponse streamInfo) {
         String path = HTTP_PATH + "/stream/save";
         final String stream = GsonUtil.toJson(streamInfo);
         final RequestBody streamBody = RequestBody.create(MediaType.parse("application/json"), stream);
@@ -309,8 +307,8 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public Pair<Boolean, InlongStreamInfo> isStreamExists(InlongStreamInfo streamInfo) {
-        InlongStreamInfo currentStreamInfo = getStreamInfo(streamInfo);
+    public Pair<Boolean, InlongStreamResponse> isStreamExists(InlongStreamResponse streamInfo) {
+        InlongStreamResponse currentStreamInfo = getStreamInfo(streamInfo);
         if (currentStreamInfo != null) {
             return Pair.of(true, currentStreamInfo);
         } else {
@@ -318,7 +316,7 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public Pair<Boolean, String> updateStreamInfo(InlongStreamInfo streamInfo) {
+    public Pair<Boolean, String> updateStreamInfo(InlongStreamResponse streamInfo) {
         streamInfo.setCreateTime(null);
         streamInfo.setModifyTime(null);
         final String path = HTTP_PATH + "/stream/update";
@@ -346,7 +344,7 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public InlongStreamInfo getStreamInfo(InlongStreamInfo streamInfo) {
+    public InlongStreamResponse getStreamInfo(InlongStreamResponse streamInfo) {
         String path = HTTP_PATH + "/stream/get";
         String url = formatUrl(path);
         url += String.format("&groupId=%s&streamId=%s", streamInfo.getInlongGroupId(), streamInfo.getInlongStreamId());
@@ -375,15 +373,15 @@ public class InnerInlongManagerClient {
     }
 
     public List<FullStreamResponse> listStreamInfo(String inlongGroupId) {
+        InlongStreamPageRequest pageRequest = new InlongStreamPageRequest();
+        pageRequest.setInlongGroupId(inlongGroupId);
+        String requestParams = GsonUtil.toJson(pageRequest);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), requestParams);
         final String path = HTTP_PATH + "/stream/listAll";
-        String url = formatUrl(path);
-        InlongStreamPageRequest inlongStreamPageRequest = new InlongStreamPageRequest();
-        inlongStreamPageRequest.setInlongGroupId(inlongGroupId);
-        final String source = GsonUtil.toJson(inlongStreamPageRequest);
-        final RequestBody sourceBody = RequestBody.create(MediaType.parse("application/json"), source);
-        Request request = new Request.Builder()
+        final String url = formatUrl(path);
+        Request request = new Request.Builder().get()
                 .url(url)
-                .post(sourceBody)
+                .post(requestBody)
                 .build();
 
         Call call = httpClient.newCall(request);

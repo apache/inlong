@@ -42,7 +42,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 
 import java.util.List;
 
@@ -68,11 +68,11 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         if (MapUtils.isEmpty(groupContext.getStreamContextMap())) {
             groupContext.setStreamContextMap(Maps.newHashMap());
         }
-        InlongStreamInfo streamInfo = InlongStreamTransfer.createStreamInfo(streamConf, groupContext.getGroupInfo());
-        InnerStreamContext streamContext = new InnerStreamContext(streamInfo);
+        InlongStreamResponse stream = InlongStreamTransfer.createStreamInfo(streamConf, groupContext.getGroupInfo());
+        InnerStreamContext streamContext = new InnerStreamContext(stream);
         groupContext.setStreamContext(streamContext);
         this.streamContext = streamContext;
-        this.inlongStream = new InlongStreamImpl(streamInfo.getName());
+        this.inlongStream = new InlongStreamImpl(stream.getName());
         if (CollectionUtils.isNotEmpty(streamConf.getStreamFields())) {
             this.inlongStream.setStreamFields(streamConf.getStreamFields());
         }
@@ -107,7 +107,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     @Override
     public InlongStream init() {
-        InlongStreamInfo streamInfo = streamContext.getStreamInfo();
+        InlongStreamResponse streamInfo = streamContext.getStreamInfo();
         String streamIndex = managerClient.createStreamInfo(streamInfo);
         streamInfo.setId(Double.valueOf(streamIndex).intValue());
         //Create source and update index
@@ -127,8 +127,8 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     @Override
     public InlongStream initOrUpdate() {
-        InlongStreamInfo dataStreamInfo = streamContext.getStreamInfo();
-        Pair<Boolean, InlongStreamInfo> existMsg = managerClient.isStreamExists(dataStreamInfo);
+        InlongStreamResponse dataStreamInfo = streamContext.getStreamInfo();
+        Pair<Boolean, InlongStreamResponse> existMsg = managerClient.isStreamExists(dataStreamInfo);
         if (existMsg.getKey()) {
             Pair<Boolean, String> updateMsg = managerClient.updateStreamInfo(dataStreamInfo);
             if (updateMsg.getKey()) {
