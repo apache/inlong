@@ -231,7 +231,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         JsonObject resultData = getResultData(resultStr);
         JsonElement element = resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA);
         if (element != null) {
-            dealWithFileTaskResult(GSON.fromJson(element.getAsJsonObject(), TaskResult.class));
+            dealWithFetchResult(GSON.fromJson(element.getAsJsonObject(), TaskResult.class));
         }
         ackCommands(unackedCommands);
     }
@@ -271,7 +271,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * the fetch file command can be normal or special
      */
-    private void dealWithFileTaskResult(TaskResult taskResult) {
+    private void dealWithFetchResult(TaskResult taskResult) {
         LOGGER.info("deal with fetch result {}", taskResult);
         for (DataConfig dataConfig : taskResult.getDataConfigs()) {
             TriggerProfile profile = TriggerProfile.getTriggerProfiles(dataConfig);
@@ -295,6 +295,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         TaskRequest request = new TaskRequest();
         request.setAgentIp(localIp);
         request.setUuid(uuid);
+        // when job size is over limit, require new job
+        request.setRequireNewJob(!agentManager.getJobManager().isJobOverLimit());
         request.setCommandInfo(unackedCommands);
         return request;
     }

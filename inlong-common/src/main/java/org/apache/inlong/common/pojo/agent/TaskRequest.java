@@ -33,6 +33,8 @@ public class TaskRequest {
 
     private String uuid;
 
+    private Boolean requireNewJob;
+
     private List<CommandEntity> commandInfo = new ArrayList<>();
 
 }
