@@ -23,8 +23,8 @@ RUN apt-get update \
 ARG TUBEMQ_TARBALL
 ADD ${TUBEMQ_TARBALL} /opt/tubemq-server
 # overwrite default jvm size
-ENV MASTER_JVM_SIZE="-XX:InitialRAMPercentage=40 -XX:MaxRAMPercentage=80 -XX:-UseAdaptiveSizePolicy"
-ENV BROKER_JVM_SIZE="-XX:InitialRAMPercentage=40 -XX:MaxRAMPercentage=80 -XX:-UseAdaptiveSizePolicy"
+ENV MASTER_JVM_SIZE="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.0 -XX:MaxRAMPercentage=80.0 -XX:-UseAdaptiveSizePolicy"
+ENV BROKER_JVM_SIZE="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.0 -XX:MaxRAMPercentage=80.0 -XX:-UseAdaptiveSizePolicy"
 # support using diffent port mapping
 ENV USE_WEB_PROXY=true
 ADD tubemq-docker.sh /opt/tubemq-server/bin/

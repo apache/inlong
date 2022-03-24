@@ -74,8 +74,9 @@ agent:
     dataProxy: ${dataproxy.containerPort}
   env:
     AGENT_JVM_HEAP_OPTS: >
-      -XX:InitialRAMPercentage=40
-      -XX:MaxRAMPercentage=80
+      -XX:+UseContainerSupport
+      -XX:InitialRAMPercentage=40.0
+      -XX:MaxRAMPercentage=80.0
       -XX:-UseAdaptiveSizePolicy
     AGENT_FETCH_INTERVAL: 10
     AGENT_HEARTBEAT_INTERVAL: 10
@@ -104,8 +105,9 @@ dataproxy:
   managerOpenApiPort: ${manager.containerPort}
   env:
     DATAPROXY_JVM_HEAP_OPTS: >
-      -XX:InitialRAMPercentage=40
-      -XX:MaxRAMPercentage=80
+      -XX:+UseContainerSupport
+      -XX:InitialRAMPercentage=40.0
+      -XX:MaxRAMPercentage=80.0
       -XX:-UseAdaptiveSizePolicy
 
 tubemqManager:
@@ -118,8 +120,9 @@ tubemqManager:
   containerPort: 8089
   env:
     TUBE_MANAGER_JVM_HEAP_OPTS: >
-      -XX:InitialRAMPercentage=40
-      -XX:MaxRAMPercentage=80
+      -XX:+UseContainerSupport
+      -XX:InitialRAMPercentage=40.0
+      -XX:MaxRAMPercentage=80.0
       -XX:-UseAdaptiveSizePolicy
     TUBE_MASTER_TOKEN: "abc"
 
@@ -136,8 +139,9 @@ manager:
   password: "inlong"
   env:
     MANAGER_JVM_HEAP_OPTS: >
-      -XX:InitialRAMPercentage=40
-      -XX:MaxRAMPercentage=80
+      -XX:+UseContainerSupport
+      -XX:InitialRAMPercentage=40.0
+      -XX:MaxRAMPercentage=80.0
       -XX:-UseAdaptiveSizePolicy
     ACTIVE_PROFILE: "prod"
     PLUGINS_URL: "default"
@@ -153,8 +157,9 @@ audit:
     webPort: 10081
   env:
     AUDIT_JVM_HEAP_OPTS: >
-      -XX:InitialRAMPercentage=40
-      -XX:MaxRAMPercentage=80
+      -XX:+UseContainerSupport
+      -XX:InitialRAMPercentage=40.0
+      -XX:MaxRAMPercentage=80.0
       -XX:-UseAdaptiveSizePolicy
 
 # If not exists external MySQL, InLong will use it.
@@ -252,8 +257,9 @@ tubemqMaster:
     maxUnavailable: 1
   env:
     MASTER_JVM_SIZE: >
-      -XX:InitialRAMPercentage=40
-      -XX:MaxRAMPercentage=80
+      -XX:+UseContainerSupport
+      -XX:InitialRAMPercentage=40.0
+      -XX:MaxRAMPercentage=80.0
       -XX:-UseAdaptiveSizePolicy
 
 tubemqBroker:
@@ -294,8 +300,9 @@ tubemqBroker:
     maxUnavailable: 1
   env:
     BROKER_JVM_SIZE: >
-      -XX:InitialRAMPercentage=40
-      -XX:MaxRAMPercentage=80
+      -XX:+UseContainerSupport
+      -XX:InitialRAMPercentage=40.0
+      -XX:MaxRAMPercentage=80.0
       -XX:-UseAdaptiveSizePolicy
 
 # InLong will use the external Services.
