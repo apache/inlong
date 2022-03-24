@@ -122,7 +122,7 @@ public class InlongGroupContext implements Serializable {
         switch (this.state) {
             case STARTED:
                 for (StreamSource source : sourcesInGroup) {
-                    if (!(source.getState() == State.NORMAL)) {
+                    if (source.getState() != State.NORMAL) {
                         log.warn("StreamSource:{} is not started", source);
                         this.state = InlongGroupState.INITIALIZING;
                         break;
@@ -131,7 +131,7 @@ public class InlongGroupContext implements Serializable {
                 return;
             case STOPPED:
                 for (StreamSource source : sourcesInGroup) {
-                    if (!(source.getState() == State.FROZEN)) {
+                    if (source.getState() != State.FROZEN) {
                         log.warn("StreamSource:{} is not stopped", source);
                         this.state = InlongGroupState.OPERATING;
                         break;
