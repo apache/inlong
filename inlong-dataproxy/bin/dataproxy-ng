@@ -229,7 +229,7 @@ DATAPROXY_CLASSPATH=""
 
 # Extra options to be passed to the jvm
 if [ -z "$DATAPROXY_JVM_HEAP_OPTS" ]; then
-  DATA_PROXY_MEM="-Xms2g -Xmx2g -XX:MaxDirectMemorySize=4g"
+  DATA_PROXY_MEM="-Xms512m -Xmx1024m -XX:MaxDirectMemorySize=2048m"
 else
   DATA_PROXY_MEM="$DATAPROXY_JVM_HEAP_OPTS"
 fi

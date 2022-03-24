@@ -66,8 +66,8 @@ agent:
   replicaCount: 1
   resources:
     requests:
-      cpu: 0.5
-      memory: "512Mi"
+      cpu: 1
+      memory: "1Gi"
   ports:
     agent: 8008
     managerOpenApi: ${manager.containerPort}
@@ -85,8 +85,8 @@ dashboard:
   replicaCount: 1
   resources:
     requests:
-      cpu: 0.5
-      memory: "512Mi"
+      cpu: 1
+      memory: "1Gi"
   ports:
     webPort: 80
     webNodePort: 30080
@@ -98,8 +98,8 @@ dataproxy:
   replicaCount: 1
   resources:
     requests:
-      cpu: 0.5
-      memory: "512Mi"
+      cpu: 1
+      memory: "1Gi"
   containerPort: 46801
   managerOpenApiPort: ${manager.containerPort}
   env:
@@ -113,8 +113,8 @@ tubemqManager:
   replicaCount: 1
   resources:
     requests:
-      cpu: 0.5
-      memory: "512Mi"
+      cpu: 1
+      memory: "1Gi"
   containerPort: 8089
   env:
     TUBE_MANAGER_JVM_HEAP_OPTS: >
@@ -128,8 +128,8 @@ manager:
   replicaCount: 1
   resources:
     requests:
-      cpu: 0.5
-      memory: "512Mi"
+      cpu: 1
+      memory: "1Gi"
   ports:
     webPort: 8083
   username: "root"
@@ -147,8 +147,8 @@ audit:
   replicaCount: 1
   resources:
     requests:
-      cpu: 0.5
-      memory: "512Mi"
+      cpu: 1
+      memory: "1Gi"
   ports:
     webPort: 10081
   env:
@@ -163,8 +163,8 @@ mysql:
   replicaCount: 1
   resources:
     requests:
-      cpu: 0.5
-      memory: "512Mi"
+      cpu: 1
+      memory: "1Gi"
   username: "root"
   password: "inlong"
   ports:
@@ -201,8 +201,8 @@ zookeeper:
   gracePeriod: 30
   resources:
     requests:
-      cpu: 0.5
-      memory: "512Mi"
+      cpu: 1
+      memory: "1Gi"
   volumes:
     name: data
     size: "10Gi"
@@ -238,8 +238,8 @@ tubemqMaster:
   gracePeriod: 30
   resources:
     requests:
-      cpu: 0.5
-      memory: "512Mi"
+      cpu: 1
+      memory: "1Gi"
   volumes:
     name: data
     size: "10Gi"
@@ -280,8 +280,8 @@ tubemqBroker:
   gracePeriod: 30
   resources:
     requests:
-      cpu: 0.5
-      memory: "512Mi"
+      cpu: 1
+      memory: "1Gi"
   volumes:
     name: data
     size: "10Gi"

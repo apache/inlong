@@ -46,7 +46,7 @@ fi
 JAVA_OPTS="-server -XX:SurvivorRatio=2 -XX:+UseParallelGC"
 
 if [ -z "$AUDIT_JVM_HEAP_OPTS" ]; then
-  HEAP_OPTS="-Xms2g -Xmx2g"
+  HEAP_OPTS="-Xms512m -Xmx1024m"
 else
   HEAP_OPTS="$AUDIT_JVM_HEAP_OPTS"
 fi
