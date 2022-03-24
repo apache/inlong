@@ -1314,39 +1314,24 @@ public class CliMetaDataBRU extends CliAbstractBase {
         if (groupResCtrlMap.isEmpty()) {
             return true;
         }
-        int count = 0;
         Map<String, String> inParamMap = new HashMap<>();
         for (GroupResCtrlEntity entity : groupResCtrlMap.values()) {
-            if (count++ > 0) {
-                strBuff.append(",");
-            }
-            // build group resource control configurations in json format
-            entity.toWebJsonStr(strBuff, true, true);
-            if (strBuff.length() > maxDataLength
-                    || count % TServerConstants.CFG_BATCH_BROKER_OPERATE_MAX_COUNT == 0) {
-                inParamMap.put("groupResCtrlJsonSet", "[" + strBuff.toString() + "]");
-                strBuff.delete(0, strBuff.length());
-                inParamMap.put("createUser", curOperator);
-                inParamMap.put("modifyUser", curOperator);
-                if (!writeDataToMaster("admin_batch_add_group_resctrl_info",
-                        authToken, inParamMap, strBuff, result)) {
-                    return false;
-                }
-                count = 0;
-                inParamMap.clear();
-                strBuff.delete(0, strBuff.length());
-            }
-        }
-        if (strBuff.length() > 0) {
-            inParamMap.put("groupResCtrlJsonSet", "[" + strBuff.toString() + "]");
-            strBuff.delete(0, strBuff.length());
-            inParamMap.put("createUser", curOperator);
-            inParamMap.put("modifyUser", curOperator);
-            if (!writeDataToMaster("admin_batch_add_group_resctrl_info",
+            inParamMap.clear();
+            inParamMap.put("groupName", entity.getGroupName());
+            inParamMap.put("resCheckEnable", String.valueOf(entity.isEnableResCheck()));
+            inParamMap.put("alwdBrokerClientRate", String.valueOf(entity.getAllowedBrokerClientRate()));
+            inParamMap.put("qryPriorityId", String.valueOf(entity.getQryPriorityId()));
+            inParamMap.put("flowCtrlEnable", String.valueOf(entity.isFlowCtrlEnable()));
+            inParamMap.put("flowCtrlInfo", String.valueOf(entity.getFlowCtrlInfo()));
+            inParamMap.put("dataVersionId", String.valueOf(entity.getDataVerId()));
+            inParamMap.put("createUser", String.valueOf(entity.getCreateUser()));
+            inParamMap.put("createDate", String.valueOf(entity.getCreateDateStr()));
+            inParamMap.put("modifyUser", String.valueOf(entity.getModifyUser()));
+            inParamMap.put("modifyDate", String.valueOf(entity.getModifyDateStr()));
+            if (!writeDataToMaster("admin_add_group_resctrl_info",
                     authToken, inParamMap, strBuff, result)) {
                 return false;
             }
-            strBuff.delete(0, strBuff.length());
         }
         return true;
     }

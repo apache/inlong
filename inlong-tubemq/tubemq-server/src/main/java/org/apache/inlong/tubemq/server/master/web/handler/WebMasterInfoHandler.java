@@ -17,13 +17,16 @@
 
 package org.apache.inlong.tubemq.server.master.web.handler;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
@@ -57,6 +60,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                 "getGroupAddressStrInfo");
         registerQueryWebMethod("admin_query_cluster_topic_view",
                 "adminQueryClusterTopicView");
+        registerQueryWebMethod("admin_query_group_info_by_topic",
+                "adminGetOnlineGroupSetByTopic");
         registerQueryWebMethod("admin_query_cluster_default_setting",
                 "adminQueryClusterDefSetting");
 
@@ -335,6 +340,62 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCount);
         return sBuffer;
+    }
+
+    /**
+     * Query group set by topic view
+     *
+     * @param req       Http Servlet Request
+     * @param strBuff   string buffer
+     * @param result    process result
+     * @return    process result
+     */
+    public StringBuilder adminGetOnlineGroupSetByTopic(HttpServletRequest req,
+                                                       StringBuilder strBuff,
+                                                       ProcessResult result) {
+        // check and get topicName field
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, strBuff, result)) {
+            WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
+            return strBuff;
+        }
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
+        Set<String> targetTopicSet;
+        // query topic-group map info
+        ConcurrentHashMap<String, ConcurrentHashSet<String>> topicGroupMap =
+                master.getConsumerHolder().getRegTopicGroupMap();
+        if (topicNameSet == null || topicNameSet.isEmpty()) {
+            targetTopicSet = new HashSet<>(topicGroupMap.keySet());
+        } else {
+            targetTopicSet = new HashSet<>(topicNameSet);
+        }
+        // build query result
+        int totalCnt = 0;
+        int topicItemCnt;
+        WebParameterUtils.buildSuccessWithDataRetBegin(strBuff);
+        for (String topicName : targetTopicSet) {
+            if (topicName == null) {
+                continue;
+            }
+            if (totalCnt++ > 0) {
+                strBuff.append(",");
+            }
+            topicItemCnt = 0;
+            ConcurrentHashSet<String> groupSet = topicGroupMap.get(topicName);
+            strBuff.append("{\"topicName\":\"").append(topicName)
+                    .append("\",\"groupSet\":[");
+            if (groupSet != null) {
+                for (String groupName : groupSet) {
+                    if (topicItemCnt++ > 0) {
+                        strBuff.append(",");
+                    }
+                    strBuff.append("\"").append(groupName).append("\"");
+                }
+            }
+            strBuff.append("],\"groupCnt\":").append(topicItemCnt).append("}");
+        }
+        WebParameterUtils.buildSuccessWithDataRetEnd(strBuff, totalCnt);
+        return strBuff;
     }
 
     /**
