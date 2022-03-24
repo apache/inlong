@@ -619,12 +619,12 @@ public class InlongStreamServiceImpl implements InlongStreamService {
      * <p/>First physically delete the existing field information, and then add the field information of this batch
      */
     @Transactional(rollbackFor = Throwable.class)
-    void updateField(String groupId, String streamId, List<InlongStreamFieldInfo> fieldInfoList) {
+    void updateField(String groupId, String streamId, List<InlongStreamFieldInfo> fieldList) {
         LOGGER.debug("begin to update inlong stream field, groupId={}, streamId={}, field={}", groupId, streamId,
-                fieldInfoList);
+                fieldList);
         try {
             streamFieldMapper.deleteAllByIdentifier(groupId, streamId);
-            saveField(groupId, streamId, fieldInfoList);
+            saveField(groupId, streamId, fieldList);
             LOGGER.info("success to update inlong stream field for groupId={}", groupId);
         } catch (Exception e) {
             LOGGER.error("failed to update inlong stream field: ", e);
@@ -637,13 +637,14 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         if (CollectionUtils.isEmpty(infoList)) {
             return;
         }
-        List<InlongStreamFieldEntity> entities = CommonBeanUtils.copyListProperties(infoList,
+        List<InlongStreamFieldEntity> list = CommonBeanUtils.copyListProperties(infoList,
                 InlongStreamFieldEntity::new);
-        for (InlongStreamFieldEntity entity : entities) {
+        for (InlongStreamFieldEntity entity : list) {
             entity.setInlongGroupId(groupId);
             entity.setInlongStreamId(streamId);
+            entity.setIsDeleted(Constant.UN_DELETED);
         }
-        streamFieldMapper.insertAll(entities);
+        streamFieldMapper.insertAll(list);
     }
 
     /**

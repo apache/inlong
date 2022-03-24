@@ -315,7 +315,7 @@ public class AgentServiceImpl implements AgentService {
             }
 
             List<InlongStreamFieldEntity> preFields = streamFieldMapper
-                    .selectStreamFields(config.getInlongGroupId(), config.getInlongStreamId());
+                    .selectFields(config.getInlongGroupId(), config.getInlongStreamId());
 
             if (!config.getSortType().equalsIgnoreCase("13")) {
                 int fIndex = 0;
@@ -463,7 +463,7 @@ public class AgentServiceImpl implements AgentService {
             s.append("p=t").append("&");
         }
 
-        List<InlongStreamFieldEntity> preFields = streamFieldMapper.selectStreamFields(
+        List<InlongStreamFieldEntity> preFields = streamFieldMapper.selectFields(
                 config.getInlongGroupId(),
                 config.getInlongStreamId());
 

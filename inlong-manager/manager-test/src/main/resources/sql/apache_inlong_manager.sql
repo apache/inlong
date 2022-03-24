@@ -404,6 +404,7 @@ CREATE TABLE `inlong_stream_field`
     `pre_expression`      varchar(256) DEFAULT NULL COMMENT 'Pre-defined field value expression',
     `field_type`          varchar(20)  NOT NULL COMMENT 'field type',
     `field_comment`       varchar(50)  DEFAULT NULL COMMENT 'Field description',
+    `is_meta_field`       smallint(3)  DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
     `rank_num`            smallint(6)  DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`          int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`),
@@ -637,19 +638,19 @@ CREATE TABLE `stream_sink_ext`
 DROP TABLE IF EXISTS `stream_sink_field`;
 CREATE TABLE `stream_sink_field`
 (
-    `id`                   int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`      varchar(256) NOT NULL COMMENT 'Inlong group id',
-    `inlong_stream_id`     varchar(256) NOT NULL COMMENT 'Inlong stream id',
-    `sink_id`              int(11)      NOT NULL COMMENT 'Sink id',
-    `sink_type`            varchar(15)  NOT NULL COMMENT 'Sink type',
-    `source_field_name`    varchar(50)   DEFAULT NULL COMMENT 'Source field name',
-    `source_field_type`    varchar(50)   DEFAULT NULL COMMENT 'Source field type',
-    `is_source_meta_field` smallint(3)   DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
-    `field_name`           varchar(50)  NOT NULL COMMENT 'Field name',
-    `field_type`           varchar(50)  NOT NULL COMMENT 'Field type',
-    `field_comment`        varchar(2000) DEFAULT NULL COMMENT 'Field description',
-    `rank_num`             smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
-    `is_deleted`           int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `inlong_group_id`   varchar(256) NOT NULL COMMENT 'Inlong group id',
+    `inlong_stream_id`  varchar(256) NOT NULL COMMENT 'Inlong stream id',
+    `sink_id`           int(11)      NOT NULL COMMENT 'Sink id',
+    `sink_type`         varchar(15)  NOT NULL COMMENT 'Sink type',
+    `source_field_name` varchar(50)   DEFAULT NULL COMMENT 'Source field name',
+    `source_field_type` varchar(50)   DEFAULT NULL COMMENT 'Source field type',
+    `field_name`        varchar(50)  NOT NULL COMMENT 'Field name',
+    `field_type`        varchar(50)  NOT NULL COMMENT 'Field type',
+    `field_comment`     varchar(2000) DEFAULT NULL COMMENT 'Field description',
+    `is_meta_field`     smallint(3)   DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
+    `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
+    `is_deleted`        int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`)
 );
 

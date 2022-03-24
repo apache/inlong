@@ -26,34 +26,30 @@ import java.util.List;
 @Repository
 public interface InlongStreamFieldEntityMapper {
 
-    int deleteByPrimaryKey(Integer id);
-
     int insert(InlongStreamFieldEntity record);
 
-    int insertSelective(InlongStreamFieldEntity record);
+    int insertAll(@Param("fieldList") List<InlongStreamFieldEntity> fieldEntityList);
 
     InlongStreamFieldEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(InlongStreamFieldEntity record);
-
-    int updateByPrimaryKey(InlongStreamFieldEntity record);
 
     List<InlongStreamFieldEntity> selectByIdentifier(@Param("groupId") String groupId,
             @Param("streamId") String streamId);
 
-    int insertAll(@Param("fieldList") List<InlongStreamFieldEntity> fieldEntityList);
-
-    List<InlongStreamFieldEntity> selectStreamFields(@Param("groupId") String groupId,
+    List<InlongStreamFieldEntity> selectFields(@Param("groupId") String groupId,
             @Param("streamId") String streamId);
 
-    /**
-     * According to the inlong group id and inlong stream id, physically delete all fields
-     */
-    int deleteAllByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    int updateByPrimaryKey(InlongStreamFieldEntity record);
+
+    int deleteByPrimaryKey(Integer id);
 
     /**
      * According to the inlong group id and inlong stream id, logically delete all fields
      */
     int logicDeleteAllByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
+
+    /**
+     * According to the inlong group id and inlong stream id, physically delete all fields
+     */
+    int deleteAllByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
 }

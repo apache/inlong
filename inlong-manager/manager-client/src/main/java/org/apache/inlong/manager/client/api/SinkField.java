@@ -20,10 +20,12 @@ package org.apache.inlong.manager.client.api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.FieldType;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @ApiModel("Sink field configuration")
 public class SinkField extends StreamField {
@@ -34,14 +36,10 @@ public class SinkField extends StreamField {
     @ApiModelProperty("Source field type")
     private String sourceFieldType;
 
-    @ApiModelProperty("Is source meta field, 0: no, 1: yes")
-    private Integer isSourceMetaField = 0;
-
     public SinkField(int index, FieldType fieldType, String fieldName, String fieldComment,
-            String fieldValue, String sourceFieldName, String sourceFieldType, Integer isSourceMetaField) {
-        super(index, fieldType, fieldName, fieldComment, fieldValue);
+            String fieldValue, String sourceFieldName, String sourceFieldType, Integer isMetaField) {
+        super(index, fieldType, fieldName, fieldComment, fieldValue, isMetaField);
         this.sourceFieldName = sourceFieldName;
         this.sourceFieldType = sourceFieldType;
-        this.isSourceMetaField = isSourceMetaField;
     }
 }

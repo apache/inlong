@@ -60,12 +60,14 @@ public class InlongStreamImpl extends InlongStream {
         List<InlongStreamFieldInfo> streamFieldInfos = streamInfo.getFieldList();
         if (CollectionUtils.isNotEmpty(streamFieldInfos)) {
             this.streamFields = streamFieldInfos.stream()
-                    .map(streamFieldInfo -> new StreamField(
-                            streamFieldInfo.getId(),
-                            FieldType.forName(streamFieldInfo.getFieldType()),
-                            streamFieldInfo.getFieldName(),
-                            streamFieldInfo.getFieldComment(),
-                            streamFieldInfo.getFieldValue())
+                    .map(fieldInfo -> new StreamField(
+                                    fieldInfo.getId(),
+                                    FieldType.forName(fieldInfo.getFieldType()),
+                                    fieldInfo.getFieldName(),
+                                    fieldInfo.getFieldComment(),
+                                    fieldInfo.getFieldValue(),
+                                    fieldInfo.getIsMetaField()
+                            )
                     ).collect(Collectors.toList());
         }
         List<SinkResponse> sinkList = fullStreamResponse.getSinkInfo();
@@ -82,7 +84,7 @@ public class InlongStreamImpl extends InlongStream {
         List<SourceResponse> sourceList = fullStreamResponse.getSourceInfo();
         if (CollectionUtils.isNotEmpty(sourceList)) {
             this.streamSources = sourceList.stream()
-                    .map(sourceResponse -> InlongStreamSourceTransfer.parseStreamSource(sourceResponse))
+                    .map(InlongStreamSourceTransfer::parseStreamSource)
                     .collect(Collectors.toMap(StreamSource::getSourceName, streamSource -> streamSource,
                             (source1, source2) -> {
                                 throw new RuntimeException(

@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.service.thirdparty.sort.util;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.MetaFieldType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
 import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
 import org.apache.inlong.sort.formats.common.ByteFormatInfo;
@@ -39,7 +39,6 @@ import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.transformation.FieldMappingRule;
 import org.apache.inlong.sort.protocol.transformation.FieldMappingRule.FieldMappingUnit;
 
 import java.util.ArrayList;
@@ -68,51 +67,32 @@ public class FieldInfoUtils {
 
     /**
      * Get field info list.
-     * TODO 1. Support partition field, 2. Add is_metadata field in StreamSinkFieldEntity
+     * TODO 1. Support partition field(not need to add index at 0), 2. Add is_metadata field in StreamSinkFieldEntity
      */
-    public static FieldMappingRule createFieldInfo(boolean isAllMigration, List<SinkFieldResponse> fieldList,
-            List<FieldInfo> sourceFields, List<FieldInfo> sinkFields, String partitionField) {
+    public static List<FieldMappingUnit> createFieldInfo(
+            List<InlongStreamFieldInfo> streamFieldList, List<SinkFieldResponse> fieldList,
+            List<FieldInfo> sourceFields, List<FieldInfo> sinkFields) {
 
-        List<FieldMappingUnit> fieldMappingUnitList = new ArrayList<>();
-        if (isAllMigration) {
-            setAllMigrationBuiltInField(sourceFields, sinkFields, fieldMappingUnitList);
-        } else {
-            boolean duplicate = false;
-            for (SinkFieldResponse field : fieldList) {
-                // If the field name equals to build-in field, new a build-in field info
-                FieldInfo sourceFieldInfo = getFieldInfo(field.getSourceFieldName(),
-                        field.getSourceFieldType(), field.getIsSourceMetaField() == 1);
-                sourceFields.add(sourceFieldInfo);
-
-                // Get sink field info
-                String sinkFieldName = field.getFieldName();
-                if (sinkFieldName.equals(partitionField)) {
-                    duplicate = true;
-                }
-                FieldInfo sinkFieldInfo = getSinkFieldInfo(field.getFieldName(), field.getFieldType(),
-                        field.getSourceFieldName(), field.getIsSourceMetaField() == 1);
-                sinkFields.add(sinkFieldInfo);
-
-                fieldMappingUnitList.add(new FieldMappingUnit(sourceFieldInfo, sinkFieldInfo));
-            }
-
-            // If no partition field in the ordinary fields, add the partition field to the first position
-            if (!duplicate && StringUtils.isNotEmpty(partitionField)) {
-                FieldInfo fieldInfo = new FieldInfo(partitionField, new TimestampFormatInfo("MILLIS"));
-                sourceFields.add(0, fieldInfo);
-            }
+        // Set source field info list.
+        for (InlongStreamFieldInfo field : streamFieldList) {
+            FieldInfo sourceField = getFieldInfo(field.getFieldName(), field.getFieldType(),
+                    field.getIsMetaField() == 1);
+            sourceFields.add(sourceField);
         }
 
-        return new FieldMappingRule(fieldMappingUnitList.toArray(new FieldMappingUnit[0]));
-    }
+        List<FieldMappingUnit> mappingUnitList = new ArrayList<>();
+        // Get sink field info list, if the field name equals to build-in field, new a build-in field info
+        for (SinkFieldResponse field : fieldList) {
+            FieldInfo sinkField = getFieldInfo(field.getFieldName(), field.getFieldType(),
+                    field.getIsMetaField() == 1);
+            sinkFields.add(sinkField);
 
-    /**
-     * Get field info by the given field name ant type.
-     *
-     * @apiNote If the field name equals to build-in field, new a build-in field info
-     */
-    private static FieldInfo getFieldInfo(String fieldName, String fieldType) {
-        return getFieldInfo(fieldName, fieldType, false);
+            FieldInfo sourceField = getFieldInfo(field.getSourceFieldName(),
+                    field.getSourceFieldType(), field.getIsMetaField() == 1);
+            mappingUnitList.add(new FieldMappingUnit(sourceField, sinkField));
+        }
+
+        return mappingUnitList;
     }
 
     /**
@@ -133,33 +113,16 @@ public class FieldInfoUtils {
     }
 
     /**
-     * Get field info by the given field name ant type.
-     *
-     * @apiNote If the field name equals to build-in field, new a build-in field info
+     * Get all migration field mapping unit list for binlog source.
      */
-    private static FieldInfo getSinkFieldInfo(String fieldName, String fieldType,
-            String sourceFieldName, boolean isBuiltin) {
-        FieldInfo fieldInfo;
-        BuiltInField builtInField = BUILT_IN_FIELD_MAP.get(sourceFieldName);
-        FormatInfo formatInfo = convertFieldFormat(fieldType.toLowerCase());
-        if (isBuiltin && builtInField != null) {
-            fieldInfo = new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
-        } else {
-            fieldInfo = new FieldInfo(fieldName, formatInfo);
-        }
-        return fieldInfo;
-    }
-
-    /**
-     * Get all migration built-in field for binlog source.
-     */
-    public static void setAllMigrationBuiltInField(List<FieldInfo> sourceFields, List<FieldInfo> sinkFields,
-            List<FieldMappingUnit> fieldMappingUnitList) {
-        BuiltInFieldInfo dataField = new BuiltInFieldInfo("data",
-                StringFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_DATA);
+    public static List<FieldMappingUnit> setAllMigrationFieldMapping(List<FieldInfo> sourceFields,
+            List<FieldInfo> sinkFields) {
+        List<FieldMappingUnit> mappingUnitList = new ArrayList<>();
+        BuiltInFieldInfo dataField = new BuiltInFieldInfo("data", StringFormatInfo.INSTANCE,
+                BuiltInField.MYSQL_METADATA_DATA);
         sourceFields.add(dataField);
         sinkFields.add(dataField);
-        fieldMappingUnitList.add(new FieldMappingUnit(dataField, dataField));
+        mappingUnitList.add(new FieldMappingUnit(dataField, dataField));
 
         for (Map.Entry<String, BuiltInField> entry : BUILT_IN_FIELD_MAP.entrySet()) {
             if (entry.getKey().equals("data_time")) {
@@ -169,8 +132,10 @@ public class FieldInfoUtils {
                     StringFormatInfo.INSTANCE, entry.getValue());
             sourceFields.add(fieldInfo);
             sinkFields.add(fieldInfo);
-            fieldMappingUnitList.add(new FieldMappingUnit(fieldInfo, fieldInfo));
+            mappingUnitList.add(new FieldMappingUnit(fieldInfo, fieldInfo));
         }
+
+        return mappingUnitList;
     }
 
     /**

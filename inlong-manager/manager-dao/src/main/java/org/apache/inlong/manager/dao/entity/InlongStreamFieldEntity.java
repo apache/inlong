@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class InlongStreamFieldEntity implements Serializable {
@@ -33,6 +34,7 @@ public class InlongStreamFieldEntity implements Serializable {
     private String preExpression;
     private String fieldType;
     private String fieldComment;
+    private Integer isMetaField;
     private Short rankNum;
     private Integer isDeleted;
 

@@ -50,6 +50,7 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.protocol.transformation.FieldMappingRule;
+import org.apache.inlong.sort.protocol.transformation.FieldMappingRule.FieldMappingUnit;
 import org.apache.inlong.sort.protocol.transformation.TransformationInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -212,22 +213,30 @@ public class CommonOperateService {
         // Get all field info
         List<FieldInfo> sourceFields = new ArrayList<>();
         List<FieldInfo> sinkFields = new ArrayList<>();
-        String partition = null;
+        // TODO Need support hive partition field
         if (SinkType.forType(sinkResponse.getSinkType()) == SinkType.HIVE) {
             HiveSinkResponse hiveSink = (HiveSinkResponse) sinkResponse;
-            partition = hiveSink.getPrimaryPartition();
+            String partition = hiveSink.getPrimaryPartition();
         }
 
         // TODO Support more than one source and one sink
         final SourceResponse sourceResponse = sourceList.get(0);
         boolean isAllMigration = SourceInfoUtils.isBinlogAllMigration(sourceResponse);
-        FieldMappingRule fieldMappingRule = FieldInfoUtils.createFieldInfo(isAllMigration,
-                sinkResponse.getFieldList(), sourceFields, sinkFields, partition);
+
+        List<FieldMappingUnit> mappingUnitList;
+        InlongStreamResponse streamInfo = streamService.get(groupId, streamId);
+        if (isAllMigration) {
+            mappingUnitList = FieldInfoUtils.setAllMigrationFieldMapping(sourceFields, sinkFields);
+        } else {
+            mappingUnitList = FieldInfoUtils.createFieldInfo(streamInfo.getFieldList(),
+                    sinkResponse.getFieldList(), sourceFields, sinkFields);
+        }
+
+        FieldMappingRule fieldMappingRule = new FieldMappingRule(mappingUnitList.toArray(new FieldMappingUnit[0]));
 
         // Get source info
         String masterAddress = getSpecifiedParam(Constant.TUBE_MASTER_URL);
         PulsarClusterInfo pulsarCluster = getPulsarClusterInfo(groupInfo.getMiddlewareType());
-        InlongStreamResponse streamInfo = streamService.get(groupId, streamId);
         SourceInfo sourceInfo = SourceInfoUtils.createSourceInfo(pulsarCluster, masterAddress, clusterBean,
                 groupInfo, streamInfo, sourceResponse, sourceFields);
 
