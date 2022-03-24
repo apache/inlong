@@ -113,7 +113,7 @@ public class CommonOperateService {
             case Constant.CLUSTER_TUBE_MANAGER:
             case Constant.CLUSTER_TUBE_CLUSTER_ID:
             case Constant.TUBE_MASTER_URL: {
-                clusterEntity = getMQCluster(MQType.PULSAR);
+                clusterEntity = getMQCluster(MQType.TUBE);
                 if (clusterEntity != null) {
                     if (key.equals(Constant.TUBE_MASTER_URL)) {
                         result = clusterEntity.getUrl();
@@ -132,9 +132,6 @@ public class CommonOperateService {
      * Get third party cluster by type.
      *
      * TODO Add data_proxy_cluster_name for query.
-     *
-     * @param type
-     * @return
      */
     private ThirdPartyClusterEntity getMQCluster(MQType type) {
         List<ThirdPartyClusterEntity> clusterList = thirdPartyClusterMapper.selectByType(Constant.CLUSTER_DATA_PROXY);
