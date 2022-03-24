@@ -20,18 +20,14 @@ package org.apache.inlong.manager.plugin.flink;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.ResponseBody;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobStatus;
-import org.apache.inlong.manager.plugin.dto.FlinkConf;
-import org.apache.inlong.manager.plugin.dto.JarFileInfo;
-import org.apache.inlong.manager.plugin.dto.JarListInfo;
-import org.apache.inlong.manager.plugin.dto.JarRunRequestbody;
-import org.apache.inlong.manager.plugin.dto.Jars;
-import org.apache.inlong.manager.plugin.dto.StopWithSavepointRequestBody;
+import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
+import org.apache.inlong.manager.plugin.flink.dto.JarFileInfo;
+import org.apache.inlong.manager.plugin.flink.dto.JarListInfo;
+import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequestBody;
 import org.apache.inlong.manager.plugin.flink.enums.TaskCommitType;
 
 import java.util.ArrayList;
@@ -40,21 +36,19 @@ import java.util.List;
 import java.util.Map;
 
 import static org.apache.flink.api.common.JobStatus.FINISHED;
-import static org.apache.inlong.manager.plugin.flink.FlinkUtils.translateFromFlinkConf;
 
 @Slf4j
 public class IntergrationTaskRunner implements Runnable {
 
-    private static final Gson GSON = new GsonBuilder().serializeNulls().create();
     private FlinkService flinkService;
-    private FlinkConf flinkConf;
+    private FlinkInfo flinkInfo;
     private Integer commitType;
     private static final Integer TRY_MAX_TIMES = 60;
     private static final Integer INTERVAL = 10;
 
-    public IntergrationTaskRunner(FlinkService flinkService, FlinkConf flinkConf,Integer commitType) {
+    public IntergrationTaskRunner(FlinkService flinkService, FlinkInfo flinkInfo,Integer commitType) {
         this.flinkService = flinkService;
-        this.flinkConf = flinkConf;
+        this.flinkInfo = flinkInfo;
         this.commitType = commitType;
     }
 
@@ -77,43 +71,60 @@ public class IntergrationTaskRunner implements Runnable {
         switch (commitType) {
             case START_NOW:
                 try {
-                    String jobId = flinkService.submitJobs(flinkConf);
-                    flinkConf.setJobId(jobId);
+                    String jobId = flinkService.submitJobs(flinkInfo);
+                    flinkInfo.setJobId(jobId);
                     log.info("Start job {} success in backend", jobId);
                 } catch (Exception e) {
                     log.warn("Start job failed in backend");
                 }
                 break;
+            case RESUME:
+                try {
+                    String jobId = flinkService.restore(flinkInfo);
+                    log.info("Restore job {} success in backend", jobId);
+                } catch (Exception e) {
+                    log.warn("Restore job failed in backend");
+                }
+                break;
             case RESTART:
                 try {
+                    //first stop job
+                    ObjectMapper objectMapper = new ObjectMapper();
                     StopWithSavepointRequestBody stopWithSavepointRequestBody = new StopWithSavepointRequestBody();
                     stopWithSavepointRequestBody.setDrain(Constants.DRAIN);
                     stopWithSavepointRequestBody.setTargetDirectory(Constants.SAVEPOINT_DIRECTORY);
-                    flinkService.stopJobs(flinkConf.getJobId(),stopWithSavepointRequestBody);
-                    log.info("Stop job {} success in backend", flinkConf.getJobId());
+                    ResponseBody body = flinkService.stopJobs(flinkInfo.getJobId(), stopWithSavepointRequestBody);
+                    Map<String, String> map =
+                            objectMapper.readValue(body.string(), new TypeReference<HashMap<String, String>>() {
+                            });
+                    String triggerId = map.get("request-id");
+                    if (StringUtils.isNotEmpty(triggerId)) {
+                        ResponseBody responseBody = flinkService.triggerSavepoint(flinkInfo.getJobId(), triggerId);
+                        Map<String, JsonNode> dataflowMap =
+                                objectMapper.convertValue(objectMapper.readTree(responseBody.string()),
+                                        new TypeReference<Map<String, JsonNode>>() {
+                                        });
+                        JsonNode jobStopStatus = dataflowMap.get("status");
+                        JsonNode operation = dataflowMap.get("operation");
+                        String status = jobStopStatus.get("id").asText();
+                        String savepointPath = operation.get("location").asText();
+                        flinkInfo.setSavepointPath(savepointPath);
+                        log.info("the jobId :{} status: {} ", flinkInfo.getJobId(), status);
+                    }
                     int times = 0;
                     while (times < TRY_MAX_TIMES) {
-                        JobStatus jobStatus = flinkService
-                                .getJobStatus(flinkConf.getJobId());
+                        JobStatus jobStatus = flinkService.getJobStatus(flinkInfo.getJobId());
+                        // restore job
                         if (jobStatus == FINISHED) {
-                            String localJarPath = flinkConf.getLocalJarPath();
-                            String jarResourceName = localJarPath.substring(localJarPath.lastIndexOf("/") + 1);
-
-                            ResponseBody responseBody = flinkService.uploadJar(flinkConf.getLocalJarPath(),
-                                    jarResourceName);
-                            log.info("the jar file message is {}", responseBody.string());
-
-                            ObjectMapper objectMapper = new ObjectMapper();
-                            Jars jars = objectMapper.readValue(responseBody.string(), Jars.class);
-                            String jarId = jars.getFilename().substring(jars.getFilename().lastIndexOf("/" + 1));
-                            flinkConf.setResourceIds(jarId);
-
-                            JarRunRequestbody jarRunRequestbody = translateFromFlinkConf(flinkConf);
-                            flinkService.submitJobsWithoutJar(flinkConf.getResourceIds(), jarRunRequestbody);
-                            log.info("Start job {} success in backend", flinkConf.getJobId());
+                            try {
+                                String jobId = flinkService.restore(flinkInfo);
+                                log.info("Restore job {} success in backend", jobId);
+                            } catch (Exception e) {
+                                log.warn("Restore job failed in backend");
+                            }
                             break;
                         }
-                        log.info("Try start job  but the job {} is {}", flinkConf.getJobId(), jobStatus.toString());
+                        log.info("Try start job  but the job {} is {}", flinkInfo.getJobId(), jobStatus.toString());
                         try {
                             Thread.sleep(INTERVAL * 1000);
                         } catch (Exception e) {
@@ -121,9 +132,9 @@ public class IntergrationTaskRunner implements Runnable {
                         }
                         times++;
                     }
-                    log.info("Restart job {} success in backend", flinkConf.getJobId());
+                    log.info("Restart job {} success in backend", flinkInfo.getJobId());
                 } catch (Exception e) {
-                    log.warn("Restart job {} failed in backend", flinkConf.getJobId());
+                    log.warn("Restart job {} failed in backend", flinkInfo.getJobId());
                 }
                 break;
             case STOP:
@@ -131,14 +142,15 @@ public class IntergrationTaskRunner implements Runnable {
                     ObjectMapper objectMapper = new ObjectMapper();
                     StopWithSavepointRequestBody stopWithSavepointRequestBody = new StopWithSavepointRequestBody();
                     stopWithSavepointRequestBody.setDrain(Constants.DRAIN);
-                    stopWithSavepointRequestBody.setTargetDirectory(Constants.SAVEPOINT_DIRECTORY);
-                    ResponseBody body = flinkService.stopJobs(flinkConf.getJobId(), stopWithSavepointRequestBody);
+                    FlinkConfig flinkConfig = flinkService.getFlinkConfig();
+                    stopWithSavepointRequestBody.setTargetDirectory(flinkConfig.getSavepointDirectory());
+                    ResponseBody body = flinkService.stopJobs(flinkInfo.getJobId(), stopWithSavepointRequestBody);
                     Map<String, String> map =
                             objectMapper.readValue(body.string(), new TypeReference<HashMap<String, String>>() {
                             });
                     String triggerId = map.get("request-id");
                     if (StringUtils.isNotEmpty(triggerId)) {
-                        ResponseBody responseBody = flinkService.triggerSavepoint(flinkConf.getJobId(),triggerId);
+                        ResponseBody responseBody = flinkService.triggerSavepoint(flinkInfo.getJobId(),triggerId);
                         Map<String, JsonNode> dataflowMap =
                                 objectMapper.convertValue(objectMapper.readTree(responseBody.string()),
                                 new TypeReference<Map<String, JsonNode>>(){});
@@ -146,19 +158,19 @@ public class IntergrationTaskRunner implements Runnable {
                         JsonNode operation = dataflowMap.get("operation");
                         String status = jobStatus.get("id").asText();
                         String savepointPath = operation.get("location").asText();
-                        flinkConf.setSavepointPath(savepointPath);
-                        log.info("the jobId :{} status: {} ",flinkConf.getJobId(),status);
+                        flinkInfo.setSavepointPath(savepointPath);
+                        log.info("the jobId :{} status: {} ", flinkInfo.getJobId(),status);
                     }
                 } catch (Exception e) {
-                    log.warn("Stop job {} failed in backend", flinkConf.getJobId());
+                    log.warn("Stop job {} failed in backend", flinkInfo.getJobId());
                 }
                 break;
             case DELETE:
                 try {
-                    flinkService.deleteJobs(flinkConf.getJobId());
-                    log.info("delete job {} success in backend", flinkConf.getJobId());
-                    String resourceIds = flinkConf.getResourceIds();
-                    String url = Constants.HTTP_URL + flinkConf.getEndpoint() + Constants.JARS_URL;
+                    flinkService.deleteJobs(flinkInfo.getJobId());
+                    log.info("delete job {} success in backend", flinkInfo.getJobId());
+                    String resourceIds = flinkInfo.getResourceIds();
+                    String url = Constants.HTTP_URL + flinkInfo.getEndpoint() + Constants.JARS_URL;
                     ResponseBody responseBody = flinkService.listJars(url);
                     ObjectMapper objectMapper = new ObjectMapper();
                     JarListInfo jarListInfo = objectMapper.readValue(responseBody.toString(),JarListInfo.class);
@@ -170,10 +182,10 @@ public class IntergrationTaskRunner implements Runnable {
                     if (resourceIds != null && jarIdList.contains(resourceIds)) {
                         flinkService.deleteJars(resourceIds);
                     }
-                    log.info("delete resource [{}] of job {} success in backend", flinkConf.getResourceIds(),
-                            flinkConf.getJobId());
+                    log.info("delete resource [{}] of job {} success in backend", flinkInfo.getResourceIds(),
+                            flinkInfo.getJobId());
                 } catch (Exception e) {
-                    log.warn("delete job {} failed in backend,exception[{}]", flinkConf.getJobId(), e.getMessage());
+                    log.warn("delete job {} failed in backend,exception[{}]", flinkInfo.getJobId(), e.getMessage());
                 }
                 break;
             default:

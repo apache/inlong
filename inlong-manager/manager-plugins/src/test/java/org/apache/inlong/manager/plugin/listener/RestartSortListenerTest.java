@@ -15,14 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin;
+package org.apache.inlong.manager.plugin.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.plugin.listener.RestartSortListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.junit.Test;
 
@@ -46,7 +45,7 @@ public class RestartSortListenerTest {
 
         InlongGroupExtInfo inlongGroupExtInfo1 = new InlongGroupExtInfo();
         inlongGroupExtInfo1.setKeyName(InlongGroupSettings.SORT_URL);
-        inlongGroupExtInfo1.setKeyValue("oceanus.tencentcloudapi.com");
+        inlongGroupExtInfo1.setKeyValue("127.0.0.1:8085");
         List<InlongGroupExtInfo> inlongGroupExtInfoList = new ArrayList<>();
         inlongGroupExtInfoList.add(inlongGroupExtInfo1);
 
@@ -59,7 +58,7 @@ public class RestartSortListenerTest {
 
         InlongGroupExtInfo inlongGroupExtInfo5 = new InlongGroupExtInfo();
         inlongGroupExtInfo5.setKeyName(InlongGroupSettings.SORT_JOB_ID);
-        inlongGroupExtInfo5.setKeyValue("cql-0cpputel");
+        inlongGroupExtInfo5.setKeyValue("52c8977bd28365cdd23ad4ea4cd767a4");
         inlongGroupExtInfoList.add(inlongGroupExtInfo5);
 
         InlongGroupExtInfo inlongGroupExtInfo6 = new InlongGroupExtInfo();

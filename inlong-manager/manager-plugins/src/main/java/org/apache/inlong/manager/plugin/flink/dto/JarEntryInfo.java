@@ -15,28 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin.dto;
+package org.apache.inlong.manager.plugin.flink.dto;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class JarRunRequestbody {
+public class JarEntryInfo {
 
-    private  Boolean allowNonRestoredState;
-
-    private String entryClass;
-
-    private String jobId;
-
-    private Integer parallelism;
-
-    private String programArgs;
-
-    private List<String> programArgsList;
-
-    private String savepointPath;
-
+    /**
+     * description
+     */
+    private String deacription;
+    /**
+     * name
+     */
+    private String name;
 
 }

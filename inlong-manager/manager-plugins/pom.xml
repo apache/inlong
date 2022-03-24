@@ -51,6 +51,7 @@
                 <directory>src/main/resources</directory>
                 <includes>
                     <include>META-INF/*</include>
+<!--                    <include>flink-sort-plugin.properties</include>-->
                 </includes>
             </resource>
         </resources>

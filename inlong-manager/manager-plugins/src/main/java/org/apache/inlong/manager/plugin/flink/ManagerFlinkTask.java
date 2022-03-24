@@ -23,16 +23,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.plugin.dto.FlinkConf;
+import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.enums.BusinessExceptionDesc;
 import org.apache.inlong.manager.plugin.flink.enums.TaskCommitType;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.flink.api.common.JobStatus.CANCELED;
 import static org.apache.flink.api.common.JobStatus.FAILED;
+import static org.apache.flink.api.common.JobStatus.FINISHED;
 import static org.apache.flink.api.common.JobStatus.INITIALIZING;
 import static org.apache.flink.api.common.JobStatus.RUNNING;
 
@@ -48,86 +50,146 @@ public class ManagerFlinkTask {
         this.flinkService = flinkService;
     }
 
-    public String start(FlinkConf flinkConf) throws IOException {
-        try {
-            TaskRunService.submit(new IntergrationTaskRunner(flinkService, flinkConf,
-                    TaskCommitType.START_NOW.getCode()));
-            return flinkConf.getJobId();
-        } catch (Exception e) {
-            log.warn("Flink job some exception [{}]", e.getMessage());
-            throw new BusinessException(BusinessExceptionDesc.UnsupportedOperation
-                    + e.getMessage());
+    public void start(FlinkInfo flinkInfo) throws IOException {
+        String jobId = flinkInfo.getJobId();
+        //Start a new task without savepoint
+        if (StringUtils.isEmpty(jobId)) {
+            try {
+                Future<?> future = TaskRunService.submit(
+                        new IntergrationTaskRunner(flinkService, flinkInfo,
+                                TaskCommitType.START_NOW.getCode()));
+                future.get();
+            } catch (Exception e) {
+                log.warn("Flink job some exception [{}]", e.getMessage());
+                throw new BusinessException(BusinessExceptionDesc.UnsupportedOperation
+                        + e.getMessage());
+            }
+            //Restore an old task with savepoint
+            } else {
+            JobDetailsInfo jobDetailsInfo = flinkService.getJobDetail(flinkInfo.getJobId());
+            if (jobDetailsInfo == null) {
+                throw new BusinessException(BusinessExceptionDesc.ResourceNotFound
+                        + String.format("Flink job %s not found", flinkInfo.getJobId()));
+            }
+            JobStatus jobStatus = flinkService.getJobStatus(flinkInfo.getJobId());
+           if (jobStatus == FINISHED && StringUtils.isNotEmpty(flinkInfo.getSavepointPath())) {
+               try {
+                   Future<?> future = TaskRunService.submit(
+                           new IntergrationTaskRunner(flinkService, flinkInfo,
+                                   TaskCommitType.RESUME.getCode()));
+                   future.get();
+               } catch (Exception e) {
+                   log.warn("Flink job some exception [{}]", e.getMessage());
+                   throw new BusinessException(BusinessExceptionDesc.UnsupportedOperation
+                           + e.getMessage());
+               }
+           }
         }
     }
 
     /**
-     * @param flinkConf
+     * @param flinkInfo
      * @param dataflow
      */
-    public void genPath(FlinkConf flinkConf, String dataflow) {
+    public void genPath(FlinkInfo flinkInfo, String dataflow) {
         String path = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         path = path.substring(0, path.lastIndexOf(File.separator));
-        String resource = "resource";
-        String jarPath = path + File.separator + resource + File.separator + Constants.SORT_JAR;
-        File file = new File(jarPath);
-        if (!file.exists()) {
-            log.warn("file path:[{}] not found sort jar", jarPath);
-            throw new BusinessException(BusinessExceptionDesc.InternalError + " not found sort jar");
+//        String resource = "resource";
+//        String jarPath = path + File.separator + resource + File.separator + Constants.SORT_JAR;
+//        File file = new File(jarPath);
+//        if (!file.exists()) {
+//            log.warn("file path:[{}] not found sort jar", jarPath);
+//            throw new BusinessException(BusinessExceptionDesc.InternalError + " not found sort jar");
+//        }
+//        flinkInfo.setLocalJarPath(jarPath);
+        if (path.contains("inlong-manager")) {
+            path = path.substring(0, path.indexOf("inlong-manager"));
+            String resource = "inlong-sort";
+            String jarPath = path + File.separator + resource + File.separator + Constants.SORT_JAR;
+            File file = new File(jarPath);
+            if (!file.exists()) {
+                log.warn("file path:[{}] not found sort jar", jarPath);
+                throw new BusinessException(BusinessExceptionDesc.InternalError + " not found sort jar");
+            }
+            flinkInfo.setLocalJarPath(jarPath);
+        } else {
+            throw new BusinessException(BusinessExceptionDesc.InternalError + " inlong-manager dic not found");
         }
-        flinkConf.setLocalJarPath(jarPath);
-        if (FlinkUtils.writeConfigToFile(path, flinkConf.getJobName(), dataflow)) {
-            flinkConf.setLocalConfPath(path + File.separator + flinkConf.getJobName());
+        if (FlinkUtils.writeConfigToFile(path, flinkInfo.getJobName(), dataflow)) {
+            flinkInfo.setLocalConfPath(path + File.separator + flinkInfo.getJobName());
         } else {
             throw new BusinessException(BusinessExceptionDesc.InternalError + " write file fail");
         }
     }
 
-    public void restart(FlinkConf flinkConf) throws Exception, IOException {
-        JobDetailsInfo jobDetailsInfo = flinkService.getJobDetail(flinkConf.getJobId());
+    /**
+     * restart flinkjob
+     * @param flinkInfo
+     * @throws Exception
+     * @throws IOException
+     */
+    public void restart(FlinkInfo flinkInfo) throws Exception, IOException {
+        JobDetailsInfo jobDetailsInfo = flinkService.getJobDetail(flinkInfo.getJobId());
         if (jobDetailsInfo == null) {
             throw new BusinessException(BusinessExceptionDesc.ResourceNotFound
-                    + String.format("Flink job %s not found", flinkConf.getJobId()));
+                    + String.format("Flink job %s not found", flinkInfo.getJobId()));
         }
-        JobStatus jobStatus = flinkService.getJobStatus(flinkConf.getJobId());
+        JobStatus jobStatus = flinkService.getJobStatus(flinkInfo.getJobId());
         if (jobStatus == RUNNING) {
-            TaskRunService.submit(new IntergrationTaskRunner(flinkService, flinkConf,
-                    TaskCommitType.RESTART.getCode()));
+            Future<?> future = TaskRunService.submit(
+                    new IntergrationTaskRunner(flinkService, flinkInfo,
+                            TaskCommitType.RESTART.getCode()));
+            future.get();
         } else {
             throw new BusinessException(BusinessExceptionDesc.FailedOperation.getMessage()
-                    + String.format("Flink job %s restart fail", flinkConf.getJobId()));
+                    + String.format("Flink job %s restart fail", flinkInfo.getJobId()));
         }
     }
 
-    public void stop(FlinkConf flinkConf) throws Exception {
-        JobDetailsInfo jobDetailsInfo = flinkService.getJobDetail(flinkConf.getJobId());
+    /**
+     * stop flinkjob
+     * @param flinkInfo
+     * @throws Exception
+     */
+    public void stop(FlinkInfo flinkInfo) throws Exception {
+        JobDetailsInfo jobDetailsInfo = flinkService.getJobDetail(flinkInfo.getJobId());
         if (jobDetailsInfo == null) {
             throw new BusinessException(BusinessExceptionDesc.ResourceNotFound
-                    + String.format("Flink job %s not found", flinkConf.getJobId()));
+                    + String.format("Flink job %s not found", flinkInfo.getJobId()));
         }
-        JobStatus jobStatus = flinkService.getJobStatus(flinkConf.getJobId());
+        JobStatus jobStatus = flinkService.getJobStatus(flinkInfo.getJobId());
         if (jobStatus == RUNNING) {
-            TaskRunService.submit(new IntergrationTaskRunner(flinkService, flinkConf,
-                    TaskCommitType.STOP.getCode()));
+            Future<?> future = TaskRunService.submit(
+                    new IntergrationTaskRunner(flinkService, flinkInfo,
+                            TaskCommitType.STOP.getCode()));
+            future.get();
         } else {
             throw new BusinessException(BusinessExceptionDesc.FailedOperation.getMessage()
-                    + String.format("Flink job %s pause fail", flinkConf.getJobId()));
+                    + String.format("Flink job %s pause fail", flinkInfo.getJobId()));
         }
     }
 
-    public void delete(FlinkConf flinkConf) throws Exception {
-        JobDetailsInfo jobDetailsInfo = flinkService.getJobDetail(flinkConf.getJobId());
+    /**
+     * delete flinkjob
+     * @param flinkInfo
+     * @throws Exception
+     */
+    public void delete(FlinkInfo flinkInfo) throws Exception {
+        JobDetailsInfo jobDetailsInfo = flinkService.getJobDetail(flinkInfo.getJobId());
         if (jobDetailsInfo == null) {
             throw new BusinessException(BusinessExceptionDesc.ResourceNotFound
-                    + String.format("Flink job %s not found", flinkConf.getJobId()));
+                    + String.format("Flink job %s not found", flinkInfo.getJobId()));
         }
-        JobStatus jobStatus = flinkService.getJobStatus(flinkConf.getJobId());
+        JobStatus jobStatus = flinkService.getJobStatus(flinkInfo.getJobId());
         switch (jobStatus) {
             case CANCELED:
                 throw new BusinessException(BusinessExceptionDesc.UnsupportedOperation
                         + "not support delete when task has been canceled");
             case RUNNING:
-                TaskRunService.submit(new IntergrationTaskRunner(flinkService, flinkConf,
-                        TaskCommitType.DELETE.getCode()));
+                Future<?> future = TaskRunService.submit(
+                        new IntergrationTaskRunner(flinkService, flinkInfo,
+                                TaskCommitType.DELETE.getCode()));
+                future.get();
                 break;
             default:
                 throw new BusinessException(BusinessExceptionDesc.UnsupportedOperation
@@ -135,22 +197,29 @@ public class ManagerFlinkTask {
         }
     }
 
+    /**
+     * poll flink status
+     * @param flinkInfo
+     * @param isException
+     * @throws Exception
+     * @throws InterruptedException
+     */
     @SneakyThrows
-    public void pollFlinkStatus(FlinkConf flinkConf, boolean isException) throws Exception,
+    public void pollFlinkStatus(FlinkInfo flinkInfo, boolean isException) throws Exception,
             InterruptedException {
         if (isException) {
-            delete(flinkConf);
+            delete(flinkInfo);
             throw new BusinessException("startup fail");
         }
         TimeUnit.SECONDS.sleep(15);
         while (true) {
-            if (StringUtils.isNotEmpty(flinkConf.getJobId())) {
-                JobDetailsInfo jobDetailsInfo = flinkService.getJobDetail(flinkConf.getJobId());
+            if (StringUtils.isNotEmpty(flinkInfo.getJobId())) {
+                JobDetailsInfo jobDetailsInfo = flinkService.getJobDetail(flinkInfo.getJobId());
                 if (jobDetailsInfo == null) {
                     throw new BusinessException(BusinessExceptionDesc.ResourceNotFound
-                            + String.format("Flink job %s not found", flinkConf.getJobId()));
+                            + String.format("Flink job %s not found", flinkInfo.getJobId()));
                 }
-                JobStatus jobStatus = flinkService.getJobStatus(flinkConf.getJobId());
+                JobStatus jobStatus = flinkService.getJobStatus(flinkInfo.getJobId());
                 if (jobStatus == INITIALIZING) {
                     log.info("poll Flink status");
                     Thread.sleep(2000L);
@@ -161,7 +230,7 @@ public class ManagerFlinkTask {
                     break;
                 }
                 if (jobStatus == CANCELED || jobStatus == FAILED) {
-                    delete(flinkConf);
+                    delete(flinkInfo);
                     log.warn("flink job fail for status [{}]",jobStatus);
                     throw new BusinessException("startup fail");
                 }

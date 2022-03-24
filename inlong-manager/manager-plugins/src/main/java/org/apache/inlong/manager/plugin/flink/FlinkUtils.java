@@ -19,9 +19,8 @@ package org.apache.inlong.manager.plugin.flink;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.inlong.manager.plugin.dto.FlinkConf;
-import org.apache.inlong.manager.plugin.dto.JarRunRequestbody;
-import org.apache.inlong.manager.plugin.dto.LoginConf;
+import org.apache.inlong.manager.plugin.conf.FlinkConfiguration;
+import org.apache.inlong.manager.plugin.flink.dto.LoginConf;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,6 +32,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.apache.inlong.manager.plugin.flink.Constants.ADDRESS;
+import static org.apache.inlong.manager.plugin.flink.Constants.JOB_MANAGER_PORT;
+import static org.apache.inlong.manager.plugin.flink.Constants.PARALLELISM;
+import static org.apache.inlong.manager.plugin.flink.Constants.PORT;
+import static org.apache.inlong.manager.plugin.flink.Constants.SAVEPOINT_DIRECTORY;
 
 @Slf4j
 public class FlinkUtils {
@@ -63,6 +68,24 @@ public class FlinkUtils {
             }
         }
         return latestFinkVersion;
+    }
+
+    /**
+     * init FlinkConfig
+     * @return
+     */
+    public static FlinkConfig initFlinkConfig() {
+        FlinkConfiguration flinkConfiguration = FlinkConfiguration.getFlinkConf();
+        FlinkConfig flinkConfig = new FlinkConfig();
+        flinkConfig.setJobManagerPort(
+                Integer.valueOf(flinkConfiguration.get(JOB_MANAGER_PORT)));
+        flinkConfig.setParallelism(
+                Integer.valueOf(flinkConfiguration.get(PARALLELISM)));
+        flinkConfig.setPort(
+                Integer.valueOf(flinkConfiguration.get(PORT)));
+        flinkConfig.setAddress(flinkConfiguration.get(ADDRESS));
+        flinkConfig.setSavepointDirectory(flinkConfiguration.get(SAVEPOINT_DIRECTORY));
+        return  flinkConfig;
     }
 
     /**
@@ -114,22 +137,12 @@ public class FlinkUtils {
         return true;
     }
 
-    public static JarRunRequestbody translateFromFlinkConf(FlinkConf flinkConf) {
-        JarRunRequestbody jarRunRequestbody = new JarRunRequestbody();
-        jarRunRequestbody.setJobId(flinkConf.getJobId());
-        jarRunRequestbody.setEntryClass(Constants.ENTRYPOINT_CLASS);
-        jarRunRequestbody.setParallelism(Constants.PARALLELISM);
-        jarRunRequestbody.setAllowNonRestoredState(true);
-        jarRunRequestbody.setSavepointPath(Constants.SAVEPOINT_DIRECTORY);
-
-        return jarRunRequestbody;
-    }
-
     /**
      * sort_url to address&port
      * @param endpoint
      * @return
      */
+    @Deprecated
     public static LoginConf translateFromEndpont(String endpoint) {
         LoginConf loginConf = new LoginConf();
         try {
@@ -137,7 +150,6 @@ public class FlinkUtils {
             while (matcher.find()) {
                 loginConf.setRestAddress(matcher.group(1));
                 loginConf.setRestPort(Integer.valueOf(matcher.group(2)));
-                loginConf.setJobManagerPort(Constants.JOB_MANAGER_PORT);
                 return loginConf;
             }
         } catch (Exception e) {

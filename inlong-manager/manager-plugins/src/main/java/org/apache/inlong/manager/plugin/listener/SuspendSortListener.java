@@ -25,10 +25,9 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.plugin.dto.FlinkConf;
-import org.apache.inlong.manager.plugin.dto.LoginConf;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.ManagerFlinkTask;
+import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
@@ -37,8 +36,6 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static org.apache.inlong.manager.plugin.flink.FlinkUtils.translateFromEndpont;
 
 @Slf4j
 public class SuspendSortListener implements SortOperateListener {
@@ -73,19 +70,14 @@ public class SuspendSortListener implements SortOperateListener {
             log.warn(message);
             return ListenerResult.fail(message);
         }
-        FlinkConf flinkConf = new FlinkConf();
+        FlinkInfo flinkInfo = new FlinkInfo();
+        flinkInfo.setRegion(kvConf.get(InlongGroupSettings.REGION));
+        flinkInfo.setClusterId(kvConf.get(InlongGroupSettings.CLUSTER_ID));
+        flinkInfo.setJobId(kvConf.get(InlongGroupSettings.SORT_JOB_ID));
 
-        flinkConf.setRegion(kvConf.get(InlongGroupSettings.REGION));
-        flinkConf.setClusterId(kvConf.get(InlongGroupSettings.CLUSTER_ID));
-        flinkConf.setJobId(kvConf.get(InlongGroupSettings.SORT_JOB_ID));
-
-        LoginConf loginConf = translateFromEndpont(kvConf.get(InlongGroupSettings.SORT_URL));
-        flinkConf.setAddress(loginConf.getRestAddress());
-        flinkConf.setPort(loginConf.getRestPort());
-
-        FlinkService flinkService = new FlinkService(flinkConf.getAddress(),flinkConf.getPort());
+        FlinkService flinkService = new FlinkService();
         ManagerFlinkTask managerFlinkTask = new ManagerFlinkTask(flinkService);
-        managerFlinkTask.stop(flinkConf);
+        managerFlinkTask.stop(flinkInfo);
         return ListenerResult.success();
     }
 

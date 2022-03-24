@@ -27,11 +27,10 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.plugin.dto.FlinkConf;
-import org.apache.inlong.manager.plugin.dto.LoginConf;
 import org.apache.inlong.manager.plugin.flink.Constants;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.ManagerFlinkTask;
+import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
@@ -42,8 +41,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static org.apache.inlong.manager.plugin.flink.FlinkUtils.translateFromEndpont;
 
 @Slf4j
 public class StartupSortListener implements SortOperateListener {
@@ -86,45 +83,50 @@ public class StartupSortListener implements SortOperateListener {
         }
 
         String sortExt = kvConf.get(InlongGroupSettings.SORT_PROPERTIES);
-
         if (StringUtils.isNotEmpty(sortExt)) {
             Map<String, String> result = objectMapper.convertValue(objectMapper.readTree(sortExt),
                     new TypeReference<Map<String, String>>(){});
             kvConf.putAll(result);
         }
-        FlinkConf flinkConf = new FlinkConf();
-        parseDataflow(dataFlow, flinkConf);
+        FlinkInfo flinkInfo = new FlinkInfo();
+        parseDataflow(dataFlow, flinkInfo);
 
-        flinkConf.setClusterId(kvConf.get(InlongGroupSettings.CLUSTER_ID));
-
+        flinkInfo.setClusterId(kvConf.get(InlongGroupSettings.CLUSTER_ID));
         String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
         Preconditions.checkNotEmpty(sortUrl, "flink sortUrl is empty");
-        flinkConf.setEndpoint(sortUrl);
+        flinkInfo.setEndpoint(sortUrl);
 
-        LoginConf loginConf = translateFromEndpont(kvConf.get(InlongGroupSettings.SORT_URL));
-        flinkConf.setAddress(loginConf.getRestAddress());
-        flinkConf.setPort(loginConf.getRestPort());
         String jobName = Constants.INLONG + context.getProcessForm().getInlongGroupId();
-        flinkConf.setJobName(jobName);
-        FlinkService flinkService = new FlinkService(flinkConf.getAddress(),flinkConf.getPort());
+        flinkInfo.setJobName(jobName);
+
+        flinkInfo.setInlongStreamResponseList(groupResourceProcessForm.getStreamList());
+
+        FlinkService flinkService = new FlinkService();
         ManagerFlinkTask managerFlinkTask = new ManagerFlinkTask(flinkService);
-        managerFlinkTask.genPath(flinkConf, dataFlow.toString());
+        managerFlinkTask.genPath(flinkInfo, dataFlow.toString());
 
         try {
-            String jobId = managerFlinkTask.start(flinkConf);
-            log.info("the jobId {} submit success",jobId);
+             managerFlinkTask.start(flinkInfo);
+            log.info("the jobId {} submit success");
         } catch (Exception e) {
             log.warn("startup start exception [{}]", e.getMessage());
-            managerFlinkTask.pollFlinkStatus(flinkConf, true);
+            managerFlinkTask.pollFlinkStatus(flinkInfo, true);
         }
         // save job id
-        saveInfo(context.getProcessForm().getInlongGroupId(), InlongGroupSettings.SORT_JOB_ID, flinkConf.getJobId(),
+        saveInfo(context.getProcessForm().getInlongGroupId(), InlongGroupSettings.SORT_JOB_ID, flinkInfo.getJobId(),
                 inlongGroupExtInfos);
 
-        managerFlinkTask.pollFlinkStatus(flinkConf, false);
+        managerFlinkTask.pollFlinkStatus(flinkInfo, false);
         return ListenerResult.success();
     }
 
+    /**
+     * save info
+     * @param inlongGroupId
+     * @param keyName
+     * @param keyValue
+     * @param inlongGroupExtInfos
+     */
     private void saveInfo(String inlongGroupId, String keyName, String keyValue,
             List<InlongGroupExtInfo> inlongGroupExtInfos) {
         InlongGroupExtInfo inlongGroupExtInfo = new InlongGroupExtInfo();
@@ -134,17 +136,22 @@ public class StartupSortListener implements SortOperateListener {
         inlongGroupExtInfos.add(inlongGroupExtInfo);
     }
 
-    private void parseDataflow(JsonNode dataflow, FlinkConf flinkConf)  {
+    /**
+     * init FlinkConf
+     * @param dataflow
+     * @param flinkInfo
+     */
+    private void parseDataflow(JsonNode dataflow, FlinkInfo flinkInfo)  {
         JsonNode sourceInfo = dataflow.get(Constants.SOURCE_INFO);
         String sourceType = sourceInfo.get(Constants.TYPE).asText();
-        flinkConf.setSourceType(sourceType);
+        flinkInfo.setSourceType(sourceType);
         JsonNode sinkInfo = dataflow.get(Constants.SINK_INFO);
         String sinkType = sinkInfo.get(Constants.TYPE).asText();
         JsonNode data = sinkInfo.get(Constants.DATA_PATH);
         if (data != null) {
-            flinkConf.setDataPath(data.asText());
+            flinkInfo.setDataPath(data.asText());
         }
-        flinkConf.setSinkType(sinkType);
+        flinkInfo.setSinkType(sinkType);
     }
 
     @Override

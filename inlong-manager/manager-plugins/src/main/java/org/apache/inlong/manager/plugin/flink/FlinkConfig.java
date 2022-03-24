@@ -15,17 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin.dto;
+package org.apache.inlong.manager.plugin.flink;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class JarListInfo {
+public class FlinkConfig {
 
     private String address;
 
-    private List<JarFileInfo> files;
+    private Integer port;
+
+    private Integer jobManagerPort;
+
+    private String savepointDirectory;
+
+    private Integer parallelism;
 
 }

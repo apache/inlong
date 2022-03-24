@@ -15,18 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin.dto;
+package org.apache.inlong.manager.plugin.flink.dto;
 
 import lombok.Data;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+
+import java.util.List;
 
 @Data
-public class FlinkConf {
-
-    private String address;
-
-    private Integer port;
-
-    private Integer jobManagerPort;
+public class FlinkInfo {
 
     private String endpoint;
 
@@ -35,6 +32,8 @@ public class FlinkConf {
     private String clusterId;
 
     private String jobName;
+
+    private List<InlongStreamResponse> inlongStreamResponseList;
 
     private String localJarPath;
 
@@ -49,8 +48,6 @@ public class FlinkConf {
     private String resourceIds;
 
     private String dataPath;
-
-    private Integer parallelism;
 
     private String savepointPath;
 

@@ -15,23 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin.dto;
+package org.apache.inlong.manager.plugin.flink.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
-public class LoginConf {
-    /**
-     * address
-     */
-    private String restAddress;
-    /**
-     * port
-     */
-    private Integer restPort;
-    /**
-     * jobmanager port
-     */
-    private Integer jobManagerPort;
+public class JarRunRequestbody {
+
+    private  Boolean allowNonRestoredState;
+
+    private String entryClass;
+
+    private String jobId;
+
+    private Integer parallelism;
+
+    private String programArgs;
+
+    private List<String> programArgsList;
+
+    private String savepointPath;
+
 
 }

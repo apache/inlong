@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin.dto;
+package org.apache.inlong.manager.plugin.flink.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-public class StopWithSavepointRequestBody {
-    private boolean drain;
-    private String targetDirectory;
+import java.util.List;
+
+@Data
+public class JarListInfo {
+
+    private String address;
+
+    private List<JarFileInfo> files;
 
 }

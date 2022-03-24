@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin;
+package org.apache.inlong.manager.plugin.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
@@ -23,7 +23,6 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.plugin.flink.Constants;
-import org.apache.inlong.manager.plugin.listener.DeleteSortListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.junit.Test;
 
@@ -47,7 +46,7 @@ public class DeleteSortListenerTest {
 
         InlongGroupExtInfo inlongGroupExtInfo1 = new InlongGroupExtInfo();
         inlongGroupExtInfo1.setKeyName(InlongGroupSettings.SORT_URL);
-        inlongGroupExtInfo1.setKeyValue("9.135.80.112:8085");
+        inlongGroupExtInfo1.setKeyValue("127.0.0.1:8085");
         List<InlongGroupExtInfo> inlongGroupExtInfos = new ArrayList<>();
         inlongGroupExtInfos.add(inlongGroupExtInfo1);
 

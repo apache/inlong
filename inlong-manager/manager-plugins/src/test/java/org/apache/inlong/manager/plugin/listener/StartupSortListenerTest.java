@@ -15,14 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin;
+package org.apache.inlong.manager.plugin.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.plugin.listener.StartupSortListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.junit.Test;
 

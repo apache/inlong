@@ -19,6 +19,16 @@ package org.apache.inlong.manager.plugin.flink;
 
 public class Constants {
 
+    public static final String ADDRESS = "flink.rest.address";
+
+    public static final String PORT = "flink.rest.port";
+
+    public static final String JOB_MANAGER_PORT = "flink.jobmanager.port";
+
+    public static final String PARALLELISM = "flink.parallelism";
+
+    public static final String SAVEPOINT_DIRECTORY = "flink.savepoint.directory";
+
     public static final String SOURCE_INFO = "source_info";
 
     public static final String SINK_INFO = "sink_info";
@@ -30,13 +40,6 @@ public class Constants {
     public static final String INLONG = "INLONG_";
 
     public static final String SORT_JAR = "sort-single-tenant-1.1.0-incubating-SNAPSHOT.jar";
-
-    public static final String SAVEPOINT_DIRECTORY = "file:///flink/savepoints";
-
-    // fetch flink conf
-    public static final Integer JOB_MANAGER_PORT = 6123;
-
-    public static final Integer PARALLELISM = 1;
 
     // flag
     public static final String RESOURCE_ID = "resource_id";

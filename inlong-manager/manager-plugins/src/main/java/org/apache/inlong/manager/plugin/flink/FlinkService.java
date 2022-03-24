@@ -27,6 +27,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.client.deployment.StandaloneClusterId;
@@ -36,35 +37,51 @@ import org.apache.flink.client.program.rest.RestClusterClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.JobManagerOptions;
 import org.apache.flink.configuration.RestOptions;
-import org.apache.flink.runtime.client.JobStatusMessage;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.messages.Acknowledge;
 import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
-import org.apache.inlong.manager.plugin.dto.FlinkConf;
-import org.apache.inlong.manager.plugin.dto.JarRunRequestbody;
-import org.apache.inlong.manager.plugin.dto.LoginConf;
-import org.apache.inlong.manager.plugin.dto.StopWithSavepointRequestBody;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
+import org.apache.inlong.manager.plugin.flink.dto.JarRunRequestbody;
+import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequestBody;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import static org.apache.inlong.manager.plugin.flink.FlinkUtils.initFlinkConfig;
+
 @Slf4j
 public class FlinkService {
-    String address;
-    Integer port;
-    private static String urlHead;
+    private final FlinkConfig flinkConfig;
+    private final Integer port;
+    private final Integer jobManagerPort;
+    private final String  address;
+    private final String  urlHead;
+    private final Integer parallelism;
+    private final String savepointDirectory;
 
-    public FlinkService(String address,Integer port) {
-        this.address = address;
-        this.port = port;
-        this.urlHead = Constants.HTTP_URL +  address + Constants.SEPARATOR + port;
+    public FlinkService() {
+        flinkConfig = initFlinkConfig();
+        address = flinkConfig.getAddress();
+        port = flinkConfig.getPort();
+        jobManagerPort = flinkConfig.getJobManagerPort();
+        parallelism = flinkConfig.getParallelism();
+        savepointDirectory = flinkConfig.getSavepointDirectory();
+        urlHead = Constants.HTTP_URL +  address + Constants.SEPARATOR + port;
 
+    }
+
+    /**
+     * get flinkConfig
+     * @return
+     */
+    public FlinkConfig getFlinkConfig() {
+        return flinkConfig;
     }
 
     /**
@@ -73,15 +90,24 @@ public class FlinkService {
      * @throws Exception
      */
     public RestClusterClient<StandaloneClusterId> getFlinkClient() throws Exception {
-
-        LoginConf loginConf = new LoginConf();
-        loginConf.setRestPort(port);
-        loginConf.setRestAddress(address);
-        loginConf.setJobManagerPort(Constants.JOB_MANAGER_PORT);
-        Configuration configuration = paseLoginConf(loginConf);
+        Configuration configuration = initConfiguration();
         RestClusterClient<StandaloneClusterId> client =
                 new RestClusterClient<StandaloneClusterId>(configuration, StandaloneClusterId.getInstance());
         return client;
+
+    }
+
+    /**
+     * init client Configuration
+     * @return
+     * @throws Exception
+     */
+    public Configuration initConfiguration() throws Exception {
+        Configuration configuration = new Configuration();
+        configuration.setString(JobManagerOptions.ADDRESS, address);
+        configuration.setInteger(JobManagerOptions.PORT, jobManagerPort);
+        configuration.setInteger(RestOptions.PORT, port);
+        return configuration;
 
     }
 
@@ -90,7 +116,7 @@ public class FlinkService {
      * @param httpurl
      * @return
      */
-    public static ResponseBody getReq(String httpurl) {
+    public  ResponseBody getReq(String httpurl) {
         Response response = null;
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
@@ -122,25 +148,6 @@ public class FlinkService {
             log.error("fetch jars fail",e.getMessage());
         }
         return body;
-    }
-
-    /**
-     * list all jobs
-     * @return
-     */
-    public List<JobStatusMessage> listJobs() {
-
-        List<JobStatusMessage> jobStatusMessageList = null;
-        try {
-            RestClusterClient<StandaloneClusterId> client = getFlinkClient();
-            CompletableFuture<Collection<JobStatusMessage>> result = client.listJobs();
-            jobStatusMessageList = new ArrayList<JobStatusMessage>(result.get());
-            return jobStatusMessageList;
-
-        } catch (Exception e) {
-            log.error("fetch jobss fail",e.getMessage());
-        }
-        return jobStatusMessageList;
     }
 
     /**
@@ -183,36 +190,65 @@ public class FlinkService {
 
     /**
      * submit job
-     * @param flinkConf
+     * @param flinkInfo
      */
-    public String submitJobs(FlinkConf flinkConf) {
+    public String submitJobs(FlinkInfo flinkInfo) {
         RestClusterClient<StandaloneClusterId> client = null;
-        String localJarPath = flinkConf.getLocalJarPath();
-        String[] programArgs = genProgramArgs(flinkConf);
+        String localJarPath = flinkInfo.getLocalJarPath();
+        String[] programArgs = genProgramArgs(flinkInfo);
         String jobId = "";
         try {
-            LoginConf loginConf = new LoginConf();
-            loginConf.setRestPort(port);
-            loginConf.setRestAddress(address);
-            loginConf.setJobManagerPort(Constants.JOB_MANAGER_PORT);
-            Configuration configuration = paseLoginConf(loginConf);
-
-            client = new RestClusterClient<StandaloneClusterId>(configuration, StandaloneClusterId.getInstance());
-            int parallelism = Constants.PARALLELISM;
+            client = getFlinkClient();
+            Configuration configuration = initConfiguration();
+            int parallelism = flinkConfig.getParallelism();
             File jarFile = new File(localJarPath);
+                SavepointRestoreSettings savepointRestoreSettings = SavepointRestoreSettings.none();
+                PackagedProgram program = PackagedProgram.newBuilder()
+                        .setConfiguration(configuration)
+                        .setEntryPointClassName(Constants.ENTRYPOINT_CLASS)
+                        .setJarFile(jarFile)
+                        .setArguments(programArgs)
+                        .setSavepointRestoreSettings(savepointRestoreSettings).build();
+                JobGraph jobGraph =
+                        PackagedProgramUtils.createJobGraph(program,configuration,parallelism,false);
+                CompletableFuture<JobID> result = client.submitJob(jobGraph);
+                jobId = result.get().toString();
+                return jobId;
+        } catch (Exception e) {
+            log.error("submit job  error", e);
+        }
+        return jobId;
+    }
 
-            SavepointRestoreSettings savepointRestoreSettings = SavepointRestoreSettings.none();
-            PackagedProgram program = PackagedProgram.newBuilder()
-                    .setConfiguration(configuration)
-                    .setEntryPointClassName(Constants.ENTRYPOINT_CLASS)
-                    .setJarFile(jarFile)
-                    .setArguments(programArgs)
-                    .setSavepointRestoreSettings(savepointRestoreSettings).build();
-
-            JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program,configuration,parallelism,false);
-            CompletableFuture<JobID> result = client.submitJob(jobGraph);
-            jobId = result.get().toString();
-            return jobId;
+    /**
+     * restore job with savepoint
+     * @param flinkInfo
+     */
+    public String restore(FlinkInfo flinkInfo) {
+        RestClusterClient<StandaloneClusterId> client = null;
+        String localJarPath = flinkInfo.getLocalJarPath();
+        String[] programArgs = genProgramArgs(flinkInfo);
+        String jobId = "";
+        try {
+            client = getFlinkClient();
+            Configuration configuration = initConfiguration();
+            int parallelism = flinkConfig.getParallelism();
+            File jarFile = new File(localJarPath);
+            if (StringUtils.isNotEmpty(flinkInfo.getSavepointPath())) {
+                SavepointRestoreSettings savepointRestoreSettings =
+                        SavepointRestoreSettings.forPath(flinkInfo.getSavepointPath(),false);
+                PackagedProgram program = PackagedProgram.newBuilder()
+                        .setConfiguration(configuration)
+                        .setEntryPointClassName(Constants.ENTRYPOINT_CLASS)
+                        .setJarFile(jarFile)
+                        .setArguments(programArgs)
+                        .setSavepointRestoreSettings(savepointRestoreSettings).build();
+                JobGraph jobGraph =
+                        PackagedProgramUtils.createJobGraph(program,configuration,parallelism,false);
+                CompletableFuture<JobID> result = client.submitJob(jobGraph);
+                jobId = result.get().toString();
+                return jobId;
+            }
         } catch (Exception e) {
             log.error("submit job  error", e);
         }
@@ -386,30 +422,27 @@ public class FlinkService {
 
     /**
      * build the program of job
-     * @param flinkConf
+     * @param flinkInfo
      * @return
      */
-    private String[] genProgramArgs(FlinkConf flinkConf) {
-
-        String[] data = new String[]{
-                "-cluster-id",
-                flinkConf.getJobName(),
-                "-dataflow.info.file",
-                flinkConf.getLocalConfPath(),
-                "-source.type",
-                flinkConf.getSourceType(),
-                "-sink.type",
-                flinkConf.getSinkType()
-        };
+    private String[] genProgramArgs(FlinkInfo flinkInfo) {
+        List<String> list =  new ArrayList<>();
+        list.add("-cluster-id");
+        list.add(flinkInfo.getJobName());
+        list.add("-dataflow.info.file");
+        list.add(flinkInfo.getLocalConfPath());
+        list.add("-source.type");
+        list.add(flinkInfo.getSourceType());
+        list.add("-sink.type");
+        list.add(flinkInfo.getSinkType());
+        // one group one stream now
+        if (flinkInfo.getInlongStreamResponseList() != null
+                && !flinkInfo.getInlongStreamResponseList().isEmpty()) {
+            InlongStreamResponse inlongStreamResponse = flinkInfo.getInlongStreamResponseList().get(0);
+            list.add("-job.orderly.output");
+            list.add(String.valueOf(inlongStreamResponse.getSyncSend()));
+        }
+        String[] data = list.toArray(new String[list.size()]);
         return data;
-    }
-
-    private Configuration paseLoginConf(LoginConf loginConf) {
-
-        Configuration configuration = new Configuration();
-        configuration.setString(JobManagerOptions.ADDRESS, loginConf.getRestAddress());
-        configuration.setInteger(JobManagerOptions.PORT, loginConf.getJobManagerPort());
-        configuration.setInteger(RestOptions.PORT, loginConf.getRestPort());
-        return configuration;
     }
 }
