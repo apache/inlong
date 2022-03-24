@@ -33,7 +33,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -224,7 +224,7 @@ public class CommonOperateService {
         boolean isAllMigration = SourceInfoUtils.isBinlogAllMigration(sourceResponse);
 
         List<FieldMappingUnit> mappingUnitList;
-        InlongStreamResponse streamInfo = streamService.get(groupId, streamId);
+        InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
         if (isAllMigration) {
             mappingUnitList = FieldInfoUtils.setAllMigrationFieldMapping(sourceFields, sinkFields);
         } else {

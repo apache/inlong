@@ -33,7 +33,7 @@ import java.util.List;
 public class FullStreamResponse {
 
     @ApiModelProperty("Inlong stream information")
-    private InlongStreamResponse streamInfo;
+    private InlongStreamInfo streamInfo;
 
     @ApiModelProperty("Stream source information")
     private List<SourceResponse> sourceInfo;

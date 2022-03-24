@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.StreamSource.State;
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
+@Slf4j
 public class InlongGroupContext implements Serializable {
 
     private String groupId;
@@ -91,24 +93,53 @@ public class InlongGroupContext implements Serializable {
         if (MapUtils.isEmpty(this.inlongStreamMap)) {
             return;
         }
+        List<StreamSource> sourcesInGroup = Lists.newArrayList();
         List<StreamSource> failedSources = Lists.newArrayList();
         this.inlongStreamMap.values().stream().forEach(inlongStream -> {
             Map<String, StreamSource> sources = inlongStream.getSources();
             if (MapUtils.isNotEmpty(sources)) {
                 for (Map.Entry<String, StreamSource> entry : sources.entrySet()) {
                     StreamSource source = entry.getValue();
-                    if (source.getState() == State.FAILED) {
-                        failedSources.add(source);
+                    if (source != null) {
+                        sourcesInGroup.add(source);
+                        if (source.getState() == State.FAILED) {
+                            failedSources.add(source);
+                        }
                     }
                 }
             }
         });
+        // check if any stream source is failed
         if (CollectionUtils.isNotEmpty(failedSources)) {
             this.state = InlongGroupState.FAILED;
             for (StreamSource failedSource : failedSources) {
                 this.groupErrLogs.computeIfAbsent("failedSources", Lists::newArrayList)
                         .add(GsonUtil.toJson(failedSource));
             }
+            return;
+        }
+        // check if any stream source is in indirect state
+        switch (this.state) {
+            case STARTED:
+                for (StreamSource source : sourcesInGroup) {
+                    if (!(source.getState() == State.NORMAL)) {
+                        log.warn("StreamSource:{} is not started", source);
+                        this.state = InlongGroupState.INITIALIZING;
+                        break;
+                    }
+                }
+                return;
+            case STOPPED:
+                for (StreamSource source : sourcesInGroup) {
+                    if (!(source.getState() == State.FROZEN)) {
+                        log.warn("StreamSource:{} is not stopped", source);
+                        this.state = InlongGroupState.OPERATING;
+                        break;
+                    }
+                }
+                return;
+            default:
+                return;
         }
     }
 

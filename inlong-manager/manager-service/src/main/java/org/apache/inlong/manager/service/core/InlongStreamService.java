@@ -21,7 +21,7 @@ import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
@@ -54,7 +54,7 @@ public interface InlongStreamService {
      * @param streamId Inlong stream id
      * @return inlong stream details
      */
-    InlongStreamResponse get(String groupId, String streamId);
+    InlongStreamInfo get(String groupId, String streamId);
 
     /**
      * Query whether the inlong stream ID exists

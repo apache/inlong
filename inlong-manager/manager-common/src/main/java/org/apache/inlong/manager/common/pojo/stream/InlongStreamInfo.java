@@ -17,21 +17,23 @@
 
 package org.apache.inlong.manager.common.pojo.stream;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
+import java.util.Date;
 import java.util.List;
 
+/**
+ * Inlong stream info
+ */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel("Inlong stream response")
-public class InlongStreamResponse {
+@EqualsAndHashCode(callSuper = true)
+@ApiModel("Inlong stream info")
+public class InlongStreamInfo extends InlongStreamBaseInfo {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
@@ -84,6 +86,33 @@ public class InlongStreamResponse {
     @ApiModelProperty(value = "Names of responsible persons, separated by commas")
     private String inCharges;
 
+    @ApiModelProperty(value = "Status")
+    private Integer status;
+
+    @ApiModelProperty(value = "Previous status")
+    private Integer previousStatus;
+
+    @ApiModelProperty(value = "is deleted? 0: deleted, 1: not deleted")
+    private Integer isDeleted = 0;
+
+    private String creator;
+
+    private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
+
+    @ApiModelProperty(value = "Temporary view, string in JSON format")
+    private String tempView;
+
     @ApiModelProperty(value = "Field list")
     private List<InlongStreamFieldInfo> fieldList;
+
+    public InlongStreamResponse genResponse() {
+        return CommonBeanUtils.copyProperties(this, InlongStreamResponse::new);
+    }
+
 }

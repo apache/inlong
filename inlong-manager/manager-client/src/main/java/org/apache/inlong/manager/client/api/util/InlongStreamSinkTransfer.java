@@ -40,7 +40,7 @@ import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.nio.charset.Charset;
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 
 public class InlongStreamSinkTransfer {
 
-    public static SinkRequest createSinkRequest(StreamSink streamSink, InlongStreamResponse streamInfo) {
+    public static SinkRequest createSinkRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
         SinkType sinkType = streamSink.getSinkType();
         SinkRequest sinkRequest;
         if (sinkType == SinkType.HIVE) {
@@ -84,7 +84,7 @@ public class InlongStreamSinkTransfer {
         return streamSinkResult;
     }
 
-    private static SinkRequest createClickHouseRequest(StreamSink streamSink, InlongStreamResponse streamInfo) {
+    private static SinkRequest createClickHouseRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
         ClickHouseSinkRequest clickHouseSinkRequest = new ClickHouseSinkRequest();
         ClickHouseSink clickHouseSink = (ClickHouseSink) streamSink;
         clickHouseSinkRequest.setSinkName(clickHouseSink.getSinkName());
@@ -157,7 +157,7 @@ public class InlongStreamSinkTransfer {
 
     }
 
-    private static SinkRequest createKafkaRequest(StreamSink streamSink, InlongStreamResponse streamInfo) {
+    private static SinkRequest createKafkaRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
         KafkaSinkRequest kafkaSinkRequest = new KafkaSinkRequest();
         KafkaSink kafkaSink = (KafkaSink) streamSink;
         kafkaSinkRequest.setSinkName(streamSink.getSinkName());
@@ -200,7 +200,7 @@ public class InlongStreamSinkTransfer {
         return kafkaSink;
     }
 
-    private static HiveSinkRequest createHiveRequest(StreamSink streamSink, InlongStreamResponse streamInfo) {
+    private static HiveSinkRequest createHiveRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
         HiveSinkRequest hiveSinkRequest = new HiveSinkRequest();
         HiveSink hiveSink = (HiveSink) streamSink;
         hiveSinkRequest.setSinkName(streamSink.getSinkName());

@@ -85,7 +85,7 @@ public class InlongStreamController {
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
     public Response<InlongStreamResponse> get(@RequestParam String groupId, @RequestParam String streamId) {
-        return Response.success(streamService.get(groupId, streamId));
+        return Response.success(streamService.get(groupId, streamId).genResponse());
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.POST)

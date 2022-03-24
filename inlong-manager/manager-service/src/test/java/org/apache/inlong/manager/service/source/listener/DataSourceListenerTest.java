@@ -24,7 +24,7 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
@@ -51,7 +51,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
     private StreamSourceService streamSourceService;
 
     public Integer createBinlogSource(InlongGroupInfo groupInfo) {
-        final InlongStreamResponse stream = createStreamInfo(groupInfo);
+        final InlongStreamInfo stream = createStreamInfo(groupInfo);
         BinlogSourceRequest sourceRequest = new BinlogSourceRequest();
         sourceRequest.setInlongGroupId(stream.getInlongGroupId());
         sourceRequest.setInlongStreamId(stream.getInlongStreamId());

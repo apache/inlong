@@ -126,11 +126,6 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
         // Setting updated parameters of stream source entity.
         setTargetEntity(request, entity);
         entity.setVersion(entity.getVersion() + 1);
-        if (GroupState.forCode(groupStatus).equals(GroupState.CONFIG_SUCCESSFUL)) {
-            entity.setStatus(SourceState.TO_BE_ISSUED_ADD.getCode());
-        } else {
-            entity.setStatus(SourceState.SOURCE_NEW.getCode());
-        }
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
         sourceMapper.updateByPrimaryKeySelective(entity);

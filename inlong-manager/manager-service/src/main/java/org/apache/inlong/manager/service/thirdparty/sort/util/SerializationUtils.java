@@ -25,7 +25,7 @@ import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.sort.protocol.deserialization.AvroDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.CanalDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.CsvDeserializationInfo;
@@ -48,7 +48,7 @@ public class SerializationUtils {
      * Create deserialization info
      */
     public static DeserializationInfo createDeserialInfo(SourceResponse sourceResponse,
-            InlongStreamResponse streamInfo) {
+            InlongStreamInfo streamInfo) {
         SourceType sourceType = SourceType.forType(sourceResponse.getSourceType());
         switch (sourceType) {
             case BINLOG:
@@ -87,7 +87,7 @@ public class SerializationUtils {
     /**
      * Get deserialization info for Kafka
      */
-    private static DeserializationInfo deserializeForKafka(KafkaSourceResponse source, InlongStreamResponse stream) {
+    private static DeserializationInfo deserializeForKafka(KafkaSourceResponse source, InlongStreamInfo stream) {
         String serializationType = source.getSerializationType();
         DataTypeEnum dataType = DataTypeEnum.forName(serializationType);
         switch (dataType) {
@@ -136,7 +136,7 @@ public class SerializationUtils {
      * Get deserialization info for File
      */
     private static DeserializationInfo deserializeForFile(SourceResponse sourceResponse,
-            InlongStreamResponse streamInfo) {
+            InlongStreamInfo streamInfo) {
         String serializationType = sourceResponse.getSerializationType();
         DataTypeEnum dataType = DataTypeEnum.forName(serializationType);
         switch (dataType) {
