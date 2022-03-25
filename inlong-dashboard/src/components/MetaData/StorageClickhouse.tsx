@@ -50,18 +50,7 @@ const clickhouseTargetTypes = [
   value: item,
 }));
 
-// Auto map to source fieldType
-export const fieldTypeMap = {
-  int: 'int',
-  long: 'long',
-  float: 'float',
-  double: 'double',
-  string: 'string',
-  date: 'string',
-  timestamp: 'string',
-};
-
-export const getClickhouseForm: GetStorageFormFieldsType = (
+const getForm: GetStorageFormFieldsType = (
   type: 'form' | 'col' = 'form',
   { currentValues, inlongGroupId, isEdit, dataType } = {} as any,
 ) => {
@@ -99,7 +88,7 @@ export const getClickhouseForm: GetStorageFormFieldsType = (
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
-      _col: true,
+      _inTable: true,
     },
     {
       name: 'tableName',
@@ -109,7 +98,7 @@ export const getClickhouseForm: GetStorageFormFieldsType = (
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
-      _col: true,
+      _inTable: true,
     },
     {
       name: 'flushInterval',
@@ -209,7 +198,7 @@ export const getClickhouseForm: GetStorageFormFieldsType = (
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
       visible: values => values.isDistribute,
-      _col: true,
+      _inTable: true,
     },
     {
       name: 'partitionFields',
@@ -227,17 +216,17 @@ export const getClickhouseForm: GetStorageFormFieldsType = (
       props: {
         size: 'small',
         editing: ![110, 130].includes(currentValues?.status),
-        columns: getClickhouseColumns(dataType, currentValues),
+        columns: getFieldListColumns(dataType, currentValues),
       },
     },
   ];
 
   return type === 'col'
     ? getColsFromFields(fileds)
-    : fileds.map(item => excludeObject(['_col'], item));
+    : fileds.map(item => excludeObject(['_inTable'], item));
 };
 
-export const getClickhouseColumns: GetStorageColumnsType = (dataType, currentValues) => {
+const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => {
   return [
     ...sourceDataFields,
     {
@@ -277,4 +266,10 @@ export const getClickhouseColumns: GetStorageColumnsType = (dataType, currentVal
   ];
 };
 
-export const clickhouseTableColumns = getClickhouseForm('col') as ColumnsType;
+const tableColumns = getForm('col') as ColumnsType;
+
+export const StorageClickhouse = {
+  getForm,
+  getFieldListColumns,
+  tableColumns,
+};

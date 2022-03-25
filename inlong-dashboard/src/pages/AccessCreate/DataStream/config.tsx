@@ -21,6 +21,7 @@ import React from 'react';
 import { Divider } from 'antd';
 import i18n from '@/i18n';
 import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
+import { Storages } from '@/components/MetaData';
 
 export const genFormContent = (currentValues, inlongGroupId, middlewareType) => {
   const extraParams = {
@@ -95,8 +96,7 @@ export const genFormContent = (currentValues, inlongGroupId, middlewareType) => 
           ),
         },
         'streamSink',
-        'streamSinkHIVE',
-        'streamSinkCLICK_HOUSE',
+        ...Storages.map(item => `streamSink${item.value}`),
       ],
       currentValues,
       extraParams,

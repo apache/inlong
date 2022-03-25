@@ -24,8 +24,7 @@ import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import i18n from '@/i18n';
 import { DataStorageDetailModal } from '@/components/AccessHelper';
-import { hiveTableColumns } from '@/components/MetaData/StorageHive';
-import { clickhouseTableColumns } from '@/components/MetaData/StorageClickhouse';
+import { Storages } from '@/components/MetaData';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
 import { genStatusTag } from './status';
@@ -44,16 +43,10 @@ const getFilterFormContent = defaultValues => [
     initialValue: defaultValues.sinkType,
     props: {
       dropdownMatchSelectWidth: false,
-      options: [
-        {
-          label: 'HIVE',
-          value: 'HIVE',
-        },
-        {
-          label: 'CLICK_HOUSE',
-          value: 'CLICK_HOUSE',
-        },
-      ],
+      options: Storages.map(item => ({
+        label: item.label,
+        value: item.value,
+      })),
     },
   },
 ];
@@ -66,7 +59,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     sinkType: 'HIVE',
   });
 
-  const [changedValues, setChangedValues] = useState({}) as any;
+  const [curDataStreamIdentifier, setCurDataStreamIdentifier] = useState<string>();
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
     visible: false,
@@ -121,8 +114,9 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     message.success(i18n.t('basic.OperatingSuccess'));
   };
 
-  const onEdit = ({ id }) => {
+  const onEdit = ({ id, inlongStreamId }) => {
     setCreateModal({ visible: true, id });
+    setCurDataStreamIdentifier(inlongStreamId);
   };
 
   const onDelete = ({ id }) => {
@@ -164,10 +158,17 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     total: data?.total,
   };
 
-  const columnsMap = {
-    HIVE: hiveTableColumns,
-    CLICK_HOUSE: clickhouseTableColumns,
-  };
+  const columnsMap = useMemo(
+    () =>
+      Storages.reduce(
+        (acc, cur) => ({
+          ...acc,
+          [cur.value]: cur.tableColumns,
+        }),
+        {},
+      ),
+    [],
+  );
 
   const createContent = useMemo(
     () => [
@@ -189,7 +190,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     [createModal.id, streamList],
   );
 
-  const streamItem = streamList.find(item => item.inlongStreamId === changedValues.inlongStreamId);
+  const streamItem = streamList.find(item => item.inlongStreamId === curDataStreamIdentifier);
 
   const columns = [
     {
@@ -249,7 +250,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         sinkType={options.sinkType as any}
         visible={createModal.visible as boolean}
         dataType={streamItem?.dataType}
-        onValuesChange={(c, v) => setChangedValues(v)}
+        onValuesChange={(c, v) => setCurDataStreamIdentifier(v?.inlongStreamId)}
         onOk={async values => {
           await onSave(values);
           setCreateModal({ visible: false });
