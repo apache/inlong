@@ -20,20 +20,20 @@ package org.apache.inlong.manager.common.pojo.stream;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Inlong stream info
+ */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel("Inlong stream response")
-public class InlongStreamResponse {
+@EqualsAndHashCode(callSuper = true)
+@ApiModel("Inlong stream info")
+public class InlongStreamInfo extends InlongStreamBaseInfo {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
@@ -110,5 +110,9 @@ public class InlongStreamResponse {
 
     @ApiModelProperty(value = "Field list")
     private List<InlongStreamFieldInfo> fieldList;
+
+    public InlongStreamResponse genResponse() {
+        return CommonBeanUtils.copyProperties(this, InlongStreamResponse::new);
+    }
 
 }

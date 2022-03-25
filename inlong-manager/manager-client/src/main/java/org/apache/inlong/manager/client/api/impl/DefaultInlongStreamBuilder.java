@@ -42,7 +42,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
 
@@ -68,7 +68,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         if (MapUtils.isEmpty(groupContext.getStreamContextMap())) {
             groupContext.setStreamContextMap(Maps.newHashMap());
         }
-        InlongStreamResponse stream = InlongStreamTransfer.createStreamInfo(streamConf, groupContext.getGroupInfo());
+        InlongStreamInfo stream = InlongStreamTransfer.createStreamInfo(streamConf, groupContext.getGroupInfo());
         InnerStreamContext streamContext = new InnerStreamContext(stream);
         groupContext.setStreamContext(streamContext);
         this.streamContext = streamContext;
@@ -107,7 +107,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     @Override
     public InlongStream init() {
-        InlongStreamResponse streamInfo = streamContext.getStreamInfo();
+        InlongStreamInfo streamInfo = streamContext.getStreamInfo();
         String streamIndex = managerClient.createStreamInfo(streamInfo);
         streamInfo.setId(Double.valueOf(streamIndex).intValue());
         //Create source and update index
@@ -127,8 +127,8 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     @Override
     public InlongStream initOrUpdate() {
-        InlongStreamResponse dataStreamInfo = streamContext.getStreamInfo();
-        Pair<Boolean, InlongStreamResponse> existMsg = managerClient.isStreamExists(dataStreamInfo);
+        InlongStreamInfo dataStreamInfo = streamContext.getStreamInfo();
+        Pair<Boolean, InlongStreamInfo> existMsg = managerClient.isStreamExists(dataStreamInfo);
         if (existMsg.getKey()) {
             Pair<Boolean, String> updateMsg = managerClient.updateStreamInfo(dataStreamInfo);
             if (updateMsg.getKey()) {

@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskExecuteLogQuery;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
@@ -149,7 +149,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     /**
      * Create inlong stream
      */
-    public InlongStreamResponse createStreamInfo(InlongGroupInfo groupInfo) {
+    public InlongStreamInfo createStreamInfo(InlongGroupInfo groupInfo) {
         // delete first
         try {
             streamService.delete(GROUP_ID, OPERATOR, OPERATOR);

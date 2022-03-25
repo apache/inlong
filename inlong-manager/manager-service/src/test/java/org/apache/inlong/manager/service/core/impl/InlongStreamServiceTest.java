@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class InlongStreamServiceTest {
     public Integer saveInlongStream(String groupId, String streamId, String operator) {
         ;
         try {
-            InlongStreamResponse response = streamService.get(groupId, streamId);
+            InlongStreamInfo response = streamService.get(groupId, streamId);
             if (response != null) {
                 return response.getId();
             }

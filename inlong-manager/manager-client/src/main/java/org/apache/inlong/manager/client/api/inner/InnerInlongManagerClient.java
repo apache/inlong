@@ -51,7 +51,7 @@ import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -282,7 +282,7 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public String createStreamInfo(InlongStreamResponse streamInfo) {
+    public String createStreamInfo(InlongStreamInfo streamInfo) {
         String path = HTTP_PATH + "/stream/save";
         final String stream = GsonUtil.toJson(streamInfo);
         final RequestBody streamBody = RequestBody.create(MediaType.parse("application/json"), stream);
@@ -307,8 +307,8 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public Pair<Boolean, InlongStreamResponse> isStreamExists(InlongStreamResponse streamInfo) {
-        InlongStreamResponse currentStreamInfo = getStreamInfo(streamInfo);
+    public Pair<Boolean, InlongStreamInfo> isStreamExists(InlongStreamInfo streamInfo) {
+        InlongStreamInfo currentStreamInfo = getStreamInfo(streamInfo);
         if (currentStreamInfo != null) {
             return Pair.of(true, currentStreamInfo);
         } else {
@@ -316,7 +316,7 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public Pair<Boolean, String> updateStreamInfo(InlongStreamResponse streamInfo) {
+    public Pair<Boolean, String> updateStreamInfo(InlongStreamInfo streamInfo) {
         streamInfo.setCreateTime(null);
         streamInfo.setModifyTime(null);
         final String path = HTTP_PATH + "/stream/update";
@@ -344,7 +344,7 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public InlongStreamResponse getStreamInfo(InlongStreamResponse streamInfo) {
+    public InlongStreamInfo getStreamInfo(InlongStreamInfo streamInfo) {
         String path = HTTP_PATH + "/stream/get";
         String url = formatUrl(path);
         url += String.format("&groupId=%s&streamId=%s", streamInfo.getInlongGroupId(), streamInfo.getInlongStreamId());

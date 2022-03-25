@@ -66,7 +66,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
-        log.info("Delete data source for context={}", context);
+        log.info("Operate data source for context={}", context);
         InlongGroupInfo groupInfo = getGroupInfo(context.getProcessForm());
         final String groupId = groupInfo.getInlongGroupId();
         List<StreamBriefResponse> streamBriefResponses = streamService.getBriefList(groupId);

@@ -27,7 +27,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
@@ -61,7 +61,7 @@ public class SourceInfoUtils {
      * Create source info for DataFlowInfo.
      */
     public static SourceInfo createSourceInfo(PulsarClusterInfo pulsarCluster, String masterAddress,
-            ClusterBean clusterBean, InlongGroupInfo groupInfo, InlongStreamResponse streamInfo,
+            ClusterBean clusterBean, InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             SourceResponse sourceResponse, List<FieldInfo> sourceFields) {
 
         String mqType = groupInfo.getMiddlewareType();
@@ -84,7 +84,7 @@ public class SourceInfoUtils {
      * Create source info for Pulsar
      */
     private static SourceInfo createPulsarSourceInfo(PulsarClusterInfo pulsarCluster, ClusterBean clusterBean,
-            InlongGroupInfo groupInfo, InlongStreamResponse streamInfo,
+            InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             DeserializationInfo deserializationInfo, List<FieldInfo> fieldInfos) {
         String topicName = streamInfo.getMqResourceObj();
         InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) groupInfo.getMqExtInfo();

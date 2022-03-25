@@ -41,7 +41,7 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -133,7 +133,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
-    public InlongStreamResponse get(String groupId, String streamId) {
+    public InlongStreamInfo get(String groupId, String streamId) {
         LOGGER.debug("begin to get inlong stream by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
         Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
@@ -144,7 +144,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
         }
 
-        InlongStreamResponse response = CommonBeanUtils.copyProperties(streamEntity, InlongStreamResponse::new);
+        InlongStreamInfo response = CommonBeanUtils.copyProperties(streamEntity, InlongStreamInfo::new);
         List<InlongStreamFieldInfo> streamFields = this.getStreamFields(groupId, streamId);
         response.setFieldList(streamFields);
 
@@ -443,11 +443,11 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongStreamEntity> page = (Page<InlongStreamEntity>) streamMapper.selectByCondition(request);
-        List<InlongStreamResponse> streamInfoList = CommonBeanUtils.copyListProperties(page, InlongStreamResponse::new);
+        List<InlongStreamInfo> streamInfoList = CommonBeanUtils.copyListProperties(page, InlongStreamInfo::new);
 
         // Convert and encapsulate the paged results
         List<FullStreamResponse> responseList = new ArrayList<>(streamInfoList.size());
-        for (InlongStreamResponse streamInfo : streamInfoList) {
+        for (InlongStreamInfo streamInfo : streamInfoList) {
             // 2Set the field information of the inlong stream
             String streamId = streamInfo.getInlongStreamId();
             List<InlongStreamFieldInfo> streamFields = getStreamFields(groupId, streamId);

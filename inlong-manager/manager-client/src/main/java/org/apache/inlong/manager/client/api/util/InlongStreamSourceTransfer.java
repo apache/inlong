@@ -38,7 +38,7 @@ import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 import java.util.Arrays;
 
@@ -47,7 +47,7 @@ import java.util.Arrays;
  */
 public class InlongStreamSourceTransfer {
 
-    public static SourceRequest createSourceRequest(StreamSource streamSource, InlongStreamResponse streamInfo) {
+    public static SourceRequest createSourceRequest(StreamSource streamSource, InlongStreamInfo streamInfo) {
         SourceType sourceType = streamSource.getSourceType();
         switch (sourceType) {
             case KAFKA:
@@ -176,7 +176,7 @@ public class InlongStreamSourceTransfer {
         return binlogSource;
     }
 
-    private static KafkaSourceRequest createKafkaSourceRequest(KafkaSource kafkaSource, InlongStreamResponse stream) {
+    private static KafkaSourceRequest createKafkaSourceRequest(KafkaSource kafkaSource, InlongStreamInfo stream) {
         KafkaSourceRequest sourceRequest = new KafkaSourceRequest();
         sourceRequest.setSourceName(kafkaSource.getSourceName());
         sourceRequest.setInlongGroupId(stream.getInlongGroupId());
@@ -199,7 +199,7 @@ public class InlongStreamSourceTransfer {
     }
 
     private static BinlogSourceRequest createBinlogSourceRequest(MySQLBinlogSource binlogSource,
-            InlongStreamResponse streamInfo) {
+            InlongStreamInfo streamInfo) {
         BinlogSourceRequest sourceRequest = new BinlogSourceRequest();
         sourceRequest.setSourceName(binlogSource.getSourceName());
         sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());

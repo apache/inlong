@@ -61,7 +61,7 @@
             (
             #{item.id}, #{item.inlongGroupId}, #{item.inlongStreamId}, #{item.isPredefinedField},
             #{item.fieldName}, #{item.fieldValue}, #{item.preExpression}, #{item.fieldType},
-            #{item.fieldComment}, #{isMetaField}, #{item.rankNum}, #{item.isDeleted}
+            #{item.fieldComment}, #{item.isMetaField}, #{item.rankNum}, #{item.isDeleted}
             )
         </foreach>
         ON DUPLICATE KEY UPDATE
@@ -73,6 +73,7 @@
         field_value = values(field_value),
         pre_expression = values(pre_expression),
         field_type = values(field_type),
+        is_meta_field = values(is_meta_field),
         field_comment = values(field_comment),
         rank_num = values(rank_num),
         is_deleted = values(is_deleted)
@@ -114,6 +115,7 @@
             field_value         = #{fieldValue,jdbcType=VARCHAR},
             pre_expression      = #{preExpression,jdbcType=VARCHAR},
             field_type          = #{fieldType,jdbcType=VARCHAR},
+            is_meta_field       = #(isMetaField,jdbcType=SMALLINT),
             field_comment       = #{fieldComment,jdbcType=VARCHAR},
             rank_num            = #{rankNum,jdbcType=SMALLINT},
             is_deleted          = #{isDeleted,jdbcType=INTEGER}

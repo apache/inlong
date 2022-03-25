@@ -23,7 +23,7 @@ import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
@@ -125,7 +125,7 @@ public class PushSortConfigListener implements SortOperateListener {
             List<StreamSinkFieldEntity> fieldList) {
         DeserializationInfo deserializationInfo = null;
         String groupId = groupInfo.getInlongGroupId();
-        InlongStreamResponse streamInfo = streamService.get(groupId, streamId);
+        InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
 
         boolean isDbType = Constant.DATA_SOURCE_DB.equals(streamInfo.getDataType());
         if (!isDbType) {
