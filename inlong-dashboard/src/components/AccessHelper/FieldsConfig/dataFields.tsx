@@ -26,6 +26,7 @@ import DataStorageEditor from '../DataStorageEditor/Editor';
 import EditableTable from '@/components/EditableTable';
 import i18n from '@/i18n';
 import { fieldTypes as sourceFieldsTypes } from '@/components/MetaData/SourceDataFields';
+import { Storages } from '@/components/MetaData';
 
 type RestParams = {
   inlongGroupId?: string;
@@ -295,23 +296,18 @@ export default (
       label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataFlowDirection'),
       name: 'streamSink',
       props: {
-        options: [
-          {
-            label: 'HIVE',
-            value: 'HIVE',
-          },
-          {
-            label: 'CLICK_HOUSE',
-            value: 'CLICK_HOUSE',
-          },
-          {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.AutoConsumption'),
-            value: 'AUTO_CONSUMPTION',
-          },
-        ],
+        options: Storages.map(item => {
+          return {
+            label: item.label,
+            value: item.value,
+          };
+        }).concat({
+          label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.AutoConsumption'),
+          value: 'AUTO_CONSUMPTION',
+        }),
       },
     },
-    ...['HIVE', 'CLICK_HOUSE'].reduce(
+    ...Storages.map(item => item.value).reduce(
       (acc, item) =>
         acc.concat({
           type: (
