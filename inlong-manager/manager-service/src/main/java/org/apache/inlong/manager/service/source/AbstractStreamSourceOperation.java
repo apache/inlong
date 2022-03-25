@@ -122,10 +122,6 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
             throw new RuntimeException(String.format("Source=%s is not allowed to update, "
                     + "please wait until its changed to final status or stop / frozen / delete it firstly", entity));
         }
-        // If failed , return to new so can be init again
-        if (SourceState.forCode(entity.getStatus()) == SourceState.SOURCE_FAILED) {
-            entity.setStatus(SourceState.SOURCE_NEW.getCode());
-        }
         // Setting updated parameters of stream source entity.
         setTargetEntity(request, entity);
         entity.setVersion(entity.getVersion() + 1);
