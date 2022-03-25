@@ -61,6 +61,9 @@ public class CommonConstants {
     // max size of single batch in bytes, default is 200KB.
     public static final int DEFAULT_PROXY_PACKAGE_MAX_SIZE = 200000;
 
+    public static final String PROXY_MESSAGE_SEMAPHORE = "proxy.semaphore";
+    public static final int DEFAULT_PROXY_MESSAGE_SEMAPHORE = 10000;
+
     public static final String PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER = "proxy.group.queue.maxNumber";
     public static final int DEFAULT_PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER = 10000;
 
