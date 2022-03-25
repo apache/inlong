@@ -173,6 +173,11 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
         StreamSourceEntity existEntity = sourceMapper.selectByIdForUpdate(id);
         SourceState curState = SourceState.forCode(existEntity.getStatus());
         SourceState nextState = SourceState.TO_BE_ISSUED_DELETE;
+        // if source is frozen|failed|new , delete directly
+        if (curState == SourceState.SOURCE_FROZEN || curState == SourceState.SOURCE_FAILED
+                || curState == SourceState.SOURCE_NEW) {
+            nextState = SourceState.SOURCE_DISABLE;
+        }
         if (!SourceState.isAllowedTransition(curState, nextState)) {
             throw new RuntimeException(String.format("Source=%s is not allowed to delete", existEntity));
         }

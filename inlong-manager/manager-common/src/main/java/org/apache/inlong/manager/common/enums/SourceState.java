@@ -89,7 +89,7 @@ public enum SourceState {
 
     static {
         // new
-        SOURCE_STATE_AUTOMATON.put(SOURCE_NEW, Sets.newHashSet(SOURCE_NEW, TO_BE_ISSUED_ADD));
+        SOURCE_STATE_AUTOMATON.put(SOURCE_NEW, Sets.newHashSet(SOURCE_DISABLE, SOURCE_NEW, TO_BE_ISSUED_ADD));
 
         // normal
         SOURCE_STATE_AUTOMATON.put(SOURCE_NORMAL,
