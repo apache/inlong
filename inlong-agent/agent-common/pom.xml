@@ -40,10 +40,6 @@
             <groupId>commons-dbutils</groupId>
         </dependency>
         <dependency>
-            <artifactId>je</artifactId>
-            <groupId>com.sleepycat</groupId>
-        </dependency>
-        <dependency>
             <artifactId>commons-lang3</artifactId>
             <groupId>org.apache.commons</groupId>
         </dependency>

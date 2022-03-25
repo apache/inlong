@@ -116,7 +116,6 @@
         <lombok.version>1.18.22</lombok.version>
         <logback.version>1.2.10</logback.version>
         <junit.version>4.13.2</junit.version>
-        <je.version>7.3.7</je.version>
         <hadoop.version>2.10.1</hadoop.version>
         <postgres.version>42.2.25</postgres.version>
         <netty.version>3.10.6.Final</netty.version>
@@ -148,11 +147,6 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
                 <version>${logback.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sleepycat</groupId>
-                <artifactId>je</artifactId>
-                <version>${je.version}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -319,19 +313,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <repositories>
-        <repository>
-            <id>berkeleydb-je</id>
-            <name>berkeleydb-je</name>
-            <url>https://download.dcache.org/nexus/repository/berkeleydb-je/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
 </project>

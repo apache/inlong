@@ -17,29 +17,21 @@
 
 package org.apache.inlong.agent.db;
 
-import com.sleepycat.persist.model.Entity;
-import com.sleepycat.persist.model.PrimaryKey;
-import com.sleepycat.persist.model.Relationship;
-import com.sleepycat.persist.model.SecondaryKey;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 
 /**
  * key value entity. key is string and value is a json
  */
-@Entity(version = 1)
 public class KeyValueEntity {
 
-    @PrimaryKey
     private String key;
 
-    @SecondaryKey(relate = Relationship.MANY_TO_ONE)
     private StateSearchKey stateSearchKey;
 
     /**
      * stores the file name that the jsonValue refers
      */
-    @SecondaryKey(relate = Relationship.MANY_TO_ONE)
     private String fileName;
 
     private String jsonValue;

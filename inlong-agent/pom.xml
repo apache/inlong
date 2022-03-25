@@ -63,7 +63,6 @@
         <protobuf.version>2.5.0</protobuf.version>
         <httpclient.version>4.5.13</httpclient.version>
         <fastjson.version>1.2.68</fastjson.version>
-        <sleepycat.version>7.3.7</sleepycat.version>
         <hippoclient.version>2.0.5</hippoclient.version>
         <jetty.version>9.4.44.v20210927</jetty.version>
         <rocksdb.version>6.14.6</rocksdb.version>
@@ -75,20 +74,6 @@
         <akka.version>2.5.21</akka.version>
         <springcontext.version>5.3.13</springcontext.version>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>berkeleydb-je</id>
-            <name>berkeleydb-je</name>
-            <url>https://download.dcache.org/nexus/repository/berkeleydb-je/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
     <dependencyManagement>
         <dependencies>
@@ -195,11 +180,6 @@
                 <groupId>oro</groupId>
                 <artifactId>oro</artifactId>
                 <version>${oro.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sleepycat</groupId>
-                <artifactId>je</artifactId>
-                <version>${sleepycat.version}</version>
             </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
