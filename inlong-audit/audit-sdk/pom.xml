@@ -36,7 +36,6 @@
         <compiler.source>1.8</compiler.source>
         <compiler.target>1.8</compiler.target>
         <junit.version>4.13</junit.version>
-        <protobuf.version>2.5.0</protobuf.version>
         <commons.version>3.0</commons.version>
         <skipTests>false</skipTests>
         <slf4j.version>1.7.25</slf4j.version>
@@ -52,11 +51,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>${protobuf.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
