@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
@@ -290,7 +291,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ,
+            propagation = Propagation.REQUIRES_NEW)
     public boolean updateStatus(String groupId, Integer status, String operator) {
         LOGGER.info("begin to update group status to [{}] by groupId={}, username={}", status, groupId, operator);
         Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
