@@ -89,19 +89,21 @@ public class ProxySink extends AbstractSink {
 
     @Override
     public void write(Message message) {
-        if (message != null) {
-            message.getHeader().put(CommonConstants.PROXY_KEY_GROUP_ID, inlongGroupId);
-            message.getHeader().put(CommonConstants.PROXY_KEY_STREAM_ID, inlongStreamId);
-            extractStreamFromMessage(message, fieldSplitter);
-            if (!(message instanceof EndMessage)) {
-                ProxyMessage proxyMessage = ProxyMessage.parse(message);
-                // add proxy message to cache.
-                cache.compute(proxyMessage.getBatchKey(),
+        try {
+            if (message != null) {
+                senderManager.acquireSemaphore(1);
+                message.getHeader().put(CommonConstants.PROXY_KEY_GROUP_ID, inlongGroupId);
+                message.getHeader().put(CommonConstants.PROXY_KEY_STREAM_ID, inlongStreamId);
+                extractStreamFromMessage(message, fieldSplitter);
+                if (!(message instanceof EndMessage)) {
+                    ProxyMessage proxyMessage = ProxyMessage.parse(message);
+                    // add proxy message to cache.
+                    cache.compute(proxyMessage.getBatchKey(),
                         (s, packProxyMessage) -> {
                             if (packProxyMessage == null) {
                                 packProxyMessage = new PackProxyMessage(
-                                        maxBatchSize, maxQueueNumber,
-                                        maxBatchTimeoutMs,
+                                    maxBatchSize, maxQueueNumber,
+                                    maxBatchTimeoutMs,
                                     proxyMessage.getInlongStreamId()
                                 );
                                 packProxyMessage.generateExtraMap(syncSend,
@@ -112,16 +114,19 @@ public class ProxySink extends AbstractSink {
                             //
                             return packProxyMessage;
                         });
-                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS,
+                    AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
-                // increment the count of successful sinks
-                sinkMetric.incSinkSuccessCount();
-                streamMetric.incSinkSuccessCount();
-            } else {
-                // increment the count of failed sinks
-                sinkMetric.incSinkFailCount();
-                streamMetric.incSinkFailCount();
+                    // increment the count of successful sinks
+                    sinkMetric.incSinkSuccessCount();
+                    streamMetric.incSinkSuccessCount();
+                } else {
+                    // increment the count of failed sinks
+                    sinkMetric.incSinkFailCount();
+                    streamMetric.incSinkFailCount();
+                }
             }
+        } catch (Exception e) {
+            LOGGER.error("write message to Proxy sink error", e);
         }
     }
 

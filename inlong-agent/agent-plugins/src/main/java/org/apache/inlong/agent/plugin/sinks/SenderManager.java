@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -84,6 +85,7 @@ public class SenderManager {
 
     private int ioThreadNum;
     private boolean enableBusyWait;
+    private Semaphore semaphore;
 
     public SenderManager(JobProfile jobConf, String inlongGroupId, String sourcePath) {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
@@ -112,7 +114,8 @@ public class SenderManager {
             CommonConstants.PROXY_RETRY_SLEEP, CommonConstants.DEFAULT_PROXY_RETRY_SLEEP);
         isFile = jobConf.getBoolean(CommonConstants.PROXY_IS_FILE, CommonConstants.DEFAULT_IS_FILE);
         taskPositionManager = TaskPositionManager.getTaskPositionManager();
-
+        semaphore = new Semaphore(jobConf.getInt(CommonConstants.PROXY_MESSAGE_SEMAPHORE,
+            CommonConstants.DEFAULT_PROXY_MESSAGE_SEMAPHORE));
         ioThreadNum = jobConf.getInt(CommonConstants.PROXY_CLIENT_IO_THREAD_NUM,
                 CommonConstants.DEFAULT_PROXY_CLIENT_IO_THREAD_NUM);
         enableBusyWait = jobConf.getBoolean(CommonConstants.PROXY_CLIENT_ENABLE_BUSY_WAIT,
@@ -137,6 +140,15 @@ public class SenderManager {
     private DefaultMessageSender selectSender(String group) {
         List<DefaultMessageSender> senderList = SENDER_MAP.get(group);
         return senderList.get((SENDER_INDEX.getAndIncrement() & 0x7FFFFFFF) % senderList.size());
+    }
+
+    public void acquireSemaphore(int messageNum) {
+        try {
+            semaphore.acquire(messageNum);
+        } catch (Exception e) {
+            LOGGER.error("acquire messageNum {} fail, current semaphore {}",
+                messageNum, semaphore.availablePermits());
+        }
     }
 
     /**
@@ -209,6 +221,7 @@ public class SenderManager {
                 sendBatchAsync(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
                 return;
             }
+            semaphore.release(bodyList.size());
             metric.incSendSuccessNum(bodyList.size());
             if (sourcePath != null) {
                 taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
@@ -275,6 +288,7 @@ public class SenderManager {
                 bodyList, groupId, streamId, dataTime, "",
                 maxSenderTimeout, TimeUnit.SECONDS, extraMap
             );
+            semaphore.release(bodyList.size());
         } catch (Exception exception) {
             LOGGER.error("Exception caught", exception);
             // retry time
