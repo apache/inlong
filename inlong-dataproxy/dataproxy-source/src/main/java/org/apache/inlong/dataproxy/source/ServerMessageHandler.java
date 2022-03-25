@@ -292,7 +292,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 }
             }
 
-            String value = getTopic(groupId, streamId);
+            String value = MessageUtils.getTopic(configManager.getTopicProperties(), groupId,
+                    streamId);
             if (StringUtils.isNotEmpty(value)) {
                 topicInfo.set(value.trim());
             }
@@ -328,7 +329,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     message.setGroupId(groupId);
                     message.setStreamId(streamId);
 
-                    String value = getTopic(groupId, streamId);
+                    String value = MessageUtils.getTopic(configManager.getTopicProperties(),
+                            groupId, streamId);
                     if (StringUtils.isNotEmpty(value)) {
                         topicInfo.set(value.trim());
                     }
@@ -351,9 +353,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             String streamId = message.getStreamId();
             topic = topicInfo.get();
             if (StringUtils.isEmpty(topic)) {
-                logger.warn("Topic for message is null , inlongGroupId = {}, inlongStreamId",
+                logger.warn("Topic for message is null , inlongGroupId = {}, inlongStreamId = {}",
                         groupId, streamId);
-                return false;
             }
             //                if(groupId==null)groupId="b_test";//default groupId
 
@@ -485,8 +486,10 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
                 headers.put(ConfigConstants.PKG_TIME_KEY, pkgTimeStr);
                 Event event = EventBuilder.withBody(data, headers);
+                String orderType = "non-order";
                 if (MessageUtils.isSyncSendForOrder(event)) {
                     event = new OrderEvent(ctx, event);
+                    orderType = "order";
                 }
                 long dtten = 0;
                 try {
@@ -508,6 +511,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         .append(streamIdEntry.getKey()).append(SEPARATOR)
                         .append(strRemoteIP).append(SEPARATOR)
                         .append(NetworkUtils.getLocalIp()).append(SEPARATOR)
+                        .append(orderType).append(SEPARATOR)
                         .append(new SimpleDateFormat("yyyyMMddHHmm")
                                 .format(dtten)).append(SEPARATOR).append(pkgTimeStr);
                 try {
@@ -736,32 +740,6 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         logger.error("exception caught cause = {}", cause);
         monitorIndexExt.incrementAndGet("EVENT_OTHEREXP");
         ctx.close();
-    }
-
-    /**
-     * get topic
-     */
-    private String getTopic(String groupId) {
-        return getTopic(groupId, null);
-    }
-
-    /**
-     * get topic
-     */
-    private String getTopic(String groupId, String streamId) {
-        String topic = null;
-        if (StringUtils.isNotEmpty(groupId)) {
-            if (StringUtils.isNotEmpty(streamId)) {
-                topic = configManager.getTopicProperties().get(groupId + "/" + streamId);
-            }
-            if (StringUtils.isEmpty(topic)) {
-                topic = configManager.getTopicProperties().get(groupId);
-            }
-        }
-        if (logger.isDebugEnabled()) {
-            logger.debug("Get topic by groupId = {} , streamId = {}", groupId, streamId);
-        }
-        return topic;
     }
 
     /**
