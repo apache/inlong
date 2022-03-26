@@ -83,7 +83,7 @@ spec:
           {{- end }}
           env:
             - name: JDBC_URL
-              value: "jdbc:mysql://{{ template "inlong.mysql.hostname" . }}:{{ .Values.mysql.ports.server }}/apache_inlong_audit?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&nullCatalogMeansCurrent=true&serverTimezone=GMT%2b8"
+              value: "jdbc:mysql://{{ template "inlong.mysql.hostname" . }}:{{ .Values.mysql.ports.server }}/apache_inlong_audit?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&nullCatalogMeansCurrent=true&serverTimezone=GMT%2b8&allowPublicKeyRetrieval=true"
             - name: USERNAME
               value: {{ include "inlong.mysql.username" . | quote }}
             - name: PASSWORD
