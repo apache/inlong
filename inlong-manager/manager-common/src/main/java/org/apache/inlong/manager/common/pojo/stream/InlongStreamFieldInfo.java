@@ -57,6 +57,10 @@ public class InlongStreamFieldInfo {
     @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
     private Integer isMetaField = 0;
 
+    @ApiModelProperty("Field format,including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
+            + " and custom such as 'yyyy-MM-dd HH:mm:ss' etc,maybe this is mainly used for time format")
+    private String fieldFormat;
+
     @ApiModelProperty(value = "field rank num")
     private Short rankNum;
 

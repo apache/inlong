@@ -35,6 +35,7 @@ public class InlongStreamFieldEntity implements Serializable {
     private String fieldType;
     private String fieldComment;
     private Integer isMetaField;
+    private String fieldFormat;
     private Short rankNum;
     private Integer isDeleted;
 
