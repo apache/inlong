@@ -34,6 +34,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
@@ -109,7 +110,7 @@ public class HiveSinkContext extends SinkContext {
         super(sinkName, context, channel);
         this.parentContext = context;
         this.dispatchQueue = dispatchQueue;
-        this.nodeId = CommonPropertiesHolder.getString(KEY_NODE_ID);
+        this.nodeId = CommonPropertiesHolder.getString(KEY_NODE_ID, NetworkUtils.getLocalIp());
         this.outputPool = Executors.newFixedThreadPool(this.getMaxThreads());
         this.partitionCreatePool = Executors.newFixedThreadPool(this.getMaxThreads());
         String eventFormatHandlerClass = CommonPropertiesHolder.getString(KEY_EVENT_FORMAT_HANDLER,
