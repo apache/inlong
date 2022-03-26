@@ -42,10 +42,14 @@ import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DebeziumDeserializationInfo;
 import org.apache.inlong.sort.protocol.serialization.CanalSerializationInfo;
+import org.apache.inlong.sort.protocol.transformation.FieldMappingRule;
+import org.apache.inlong.sort.protocol.transformation.FieldMappingRule.FieldMappingUnit;
+import org.apache.inlong.sort.protocol.transformation.TransformationInfo;
 import org.apache.inlong.sort.singletenant.flink.deserialization.DeserializationFunction;
 import org.apache.inlong.sort.singletenant.flink.deserialization.DeserializationSchemaFactory;
 import org.apache.inlong.sort.singletenant.flink.deserialization.FieldMappingTransformer;
 import org.apache.inlong.sort.singletenant.flink.serialization.SerializationSchemaFactory;
+import org.apache.inlong.sort.singletenant.flink.transformation.Transformer;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +62,7 @@ public class DebeziumToCanalITCase {
 
     private static final CountDownLatch jobFinishedLatch = new CountDownLatch(1);
 
-    private final FieldInfo[] fieldInfos = new FieldInfo[]{
+    private final FieldInfo[] sourceFieldInfos = new FieldInfo[]{
             new FieldInfo("name", StringFormatInfo.INSTANCE),
             new FieldInfo("age", IntFormatInfo.INSTANCE),
             new BuiltInFieldInfo("db", StringFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_DATABASE),
@@ -68,9 +72,20 @@ public class DebeziumToCanalITCase {
             new BuiltInFieldInfo("type", StringFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_EVENT_TYPE)
     };
 
+    private final FieldInfo[] sinkFieldInfos = new FieldInfo[]{
+            new FieldInfo("name", StringFormatInfo.INSTANCE),
+            new FieldInfo("age", IntFormatInfo.INSTANCE),
+            new FieldInfo("inner_type", StringFormatInfo.INSTANCE),
+            new BuiltInFieldInfo("db", StringFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_DATABASE),
+            new BuiltInFieldInfo("table", StringFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_TABLE),
+            new BuiltInFieldInfo("es", LongFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_EVENT_TIME),
+            new BuiltInFieldInfo("isDdl", BooleanFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_IS_DDL),
+            new BuiltInFieldInfo("type", StringFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_EVENT_TYPE)
+    };
+
     private static final String expectedResult =
-            "{\"data\":[{\"name\":\"testName\",\"age\":29}],"
-                    + "\"type\":\"INSERT\",\"database\":\"test\",\"table\":\"test\","
+            "{\"data\":[{\"name\":\"testName\",\"age\":29,\"inner_type\":\"-D\"}],"
+                    + "\"type\":\"DELETE\",\"database\":\"test\",\"table\":\"test\","
                     + "\"es\":1644896917208,\"isDdl\":false}";
 
     @Test(timeout = 60 * 1000)
@@ -86,19 +101,52 @@ public class DebeziumToCanalITCase {
 
                 // Deserialize
                 DeserializationSchema<Row> deserializationSchema = DeserializationSchemaFactory.build(
-                        fieldInfos,
+                        sourceFieldInfos,
                         new DebeziumDeserializationInfo(false, "ISO_8601"));
                 FieldMappingTransformer fieldMappingTransformer = new FieldMappingTransformer(
-                        new Configuration(), fieldInfos);
+                        new Configuration(), sourceFieldInfos);
                 DeserializationFunction function = new DeserializationFunction(
                         deserializationSchema, fieldMappingTransformer, false);
                 DataStream<Row> deserializedStream = sourceStream.process(function);
 
+                // Transform
+                TransformationInfo transformationInfo = new TransformationInfo(
+                        new FieldMappingRule(new FieldMappingUnit[] {
+                                new FieldMappingUnit(
+                                        new FieldInfo("name", StringFormatInfo.INSTANCE),
+                                        new FieldInfo("name", IntFormatInfo.INSTANCE)),
+                                new FieldMappingUnit(
+                                        new FieldInfo("age", StringFormatInfo.INSTANCE),
+                                        new FieldInfo("age", IntFormatInfo.INSTANCE)),
+                                new FieldMappingUnit(
+                                        new FieldInfo("type", StringFormatInfo.INSTANCE),
+                                        new FieldInfo("inner_type", IntFormatInfo.INSTANCE)),
+                                new FieldMappingUnit(
+                                        new FieldInfo("db", StringFormatInfo.INSTANCE),
+                                        new FieldInfo("db", IntFormatInfo.INSTANCE)),
+                                new FieldMappingUnit(
+                                        new FieldInfo("table", StringFormatInfo.INSTANCE),
+                                        new FieldInfo("table", IntFormatInfo.INSTANCE)),
+                                new FieldMappingUnit(
+                                        new FieldInfo("es", StringFormatInfo.INSTANCE),
+                                        new FieldInfo("es", IntFormatInfo.INSTANCE)),
+                                new FieldMappingUnit(
+                                        new FieldInfo("isDdl", StringFormatInfo.INSTANCE),
+                                        new FieldInfo("isDdl", IntFormatInfo.INSTANCE)),
+                                new FieldMappingUnit(
+                                        new FieldInfo("type", StringFormatInfo.INSTANCE),
+                                        new FieldInfo("type", IntFormatInfo.INSTANCE)),
+                        }));
+                DataStream<Row> transformedStream = deserializedStream.process(new Transformer(
+                        transformationInfo,
+                        sourceFieldInfos,
+                        sinkFieldInfos));
+
                 // Serialize and output
                 SerializationSchema<Row> serializationSchema = SerializationSchemaFactory.build(
-                        fieldInfos, new CanalSerializationInfo()
+                        sinkFieldInfos, new CanalSerializationInfo()
                 );
-                deserializedStream.addSink(new TestSink(serializationSchema));
+                transformedStream.addSink(new TestSink(serializationSchema));
 
                 env.execute();
 
@@ -134,8 +182,8 @@ public class DebeziumToCanalITCase {
     private static class TestSource extends RichSourceFunction<SerializedRecord> {
 
         String testString = "{\n"
-                + "    \"before\":null,\n"
-                + "    \"after\":{\n"
+                + "    \"after\":null,\n"
+                + "    \"before\":{\n"
                 + "        \"name\":\"testName\",\n"
                 + "        \"age\":29\n"
                 + "    },\n"
@@ -155,7 +203,7 @@ public class DebeziumToCanalITCase {
                 + "        \"thread\":13,\n"
                 + "        \"query\":null\n"
                 + "    },\n"
-                + "    \"op\":\"c\",\n"
+                + "    \"op\":\"d\",\n"
                 + "    \"ts_ms\":1644896917208,\n"
                 + "    \"transaction\":null\n"
                 + "}";
