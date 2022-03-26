@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.thirdparty.sort.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.MetaFieldType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
@@ -76,7 +77,7 @@ public class FieldInfoUtils {
         // Set source field info list.
         for (InlongStreamFieldInfo field : streamFieldList) {
             FieldInfo sourceField = getFieldInfo(field.getFieldName(), field.getFieldType(),
-                    field.getIsMetaField() == 1);
+                    field.getIsMetaField() == 1, field.getFieldFormat());
             sourceFields.add(sourceField);
         }
 
@@ -84,11 +85,11 @@ public class FieldInfoUtils {
         // Get sink field info list, if the field name equals to build-in field, new a build-in field info
         for (SinkFieldResponse field : fieldList) {
             FieldInfo sinkField = getFieldInfo(field.getFieldName(), field.getFieldType(),
-                    field.getIsMetaField() == 1);
+                    field.getIsMetaField() == 1, field.getFieldFormat());
             sinkFields.add(sinkField);
 
             FieldInfo sourceField = getFieldInfo(field.getSourceFieldName(),
-                    field.getSourceFieldType(), field.getIsMetaField() == 1);
+                    field.getSourceFieldType(), field.getIsMetaField() == 1, field.getFieldFormat());
             mappingUnitList.add(new FieldMappingUnit(sourceField, sinkField));
         }
 
@@ -100,10 +101,10 @@ public class FieldInfoUtils {
      *
      * @apiNote If the field name equals to build-in field, new a build-in field info
      */
-    private static FieldInfo getFieldInfo(String fieldName, String fieldType, boolean isBuiltin) {
+    private static FieldInfo getFieldInfo(String fieldName, String fieldType, boolean isBuiltin, String format) {
         FieldInfo fieldInfo;
         BuiltInField builtInField = BUILT_IN_FIELD_MAP.get(fieldName);
-        FormatInfo formatInfo = convertFieldFormat(fieldType.toLowerCase());
+        FormatInfo formatInfo = convertFieldFormat(fieldType.toLowerCase(), format);
         if (isBuiltin && builtInField != null) {
             fieldInfo = new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
         } else {
@@ -139,12 +140,22 @@ public class FieldInfoUtils {
     }
 
     /**
-     * Get the FieldFormat of Sort according to type string
+     * Get the FieldFormat of Sort according to type string and format of field
      *
      * @param type type string
      * @return Sort field format instance
      */
     public static FormatInfo convertFieldFormat(String type) {
+        return convertFieldFormat(type, null);
+    }
+
+    /**
+     * Get the FieldFormat of Sort according to type string
+     *
+     * @param type type string
+     * @return Sort field format instance
+     */
+    public static FormatInfo convertFieldFormat(String type, String format) {
         FormatInfo formatInfo;
         FieldType fieldType = FieldType.forName(type);
         switch (fieldType) {
@@ -176,13 +187,25 @@ public class FieldInfoUtils {
                 formatInfo = new DecimalFormatInfo();
                 break;
             case DATE:
-                formatInfo = new DateFormatInfo();
+                if (StringUtils.isNotBlank(format)) {
+                    formatInfo = new DateFormatInfo(convertToSortFormat(format));
+                } else {
+                    formatInfo = new DateFormatInfo();
+                }
                 break;
             case TIME:
-                formatInfo = new TimeFormatInfo();
+                if (StringUtils.isNotBlank(format)) {
+                    formatInfo = new TimeFormatInfo(convertToSortFormat(format));
+                } else {
+                    formatInfo = new TimeFormatInfo();
+                }
                 break;
             case TIMESTAMP:
-                formatInfo = new TimestampFormatInfo();
+                if (StringUtils.isNotBlank(format)) {
+                    formatInfo = new TimestampFormatInfo(convertToSortFormat(format));
+                } else {
+                    formatInfo = new TimestampFormatInfo();
+                }
                 break;
             case BINARY:
             case FIXED:
@@ -193,6 +216,29 @@ public class FieldInfoUtils {
         }
 
         return formatInfo;
+    }
+
+    /**
+     * Convert to sort field format
+     *
+     * @param format The format
+     * @return The sort format
+     */
+    private static String convertToSortFormat(String format) {
+        String sortFormat = format;
+        switch (format) {
+            case "MICROSECONDS":
+                sortFormat = "MICROS";
+                break;
+            case "MILLISECONDS":
+                sortFormat = "MILLIS";
+                break;
+            case "SECONDS":
+                sortFormat = "SECONDS";
+                break;
+            default:
+        }
+        return sortFormat;
     }
 
 }
