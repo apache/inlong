@@ -101,6 +101,12 @@ public class InlongClientImpl implements InlongClient {
         }
     }
 
+    @Override
+    public Response<PageInfo<InlongGroupListResponse>> listGroup(InlongGroupPageRequest request) throws Exception {
+        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
+        return managerClient.listGroups(request);
+    }
+
     /**
      * List group state
      *
