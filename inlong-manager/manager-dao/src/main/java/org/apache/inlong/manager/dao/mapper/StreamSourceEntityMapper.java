@@ -68,6 +68,11 @@ public interface StreamSourceEntityMapper {
             @Param("agentIp") String agentIp, @Param("uuid") String uuid);
 
     /**
+     * Select all sources by groupIds
+     */
+    List<StreamSourceEntity> selectByGroupIds(@Param("groupIds") List<String> groupIds);
+
+    /**
      * Get the distinct source type from the given groupId and streamId
      */
     List<String> selectSourceType(@Param("groupId") String groupId, @Param("streamId") String streamId);

@@ -34,6 +34,7 @@ import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.instrumentation.SinkCounter;
 import org.apache.flume.sink.AbstractSink;
+import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.monitor.MonitorIndex;
@@ -233,7 +234,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
                     .getOrDefault(StreamConfigLogMetric.CONFIG_LOG_REPORT_INTERVAL, "60000");
             String clientVersion = commonProperties
                     .getOrDefault(StreamConfigLogMetric.CONFIG_LOG_REPORT_CLIENT_VERSION, "");
-            streamConfigLogMetric = new StreamConfigLogMetric(ConfigConstants.COMPONENT_NAME,
+            streamConfigLogMetric = new StreamConfigLogMetric(ComponentTypeEnum.DataProxy.getName(),
                     reportConfigServerUrl, Long.parseLong(reportConfigLogInterval),
                     localIp, clientVersion);
             pulsarClientService.setConfigLogMetric(streamConfigLogMetric);

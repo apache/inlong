@@ -51,4 +51,6 @@ public class InlongGroupPageRequest extends PageRequest {
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
 
+    @ApiModelProperty(value = "If list streamSource for group", hidden = true)
+    private boolean listSources = false;
 }
