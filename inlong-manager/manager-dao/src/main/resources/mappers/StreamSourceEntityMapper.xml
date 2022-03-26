@@ -174,6 +174,18 @@
             </if>
         </where>
     </select>
+    <select id="selectByGroupIds" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            inlong_group_id in
+            <foreach item="item" index="index" collection="groupIds" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+            and is_deleted = 0
+        </where>
+    </select>
     <select id="selectSourceType" resultType="java.lang.String">
         select distinct (source_type)
         from stream_source

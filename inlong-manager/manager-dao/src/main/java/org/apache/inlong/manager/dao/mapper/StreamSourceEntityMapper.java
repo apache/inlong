@@ -67,8 +67,10 @@ public interface StreamSourceEntityMapper {
     List<StreamSourceEntity> selectByStatusAndIp(@Param("statusList") List<Integer> statusList,
             @Param("agentIp") String agentIp, @Param("uuid") String uuid);
 
-    //todo
-    List<StreamSourceEntity> selectByGroupIds(@Param("groupIds") List<Integer> statusList);
+    /**
+     * Select all sources by groupIds
+     */
+    List<StreamSourceEntity> selectByGroupIds(@Param("groupIds") List<String> groupIds);
 
     /**
      * Get the distinct source type from the given groupId and streamId

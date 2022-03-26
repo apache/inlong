@@ -32,7 +32,7 @@ public enum ComponentTypeEnum {
     @Getter
     private String name;
 
-    ComponentTypeEnum(String name){
+    ComponentTypeEnum(String name) {
         this.name = name;
     }
 }

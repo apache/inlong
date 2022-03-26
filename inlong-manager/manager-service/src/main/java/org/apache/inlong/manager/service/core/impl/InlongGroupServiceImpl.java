@@ -20,6 +20,8 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
@@ -27,6 +29,7 @@ import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
@@ -37,17 +40,22 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity;
+import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupPulsarEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.source.SourceOperationFactory;
+import org.apache.inlong.manager.service.source.StreamSourceOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +69,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Inlong group service layer implementation
@@ -75,6 +84,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private InlongGroupEntityMapper groupMapper;
     @Autowired
     private InlongGroupExtEntityMapper groupExtMapper;
+    @Autowired
+    private StreamSourceEntityMapper streamSourceEntityMapper;
+    @Autowired
+    private SourceOperationFactory operationFactory;
     @Autowired
     private CommonOperateService commonOperateService;
     @Autowired
@@ -206,6 +219,24 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         Page<InlongGroupEntity> entityPage = (Page<InlongGroupEntity>) groupMapper.selectByCondition(request);
         List<InlongGroupListResponse> groupList = CommonBeanUtils.copyListProperties(entityPage,
                 InlongGroupListResponse::new);
+        if (request.isListSources() && CollectionUtils.isNotEmpty(groupList)) {
+            List<String> groupIds = groupList.stream().map(response -> response.getInlongGroupId())
+                    .collect(Collectors.toList());
+            List<StreamSourceEntity> sourceEntities = streamSourceEntityMapper.selectByGroupIds(groupIds);
+            Map<String, List<SourceListResponse>> sourceMap = Maps.newHashMap();
+            sourceEntities.stream().forEach(sourceEntity -> {
+                SourceType sourceType = SourceType.forType(sourceEntity.getSourceType());
+                StreamSourceOperation operation = operationFactory.getInstance(sourceType);
+                SourceListResponse sourceListResponse = operation.getFromEntity(sourceEntity, SourceListResponse::new);
+                sourceMap.computeIfAbsent(sourceEntity.getInlongGroupId(), k -> Lists.newArrayList())
+                        .add(sourceListResponse);
+            });
+            groupList.stream().forEach(group -> {
+                List<SourceListResponse> sourceListResponses = sourceMap.getOrDefault(group.getInlongGroupId(),
+                        Lists.newArrayList());
+                group.setSourceListResponses(sourceListResponses);
+            });
+        }
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
         PageInfo<InlongGroupListResponse> page = new PageInfo<>(groupList);
         page.setTotal(entityPage.getTotal());
