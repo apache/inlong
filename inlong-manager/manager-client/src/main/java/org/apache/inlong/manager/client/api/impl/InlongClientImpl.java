@@ -186,7 +186,7 @@ public class InlongClientImpl implements InlongClient {
                     return groupState;
                 }
             case DELETED:
-                if (CollectionUtils.isNotEmpty(stateListMap.get(State.DELETING))){
+                if (CollectionUtils.isNotEmpty(stateListMap.get(State.DELETING))) {
                     return InlongGroupState.OPERATING;
                 } else {
                     return groupState;
