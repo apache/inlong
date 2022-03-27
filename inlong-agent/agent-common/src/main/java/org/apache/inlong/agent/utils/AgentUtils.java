@@ -211,6 +211,14 @@ public class AgentUtils {
         }
     }
 
+    public static void silenceSleepInMinute(long minutes) {
+        try {
+            TimeUnit.MINUTES.sleep(minutes);
+        } catch (Exception ignored) {
+            LOGGER.warn("silenceSleepInMs ", ignored);
+        }
+    }
+
     public static String parseHexStr(String delimiter) throws IllegalArgumentException {
         if (delimiter.trim().toLowerCase().startsWith(HEX_PREFIX)) {
             //only one char
