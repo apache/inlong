@@ -42,6 +42,8 @@ import org.apache.inlong.common.metric.MetricValue;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
+import com.alibaba.fastjson.JSON;
+
 /**
  * 
  * MetricListenerRunnable
@@ -72,7 +74,8 @@ public class MetricListenerRunnable implements Runnable {
         LOG.info("begin to snapshot metric:{}", domain);
         try {
             List<MetricItemValue> itemValues = this.getItemValues();
-            LOG.info("snapshot metric:{},size:{}", domain, itemValues.size());
+            LOG.info("snapshot metric:{},size:{},content:{}", domain, itemValues.size(), 
+                    JSON.toJSONString(itemValues));
             this.listenerList.forEach((item) -> {
                 item.snapshot(domain, itemValues);
             });
