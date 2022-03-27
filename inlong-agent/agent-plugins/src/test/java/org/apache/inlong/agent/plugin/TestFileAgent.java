@@ -138,7 +138,7 @@ public class TestFileAgent {
         triggerManager.addTrigger(triggerProfile);
         TestUtils.createHugeFiles("test0.dat", testRootDir.toString(), RECORD);
         TestUtils.createHugeFiles("test1.dat", testRootDir.toString(), RECORD);
-        await().atMost(3, TimeUnit.MINUTES).until(this::checkOnlyOneJob);
+        await().atMost(2, TimeUnit.MINUTES).until(this::checkOnlyOneJob);
         Assert.assertTrue(checkOnlyOneJob());
     }
 
@@ -149,7 +149,7 @@ public class TestFileAgent {
             jobs.forEach(
                     (s, jobWrapper) -> result.set(jobWrapper.getJob().getJobConf()
                             .get(JOB_DIR_FILTER_PATTERN).equals(testRootDir
-                                    + FileSystems.getDefault().getSeparator() + "test1.dat"))
+                                    + FileSystems.getDefault().getSeparator() + "test0.dat"))
             );
         }
         return result.get();
