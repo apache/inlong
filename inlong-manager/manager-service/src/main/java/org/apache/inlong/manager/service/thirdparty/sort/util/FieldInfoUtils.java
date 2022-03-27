@@ -87,10 +87,11 @@ public class FieldInfoUtils {
             FieldInfo sinkField = getFieldInfo(field.getFieldName(), field.getFieldType(),
                     field.getIsMetaField() == 1, field.getFieldFormat());
             sinkFields.add(sinkField);
-
-            FieldInfo sourceField = getFieldInfo(field.getSourceFieldName(),
-                    field.getSourceFieldType(), field.getIsMetaField() == 1, field.getFieldFormat());
-            mappingUnitList.add(new FieldMappingUnit(sourceField, sinkField));
+            if (StringUtils.isNotBlank(field.getSourceFieldName())) {
+                FieldInfo sourceField = getFieldInfo(field.getSourceFieldName(),
+                        field.getSourceFieldType(), field.getIsMetaField() == 1, field.getFieldFormat());
+                mappingUnitList.add(new FieldMappingUnit(sourceField, sinkField));
+            }
         }
 
         return mappingUnitList;
