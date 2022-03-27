@@ -138,7 +138,7 @@ public class TestFileAgent {
         triggerManager.addTrigger(triggerProfile);
         TestUtils.createHugeFiles("test0.dat", testRootDir.toString(), RECORD);
         TestUtils.createHugeFiles("test1.dat", testRootDir.toString(), RECORD);
-        await().atMost(2, TimeUnit.MINUTES).until(this::checkOnlyOneJob);
+        await().atMost(3, TimeUnit.MINUTES).until(this::checkOnlyOneJob);
         Assert.assertTrue(checkOnlyOneJob());
     }
 
