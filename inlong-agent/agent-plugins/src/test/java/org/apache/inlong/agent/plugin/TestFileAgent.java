@@ -149,7 +149,7 @@ public class TestFileAgent {
             jobs.forEach(
                     (s, jobWrapper) -> result.set(jobWrapper.getJob().getJobConf()
                             .get(JOB_DIR_FILTER_PATTERN).equals(testRootDir
-                                    + FileSystems.getDefault().getSeparator() + "test1.dat"))
+                                    + FileSystems.getDefault().getSeparator() + "test0.dat"))
             );
         }
         return result.get();
