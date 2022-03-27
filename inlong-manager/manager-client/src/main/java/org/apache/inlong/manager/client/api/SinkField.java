@@ -37,8 +37,9 @@ public class SinkField extends StreamField {
     private String sourceFieldType;
 
     public SinkField(int index, FieldType fieldType, String fieldName, String fieldComment,
-            String fieldValue, String sourceFieldName, String sourceFieldType, Integer isMetaField) {
-        super(index, fieldType, fieldName, fieldComment, fieldValue, isMetaField);
+            String fieldValue, String sourceFieldName, String sourceFieldType,
+            Integer isMetaField, String fieldFormat) {
+        super(index, fieldType, fieldName, fieldComment, fieldValue, isMetaField, fieldFormat);
         this.sourceFieldName = sourceFieldName;
         this.sourceFieldType = sourceFieldType;
     }

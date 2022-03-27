@@ -67,6 +67,7 @@ public class InlongStreamTransfer {
             fieldInfo.setFieldComment(field.getFieldComment());
             fieldInfo.setFieldValue(field.getFieldValue());
             fieldInfo.setIsMetaField(field.getIsMetaField());
+            fieldInfo.setFieldFormat(field.getFieldFormat());
             return fieldInfo;
         }).collect(Collectors.toList());
     }
