@@ -18,8 +18,6 @@
 
 package org.apache.inlong.sdk.dataproxy.example;
 
-import java.io.UnsupportedEncodingException;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
@@ -27,13 +25,16 @@ import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.util.concurrent.TimeUnit;
+
 public class TcpClientExample {
 
     private static final Logger logger = LoggerFactory.getLogger(TcpClientExample.class);
 
     public static String localIP = "127.0.0.1";
 
-    public static void main() {
+    public static void main(String[] args) throws InterruptedException {
 
         String dataProxyGroup = "test_test";
         String inlongGroupId = "test_test";
