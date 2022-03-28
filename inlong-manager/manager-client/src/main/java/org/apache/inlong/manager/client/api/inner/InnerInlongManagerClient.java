@@ -33,7 +33,6 @@ import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupState;
 import org.apache.inlong.manager.client.api.auth.Authentication;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
-import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.client.api.util.InlongParser;
@@ -50,8 +49,8 @@ import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -72,8 +71,7 @@ public class InnerInlongManagerClient {
     private final String uname;
     private final String passwd;
 
-    public InnerInlongManagerClient(InlongClientImpl inlongClient) {
-        ClientConfiguration configuration = inlongClient.getConfiguration();
+    public InnerInlongManagerClient(ClientConfiguration configuration) {
         this.host = configuration.getBindHost();
         this.port = configuration.getBindPort();
         Authentication authentication = configuration.getAuthentication();
