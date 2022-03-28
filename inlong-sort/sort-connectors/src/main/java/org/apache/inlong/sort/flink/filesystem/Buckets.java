@@ -45,6 +45,7 @@ public class Buckets<IN, BucketID> {
             Buckets.class);
 
     // ------------------------ configuration fields --------------------------
+    private final long dataFlowId;
 
     private final Path basePath;
 
@@ -82,6 +83,7 @@ public class Buckets<IN, BucketID> {
      * @param rollingPolicy The {@link RollingPolicy} as specified by the user.
      */
     Buckets(
+            final long dataFlowId,
             final Path basePath,
             final BucketAssigner<IN, BucketID> bucketAssigner,
             final BucketFactory<IN, BucketID> bucketFactory,
@@ -89,6 +91,7 @@ public class Buckets<IN, BucketID> {
             final RollingPolicy<IN, BucketID> rollingPolicy,
             final int subtaskIndex) throws IOException {
 
+        this.dataFlowId = dataFlowId;
         this.basePath = Preconditions.checkNotNull(basePath);
         this.bucketAssigner = Preconditions.checkNotNull(bucketAssigner);
         this.bucketFactory = Preconditions.checkNotNull(bucketFactory);
@@ -169,6 +172,7 @@ public class Buckets<IN, BucketID> {
 
         final Bucket<IN, BucketID> restoredBucket = bucketFactory
                 .restoreBucket(
+                        dataFlowId,
                         fsWriter,
                         subtaskIndex,
                         maxPartCounter,
@@ -275,6 +279,7 @@ public class Buckets<IN, BucketID> {
         if (bucket == null) {
             final Path bucketPath = assembleBucketPath(bucketId);
             bucket = bucketFactory.getNewBucket(
+                    dataFlowId,
                     fsWriter,
                     subtaskIndex,
                     bucketId,

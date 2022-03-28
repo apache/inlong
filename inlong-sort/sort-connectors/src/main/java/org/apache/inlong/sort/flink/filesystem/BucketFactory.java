@@ -29,6 +29,7 @@ import java.io.Serializable;
 public interface BucketFactory<IN, BucketID> extends Serializable {
 
     Bucket<IN, BucketID> getNewBucket(
+            final long dataFlowId,
             final RecoverableWriter fsWriter,
             final int subtaskIndex,
             final BucketID bucketId,
@@ -38,6 +39,7 @@ public interface BucketFactory<IN, BucketID> extends Serializable {
             final RollingPolicy<IN, BucketID> rollingPolicy) throws IOException;
 
     Bucket<IN, BucketID> restoreBucket(
+            final long dataFlowId,
             final RecoverableWriter fsWriter,
             final int subtaskIndex,
             final long initialPartCounter,

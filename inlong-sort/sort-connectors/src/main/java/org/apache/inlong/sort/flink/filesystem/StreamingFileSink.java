@@ -109,6 +109,8 @@ public class StreamingFileSink<IN>
 
         private long bucketCheckInterval = 60L * 1000L;
 
+        private final long dataFlowId;
+
         private final Path basePath;
 
         private final BulkWriter.Factory<IN> writerFactory;
@@ -120,10 +122,12 @@ public class StreamingFileSink<IN>
         private final RollingPolicy<IN, BucketID> rollingPolicy;
 
         public BulkFormatBuilder(
+                long dataFlowId,
                 Path basePath,
                 BulkWriter.Factory<IN> writerFactory,
                 BucketAssigner<IN, BucketID> assigner,
                 RollingPolicy<IN, BucketID> rollingPolicy) {
+            this.dataFlowId = dataFlowId;
             this.basePath = Preconditions.checkNotNull(basePath);
             this.writerFactory = writerFactory;
             this.bucketAssigner = Preconditions.checkNotNull(assigner);
@@ -151,6 +155,7 @@ public class StreamingFileSink<IN>
         @Override
         Buckets<IN, BucketID> createBuckets(int subtaskIndex) throws IOException {
             return new Buckets<>(
+                    dataFlowId,
                     basePath,
                     bucketAssigner,
                     bucketFactory,
