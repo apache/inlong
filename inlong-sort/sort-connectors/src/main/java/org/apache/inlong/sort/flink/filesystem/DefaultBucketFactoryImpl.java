@@ -32,6 +32,7 @@ public class DefaultBucketFactoryImpl<IN, BucketID> implements
 
     @Override
     public Bucket<IN, BucketID> getNewBucket(
+            final long dataFlowId,
             final RecoverableWriter fsWriter,
             final int subtaskIndex,
             final BucketID bucketId,
@@ -41,6 +42,7 @@ public class DefaultBucketFactoryImpl<IN, BucketID> implements
             final RollingPolicy<IN, BucketID> rollingPolicy) {
 
         return Bucket.getNew(
+                dataFlowId,
                 fsWriter,
                 subtaskIndex,
                 bucketId,
@@ -52,6 +54,7 @@ public class DefaultBucketFactoryImpl<IN, BucketID> implements
 
     @Override
     public Bucket<IN, BucketID> restoreBucket(
+            final long dataFlowId,
             final RecoverableWriter fsWriter,
             final int subtaskIndex,
             final long initialPartCounter,
@@ -60,6 +63,7 @@ public class DefaultBucketFactoryImpl<IN, BucketID> implements
             final BucketState<BucketID> bucketState) throws IOException {
 
         return Bucket.restore(
+                dataFlowId,
                 fsWriter,
                 subtaskIndex,
                 initialPartCounter,
