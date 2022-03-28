@@ -20,7 +20,6 @@
 import React from 'react';
 import { FormItemProps } from '@/components/FormGenerator';
 import { pickObjectArray } from '@/utils';
-import StaffSelect from '@/components/StaffSelect';
 import DataSourcesEditor from '../DataSourcesEditor';
 import DataStorageEditor from '../DataStorageEditor/Editor';
 import EditableTable from '@/components/EditableTable';
@@ -78,18 +77,6 @@ export default (
       name: 'name',
       initialValue: currentValues.name,
       rules: [{ required: false }],
-    },
-    {
-      type: <StaffSelect mode="multiple" currentUserClosable={false} />,
-      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamOwners'),
-      name: 'inCharges',
-      initialValue: currentValues.inCharges,
-      extra: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamOwnerHelp'),
-      rules: [
-        {
-          required: true,
-        },
-      ],
     },
     {
       type: 'textarea',

@@ -21,9 +21,8 @@ import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'rea
 import { Form, Collapse, Button, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { FormItemContent } from '@/components/FormGenerator';
-import { useRequest, useSelector } from '@/hooks';
+import { useRequest } from '@/hooks';
 import request from '@/utils/request';
-import { State } from '@/models';
 import { genFormContent } from './config';
 import { valuesToData, dataToValues } from './helper';
 
@@ -36,8 +35,6 @@ const Comp = ({ inlongGroupId, middlewareType }: Props, ref) => {
   const [form] = Form.useForm();
 
   const { t } = useTranslation();
-
-  const userName = useSelector<State, State['userName']>(state => state.userName);
 
   const [activeKey, setActiveKey] = useState('0');
 
@@ -104,77 +101,74 @@ const Comp = ({ inlongGroupId, middlewareType }: Props, ref) => {
     );
 
   return (
-    userName && (
-      <Form
-        form={form}
-        name="dataSourcesForm"
-        labelAlign="left"
-        labelCol={{ xs: 6, sm: 4 }}
-        wrapperCol={{ xs: 18, sm: 20 }}
-        onValuesChange={(c, v) => setRealTimeValues(v)}
-      >
-        <Form.List name="list" initialValue={[{}]}>
-          {(fields, { add, remove }) => (
-            <>
-              <Space style={{ marginBottom: 20 }}>
-                <Button
-                  type="primary"
-                  onClick={async () => {
-                    await add();
-                    setActiveKey(fields.length.toString());
+    <Form
+      form={form}
+      name="dataSourcesForm"
+      labelAlign="left"
+      labelCol={{ xs: 6, sm: 4 }}
+      wrapperCol={{ xs: 18, sm: 20 }}
+      onValuesChange={(c, v) => setRealTimeValues(v)}
+    >
+      <Form.List name="list" initialValue={[{}]}>
+        {(fields, { add, remove }) => (
+          <>
+            <Space style={{ marginBottom: 20 }}>
+              <Button
+                type="primary"
+                onClick={async () => {
+                  await add();
+                  setActiveKey(fields.length.toString());
+                }}
+              >
+                {t('basic.Create')}
+              </Button>
+            </Space>
+
+            <Collapse
+              accordion
+              activeKey={activeKey}
+              onChange={key => setActiveKey(key as any)}
+              style={{ backgroundColor: 'transparent', border: 'none' }}
+            >
+              {fields.map((field, index, arr) => (
+                <Collapse.Panel
+                  header={`#${index + 1}`}
+                  key={index.toString()}
+                  extra={genExtra(field, remove, index, arr.length)}
+                  style={{
+                    marginBottom: 10,
+                    border: '1px solid #e5e5e5',
+                    backgroundColor: '#f6f7fb',
                   }}
                 >
-                  {t('basic.Create')}
-                </Button>
-              </Space>
-
-              <Collapse
-                accordion
-                activeKey={activeKey}
-                onChange={key => setActiveKey(key as any)}
-                style={{ backgroundColor: 'transparent', border: 'none' }}
-              >
-                {fields.map((field, index, arr) => (
-                  <Collapse.Panel
-                    header={`#${index + 1}`}
-                    key={index.toString()}
-                    extra={genExtra(field, remove, index, arr.length)}
-                    style={{
-                      marginBottom: 10,
-                      border: '1px solid #e5e5e5',
-                      backgroundColor: '#f6f7fb',
-                    }}
-                  >
-                    <FormItemContent
-                      values={realTimeValues.list?.[index]}
-                      content={genFormContent(
-                        {
-                          ...realTimeValues.list?.[index],
-                          inCharges: [userName],
-                        },
-                        inlongGroupId,
-                        middlewareType,
-                      ).map(item => {
-                        const obj = { ...item } as any;
-                        if (obj.name) {
-                          obj.name = [field.name, obj.name];
-                          obj.fieldKey = [field.fieldKey, obj.name];
-                        }
-                        if (obj.suffix && obj.suffix.name) {
-                          obj.suffix.name = [field.name, obj.suffix.name];
-                          obj.suffix.fieldKey = [field.fieldKey, obj.suffix.name];
-                        }
-                        return obj;
-                      })}
-                    />
-                  </Collapse.Panel>
-                ))}
-              </Collapse>
-            </>
-          )}
-        </Form.List>
-      </Form>
-    )
+                  <FormItemContent
+                    values={realTimeValues.list?.[index]}
+                    content={genFormContent(
+                      {
+                        ...realTimeValues.list?.[index],
+                      },
+                      inlongGroupId,
+                      middlewareType,
+                    ).map(item => {
+                      const obj = { ...item } as any;
+                      if (obj.name) {
+                        obj.name = [field.name, obj.name];
+                        obj.fieldKey = [field.fieldKey, obj.name];
+                      }
+                      if (obj.suffix && obj.suffix.name) {
+                        obj.suffix.name = [field.name, obj.suffix.name];
+                        obj.suffix.fieldKey = [field.fieldKey, obj.suffix.name];
+                      }
+                      return obj;
+                    })}
+                  />
+                </Collapse.Panel>
+              ))}
+            </Collapse>
+          </>
+        )}
+      </Form.List>
+    </Form>
   );
 };
 

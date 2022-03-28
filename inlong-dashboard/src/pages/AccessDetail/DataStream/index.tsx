@@ -22,8 +22,7 @@ import ReactDom from 'react-dom';
 import { Form, Collapse, Button, Empty, Modal, Space, message } from 'antd';
 import FormGenerator, { FormItemContent } from '@/components/FormGenerator';
 import { defaultSize } from '@/configs/pagination';
-import { useRequest, useSelector } from '@/hooks';
-import { State } from '@/models';
+import { useRequest } from '@/hooks';
 import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
 import { dataToValues, valuesToData } from '@/pages/AccessCreate/DataStream/helper';
@@ -40,8 +39,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
   const { t } = useTranslation();
 
   const [form] = Form.useForm();
-
-  const userName = useSelector<State, State['userName']>(state => state.userName);
 
   const [activeKey, setActiveKey] = useState('0');
 
@@ -229,91 +226,89 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
         <div ref={topRightRef}></div>
       </div>
 
-      {userName && (
-        <Form
-          form={form}
-          labelAlign="left"
-          labelCol={{ xs: 6, sm: 4 }}
-          wrapperCol={{ xs: 18, sm: 20 }}
-          onValuesChange={(c, v) => setRealTimeValues(v)}
-        >
-          <Form.List name="list" initialValue={data.list}>
-            {(fields, { add }) => (
-              <>
-                {topRightRef.current &&
-                  !readonly &&
-                  ReactDom.createPortal(
-                    <Space>
-                      <Button
-                        type="primary"
-                        disabled={!!editingId}
-                        onClick={async () => {
-                          setEditingId(true);
-                          await add({}, 0);
-                          setTimeout(() => {
-                            setRealTimeValues(form.getFieldsValue());
-                            const newActiveKey = Math.max(...fields.map(item => item.key)) + 1 + '';
-                            setActiveKey(newActiveKey);
-                          }, 0);
-                          mutate({ list: [{}].concat(data.list), total: data.list.length + 1 });
-                        }}
-                      >
-                        {t('pages.AccessDetail.DataStream.CreateDataStream')}
-                      </Button>
-                    </Space>,
-                    topRightRef.current,
-                  )}
-
-                {fields.length ? (
-                  <Collapse
-                    accordion
-                    activeKey={activeKey}
-                    onChange={key => setActiveKey(key as any)}
-                    style={{ backgroundColor: 'transparent', border: 'none' }}
-                  >
-                    {fields.map((field, index) => (
-                      <Collapse.Panel
-                        header={genHeader(data?.list?.[index], index)}
-                        key={field.key.toString()}
-                        style={{
-                          marginBottom: 10,
-                          border: '1px solid #e5e5e5',
-                          backgroundColor: '#f6f7fb',
-                        }}
-                      >
-                        <FormItemContent
-                          values={realTimeValues.list?.[index]}
-                          content={genFormContent(
-                            editingId,
-                            { ...realTimeValues.list?.[index], inCharges: [userName] },
-                            inlongGroupId,
-                            readonly,
-                            middlewareType,
-                          ).map(item => {
-                            const obj = { ...item } as any;
-                            if (obj.name) {
-                              obj.name = [field.name, obj.name];
-                              obj.fieldKey = [field.fieldKey, obj.name];
-                            }
-                            if (obj.suffix && obj.suffix.name) {
-                              obj.suffix.name = [field.name, obj.suffix.name];
-                              obj.suffix.fieldKey = [field.fieldKey, obj.suffix.name];
-                            }
-
-                            return obj;
-                          })}
-                        />
-                      </Collapse.Panel>
-                    ))}
-                  </Collapse>
-                ) : (
-                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+      <Form
+        form={form}
+        labelAlign="left"
+        labelCol={{ xs: 6, sm: 4 }}
+        wrapperCol={{ xs: 18, sm: 20 }}
+        onValuesChange={(c, v) => setRealTimeValues(v)}
+      >
+        <Form.List name="list" initialValue={data.list}>
+          {(fields, { add }) => (
+            <>
+              {topRightRef.current &&
+                !readonly &&
+                ReactDom.createPortal(
+                  <Space>
+                    <Button
+                      type="primary"
+                      disabled={!!editingId}
+                      onClick={async () => {
+                        setEditingId(true);
+                        await add({}, 0);
+                        setTimeout(() => {
+                          setRealTimeValues(form.getFieldsValue());
+                          const newActiveKey = Math.max(...fields.map(item => item.key)) + 1 + '';
+                          setActiveKey(newActiveKey);
+                        }, 0);
+                        mutate({ list: [{}].concat(data.list), total: data.list.length + 1 });
+                      }}
+                    >
+                      {t('pages.AccessDetail.DataStream.CreateDataStream')}
+                    </Button>
+                  </Space>,
+                  topRightRef.current,
                 )}
-              </>
-            )}
-          </Form.List>
-        </Form>
-      )}
+
+              {fields.length ? (
+                <Collapse
+                  accordion
+                  activeKey={activeKey}
+                  onChange={key => setActiveKey(key as any)}
+                  style={{ backgroundColor: 'transparent', border: 'none' }}
+                >
+                  {fields.map((field, index) => (
+                    <Collapse.Panel
+                      header={genHeader(data?.list?.[index], index)}
+                      key={field.key.toString()}
+                      style={{
+                        marginBottom: 10,
+                        border: '1px solid #e5e5e5',
+                        backgroundColor: '#f6f7fb',
+                      }}
+                    >
+                      <FormItemContent
+                        values={realTimeValues.list?.[index]}
+                        content={genFormContent(
+                          editingId,
+                          { ...realTimeValues.list?.[index] },
+                          inlongGroupId,
+                          readonly,
+                          middlewareType,
+                        ).map(item => {
+                          const obj = { ...item } as any;
+                          if (obj.name) {
+                            obj.name = [field.name, obj.name];
+                            obj.fieldKey = [field.fieldKey, obj.name];
+                          }
+                          if (obj.suffix && obj.suffix.name) {
+                            obj.suffix.name = [field.name, obj.suffix.name];
+                            obj.suffix.fieldKey = [field.fieldKey, obj.suffix.name];
+                          }
+
+                          return obj;
+                        })}
+                      />
+                    </Collapse.Panel>
+                  ))}
+                </Collapse>
+              ) : (
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              )}
+            </>
+          )}
+        </Form.List>
+      </Form>
 
       <StreamItemModal
         {...streamItemModal}

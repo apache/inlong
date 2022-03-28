@@ -51,7 +51,6 @@ export const genFormContent = (currentValues, inlongGroupId, middlewareType) => 
         },
         'inlongStreamId',
         'name',
-        'inCharges',
         'description',
         {
           type: (
