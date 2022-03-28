@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.thirdparty.mq;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.MqType;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
@@ -36,7 +36,7 @@ public class TubeEventSelector implements EventSelector {
         }
         GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
         InlongGroupInfo groupInfo = form.getGroupInfo();
-        if (MqType.forType(groupInfo.getMiddlewareType()) == MqType.TUBE) {
+        if (MQType.forType(groupInfo.getMiddlewareType()) == MQType.TUBE) {
             return true;
         }
         log.warn("not need to create tube resource for groupId={}, as the middleware type is {}",

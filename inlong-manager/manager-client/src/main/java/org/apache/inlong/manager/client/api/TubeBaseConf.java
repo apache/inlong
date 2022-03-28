@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.MqType;
+import org.apache.inlong.manager.common.enums.MQType;
 
 @Data
 @AllArgsConstructor
@@ -31,7 +31,7 @@ import org.apache.inlong.manager.common.enums.MqType;
 public class TubeBaseConf extends MqBaseConf {
 
     @ApiModelProperty("Message queue type")
-    private MqType type = MqType.TUBE;
+    private MQType type = MQType.TUBE;
 
     @ApiModelProperty("Tube manager URL")
     private String tubeManagerUrl;

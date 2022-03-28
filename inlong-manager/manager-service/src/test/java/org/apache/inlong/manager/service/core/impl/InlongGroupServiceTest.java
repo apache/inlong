@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.manager.common.enums.EntityStatus;
-import org.apache.inlong.manager.common.enums.MqType;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
@@ -64,13 +64,13 @@ public class InlongGroupServiceTest {
 
         groupInfo = new InlongGroupInfo();
         groupInfo.setName(groupName);
-        groupInfo.setMiddlewareType(MqType.PULSAR.getType());
+        groupInfo.setMiddlewareType(MQType.PULSAR.getType());
         groupInfo.setCreator(operator);
         groupInfo.setInCharges(operator);
         groupInfo.setStatus(EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode());
 
         InlongGroupPulsarInfo pulsarInfo = new InlongGroupPulsarInfo();
-        pulsarInfo.setMiddlewareType(MqType.PULSAR.getType());
+        pulsarInfo.setMiddlewareType(MQType.PULSAR.getType());
         pulsarInfo.setEnsemble(3);
         pulsarInfo.setWriteQuorum(3);
         pulsarInfo.setAckQuorum(2);

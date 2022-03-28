@@ -29,7 +29,7 @@ import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;
-import org.apache.inlong.manager.common.enums.MqType;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
@@ -132,8 +132,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         groupMapper.insertSelective(entity);
         this.saveOrUpdateExt(groupId, groupInfo.getExtList());
 
-        MqType mqType = MqType.forType(groupInfo.getMiddlewareType());
-        if (mqType == MqType.PULSAR || mqType == MqType.TDMQ_PULSAR) {
+        MQType mqType = MQType.forType(groupInfo.getMiddlewareType());
+        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) groupInfo.getMqExtInfo();
             Preconditions.checkNotNull(pulsarInfo, "Pulsar info cannot be empty, as the middleware is Pulsar");
 
@@ -188,8 +188,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         groupInfo.setExtList(extInfoList);
 
         // If the middleware is Pulsar, we need to encapsulate Pulsar related data
-        MqType mqType = MqType.forType(entity.getMiddlewareType());
-        if (MqType.PULSAR == mqType || MqType.TDMQ_PULSAR == mqType) {
+        MQType mqType = MQType.forType(entity.getMiddlewareType());
+        if (MQType.PULSAR == mqType || MQType.TDMQ_PULSAR == mqType) {
             InlongGroupPulsarEntity pulsarEntity = groupPulsarMapper.selectByGroupId(groupId);
             Preconditions.checkNotNull(pulsarEntity, "Pulsar info not found by the groupId=" + groupId);
             InlongGroupPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(pulsarEntity, InlongGroupPulsarInfo::new);
@@ -199,9 +199,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // For approved inlong group, encapsulate the cluster address of the middleware
         if (GroupState.CONFIG_SUCCESSFUL == GroupState.forCode(groupInfo.getStatus())) {
-            if (mqType == MqType.TUBE) {
+            if (mqType == MQType.TUBE) {
                 groupInfo.setTubeMaster(commonOperateService.getSpecifiedParam(Constant.TUBE_MASTER_URL));
-            } else if (mqType == MqType.PULSAR || mqType == MqType.TDMQ_PULSAR) {
+            } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo(mqType.name());
                 groupInfo.setPulsarAdminUrl(pulsarCluster.getAdminUrl());
                 groupInfo.setPulsarServiceUrl(pulsarCluster.getBrokerServiceUrl());
@@ -271,8 +271,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         this.saveOrUpdateExt(groupId, groupRequest.getExtList());
 
         // Update the Pulsar info
-        MqType mqType = MqType.forType(groupRequest.getMiddlewareType());
-        if (mqType == MqType.PULSAR || mqType == MqType.TDMQ_PULSAR) {
+        MQType mqType = MQType.forType(groupRequest.getMiddlewareType());
+        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) groupRequest.getMqExtInfo();
             Preconditions.checkNotNull(pulsarInfo, "Pulsar info cannot be empty, as the middleware is Pulsar");
             Integer writeQuorum = pulsarInfo.getWriteQuorum();
@@ -434,14 +434,14 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         LOGGER.debug("begin to get topic by groupId={}", groupId);
         InlongGroupInfo groupInfo = this.get(groupId);
 
-        MqType mqType = MqType.forType(groupInfo.getMiddlewareType());
+        MQType mqType = MQType.forType(groupInfo.getMiddlewareType());
         InlongGroupTopicResponse topicVO = new InlongGroupTopicResponse();
 
-        if (mqType == MqType.TUBE) {
+        if (mqType == MQType.TUBE) {
             // Tube Topic corresponds to inlong group one-to-one
             topicVO.setMqResourceObj(groupInfo.getMqResourceObj());
             topicVO.setTubeMasterUrl(commonOperateService.getSpecifiedParam(Constant.TUBE_MASTER_URL));
-        } else if (mqType == MqType.PULSAR || mqType == MqType.TDMQ_PULSAR) {
+        } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             // Pulsar's topic corresponds to the inlong stream one-to-one
             topicVO.setDsTopicList(streamService.getTopicList(groupId));
             topicVO.setPulsarAdminUrl(commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL));

@@ -24,7 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.auth.Authentication;
-import org.apache.inlong.manager.common.enums.MqType;
+import org.apache.inlong.manager.common.enums.MQType;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -34,7 +34,7 @@ import org.apache.inlong.manager.common.enums.MqType;
 public class PulsarBaseConf extends MqBaseConf {
 
     @ApiModelProperty("Message queue type")
-    private MqType type = MqType.PULSAR;
+    private MQType type = MQType.PULSAR;
 
     @ApiModelProperty("Pulsar admin URL")
     private String pulsarAdminUrl;

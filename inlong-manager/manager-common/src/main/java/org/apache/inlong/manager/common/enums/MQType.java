@@ -19,7 +19,7 @@ package org.apache.inlong.manager.common.enums;
 
 import lombok.Getter;
 
-public enum MqType {
+public enum MQType {
 
     PULSAR("PULSAR"),
     TUBE("TUBE"),
@@ -29,12 +29,12 @@ public enum MqType {
     @Getter
     private String type;
 
-    MqType(String type) {
+    MQType(String type) {
         this.type = type;
     }
 
-    public static MqType forType(String type) {
-        for (MqType mqType : values()) {
+    public static MQType forType(String type) {
+        for (MQType mqType : values()) {
             if (mqType.getType().equals(type)) {
                 return mqType;
             }

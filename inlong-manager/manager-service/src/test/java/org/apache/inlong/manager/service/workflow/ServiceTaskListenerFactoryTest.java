@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.workflow;
 
-import org.apache.inlong.manager.common.enums.MqType;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.ServiceBaseTest;
@@ -44,7 +44,7 @@ public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
         InlongGroupInfo groupInfo = new InlongGroupInfo();
         //check pulsar listener
-        groupInfo.setMiddlewareType(MqType.PULSAR.getType());
+        groupInfo.setMiddlewareType(MQType.PULSAR.getType());
         processForm.setGroupInfo(groupInfo);
         context.setProcessForm(processForm);
         List<QueueOperateListener> queueOperateListeners = serviceTaskListenerFactory.getQueueOperateListener(context);
@@ -53,7 +53,7 @@ public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
         Assert.assertTrue(queueOperateListeners.get(1) instanceof CreatePulsarGroupTaskListener);
 
         // check tube listener
-        groupInfo.setMiddlewareType(MqType.TUBE.getType());
+        groupInfo.setMiddlewareType(MQType.TUBE.getType());
         queueOperateListeners = serviceTaskListenerFactory.getQueueOperateListener(context);
         Assert.assertEquals(2, queueOperateListeners.size());
         Assert.assertTrue(queueOperateListeners.get(0) instanceof CreateTubeTopicTaskListener);

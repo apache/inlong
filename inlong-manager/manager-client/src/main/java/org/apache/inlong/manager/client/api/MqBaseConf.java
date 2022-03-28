@@ -20,7 +20,7 @@ package org.apache.inlong.manager.client.api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.enums.MqType;
+import org.apache.inlong.manager.common.enums.MQType;
 
 import java.io.Serializable;
 
@@ -30,8 +30,8 @@ public abstract class MqBaseConf implements Serializable {
 
     public static final MqBaseConf BLANK_MQ_CONF = new MqBaseConf() {
         @Override
-        public MqType getType() {
-            return MqType.NONE;
+        public MQType getType() {
+            return MQType.NONE;
         }
     };
 
@@ -41,5 +41,5 @@ public abstract class MqBaseConf implements Serializable {
     @ApiModelProperty("Is need create for mq resources")
     private boolean enableCreateResource = true;
 
-    public abstract MqType getType();
+    public abstract MQType getType();
 }

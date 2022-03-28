@@ -34,7 +34,7 @@ import org.apache.inlong.manager.client.api.auth.Authentication;
 import org.apache.inlong.manager.client.api.auth.Authentication.AuthType;
 import org.apache.inlong.manager.client.api.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.client.api.auth.TokenAuthentication;
-import org.apache.inlong.manager.common.enums.MqType;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupMqExtBase;
@@ -69,7 +69,7 @@ public class InlongGroupTransfer {
             return null;
         }
         String middleWare = mqExtBase.getMiddlewareType();
-        MqType mqType = MqType.forType(middleWare);
+        MQType mqType = MQType.forType(middleWare);
         switch (mqType) {
             case NONE:
                 return MqBaseConf.BLANK_MQ_CONF;
@@ -198,7 +198,7 @@ public class InlongGroupTransfer {
         groupInfo.setMaxLength(groupConf.getMaxLength());
         groupInfo.setProxyClusterId(groupConf.getProxyClusterId());
         MqBaseConf mqConf = groupConf.getMqBaseConf();
-        MqType mqType = MqType.NONE;
+        MQType mqType = MQType.NONE;
         if (null != mqConf) {
             mqType = mqConf.getType();
             groupInfo.setMiddlewareType(mqType.name());
@@ -206,7 +206,7 @@ public class InlongGroupTransfer {
         groupInfo.setInCharges(groupConf.getOperator());
         groupInfo.setExtList(Lists.newArrayList());
         groupInfo.setCreator(groupConf.getOperator());
-        if (mqType == MqType.PULSAR || mqType == MqType.TDMQ_PULSAR) {
+        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             PulsarBaseConf pulsarBaseConf = (PulsarBaseConf) mqConf;
             groupInfo.setMqResourceObj(pulsarBaseConf.getNamespace());
             InlongGroupPulsarInfo pulsarInfo = createPulsarInfo(pulsarBaseConf);
@@ -214,7 +214,7 @@ public class InlongGroupTransfer {
             List<InlongGroupExtInfo> extInfos = createPulsarExtInfo(pulsarBaseConf);
             groupInfo.getExtList().addAll(extInfos);
             groupInfo.setTopicPartitionNum(pulsarBaseConf.getTopicPartitionNum());
-        } else if (mqType == MqType.TUBE) {
+        } else if (mqType == MQType.TUBE) {
             TubeBaseConf tubeBaseConf = (TubeBaseConf) mqConf;
             List<InlongGroupExtInfo> extInfos = createTubeExtInfo(tubeBaseConf);
             groupInfo.setMqResourceObj(tubeBaseConf.getGroupName());

@@ -24,7 +24,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.enums.MqType;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
@@ -85,8 +85,8 @@ public class InlongParser {
         InlongGroupResponse inlongGroupResponse = GsonUtil.fromJson(GsonUtil.toJson(data), InlongGroupResponse.class);
         JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
         if (mqExtInfo != null && mqExtInfo.get(MIDDLEWARE_TYPE) != null) {
-            MqType mqType = MqType.forType(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString());
-            if (mqType == MqType.PULSAR || mqType == MqType.TDMQ_PULSAR) {
+            MQType mqType = MQType.forType(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString());
+            if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
                 inlongGroupResponse.setMqExtInfo(pulsarInfo);
             }
@@ -219,8 +219,8 @@ public class InlongParser {
                 InlongGroupApproveRequest.class);
         JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
         if (mqExtInfo != null && mqExtInfo.get(MIDDLEWARE_TYPE) != null) {
-            MqType mqType = MqType.forType(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString());
-            if (mqType == MqType.PULSAR || mqType == MqType.TDMQ_PULSAR) {
+            MQType mqType = MQType.forType(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString());
+            if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
                 groupApproveInfo.setAckQuorum(pulsarInfo.getAckQuorum());
                 groupApproveInfo.setEnsemble(pulsarInfo.getEnsemble());
