@@ -241,6 +241,14 @@ public class BinlogReader implements Reader {
         props.setProperty("include.schema.changes", includeSchemaChanges);
         props.setProperty("snapshot.mode", snapshotMode);
         props.setProperty("tombstones.on.delete", "false");
+        props.setProperty("converters", "datetime");
+        props.setProperty("datetime.type", "org.apache.inlong.agent.plugin.utils.BinlogTimeConverter");
+        props.setProperty("datetime.format.date", "yyyy-MM-dd");
+        props.setProperty("datetime.format.time", "HH:mm:ss");
+        props.setProperty("datetime.format.datetime", "yyyy-MM-dd HH:mm:ss");
+        props.setProperty("datetime.format.timestamp", "yyyy-MM-dd HH:mm:ss");
+        props.setProperty("datetime.format.timestamp.zone", serverTimeZone);
+
         LOGGER.info("binlog job {} start with props {}", jobProfile.getInstanceId(), props);
         return props;
     }
