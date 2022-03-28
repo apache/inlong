@@ -31,7 +31,7 @@ import org.apache.inlong.manager.common.enums.MQType;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel("Base configuration for Pulsar")
-public class PulsarBaseConf extends MqBaseConf {
+public class PulsarBaseConf extends MQBaseConf {
 
     @ApiModelProperty("Message queue type")
     private MQType type = MQType.PULSAR;

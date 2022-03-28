@@ -24,7 +24,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.FlinkSortBaseConf;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
-import org.apache.inlong.manager.client.api.MqBaseConf;
+import org.apache.inlong.manager.client.api.MQBaseConf;
 import org.apache.inlong.manager.client.api.PulsarBaseConf;
 import org.apache.inlong.manager.client.api.SortBaseConf;
 import org.apache.inlong.manager.client.api.SortBaseConf.SortType;
@@ -63,7 +63,7 @@ public class InlongGroupTransfer {
         return inlongGroupConf;
     }
 
-    public static MqBaseConf parseMqBaseConf(InlongGroupResponse inlongGroupResponse) {
+    public static MQBaseConf parseMqBaseConf(InlongGroupResponse inlongGroupResponse) {
         InlongGroupMqExtBase mqExtBase = inlongGroupResponse.getMqExtInfo();
         if (null == mqExtBase || StringUtils.isBlank(mqExtBase.getMiddlewareType())) {
             return null;
@@ -72,7 +72,7 @@ public class InlongGroupTransfer {
         MQType mqType = MQType.forType(middleWare);
         switch (mqType) {
             case NONE:
-                return MqBaseConf.BLANK_MQ_CONF;
+                return MQBaseConf.BLANK_MQ_CONF;
             case PULSAR:
             case TDMQ_PULSAR:
                 return parsePulsarConf(inlongGroupResponse);
@@ -197,7 +197,7 @@ public class InlongGroupTransfer {
         groupInfo.setPeakRecords(groupConf.getPeakRecords().intValue());
         groupInfo.setMaxLength(groupConf.getMaxLength());
         groupInfo.setProxyClusterId(groupConf.getProxyClusterId());
-        MqBaseConf mqConf = groupConf.getMqBaseConf();
+        MQBaseConf mqConf = groupConf.getMqBaseConf();
         MQType mqType = MQType.NONE;
         if (null != mqConf) {
             mqType = mqConf.getType();

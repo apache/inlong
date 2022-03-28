@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.enums.MQType;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel("Base configuration for Tube")
-public class TubeBaseConf extends MqBaseConf {
+public class TubeBaseConf extends MQBaseConf {
 
     @ApiModelProperty("Message queue type")
     private MQType type = MQType.TUBE;

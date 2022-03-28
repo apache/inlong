@@ -26,9 +26,9 @@ import java.io.Serializable;
 
 @Data
 @ApiModel("Base configuration for message queue")
-public abstract class MqBaseConf implements Serializable {
+public abstract class MQBaseConf implements Serializable {
 
-    public static final MqBaseConf BLANK_MQ_CONF = new MqBaseConf() {
+    public static final MQBaseConf BLANK_MQ_CONF = new MQBaseConf() {
         @Override
         public MQType getType() {
             return MQType.NONE;
