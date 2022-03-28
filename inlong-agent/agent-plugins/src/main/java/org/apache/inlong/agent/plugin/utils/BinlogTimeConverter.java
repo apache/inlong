@@ -73,19 +73,19 @@ public class BinlogTimeConverter implements CustomConverter<SchemaBuilder, Relat
         SchemaBuilder schemaBuilder = null;
         Converter converter = null;
         if ("DATE".equals(sqlType)) {
-            schemaBuilder = SchemaBuilder.string().optional().name("com.darcytech.debezium.date.string");
+            schemaBuilder = SchemaBuilder.string().optional().name("org.apache.inlong.agent.date.string");
             converter = this::convertDate;
         }
         if ("TIME".equals(sqlType)) {
-            schemaBuilder = SchemaBuilder.string().optional().name("com.darcytech.debezium.time.string");
+            schemaBuilder = SchemaBuilder.string().optional().name("org.apache.inlong.agent.time.string");
             converter = this::convertTime;
         }
         if ("DATETIME".equals(sqlType)) {
-            schemaBuilder = SchemaBuilder.string().optional().name("com.darcytech.debezium.datetime.string");
+            schemaBuilder = SchemaBuilder.string().optional().name("org.apache.inlong.agent.datetime.string");
             converter = this::convertDateTime;
         }
         if ("TIMESTAMP".equals(sqlType)) {
-            schemaBuilder = SchemaBuilder.string().optional().name("com.darcytech.debezium.timestamp.string");
+            schemaBuilder = SchemaBuilder.string().optional().name("org.apache.inlong.agent.timestamp.string");
             converter = this::convertTimestamp;
         }
         if (schemaBuilder != null) {
