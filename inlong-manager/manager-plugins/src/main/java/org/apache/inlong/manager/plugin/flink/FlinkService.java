@@ -41,7 +41,7 @@ import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.messages.Acknowledge;
 import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.dto.JarRunRequestbody;
 import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequestBody;
@@ -436,11 +436,11 @@ public class FlinkService {
         list.add("-sink.type");
         list.add(flinkInfo.getSinkType());
         // one group one stream now
-        if (flinkInfo.getInlongStreamResponseList() != null
-                && !flinkInfo.getInlongStreamResponseList().isEmpty()) {
-            InlongStreamResponse inlongStreamResponse = flinkInfo.getInlongStreamResponseList().get(0);
+        if (flinkInfo.getInlongStreamInfoList() != null
+                && !flinkInfo.getInlongStreamInfoList().isEmpty()) {
+            InlongStreamInfo inlongStreamInfo = flinkInfo.getInlongStreamInfoList().get(0);
             list.add("-job.orderly.output");
-            list.add(String.valueOf(inlongStreamResponse.getSyncSend()));
+            list.add(String.valueOf(inlongStreamInfo.getSyncSend()));
         }
         String[] data = list.toArray(new String[list.size()]);
         return data;

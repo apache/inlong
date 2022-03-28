@@ -99,7 +99,7 @@ public class StartupSortListener implements SortOperateListener {
         String jobName = Constants.INLONG + context.getProcessForm().getInlongGroupId();
         flinkInfo.setJobName(jobName);
 
-        flinkInfo.setInlongStreamResponseList(groupResourceProcessForm.getStreamList());
+        flinkInfo.setInlongStreamInfoList(groupResourceProcessForm.getInlongStreamInfoList());
 
         FlinkService flinkService = new FlinkService();
         ManagerFlinkTask managerFlinkTask = new ManagerFlinkTask(flinkService);

@@ -105,7 +105,7 @@ public class ManagerFlinkTask {
         if (path.contains("inlong-manager")) {
             path = path.substring(0, path.indexOf("inlong-manager"));
             String resource = "inlong-sort";
-            String jarPath = path + File.separator + resource + File.separator + Constants.SORT_JAR;
+            String jarPath = path  + resource + File.separator + Constants.SORT_JAR;
             File file = new File(jarPath);
             if (!file.exists()) {
                 log.warn("file path:[{}] not found sort jar", jarPath);

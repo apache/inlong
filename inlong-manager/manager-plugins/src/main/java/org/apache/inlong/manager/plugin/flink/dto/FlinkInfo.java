@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.plugin.flink.dto;
 
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class FlinkInfo {
 
     private String jobName;
 
-    private List<InlongStreamResponse> inlongStreamResponseList;
+    private List<InlongStreamInfo> inlongStreamInfoList;
 
     private String localJarPath;
 
