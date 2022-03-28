@@ -62,7 +62,7 @@ public class BinlogTimeConverter implements CustomConverter<SchemaBuilder, Relat
         try {
             callback.accept(settingValue.trim());
         } catch (IllegalArgumentException | DateTimeException e) {
-            LOGGER.error("The \"{}\" setting is illegal:{}", settingKey, settingValue);
+            LOGGER.error("The {} setting is illegal:{}", settingKey, settingValue);
             throw e;
         }
     }
