@@ -17,10 +17,8 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import java.util.Arrays;
-import java.util.List;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.MqType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
@@ -31,6 +29,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Inlong group service test
@@ -63,13 +64,13 @@ public class InlongGroupServiceTest {
 
         groupInfo = new InlongGroupInfo();
         groupInfo.setName(groupName);
-        groupInfo.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
+        groupInfo.setMiddlewareType(MqType.PULSAR.getType());
         groupInfo.setCreator(operator);
         groupInfo.setInCharges(operator);
         groupInfo.setStatus(EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode());
 
         InlongGroupPulsarInfo pulsarInfo = new InlongGroupPulsarInfo();
-        pulsarInfo.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
+        pulsarInfo.setMiddlewareType(MqType.PULSAR.getType());
         pulsarInfo.setEnsemble(3);
         pulsarInfo.setWriteQuorum(3);
         pulsarInfo.setAckQuorum(2);

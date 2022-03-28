@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.thirdparty.mq;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.MqType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
@@ -35,8 +35,8 @@ public class PulsarEventSelector implements EventSelector {
             return false;
         }
         GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
-        String mqType = form.getGroupInfo().getMiddlewareType();
-        if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
+        MqType mqType = MqType.forType(form.getGroupInfo().getMiddlewareType());
+        if (mqType == MqType.PULSAR || mqType == MqType.TDMQ_PULSAR) {
             InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) form.getGroupInfo().getMqExtInfo();
             return pulsarInfo.getEnableCreateResource() == 1;
         }

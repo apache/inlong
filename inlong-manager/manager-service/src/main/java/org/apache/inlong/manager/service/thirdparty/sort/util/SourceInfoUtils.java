@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.thirdparty.sort.util;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.MqType;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -64,13 +64,13 @@ public class SourceInfoUtils {
             ClusterBean clusterBean, InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             SourceResponse sourceResponse, List<FieldInfo> sourceFields) {
 
-        String mqType = groupInfo.getMiddlewareType();
+        MqType mqType = MqType.forType(groupInfo.getMiddlewareType());
         DeserializationInfo deserializationInfo = SerializationUtils.createDeserialInfo(sourceResponse, streamInfo);
         SourceInfo sourceInfo;
-        if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
+        if (mqType == MqType.PULSAR || mqType == MqType.TDMQ_PULSAR) {
             sourceInfo = createPulsarSourceInfo(pulsarCluster, clusterBean, groupInfo, streamInfo, deserializationInfo,
                     sourceFields);
-        } else if (Constant.MIDDLEWARE_TUBE.equals(mqType)) {
+        } else if (mqType == MqType.TUBE) {
             // InlongGroupInfo groupInfo, String masterAddress,
             sourceInfo = createTubeSourceInfo(groupInfo, masterAddress, clusterBean, deserializationInfo, sourceFields);
         } else {
@@ -100,7 +100,7 @@ public class SourceInfoUtils {
         FieldInfo[] fieldInfosArr = fieldInfos.toArray(new FieldInfo[0]);
 
         String type = pulsarCluster.getType();
-        if (StringUtils.isNotEmpty(type) && Constant.MIDDLEWARE_TDMQ_PULSAR.equals(type)) {
+        if (StringUtils.isNotEmpty(type) && MqType.forType(type) == MqType.TDMQ_PULSAR) {
             return new TDMQPulsarSourceInfo(pulsarCluster.getBrokerServiceUrl(),
                     fullTopicName, consumerGroup, pulsarCluster.getToken(), deserializationInfo, fieldInfosArr);
         } else {

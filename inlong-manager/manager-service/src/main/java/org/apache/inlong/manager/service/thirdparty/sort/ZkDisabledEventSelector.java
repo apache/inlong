@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.thirdparty.sort;
 
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.MqType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
@@ -39,12 +39,12 @@ public class ZkDisabledEventSelector implements EventSelector {
             GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
             InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
             return groupInfo.getZookeeperEnabled() == 0
-                    && !groupInfo.getMiddlewareType().equals(Constant.MIDDLEWARE_NONE);
+                    && MqType.forType(groupInfo.getMiddlewareType()) != MqType.NONE;
         } else if (processForm instanceof UpdateGroupProcessForm) {
             UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
             InlongGroupInfo groupInfo = updateGroupProcessForm.getGroupInfo();
             return groupInfo.getZookeeperEnabled() == 0
-                    && !groupInfo.getMiddlewareType().equals(Constant.MIDDLEWARE_NONE);
+                    && MqType.forType(groupInfo.getMiddlewareType()) != MqType.NONE;
         } else {
             return false;
         }

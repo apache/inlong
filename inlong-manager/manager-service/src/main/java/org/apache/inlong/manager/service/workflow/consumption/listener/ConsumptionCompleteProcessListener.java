@@ -20,8 +20,8 @@ package org.apache.inlong.manager.service.workflow.consumption.listener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
+import org.apache.inlong.manager.common.enums.MqType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
@@ -84,11 +84,11 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
             throw new WorkflowListenerException("consumption not exits for id=" + consumptionId);
         }
 
-        String mqType = entity.getMiddlewareType();
-        if (Constant.MIDDLEWARE_TUBE.equals(mqType)) {
+        MqType mqType = MqType.forType(entity.getMiddlewareType());
+        if (mqType == MqType.TUBE) {
             this.createTubeConsumerGroup(entity);
             return ListenerResult.success("Create Tube consumer group successful");
-        } else if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
+        } else if (mqType == MqType.PULSAR || mqType == MqType.TDMQ_PULSAR) {
             this.createPulsarTopicMessage(entity);
         } else {
             throw new WorkflowListenerException("middleware type [" + mqType + "] not supported");

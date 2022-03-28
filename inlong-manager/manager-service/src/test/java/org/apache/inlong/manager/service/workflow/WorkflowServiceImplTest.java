@@ -19,14 +19,14 @@ package org.apache.inlong.manager.service.workflow;
 
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.MqType;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskExecuteLogQuery;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
@@ -229,7 +229,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     @Test
     public void testStartCreatePulsarWorkflow() {
-        initGroupForm(Constant.MIDDLEWARE_PULSAR);
+        initGroupForm(MqType.PULSAR.getType());
         mockTaskListenerFactory();
         WorkflowContext context = workflowEngine.processService().start(processName.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
@@ -247,7 +247,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     @Test
     public void testStartCreateTubeWorkflow() {
-        initGroupForm(Constant.MIDDLEWARE_TUBE);
+        initGroupForm(MqType.TUBE.getType());
         mockTaskListenerFactory();
         WorkflowContext context = workflowEngine.processService().start(processName.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
@@ -266,7 +266,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     @Test
     public void testSuspendProcess() {
-        InlongGroupInfo groupInfo = initGroupForm(Constant.MIDDLEWARE_PULSAR);
+        InlongGroupInfo groupInfo = initGroupForm(MqType.PULSAR.getType());
         groupInfo.setStatus(GroupState.CONFIG_SUCCESSFUL.getCode());
         groupService.update(groupInfo.genRequest(), OPERATOR);
         UpdateGroupProcessForm form = new UpdateGroupProcessForm();
@@ -293,7 +293,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     @Test
     public void testRestartProcess() {
-        InlongGroupInfo groupInfo = initGroupForm(Constant.MIDDLEWARE_PULSAR);
+        InlongGroupInfo groupInfo = initGroupForm(MqType.PULSAR.getType());
         groupInfo.setStatus(GroupState.CONFIG_SUCCESSFUL.getCode());
         groupService.update(groupInfo.genRequest(), OPERATOR);
         groupInfo.setStatus(GroupState.SUSPENDED.getCode());
@@ -324,7 +324,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     @Test
     public void testStopProcess() {
-        InlongGroupInfo groupInfo = initGroupForm(Constant.MIDDLEWARE_PULSAR);
+        InlongGroupInfo groupInfo = initGroupForm(MqType.PULSAR.getType());
         groupInfo.setStatus(GroupState.CONFIG_SUCCESSFUL.getCode());
         groupService.update(groupInfo.genRequest(), OPERATOR);
         groupInfo.setStatus(GroupState.SUSPENDED.getCode());

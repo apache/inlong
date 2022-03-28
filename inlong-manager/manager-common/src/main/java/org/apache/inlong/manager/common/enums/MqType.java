@@ -17,15 +17,25 @@
 
 package org.apache.inlong.manager.common.enums;
 
+import lombok.Getter;
+
 public enum MqType {
-    PULSAR,
-    TUBE,
-    TDMQ_PULSAR,
-    NONE;
+
+    PULSAR("PULSAR"),
+    TUBE("TUBE"),
+    TDMQ_PULSAR("TDMQ_PULSAR"),
+    NONE("NONE");
+
+    @Getter
+    private String type;
+
+    MqType(String type) {
+        this.type = type;
+    }
 
     public static MqType forType(String type) {
         for (MqType mqType : values()) {
-            if (mqType.name().equals(type)) {
+            if (mqType.getType().equals(type)) {
                 return mqType;
             }
         }

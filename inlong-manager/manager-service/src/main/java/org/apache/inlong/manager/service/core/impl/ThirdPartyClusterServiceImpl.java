@@ -31,6 +31,7 @@ import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.MqType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
@@ -253,11 +254,11 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
 
             DataProxyConfig config = new DataProxyConfig();
             config.setM(groupEntity.getSchemaName());
-            String mqType = groupEntity.getMiddlewareType();
-            if (Constant.MIDDLEWARE_TUBE.equals(mqType)) {
+            MqType mqType = MqType.forType(groupEntity.getMiddlewareType());
+            if (mqType == MqType.TUBE) {
                 config.setInlongGroupId(groupId);
                 config.setTopic(bizResource);
-            } else if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
+            } else if (mqType == MqType.PULSAR || mqType == MqType.TDMQ_PULSAR) {
                 List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
                 for (InlongStreamEntity stream : streamList) {
                     String topic = stream.getMqResourceObj();
@@ -301,7 +302,8 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         for (InlongGroupEntity groupEntity : groupEntityList) {
             final String groupId = groupEntity.getInlongGroupId();
             final String mqResource = groupEntity.getMqResourceObj();
-            if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
+            MqType type = MqType.forType(mqType);
+            if (type == MqType.PULSAR || type == MqType.TDMQ_PULSAR) {
                 List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
                 for (InlongStreamEntity stream : streamList) {
                     DataProxyConfig topicConfig = new DataProxyConfig();
@@ -316,7 +318,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
                     topicConfig.setTopic("persistent://" + tenant + "/" + mqResource + "/" + topic);
                     topicList.add(topicConfig);
                 }
-            } else if (Constant.MIDDLEWARE_TUBE.equals(mqType)) {
+            } else if (type == MqType.TUBE) {
                 DataProxyConfig topicConfig = new DataProxyConfig();
                 topicConfig.setInlongGroupId(groupId);
                 topicConfig.setTopic(mqResource);
