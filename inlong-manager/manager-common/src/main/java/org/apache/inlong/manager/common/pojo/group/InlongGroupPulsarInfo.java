@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.MQType;
 
 /**
  * Inlong group information for Pulsar
@@ -34,7 +34,7 @@ import org.apache.inlong.manager.common.enums.Constant;
 public class InlongGroupPulsarInfo extends InlongGroupMqExtBase {
 
     public InlongGroupPulsarInfo() {
-        this.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
+        this.setMiddlewareType(MQType.PULSAR.getType());
     }
 
     @ApiModelProperty(value = "Tenant name of Inlong group")

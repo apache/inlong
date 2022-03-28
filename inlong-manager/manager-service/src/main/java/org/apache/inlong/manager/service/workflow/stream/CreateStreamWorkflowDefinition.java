@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.workflow.stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveTableForStreamListener;
@@ -89,8 +90,8 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask createPulsarTopicTask = new ServiceTask();
         createPulsarTopicTask.setSkipResolver(c -> {
             GroupResourceProcessForm form = (GroupResourceProcessForm) c.getProcessForm();
-            String mqType = form.getGroupInfo().getMiddlewareType();
-            if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
+            MQType mqType = MQType.forType(form.getGroupInfo().getMiddlewareType());
+            if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 return false;
             }
             log.warn("no need to create pulsar topic for groupId={}, streamId={}, as the middlewareType={}",
@@ -105,8 +106,8 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask createPulsarSubscriptionGroupTask = new ServiceTask();
         createPulsarSubscriptionGroupTask.setSkipResolver(c -> {
             GroupResourceProcessForm form = (GroupResourceProcessForm) c.getProcessForm();
-            String mqType = form.getGroupInfo().getMiddlewareType();
-            if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
+            MQType mqType = MQType.forType(form.getGroupInfo().getMiddlewareType());
+            if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 return false;
             }
             log.warn("no need to create pulsar subscription for groupId={}, streamId={}, as the middlewareType={}",

@@ -39,7 +39,7 @@ public class InlongGroupConf {
     private String description;
 
     @ApiModelProperty("Message queue configuration")
-    private MqBaseConf mqBaseConf;
+    private MQBaseConf mqBaseConf;
 
     @ApiModelProperty("Sort configuration")
     private SortBaseConf sortBaseConf;

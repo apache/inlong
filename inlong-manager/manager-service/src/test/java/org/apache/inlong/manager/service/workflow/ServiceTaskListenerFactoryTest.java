@@ -17,8 +17,7 @@
 
 package org.apache.inlong.manager.service.workflow;
 
-import java.util.List;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.ServiceBaseTest;
@@ -32,6 +31,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
 
     @Autowired
@@ -43,7 +44,7 @@ public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
         InlongGroupInfo groupInfo = new InlongGroupInfo();
         //check pulsar listener
-        groupInfo.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
+        groupInfo.setMiddlewareType(MQType.PULSAR.getType());
         processForm.setGroupInfo(groupInfo);
         context.setProcessForm(processForm);
         List<QueueOperateListener> queueOperateListeners = serviceTaskListenerFactory.getQueueOperateListener(context);
@@ -52,7 +53,7 @@ public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
         Assert.assertTrue(queueOperateListeners.get(1) instanceof CreatePulsarGroupTaskListener);
 
         // check tube listener
-        groupInfo.setMiddlewareType(Constant.MIDDLEWARE_TUBE);
+        groupInfo.setMiddlewareType(MQType.TUBE.getType());
         queueOperateListeners = serviceTaskListenerFactory.getQueueOperateListener(context);
         Assert.assertEquals(2, queueOperateListeners.size());
         Assert.assertTrue(queueOperateListeners.get(0) instanceof CreateTubeTopicTaskListener);

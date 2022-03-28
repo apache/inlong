@@ -24,7 +24,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.FlinkSortBaseConf;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
-import org.apache.inlong.manager.client.api.MqBaseConf;
+import org.apache.inlong.manager.client.api.MQBaseConf;
 import org.apache.inlong.manager.client.api.PulsarBaseConf;
 import org.apache.inlong.manager.client.api.SortBaseConf;
 import org.apache.inlong.manager.client.api.SortBaseConf.SortType;
@@ -34,7 +34,7 @@ import org.apache.inlong.manager.client.api.auth.Authentication;
 import org.apache.inlong.manager.client.api.auth.Authentication.AuthType;
 import org.apache.inlong.manager.client.api.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.client.api.auth.TokenAuthentication;
-import org.apache.inlong.manager.common.enums.MqType;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupMqExtBase;
@@ -63,16 +63,16 @@ public class InlongGroupTransfer {
         return inlongGroupConf;
     }
 
-    public static MqBaseConf parseMqBaseConf(InlongGroupResponse inlongGroupResponse) {
+    public static MQBaseConf parseMqBaseConf(InlongGroupResponse inlongGroupResponse) {
         InlongGroupMqExtBase mqExtBase = inlongGroupResponse.getMqExtInfo();
         if (null == mqExtBase || StringUtils.isBlank(mqExtBase.getMiddlewareType())) {
             return null;
         }
         String middleWare = mqExtBase.getMiddlewareType();
-        MqType mqType = MqType.forType(middleWare);
+        MQType mqType = MQType.forType(middleWare);
         switch (mqType) {
             case NONE:
-                return MqBaseConf.BLANK_MQ_CONF;
+                return MQBaseConf.BLANK_MQ_CONF;
             case PULSAR:
             case TDMQ_PULSAR:
                 return parsePulsarConf(inlongGroupResponse);
@@ -197,8 +197,8 @@ public class InlongGroupTransfer {
         groupInfo.setPeakRecords(groupConf.getPeakRecords().intValue());
         groupInfo.setMaxLength(groupConf.getMaxLength());
         groupInfo.setProxyClusterId(groupConf.getProxyClusterId());
-        MqBaseConf mqConf = groupConf.getMqBaseConf();
-        MqType mqType = MqType.NONE;
+        MQBaseConf mqConf = groupConf.getMqBaseConf();
+        MQType mqType = MQType.NONE;
         if (null != mqConf) {
             mqType = mqConf.getType();
             groupInfo.setMiddlewareType(mqType.name());
@@ -206,7 +206,7 @@ public class InlongGroupTransfer {
         groupInfo.setInCharges(groupConf.getOperator());
         groupInfo.setExtList(Lists.newArrayList());
         groupInfo.setCreator(groupConf.getOperator());
-        if (mqType == MqType.PULSAR || mqType == MqType.TDMQ_PULSAR) {
+        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             PulsarBaseConf pulsarBaseConf = (PulsarBaseConf) mqConf;
             groupInfo.setMqResourceObj(pulsarBaseConf.getNamespace());
             InlongGroupPulsarInfo pulsarInfo = createPulsarInfo(pulsarBaseConf);
@@ -214,7 +214,7 @@ public class InlongGroupTransfer {
             List<InlongGroupExtInfo> extInfos = createPulsarExtInfo(pulsarBaseConf);
             groupInfo.getExtList().addAll(extInfos);
             groupInfo.setTopicPartitionNum(pulsarBaseConf.getTopicPartitionNum());
-        } else if (mqType == MqType.TUBE) {
+        } else if (mqType == MQType.TUBE) {
             TubeBaseConf tubeBaseConf = (TubeBaseConf) mqConf;
             List<InlongGroupExtInfo> extInfos = createTubeExtInfo(tubeBaseConf);
             groupInfo.setMqResourceObj(tubeBaseConf.getGroupName());
