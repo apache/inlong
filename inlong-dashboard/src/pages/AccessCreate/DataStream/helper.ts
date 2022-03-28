@@ -67,7 +67,6 @@ export const valuesToData = (values, inlongGroupId) => {
       ...rest,
       inlongGroupId,
       inlongStreamId,
-      inCharges: rest.inCharges?.join(','),
       dataSourceType,
     };
 
@@ -110,7 +109,6 @@ export const dataToValues = data => {
       ...output,
       ...fieldList,
       ...streamInfo,
-      inCharges: streamInfo.inCharges?.split(','),
     };
 
     return output;

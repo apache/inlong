@@ -100,7 +100,6 @@ export const genFormContent = (
           visible: middlewareType === 'PULSAR' && editingId !== true,
         },
         'name',
-        'inCharges',
         'description',
         {
           type: (
@@ -172,8 +171,6 @@ export const genFormContent = (
       if (typeof obj.type === 'string') {
         obj.type = 'text';
         obj.props = { options: obj.props?.options };
-      } else if (obj.name === 'inCharges') {
-        obj.type = <span>{currentValues?.inCharges?.join(', ')}</span>;
       }
 
       if ((obj.suffix as any)?.type) {
