@@ -66,7 +66,8 @@ public class InlongStreamImpl extends InlongStream {
                                     fieldInfo.getFieldName(),
                                     fieldInfo.getFieldComment(),
                                     fieldInfo.getFieldValue(),
-                                    fieldInfo.getIsMetaField()
+                                    fieldInfo.getIsMetaField(),
+                                    fieldInfo.getFieldFormat()
                             )
                     ).collect(Collectors.toList());
         }

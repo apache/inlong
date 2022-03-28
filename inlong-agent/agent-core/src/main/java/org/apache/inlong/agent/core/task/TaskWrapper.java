@@ -47,6 +47,7 @@ public class TaskWrapper extends AbstractStateWrapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskWrapper.class);
     public static final int WAIT_FINISH_TIME_OUT = 1;
+    public static final int WAIT_BEGIN_TIME_MINUTE = 1;
 
     private final TaskManager taskManager;
     private final Task task;
@@ -204,6 +205,7 @@ public class TaskWrapper extends AbstractStateWrapper {
     public void run() {
         try {
             LOGGER.info("start to run {}, retry time is {}", task.getTaskId(), retryTime.get());
+            AgentUtils.silenceSleepInMinute(WAIT_BEGIN_TIME_MINUTE);
             doChangeState(State.RUNNING);
             task.init();
             submitThreadsAndWait();

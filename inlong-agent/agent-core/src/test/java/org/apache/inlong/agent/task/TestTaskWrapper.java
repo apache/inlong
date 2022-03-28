@@ -76,7 +76,7 @@ public class TestTaskWrapper {
             LOGGER.info("waiting for success");
             TimeUnit.MILLISECONDS.sleep(100);
         }
-        await().atMost(20, TimeUnit.SECONDS).until(()
+        await().atMost(80, TimeUnit.SECONDS).until(()
                 -> reader.getCount() == writer.getWriterCount() + 1);
         Assert.assertEquals("reader is not equals to writer",
                 reader.getCount(), writer.getWriterCount() + 1);

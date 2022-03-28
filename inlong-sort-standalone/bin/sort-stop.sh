@@ -21,3 +21,4 @@
 
 # this program kills the sort
 ps -ef |grep "org.apache.inlong.sort.standalone.SortStandaloneApplication"|grep "java"|grep -v grep|awk '{print $2}'|xargs kill -9
+
