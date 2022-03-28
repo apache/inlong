@@ -129,11 +129,11 @@ public class InlongClientImpl implements InlongClient {
         List<InlongGroupListResponse> groupListResponses = pageInfoResponse.getData().getList();
         Map<String, InlongGroupState> groupStateMap = Maps.newHashMap();
         groupListResponses.stream().forEach(groupListResponse -> {
-            String groupId = groupListResponse.getInlongGroupId();
+            String groupName = groupListResponse.getName();
             InlongGroupState groupState = InlongGroupState.parseByBizStatus(groupListResponse.getStatus());
             List<SourceListResponse> sourceListResponses = groupListResponse.getSourceListResponses();
             groupState = recheckGroupState(groupState, sourceListResponses);
-            groupStateMap.put(groupId, groupState);
+            groupStateMap.put(groupName, groupState);
         });
         return groupStateMap;
     }
