@@ -139,7 +139,7 @@ public class DeserializationFunctionTest {
         Row row = collector.getInnerList().get(0);
 
         Row expected = Row.of(
-                101, "scooter", "Small 2-wheel scooter", 3.14f, "database", "table", 1589373515000L, false, "+I");
+                101, "scooter", "Small 2-wheel scooter", 3.14f, "database", "table", 1589373515000L, false, "INSERT");
         assertEquals(expected, row);
     }
 
