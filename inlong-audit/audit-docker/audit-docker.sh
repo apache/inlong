@@ -29,10 +29,12 @@ sed -i "s/spring.datasource.druid.password=.*$/spring.datasource.druid.password=
 
 # replace the configuration for audit proxy
 if [ "${MQ_TYPE}" == "pulsar" ]; then
+  sed -i "s/audit.pulsar.server.url=.*$/audit.pulsar.server.url=pulsar:\/\/${PULSAR_BROKER_LIST}/g" "${store_conf_file}"
   sed -i "s/agent1.sinks.pulsar-sink-msg1.pulsar_server_url = .*$/agent1.sinks.pulsar-sink-msg1.pulsar_server_url = pulsar:\/\/${PULSAR_BROKER_LIST}/g" "${proxy_conf_file}"
   sed -i "s/agent1.sinks.pulsar-sink-msg2.pulsar_server_url = .*$/agent1.sinks.pulsar-sink-msg2.pulsar_server_url = pulsar:\/\/${PULSAR_BROKER_LIST}/g" "${proxy_conf_file}"
 fi
 if [ "${MQ_TYPE}" == "tube" ]; then
+  sed -i "s/audit.tube.masterlist=.*$/audit.tube.masterlist=${TUBE_MASTER_LIST}/g" "${store_conf_file}"
   sed -i "s/agent1.sinks.tube-sink-msg1.master-host-port-list = .*$/agent1.sinks.tube-sink-msg1.master-host-port-list = ${TUBE_MASTER_LIST}/g" "${proxy_conf_file}"
   sed -i "s/agent1.sinks.tube-sink-msg2.master-host-port-list = .*$/agent1.sinks.tube-sink-msg2.master-host-port-list = ${TUBE_MASTER_LIST}/g" "${proxy_conf_file}"
 fi
