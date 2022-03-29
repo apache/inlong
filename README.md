@@ -83,11 +83,11 @@ $ docker run -v `pwd`:/inlong  -w /inlong maven:3.6-openjdk-8 mvn clean install 
 after compile successfully, you could find distribution file at `inlong-distribution/target`.
 
 ## Deploy InLong
-InLong integrates a complete component chain for data reporting in big data scenarios, and does not support automatic installation of modules now, so we need to choose manually to install all or some modules according to actual needs. Please refer to [Quick Start](https://inlong.apache.org/docs/user_guide/quick_start) in our project documentation.
+InLong integrates a complete component chain for data reporting in big data scenarios, and does not support automatic installation of modules now, so we need to choose manually to install all or some modules according to actual needs. Please refer to [Quick Start](https://inlong.apache.org/docs/next/deployment/standalone) in our project documentation.
 
 ## Contribute to InLong
 - Report any issue on [GitHub Issue](https://github.com/apache/incubator-inlong/issues)
-- Code pull request according to [How to contribute](https://inlong.apache.org/development/how-to-contribute).
+- Code pull request according to [How to contribute](https://inlong.apache.org/community/how-to-contribute).
 
 ## Contact Us
 - Join Apache InLong mailing lists:
