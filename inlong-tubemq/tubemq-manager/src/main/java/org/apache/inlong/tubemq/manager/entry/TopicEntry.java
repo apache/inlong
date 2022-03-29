@@ -29,7 +29,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -106,7 +105,6 @@ public class TopicEntry {
 
     private String baseDir;
 
-    @CreationTimestamp
     private Date createTime;
 
     private String importType;
