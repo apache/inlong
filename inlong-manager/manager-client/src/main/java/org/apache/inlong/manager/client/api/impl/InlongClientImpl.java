@@ -38,13 +38,10 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.util.HttpUtils;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -66,7 +63,7 @@ public class InlongClientImpl implements InlongClient {
         for (Map.Entry<String, String> hostPort : hostPorts.entrySet()) {
             String host = hostPort.getKey();
             int port = Integer.parseInt(hostPort.getValue());
-            if (checkConnectivity(host, port, configuration.getReadTimeout(), configuration.getTimeUnit())) {
+            if (HttpUtils.checkConnectivity(host, port, configuration.getReadTimeout(), configuration.getTimeUnit())) {
                 configuration.setBindHost(host);
                 configuration.setBindPort(port);
                 isConnective = true;
@@ -86,7 +83,7 @@ public class InlongClientImpl implements InlongClient {
 
     @Override
     public List<InlongGroup> listGroup(String expr, int status, int pageNum, int pageSize) {
-        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
+        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this.configuration);
         PageInfo<InlongGroupListResponse> responsePageInfo = managerClient.listGroups(expr, status, pageNum,
                 pageSize);
         if (CollectionUtils.isEmpty(responsePageInfo.getList())) {
@@ -101,12 +98,6 @@ public class InlongClientImpl implements InlongClient {
         }
     }
 
-    @Override
-    public Response<PageInfo<InlongGroupListResponse>> listGroup(InlongGroupPageRequest request) throws Exception {
-        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
-        return managerClient.listGroups(request);
-    }
-
     /**
      * List group state
      *
@@ -116,7 +107,7 @@ public class InlongClientImpl implements InlongClient {
      */
     @Override
     public Map<String, InlongGroupState> listGroupState(List<String> groupNames) throws Exception {
-        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
+        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this.configuration);
         InlongGroupPageRequest request = new InlongGroupPageRequest();
         request.setNameList(groupNames);
         request.setPageNum(1);
@@ -140,7 +131,7 @@ public class InlongClientImpl implements InlongClient {
 
     @Override
     public InlongGroup getGroup(String groupName) {
-        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this);
+        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this.configuration);
         final String groupId = "b_" + groupName;
         InlongGroupResponse groupResponse = managerClient.getGroupInfo(groupId);
         if (groupResponse == null) {
@@ -148,24 +139,6 @@ public class InlongClientImpl implements InlongClient {
         }
         InlongGroupConf groupConf = InlongGroupTransfer.parseGroupResponse(groupResponse);
         return new InlongGroupImpl(groupConf, this);
-    }
-
-    private boolean checkConnectivity(String host, int port, int connectTimeout, TimeUnit timeUnit) {
-        InetSocketAddress socketAddress = new InetSocketAddress(host, port);
-        Socket socket = new Socket();
-        try {
-            socket.connect(socketAddress, (int) timeUnit.toMillis(connectTimeout));
-            return socket.isConnected();
-        } catch (IOException e) {
-            log.error(String.format("%s:%s connected failed with err msg:%s", host, port, e.getMessage()));
-            return false;
-        } finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                log.warn("close connection from {}:{} failed", host, port, e);
-            }
-        }
     }
 
     private InlongGroupState recheckGroupState(InlongGroupState groupState,

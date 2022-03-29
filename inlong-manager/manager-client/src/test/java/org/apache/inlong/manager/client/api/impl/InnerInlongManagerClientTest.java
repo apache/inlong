@@ -36,7 +36,8 @@ public class InnerInlongManagerClientTest {
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setAuthentication(new DefaultAuthentication("admin", "inlong"));
         InlongClientImpl inlongClient = new InlongClientImpl(serviceUrl, configuration);
-        InnerInlongManagerClient innerInlongManagerClient = new InnerInlongManagerClient(inlongClient);
+        InnerInlongManagerClient innerInlongManagerClient = new InnerInlongManagerClient(
+                inlongClient.getConfiguration());
         List<FullStreamResponse> fullStreamResponseList = innerInlongManagerClient.listStreamInfo("test");
         Assert.assertNull(fullStreamResponseList);
     }

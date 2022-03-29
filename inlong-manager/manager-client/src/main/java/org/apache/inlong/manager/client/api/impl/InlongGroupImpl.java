@@ -68,7 +68,7 @@ public class InlongGroupImpl implements InlongGroup {
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(groupConf);
         this.groupContext.setGroupInfo(groupInfo);
         if (this.managerClient == null) {
-            this.managerClient = new InnerInlongManagerClient(inlongClient);
+            this.managerClient = new InnerInlongManagerClient(inlongClient.getConfiguration());
         }
         InlongGroupRequest inlongGroupRequest = groupInfo.genRequest();
         Pair<Boolean, InlongGroupResponse> existMsg = managerClient.isGroupExists(inlongGroupRequest);
