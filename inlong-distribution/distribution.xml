@@ -94,12 +94,12 @@
         <!-- package sql file for docker compose-->
         <fileSet>
             <directory>../inlong-audit/audit-release/target/apache-inlong-audit-${project.version}-bin/sql</directory>
-            <outputDirectory>../docker/sql</outputDirectory>
+            <outputDirectory>../docker/docker-compose/sql</outputDirectory>
         </fileSet>
         <!-- package sql file for docker compose-->
         <fileSet>
             <directory>../inlong-manager/manager-web/target/apache-inlong-manager-web-${project.version}-bin/sql</directory>
-            <outputDirectory>../docker/sql</outputDirectory>
+            <outputDirectory>../docker/docker-compose/sql</outputDirectory>
         </fileSet>
     </fileSets>
 
