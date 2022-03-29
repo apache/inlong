@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -62,14 +63,8 @@ public class HiveSinkDTO {
     @ApiModelProperty("Partition interval, support: 1 H, 1 D, 30 I, 10 I")
     private Integer partitionInterval;
 
-    @ApiModelProperty("Partition type, support: D-day, H-hour, I-minute")
-    private String partitionUnit;
-
-    @ApiModelProperty("Primary partition field")
-    private String primaryPartition;
-
-    @ApiModelProperty("Secondary partition field")
-    private String secondaryPartition;
+    @ApiModelProperty("Partition field list")
+    private List<HivePartitionField> partitionFieldList;
 
     @ApiModelProperty("Partition creation strategy, partition start, partition close")
     private String partitionCreationStrategy;
@@ -98,9 +93,7 @@ public class HiveSinkDTO {
                 .tableName(request.getTableName())
                 .dataPath(request.getDataPath())
                 .partitionInterval(request.getPartitionInterval())
-                .partitionUnit(request.getPartitionUnit())
-                .primaryPartition(request.getPrimaryPartition())
-                .secondaryPartition(request.getSecondaryPartition())
+                .partitionFieldList(request.getPartitionFieldList())
                 .partitionCreationStrategy(request.getPartitionCreationStrategy())
                 .fileFormat(request.getFileFormat())
                 .dataEncoding(request.getDataEncoding())

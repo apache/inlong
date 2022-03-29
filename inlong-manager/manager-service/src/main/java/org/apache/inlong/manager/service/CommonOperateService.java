@@ -27,12 +27,10 @@ import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.MQType;
-import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -216,11 +214,6 @@ public class CommonOperateService {
         // Get all field info
         List<FieldInfo> sourceFields = new ArrayList<>();
         List<FieldInfo> sinkFields = new ArrayList<>();
-        // TODO Need support hive partition field
-        if (SinkType.forType(sinkResponse.getSinkType()) == SinkType.HIVE) {
-            HiveSinkResponse hiveSink = (HiveSinkResponse) sinkResponse;
-            String partition = hiveSink.getPrimaryPartition();
-        }
 
         // TODO Support more than one source and one sink
         final SourceResponse sourceResponse = sourceList.get(0);

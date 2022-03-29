@@ -216,13 +216,12 @@ public class InlongStreamSinkTransfer {
         hiveSinkRequest.setJdbcUrl(hiveSink.getJdbcUrl());
         hiveSinkRequest.setFileFormat(hiveSink.getFileFormat().name());
         hiveSinkRequest.setSinkType(hiveSink.getSinkType().name());
+        hiveSinkRequest.setPartitionFieldList(hiveSink.getPartitionFieldList());
         DefaultAuthentication defaultAuthentication = hiveSink.getAuthentication();
         AssertUtil.notNull(defaultAuthentication,
                 String.format("Hive storage:%s must be authenticated", hiveSink.getDbName()));
         hiveSinkRequest.setUsername(defaultAuthentication.getUserName());
         hiveSinkRequest.setPassword(defaultAuthentication.getPassword());
-        hiveSinkRequest.setPrimaryPartition(hiveSink.getPrimaryPartition());
-        hiveSinkRequest.setSecondaryPartition(hiveSink.getSecondaryPartition());
         hiveSinkRequest.setProperties(hiveSink.getProperties());
         if (CollectionUtils.isNotEmpty(hiveSink.getSinkFields())) {
             List<SinkFieldRequest> fieldRequests = createSinkFieldRequests(streamSink.getSinkFields());
@@ -262,8 +261,7 @@ public class InlongStreamSinkTransfer {
             hiveSink.setTableName(snapshot.getTableName());
             hiveSink.setDbName(snapshot.getDbName());
             hiveSink.setDataPath(snapshot.getDataPath());
-            hiveSink.setSecondaryPartition(snapshot.getSecondaryPartition());
-            hiveSink.setPrimaryPartition(snapshot.getPrimaryPartition());
+            hiveSink.setPartitionFieldList(snapshot.getPartitionFieldList());
         } else {
             hiveSink.setSinkName(sinkResponse.getSinkName());
             hiveSink.setDataSeparator(DataSeparator.forAscii(Integer.parseInt(sinkResponse.getDataSeparator())));
@@ -276,9 +274,9 @@ public class InlongStreamSinkTransfer {
             hiveSink.setTableName(sinkResponse.getTableName());
             hiveSink.setDbName(sinkResponse.getDbName());
             hiveSink.setDataPath(sinkResponse.getDataPath());
-            hiveSink.setSecondaryPartition(sinkResponse.getSecondaryPartition());
-            hiveSink.setPrimaryPartition(sinkResponse.getPrimaryPartition());
+            hiveSink.setPartitionFieldList(sinkResponse.getPartitionFieldList());
         }
+
         hiveSink.setProperties(sinkResponse.getProperties());
         hiveSink.setSinkType(SinkType.HIVE);
         hiveSink.setNeedCreated(sinkResponse.getEnableCreateResource() == 1);

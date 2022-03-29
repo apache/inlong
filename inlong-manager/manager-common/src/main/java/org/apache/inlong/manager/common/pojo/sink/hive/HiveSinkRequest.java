@@ -26,6 +26,8 @@ import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
+import java.util.List;
+
 /**
  * Request of the Hive sink info
  */
@@ -60,14 +62,8 @@ public class HiveSinkRequest extends SinkRequest {
     @ApiModelProperty("Partition interval, support: 1 H, 1 D, 30 I, 10 I")
     private Integer partitionInterval;
 
-    @ApiModelProperty("Partition type, support: D-day, H-hour, I-minute")
-    private String partitionUnit;
-
-    @ApiModelProperty("Primary partition field")
-    private String primaryPartition;
-
-    @ApiModelProperty("Secondary partition field")
-    private String secondaryPartition;
+    @ApiModelProperty("Partition field list")
+    private List<HivePartitionField> partitionFieldList;
 
     @ApiModelProperty("Partition creation strategy, partition start, partition close")
     private String partitionCreationStrategy;
