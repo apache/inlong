@@ -20,7 +20,6 @@ package org.apache.inlong.sort.standalone.source.sortsdk;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -217,9 +216,8 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
      */
     private void updateAllClientConfig() {
         String configType = CommonPropertiesHolder
-                .getString(SortSourceConfigType.KEY_TYPE, SortSourceConfigType.MANAGER.name())
-                .toUpperCase(Locale.getDefault());
-        if (SortClusterConfigType.MANAGER.name().equals(configType)) {
+                .getString(SortSourceConfigType.KEY_TYPE, SortSourceConfigType.MANAGER.name());
+        if (SortClusterConfigType.MANAGER.name().equalsIgnoreCase(configType)) {
             clients.values().stream()
                     .map(SortClient::getConfig)
                     .forEach(this::updateClientConfig);
@@ -257,17 +255,16 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
 
             // create SortClient
             String configType = CommonPropertiesHolder
-                    .getString(SortSourceConfigType.KEY_TYPE, SortSourceConfigType.MANAGER.name())
-                    .toUpperCase(Locale.getDefault());
+                    .getString(SortSourceConfigType.KEY_TYPE, SortSourceConfigType.MANAGER.name());
             SortClient client = null;
-            if (SortClusterConfigType.FILE.name().equals(configType)) {
+            if (SortClusterConfigType.FILE.name().equalsIgnoreCase(configType)) {
                 LOG.info("Create sort sdk client in file way:{}", configType);
                 ClassResourceQueryConsumeConfig queryConfig = new ClassResourceQueryConsumeConfig();
                 client = SortClientFactory.createSortClient(clientConfig,
                         queryConfig,
                         new MetricReporterImpl(clientConfig),
                         new ManagerReportHandlerImpl());
-            } else if (SortClusterConfigType.MANAGER.name().equals(configType)) {
+            } else if (SortClusterConfigType.MANAGER.name().equalsIgnoreCase(configType)) {
                 LOG.info("Create sort sdk client in manager way:{}", configType);
                 this.updateClientConfig(clientConfig);
                 client = SortClientFactory.createSortClient(clientConfig);
