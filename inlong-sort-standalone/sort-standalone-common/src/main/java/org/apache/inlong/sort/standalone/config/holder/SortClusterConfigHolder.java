@@ -20,7 +20,6 @@ package org.apache.inlong.sort.standalone.config.holder;
 import static org.apache.inlong.sort.standalone.utils.Constants.RELOAD_INTERVAL;
 
 import java.util.Date;
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -70,12 +69,11 @@ public final class SortClusterConfigHolder {
             instance = new SortClusterConfigHolder();
             instance.reloadInterval = CommonPropertiesHolder.getLong(RELOAD_INTERVAL, 60000L);
             String loaderType = CommonPropertiesHolder
-                    .getString(SortClusterConfigType.KEY_TYPE, SortClusterConfigType.MANAGER.name())
-                    .toUpperCase(Locale.getDefault());
+                    .getString(SortClusterConfigType.KEY_TYPE, SortClusterConfigType.MANAGER.name());
 
-            if (SortClusterConfigType.FILE.name().equals(loaderType)) {
+            if (SortClusterConfigType.FILE.name().equalsIgnoreCase(loaderType)) {
                 instance.loader = new ClassResourceSortClusterConfigLoader();
-            } else if (SortClusterConfigType.MANAGER.name().equals(loaderType)) {
+            } else if (SortClusterConfigType.MANAGER.name().equalsIgnoreCase(loaderType)) {
                 instance.loader = new ManagerSortClusterConfigLoader();
             } else {
                 // user-defined
