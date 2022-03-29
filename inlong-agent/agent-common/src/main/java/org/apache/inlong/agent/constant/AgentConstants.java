@@ -160,6 +160,9 @@ public class AgentConstants {
     public static final String JOB_DB_CACHE_CHECK_INTERVAL = "job.db.cache.check.interval";
     public static final int DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL = 60 * 60;
 
+    public static final String JOB_NUMBER_LIMIT = "job.number.limit";
+    public static final int DEFAULT_JOB_NUMBER_LIMIT = 15;
+
     public static final String AGENT_LOCAL_IP = "agent.local.ip";
 
     public static final String AGENT_LOCAL_UUID = "agent.local.uuid";
