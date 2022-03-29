@@ -26,7 +26,7 @@ metadata:
 spec:
   ports:
     - name: {{ .Values.agent.component }}-port
-      port: {{ .Values.agent.port }}
+      port: {{ .Values.agent.containerPort }}
   type: ClusterIP
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}

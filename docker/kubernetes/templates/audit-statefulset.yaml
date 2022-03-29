@@ -94,7 +94,7 @@ spec:
             - name: MANAGER_OPENAPI_IP
               value: {{ include "inlong.manager.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
-              value: {{ .Values.manager.port }}
+              value: {{ .Values.manager.containerPort }}
             - name: PULSAR_BROKER_LIST
               value: {{ .Values.external.pulsar.serviceUrl }}
             - name: TUBE_MASTER_LIST

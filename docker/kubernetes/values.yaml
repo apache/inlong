@@ -68,7 +68,7 @@ agent:
     requests:
       cpu: 1
       memory: "1Gi"
-  port: 8008
+  containerPort: 8008
   env:
     AGENT_JVM_HEAP_OPTS: >
       -XX:+UseContainerSupport
@@ -98,7 +98,7 @@ dataproxy:
     requests:
       cpu: 1
       memory: "1Gi"
-  port: 46801
+  containerPort: 46801
   env:
     DATAPROXY_JVM_HEAP_OPTS: >
       -XX:+UseContainerSupport
@@ -129,7 +129,7 @@ manager:
     requests:
       cpu: 1
       memory: "1Gi"
-  port: 8083
+  containerPort: 8083
   username: "root"
   password: "inlong"
   env:

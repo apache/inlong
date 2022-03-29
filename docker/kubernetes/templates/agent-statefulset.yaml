@@ -85,11 +85,11 @@ spec:
             - name: MANAGER_OPENAPI_IP
               value: {{ include "inlong.manager.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
-              value: {{ .Values.manager.port }}
+              value: {{ .Values.manager.containerPort }}
             - name: DATAPROXY_IP
               value: {{ include "inlong.dataproxy.hostname" . | quote }}
             - name: DATAPROXY_PORT
-              value: {{ .Values.dataproxy.port }}
+              value: {{ .Values.dataproxy.containerPort }}
             - name: AUDIT_PROXY_URL
               value: {{ include "inlong.audit.hostname" . | quote }}:{{ .Values.audit.ports.webPort }}
             {{- range $key, $value := .Values.agent.env }}
