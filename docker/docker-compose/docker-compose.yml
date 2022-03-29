@@ -76,6 +76,7 @@ services:
     environment:
       - MANAGER_OPENAPI_IP=manager
       - MANAGER_OPENAPI_PORT=8083
+      - AUDIT_PROXY_URL=audit:10081
 
   agent:
     image: inlong/agent:latest
@@ -88,6 +89,7 @@ services:
       - MANAGER_OPENAPI_PORT=8083
       - DATAPROXY_IP=dataproxy
       - DATAPROXY_PORT=46801
+      - AUDIT_PROXY_URL=audit:10081
     ports:
       - "8008:8008"
     volumes:
@@ -100,11 +102,9 @@ services:
       mysql:
         condition: service_healthy
     environment:
-      - JDBC_URL="jdbc:mysql:\/\/mysql:3306\/apache_inlong_audit?useSSL=false\&allowPublicKeyRetrieval=true\&characterEncoding=UTF-8\&nullCatalogMeansCurrent=true\&serverTimezone=GMT%2b8"
+      - JDBC_URL=mysql:3306
       - USERNAME=root
       - PASSWORD=inlong
-      - MANAGER_OPENAPI_IP=manager
-      - MANAGER_OPENAPI_PORT=8083
-      - PULSAR_BROKER_URL_LIST="pulsar://pulsar:6650"
+      - PULSAR_BROKER_LIST="pulsar:6650"
     ports:
       - "10081:10081"

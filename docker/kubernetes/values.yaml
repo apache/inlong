@@ -315,5 +315,5 @@ external:
     password: "password"
   pulsar:
     enabled: false
-    serviceUrl: "pulsar://localhost:6650"
-    adminUrl: "http://localhost:8080"
+    serviceUrl: "localhost:6650"
+    adminUrl: "localhost:8080"

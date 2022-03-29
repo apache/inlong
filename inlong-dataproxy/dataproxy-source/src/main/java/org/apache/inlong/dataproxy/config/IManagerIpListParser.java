@@ -25,9 +25,9 @@ import java.util.Map;
  */
 public interface IManagerIpListParser {
 
-    String KEY_MANAGER_HOSTS = "manager_hosts";
+    String KEY_MANAGER_HOSTS = "manager.hosts";
     String SEPARATOR = ",";
-    String KEY_MANAGER_TYPE = "manager_type";
+    String KEY_MANAGER_TYPE = "manager.type";
 
     void setCommonProperties(Map<String, String> commonProperties);
 

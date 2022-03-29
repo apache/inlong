@@ -92,11 +92,13 @@ spec:
                   name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
                   key: mysql-password
             - name: MANAGER_OPENAPI_IP
-              value: {{ include "inlong.tubemqManager.hostname" . | quote }}
+              value: {{ include "inlong.manager.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
               value: {{ .Values.manager.ports.webPort | quote }}
-            - name: PULSAR_BROKER_URL_LIST
+            - name: PULSAR_BROKER_LIST
               value: {{ .Values.external.pulsar.serviceUrl }}
+            - name: TUBE_MASTER_LIST
+              value: {{ include "inlong.tubemqMaster.hostname" . | quote }}:{{ .Values.tubemqMaster.ports.rpcPort | quote }}
             {{- range $key, $value := .Values.audit.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}

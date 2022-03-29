@@ -18,7 +18,10 @@
 
 file_path=$(cd "$(dirname "$0")"/../;pwd)
 # config
-sed -i "s/127.0.0.1:8083/$MANAGER_OPENAPI_IP:$MANAGER_OPENAPI_PORT/g" ${file_path}/conf/common.properties
+common_conf_file=${file_path}/conf/common.properties
+sed -i "s/manager.hosts=.*$/manager.hosts=${MANAGER_OPENAPI_IP}:${MANAGER_OPENAPI_PORT}/g" "${common_conf_file}"
+sed -i "s/audit.proxys=.*$/audit.proxys=${AUDIT_PROXY_URL}/g" "${common_conf_file}"
+
 # start
 bash +x ${file_path}/bin/dataproxy-start.sh
 sleep 3
