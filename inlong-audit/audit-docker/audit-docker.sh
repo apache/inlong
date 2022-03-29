@@ -23,7 +23,7 @@ store_conf_file=${file_path}/conf/application.properties
 proxy_conf_file=${file_path}/conf/audit-proxy-${MQ_TYPE}.conf
 
 # replace the configuration for audit store
-sed -i "s/spring.datasource.druid.url=.*$/spring.datasource.druid.url=${JDBC_URL}/g" "${store_conf_file}"
+sed -i "s/127.0.0.1:3306/${JDBC_URL}/g" "${store_conf_file}"
 sed -i "s/spring.datasource.druid.username=.*$/spring.datasource.druid.username=${USERNAME}/g" "${store_conf_file}"
 sed -i "s/spring.datasource.druid.password=.*$/spring.datasource.druid.password=${PASSWORD}/g" "${store_conf_file}"
 
