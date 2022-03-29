@@ -69,7 +69,7 @@ spec:
             - name: MANAGER_OPENAPI_PORT
               value: {{ .Values.manager.containerPort }}
             - name: AUDIT_PROXY_URL
-              value: {{ include "inlong.audit.hostname" . | quote }}:{{ .Values.audit.ports.webPort }}
+              value: {{ include "inlong.audit.hostname" . }}:{{ .Values.audit.ports.webPort }}
             {{- range $key, $value := .Values.dataproxy.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}

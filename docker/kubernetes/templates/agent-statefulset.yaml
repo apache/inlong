@@ -91,7 +91,7 @@ spec:
             - name: DATAPROXY_PORT
               value: {{ .Values.dataproxy.containerPort }}
             - name: AUDIT_PROXY_URL
-              value: {{ include "inlong.audit.hostname" . | quote }}:{{ .Values.audit.ports.webPort }}
+              value: {{ include "inlong.audit.hostname" . }}:{{ .Values.audit.ports.webPort }}
             {{- range $key, $value := .Values.agent.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}

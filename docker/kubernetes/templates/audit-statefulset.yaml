@@ -98,7 +98,7 @@ spec:
             - name: PULSAR_BROKER_LIST
               value: {{ .Values.external.pulsar.serviceUrl }}
             - name: TUBE_MASTER_LIST
-              value: {{ include "inlong.tubemqMaster.hostname" . | quote }}:{{ .Values.tubemqMaster.ports.rpcPort | quote }}
+              value: {{ include "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}
             {{- range $key, $value := .Values.audit.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
