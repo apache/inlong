@@ -351,8 +351,8 @@ public class ConfigManager {
 
         private void checkRemoteConfig() {
             try {
-                String managerHosts = configManager.getCommonProperties().get("manager_hosts");
-                String proxyClusterName = configManager.getCommonProperties().get("proxy_cluster_name");
+                String managerHosts = configManager.getCommonProperties().get("manager.hosts");
+                String proxyClusterName = configManager.getCommonProperties().get("proxy.cluster.name");
                 if (StringUtils.isEmpty(managerHosts) || StringUtils.isEmpty(proxyClusterName)) {
                     return;
                 }

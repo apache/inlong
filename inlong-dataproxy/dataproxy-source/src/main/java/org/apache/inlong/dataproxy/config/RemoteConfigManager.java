@@ -62,8 +62,8 @@ public class RemoteConfigManager implements IRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteConfigManager.class);
     public static final String KEY_CONFIG_CHECK_INTERVAL = "configCheckInterval";
-    public static final String KEY_PROXY_CLUSTER_NAME = "proxy_cluster_name";
-    public static final String KEY_SET_NAME = "set_name";
+    public static final String KEY_PROXY_CLUSTER_NAME = "proxy.cluster.name";
+    public static final String KEY_SET_NAME = "set.name";
     public static final char FLUME_SEPARATOR = '.';
     private static volatile boolean isInit = false;
     private static RemoteConfigManager instance = null;

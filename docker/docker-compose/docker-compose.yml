@@ -76,6 +76,7 @@ services:
     environment:
       - MANAGER_OPENAPI_IP=manager
       - MANAGER_OPENAPI_PORT=8083
+      - AUDIT_PROXY_URL=audit:10081
 
   agent:
     image: inlong/agent:latest
@@ -88,6 +89,7 @@ services:
       - MANAGER_OPENAPI_PORT=8083
       - DATAPROXY_IP=dataproxy
       - DATAPROXY_PORT=46801
+      - AUDIT_PROXY_URL=audit:10081
     ports:
       - "8008:8008"
     volumes:

@@ -32,6 +32,7 @@ agent.http.port=8008
 agent.http.enable=true
 agent.prometheus.enable=true
 agent.prometheus.exporter.port=8080
+audit.proxys=$AUDIT_PROXY_URL
 EOF
 # start
 bash +x ${file_path}/bin/agent.sh start
