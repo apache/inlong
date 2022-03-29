@@ -15,26 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent;
+package org.apache.inlong.common.enums;
 
-import lombok.Data;
-import org.apache.inlong.common.db.CommandEntity;
+import static java.util.Objects.requireNonNull;
 
-import java.util.ArrayList;
-import java.util.List;
+public enum PullJobTypeEnum {
 
-/**
- * Request task from agent to manager.
- */
-@Data
-public class TaskRequest {
+    NEW(0), NEVER(1);
 
-    private String agentIp;
+    private int type;
 
-    private String uuid;
+    PullJobTypeEnum(int type) {
+        this.type = type;
+    }
 
-    private int pullJobType;
+    public static PullJobTypeEnum getPullJobType(int type) {
+        requireNonNull(type);
+        switch (type) {
+            case 0:
+                return NEW;
+            case 1:
+                return NEVER;
+            default:
+                throw new RuntimeException("such pull job type doesn't exist");
+        }
+    }
 
-    private List<CommandEntity> commandInfo = new ArrayList<>();
-
+    public int getType() {
+        return type;
+    }
 }

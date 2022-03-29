@@ -160,7 +160,7 @@ public class ProxySink extends AbstractSink {
             LOGGER.info("start flush cache thread for {} ProxySink", inlongGroupId);
             while (!shutdown) {
                 try {
-                    cache.forEach((s, packProxyMessage) -> {
+                    cache.forEach((batchKey, packProxyMessage) -> {
                         Pair<String, List<byte[]>> result = packProxyMessage.fetchBatch();
                         if (result != null) {
                             long sendTime = AgentUtils.getCurrentTime();
@@ -171,9 +171,9 @@ public class ProxySink extends AbstractSink {
                                 senderManager.sendBatchAsync(jobInstanceId, inlongGroupId, result.getKey(),
                                     result.getValue(), 0, sendTime);
                             }
-                            LOGGER.info("send group id {} with message size {}, the job id is {}, read source is {}"
-                                            + "sendTime is {} syncSend {}", inlongGroupId, result.getRight().size(),
-                                    jobInstanceId, sourceName, sendTime, syncSend);
+                            LOGGER.info("send group id {}, message key {},with message size {}, the job id is {}, "
+                                    + "read source is {} sendTime is {} syncSend {}", inlongGroupId, batchKey,
+                                result.getRight().size(), jobInstanceId, sourceName, sendTime, syncSend);
                         }
 
                     });
