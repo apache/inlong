@@ -68,10 +68,7 @@ agent:
     requests:
       cpu: 1
       memory: "1Gi"
-  ports:
-    agent: 8008
-    managerOpenApi: ${manager.containerPort}
-    dataProxy: ${dataproxy.containerPort}
+  port: 8008
   env:
     AGENT_JVM_HEAP_OPTS: >
       -XX:+UseContainerSupport
@@ -101,8 +98,7 @@ dataproxy:
     requests:
       cpu: 1
       memory: "1Gi"
-  containerPort: 46801
-  managerOpenApiPort: ${manager.containerPort}
+  port: 46801
   env:
     DATAPROXY_JVM_HEAP_OPTS: >
       -XX:+UseContainerSupport
@@ -133,8 +129,7 @@ manager:
     requests:
       cpu: 1
       memory: "1Gi"
-  ports:
-    webPort: 8083
+  port: 8083
   username: "root"
   password: "inlong"
   env:
