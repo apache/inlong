@@ -16,7 +16,3 @@ If you are planning to incorporate this work into your product/project, please b
 you will need to conduct a thorough licensing review to determine the overall implications of
 including this work. For the current status of this project through the Apache Incubator
 visit: https://incubator.apache.org/projects/inlong.html
-
-1. berkeleydb-je:berkeleydb-je   LICENSE: CATEGORY X
-   In inlong-tubemq, we use this component and it is a mandatory path dependency.
-   We will remove or make it an optional dependency in subsequent versions.
