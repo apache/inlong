@@ -141,6 +141,24 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     }
 
     /**
+     * Get Master version info
+     *
+     * @param req       Http Servlet Request
+     * @param strBuff   string buffer
+     * @param result    process result
+     * @return    process result
+     */
+    public StringBuilder adminQueryMasterVersion(HttpServletRequest req,
+                                                 StringBuilder strBuff,
+                                                 ProcessResult result) {
+        WebParameterUtils.buildSuccessWithDataRetBegin(strBuff);
+        strBuff.append("{\"version\":\"")
+                .append(TubeServerVersion.SERVER_VERSION).append("\"}");
+        WebParameterUtils.buildSuccessWithDataRetEnd(strBuff, 1);
+        return strBuff;
+    }
+
+    /**
      * Get consume group detail info
      *
      * @param req       Http Servlet Request
