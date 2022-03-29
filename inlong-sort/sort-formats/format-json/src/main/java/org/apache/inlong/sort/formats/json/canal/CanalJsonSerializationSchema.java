@@ -123,7 +123,7 @@ public class CanalJsonSerializationSchema implements SerializationSchema<Row> {
         }
     }
 
-    private String rowKind2String(RowKind rowKind) {
+    public static String rowKind2String(RowKind rowKind) {
         switch (rowKind) {
             case INSERT:
             case UPDATE_AFTER:

@@ -27,6 +27,7 @@ import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.formats.json.MysqlBinLogData;
+import org.apache.inlong.sort.formats.json.canal.CanalJsonSerializationSchema;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.util.DefaultValueStrategy;
@@ -104,7 +105,7 @@ public class FieldMappingTransformer implements Serializable {
                 String eventTimeStr = attributes.get(MysqlBinLogData.MYSQL_METADATA_EVENT_TIME);
                 return eventTimeStr == null ? null : LongFormatInfo.INSTANCE.deserialize(eventTimeStr);
             case MYSQL_METADATA_EVENT_TYPE:
-                return kind.shortString();
+                return CanalJsonSerializationSchema.rowKind2String(kind);
             case MYSQL_METADATA_DATA:
                 return attributes.get(MysqlBinLogData.MYSQL_METADATA_DATA);
         }
