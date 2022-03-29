@@ -128,13 +128,6 @@
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
-        <table tableName="inlong_stream_ext" domainObjectName="InlongStreamExtEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
         <table tableName="inlong_stream_field" domainObjectName="InlongStreamFieldEntity"
                 enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
@@ -150,20 +143,6 @@
                 enableSelectByExample="false" enableUpdateByExample="false"/>
 
         <table tableName="source_file_detail" domainObjectName="SourceFileDetailEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="source_db_basic" domainObjectName="SourceDbBasicEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="source_db_detail" domainObjectName="SourceDbDetailEntity"
                 enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"

@@ -393,25 +393,6 @@ CREATE TABLE `inlong_stream`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong stream table';
 
 -- ----------------------------
--- Table structure for inlong_stream_ext
--- ----------------------------
-DROP TABLE IF EXISTS `inlong_stream_ext`;
-CREATE TABLE `inlong_stream_ext`
-(
-    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning inlong group id',
-    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning inlong stream id',
-    `key_name`         varchar(256) NOT NULL COMMENT 'Configuration item name',
-    `key_value`        text              DEFAULT NULL COMMENT 'The value of the configuration item',
-    `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    KEY `index_stream_id` (`inlong_stream_id`),
-    UNIQUE KEY `unique_stream_key` (`inlong_group_id`, `inlong_stream_id`, `key_name`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong stream extension table';
-
--- ----------------------------
 -- Table structure for inlong_stream_field
 -- ----------------------------
 DROP TABLE IF EXISTS `inlong_stream_field`;
@@ -479,55 +460,6 @@ CREATE TABLE `role`
     UNIQUE KEY `unique_role_name_idx` (`role_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Role Table';
-
--- ----------------------------
--- Table structure for source_db_basic
--- ----------------------------
-DROP TABLE IF EXISTS `source_db_basic`;
-CREATE TABLE `source_db_basic`
-(
-    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning inlong group id',
-    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning inlong stream id',
-    `sync_type`        tinyint(1)        DEFAULT '0' COMMENT 'Data synchronization type, 0: FULL, full amount, 1: INCREMENTAL, incremental',
-    `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`          varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`         varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`        text              DEFAULT NULL COMMENT 'Temporary view, used to save intermediate data that has not been submitted or approved after modification',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Basic configuration of DB data source';
-
--- ----------------------------
--- Table structure for source_db_detail
--- ----------------------------
-DROP TABLE IF EXISTS `source_db_detail`;
-CREATE TABLE `source_db_detail`
-(
-    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning inlong group id',
-    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning inlong stream id',
-    `access_type`      varchar(20)  NOT NULL COMMENT 'Collection type, with Agent, DataProxy client, LoadProxy',
-    `db_name`          varchar(128)      DEFAULT NULL COMMENT 'database name',
-    `transfer_ip`      varchar(64)       DEFAULT NULL COMMENT 'Transfer IP',
-    `connection_name`  varchar(128)      DEFAULT NULL COMMENT 'The name of the database connection',
-    `table_name`       varchar(128)      DEFAULT NULL COMMENT 'Data table name, required for increment',
-    `table_fields`     longtext COMMENT 'Data table fields, multiple are separated by half-width commas, required for increment',
-    `data_sql`         longtext COMMENT 'SQL statement to collect source data, required for full amount',
-    `crontab`          varchar(56)       DEFAULT NULL COMMENT 'Timed scheduling expression, required for full amount',
-    `status`           int(4)            DEFAULT '0' COMMENT 'Data source status',
-    `previous_status`  int(4)            DEFAULT '0' COMMENT 'Previous status',
-    `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`          varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`         varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`        text              DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='DB data source details table';
 
 -- ----------------------------
 -- Table structure for source_file_basic
