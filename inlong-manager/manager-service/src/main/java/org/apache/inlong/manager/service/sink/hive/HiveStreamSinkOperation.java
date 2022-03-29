@@ -28,10 +28,11 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
+import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkDTO;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
@@ -51,7 +52,9 @@ import org.springframework.stereotype.Service;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -79,8 +82,8 @@ public class HiveStreamSinkOperation implements StreamSinkOperation {
         String sinkType = request.getSinkType();
         Preconditions.checkTrue(Constant.SINK_HIVE.equals(sinkType),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + sinkType);
-
         HiveSinkRequest hiveRequest = (HiveSinkRequest) request;
+        checkPartitionField(hiveRequest);
         StreamSinkEntity entity = CommonBeanUtils.copyProperties(hiveRequest, StreamSinkEntity::new);
         entity.setStatus(EntityStatus.SINK_NEW.getCode());
         entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
@@ -89,7 +92,6 @@ public class HiveStreamSinkOperation implements StreamSinkOperation {
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
-
         // get the ext params
         HiveSinkDTO dto = HiveSinkDTO.getFromRequest(hiveRequest);
         try {
@@ -104,6 +106,27 @@ public class HiveStreamSinkOperation implements StreamSinkOperation {
         this.saveFieldOpt(request);
 
         return sinkId;
+    }
+
+    private void checkPartitionField(HiveSinkRequest hiveRequest) {
+        if (CollectionUtils.isNotEmpty(hiveRequest.getPartitionFieldList())) {
+            Preconditions.checkNotEmpty(hiveRequest.getFieldList(),
+                    String.format("%s:%s",
+                            ErrorCodeEnum.SINK_FIELD_LIST_IS_EMPTY.getMessage(), hiveRequest.getSinkType()));
+            Map<String, SinkFieldRequest> sinkFieldMap = new HashMap<>(hiveRequest.getFieldList().size());
+            hiveRequest.getFieldList().forEach(s -> sinkFieldMap.put(s.getFieldName(), s));
+            for (HivePartitionField partitionFieldInfo : hiveRequest.getPartitionFieldList()) {
+                Preconditions.checkNotEmpty(partitionFieldInfo.getFieldName(), String.format("%s:%s",
+                        ErrorCodeEnum.SINK_PARTITION_FIELD_NAME_IS_EMPTY.getMessage(), hiveRequest.getSinkType()));
+                SinkFieldRequest sinkFieldRequest = sinkFieldMap.get(partitionFieldInfo.getFieldName());
+                Preconditions.checkNotNull(sinkFieldRequest, String.format("%s:%s",
+                        ErrorCodeEnum.SINK_PARTITION_FIELD_NOT_FOUND_IN_SINK_FIELD_LIST.getMessage(),
+                        hiveRequest.getSinkType()));
+                Preconditions.checkNotEmpty(sinkFieldRequest.getSourceFieldName(), String.format("%s:%s",
+                        ErrorCodeEnum.SOURCE_FIELD_NAME_OF_SINK_PARTITION_FIELD_IS_EMPTY.getMessage(),
+                        hiveRequest.getSinkType()));
+            }
+        }
     }
 
     @Override
@@ -189,6 +212,7 @@ public class HiveStreamSinkOperation implements StreamSinkOperation {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         HiveSinkRequest hiveRequest = (HiveSinkRequest) request;
+        checkPartitionField(hiveRequest);
         CommonBeanUtils.copyProperties(hiveRequest, entity, true);
         try {
             HiveSinkDTO dto = HiveSinkDTO.getFromRequest(hiveRequest);

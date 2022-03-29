@@ -86,6 +86,13 @@ public enum ErrorCodeEnum {
     SINK_DB_NAME_UPDATE_NOT_ALLOWED(1408, "Current status does not allow modification the database name"),
     SINK_TB_NAME_UPDATE_NOT_ALLOWED(1409, "Current status does not allow modification the table name"),
     SINK_FIELD_UPDATE_NOT_ALLOWED(1410, "Current status not allowed to modification/delete field"),
+    SINK_FIELD_LIST_IS_EMPTY(1411, "Sink field list is not allow empty"),
+    SINK_PARTITION_FIELD_NAME_IS_EMPTY(1412, "Sink partition field name is not allow empty"),
+    SINK_PARTITION_FIELD_NOT_FOUND_IN_SINK_FIELD_LIST(1413,
+            "Sink partition field is not found in sink field list"),
+    SOURCE_FIELD_NAME_OF_SINK_PARTITION_FIELD_IS_EMPTY(1414,
+            "Sink field's source field name is not allowed empty when the field is a partition field"),
+
 
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
 

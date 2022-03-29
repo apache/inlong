@@ -17,11 +17,6 @@
 
 package org.apache.inlong.manager.service.thirdparty.hive;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
@@ -31,6 +26,7 @@ import org.apache.inlong.manager.common.pojo.query.DatabaseQueryBean;
 import org.apache.inlong.manager.common.pojo.query.hive.HiveColumnQueryBean;
 import org.apache.inlong.manager.common.pojo.query.hive.HiveTableQueryBean;
 import org.apache.inlong.manager.common.pojo.sink.SinkForSortDTO;
+import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkDTO;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
@@ -39,6 +35,11 @@ import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Create hive table operation
@@ -128,15 +129,16 @@ public class DefaultHiveTableOperator implements IHiveTableOperator {
             columnQueryBeans.add(columnBean);
         }
 
-        // set partition field and type
-        String partitionField = hiveInfo.getPrimaryPartition();
-        if (partitionField != null) {
-            HiveColumnQueryBean partColumn = new HiveColumnQueryBean();
-            partColumn.setPartition(true);
-            partColumn.setColumnName(partitionField);
-            // currently, only supports 'string' type
-            partColumn.setColumnType("string");
-            columnQueryBeans.add(partColumn);
+        // Set partition fields
+        if (CollectionUtils.isNotEmpty(hiveInfo.getPartitionFieldList())) {
+            hiveInfo.getPartitionFieldList().sort(Comparator.comparing(HivePartitionField::getRankNum));
+            for (HivePartitionField field : hiveInfo.getPartitionFieldList()) {
+                HiveColumnQueryBean columnBean = new HiveColumnQueryBean();
+                columnBean.setColumnName(field.getFieldName());
+                columnBean.setPartition(true);
+                columnBean.setColumnType("string");
+                columnQueryBeans.add(columnBean);
+            }
         }
 
         HiveTableQueryBean queryBean = new HiveTableQueryBean();
