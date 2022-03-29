@@ -43,19 +43,6 @@ export const getDataSourcesFileFields = (
       },
     },
     {
-      type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.File.Port'),
-      name: 'port',
-      props: {
-        min: 1,
-        max: 65535,
-      },
-      rules: [{ required: true }],
-      _inTable: {
-        width: 90,
-      },
-    },
-    {
       type: 'input',
       label: i18n.t('components.AccessHelper.DataSourceMetaData.File.FilePath'),
       name: 'filePath',

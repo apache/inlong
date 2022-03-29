@@ -19,7 +19,6 @@
   "components.AccessHelper.DataSourceMetaData.File.FillInTheAbsolutePath": "填写绝对路径",
   "components.AccessHelper.DataSourceMetaData.File.DataSourceIP": "数据源IP",
   "components.AccessHelper.DataSourceMetaData.File.FilePath": "⽂件路径",
-  "components.AccessHelper.DataSourceMetaData.File.Port": "端口",
   "components.AccessHelper.DataSourceMetaData.File.IpRule": "请正确输入Ip地址",
   "components.AccessHelper.DataSourceMetaData.Db.Server": "服务器地址",
   "components.AccessHelper.DataSourceMetaData.Db.Port": "服务器端口",
