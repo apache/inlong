@@ -40,7 +40,7 @@ public class DebeziumDeserializationInfo implements DeserializationInfo {
     public DebeziumDeserializationInfo(
             @JsonProperty("ignore_parse_errors") boolean ignoreParseErrors,
             @JsonProperty("timestamp_format_standard") String timestampFormatStandard) {
-        this(ignoreParseErrors, timestampFormatStandard, false);
+        this(ignoreParseErrors, timestampFormatStandard, true);
     }
 
     @JsonCreator

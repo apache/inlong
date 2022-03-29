@@ -102,7 +102,7 @@ public class DebeziumToCanalITCase {
                 // Deserialize
                 DeserializationSchema<Row> deserializationSchema = DeserializationSchemaFactory.build(
                         sourceFieldInfos,
-                        new DebeziumDeserializationInfo(false, "ISO_8601"));
+                        new DebeziumDeserializationInfo(false, "ISO_8601", false));
                 FieldMappingTransformer fieldMappingTransformer = new FieldMappingTransformer(
                         new Configuration(), sourceFieldInfos);
                 DeserializationFunction function = new DeserializationFunction(
