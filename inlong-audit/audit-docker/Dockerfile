@@ -23,6 +23,11 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 ARG AUDIT_TARBALL
 ADD ${AUDIT_TARBALL} /opt/inlong-audit
+EXPOSE 10081
+# pulsar or tube
+ENV MQ_TYPE=pulsar
+ENV PULSAR_BROKER_LIST = "pulsar://127.0.0.1:6650"
+ENV TUBE_MASTER_LIST = "localhost:8715"
 ENV JDBC_URL='jdbc:mysql:\/\/127.0.0.1:3306\/apache_inlong_audit?useSSL=false\&allowPublicKeyRetrieval=true\&characterEncoding=UTF-8\&nullCatalogMeansCurrent=true\&serverTimezone=GMT%2b8'
 ENV USERNAME=root
 ENV PASSWORD=inlong
