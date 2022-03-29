@@ -25,10 +25,10 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.LowLevelInlongClient;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
-import org.apache.inlong.manager.client.api.util.HttpUtil;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
+import org.apache.inlong.manager.common.util.HttpUtils;
 
 import java.util.Map;
 
@@ -51,7 +51,7 @@ public class LowLevelInlongClientImpl implements LowLevelInlongClient {
         for (Map.Entry<String, String> hostPort : hostPorts.entrySet()) {
             String host = hostPort.getKey();
             int port = Integer.parseInt(hostPort.getValue());
-            if (HttpUtil.checkConnectivity(host, port, configuration.getReadTimeout(), configuration.getTimeUnit())) {
+            if (HttpUtils.checkConnectivity(host, port, configuration.getReadTimeout(), configuration.getTimeUnit())) {
                 configuration.setBindHost(host);
                 configuration.setBindPort(port);
                 isConnective = true;
