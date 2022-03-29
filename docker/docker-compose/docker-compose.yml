@@ -34,57 +34,19 @@ services:
       - ./sql:/docker-entrypoint-initdb.d
 
   pulsar:
-    image: apachepulsar/pulsar
+    image: apachepulsar/pulsar:2.8.2
     container_name: pulsar
-    environment:
-      - PULSAR_MEM="-Xms256m -Xmx512m -XX:MaxDirectMemorySize=1g"
     ports:
       - "6650:6650"
     volumes:
       - ./pulsar/data:/pulsar/data
-      - ./pulsar/conf:/pulsar/conf
     command: bin/pulsar standalone
-
-  tubemq-server:
-    image: inlong/tubemq-all:latest
-    container_name: tubemq-server
-    ports:
-      - "8080:8080"
-      - "8715:8715"
-      - "8123:8123"
-      - "2181:2181"
-    healthcheck:
-      test: "curl localhost:8080"
-      interval: 2s
-      timeout: 20s
-      retries: 10
-
-  tubemq-manager:
-    image: inlong/tubemq-manager:latest
-    container_name: tubemq-manager
-    depends_on:
-      mysql:
-        condition: service_healthy
-      tubemq-server:
-        condition: service_healthy
-    ports:
-      - "8089:8089"
-    environment:
-      - MYSQL_HOST=mysql
-      - MYSQL_USER=root
-      - MYSQL_PASSWD=inlong
-      - TUBE_MASTER_IP=tubemq-server
-    healthcheck:
-      test: "curl localhost:8089"
-      interval: 2s
-      timeout: 20s
-      retries: 10
 
   manager:
     image: inlong/manager
     container_name: manager
     depends_on:
-      tubemq-manager:
+      mysql:
         condition: service_healthy
     ports:
       - "8083:8083"
@@ -109,7 +71,6 @@ services:
     container_name: dataproxy
     depends_on:
       - manager
-      - tubemq-server
     ports:
       - "46801:46801"
     environment:
@@ -146,4 +107,4 @@ services:
       - MANAGER_OPENAPI_PORT=8083
       - PULSAR_BROKER_URL_LIST="pulsar://pulsar:6650"
     ports:
-      - "46801:46801"
+      - "10081:10081"
