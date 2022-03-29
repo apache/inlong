@@ -161,7 +161,7 @@ public class AgentConstants {
     public static final int DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL = 60 * 60;
 
     public static final String JOB_NUMBER_LIMIT = "job.number.limit";
-    public static final int DEFAULT_JOB_NUMBER_LIMIT = 20;
+    public static final int DEFAULT_JOB_NUMBER_LIMIT = 15;
 
     public static final String AGENT_LOCAL_IP = "agent.local.ip";
 
