@@ -37,7 +37,7 @@ public class CommonPropertiesHolder {
     public static final Logger LOG = LoggerFactory.getLogger(CommonPropertiesHolder.class);
     public static final String KEY_COMMON_PROPERTIES = "common-properties-loader";
     public static final String DEFAULT_LOADER = ClassResourceCommonPropertiesLoader.class.getName();
-    public static final String KEY_CLUSTER_ID = "proxy_cluster_name";
+    public static final String KEY_CLUSTER_ID = "proxy.cluster.name";;
 
     private static Map<String, String> props;
 
