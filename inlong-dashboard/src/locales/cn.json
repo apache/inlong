@@ -24,6 +24,8 @@
   "components.AccessHelper.DataSourceMetaData.Db.Port": "服务器端口",
   "components.AccessHelper.DataSourceMetaData.Db.ServerTimezone": "服务器时区",
   "components.AccessHelper.DataSourceMetaData.Db.IntervalMs": "位点刷新间隔",
+  "components.AccessHelper.DataSourceMetaData.Db.User": "用户名",
+  "components.AccessHelper.DataSourceMetaData.Db.Password": "密码",
   "components.AccessHelper.DataSourceMetaData.Db.HistoryFilename": "历史信息文件",
   "components.AccessHelper.DataSourceMetaData.Db.AllMigration": "是否整库迁移",
   "components.AccessHelper.DataSourceMetaData.Db.DatabaseWhiteList": "库名白名单",

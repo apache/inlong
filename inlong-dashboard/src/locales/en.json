@@ -24,6 +24,8 @@
   "components.AccessHelper.DataSourceMetaData.Db.Port": "Port",
   "components.AccessHelper.DataSourceMetaData.Db.ServerTimezone": "Timezone",
   "components.AccessHelper.DataSourceMetaData.Db.IntervalMs": "Recording Offset",
+  "components.AccessHelper.DataSourceMetaData.Db.User": "User",
+  "components.AccessHelper.DataSourceMetaData.Db.Password": "Password",
   "components.AccessHelper.DataSourceMetaData.Db.HistoryFilename": "History Filename",
   "components.AccessHelper.DataSourceMetaData.Db.AllMigration": "Migration Total Database",
   "components.AccessHelper.DataSourceMetaData.Db.DatabaseWhiteList": "Database WhiteList",
