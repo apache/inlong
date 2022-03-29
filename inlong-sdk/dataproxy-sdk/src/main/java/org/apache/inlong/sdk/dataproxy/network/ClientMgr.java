@@ -597,17 +597,20 @@ public class ClientMgr {
     }
 
     private void sendHeartBeat(HostInfo hostInfo, NettyClient client) {
+        if (!client.isActive()) {
+            logger.info("client {} is inActive", hostInfo.getReferenceName());
+            return;
+        }
+        logger.debug("active host to send heartbeat! {}", hostInfo.getReferenceName());
+        String hbMsg = "heartbeat:" + hostInfo.getHostName();
+        EncodeObject encodeObject = new EncodeObject(hbMsg.getBytes(StandardCharsets.UTF_8),
+                8, false, false, false, System.currentTimeMillis() / 1000, 1, "", "", "");
         try {
-            if (client.isActive()) {
-                logger.debug("active host to send heartbeat! {}", hostInfo.getReferenceName());
-                EncodeObject encodeObject = new EncodeObject("heartbeat".getBytes(StandardCharsets.UTF_8),
-                        8, false, false, false, System.currentTimeMillis() / 1000, 1, "", "", "");
-                if (configure.isNeedAuthentication()) {
-                    encodeObject.setAuth(configure.isNeedAuthentication(),
-                            configure.getUserName(), configure.getSecretKey());
-                }
-                client.write(encodeObject);
+            if (configure.isNeedAuthentication()) {
+                encodeObject.setAuth(configure.isNeedAuthentication(),
+                        configure.getUserName(), configure.getSecretKey());
             }
+            client.write(encodeObject);
         } catch (Throwable e) {
             logger.error("sendHeartBeat to " + hostInfo.getReferenceName()
                     + " exception {}, {}", e.toString(), e.getStackTrace());
@@ -673,7 +676,7 @@ public class ClientMgr {
             return;
         }
         logger.info("all hosts are bad, dataClient is empty, reuse them, badHostLists size {}, "
-                        + "proxyInfoList size {}", badHostLists.size(), proxyInfoList.size());
+                + "proxyInfoList size {}", badHostLists.size(), proxyInfoList.size());
 
         List<HostInfo> replaceHostLists = getRealHosts(badHostLists, aliveConnections);
         boolean isSuccess = false;
