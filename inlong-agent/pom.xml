@@ -60,7 +60,6 @@
         <avro.version>1.7.2</avro.version>
         <pulsar.version>2.6.2</pulsar.version>
         <snappy.version>1.1.8.4</snappy.version>
-        <protobuf.version>2.5.0</protobuf.version>
         <httpclient.version>4.5.13</httpclient.version>
         <fastjson.version>1.2.68</fastjson.version>
         <hippoclient.version>2.0.5</hippoclient.version>
@@ -96,11 +95,6 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
                 <version>${springcontext.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.protobuf</groupId>
-                <artifactId>protobuf-java</artifactId>
-                <version>${protobuf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.rocksdb</groupId>
