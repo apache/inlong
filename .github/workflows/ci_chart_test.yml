@@ -55,6 +55,8 @@ jobs:
 
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.2.1
+        with:
+          config: .github/ct.yml
 
       - name: Run chart-testing (list-changed)
         id: list-changed
