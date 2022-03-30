@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
+import org.apache.inlong.common.enums.PullJobTypeEnum;
 import org.apache.inlong.common.pojo.agent.CmdConfig;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
@@ -67,6 +68,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -171,8 +173,14 @@ public class AgentServiceImpl implements AgentService {
         }
 
         // Query the tasks that needed to add or active - without agentIp and uuid
-        List<Integer> needAddStatusList = Arrays.asList(SourceState.TO_BE_ISSUED_ADD.getCode(),
-                SourceState.TO_BE_ISSUED_ACTIVE.getCode());
+        List<Integer> needAddStatusList;
+        if (PullJobTypeEnum.NEVER != PullJobTypeEnum.getPullJobType(request.getPullJobType())) {
+            needAddStatusList = Arrays.asList(SourceState.TO_BE_ISSUED_ADD.getCode(),
+                    SourceState.TO_BE_ISSUED_ACTIVE.getCode());
+        } else {
+            LOGGER.warn("agent pull job type is [NEVER], just pull to be active tasks");
+            needAddStatusList = Collections.singletonList(SourceState.TO_BE_ISSUED_ACTIVE.getCode());
+        }
         List<StreamSourceEntity> entityList = sourceMapper.selectByStatus(needAddStatusList);
 
         String agentIp = request.getAgentIp();
