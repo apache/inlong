@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.DataSeparator;
@@ -40,6 +41,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public class Binlog2KafkaTest {
 
     // Manager web url
@@ -80,7 +82,7 @@ public class Binlog2KafkaTest {
             streamBuilder.initOrUpdate();
             // start group
             InlongGroupContext inlongGroupContext = group.init();
-            System.out.println(inlongGroupContext);
+            log.info("{}", inlongGroupContext);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -98,8 +100,8 @@ public class Binlog2KafkaTest {
         InlongGroupConf groupConf = createGroupConf();
         try {
             InlongGroup group = inlongClient.forGroup(groupConf);
-            InlongGroupContext groupInfo = group.delete(true);
-            System.out.println(groupInfo);
+            InlongGroupContext groupContext = group.delete(true);
+            log.info("{}", groupContext);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -117,8 +119,8 @@ public class Binlog2KafkaTest {
         InlongGroupConf groupConf = createGroupConf();
         try {
             InlongGroup group = inlongClient.forGroup(groupConf);
-            InlongGroupContext groupInfo = group.restart(true);
-            System.out.println(groupInfo);
+            InlongGroupContext groupContext = group.restart(true);
+            log.info("{}", groupContext);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -136,8 +138,8 @@ public class Binlog2KafkaTest {
         InlongGroupConf groupConf = createGroupConf();
         try {
             InlongGroup group = inlongClient.forGroup(groupConf);
-            InlongGroupContext groupInfo = group.suspend(true);
-            System.out.println(groupInfo);
+            InlongGroupContext groupContext = group.suspend(true);
+            log.info("{}", groupContext);
         } catch (Exception e) {
             e.printStackTrace();
         }

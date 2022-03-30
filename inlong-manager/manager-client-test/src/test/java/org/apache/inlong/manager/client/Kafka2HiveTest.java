@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.DataFormat;
@@ -45,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public class Kafka2HiveTest {
 
     // Manager web url
@@ -86,7 +88,7 @@ public class Kafka2HiveTest {
             streamBuilder.initOrUpdate();
             // start group
             InlongGroupContext inlongGroupContext = group.init();
-            System.out.println(inlongGroupContext);
+            log.info("{}",inlongGroupContext);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -104,8 +106,8 @@ public class Kafka2HiveTest {
         InlongGroupConf groupConf = createGroupConf();
         try {
             InlongGroup group = inlongClient.forGroup(groupConf);
-            InlongGroupContext groupInfo = group.delete();
-            System.out.println(groupInfo);
+            InlongGroupContext groupContext = group.delete();
+            log.info("{}",groupContext);
         } catch (Exception e) {
             e.printStackTrace();
         }

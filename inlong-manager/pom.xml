@@ -39,7 +39,6 @@
         <module>manager-docker</module>
         <module>manager-plugin-examples</module>
         <module>manager-client</module>
-        <module>manager-client-test</module>
     </modules>
 
     <properties>
