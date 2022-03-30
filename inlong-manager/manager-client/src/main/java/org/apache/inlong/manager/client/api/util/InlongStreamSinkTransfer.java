@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api.util;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.compress.utils.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.DataSeparator;
 import org.apache.inlong.manager.client.api.SinkField;
@@ -152,7 +153,8 @@ public class InlongStreamSinkTransfer {
                 sinkFieldResponse.getFieldName(),
                 sinkFieldResponse.getFieldComment(),
                 null, sinkFieldResponse.getSourceFieldName(),
-                FieldType.forName(sinkFieldResponse.getSourceFieldType()),
+                StringUtils.isBlank(sinkFieldResponse.getSourceFieldType()) ? null :
+                        FieldType.forName(sinkFieldResponse.getSourceFieldType()),
                 sinkFieldResponse.getIsMetaField(),
                 sinkFieldResponse.getFieldFormat())).collect(Collectors.toList());
 
@@ -238,7 +240,8 @@ public class InlongStreamSinkTransfer {
             request.setFieldType(sinkField.getFieldType().toString());
             request.setFieldComment(sinkField.getFieldComment());
             request.setSourceFieldName(sinkField.getSourceFieldName());
-            request.setSourceFieldType(sinkField.getSourceFieldType().toString());
+            request.setSourceFieldType(
+                    sinkField.getSourceFieldType() == null ? null : sinkField.getSourceFieldType().toString());
             request.setIsMetaField(sinkField.getIsMetaField());
             request.setFieldFormat(sinkField.getFieldFormat());
             fieldRequestList.add(request);
