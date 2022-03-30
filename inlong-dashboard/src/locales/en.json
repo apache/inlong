@@ -42,6 +42,7 @@
   "components.AccessHelper.StorageMetaData.Hive.DataEncoding": "Data encoding",
   "components.AccessHelper.StorageMetaData.Hive.DataSeparator": "Data separator",
   "components.AccessHelper.StorageMetaData.Hive.PartitionFieldList": "PartitionFieldList",
+  "components.AccessHelper.StorageMetaData.Hive.PartitionFieldListHelp": "If the field type is timestamp, you must set the format of the field value, support MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601, and custom, such as: yyyy-MM-dd HH:mm:ss, etc.",
   "components.AccessHelper.StorageMetaData.Hive.TargetDb": "Target DB",
   "components.AccessHelper.StorageMetaData.Hive.TargetTable": "Target table",
   "components.AccessHelper.StorageMetaData.Hive.EnableCreateResource": "EnableCreateResource",

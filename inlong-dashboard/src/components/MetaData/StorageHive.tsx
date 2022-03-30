@@ -297,6 +297,7 @@ const getForm: GetStorageFormFieldsType = (
       name: 'partitionFieldList',
       label: i18n.t('components.AccessHelper.StorageMetaData.Hive.PartitionFieldList'),
       type: EditableTable,
+      tooltip: i18n.t('components.AccessHelper.StorageMetaData.Hive.PartitionFieldListHelp'),
       props: {
         size: 'small',
         required: false,

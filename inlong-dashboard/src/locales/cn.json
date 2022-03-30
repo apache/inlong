@@ -42,6 +42,7 @@
   "components.AccessHelper.StorageMetaData.Hive.DataEncoding": "数据编码",
   "components.AccessHelper.StorageMetaData.Hive.DataSeparator": "字段分隔符",
   "components.AccessHelper.StorageMetaData.Hive.PartitionFieldList": "分区字段",
+  "components.AccessHelper.StorageMetaData.Hive.PartitionFieldListHelp": "字段类型若为timestamp，则必须设置此字段值的格式，支持 MICROSECONDS，MILLISECONDS，SECONDS，SQL，ISO_8601，以及自定义，比如：yyyy-MM-dd HH:mm:ss 等",
   "components.AccessHelper.StorageMetaData.Hive.TargetDb": "目标库",
   "components.AccessHelper.StorageMetaData.Hive.TargetTable": "目标表",
   "components.AccessHelper.StorageMetaData.Hive.EnableCreateResource": "是否创建资源",
