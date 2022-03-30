@@ -53,7 +53,7 @@ export const getDataSourcesBinLogFields = (
     {
       name: 'user',
       type: 'input',
-      label: 'user',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.User'),
       rules: [{ required: true }],
       props: {
         disabled: currentValues?.status === 101,
@@ -62,7 +62,7 @@ export const getDataSourcesBinLogFields = (
     {
       name: 'password',
       type: 'password',
-      label: 'password',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.Password'),
       rules: [{ required: true }],
       props: {
         disabled: currentValues?.status === 101,

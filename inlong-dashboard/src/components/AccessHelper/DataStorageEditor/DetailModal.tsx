@@ -21,6 +21,7 @@ import React, { useMemo, useState, useCallback } from 'react';
 import { Modal } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import { useRequest, useUpdateEffect } from '@/hooks';
+import { useTranslation } from 'react-i18next';
 import FormGenerator, {
   useForm,
   FormItemProps,
@@ -66,6 +67,8 @@ const Comp: React.FC<DetailModalProps> = ({
   ...modalProps
 }) => {
   const [form] = useForm();
+
+  const { t } = useTranslation();
 
   const [currentValues, setCurrentValues] = useState({});
 
@@ -172,13 +175,25 @@ const Comp: React.FC<DetailModalProps> = ({
 
   const formContent = useMemo(() => {
     const getForm = StoragesMap[sinkType].getForm;
-    return getForm('form', {
+    const config = getForm('form', {
       currentValues,
       inlongGroupId,
       isEdit: !!id,
       dataType,
+      form,
     }) as FormItemProps[];
-  }, [sinkType, dataType, inlongGroupId, id, currentValues]);
+    return [
+      {
+        name: 'sinkName',
+        type: 'input',
+        label: t('components.AccessHelper.DataStorageEditor.SinkName'),
+        rules: [{ required: true }],
+        props: {
+          disabled: !!id,
+        },
+      } as FormItemProps,
+    ].concat(config);
+  }, [sinkType, dataType, inlongGroupId, id, currentValues, form, t]);
 
   const onOk = async () => {
     const values = await form.validateFields();
@@ -187,7 +202,7 @@ const Comp: React.FC<DetailModalProps> = ({
   };
 
   const onValuesChangeHandler = (...rest) => {
-    setCurrentValues(rest[1]);
+    setCurrentValues(prev => ({ ...prev, ...rest[1] }));
 
     if (onValuesChange) {
       (onValuesChange as any)(...rest);
