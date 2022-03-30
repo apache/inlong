@@ -124,7 +124,7 @@ public class TestTaskWrapper {
 
         @Override
         public boolean isFinished() {
-            return count > 99999;
+            return count > 10;
         }
 
         @Override
