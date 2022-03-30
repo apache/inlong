@@ -57,7 +57,7 @@ spec:
             done
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }}
-          image: {{ .Values.images.dashboard.repository }}:{{ .Values.images.tubemqManager.tag }}
+          image: {{ .Values.images.dashboard.repository }}:{{ .Values.images.dashboard.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           {{- if .Values.dashboard.resources }}
           resources:

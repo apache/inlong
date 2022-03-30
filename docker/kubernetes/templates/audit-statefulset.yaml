@@ -66,7 +66,7 @@ spec:
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}-$i"
                 host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-                port={{ .Values.manager.port }}
+                port={{ .Values.manager.containerPort }}
                 until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
                 do
                   echo "waiting for $replica to be ready"
@@ -94,11 +94,11 @@ spec:
             - name: MANAGER_OPENAPI_IP
               value: {{ include "inlong.manager.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
-              value: {{ .Values.manager.containerPort }}
+              value: {{ .Values.manager.containerPort | quote }}
             - name: PULSAR_BROKER_LIST
-              value: {{ .Values.external.pulsar.serviceUrl }}
+              value: {{ .Values.external.pulsar.serviceUrl | quote }}
             - name: TUBE_MASTER_LIST
-              value: {{ include "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}
+              value: "{{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}"
             {{- range $key, $value := .Values.audit.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}

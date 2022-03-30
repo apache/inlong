@@ -70,7 +70,7 @@ agent:
       memory: "1Gi"
   containerPort: 8008
   env:
-    AGENT_JVM_HEAP_OPTS: >
+    AGENT_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport
       -XX:InitialRAMPercentage=40.0
       -XX:MaxRAMPercentage=80.0
@@ -100,7 +100,7 @@ dataproxy:
       memory: "1Gi"
   containerPort: 46801
   env:
-    DATAPROXY_JVM_HEAP_OPTS: >
+    DATAPROXY_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport
       -XX:InitialRAMPercentage=40.0
       -XX:MaxRAMPercentage=80.0
@@ -115,7 +115,7 @@ tubemqManager:
       memory: "1Gi"
   containerPort: 8089
   env:
-    TUBE_MANAGER_JVM_HEAP_OPTS: >
+    TUBE_MANAGER_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport
       -XX:InitialRAMPercentage=40.0
       -XX:MaxRAMPercentage=80.0
@@ -133,7 +133,7 @@ manager:
   username: "root"
   password: "inlong"
   env:
-    MANAGER_JVM_HEAP_OPTS: >
+    MANAGER_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport
       -XX:InitialRAMPercentage=40.0
       -XX:MaxRAMPercentage=80.0
@@ -151,7 +151,7 @@ audit:
   ports:
     webPort: 10081
   env:
-    AUDIT_JVM_HEAP_OPTS: >
+    AUDIT_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport
       -XX:InitialRAMPercentage=40.0
       -XX:MaxRAMPercentage=80.0
@@ -251,7 +251,7 @@ tubemqMaster:
     usePolicy: true
     maxUnavailable: 1
   env:
-    MASTER_JVM_SIZE: >
+    MASTER_JVM_SIZE: >-
       -XX:+UseContainerSupport
       -XX:InitialRAMPercentage=40.0
       -XX:MaxRAMPercentage=80.0
@@ -294,7 +294,7 @@ tubemqBroker:
     usePolicy: true
     maxUnavailable: 1
   env:
-    BROKER_JVM_SIZE: >
+    BROKER_JVM_SIZE: >-
       -XX:+UseContainerSupport
       -XX:InitialRAMPercentage=40.0
       -XX:MaxRAMPercentage=80.0
