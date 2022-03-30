@@ -102,7 +102,7 @@ public class BinlogTimeConverter implements CustomConverter<SchemaBuilder, Relat
             LocalDate date = LocalDate.ofEpochDay((Integer) input);
             return dateFormatter.format(date);
         }
-        return input.toString();
+        return input == null ? null : input.toString();
     }
 
     private String convertTime(Object input) {
@@ -113,14 +113,14 @@ public class BinlogTimeConverter implements CustomConverter<SchemaBuilder, Relat
             LocalTime time = LocalTime.ofSecondOfDay(seconds).withNano(nano);
             return timeFormatter.format(time);
         }
-        return input.toString();
+        return input == null ? null : input.toString();
     }
 
     private String convertDateTime(Object input) {
         if (input instanceof LocalDateTime) {
             return datetimeFormatter.format((LocalDateTime) input);
         }
-        return input.toString();
+        return input == null ? null : input.toString();
     }
 
     private String convertTimestamp(Object input) {
@@ -129,7 +129,7 @@ public class BinlogTimeConverter implements CustomConverter<SchemaBuilder, Relat
             LocalDateTime localDateTime = zonedDateTime.withZoneSameInstant(timestampZoneId).toLocalDateTime();
             return timestampFormatter.format(localDateTime);
         }
-        return input.toString();
+        return input == null ? null : input.toString();
     }
 
 }
