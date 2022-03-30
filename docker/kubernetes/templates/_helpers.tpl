@@ -74,6 +74,13 @@ release: {{ .Release.Name }}
 {{- end -}}
 
 {{/*
+Define the audit hostname
+*/}}
+{{- define "inlong.audit.hostname" -}}
+${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.audit.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{- end -}}
+
+{{/*
 Define the manager hostname
 */}}
 {{- define "inlong.manager.hostname" -}}

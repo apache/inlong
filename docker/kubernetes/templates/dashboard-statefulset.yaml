@@ -48,7 +48,7 @@ spec:
             do
               replica="{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}-$i"
               host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-              port={{ .Values.manager.ports.webPort }}
+              port={{ .Values.manager.containerPort }}
               until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
               do
                 echo "waiting for $replica to be ready"
@@ -57,7 +57,7 @@ spec:
             done
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }}
-          image: {{ .Values.images.dashboard.repository }}:{{ .Values.images.tubemqManager.tag }}
+          image: {{ .Values.images.dashboard.repository }}:{{ .Values.images.dashboard.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           {{- if .Values.dashboard.resources }}
           resources:

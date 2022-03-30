@@ -92,7 +92,7 @@ spec:
                   name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
                   key: mysql-password
             - name: TUBE_MASTER_IP
-              value: {{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}
+              value: "{{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}"
             {{- range $key, $value := .Values.tubemqManager.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
