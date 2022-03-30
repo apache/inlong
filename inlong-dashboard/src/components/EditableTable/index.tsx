@@ -18,7 +18,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Button, Table, Input, InputNumber, Form } from 'antd';
+import { AutoComplete, Button, Table, Input, InputNumber, Form } from 'antd';
 import { FormItemProps } from 'antd/lib/form';
 import { useTranslation } from 'react-i18next';
 import HighSelect from '@/components/HighSelect';
@@ -58,6 +58,8 @@ export interface EditableTableProps {
   columns: ColumnsItemProps[];
   // Can Edit(Can be changed to read-only)? Default: true.
   editing?: boolean;
+  // If is not required, all rows can be delete. Default: true.
+  required?: boolean;
   // Can remove a line? Default: true.
   canDelete?: boolean | ((rowVal: RowValueType, idx: number, isNew?: boolean) => boolean);
   // Can add a new line? Default: true.
@@ -94,6 +96,7 @@ const Comp = ({
   onChange,
   columns,
   editing = true,
+  required = true,
   canDelete = true,
   canAdd = true,
   size,
@@ -102,10 +105,12 @@ const Comp = ({
 
   const [data, setData] = useState<RecordType[]>(
     addIdToValues(value) ||
-      [getRowInitialValue(columns)].map(item => ({
-        ...item,
-        _etid: `_etnew_${item._etid}`, // The tag of new.
-      })),
+      (required
+        ? [getRowInitialValue(columns)].map(item => ({
+            ...item,
+            _etid: `_etnew_${item._etid}`, // The tag of new.
+          }))
+        : []),
   );
 
   const [colsSet, setColsSet] = useState(new Set(columns.map(item => item.dataIndex)));
@@ -174,6 +179,11 @@ const Comp = ({
       } else if (
         typeof item.visible === 'function' ? !item.visible(text, record) : item.visible === false
       ) {
+        if (text !== undefined) {
+          setTimeout(() => {
+            onTextChange({ [item.dataIndex]: undefined }, record);
+          }, 0);
+        }
         return '-';
       }
 
@@ -199,6 +209,21 @@ const Comp = ({
         ),
         select: (
           <HighSelect
+            dropdownMatchSelectWidth={false}
+            {...props}
+            value={text}
+            onChange={(value, ...rest) => {
+              onTextChange({ [item.dataIndex]: value }, record);
+              if (props.onChange) {
+                // onChange supports returning an object, triggering the change of value
+                const result = (props.onChange as Function)(value, ...rest);
+                if (result) onTextChange(result, record);
+              }
+            }}
+          />
+        ),
+        autocomplete: (
+          <AutoComplete
             dropdownMatchSelectWidth={false}
             {...props}
             value={text}
@@ -240,7 +265,7 @@ const Comp = ({
       dataIndex: 'actions',
       width: 100,
       render: (text, record, idx) =>
-        data.length !== 1 &&
+        (required ? data.length !== 1 : true) &&
         (typeof canDelete === 'boolean'
           ? canDelete
           : canDelete(record, idx, record._etid?.indexOf('_etnew_') === 0)) && (

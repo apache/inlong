@@ -82,7 +82,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     {
       url: '/stream/list',
       method: 'POST',
-      params: {
+      data: {
         pageNum: 1,
         pageSize: 1000,
         inlongGroupId,
