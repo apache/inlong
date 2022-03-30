@@ -21,9 +21,9 @@ package org.apache.inlong.sort.flink.hive.formats.orc;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.Map;
 
 import org.apache.flink.shaded.guava18.com.google.common.annotations.VisibleForTesting;
@@ -36,6 +36,7 @@ import org.apache.orc.TypeDescription;
 import org.apache.orc.storage.common.type.HiveDecimal;
 import org.apache.orc.storage.ql.exec.vector.BytesColumnVector;
 import org.apache.orc.storage.ql.exec.vector.ColumnVector;
+import org.apache.orc.storage.ql.exec.vector.DateColumnVector;
 import org.apache.orc.storage.ql.exec.vector.DecimalColumnVector;
 import org.apache.orc.storage.ql.exec.vector.DoubleColumnVector;
 import org.apache.orc.storage.ql.exec.vector.ListColumnVector;
@@ -123,8 +124,8 @@ public class RowVectorizer implements Serializable {
                 break;
             }
             case DATE: {
-                LongColumnVector vector = (LongColumnVector) column;
-                vector.vector[rowId] = ((Date) field).getTime();
+                DateColumnVector vector = (DateColumnVector) column;
+                vector.vector[rowId] = ((Date) field).toLocalDate().toEpochDay();
                 break;
             }
             case INTEGER: {
