@@ -119,7 +119,7 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         if (!SourceState.ALLOWED_UPDATE.contains(entity.getStatus())) {
-            throw new RuntimeException(String.format("Source=%s is not allowed to update, "
+            throw new BusinessException(String.format("Source=%s is not allowed to update, "
                     + "please wait until its changed to final status or stop / frozen / delete it firstly", entity));
         }
         // Setting updated parameters of stream source entity.
@@ -138,7 +138,7 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
         SourceState curState = SourceState.forCode(existEntity.getStatus());
         SourceState nextState = SourceState.TO_BE_ISSUED_FROZEN;
         if (!SourceState.isAllowedTransition(curState, nextState)) {
-            throw new RuntimeException(String.format("Source=%s is not allowed to stop", existEntity));
+            throw new BusinessException(String.format("Source=%s is not allowed to stop", existEntity));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
         curEntity.setVersion(existEntity.getVersion() + 1);
@@ -155,7 +155,7 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
         SourceState curState = SourceState.forCode(existEntity.getStatus());
         SourceState nextState = SourceState.TO_BE_ISSUED_ACTIVE;
         if (!SourceState.isAllowedTransition(curState, nextState)) {
-            throw new RuntimeException(String.format("Source=%s is not allowed to restart", existEntity));
+            throw new BusinessException(String.format("Source=%s is not allowed to restart", existEntity));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
         curEntity.setVersion(existEntity.getVersion() + 1);
@@ -179,7 +179,7 @@ public abstract class AbstractStreamSourceOperation implements StreamSourceOpera
             nextState = SourceState.SOURCE_DISABLE;
         }
         if (!SourceState.isAllowedTransition(curState, nextState)) {
-            throw new RuntimeException(String.format("Source=%s is not allowed to delete", existEntity));
+            throw new BusinessException(String.format("Source=%s is not allowed to delete", existEntity));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
         curEntity.setVersion(existEntity.getVersion() + 1);

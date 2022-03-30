@@ -20,40 +20,17 @@ package org.apache.inlong.manager.common.pojo.sink;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
- * Sink field info
+ * Sink field request.
  */
 @Data
-@ApiModel("Sink field info")
-public class SinkFieldRequest {
-
-    @ApiModelProperty("Field name")
-    private String fieldName;
-
-    @ApiModelProperty("Field type")
-    private String fieldType;
-
-    @ApiModelProperty("Field comment")
-    private String fieldComment;
-
-    @ApiModelProperty("Required or not, 0: no need, 1: required")
-    private Integer isRequired;
-
-    @ApiModelProperty("Source field name")
-    private String sourceFieldName;
-
-    @ApiModelProperty("Source field type")
-    private String sourceFieldType;
+@EqualsAndHashCode(callSuper = true)
+@ApiModel("Sink field request")
+public class SinkFieldRequest extends SinkFieldBase {
 
     @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
     private Integer isMetaField = 0;
-
-    @ApiModelProperty("Field format,including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
-            + " and custom such as 'yyyy-MM-dd HH:mm:ss' etc,maybe this is mainly used for time format")
-    private String fieldFormat;
-
-    @ApiModelProperty("Field order")
-    private Short rankNum;
 
 }

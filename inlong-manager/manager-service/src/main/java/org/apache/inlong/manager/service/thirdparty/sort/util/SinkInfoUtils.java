@@ -23,14 +23,14 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.FileFormat;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
-import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.sink.SinkFieldBase;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
@@ -44,28 +44,16 @@ import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class SinkInfoUtils {
 
-    private static final Map<String, String> PARTITION_TIME_FORMAT_MAP = new HashMap<>();
-
-    private static final Map<String, TimeUnit> PARTITION_TIME_UNIT_MAP = new HashMap<>();
-
-    static {
-        PARTITION_TIME_FORMAT_MAP.put("D", "yyyyMMdd");
-        PARTITION_TIME_FORMAT_MAP.put("H", "yyyyMMddHH");
-        PARTITION_TIME_FORMAT_MAP.put("I", "yyyyMMddHHmm");
-
-        PARTITION_TIME_UNIT_MAP.put("D", TimeUnit.DAYS);
-        PARTITION_TIME_UNIT_MAP.put("H", TimeUnit.HOURS);
-        PARTITION_TIME_UNIT_MAP.put("I", TimeUnit.MINUTES);
-    }
+    private static final String DATA_FORMAT = "yyyyMMddHH";
+    private static final String TIME_FORMAT = "HHmmss";
+    private static final String DATA_TIME_FORMAT = "yyyyMMddHHmmss";
 
     /**
      * Create sink info for DataFlowInfo.
@@ -153,59 +141,29 @@ public class SinkInfoUtils {
         } else {
             fileFormat = new HiveSinkInfo.TextFileFormat(separator);
         }
-        // The primary partition field, in Sink must be HiveTimePartitionInfo
-//        List<HivePartitionInfo> partitionList = new ArrayList<>();
-//        String primary = hiveInfo.getPrimaryPartition();
-//        if (StringUtils.isNotEmpty(primary)) {
-//            // Hive partitions are by day, hour, and minute
-//            String unit = hiveInfo.getPartitionUnit();
-//        HiveTimePartitionInfo timePartitionInfo = new HiveTimePartitionInfo(
-//                primary, PARTITION_TIME_FORMAT_MAP.get(unit));
-//            partitionList.add(timePartitionInfo);
-//        }
-        // For the secondary partition field, the sink is temporarily encapsulated as HiveFieldPartitionInfo,
-        // TODO the type be set according to the type of the field itself.
-//        if (StringUtils.isNotEmpty(hiveInfo.getSecondaryPartition())) {
-//            partitionList.add(new HiveSinkInfo.HiveFieldPartitionInfo(hiveInfo.getSecondaryPartition()));
-//        }
 
         // Handle hive partition list
-        List<HivePartitionInfo> partitionList;
-        if (CollectionUtils.isNotEmpty(hiveInfo.getPartitionFieldList())) {
-            checkPartitionField(hiveInfo);
-            hiveInfo.getPartitionFieldList().sort(Comparator.comparing(HivePartitionField::getRankNum));
-            partitionList = hiveInfo.getPartitionFieldList().stream().map(s -> {
+        List<HivePartitionInfo> partitionList = new ArrayList<>();
+        List<HivePartitionField> partitionFieldList = hiveInfo.getPartitionFieldList();
+        if (CollectionUtils.isNotEmpty(partitionFieldList)) {
+            SinkInfoUtils.checkPartitionField(hiveInfo.getFieldList(), partitionFieldList);
+            partitionList = partitionFieldList.stream().map(s -> {
                 HivePartitionInfo partition;
+                String fieldFormat = s.getFieldFormat();
                 switch (FieldType.forName(s.getFieldType())) {
-                    case TIME:
-                        if (StringUtils.isNotBlank(s.getFieldFormat())) {
-                            partition = new HiveTimePartitionInfo(s.getFieldName(), s.getFieldFormat());
-                        } else {
-                            partition = new HiveTimePartitionInfo(s.getFieldName(), "HH:mm:ss");
-                        }
-                        break;
                     case TIMESTAMP:
-                        if (StringUtils.isNotBlank(s.getFieldFormat())) {
-                            partition = new HiveTimePartitionInfo(s.getFieldName(), s.getFieldFormat());
-                        } else {
-                            partition = new HiveTimePartitionInfo(s.getFieldName(),
-                                    "yyyy-MM-dd HH:mm:ss");
-                        }
+                        fieldFormat = StringUtils.isNotBlank(fieldFormat) ? fieldFormat : DATA_TIME_FORMAT;
+                        partition = new HiveTimePartitionInfo(s.getFieldName(), fieldFormat);
                         break;
                     case DATE:
-                        if (StringUtils.isNotBlank(s.getFieldFormat())) {
-                            partition = new HiveTimePartitionInfo(s.getFieldName(), s.getFieldFormat());
-                        } else {
-                            partition = new HiveTimePartitionInfo(s.getFieldName(), "yyyy-MM-dd");
-                        }
+                        fieldFormat = StringUtils.isNotBlank(fieldFormat) ? fieldFormat : DATA_FORMAT;
+                        partition = new HiveTimePartitionInfo(s.getFieldName(), fieldFormat);
                         break;
                     default:
                         partition = new HiveFieldPartitionInfo(s.getFieldName());
                 }
                 return partition;
             }).collect(Collectors.toList());
-        } else {
-            partitionList = new ArrayList<>();
         }
 
         // dataPath = dataPath + / + tableName
@@ -221,23 +179,37 @@ public class SinkInfoUtils {
                 dataPath, partitionList.toArray(new HiveSinkInfo.HivePartitionInfo[0]), fileFormat);
     }
 
-    private static void checkPartitionField(HiveSinkResponse hiveInfo) {
-        if (CollectionUtils.isNotEmpty(hiveInfo.getPartitionFieldList())) {
-            Preconditions.checkNotEmpty(hiveInfo.getFieldList(),
-                    String.format("%s:%s",
-                            ErrorCodeEnum.SINK_FIELD_LIST_IS_EMPTY.getMessage(), hiveInfo.getSinkType()));
-            Map<String, SinkFieldResponse> sinkFieldMap = new HashMap<>(hiveInfo.getFieldList().size());
-            hiveInfo.getFieldList().forEach(s -> sinkFieldMap.put(s.getFieldName(), s));
-            for (HivePartitionField partitionFieldInfo : hiveInfo.getPartitionFieldList()) {
-                Preconditions.checkNotEmpty(partitionFieldInfo.getFieldName(), String.format("%s:%s",
-                        ErrorCodeEnum.SINK_PARTITION_FIELD_NAME_IS_EMPTY.getMessage(), hiveInfo.getSinkType()));
-                SinkFieldResponse sinkFieldResponse = sinkFieldMap.get(partitionFieldInfo.getFieldName());
-                Preconditions.checkNotNull(sinkFieldResponse, String.format("%s:%s",
-                        ErrorCodeEnum.SINK_PARTITION_FIELD_NOT_FOUND_IN_SINK_FIELD_LIST.getMessage(),
-                        hiveInfo.getSinkType()));
-                Preconditions.checkNotEmpty(sinkFieldResponse.getSourceFieldName(), String.format("%s:%s",
-                        ErrorCodeEnum.SOURCE_FIELD_NAME_OF_SINK_PARTITION_FIELD_IS_EMPTY.getMessage(),
-                        hiveInfo.getSinkType()));
+    /**
+     * Check the validation of Hive partition field.
+     */
+    public static void checkPartitionField(List<? extends SinkFieldBase> fieldList,
+            List<HivePartitionField> partitionList) {
+        if (CollectionUtils.isEmpty(partitionList)) {
+            return;
+        }
+
+        if (CollectionUtils.isEmpty(fieldList)) {
+            throw new BusinessException(ErrorCodeEnum.SINK_FIELD_LIST_IS_EMPTY);
+        }
+
+        Map<String, SinkFieldBase> sinkFieldMap = new HashMap<>(fieldList.size());
+        fieldList.forEach(field -> sinkFieldMap.put(field.getFieldName(), field));
+
+        for (HivePartitionField partitionField : partitionList) {
+            String fieldName = partitionField.getFieldName();
+            if (StringUtils.isBlank(fieldName)) {
+                throw new BusinessException(ErrorCodeEnum.PARTITION_FIELD_NAME_IS_EMPTY);
+            }
+
+            SinkFieldBase sinkField = sinkFieldMap.get(fieldName);
+            if (sinkField == null) {
+                throw new BusinessException(
+                        String.format(ErrorCodeEnum.PARTITION_FIELD_NOT_FOUND.getMessage(), fieldName));
+            }
+
+            if (StringUtils.isBlank(sinkField.getSourceFieldName())) {
+                throw new BusinessException(
+                        String.format(ErrorCodeEnum.PARTITION_FIELD_NO_SOURCE_FIELD.getMessage(), fieldName));
             }
         }
     }

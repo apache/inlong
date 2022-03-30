@@ -37,8 +37,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -131,7 +131,6 @@ public class DefaultHiveTableOperator implements IHiveTableOperator {
 
         // Set partition fields
         if (CollectionUtils.isNotEmpty(hiveInfo.getPartitionFieldList())) {
-            hiveInfo.getPartitionFieldList().sort(Comparator.comparing(HivePartitionField::getRankNum));
             for (HivePartitionField field : hiveInfo.getPartitionFieldList()) {
                 HiveColumnQueryBean columnBean = new HiveColumnQueryBean();
                 columnBean.setColumnName(field.getFieldName());
