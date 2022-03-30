@@ -30,6 +30,14 @@ import org.apache.inlong.manager.common.enums.FieldType;
 @ApiModel("Stream field configuration")
 public class StreamField {
 
+    public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue) {
+        this.id = index;
+        this.fieldType = fieldType;
+        this.fieldName = fieldName;
+        this.fieldComment = fieldComment;
+        this.fieldValue = fieldValue;
+    }
+
     @ApiModelProperty("Field index")
     private Integer id;
 
