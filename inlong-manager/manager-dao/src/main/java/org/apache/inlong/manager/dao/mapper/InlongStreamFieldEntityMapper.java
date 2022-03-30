@@ -38,8 +38,6 @@ public interface InlongStreamFieldEntityMapper {
     List<InlongStreamFieldEntity> selectFields(@Param("groupId") String groupId,
             @Param("streamId") String streamId);
 
-    int updateByPrimaryKey(InlongStreamFieldEntity record);
-
     int deleteByPrimaryKey(Integer id);
 
     /**

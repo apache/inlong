@@ -110,22 +110,6 @@
           and field.is_predefined_field = 0
     </select>
 
-    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity">
-        update inlong_stream_field
-        set inlong_group_id     = #{inlongGroupId,jdbcType=VARCHAR},
-            inlong_stream_id    = #{inlongStreamId,jdbcType=VARCHAR},
-            is_predefined_field = #{isPredefinedField,jdbcType=INTEGER},
-            field_name          = #{fieldName,jdbcType=VARCHAR},
-            field_value         = #{fieldValue,jdbcType=VARCHAR},
-            pre_expression      = #{preExpression,jdbcType=VARCHAR},
-            field_type          = #{fieldType,jdbcType=VARCHAR},
-            is_meta_field       = #(isMetaField,jdbcType=SMALLINT),
-            field_format        = #{fieldFormat,jdbcType=VARCHAR},
-            field_comment       = #{fieldComment,jdbcType=VARCHAR},
-            rank_num            = #{rankNum,jdbcType=SMALLINT},
-            is_deleted          = #{isDeleted,jdbcType=INTEGER}
-        where id = #{id,jdbcType=INTEGER}
-    </update>
     <update id="logicDeleteAllByIdentifier">
         update inlong_stream_field
         set is_deleted = 1

@@ -135,8 +135,7 @@ public class SerializationUtils {
     /**
      * Get deserialization info for File
      */
-    private static DeserializationInfo deserializeForFile(SourceResponse sourceResponse,
-            InlongStreamInfo streamInfo) {
+    private static DeserializationInfo deserializeForFile(SourceResponse sourceResponse, InlongStreamInfo streamInfo) {
         String serializationType = sourceResponse.getSerializationType();
         DataTypeEnum dataType = DataTypeEnum.forName(serializationType);
         switch (dataType) {

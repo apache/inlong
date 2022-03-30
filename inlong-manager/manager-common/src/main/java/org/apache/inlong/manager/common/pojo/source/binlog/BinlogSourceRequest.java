@@ -84,7 +84,7 @@ public class BinlogSourceRequest extends SourceRequest {
      * generally not used.
      */
     @ApiModelProperty("Snapshot mode, supports: initial, when_needed, never, schema_only, schema_only_recovery")
-    private String snapshotMode;
+    private String snapshotMode = "initial";
 
     @ApiModelProperty("The file path to store offset info")
     private String offsetFilename;

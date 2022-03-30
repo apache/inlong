@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * Sink partition field info
+ * Hive partition field info
  */
 @Data
 @ApiModel("Hive partition field")
@@ -34,13 +34,8 @@ public class HivePartitionField {
     @ApiModelProperty("Field type")
     private String fieldType;
 
-    @ApiModelProperty("Field comment")
-    private String fieldComment;
-
-    @ApiModelProperty("Field format,including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
-            + " and custom such as 'yyyy-MM-dd HH:mm:ss' etc,maybe this is mainly used for time format")
+    @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
+            + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
     private String fieldFormat;
 
-    @ApiModelProperty("Field order")
-    private Short rankNum = 0;
 }
