@@ -19,7 +19,6 @@ package org.apache.inlong.manager.plugin.flink;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.inlong.manager.plugin.conf.FlinkConfiguration;
 import org.apache.inlong.manager.plugin.flink.dto.LoginConf;
 
 import java.io.BufferedWriter;
@@ -32,12 +31,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static org.apache.inlong.manager.plugin.flink.Constants.ADDRESS;
-import static org.apache.inlong.manager.plugin.flink.Constants.JOB_MANAGER_PORT;
-import static org.apache.inlong.manager.plugin.flink.Constants.PARALLELISM;
-import static org.apache.inlong.manager.plugin.flink.Constants.PORT;
-import static org.apache.inlong.manager.plugin.flink.Constants.SAVEPOINT_DIRECTORY;
 
 @Slf4j
 public class FlinkUtils {
@@ -68,24 +61,6 @@ public class FlinkUtils {
             }
         }
         return latestFinkVersion;
-    }
-
-    /**
-     * init FlinkConfig
-     * @return
-     */
-    public static FlinkConfig initFlinkConfig() {
-        FlinkConfiguration flinkConfiguration = FlinkConfiguration.getFlinkConf();
-        FlinkConfig flinkConfig = new FlinkConfig();
-        flinkConfig.setJobManagerPort(
-                Integer.valueOf(flinkConfiguration.get(JOB_MANAGER_PORT)));
-        flinkConfig.setParallelism(
-                Integer.valueOf(flinkConfiguration.get(PARALLELISM)));
-        flinkConfig.setPort(
-                Integer.valueOf(flinkConfiguration.get(PORT)));
-        flinkConfig.setAddress(flinkConfiguration.get(ADDRESS));
-        flinkConfig.setSavepointDirectory(flinkConfiguration.get(SAVEPOINT_DIRECTORY));
-        return  flinkConfig;
     }
 
     /**

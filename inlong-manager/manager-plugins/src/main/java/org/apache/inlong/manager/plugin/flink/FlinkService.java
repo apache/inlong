@@ -42,6 +42,7 @@ import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.messages.Acknowledge;
 import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.plugin.conf.FlinkConfiguration;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.dto.JarRunRequestbody;
 import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequestBody;
@@ -53,8 +54,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import static org.apache.inlong.manager.plugin.flink.FlinkUtils.initFlinkConfig;
-
 @Slf4j
 public class FlinkService {
     private final FlinkConfig flinkConfig;
@@ -65,8 +64,9 @@ public class FlinkService {
     private final Integer parallelism;
     private final String savepointDirectory;
 
-    public FlinkService() {
-        flinkConfig = initFlinkConfig();
+    public FlinkService() throws IOException {
+        FlinkConfiguration flinkConfiguration = new FlinkConfiguration();
+        flinkConfig = flinkConfiguration.getFlinkConfig();
         address = flinkConfig.getAddress();
         port = flinkConfig.getPort();
         jobManagerPort = flinkConfig.getJobManagerPort();

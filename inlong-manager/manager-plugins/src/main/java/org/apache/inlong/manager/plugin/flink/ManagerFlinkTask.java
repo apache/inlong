@@ -94,14 +94,6 @@ public class ManagerFlinkTask {
     public void genPath(FlinkInfo flinkInfo, String dataflow) {
         String path = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         path = path.substring(0, path.lastIndexOf(File.separator));
-//        String resource = "resource";
-//        String jarPath = path + File.separator + resource + File.separator + Constants.SORT_JAR;
-//        File file = new File(jarPath);
-//        if (!file.exists()) {
-//            log.warn("file path:[{}] not found sort jar", jarPath);
-//            throw new BusinessException(BusinessExceptionDesc.InternalError + " not found sort jar");
-//        }
-//        flinkInfo.setLocalJarPath(jarPath);
         if (path.contains("inlong-manager")) {
             path = path.substring(0, path.indexOf("inlong-manager"));
             String resource = "inlong-sort";
