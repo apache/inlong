@@ -56,7 +56,6 @@ import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
-import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFieldPartitionInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HivePartitionInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.ParquetFileFormat;
 import org.apache.parquet.example.data.Group;
@@ -168,7 +167,6 @@ public class ParquetBulkWriterTest {
                 "testPassword",
                 "/path",
                 new HivePartitionInfo[] {
-                        new HiveFieldPartitionInfo("f13"),
                 },
                 new ParquetFileFormat()
         );

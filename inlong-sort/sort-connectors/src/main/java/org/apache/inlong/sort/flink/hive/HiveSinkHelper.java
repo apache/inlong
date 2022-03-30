@@ -17,8 +17,10 @@
 
 package org.apache.inlong.sort.flink.hive;
 
-import java.util.ArrayList;
+import com.google.common.annotations.VisibleForTesting;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.flink.api.common.serialization.BulkWriter;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
@@ -31,6 +33,7 @@ import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFileFormat;
+import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HivePartitionInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.OrcFileFormat;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.ParquetFileFormat;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.TextFileFormat;
@@ -43,8 +46,9 @@ public class HiveSinkHelper {
     public static BulkWriter.Factory<Row> createBulkWriterFactory(
             HiveSinkInfo hiveSinkInfo,
             Configuration config) {
-        String[] fieldNames = getFieldNames(hiveSinkInfo).toArray(new String[0]);
-        LogicalType[] fieldTypes = getFieldLogicalTypes(hiveSinkInfo).toArray(new LogicalType[0]);
+        final FieldInfo[] fieldInfos = getNonPartitionFields(hiveSinkInfo);
+        String[] fieldNames = getFieldNames(fieldInfos);
+        LogicalType[] fieldTypes = getFieldLogicalTypes(fieldInfos);
         RowType rowType = RowType.of(fieldTypes, fieldNames);
         HiveFileFormat hiveFileFormat = hiveSinkInfo.getHiveFileFormat();
         if (hiveFileFormat instanceof ParquetFileFormat) {
@@ -59,23 +63,28 @@ public class HiveSinkHelper {
         }
     }
 
-    private static List<String> getFieldNames(HiveSinkInfo hiveSinkInfo) {
-        FieldInfo[] fieldInfos = hiveSinkInfo.getFields();
-        List<String> fieldNames = new ArrayList<>();
-        for (FieldInfo fieldInfo : fieldInfos) {
-            fieldNames.add(fieldInfo.getName());
-        }
-
-        return fieldNames;
+    @VisibleForTesting
+    static FieldInfo[] getNonPartitionFields(HiveSinkInfo hiveSinkInfo) {
+        final List<String> partitionFields =
+                Arrays.stream(hiveSinkInfo.getPartitions())
+                        .map(HivePartitionInfo::getFieldName)
+                        .collect(Collectors.toList());
+        return Arrays.stream(hiveSinkInfo.getFields())
+                .filter(fieldInfo -> !partitionFields.contains(fieldInfo.getName()))
+                .toArray(FieldInfo[]::new);
     }
 
-    private static List<LogicalType> getFieldLogicalTypes(HiveSinkInfo hiveSinkInfo) {
-        FieldInfo[] fieldInfos = hiveSinkInfo.getFields();
-        List<LogicalType> fieldLogicalTypes = new ArrayList<>();
-        for (FieldInfo fieldInfo : fieldInfos) {
-            fieldLogicalTypes.add(TableFormatUtils.deriveLogicalType(fieldInfo.getFormatInfo()));
-        }
+    @VisibleForTesting
+    static String[] getFieldNames(FieldInfo[] fieldInfos) {
+        return Arrays.stream(fieldInfos)
+                .map(FieldInfo::getName)
+                .toArray(String[]::new);
+    }
 
-        return fieldLogicalTypes;
+    @VisibleForTesting
+    static LogicalType[] getFieldLogicalTypes(FieldInfo[] fieldInfos) {
+        return Arrays.stream(fieldInfos)
+                .map(fieldInfo -> TableFormatUtils.deriveLogicalType(fieldInfo.getFormatInfo()))
+                .toArray(LogicalType[]::new);
     }
 }

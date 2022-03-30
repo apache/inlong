@@ -38,7 +38,6 @@ import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
-import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFieldPartitionInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HivePartitionInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.OrcFileFormat;
 import org.apache.inlong.sort.util.TestLogger;
@@ -159,7 +158,6 @@ public class OrcBulkWriterTest extends TestLogger {
                 "testPassword",
                 "/path",
                 new HivePartitionInfo[]{
-                        new HiveFieldPartitionInfo("f3"),
                 },
                 new OrcFileFormat(64));
     }
