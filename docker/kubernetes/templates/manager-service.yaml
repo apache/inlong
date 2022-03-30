@@ -27,7 +27,7 @@ spec:
   type: ClusterIP
   ports:
     - name: {{ .Values.manager.component }}-port
-      port: {{ .Values.manager.ports.webPort }}
+      port: {{ .Values.manager.containerPort }}
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.manager.component }}
