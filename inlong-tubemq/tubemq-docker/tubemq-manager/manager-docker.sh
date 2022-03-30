@@ -25,7 +25,7 @@ spring.mvc.pathmatch.matching-strategy = ANT_PATH_MATCHER
 topic.config.schedule=0/5 * * * * ?
 broker.reload.schedule=0/5 * * * * ?
 # mysql configuration for manager
-spring.datasource.url=jdbc:mysql://$MYSQL_HOST:$MYSQL_PORT/tubemanager?useSSL=false
+spring.datasource.url=jdbc:mysql://$MYSQL_HOST:$MYSQL_PORT/apache_inlong_tubemq?useSSL=false
 spring.datasource.username=$MYSQL_USER
 spring.datasource.password=$MYSQL_PASSWD
 # server port
