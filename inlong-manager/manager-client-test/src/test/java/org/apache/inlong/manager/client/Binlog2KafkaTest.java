@@ -33,6 +33,7 @@ import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.sink.KafkaSink;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
 import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.shiro.util.Assert;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -82,7 +83,7 @@ public class Binlog2KafkaTest {
             streamBuilder.initOrUpdate();
             // start group
             InlongGroupContext inlongGroupContext = group.init();
-            log.info("{}", inlongGroupContext);
+            Assert.notNull(inlongGroupContext);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -101,7 +102,7 @@ public class Binlog2KafkaTest {
         try {
             InlongGroup group = inlongClient.forGroup(groupConf);
             InlongGroupContext groupContext = group.delete(true);
-            log.info("{}", groupContext);
+            Assert.notNull(groupContext);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -120,7 +121,7 @@ public class Binlog2KafkaTest {
         try {
             InlongGroup group = inlongClient.forGroup(groupConf);
             InlongGroupContext groupContext = group.restart(true);
-            log.info("{}", groupContext);
+            Assert.notNull(groupContext);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -139,7 +140,7 @@ public class Binlog2KafkaTest {
         try {
             InlongGroup group = inlongClient.forGroup(groupConf);
             InlongGroupContext groupContext = group.suspend(true);
-            log.info("{}", groupContext);
+            Assert.notNull(groupContext);
         } catch (Exception e) {
             e.printStackTrace();
         }

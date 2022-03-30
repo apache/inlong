@@ -37,6 +37,7 @@ import org.apache.inlong.manager.client.api.sink.HiveSink;
 import org.apache.inlong.manager.client.api.source.KafkaSource;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.FileFormat;
+import org.apache.shiro.util.Assert;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -88,7 +89,7 @@ public class Kafka2HiveTest {
             streamBuilder.initOrUpdate();
             // start group
             InlongGroupContext inlongGroupContext = group.init();
-            log.info("{}",inlongGroupContext);
+            Assert.notNull(inlongGroupContext);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -107,7 +108,7 @@ public class Kafka2HiveTest {
         try {
             InlongGroup group = inlongClient.forGroup(groupConf);
             InlongGroupContext groupContext = group.delete();
-            log.info("{}",groupContext);
+            Assert.notNull(groupContext);
         } catch (Exception e) {
             e.printStackTrace();
         }
