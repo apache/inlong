@@ -100,7 +100,6 @@
         <module>inlong-sort-standalone</module>
         <module>inlong-dashboard</module>
         <module>inlong-distribution</module>
-        <module>manager-client-test</module>
     </modules>
 
 
