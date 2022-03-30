@@ -34,10 +34,10 @@ public class SinkField extends StreamField {
     private String sourceFieldName;
 
     @ApiModelProperty("Source field type")
-    private String sourceFieldType;
+    private FieldType sourceFieldType;
 
     public SinkField(int index, FieldType fieldType, String fieldName, String fieldComment,
-            String fieldValue, String sourceFieldName, String sourceFieldType,
+            String fieldValue, String sourceFieldName, FieldType sourceFieldType,
             Integer isMetaField, String fieldFormat) {
         super(index, fieldType, fieldName, fieldComment, fieldValue, isMetaField, fieldFormat);
         this.sourceFieldName = sourceFieldName;
