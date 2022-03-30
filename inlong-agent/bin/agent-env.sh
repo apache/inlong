@@ -37,7 +37,7 @@ else
 fi
 
 if [ -z "$AGENT_JVM_HEAP_OPTS" ]; then
-  HEAP_OPTS="-Xms512m -Xmx=6656"
+  HEAP_OPTS="-Xms512m -Xmx6656m"
 else
   HEAP_OPTS="$AGENT_JVM_HEAP_OPTS"
 fi

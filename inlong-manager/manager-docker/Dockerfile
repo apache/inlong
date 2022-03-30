@@ -36,7 +36,7 @@ WORKDIR /opt/inlong-manager
 ARG MANAGER_TARBALL
 ADD ${MANAGER_TARBALL} /opt/inlong-manager
 # add mysql connector
-RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.26/mysql-connector-java-8.0.26.jar
+RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.27/mysql-connector-java-8.0.27.jar
 ADD manager-docker.sh bin/
 RUN chmod +x bin/manager-docker.sh
 CMD ["bin/manager-docker.sh"]
