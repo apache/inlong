@@ -24,10 +24,12 @@ metadata:
     {{- include "inlong.commonLabels" . | nindent 4 }}
     component: {{ .Values.audit.component }}
 spec:
-  ports:
-    - name: {{ .Values.audit.component}}-port
-      port: {{ .Values.audit.ports.webPort }}
   type: ClusterIP
+  ports:
+    - name: {{ .Values.audit.component }}-port
+      protocol: TCP
+      port: {{ .Values.audit.port }}
+      targetPort: {{ .Values.audit.component }}-port
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.audit.component }}

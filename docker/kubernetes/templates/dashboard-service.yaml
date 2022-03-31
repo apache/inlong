@@ -25,10 +25,27 @@ metadata:
     component: {{ .Values.dashboard.component }}
 spec:
   type: {{ .Values.dashboard.service.type }}
+  {{- if and (eq .Values.dashboard.service.type "ClusterIP") .Values.dashboard.service.clusterIP }}
+  clusterIP: {{ .Values.dashboard.service.clusterIP }}
+  {{- end }}
   ports:
     - name: {{ .Values.dashboard.component }}-port
-      port: {{ .Values.dashboard.ports.webPort }}
-      nodePort: {{ .Values.dashboard.ports.webNodePort }}
+      protocol: TCP
+      port: {{ .Values.dashboard.port }}
+      targetPort: {{ .Values.dashboard.component }}-port
+      {{- if and (eq .Values.dashboard.service.type "NodePort") .Values.dashboard.service.nodePort }}
+      nodePort: {{ .Values.dashboard.service.nodePort }}
+      {{- end }}
+  {{- if and (eq .Values.dashboard.service.type "LoadBalancer") .Values.dashboard.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.dashboard.service.loadBalancerIP }}
+  {{- end }}
+  {{- if and (eq .Values.dashboard.service.type "ExternalName") .Values.dashboard.service.externalName }}
+  externalName: {{ .Values.dashboard.service.externalName }}
+  {{- end }}
+  {{- if .Values.dashboard.service.externalIPs }}
+  externalIPs:
+    {{- toYaml .Values.dashboard.service.externalIPs | nindent 4 }}
+  {{- end }}
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.dashboard.component }}

@@ -48,7 +48,7 @@ spec:
             do
               replica="{{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }}-$i"
               host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-              port={{ .Values.dashboard.ports.webPort }}
+              port={{ .Values.dashboard.port }}
               until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
               do
                 echo "waiting for $replica to be ready"
@@ -66,7 +66,7 @@ spec:
             do
               replica="{{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}-$i"
               host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-              port={{ .Values.dataproxy.containerPort }}
+              port={{ .Values.dataproxy.port }}
               until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
               do
                 echo "waiting for $replica to be ready"
@@ -85,13 +85,13 @@ spec:
             - name: MANAGER_OPENAPI_IP
               value: {{ include "inlong.manager.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
-              value: {{ .Values.manager.containerPort | quote }}
+              value: {{ .Values.manager.port | quote }}
             - name: DATAPROXY_IP
               value: {{ include "inlong.dataproxy.hostname" . | quote }}
             - name: DATAPROXY_PORT
-              value: {{ .Values.dataproxy.containerPort | quote }}
+              value: {{ .Values.dataproxy.port | quote }}
             - name: AUDIT_PROXY_URL
-              value: "{{ template "inlong.audit.hostname" . }}:{{ .Values.audit.ports.webPort }}"
+              value: "{{ template "inlong.audit.hostname" . }}:{{ .Values.audit.port }}"
             {{- range $key, $value := .Values.agent.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
