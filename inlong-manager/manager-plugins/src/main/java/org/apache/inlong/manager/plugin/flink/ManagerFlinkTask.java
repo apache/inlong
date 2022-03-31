@@ -37,6 +37,7 @@ import static org.apache.flink.api.common.JobStatus.FAILED;
 import static org.apache.flink.api.common.JobStatus.FINISHED;
 import static org.apache.flink.api.common.JobStatus.INITIALIZING;
 import static org.apache.flink.api.common.JobStatus.RUNNING;
+import static org.apache.inlong.manager.plugin.flink.FlinkUtils.findFiles;
 
 /**
  * flink operation
@@ -97,12 +98,14 @@ public class ManagerFlinkTask {
         if (path.contains("inlong-manager")) {
             path = path.substring(0, path.indexOf("inlong-manager"));
             String resource = "inlong-sort";
-            String jarPath = path  + resource + File.separator + Constants.SORT_JAR;
-            File file = new File(jarPath);
+            String basePath = path  + resource;
+            File file = new File(basePath);
             if (!file.exists()) {
-                log.warn("file path:[{}] not found sort jar", jarPath);
-                throw new BusinessException(BusinessExceptionDesc.InternalError + " not found sort jar");
+                log.warn("file path:[{}] not found sort jar", basePath);
+                throw new BusinessException(BusinessExceptionDesc.InternalError + " not found inlong-sort");
             }
+            String jarPath = findFiles(basePath,"sort-single-tenant.*jar$");
+            log.info("sort-single-tenant path :{}",jarPath);
             flinkInfo.setLocalJarPath(jarPath);
         } else {
             throw new BusinessException(BusinessExceptionDesc.InternalError + " inlong-manager dic not found");

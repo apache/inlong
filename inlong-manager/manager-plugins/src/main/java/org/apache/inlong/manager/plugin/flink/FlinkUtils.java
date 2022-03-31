@@ -64,6 +64,37 @@ public class FlinkUtils {
     }
 
     /**
+     * fetch sort-single-tenant jar path
+     * @param baseDirName
+     * @return
+     */
+    public static String findFiles(String baseDirName,String pattern) {
+        File baseDir = new File(baseDirName);
+        if (!baseDir.exists() || !baseDir.isDirectory()) {
+            log.error("baseDirName find fail :{}", baseDirName);
+            return null;
+        }
+        String tempName = null;
+        File tempFile;
+        File[] files = baseDir.listFiles();
+        if (files.length == 0) {
+            log.info("baseDirName is empty");
+            return null;
+        }
+        for (int i = 0; i < files.length; i++) {
+            tempFile = files[i];
+            tempName = tempFile.getName();
+            Pattern jarPathPattern = Pattern.compile(pattern);
+            Matcher matcher = jarPathPattern.matcher(tempName);
+            boolean matches = matcher.matches();
+            if (matches) {
+                return tempFile.getAbsoluteFile().toString();
+            }
+        }
+        return null;
+    }
+
+    /**
      * @param name
      * @return
      */
