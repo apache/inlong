@@ -122,9 +122,9 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
         pickObject(['dbBasicInfo', 'fileBasicInfo', 'streamInfo'], item),
       );
       await request({
-        url: '/stream/updateAll',
+        url: '/stream/update',
         method: 'POST',
-        data: submitData?.[0],
+        data: submitData?.[0]?.streamInfo,
       });
     } else {
       // create
