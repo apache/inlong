@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin.conf;
+package org.apache.inlong.manager.plugin.util;
 
 import com.google.gson.JsonPrimitive;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.plugin.flink.FlinkConfig;
+import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
 import org.apache.inlong.manager.plugin.flink.enums.BusinessExceptionDesc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

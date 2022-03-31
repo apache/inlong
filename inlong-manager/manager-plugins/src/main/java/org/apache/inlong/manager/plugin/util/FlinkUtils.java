@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin.flink;
+package org.apache.inlong.manager.plugin.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.inlong.manager.plugin.flink.Constants;
 import org.apache.inlong.manager.plugin.flink.dto.LoginConf;
 
 import java.io.BufferedWriter;
@@ -34,7 +35,6 @@ import java.util.regex.Pattern;
 
 @Slf4j
 public class FlinkUtils {
-    private static final String RESOURCE_PRE = "hive-";
     public static final String BASE_DIRECTORY = "config";
     private static final Pattern numberPattern = Pattern.compile("(\\d+\\.\\d+\\.\\d+\\.\\d+)\\:(\\d+)");
 

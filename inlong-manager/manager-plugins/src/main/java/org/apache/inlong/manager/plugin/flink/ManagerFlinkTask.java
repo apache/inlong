@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.enums.BusinessExceptionDesc;
 import org.apache.inlong.manager.plugin.flink.enums.TaskCommitType;
+import org.apache.inlong.manager.plugin.util.FlinkUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +38,7 @@ import static org.apache.flink.api.common.JobStatus.FAILED;
 import static org.apache.flink.api.common.JobStatus.FINISHED;
 import static org.apache.flink.api.common.JobStatus.INITIALIZING;
 import static org.apache.flink.api.common.JobStatus.RUNNING;
-import static org.apache.inlong.manager.plugin.flink.FlinkUtils.findFiles;
+import static org.apache.inlong.manager.plugin.util.FlinkUtils.findFiles;
 
 /**
  * flink operation
@@ -104,7 +105,7 @@ public class ManagerFlinkTask {
                 log.warn("file path:[{}] not found sort jar", basePath);
                 throw new BusinessException(BusinessExceptionDesc.InternalError + " not found inlong-sort");
             }
-            String jarPath = findFiles(basePath,"sort-single-tenant.*jar$");
+            String jarPath = findFiles(basePath,"^sort-single-tenant.*jar$");
             log.info("sort-single-tenant path :{}",jarPath);
             flinkInfo.setLocalJarPath(jarPath);
         } else {

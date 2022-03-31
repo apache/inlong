@@ -49,7 +49,7 @@ public class StartupSortListenerTest {
         List<InlongGroupExtInfo> inlongGroupExtInfos = new ArrayList<>();
         InlongGroupExtInfo inlongGroupExtInfo1 = new InlongGroupExtInfo();
         inlongGroupExtInfo1.setKeyName(InlongGroupSettings.SORT_URL);
-        inlongGroupExtInfo1.setKeyValue("9.135.80.112:8085");
+        inlongGroupExtInfo1.setKeyValue("127.0.0.1:8085");
         inlongGroupExtInfos.add(inlongGroupExtInfo1);
 
         InlongGroupExtInfo inlongGroupExtInfo2 = new InlongGroupExtInfo();
@@ -66,8 +66,8 @@ public class StartupSortListenerTest {
                 + "    \"source_info\":\n"
                 + "    {\n"
                 + "        \"type\": \"pulsar\",\n"
-                + "        \"admin_url\": \"http://100.76.43.216:8080\",\n"
-                + "        \"service_url\": \"pulsar://100.76.43.216:6650\",\n"
+                + "        \"admin_url\": \"http://127.0.0.1:8080\",\n"
+                + "        \"service_url\": \"pulsar://127.0.0.1:6650\",\n"
                 + "        \"topic\": \"persistent://pzr/pzr/pzr-topic\",\n"
                 + "        \"subscription_name\": \"subscriptionName\",\n"
                 + "        \"deserialization_info\":\n"
@@ -169,12 +169,12 @@ public class StartupSortListenerTest {
                 + "                }\n"
                 + "            }\n"
                 + "        ],\n"
-                + "        \"hive_server_jdbc_url\": \"jdbc:hive2://10.160.142.179:10000\",\n"
+                + "        \"hive_server_jdbc_url\": \"jdbc:hive2://127.0.0.1:10000\",\n"
                 + "        \"database\": \"inlong_test\",\n"
                 + "        \"table\": \"pzr\",\n"
                 + "        \"username\": \"testUsername\",\n"
                 + "        \"password\": \"testPassword\",\n"
-                + "        \"data_path\": \"hdfs://9.135.81.137:8020\",\n"
+                + "        \"data_path\": \"hdfs://127.0.0.1:8020\",\n"
                 + "        \"partitions\":\n"
                 + "        [],\n"
                 + "        \"file_format\":\n"

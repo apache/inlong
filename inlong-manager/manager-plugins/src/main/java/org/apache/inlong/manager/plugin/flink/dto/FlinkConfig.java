@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin.flink;
+package org.apache.inlong.manager.plugin.flink.dto;
 
 import lombok.Data;
 

@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.ResponseBody;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobStatus;
+import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.dto.JarFileInfo;
 import org.apache.inlong.manager.plugin.flink.dto.JarListInfo;
