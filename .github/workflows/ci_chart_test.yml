@@ -22,6 +22,7 @@ on:
     paths:
       - '.github/workflows/ci_chart_test.yml'
       - '.github/ct.yml'
+      - '.github/kind.yml'
       - 'docker/kubernetes/**'
       - '!*.md'
 
@@ -29,16 +30,31 @@ on:
     paths:
       - '.github/workflows/ci_chart_test.yml'
       - '.github/ct.yml'
+      - '.github/kind.yml'
       - 'docker/kubernetes/**'
       - '!*.md'
 
 env:
-  CONFIG_PATH: '.github/ct.yml'
+  CT_CONFIG_PATH: '.github/ct.yml'
+  KIND_CONFIG_PATH: '.github/kind.yml'
 
 jobs:
   chart-test:
     name: Lint and test charts
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        kubernetes-version:
+          - 'kindest/node:v1.14.10'
+          - 'kindest/node:v1.15.12'
+          - 'kindest/node:v1.16.15'
+          - 'kindest/node:v1.17.17'
+          - 'kindest/node:v1.18.20'
+          - 'kindest/node:v1.19.16'
+          - 'kindest/node:v1.20.15'
+          - 'kindest/node:v1.21.10'
+          - 'kindest/node:v1.22.7'
+          - 'kindest/node:v1.23.4'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -61,17 +77,21 @@ jobs:
       - name: List changed charts
         id: list-changed
         run: |
-          changed=$(ct list-changed --config ${{ env.CONFIG_PATH }} --print-config)
+          changed=$(ct list-changed --config ${{ env.CT_CONFIG_PATH }} --target-branch ${{ github.event.repository.default_branch }})
           if [[ -n "$changed" ]]; then
             echo "::set-output name=changed::true"
           fi
 
       - name: Lint and validate charts
-        run: ct lint --config ${{ env.CONFIG_PATH }} --print-config
+        run: ct lint --config ${{ env.CT_CONFIG_PATH }}
 
       - name: Create kind cluster
-        uses: helm/kind-action@v1.2.0
         if: steps.list-changed.outputs.changed == 'true'
+        uses: helm/kind-action@v1.2.0
+        with:
+          config: ${{ env.KIND_CONFIG_PATH }}
+          node_image: ${{ matrix.kubernetes-version }}
 
       - name: Install and test charts
-        run: ct install --config ${{ env.CONFIG_PATH }} --print-config
+        if: ${{ success() && steps.list-changed.outputs.changed == 'true' }}
+        run: ct install --config ${{ env.CT_CONFIG_PATH }}
