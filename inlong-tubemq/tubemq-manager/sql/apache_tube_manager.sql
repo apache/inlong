@@ -21,7 +21,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 -- database for TubeMQ Manager
 -- ----------------------------
-CREATE DATABASE IF NOT EXISTS tubemanager;
+CREATE DATABASE IF NOT EXISTS apache_inlong_tubemq;
 
 -- ----------------------------
 -- Table structure for broker

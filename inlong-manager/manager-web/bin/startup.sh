@@ -71,9 +71,6 @@ LOG_STARTUP_PATH="${LOG_DIR}/startup.log"
 NOW=$(date +'%Y-%m-%m-%H-%M-%S')
 NOW_PRETTY=$(date +'%Y-%m-%m %H:%M:%S')
 
-# Startup log
-STARTUP_LOG="================================================ ${NOW_PRETTY} ================================================\n"
-
 # If the logs folder does not exist, create the folder
 if [ ! -d "${LOG_DIR}" ]; then
   mkdir "${LOG_DIR}"
@@ -114,38 +111,5 @@ JAVA_OPT="${JAVA_OPT} -XX:+IgnoreUnrecognizedVMOptions -XX:+UseConcMarkSweepGC -
 # Remote debugger
 #JAVA_OPT="${JAVA_OPT} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8081"
 
-#=======================================================
-# Append command startup related logs to the log file
-#=======================================================
-
-# Output project name
-STARTUP_LOG="${STARTUP_LOG}application name: ${APPLICATION}\n"
-# Output jar package name
-STARTUP_LOG="${STARTUP_LOG}application jar name: ${APPLICATION_JAR}\n"
-# Output project root directory
-STARTUP_LOG="${STARTUP_LOG}application root path: ${BASE_PATH}\n"
-# Output project bin path
-STARTUP_LOG="${STARTUP_LOG}application bin path: ${BIN_PATH}\n"
-# Output project config path
-STARTUP_LOG="${STARTUP_LOG}application config path: ${CONFIG_DIR}\n"
-# Print log path
-STARTUP_LOG="${STARTUP_LOG}application log path: ${LOG_DIR}\n"
-# Print JVM configuration
-STARTUP_LOG="${STARTUP_LOG}application JAVA_OPT: ${JAVA_OPT}\n"
-
-# Print start command
-STARTUP_LOG="${STARTUP_LOG}application startup command: nohup java ${JAVA_OPT} -Dlog4j2.formatMsgNoLookups=true -Dlog4j.formatMsgNoLookups=true -cp ${CLASSPATH} ${MAIN_CLASS} 1>${LOG_FILE} 2>${LOG_DIR}/error.log &\n"
-
-#======================================================================
 # Execute the startup command: start the project in the background, and output the log to the logs folder under the project root directory
-#======================================================================
 nohup java ${JAVA_OPT} -Dlog4j2.formatMsgNoLookups=true -Dlog4j.formatMsgNoLookups=true -cp ${CLASSPATH} ${MAIN_CLASS} 1>${LOG_FILE} 2>${LOG_DIR}/error.log &
-
-# Process ID
-PID="$!"
-STARTUP_LOG="${STARTUP_LOG}application pid: ${PID}\n"
-
-# The startup log is appended to the startup log file
-echo -e ${STARTUP_LOG} >>${LOG_STARTUP_PATH}
-# Print startup log
-echo -e ${STARTUP_LOG}
