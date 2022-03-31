@@ -39,8 +39,6 @@ public class Constants {
 
     public static final String INLONG = "INLONG_";
 
-    public static final String SORT_JAR = "sort-single-tenant-1.1.0-incubating-SNAPSHOT.jar";
-
     // flag
     public static final String RESOURCE_ID = "resource_id";
 
