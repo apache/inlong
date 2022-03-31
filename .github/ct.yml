@@ -17,4 +17,6 @@
 
 chart-dirs:
   - 'docker/kubernetes'
+namespace: 'inlong'
 validate-maintainers: false
+debug: true
