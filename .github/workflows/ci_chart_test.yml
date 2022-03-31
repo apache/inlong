@@ -21,12 +21,14 @@ on:
   push:
     paths:
       - '.github/workflows/ci_chart_test.yml'
+      - '.github/ct.yml'
       - 'docker/kubernetes/**'
       - '!*.md'
 
   pull_request:
     paths:
       - '.github/workflows/ci_chart_test.yml'
+      - '.github/ct.yml'
       - 'docker/kubernetes/**'
       - '!*.md'
 
