@@ -68,7 +68,9 @@ const Comp: React.FC = () => {
   const history = useHistory();
   const location = useLocation();
 
-  const [actived, setActived] = useState(parse(location.search.slice(1))?.actived || list[0].value);
+  const [actived, setActived] = useState(
+    (parse(location.search.slice(1))?.actived || list[0].value) as string,
+  );
 
   const { data: summary = {} } = useRequest({
     url: '/workflow/processSummary',

@@ -65,7 +65,11 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     visible: false,
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: '/sink/list',
       params: {

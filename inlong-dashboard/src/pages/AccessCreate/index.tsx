@@ -40,7 +40,7 @@ const Create: React.FC = () => {
   const [, { add: addOpened, has: hasOpened }] = useSet([current]);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
-  const [inlongGroupId, setGroupId] = useState(qs.inlongGroupId);
+  const [inlongGroupId, setGroupId] = useState(qs.inlongGroupId as string);
 
   const businessRef = useRef(null);
   const dataStreamRef = useRef(null);

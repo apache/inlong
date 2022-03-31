@@ -42,7 +42,7 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
 
   const { userName } = useSelector<State, State>(state => state);
 
-  const onOk = async e => {
+  const onOk = async () => {
     const values = await form.validateFields();
     const isUpdate = id;
     const submitData = {

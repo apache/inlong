@@ -140,8 +140,9 @@ const Comp: React.FC<DetailModalProps> = ({
           item => item.fieldName && item.fieldType,
         );
         if (fieldListKey && usefulDefaultRowTypeFields?.length) {
-          const getFieldListColumns = Storages.find(item => item.value === sinkType)
-            ?.getFieldListColumns;
+          const getFieldListColumns = Storages.find(
+            item => item.value === sinkType,
+          )?.getFieldListColumns;
           form.setFieldsValue({
             [fieldListKey.columnsKey]: usefulDefaultRowTypeFields?.map(item => ({
               // The default value defined by cloumns

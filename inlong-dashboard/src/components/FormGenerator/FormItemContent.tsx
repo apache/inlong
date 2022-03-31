@@ -59,42 +59,45 @@ const FormItemContent: React.FC<FormItemContentProps> = ({
 }) => {
   // Form atomic component
   const Comp = useMemo(
-    () => ({ type, ...props }: { type: PluginsTypes }) => {
-      const Comp = plugins[(type as string) || 'input'];
-      return <Comp {...props} />;
-    },
+    () =>
+      ({ type, ...props }: { type: PluginsTypes }) => {
+        const Comp = plugins[(type as string) || 'input'];
+        return <Comp {...props} />;
+      },
     [],
   );
 
   const FormItem = useMemo(
-    () => ({ type: T, formItemProps, useSpace, props }) => {
-      return (
-        <Form.Item {...formItemProps} noStyle={useSpace}>
-          {typeof T === 'string' ? (
-            <Comp type={T} {...props} />
-          ) : React.isValidElement(T) ? (
-            T
-          ) : (
-            <T {...props} />
-          )}
-        </Form.Item>
-      );
-    },
+    () =>
+      ({ type: T, formItemProps, useSpace, props }) => {
+        return (
+          <Form.Item {...formItemProps} noStyle={useSpace}>
+            {typeof T === 'string' ? (
+              <Comp type={T} {...props} />
+            ) : React.isValidElement(T) ? (
+              T
+            ) : (
+              <T {...props} />
+            )}
+          </Form.Item>
+        );
+      },
     [],
   );
 
   const Content = useMemo(
-    () => ({ useSpace, suffix, children, label, required, style }) =>
-      useSpace ? (
-        <Form.Item label={label} required={required} style={style}>
-          <Space>
-            {children}
-            {suffix}
-          </Space>
-        </Form.Item>
-      ) : (
-        children
-      ),
+    () =>
+      ({ useSpace, suffix, children, label, required, style }) =>
+        useSpace ? (
+          <Form.Item label={label} required={required} style={style}>
+            <Space>
+              {children}
+              {suffix}
+            </Space>
+          </Form.Item>
+        ) : (
+          children
+        ),
     [],
   );
 

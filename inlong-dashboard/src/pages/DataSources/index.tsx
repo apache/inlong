@@ -69,7 +69,11 @@ const Comp: React.FC = () => {
     visible: false,
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: `/commonserver/db/list`,
       method: 'POST',
@@ -188,7 +192,7 @@ const Comp: React.FC = () => {
         {...createModal}
         type={options.type as any}
         visible={createModal.visible as boolean}
-        onOk={async values => {
+        onOk={async () => {
           await getList();
           setCreateModal({ visible: false });
         }}

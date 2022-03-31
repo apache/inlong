@@ -44,7 +44,11 @@ const Comp: React.FC<MyAccessModalProps> = ({ ...modalProps }) => {
     pageNum: 1,
   });
 
-  const { run: getData, data, loading } = useRequest(
+  const {
+    run: getData,
+    data,
+    loading,
+  } = useRequest(
     {
       url: '/group/list',
       method: 'POST',

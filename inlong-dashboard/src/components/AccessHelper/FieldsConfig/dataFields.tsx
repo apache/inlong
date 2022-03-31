@@ -145,7 +145,7 @@ export default (
         ],
       },
       rules: [{ required: true }],
-      visible: values => currentValues.dataSourceType === 'BINLOG',
+      visible: () => currentValues.dataSourceType === 'BINLOG',
     },
     {
       type: 'radio',

@@ -25,10 +25,16 @@
 }
 
 .collapseHeader {
-  display: flex;
+  display: inline-flex;
   justify-content: space-between;
-}
+  width: calc(100% - 200px);
 
-.collapseHeaderItem {
-  flex: 1;
+  > div {
+    &:first-child {
+      flex: 1 1 300px;
+    }
+    flex: 1 1 200px;
+    word-break: break-all;
+    padding: 0 10px;
+  }
 }

@@ -23,7 +23,7 @@ import { ColumnsType } from 'antd/es/table';
 import StaffSelect from '@/components/StaffSelect';
 import rulesPattern from '@/utils/pattern';
 
-export const getCreateFormContent = (defaultValues = {}) => {
+export const getCreateFormContent = () => {
   const array = [
     {
       type: 'input',

@@ -19,25 +19,27 @@
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
-const webpack = require('webpack');
 const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin');
-const { addReactRefresh } = require('customize-cra-react-refresh');
+const addLessLoader = require('customize-cra-less-loader');
+// const { addReactRefresh } = require('customize-cra-react-refresh');
 const {
   override,
+  // addLessLoader,
   addWebpackAlias,
-  addLessLoader,
   addWebpackPlugin,
   fixBabelImports,
 } = require('customize-cra');
 
 module.exports = {
   webpack: override(
-    addReactRefresh(),
+    // addReactRefresh(),
     addLessLoader({
-      lessOptions: {
-        javascriptEnabled: true,
-        modifyVars: {
-          hack: `true; @import "src/themes/antd.var.less";`, // Override antd
+      lessLoaderOptions: {
+        lessOptions: {
+          javascriptEnabled: true,
+          modifyVars: {
+            hack: `true; @import "${path.resolve(__dirname, 'src/themes/antd.var.less')}";`, // Override antd
+          },
         },
       },
     }),

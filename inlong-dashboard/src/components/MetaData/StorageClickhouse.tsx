@@ -52,7 +52,7 @@ const clickhouseTargetTypes = [
 
 const getForm: GetStorageFormFieldsType = (
   type: 'form' | 'col' = 'form',
-  { currentValues, inlongGroupId, isEdit, dataType } = {} as any,
+  { currentValues, isEdit, dataType } = {} as any,
 ) => {
   const fileds = [
     {

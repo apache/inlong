@@ -48,7 +48,11 @@ const Comp: React.FC = () => {
     url: '/group/countByStatus',
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: '/group/list',
       method: 'POST',

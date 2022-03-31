@@ -46,7 +46,7 @@ export const getFormContent = ({ editing, initialValues }) =>
     initialValues,
   ).map(item => ({
     ...item,
-    type: transType(editing, item, initialValues),
+    type: transType(editing, item),
     suffix:
       typeof item.suffix === 'object' && !editing
         ? {
@@ -57,7 +57,7 @@ export const getFormContent = ({ editing, initialValues }) =>
     extra: null,
   }));
 
-function transType(editing: boolean, conf, initialValues) {
+function transType(editing: boolean, conf) {
   const arr = [
     {
       name: [

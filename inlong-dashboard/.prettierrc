@@ -1,13 +1,13 @@
 {
-  "parser": 'typescript',
+  "parser": "typescript",
   "indent": 2,
   "tabWidth": 2,
   "semi": true,
   "singleQuote": true,
-  "trailingComma": 'all',
+  "trailingComma": "all",
   "printWidth": 100,
   "bracketSpacing": true,
-  "jsxBracketSameLine": false,
+  "bracketSameLine": false,
   "arrowParens": "avoid",
-  "endOfLine": 'lf'
+  "endOfLine": "lf"
 }

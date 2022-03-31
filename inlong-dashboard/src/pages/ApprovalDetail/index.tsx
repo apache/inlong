@@ -71,18 +71,22 @@ const Comp: React.FC = () => {
     Approvals: i18n.t('pages.ApprovalDetail.WaitingForApproval'),
   };
 
-  const actived = useMemo<string>(() => parse(location.search.slice(1))?.actived, [
-    location.search,
-  ]);
+  const actived = useMemo<string>(
+    () => parse(location.search.slice(1))?.actived as string,
+    [location.search],
+  );
 
-  const taskId = useMemo<string>(() => parse(location.search.slice(1))?.taskId, [location.search]);
+  const taskId = useMemo<string>(
+    () => parse(location.search.slice(1))?.taskId as string,
+    [location.search],
+  );
 
   const formRef = useRef(null);
 
   const { data = {} } = useRequest({
     url: `/workflow/detail/${id}`,
     params: {
-      taskId: taskId,
+      taskId,
     },
   });
 

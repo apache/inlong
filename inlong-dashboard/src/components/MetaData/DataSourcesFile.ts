@@ -22,10 +22,7 @@ import { ColumnsType } from 'antd/es/table';
 import rulesPattern from '@/utils/pattern';
 import i18n from '@/i18n';
 
-export const getDataSourcesFileFields = (
-  type: 'form' | 'col' = 'form',
-  { currentValues } = {} as any,
-) => {
+export const getDataSourcesFileFields = (type: 'form' | 'col' = 'form') => {
   const fileds = [
     {
       type: 'input',

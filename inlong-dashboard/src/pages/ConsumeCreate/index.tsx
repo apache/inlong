@@ -39,7 +39,7 @@ const Create: React.FC = () => {
   const [, { add: addOpened, has: hasOpened }] = useSet([current]);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
-  const [id, setId] = useState(qs.id);
+  const [id, setId] = useState(+qs.id);
 
   const infoRef = useRef();
 

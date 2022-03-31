@@ -35,7 +35,7 @@ import NavWidget from './NavWidget';
 import './index.css';
 
 const renderMenuItem = (menus: MenuDataItem[]): MenuDataItem[] =>
-  menus.map(({ icon, children, ...item }) => ({
+  menus.map(({ children, ...item }) => ({
     ...item,
     children: children && renderMenuItem(children),
   }));

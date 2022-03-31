@@ -55,7 +55,7 @@ const hiveFieldTypes = [
 
 const getForm: GetStorageFormFieldsType = (
   type,
-  { currentValues, inlongGroupId, isEdit, dataType, form } = {} as any,
+  { currentValues, isEdit, dataType, form } = {} as any,
 ) => {
   const fileds = [
     {
@@ -376,7 +376,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       dataIndex: 'isMetaField',
       initialValue: 0,
       type: 'select',
-      props: (text, record, idx, isNew) => ({
+      props: () => ({
         options: [
           {
             label: i18n.t('basic.Yes'),
@@ -394,7 +394,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       dataIndex: 'fieldFormat',
       initialValue: 0,
       type: 'autocomplete',
-      props: (text, record, idx, isNew) => ({
+      props: () => ({
         options: ['MICROSECONDS', 'MILLISECONDS', 'SECONDS', 'SQL', 'ISO_8601'].map(item => ({
           label: item,
           value: item,

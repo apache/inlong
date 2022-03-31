@@ -31,15 +31,7 @@ export const getFilterFormContent = (defaultValues = {} as any) => [
   },
 ];
 
-export const genExtraContent = ({
-  editingId,
-  record,
-  middlewareType,
-  onSave,
-  onCancel,
-  onEdit,
-  onDelete,
-}) => {
+export const genExtraContent = ({ editingId, record, onSave, onCancel, onEdit, onDelete }) => {
   return editingId === record.id || (editingId === true && !record.id)
     ? [
         {

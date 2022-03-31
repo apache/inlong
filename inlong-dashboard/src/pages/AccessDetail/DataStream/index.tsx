@@ -60,7 +60,11 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
     inlongGroupId,
   });
 
-  const { data = realTimeValues, run: getList, mutate } = useRequest(
+  const {
+    data = realTimeValues,
+    run: getList,
+    mutate,
+  } = useRequest(
     {
       url: '/stream/listAll',
       method: 'POST',
@@ -122,9 +126,9 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
         pickObject(['dbBasicInfo', 'fileBasicInfo', 'streamInfo'], item),
       );
       await request({
-        url: '/stream/updateAll',
+        url: '/stream/update',
         method: 'POST',
-        data: submitData?.[0],
+        data: submitData?.[0]?.streamInfo,
       });
     } else {
       // create
@@ -170,11 +174,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
     });
   };
 
-  const genExtra = (record, index) => {
+  const genExtra = (record = {}, index) => {
     const list = genExtraContent({
       editingId,
       record,
-      middlewareType,
       onSave,
       onEdit,
       onCancel,
@@ -200,7 +203,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
     );
   };
 
-  const genHeader = (record = {}, index) => {
+  const genHeader = (record = {}) => {
     return (
       <div className={styles.collapseHeader}>
         {(record as any).inlongStreamId ? (
@@ -210,11 +213,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
             </div>
           ))
         ) : (
-          <div className={styles.collapseHeaderItem}>
-            {t('pages.AccessDetail.DataStream.NewDataStream')}
-          </div>
+          <div>{t('pages.AccessDetail.DataStream.NewDataStream')}</div>
         )}
-        {!readonly && genExtra(record, index)}
       </div>
     );
   };
@@ -269,7 +269,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
                 >
                   {fields.map((field, index) => (
                     <Collapse.Panel
-                      header={genHeader(data?.list?.[index], index)}
+                      header={genHeader(data?.list?.[index])}
+                      extra={!readonly && genExtra(data?.list?.[index], index)}
                       key={field.key.toString()}
                       style={{
                         marginBottom: 10,

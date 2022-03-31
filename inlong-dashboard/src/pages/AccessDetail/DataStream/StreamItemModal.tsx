@@ -111,9 +111,9 @@ const Comp: React.FC<Props> = ({ inlongGroupId, record, middlewareType, ...modal
       pickObject(['dbBasicInfo', 'fileBasicInfo', 'streamInfo'], item),
     );
     await request({
-      url: '/stream/updateAll',
+      url: '/stream/update',
       method: 'POST',
-      data: submitData?.[0],
+      data: submitData?.[0]?.streamInfo,
     });
     await modalProps?.onOk(values);
     message.success(i18n.t('basic.OperatingSuccess'));
