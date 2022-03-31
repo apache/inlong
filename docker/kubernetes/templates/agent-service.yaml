@@ -29,7 +29,7 @@ spec:
     - name: {{ .Values.agent.component }}-port
       protocol: TCP
       port: {{ .Values.agent.port }}
-      targetPort: {{ .Values.agent.component }}-port
+      targetPort: 8008
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.agent.component }}

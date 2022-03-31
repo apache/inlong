@@ -32,7 +32,7 @@ spec:
     - name: {{ .Values.dataproxy.component }}-port
       protocol: TCP
       port: {{ .Values.dataproxy.port }}
-      targetPort: {{ .Values.dataproxy.component }}-port
+      targetPort: 46801
       {{- if and (eq .Values.dataproxy.service.type "NodePort") .Values.dataproxy.service.nodePort }}
       nodePort: {{ .Values.dataproxy.service.nodePort }}
       {{- end }}

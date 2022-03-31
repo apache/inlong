@@ -105,7 +105,7 @@ spec:
             {{- end }}
           ports:
             - name: {{ .Values.audit.component }}-port
-              containerPort: 8008
+              containerPort: 10081
           volumeMounts:
             - name: data
               mountPath: /data/collect-data

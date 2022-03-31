@@ -32,7 +32,7 @@ spec:
     - name: {{ .Values.dashboard.component }}-port
       protocol: TCP
       port: {{ .Values.dashboard.port }}
-      targetPort: {{ .Values.dashboard.component }}-port
+      targetPort: 80
       {{- if and (eq .Values.dashboard.service.type "NodePort") .Values.dashboard.service.nodePort }}
       nodePort: {{ .Values.dashboard.service.nodePort }}
       {{- end }}

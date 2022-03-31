@@ -32,7 +32,7 @@ spec:
     - name: {{ .Values.manager.component }}-port
       protocol: TCP
       port: {{ .Values.manager.port }}
-      targetPort: {{ .Values.manager.component }}-port
+      targetPort: 8083
       {{- if and (eq .Values.manager.service.type "NodePort") .Values.manager.service.nodePort }}
       nodePort: {{ .Values.manager.service.nodePort }}
       {{- end }}

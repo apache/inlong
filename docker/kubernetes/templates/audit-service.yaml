@@ -29,7 +29,7 @@ spec:
     - name: {{ .Values.audit.component }}-port
       protocol: TCP
       port: {{ .Values.audit.port }}
-      targetPort: {{ .Values.audit.component }}-port
+      targetPort: 10081
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.audit.component }}
