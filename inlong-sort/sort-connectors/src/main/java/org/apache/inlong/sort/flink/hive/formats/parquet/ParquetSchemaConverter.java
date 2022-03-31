@@ -601,8 +601,7 @@ public class ParquetSchemaConverter {
                         .as(OriginalType.TIME_MILLIS)
                         .named(name);
             case TIMESTAMP_WITHOUT_TIME_ZONE:
-                return Types.primitive(PrimitiveType.PrimitiveTypeName.INT64, repetition)
-                        .as(OriginalType.TIMESTAMP_MILLIS)
+                return Types.primitive(PrimitiveType.PrimitiveTypeName.INT96, repetition)
                         .named(name);
             case ARRAY:
                 return Types.list(repetition)
