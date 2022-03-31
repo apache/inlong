@@ -83,12 +83,12 @@ spec:
             - >
               /config-scripts/run
           ports:
-            - name: client
-              containerPort: {{ .Values.zookeeper.ports.client }}
-            - name: follower
-              containerPort: {{ .Values.zookeeper.ports.follower }}
-            - name: leader-election
-              containerPort: {{ .Values.zookeeper.ports.leaderElection }}
+            - name: {{ .Values.zookeeper.component }}-client-port
+              containerPort: 2181
+            - name: {{ .Values.zookeeper.component }}-follower-port
+              containerPort: 2888
+            - name: {{ .Values.zookeeper.component }}-leader-election-port
+              containerPort: 3888
           env:
             - name: ZOOKEEPER_SERVERS
               value:

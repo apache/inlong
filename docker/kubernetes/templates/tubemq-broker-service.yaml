@@ -28,10 +28,14 @@ metadata:
 spec:
   type: {{ .Values.tubemqBroker.service.type }}
   ports:
-    - name: web-port
+    - name: {{ .Values.tubemqBroker.component }}-web-port
+      protocol: TCP
       port: {{ .Values.tubemqBroker.ports.webPort }}
-    - name: rpc-port
+      targetPort: 8081
+    - name: {{ .Values.tubemqBroker.component }}-rpc-port
+      protocol: TCP
       port: {{ .Values.tubemqBroker.ports.rpcPort }}
+      targetPort: 8123
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.tubemqBroker.component }}

@@ -26,14 +26,20 @@ metadata:
   annotations:
 {{ toYaml .Values.zookeeper.service.annotations | indent 4 }}
 spec:
-  ports:
-    - name: follower
-      port: {{ .Values.zookeeper.ports.follower }}
-    - name: leader-election
-      port: {{ .Values.zookeeper.ports.leaderElection }}
-    - name: client
-      port: {{ .Values.zookeeper.ports.client }}
   clusterIP: None
+  ports:
+    - name: {{ .Values.zookeeper.component }}-client-port
+      protocol: TCP
+      port: {{ .Values.zookeeper.ports.client }}
+      targetPort: 2181
+    - name: {{ .Values.zookeeper.component }}-follower-port
+      protocol: TCP
+      port: {{ .Values.zookeeper.ports.follower }}
+      targetPort: 2888
+    - name: {{ .Values.zookeeper.component }}-leader-election-port
+      protocol: TCP
+      port: {{ .Values.zookeeper.ports.leaderElection }}
+      targetPort: 3888
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}
