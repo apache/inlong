@@ -68,7 +68,7 @@ agent:
     requests:
       cpu: 1
       memory: "1Gi"
-  containerPort: 8008
+  port: 8008
   env:
     AGENT_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport
@@ -85,11 +85,21 @@ dashboard:
     requests:
       cpu: 1
       memory: "1Gi"
-  ports:
-    webPort: 80
-    webNodePort: 30080
+  port: 80
   service:
-    type: LoadBalancer
+    # type determines how the service is exposed. Defaults to NodePort. Valid options are ClusterIP, NodePort, LoadBalancer, and ExternalName
+    type: NodePort
+    # clusterIP is the IP address of the service and is usually assigned randomly by the master when service type is ClusterIP
+    clusterIP:
+    # nodePort is the port on each node on which this service is exposed when service type is NodePort
+    # the range of valid ports is 30000-32767
+    nodePort: 30080
+    # when service type is LoadBalancer, LoadBalancer will get created with the IP specified in this field
+    loadBalancerIP:
+    # externalName is the external reference that kubedns or equivalent will return as a CNAME record for this service, requires service type to be ExternalName
+    externalName:
+    # externalIPs is a list of IP addresses for which nodes in the cluster will also accept traffic for this service
+    externalIPs:
 
 dataproxy:
   component: "dataproxy"
@@ -98,7 +108,21 @@ dataproxy:
     requests:
       cpu: 1
       memory: "1Gi"
-  containerPort: 46801
+  port: 46801
+  service:
+    # type determines how the service is exposed. Defaults to NodePort. Valid options are ClusterIP, NodePort, LoadBalancer, and ExternalName
+    type: NodePort
+    # clusterIP is the IP address of the service and is usually assigned randomly by the master when service type is ClusterIP
+    clusterIP:
+    # nodePort is the port on each node on which this service is exposed when service type is NodePort
+    # the range of valid ports is 30000-32767
+    nodePort: 30801
+    # when service type is LoadBalancer, LoadBalancer will get created with the IP specified in this field
+    loadBalancerIP:
+    # externalName is the external reference that kubedns or equivalent will return as a CNAME record for this service, requires service type to be ExternalName
+    externalName:
+    # externalIPs is a list of IP addresses for which nodes in the cluster will also accept traffic for this service
+    externalIPs:
   env:
     DATAPROXY_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport
@@ -113,7 +137,7 @@ tubemqManager:
     requests:
       cpu: 1
       memory: "1Gi"
-  containerPort: 8089
+  port: 8089
   env:
     TUBE_MANAGER_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport
@@ -129,9 +153,21 @@ manager:
     requests:
       cpu: 1
       memory: "1Gi"
-  containerPort: 8083
-  username: "root"
-  password: "inlong"
+  port: 8083
+  service:
+    # type determines how the service is exposed. Defaults to NodePort. Valid options are ClusterIP, NodePort, LoadBalancer, and ExternalName
+    type: NodePort
+    # clusterIP is the IP address of the service and is usually assigned randomly by the master when service type is ClusterIP
+    clusterIP:
+    # nodePort is the port on each node on which this service is exposed when service type is NodePort
+    # the range of valid ports is 30000-32767
+    nodePort: 30083
+    # when service type is LoadBalancer, LoadBalancer will get created with the IP specified in this field
+    loadBalancerIP:
+    # externalName is the external reference that kubedns or equivalent will return as a CNAME record for this service, requires service type to be ExternalName
+    externalName:
+    # externalIPs is a list of IP addresses for which nodes in the cluster will also accept traffic for this service
+    externalIPs:
   env:
     MANAGER_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport
@@ -148,8 +184,7 @@ audit:
     requests:
       cpu: 1
       memory: "1Gi"
-  ports:
-    webPort: 10081
+  port: 10081
   env:
     AUDIT_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport

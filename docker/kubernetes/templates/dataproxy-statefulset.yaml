@@ -18,7 +18,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component}}
+  name: {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "inlong.commonLabels" . | nindent 4 }}
@@ -48,7 +48,7 @@ spec:
             do
               replica="{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}-$i"
               host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-              port={{ .Values.manager.containerPort }}
+              port={{ .Values.manager.port }}
               until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
               do
                 echo "waiting for $replica to be ready"
@@ -56,7 +56,7 @@ spec:
               done
             done
       containers:
-        - name: {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component}}
+        - name: {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}
           image: {{ .Values.images.dataproxy.repository }}:{{ .Values.images.dataproxy.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           {{- if .Values.dataproxy.resources }}
@@ -67,9 +67,9 @@ spec:
             - name: MANAGER_OPENAPI_IP
               value: {{ include "inlong.manager.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
-              value: {{ .Values.manager.containerPort | quote }}
+              value: {{ .Values.manager.port | quote }}
             - name: AUDIT_PROXY_URL
-              value: "{{ template "inlong.audit.hostname" . }}:{{ .Values.audit.ports.webPort }}"
+              value: "{{ template "inlong.audit.hostname" . }}:{{ .Values.audit.port }}"
             {{- range $key, $value := .Values.dataproxy.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}

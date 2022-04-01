@@ -24,10 +24,12 @@ metadata:
     {{- include "inlong.commonLabels" . | nindent 4 }}
     component: {{ .Values.tubemqManager.component }}
 spec:
+  type: ClusterIP
   ports:
     - name: {{ .Values.tubemqManager.component }}-port
-      port: {{ .Values.tubemqManager.containerPort }}
-  type: ClusterIP
+      protocol: TCP
+      port: {{ .Values.tubemqManager.port }}
+      targetPort: 8089
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.tubemqManager.component }}

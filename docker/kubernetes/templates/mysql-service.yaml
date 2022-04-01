@@ -25,10 +25,12 @@ metadata:
     {{- include "inlong.commonLabels" . | nindent 4 }}
     component: {{ .Values.mysql.component }}
 spec:
-  ports:
-    - name: {{ .Values.mysql.component }}-server-port
-      port: {{ .Values.mysql.ports.server }}
   clusterIP: None
+  ports:
+    - name: {{ .Values.mysql.component }}-port
+      protocol: TCP
+      port: {{ .Values.mysql.ports.server }}
+      targetPort: 3306
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.mysql.component }}

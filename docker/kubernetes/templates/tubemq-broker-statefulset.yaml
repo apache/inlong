@@ -102,10 +102,10 @@ spec:
             - >
               /config-scripts/run
           ports:
-            - name: web-port
-              containerPort: {{ .Values.tubemqBroker.ports.webPort }}
-            - name: rpc-port
-              containerPort: {{ .Values.tubemqBroker.ports.rpcPort }}
+            - name: {{ .Values.tubemqBroker.component }}-web-port
+              containerPort: 8081
+            - name: {{ .Values.tubemqBroker.component }}-rpc-port
+              containerPort: 8123
           env:
             - name: MY_POD_IP
               valueFrom:

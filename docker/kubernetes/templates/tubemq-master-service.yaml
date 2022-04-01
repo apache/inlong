@@ -28,12 +28,18 @@ metadata:
 spec:
   type: {{ .Values.tubemqMaster.service.type }}
   ports:
-    - name: web-port
+    - name: {{ .Values.tubemqMaster.component }}-web-port
+      protocol: TCP
       port: {{ .Values.tubemqMaster.ports.webPort }}
-    - name: help-port
+      targetPort: 8080
+    - name: {{ .Values.tubemqMaster.component }}-help-port
+      protocol: TCP
       port: {{ .Values.tubemqMaster.ports.helpPort }}
-    - name: rpc-port
+      targetPort: 9001
+    - name: {{ .Values.tubemqMaster.component }}-rpc-port
+      protocol: TCP
       port: {{ .Values.tubemqMaster.ports.rpcPort }}
+      targetPort: 8715
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.tubemqMaster.component }}
