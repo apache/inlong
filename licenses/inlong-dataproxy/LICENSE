@@ -317,6 +317,7 @@ BSD licenses
 
 The following components are provided under BSD license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
+
   jline:jline:0.9.94 - JLine (https://jline.github.io), (BSD)
   com.thoughtworks.paranamer:paranamer:2.3 - ParaNamer Core (https://github.com/paul-hammant/paranamer), (BSD)
   com.google.protobuf:protobuf-java:2.5.0 - Protocol Buffer Java API (https://github.com/protocolbuffers/protobuf), (New BSD license)

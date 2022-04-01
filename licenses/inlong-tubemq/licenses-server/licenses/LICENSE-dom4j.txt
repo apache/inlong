@@ -1,6 +1,3 @@
-dom4j License
----------------
-
 Copyright 2001-2016 (C) MetaStuff, Ltd. and DOM4J contributors. All Rights Reserved.
 
 Redistribution and use of this software and associated documentation
