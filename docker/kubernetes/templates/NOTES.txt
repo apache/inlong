@@ -27,29 +27,29 @@
 
 {{- else if eq .Values.dashboard.service.type "ClusterIP" }}
 
-    $ export POD_NAME=$(kubectl get pods -l "app.kubernetes.io/name={{ template "inlong.name" . }}-{{ .Values.dashboard.component }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}") -n {{ .Release.Namespace }}
-    $ export CONTAINER_PORT=$(kubectl get pod $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") -n {{ .Release.Namespace }}
-    $ kubectl port-forward $POD_NAME 8181:$CONTAINER_PORT -n {{ .Release.Namespace }}
+    $ export DASHBOARD_POD_NAME=$(kubectl get pods -l "app.kubernetes.io/name={{ template "inlong.name" . }}-{{ .Values.dashboard.component }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}" -n {{ .Release.Namespace }})
+    $ export DASHBOARD_CONTAINER_PORT=$(kubectl get pod $DASHBOARD_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}" -n {{ .Release.Namespace }})
+    $ kubectl port-forward $DASHBOARD_POD_NAME 8181:$DASHBOARD_CONTAINER_PORT -n {{ .Release.Namespace }}
 
     InLong Dashboard URL: http://127.0.0.1:8181
 
 {{- else if eq .Values.dashboard.service.type "NodePort" }}
 
-    $ export NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}") -n {{ .Release.Namespace }}
-    $ export NODE_PORT=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }} -o jsonpath="{.spec.ports[0].nodePort}") -n {{ .Release.Namespace }}
-    $ echo http://$NODE_IP:$NODE_PORT
+    $ export DASHBOARD_NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}" -n {{ .Release.Namespace }})
+    $ export DASHBOARD_NODE_PORT=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }} -o jsonpath="{.spec.ports[0].nodePort}" -n {{ .Release.Namespace }})
+    $ echo http://$DASHBOARD_NODE_IP:$DASHBOARD_NODE_PORT
 
-    InLong Dashboard URL: http://$NODE_IP:$NODE_PORT
+    InLong Dashboard URL: http://$DASHBOARD_NODE_IP:$DASHBOARD_NODE_PORT
 
 {{- else if eq .Values.dashboard.service.type "LoadBalancer" }}
 
     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
           You can watch the status of by running 'kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }} -n {{ .Release.Namespace }} -w'
 
-    $ export SERVICE_IP=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}") -n {{ .Release.Namespace }}
-    $ echo http://$SERVICE_IP:{{ .Values.dashboard.service.nodePort }}
+    $ export DASHBOARD_SERVICE_IP=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}"  -n {{ .Release.Namespace }})
+    $ echo http://$DASHBOARD_SERVICE_IP:{{ .Values.dashboard.service.nodePort }}
 
-    InLong Dashboard URL: http://$SERVICE_IP:{{ .Values.dashboard.service.nodePort }}
+    InLong Dashboard URL: http://$DASHBOARD_SERVICE_IP:{{ .Values.dashboard.service.nodePort }}
 
 {{- end }}
 
@@ -61,29 +61,29 @@
 
 {{- else if eq .Values.manager.service.type "ClusterIP" }}
 
-    $ export POD_NAME=$(kubectl get pods -l "app.kubernetes.io/name={{ template "inlong.name" . }}-{{ .Values.manager.component }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}") -n {{ .Release.Namespace }}
-    $ export CONTAINER_PORT=$(kubectl get pod $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") -n {{ .Release.Namespace }}
-    $ kubectl port-forward $POD_NAME 8080:$CONTAINER_PORT -n {{ .Release.Namespace }}
+    $ export MANAGER_POD_NAME=$(kubectl get pods -l "app.kubernetes.io/name={{ template "inlong.name" . }}-{{ .Values.manager.component }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}" -n {{ .Release.Namespace }})
+    $ export MANAGER_CONTAINER_PORT=$(kubectl get pod $MANAGER_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}" -n {{ .Release.Namespace }})
+    $ kubectl port-forward $MANAGER_POD_NAME 8182:$MANAGER_CONTAINER_PORT -n {{ .Release.Namespace }}
 
-    InLong Manager URL: http://127.0.0.1:8080
+    InLong Manager URL: http://127.0.0.1:8182
 
 {{- else if eq .Values.manager.service.type "NodePort" }}
 
-    $ export NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}") -n {{ .Release.Namespace }}
-    $ export NODE_PORT=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.manager.component }} -o jsonpath="{.spec.ports[0].nodePort}") -n {{ .Release.Namespace }}
-    $ echo http://$NODE_IP:$NODE_PORT
+    $ export MANAGER_NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}" -n {{ .Release.Namespace }})
+    $ export MANAGER_NODE_PORT=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.manager.component }} -o jsonpath="{.spec.ports[0].nodePort}" -n {{ .Release.Namespace }})
+    $ echo http://$MANAGER_NODE_IP:$MANAGER_NODE_PORT
 
-    InLong Manager URL: http://$NODE_IP:$NODE_PORT
+    InLong Manager URL: http://$MANAGER_NODE_IP:$MANAGER_NODE_PORT
 
 {{- else if eq .Values.manager.service.type "LoadBalancer" }}
 
     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
           You can watch the status of by running 'kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.manager.component }} -n {{ .Release.Namespace }} -w'
 
-    $ export SERVICE_IP=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.manager.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}") -n {{ .Release.Namespace }}
-    $ echo http://$SERVICE_IP:{{ .Values.manager.service.nodePort }}
+    $ export MANAGER_SERVICE_IP=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.manager.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}" -n {{ .Release.Namespace }})
+    $ echo http://$MANAGER_SERVICE_IP:{{ .Values.manager.service.nodePort }}
 
-    InLong Manager URL: http://$SERVICE_IP:{{ .Values.manager.service.nodePort }}
+    InLong Manager URL: http://$MANAGER_SERVICE_IP:{{ .Values.manager.service.nodePort }}
 
 {{- end }}
 
@@ -95,29 +95,29 @@
 
 {{- else if eq .Values.dataproxy.service.type "ClusterIP" }}
 
-    $ export POD_NAME=$(kubectl get pods -l "app.kubernetes.io/name={{ template "inlong.name" . }}-{{ .Values.dataproxy.component }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}") -n {{ .Release.Namespace }}
-    $ export CONTAINER_PORT=$(kubectl get pod $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") -n {{ .Release.Namespace }}
-    $ kubectl port-forward $POD_NAME 8080:$CONTAINER_PORT -n {{ .Release.Namespace }}
+    $ export DATA_PROXY_POD_NAME=$(kubectl get pods -l "app.kubernetes.io/name={{ template "inlong.name" . }}-{{ .Values.dataproxy.component }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}" -n {{ .Release.Namespace }})
+    $ export DATA_PROXY_CONTAINER_PORT=$(kubectl get pod $DATA_PROXY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}" -n {{ .Release.Namespace }})
+    $ kubectl port-forward $DATA_PROXY_POD_NAME 8183:$DATA_PROXY_CONTAINER_PORT -n {{ .Release.Namespace }}
 
-    InLong DataProxy URL: http://127.0.0.1:8080
+    InLong DataProxy URL: http://127.0.0.1:8183
 
 {{- else if eq .Values.dataproxy.service.type "NodePort" }}
 
-    $ export NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}") -n {{ .Release.Namespace }}
-    $ export NODE_PORT=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }} -o jsonpath="{.spec.ports[0].nodePort}") -n {{ .Release.Namespace }}
-    $ echo http://$NODE_IP:$NODE_PORT
+    $ export DATA_PROXY_NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}" -n {{ .Release.Namespace }})
+    $ export DATA_PROXY_NODE_PORT=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }} -o jsonpath="{.spec.ports[0].nodePort}" -n {{ .Release.Namespace }})
+    $ echo http://$DATA_PROXY_NODE_IP:$DATA_PROXY_NODE_PORT
 
-    InLong DataProxy URL: http://$NODE_IP:$NODE_PORT
+    InLong DataProxy URL: http://$DATA_PROXY_NODE_IP:$DATA_PROXY_NODE_PORT
 
 {{- else if eq .Values.dataproxy.service.type "LoadBalancer" }}
 
     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
           You can watch the status of by running 'kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }} -n {{ .Release.Namespace }} -w'
 
-    $ export SERVICE_IP=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}") -n {{ .Release.Namespace }}
-    $ echo http://$SERVICE_IP:{{ .Values.dataproxy.service.nodePort }}
+    $ export DATA_PROXY_SERVICE_IP=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}" -n {{ .Release.Namespace }})
+    $ echo http://$DATA_PROXY_SERVICE_IP:{{ .Values.dataproxy.service.nodePort }}
 
-    InLong DataProxy URL: http://$SERVICE_IP:{{ .Values.dataproxy.service.nodePort }}
+    InLong DataProxy URL: http://$DATA_PROXY_SERVICE_IP:{{ .Values.dataproxy.service.nodePort }}
 
 {{- end }}
 
