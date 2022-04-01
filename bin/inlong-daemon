@@ -108,7 +108,7 @@ start_inlong_dashboard() {
   if [[ "$manager_server_hostname" == "localhost" || "$manager_server_hostname" == "127.0.0.1" ]]; then
     manager_server_hostname=$local_ip
   fi
-  docker run -d --name dashboard -e MANAGER_API_ADDRESS=$manager_server_hostname:$manager_server_port -p ${dashboard_port}:80 ${dashboard_docker_image}
+  docker run -d --name dashboard -e MANAGER_API_ADDRESS=${local_ip}:${manager_server_port} -p ${dashboard_mapping_port}:80 ${dashboard_docker_image}
 }
 
 start_inlong_dataproxy() {

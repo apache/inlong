@@ -284,11 +284,12 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         }
 
         // TODO Optimize query conditions use dataProxyClusterId
+        ThirdPartyClusterDTO object = new ThirdPartyClusterDTO();
         List<InlongGroupEntity> groupEntityList = groupMapper.selectAll(GroupState.CONFIG_SUCCESSFUL.getCode());
         if (CollectionUtils.isEmpty(groupEntityList)) {
             String msg = "not found any inlong group with success status for proxy cluster name = " + clusterName;
             LOGGER.warn(msg);
-            throw new BusinessException(msg);
+            return object;
         }
 
         // third-party-cluster type
@@ -342,7 +343,6 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
             mqSet.add(clusterInfo);
         }
 
-        ThirdPartyClusterDTO object = new ThirdPartyClusterDTO();
         object.setMqSet(mqSet);
         object.setTopicList(topicList);
 
