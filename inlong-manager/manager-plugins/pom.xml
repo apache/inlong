@@ -30,14 +30,6 @@
     <artifactId>manager-plugins</artifactId>
     <name>Apache InLong - Manager Plugins</name>
 
-    <properties>
-        <project.build.encoding>UTF-8</project.build.encoding>
-        <junit.version>4.12</junit.version>
-        <commons-io.version>2.11.0</commons-io.version>
-        <flink.version>1.13.5</flink.version>
-        <jackson-core>2.13.1</jackson-core>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>
@@ -54,27 +46,22 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-clients_2.11</artifactId>
-            <version>${flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-core</artifactId>
-            <version>${flink.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>${jackson-core}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

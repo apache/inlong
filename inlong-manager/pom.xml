@@ -88,6 +88,12 @@
         <powermock.version>2.0.2</powermock.version>
         <flink-clients.version>1.13.5</flink-clients.version>
         <docker.organization>inlong</docker.organization>
+
+        <project.build.encoding>UTF-8</project.build.encoding>
+        <junit.version>4.12</junit.version>
+        <commons-io.version>2.11.0</commons-io.version>
+        <flink-core.version>1.13.5</flink-core.version>
+        <jackson-core>2.13.1</jackson-core>
     </properties>
 
     <dependencies>
@@ -152,6 +158,11 @@
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-clients_2.11</artifactId>
                 <version>${flink-clients.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-core</artifactId>
+                <version>${flink-core.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
