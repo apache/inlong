@@ -203,68 +203,98 @@
 
 
 =======================================================================
+Apache InLong(Incubating) Subcomponents:
 
-This project bundles some components that are also licensed under
-Apache License Version 2.0:
------------------------------
-  audience-annotations 0.5.0: https://yetus.apache.org/audience-annotations, Apache 2.0
-  commons-beanutils 1.9.4: https://github.com/apache/commons-beanutils, Apache 2.0
-  commons-cli 1.4: http://commons.apache.org/proper/commons-cli, Apache 2.0
-  commons-codec 1.10: https://github.com/apache/commons-codec, Apache 2.0
-  commons-collections 3.2.2: https://github.com/apache/commons-collections, Apache 2.0
-  commons-digester3 3.2: http://commons.apache.org/digester, Apache 2.0
-  commons-io 2.11.0: https://github.com/apache/commons-io, Apache 2.0
-  commons-lang 2.6: https://github.com/apache/commons-lang, Apache 2.0
-  commons-lang3 3.11: https://github.com/apache/commons-lang, Apache 2.0
-  commons-logging 1.2: http://commons.apache.org/proper/commons-logging, Apache 2.0
-  gson 2.8.5: https://github.com/google/gson, Apache 2.0
-  guava 13.0: http://code.google.com/p/guava-libraries/guava, Apache 2.0
-  httpclient 4.5.13: https://github.com/apache/httpcomponents-client, Apache 2.0
-  httpcore 4.4.13: https://github.com/apache/httpcomponents-core, Apache 2.0
-  ini4j 0.5.1: http://ini4j.sourceforge.net, Apache 2.0
-  jetty-http 9.4.44.v20210927: http://www.eclipse.org/jetty/jetty-http, Apache 2.0 and EPL 1.0
-  jetty-io 9.4.44.v20210927: http://www.eclipse.org/jetty/jetty-io, Apache 2.0 and EPL 1.0
-  jetty-security 9.4.44.v20210927: http://www.eclipse.org/jetty/jetty-security, Apache 2.0 and EPL 1.0
-  jetty-server 9.4.44.v20210927: http://www.eclipse.org/jetty, Apache 2.0 and EPL 1.0
-  jetty-servlet 9.4.44.v20210927: http://www.eclipse.org/jetty/jetty-servlet, Apache 2.0 and EPL 1.0
-  jetty-util 9.4.44.v20210927: http://www.eclipse.org/jetty/jetty-util, Apache 2.0 and EPL 1.0
-  jetty-util-ajax 9.4.44.v20210927: http://www.eclipse.org/jetty, Apache 2.0 and EPL 1.0
-  json-simple 3.0.2: http://code.google.com/p/json-simple, Apache 2.0
-  log4j 1.2.17: https://mvnrepository.com/artifact/log4j/log4j/1.2.17, Apache 2.0
-  netty 3.10.6.Final: https://github.com/netty, Apache 2.0
-  reload4j 1.2.19: https://reload4j.qos.ch, Apache 2.0
-  spring-aop 5.3.18: https://github.com/spring-projects/spring-framework, Apache 2.0
-  spring-beans 5.3.18: https://github.com/spring-projects/spring-framework, Apache 2.0
-  spring-context 5.3.18: https://github.com/spring-projects/spring-framework, Apache 2.0
-  spring-core 5.3.18: https://github.com/spring-projects/spring-framework, Apache 2.0
-  spring-expression 5.3.18: https://github.com/spring-projects/spring-framework, Apache 2.0
-  spring-jcl 5.3.18: https://github.com/spring-projects/spring-framework, Apache 2.0
-  spring-jdbc 5.3.18: https://github.com/spring-projects/spring-framework, Apache 2.0
-  spring-orm 5.3.18: https://github.com/spring-projects/spring-framework, Apache 2.0
-  spring-tx 5.3.18: https://github.com/spring-projects/spring-framework, Apache 2.0
-  velocity-engine-core 2.3: https://github.com/apache/velocity-engine, Apache 2.0
-  velocity-tools-generic 3.1: https://github.com/apache/velocity-tools, Apache 2.0
-  zookeeper 3.4.14: https://github.com/apache/zookeeper, Apache 2.0
+The Apache InLong(Incubating) project contains subcomponents with separate copyright
+notices and license terms. Your use of the source code for the these
+subcomponents is subject to the terms and conditions of the following
+licenses.
 
 
-BSD License
------------
+========================================================================
+Apache 2.0 License
+========================================================================
+
+The following components are provided under the Apache License. See project link for details.
+The text of each license is the standard Apache 2.0 license.
+
+  org.apache.yetus:audience-annotations:0.5.0 - Apache Yetus - Audience Annotations (https://yetus.apache.org/audience-annotations), (Apache License, Version 2.0)
+  commons-beanutils:commons-beanutils:1.9.4 - Apache Commons BeanUtils (https://github.com/apache/commons-beanutils), (Apache License, Version 2.0)
+  commons-cli:commons-cli:1.4 - Apache Commons CLI (http://commons.apache.org/proper/commons-cli), (Apache License, Version 2.0)
+  commons-codec:commons-codec:1.10 - Apache Commons Codec (https://commons.apache.org/proper/commons-codec), (Apache License, Version 2.0)
+  commons-collections:commons-collections:3.2.2 - Apache Commons Collections (https://commons.apache.org/proper/commons-collections), (Apache License, Version 2.0)
+  org.apache.commons:commons-digester3:3.2 - Apache Commons Digester (https://commons.apache.org/proper/commons-digester), (The Apache Software License, Version 2.0)
+  commons-io:commons-io:2.11.0 - Apache Commons IO (https://commons.apache.org/proper/commons-io), (Apache License, Version 2.0)
+  commons-lang:commons-lang:2.6 - Commons Lang (https://commons.apache.org/proper/commons-lang), (Apache License, Version 2.0)
+  org.apache.commons:commons-lang3:3.11 - Apache Commons Lang (https://commons.apache.org/proper/commons-lang), (Apache License, Version 2.0)
+  commons-logging:commons-logging:1.2 - Apache Commons Logging (https://commons.apache.org/proper/commons-logging), (The Apache Software License, Version 2.0)
+  com.google.code.gson:gson:2.8.5 - Gson (https://github.com/google/gson/gson), (Apache 2.0)
+  com.google.guava:guava:19.0 - Guava: Google Core Libraries for Java (http://code.google.com/p/guava-libraries/guava), (The Apache Software License, Version 2.0)
+  org.apache.httpcomponents:httpclient:4.5.13 - Apache HttpClient (https://hc.apache.org/httpcomponents-client-4.5.x), (Apache License, Version 2.0)
+  org.apache.httpcomponents:httpcore:4.4.13 - Apache HttpCore (https://hc.apache.org/httpcomponents-core-4.4.x), (Apache License, Version 2.0)
+  org.ini4j:ini4j:0.5.1 - ini4j (http://ini4j.sourceforge.net), (Apache 2)
+  org.eclipse.jetty:jetty-http:9.4.44.v20210927 - Jetty :: Http Utility (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-io:9.4.44.v20210927 - Jetty :: IO Utility (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-security:9.4.44.v20210927 - Jetty :: Security (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-server:9.4.44.v20210927 - Jetty :: Server Core (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-servlet:9.4.44.v20210927 - Jetty :: Servlet Handling (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-util:9.4.44.v20210927 - Jetty :: Utilities (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-util-ajax:9.4.44.v20210927 - Jetty :: Utilities :: Ajax(JSON) (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  com.github.cliftonlabs:json-simple:3.0.2 - JSON.simple (http://code.google.com/p/json-simple), (The Apache Software License, Version 2.0)
+  log4j:log4j:1.2.17 - Apache Log4j (http://logging.apache.org/log4j/1.2/), (The Apache Software License, Version 2.0)
+  io.netty:netty:3.10.6.Final - Netty (http://netty.io/), (Apache License, Version 2.0)
+  ch.qos.reload4j:reload4j:1.2.19 - reload4j (https://reload4j.qos.ch), (The Apache Software License, Version 2.0)
+  org.apache.velocity:velocity-engine-core:2.3 - Apache Velocity - Engine (https://github.com/apache/velocity-engine), (Apache License, Version 2.0)
+  org.apache.velocity.tools:velocity-tools-generic:3.1 - Apache Velocity Tools - Generic tools (https://github.com/apache/velocity-tools), (Apache License, Version 2.0)
+  org.apache.zookeeper:zookeeper:3.4.6 - ZooKeeper (https://github.com/apache/zookeeper), (Apache License, Version 2.0)
+
+
+========================================================================
+Apache 2.0 licenses
+========================================================================
+
+The following components are provided under the Apache License. See project link for details.
+The text of each license is also included at licenses/LICENSE-[project].txt.
+  
+  org.springframework:spring-aop:5.3.18 - Spring AOP (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
+  org.springframework:spring-beans:5.3.18 - Spring Beans (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
+  org.springframework:spring-context:5.3.18 - Spring Context (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
+  org.springframework:spring-core:5.3.18 - Spring Core (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
+  org.springframework:spring-expression:5.3.18 - Spring Expression Language (SpEL) (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
+  org.springframework:spring-jcl:5.3.18 - Spring Commons Logging Bridge (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
+  org.springframework:spring-jdbc:5.3.18 - Spring JDBC (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
+  org.springframework:spring-orm:5.3.18 - Spring Object/Relational Mapping (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
+  org.springframework:spring-tx:5.3.18 - Spring Transaction (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
+
+
+========================================================================
+BSD licenses
+========================================================================
+
 The following components are provided under BSD license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
-  dom4j 2.1.3: https://github.com/dom4j/dom4j, BSD 3-Clause
-  protobuf-java 3.19.4: https://github.com/protocolbuffers/protobuf/, BSD 3-Clause
+
+  org.dom4j:dom4j:2.1.3 - dom4j (http://dom4j.github.io), (BSD 3-clause New License)
+  com.google.protobuf:protobuf-java:3.19.4 - Protocol Buffers [Core] (https://github.com/protocolbuffers/protobuf), (3-Clause BSD License)
 
 
-MIT License
------------
+========================================================================
+MIT licenses
+========================================================================
+
 The following components are provided under MIT license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
-  slf4j-api 1.7.36: https://www.slf4j.org, MIT
-  slf4j-reload4j 1.7.36:  https://www.slf4j.org, MIT
+
+  org.slf4j:slf4j-api:1.7.36 - SLF4J API Module (http://www.slf4j.org), (MIT License)
+  org.slf4j:slf4j-reload4j:1.7.36 - SLF4J Reload4j Binding (http://www.slf4j.org), (MIT License)
 
 
-CDDL License
------------
+========================================================================
+CDDL licenses
+========================================================================
+
 The following components are provided under CDDL license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
-  javax.servlet-api 4.0.1: https://javaee.github.io/servlet-spec, CDDL 1.0
+
+  javax.servlet:javax.servlet-api:4.0.1 - Java Servlet API (http://servlet-spec.java.net), (CDDL + GPLv2 with classpath exception)
+

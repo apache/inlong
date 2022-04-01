@@ -203,27 +203,45 @@
 
 
 =======================================================================
+Apache InLong(Incubating) Subcomponents:
 
-This project bundles some components that are also licensed under
-Apache License Version 2.0:
------------------------------
-  commons-codec 1.10: https://github.com/apache/commons-codec, Apache 2.0
-  commons-lang 2.6: https://github.com/apache/commons-lang, Apache 2.0
-  gson 2.8.5: https://github.com/google/gson, Apache 2.0
-  netty 3.10.6.Final: https://github.com/netty, Apache 2.0
-  reload4j 1.2.19: https://reload4j.qos.ch, Apache 2.0
+The Apache InLong(Incubating) project contains subcomponents with separate copyright
+notices and license terms. Your use of the source code for the these
+subcomponents is subject to the terms and conditions of the following
+licenses.
 
 
-BSD License
------------
+========================================================================
+Apache 2.0 License
+========================================================================
+
+The following components are provided under the Apache License. See project link for details.
+The text of each license is the standard Apache 2.0 license.
+
+  commons-codec:commons-codec:1.10 - Apache Commons Codec (https://commons.apache.org/proper/commons-codec), (Apache License, Version 2.0)
+  commons-lang:commons-lang:2.6 - Commons Lang (https://commons.apache.org/proper/commons-lang), (Apache License, Version 2.0)
+  com.google.code.gson:gson:2.8.5 - Gson (https://github.com/google/gson/gson), (Apache 2.0)
+  io.netty:netty:3.10.6.Final - Netty (http://netty.io/), (Apache License, Version 2.0)
+  ch.qos.reload4j:reload4j:1.2.19 - reload4j (https://reload4j.qos.ch), (The Apache Software License, Version 2.0)
+
+
+========================================================================
+BSD licenses
+========================================================================
+
 The following components are provided under BSD license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
-  protobuf-java 3.19.4: https://github.com/protocolbuffers/protobuf/, BSD 3-Clause
- 
 
-MIT License
------------
+  com.google.protobuf:protobuf-java:3.19.4 - Protocol Buffers [Core] (https://github.com/protocolbuffers/protobuf), (3-Clause BSD License)
+
+
+========================================================================
+MIT licenses
+========================================================================
+
 The following components are provided under MIT license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
-  slf4j-api 1.7.36: https://www.slf4j.org, MIT
-  slf4j-reload4j 1.7.36:  https://www.slf4j.org, MIT
+
+  org.slf4j:slf4j-api:1.7.36 - SLF4J API Module (http://www.slf4j.org), (MIT License)
+  org.slf4j:slf4j-reload4j:1.7.36 - SLF4J Reload4j Binding (http://www.slf4j.org), (MIT License)
+
