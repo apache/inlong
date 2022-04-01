@@ -35,7 +35,7 @@
         <docker.image.prefix>springboot-docker</docker.image.prefix>
         <swagger.version>3.0.0</swagger.version>
         <swagger-annotations.version>1.6.2</swagger-annotations.version>
-        <spring-boot.version>2.6.3</spring-boot.version>
+        <spring-boot.version>2.6.6</spring-boot.version>
         <lombok.version>1.18.22</lombok.version>
     </properties>
 
