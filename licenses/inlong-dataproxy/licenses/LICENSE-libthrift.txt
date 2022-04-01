@@ -201,134 +201,53 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
+--------------------------------------------------
+SOFTWARE DISTRIBUTED WITH THRIFT:
 
-=======================================================================
+The Apache Thrift software includes a number of subcomponents with
+separate copyright notices and license terms. Your use of the source
+code for the these subcomponents is subject to the terms and
+conditions of the following licenses.
 
-This project bundles some components that are also licensed under
-Apache License Version 2.0:
------------------------------
- * Apache Avro
-   - org.apache.avro:avro:avro-1.7.4.jar
-   - org.apache.avro:avro-ipc:avro-ipc-1.7.4.jar
- * Apache Commons
-   - commons-cli:commons-cli:commons-cli-1.2.jar
-   - commons-codec:commons-codec:commons-codec-1.15.jar
-   - commons-collections:commons-collections:commons-collections-3.2.2.jar
-   - org.apache.commons:commons-compress:commons-compress-1.4.1.jar
-   - commons-dbcp:commons-dbcp:commons-dbcp-1.4.jar
-   - commons-io:commons-io:commons-io-2.11.0.jar
-   - commons-lang:commons-lang:commons-lang-2.5.jar
-   - commons-logging:commons-logging:commons-logging-1.2.jar
-   - commons-pool:commons-pool:commons-pool-1.5.4.jar
- * Curator
-   - org.apache.curator:curator-client:curator-client-2.6.0.jar
-   - org.apache.curator:curator-framework:curator-framework-2.6.0.jar
-   - org.apache.curator:curator-recipes:curator-recipes-2.6.0.jar
- * derby
-   - org.apache.derby:derby:derby-10.14.1.0.jar
- * Flume
-   - org.apache.flume.flume-ng-channels:flume-file-channel:flume-file-channel-1.9.0.jar 
-   - org.apache.flume.flume-ng-sinks:flume-hdfs-sink:flume-hdfs-sink-1.9.0.jar
-   - org.apache.flume.flume-ng-sinks:flume-irc-sink:flume-irc-sink-1.9.0.jar
-   - org.apache.flume.flume-ng-channels:flume-jdbc-channel:flume-jdbc-channel-1.9.0.jar
-   - org.apache.flume:flume-ng-auth:flume-ng-auth-1.9.0.jar
-   - org.apache.flume.flume-ng-configfilters:flume-ng-config-filter-api:flume-ng-config-filter-api-1.9.0.jar
-   - org.apache.flume:flume-ng-configuration:flume-ng-configuration-1.9.0.jar
-   - org.apache.flume:flume-ng-core:flume-ng-core-1.9.0.jar
-   - org.apache.flume:flume-ng-node:flume-ng-node-1.9.0.jar
-   - org.apache.flume:flume-ng-sdk:flume-ng-sdk-1.9.0.jar
-   - org.apache.flume.flume-ng-channels:flume-spillable-memory-channel:flume-spillable-memory-channel-1.9.0.jar
- * Gson
-   - com.google.code.gson:gson:gson-2.2.2.jar
-   - com.google.code.gson:gson:gson-2.8.5.jar
- * Guava
-   - com.google.guava:guava:guava-11.0.2.jar
- * HttpClient
-   - org.apache.httpcomponents:httpclient:httpclient-4.4.1.jar
-   - org.apache.httpcomponents:httpcore:httpcore-4.4.1.jar
- * IRC client library
-   - org.schwering:irclib:irclib-1.10.jar
- * Jackson
-   - org.codehaus.jackson:jackson-core-asl:jackson-core-asl-1.8.8.jar
-   - org.codehaus.jackson:jackson-mapper-asl:jackson-mapper-asl-1.8.8.jar
- * Jetty
-   - org.mortbay.jetty:jetty:jetty-6.1.26.jar
-   - org.mortbay.jetty:jetty-util:jetty-util-6.1.26.jar
-   - org.mortbay.jetty:servlet-api:servlet-api-2.5-20110124.jar
-   - org.eclipse.jetty:jetty-http:jetty-http-9.4.44.v20210927.jar
-   - org.eclipse.jetty:jetty-io:jetty-io-9.4.44.v20210927.jar
-   - org.eclipse.jetty:jetty-jmx:jetty-jmx-9.4.44.v20210927.jar
-   - org.eclipse.jetty:jetty-security:jetty-security-9.4.44.v20210927.jar
-   - org.eclipse.jetty:jetty-server:jetty-server-9.4.44.v20210927.jar
-   - org.eclipse.jetty:jetty-servlet:jetty-servlet-9.4.44.v20210927.jar
-   - org.eclipse.jetty:jetty-util:jetty-util-9.4.44.v20210927.jar
- * Joda-Time
-   - joda-time:joda-time:joda-time-2.9.9.jar
- * FindBugs-jsr305
-   - com.google.code.findbugs:jsr305:jsr305-1.3.9.jar
- * Apache Thrift
-   - org.apache.thrift:libthrift:libthrift-0.9.3.jar
- * Log4J
-   - log4j:log4j:log4j-1.2.16.jar
-   - log4j:log4j:log4j-1.2.17.jar
- * mapdb
-   - org.mapdb:mapdb:mapdb-0.9.9.jar
- * Apache MINA Core
-   - org.apache.mina:mina-core:mina-core-2.0.4.jar
- * Netty
-   - io.netty:netty:netty-3.8.0.Final.jar
- * Snappy for Java
-   - org.xerial.snappy:snappy-java:snappy-java-1.1.0.jar
- * Apache Velocity
-   - org.apache.velocity:velocity:velocity-engine-core-2.3.jar
- * Apache ZooKeeper
-   - org.apache.zookeeper:zookeeper:zookeeper-3.4.6.jar
+--------------------------------------------------
+Portions of the following files are licensed under the MIT License:
 
+  lib/erl/src/Makefile.am
 
---------------------------------------------------------------------------------------
+Please see doc/otp-base-license.txt for the full terms of this license.
 
-This product bundles various third-party components under other open source licenses.
-This section summarizes those components and their licenses.
-See "licenses-binary/" for text of these licenses.
+--------------------------------------------------
+For the aclocal/ax_boost_base.m4 and contrib/fb303/aclocal/ax_boost_base.m4 components:
 
-Common Development and Distribution License (CDDL) 1.0
-------------------------------------------------------
- * Java Servlet API
-   - javax.servlet:javax.servlet-api:javax.servlet-api-3.1.0.jar -- licenses-binary/LICENSE-cddl-1.1.txt
-   
-   
-BSD License
------------
- * JLine
-   - jline:jline:jline-0.9.94.jar -- licenses-binary/LICENSE-jline.txt
- * ParaNamer Core
-   - com.thoughtworks.paranamer:paranamer:paranamer-2.3.jar -- licenses-binary/LICENSE-paranamer.txt
- * Protocol Buffers
-   - com.google.protobuf:protobuf-java:protobuf-java-2.5.0.jar -- licenses-binary/LICENSE-google-protobuf.txt
-   - com.googlecode.protobuf-java-format:protobuf-java-format:protobuf-java-format-1.4.jar -- licenses-binary/LICENSE-google-protobuf-java-format.txt
-   
+#   Copyright (c) 2007 Thomas Porschberg <thomas@randspringer.de>
+#
+#   Copying and distribution of this file, with or without
+#   modification, are permitted in any medium without royalty provided
+#   the copyright notice and this notice are preserved.
 
-MIT License
------------
- * SLF4J -- licenses-binary/LICENSE-slf4j.txt
-   - org.slf4j:slf4j-api:slf4j-api-1.7.25.jar
-   - org.slf4j:slf4j-api:slf4j-api-1.7.30.jar
-   - org.slf4j:slf4j-log4j12:slf4j-log4j12-1.6.2.jar
-   - org.slf4j:slf4j-log4j12:slf4j-log4j12-1.7.30.jar
+--------------------------------------------------
+For the compiler/cpp/src/thrift/md5.[ch] components:
 
-Public Domain License
----------------------
- * XZ for Java
-   - org.tukaani:xz:xz-1.0.jar -- licenses-binary/LICENSE-xz.txt
+/*
+  Copyright (C) 1999, 2000, 2002 Aladdin Enterprises.  All rights reserved.
 
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
 
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
 
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
 
+  L. Peter Deutsch
+  ghost@aladdin.com
 
-
-
-
-
-
-
-
+ */
