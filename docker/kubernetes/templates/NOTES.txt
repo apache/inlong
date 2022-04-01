@@ -1,3 +1,4 @@
+{{/*
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -14,26 +15,123 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+*/}}
 
-1. Get the application URL by running these commands:
-{{/*{{- if .Values.ingress.enabled }}*/}}
-{{/*{{- range $host := .Values.ingress.hosts }}*/}}
-{{/*  {{- range .paths }}*/}}
-{{/*  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}*/}}
-{{/*  {{- end }}*/}}
-{{/*{{- end }}*/}}
-{{/*{{- else if contains "NodePort" .Values.service.type }}*/}}
-{{/*  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "inlong.fullname" . }})*/}}
-{{/*  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")*/}}
-{{/*  echo http://$NODE_IP:$NODE_PORT*/}}
-{{/*{{- else if contains "LoadBalancer" .Values.service.type }}*/}}
-{{/*     NOTE: It may take a few minutes for the LoadBalancer IP to be available.*/}}
-{{/*           You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "inlong.fullname" . }}'*/}}
-{{/*  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "inlong.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")*/}}
-{{/*  echo http://$SERVICE_IP:{{ .Values.service.port }}*/}}
-{{/*{{- else if contains "ClusterIP" .Values.service.type }}*/}}
-{{/*  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "inlong.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")*/}}
-{{/*  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")*/}}
-{{/*  echo "Visit http://127.0.0.1:8080 to use your application"*/}}
-{{/*  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT*/}}
-{{/*{{- end }}*/}}
+** Thank you for installing {{ .Chart.Name }}. Please be patient while the chart {{ .Chart.Name }}-{{ .Chart.AppVersion }} is being deployed. **
+
+1. Access InLong Dashboard by running these commands:
+
+{{- if .Values.ingress.enabled }}
+
+    InLong Dashboard URL: http{{ if .Values.ingress.tls.enabled }}s{{ end }}://{{ .Values.ingress.host }}/{{ .Values.ingress.path }}
+
+{{- else if eq .Values.dashboard.service.type "ClusterIP" }}
+
+    $ export POD_NAME=$(kubectl get pods -l "app.kubernetes.io/name={{ template "inlong.name" . }}-{{ .Values.dashboard.component }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}") -n {{ .Release.Namespace }}
+    $ export CONTAINER_PORT=$(kubectl get pod $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") -n {{ .Release.Namespace }}
+    $ kubectl port-forward $POD_NAME 8181:$CONTAINER_PORT -n {{ .Release.Namespace }}
+
+    InLong Dashboard URL: http://127.0.0.1:8181
+
+{{- else if eq .Values.dashboard.service.type "NodePort" }}
+
+    $ export NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}") -n {{ .Release.Namespace }}
+    $ export NODE_PORT=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }} -o jsonpath="{.spec.ports[0].nodePort}") -n {{ .Release.Namespace }}
+    $ echo http://$NODE_IP:$NODE_PORT
+
+    InLong Dashboard URL: http://$NODE_IP:$NODE_PORT
+
+{{- else if eq .Values.dashboard.service.type "LoadBalancer" }}
+
+    NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+          You can watch the status of by running 'kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }} -n {{ .Release.Namespace }} -w'
+
+    $ export SERVICE_IP=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}") -n {{ .Release.Namespace }}
+    $ echo http://$SERVICE_IP:{{ .Values.dashboard.service.nodePort }}
+
+    InLong Dashboard URL: http://$SERVICE_IP:{{ .Values.dashboard.service.nodePort }}
+
+{{- end }}
+
+2. Access InLong Manager by running these commands:
+
+{{- if .Values.ingress.enabled }}
+
+    InLong Manager URL: http{{ if .Values.ingress.tls.enabled }}s{{ end }}://{{ .Values.ingress.host }}/{{ .Values.ingress.path }}
+
+{{- else if eq .Values.manager.service.type "ClusterIP" }}
+
+    $ export POD_NAME=$(kubectl get pods -l "app.kubernetes.io/name={{ template "inlong.name" . }}-{{ .Values.manager.component }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}") -n {{ .Release.Namespace }}
+    $ export CONTAINER_PORT=$(kubectl get pod $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") -n {{ .Release.Namespace }}
+    $ kubectl port-forward $POD_NAME 8080:$CONTAINER_PORT -n {{ .Release.Namespace }}
+
+    InLong Manager URL: http://127.0.0.1:8080
+
+{{- else if eq .Values.manager.service.type "NodePort" }}
+
+    $ export NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}") -n {{ .Release.Namespace }}
+    $ export NODE_PORT=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.manager.component }} -o jsonpath="{.spec.ports[0].nodePort}") -n {{ .Release.Namespace }}
+    $ echo http://$NODE_IP:$NODE_PORT
+
+    InLong Manager URL: http://$NODE_IP:$NODE_PORT
+
+{{- else if eq .Values.manager.service.type "LoadBalancer" }}
+
+    NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+          You can watch the status of by running 'kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.manager.component }} -n {{ .Release.Namespace }} -w'
+
+    $ export SERVICE_IP=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.manager.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}") -n {{ .Release.Namespace }}
+    $ echo http://$SERVICE_IP:{{ .Values.manager.service.nodePort }}
+
+    InLong Manager URL: http://$SERVICE_IP:{{ .Values.manager.service.nodePort }}
+
+{{- end }}
+
+3. Access InLong DataProxy by running these commands:
+
+{{- if .Values.ingress.enabled }}
+
+    InLong DataProxy URL: http{{ if .Values.ingress.tls.enabled }}s{{ end }}://{{ .Values.ingress.host }}/{{ .Values.ingress.path }}
+
+{{- else if eq .Values.dataproxy.service.type "ClusterIP" }}
+
+    $ export POD_NAME=$(kubectl get pods -l "app.kubernetes.io/name={{ template "inlong.name" . }}-{{ .Values.dataproxy.component }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}") -n {{ .Release.Namespace }}
+    $ export CONTAINER_PORT=$(kubectl get pod $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") -n {{ .Release.Namespace }}
+    $ kubectl port-forward $POD_NAME 8080:$CONTAINER_PORT -n {{ .Release.Namespace }}
+
+    InLong DataProxy URL: http://127.0.0.1:8080
+
+{{- else if eq .Values.dataproxy.service.type "NodePort" }}
+
+    $ export NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}") -n {{ .Release.Namespace }}
+    $ export NODE_PORT=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }} -o jsonpath="{.spec.ports[0].nodePort}") -n {{ .Release.Namespace }}
+    $ echo http://$NODE_IP:$NODE_PORT
+
+    InLong DataProxy URL: http://$NODE_IP:$NODE_PORT
+
+{{- else if eq .Values.dataproxy.service.type "LoadBalancer" }}
+
+    NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+          You can watch the status of by running 'kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }} -n {{ .Release.Namespace }} -w'
+
+    $ export SERVICE_IP=$(kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}") -n {{ .Release.Namespace }}
+    $ echo http://$SERVICE_IP:{{ .Values.dataproxy.service.nodePort }}
+
+    InLong DataProxy URL: http://$SERVICE_IP:{{ .Values.dataproxy.service.nodePort }}
+
+{{- end }}
+
+To learn more about the release, try:
+
+    $ helm status {{ .Release.Name }} -n {{ .Release.Namespace }}
+    $ helm get all {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+To uninstall the release, try:
+
+    $ helm uninstall {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+To delete all PVC if any persistent volume claims used, try:
+
+    $ kubectl delete pvc -n {{ .Release.Namespace }} --all
+
+For more details, please check out https://inlong.apache.org/docs/next/deployment/k8s
