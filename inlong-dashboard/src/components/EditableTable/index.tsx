@@ -179,11 +179,6 @@ const Comp = ({
       } else if (
         typeof item.visible === 'function' ? !item.visible(text, record) : item.visible === false
       ) {
-        if (text !== undefined) {
-          setTimeout(() => {
-            onTextChange({ [item.dataIndex]: undefined }, record);
-          }, 0);
-        }
         return '-';
       }
 

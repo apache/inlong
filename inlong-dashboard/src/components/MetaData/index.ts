@@ -22,6 +22,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { StorageHive } from './StorageHive';
 import { StorageClickhouse } from './StorageClickhouse';
 import { StorageKafka } from './StorageKafka';
+import { StorageIceberg } from './StorageIceberg';
 
 export interface StoragesType {
   label: string;
@@ -53,5 +54,10 @@ export const Storages: StoragesType[] = [
     label: 'KAFKA',
     value: 'KAFKA',
     ...StorageKafka,
+  },
+  {
+    label: 'ICEBERG',
+    value: 'ICEBERG',
+    ...StorageIceberg,
   },
 ];
