@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.utils.Lists;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.DataSeparator;
@@ -29,21 +30,25 @@ import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.client.api.PulsarBaseConf;
+import org.apache.inlong.manager.client.api.SinkField;
+import org.apache.inlong.manager.client.api.StreamField;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
-import org.apache.inlong.manager.client.api.sink.KafkaSink;
-import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.client.api.sink.HiveSink;
+import org.apache.inlong.manager.client.api.source.KafkaSource;
+import org.apache.inlong.manager.common.enums.FieldType;
+import org.apache.inlong.manager.common.enums.FileFormat;
 import org.apache.shiro.util.Assert;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class Binlog2KafkaTest {
+public class Kafka2HiveExample {
 
     // Manager web url
     public static String SERVICE_URL = "127.0.0.1:8083";
@@ -65,7 +70,7 @@ public class Binlog2KafkaTest {
     public static String topic = "{pulsar.topic}";
 
     @Test
-    public void testCreateGroupForKafka() throws Exception {
+    public void testCreateGroupForHive() {
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setWriteTimeout(10);
         configuration.setReadTimeout(10);
@@ -78,8 +83,9 @@ public class Binlog2KafkaTest {
             InlongGroup group = inlongClient.forGroup(groupConf);
             InlongStreamConf streamConf = createStreamConf();
             InlongStreamBuilder streamBuilder = group.createStream(streamConf);
-            streamBuilder.source(createMysqlSource());
-            streamBuilder.sink(createKafkaSink());
+            streamBuilder.fields(createStreamFields());
+            streamBuilder.source(createKafkaSource());
+            streamBuilder.sink(createHiveSink());
             streamBuilder.initOrUpdate();
             // start group
             InlongGroupContext inlongGroupContext = group.init();
@@ -101,45 +107,7 @@ public class Binlog2KafkaTest {
         InlongGroupConf groupConf = createGroupConf();
         try {
             InlongGroup group = inlongClient.forGroup(groupConf);
-            InlongGroupContext groupContext = group.delete(true);
-            Assert.notNull(groupContext);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    public void testRestartGroup() {
-        ClientConfiguration configuration = new ClientConfiguration();
-        configuration.setWriteTimeout(10);
-        configuration.setReadTimeout(10);
-        configuration.setConnectTimeout(10);
-        configuration.setTimeUnit(TimeUnit.SECONDS);
-        configuration.setAuthentication(INLONG_AUTH);
-        InlongClient inlongClient = InlongClient.create(SERVICE_URL, configuration);
-        InlongGroupConf groupConf = createGroupConf();
-        try {
-            InlongGroup group = inlongClient.forGroup(groupConf);
-            InlongGroupContext groupContext = group.restart(true);
-            Assert.notNull(groupContext);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    public void testSuspendGroup() {
-        ClientConfiguration configuration = new ClientConfiguration();
-        configuration.setWriteTimeout(10);
-        configuration.setReadTimeout(10);
-        configuration.setConnectTimeout(10);
-        configuration.setTimeUnit(TimeUnit.SECONDS);
-        configuration.setAuthentication(INLONG_AUTH);
-        InlongClient inlongClient = InlongClient.create(SERVICE_URL, configuration);
-        InlongGroupConf groupConf = createGroupConf();
-        try {
-            InlongGroup group = inlongClient.forGroup(groupConf);
-            InlongGroupContext groupContext = group.suspend(true);
+            InlongGroupContext groupContext = group.delete();
             Assert.notNull(groupContext);
         } catch (Exception e) {
             e.printStackTrace();
@@ -153,13 +121,13 @@ public class Binlog2KafkaTest {
         inlongGroupConf.setProxyClusterId(1);
         //pulsar conf
         PulsarBaseConf pulsarBaseConf = new PulsarBaseConf();
-        pulsarBaseConf.setType(MQType.PULSAR);
         inlongGroupConf.setMqBaseConf(pulsarBaseConf);
         pulsarBaseConf.setPulsarServiceUrl(PULSAR_SERVICE_URL);
         pulsarBaseConf.setPulsarAdminUrl(PULSAR_ADMIN_URL);
         pulsarBaseConf.setNamespace("public");
         pulsarBaseConf.setEnableCreateResource(false);
         pulsarBaseConf.setTenant(tenant);
+
         //flink conf
         FlinkSortBaseConf sortBaseConf = new FlinkSortBaseConf();
         inlongGroupConf.setSortBaseConf(sortBaseConf);
@@ -186,27 +154,40 @@ public class Binlog2KafkaTest {
         return streamConf;
     }
 
-    public MySQLBinlogSource createMysqlSource() {
-        MySQLBinlogSource mySQLBinlogSource = new MySQLBinlogSource();
-        mySQLBinlogSource.setDbNames(Arrays.asList("{db.name}"));
-        mySQLBinlogSource.setHostname("{db.url}");
-        mySQLBinlogSource.setAuthentication(new DefaultAuthentication("root", "inlong"));
-        mySQLBinlogSource.setSourceName("{mysql.source.name}");
-        mySQLBinlogSource.setAllMigration(true);
-        return mySQLBinlogSource;
+    public KafkaSource createKafkaSource() {
+        KafkaSource kafkaSource = new KafkaSource();
+        kafkaSource.setBootstrapServers("{kafka.bootstrap}");
+        kafkaSource.setTopic("{kafka.topic}");
+        kafkaSource.setSourceName("{kafka.source.name}");
+        kafkaSource.setDataFormat(DataFormat.JSON);
+        return kafkaSource;
     }
 
-    private KafkaSink createKafkaSink() {
-        KafkaSink kafkaSink = new KafkaSink();
-        kafkaSink.setDataFormat(DataFormat.CANAL);
-        kafkaSink.setAddress("{kafka.bootstrap}");
-        kafkaSink.setTopicName("{kafka.topic}");
-        kafkaSink.setNeedCreated(false);
-        kafkaSink.setSinkName("{kafka.sink.name}");
-        Map<String, Object> properties = new HashMap<>();
-        //Not needed if kafka cluster is not set
-        properties.put("transaction.timeout.ms", 9000000);
-        kafkaSink.setProperties(properties);
-        return kafkaSink;
+    private HiveSink createHiveSink() {
+        HiveSink hiveSink = new HiveSink();
+        hiveSink.setDbName("{db.name}");
+        hiveSink.setJdbcUrl("jdbc:hive2://{ip:port}");
+        hiveSink.setAuthentication(new DefaultAuthentication("hive", "hive"));
+        hiveSink.setCharset(StandardCharsets.UTF_8);
+        hiveSink.setFileFormat(FileFormat.TextFile);
+        hiveSink.setDataSeparator(DataSeparator.VERTICAL_BAR);
+        hiveSink.setDataPath("hdfs://{ip:port}/usr/hive/warehouse/{db.name}");
+
+        List<SinkField> fields = new ArrayList<>();
+        SinkField field1 = new SinkField(0, FieldType.INT, "age", FieldType.INT, "age");
+        SinkField field2 = new SinkField(1, FieldType.STRING, "name", FieldType.STRING, "name");
+        fields.add(field1);
+        fields.add(field2);
+        hiveSink.setSinkFields(fields);
+        hiveSink.setTableName("{table.name}");
+        hiveSink.setSinkName("{hive.sink.name}");
+        return hiveSink;
+    }
+
+    public List<StreamField> createStreamFields() {
+        List<StreamField> streamFieldList = Lists.newArrayList();
+        streamFieldList.add(new StreamField(0, FieldType.STRING, "name", null, null));
+        streamFieldList.add(new StreamField(1, FieldType.INT, "age", null, null));
+        return streamFieldList;
     }
 }
