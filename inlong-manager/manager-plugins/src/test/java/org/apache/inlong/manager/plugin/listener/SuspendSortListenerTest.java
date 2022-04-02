@@ -41,9 +41,6 @@ public class SuspendSortListenerTest {
         inlongGroupInfo.setInlongGroupId("1");
         updateGroupProcessForm.setGroupInfo(inlongGroupInfo);
 
-        Map<String, String> sortProperties = new HashMap<>(16);
-        sortProperties.put(InlongGroupSettings.CLUSTER_ID, "cluster-3pcta51b");
-
         InlongGroupExtInfo inlongGroupExtInfo1 = new InlongGroupExtInfo();
         inlongGroupExtInfo1.setKeyName(InlongGroupSettings.SORT_URL);
         inlongGroupExtInfo1.setKeyValue("127.0.0.1:8085");
@@ -53,20 +50,19 @@ public class SuspendSortListenerTest {
         InlongGroupExtInfo inlongGroupExtInfo2 = new InlongGroupExtInfo();
         inlongGroupExtInfo2.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
         ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, String> sortProperties = new HashMap<>(16);
         String sortStr = objectMapper.writeValueAsString(sortProperties);
         inlongGroupExtInfo2.setKeyValue(sortStr);
         inlongGroupExtInfos.add(inlongGroupExtInfo2);
 
         InlongGroupExtInfo inlongGroupExtInfo5 = new InlongGroupExtInfo();
         inlongGroupExtInfo5.setKeyName(InlongGroupSettings.SORT_JOB_ID);
-        inlongGroupExtInfo5.setKeyValue("8f87b7975d03625531bc87a70475a198");
+        inlongGroupExtInfo5.setKeyValue("ea405ab424cfc35ae9be93df8ea87917");
         inlongGroupExtInfos.add(inlongGroupExtInfo5);
 
         inlongGroupInfo.setExtList(inlongGroupExtInfos);
 
         SuspendSortListener pauseSortListener = new SuspendSortListener();
         pauseSortListener.listen(context);
-        while (true) {
-        }
     }
 }

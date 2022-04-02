@@ -40,8 +40,6 @@ public class RestartSortListenerTest {
         InlongGroupInfo inlongGroupInfo = new InlongGroupInfo();
         inlongGroupInfo.setInlongGroupId("1");
         updateGroupProcessForm.setGroupInfo(inlongGroupInfo);
-        Map<String, String> sortProperties = new HashMap<>(16);
-        sortProperties.put(InlongGroupSettings.CLUSTER_ID, "cluster-3pcta51b");
 
         InlongGroupExtInfo inlongGroupExtInfo1 = new InlongGroupExtInfo();
         inlongGroupExtInfo1.setKeyName(InlongGroupSettings.SORT_URL);
@@ -52,6 +50,7 @@ public class RestartSortListenerTest {
         InlongGroupExtInfo inlongGroupExtInfo2 = new InlongGroupExtInfo();
         inlongGroupExtInfo2.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
         ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, String> sortProperties = new HashMap<>(16);
         String sortStr = objectMapper.writeValueAsString(sortProperties);
         inlongGroupExtInfo2.setKeyValue(sortStr);
         inlongGroupExtInfoList.add(inlongGroupExtInfo2);
@@ -130,7 +129,5 @@ public class RestartSortListenerTest {
 
         RestartSortListener restartSortListener = new RestartSortListener();
         restartSortListener.listen(context);
-        while (true) {
-        }
     }
 }

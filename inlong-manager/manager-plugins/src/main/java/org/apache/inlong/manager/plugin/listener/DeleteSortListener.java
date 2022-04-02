@@ -25,7 +25,6 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.plugin.flink.Constants;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.ManagerFlinkTask;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
@@ -37,6 +36,8 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
 
 @Slf4j
 public class DeleteSortListener implements SortOperateListener {
@@ -75,14 +76,19 @@ public class DeleteSortListener implements SortOperateListener {
         }
         FlinkInfo flinkInfo = new FlinkInfo();
 
-        flinkInfo.setRegion(kvConf.get(InlongGroupSettings.REGION));
-        flinkInfo.setClusterId(kvConf.get(InlongGroupSettings.CLUSTER_ID));
         flinkInfo.setJobId(kvConf.get(InlongGroupSettings.SORT_JOB_ID));
-        flinkInfo.setResourceIds(kvConf.get(Constants.RESOURCE_ID));
 
         FlinkService flinkService = new FlinkService();
-        ManagerFlinkTask managerOceanusTask = new ManagerFlinkTask(flinkService);
-        managerOceanusTask.delete(flinkInfo);
+        ManagerFlinkTask managerFlinkTask = new ManagerFlinkTask(flinkService);
+
+        try {
+            managerFlinkTask.delete(flinkInfo);
+        } catch (Exception e) {
+            log.error("pause exception ", e);
+            flinkInfo.setException(true);
+            flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
+            managerFlinkTask.pollFlinkStatus(flinkInfo);
+        }
         return ListenerResult.success();
     }
 

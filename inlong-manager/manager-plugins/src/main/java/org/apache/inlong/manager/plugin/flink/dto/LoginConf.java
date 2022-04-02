@@ -21,14 +21,17 @@ import lombok.Data;
 
 @Data
 public class LoginConf {
+
     /**
      * address
      */
     private String restAddress;
+
     /**
      * port
      */
     private Integer restPort;
+
     /**
      * jobmanager port
      */

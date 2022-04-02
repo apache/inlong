@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
+
 @Slf4j
 public class SuspendSortListener implements SortOperateListener {
     @Override
@@ -71,13 +73,18 @@ public class SuspendSortListener implements SortOperateListener {
             return ListenerResult.fail(message);
         }
         FlinkInfo flinkInfo = new FlinkInfo();
-        flinkInfo.setRegion(kvConf.get(InlongGroupSettings.REGION));
-        flinkInfo.setClusterId(kvConf.get(InlongGroupSettings.CLUSTER_ID));
         flinkInfo.setJobId(kvConf.get(InlongGroupSettings.SORT_JOB_ID));
-
         FlinkService flinkService = new FlinkService();
         ManagerFlinkTask managerFlinkTask = new ManagerFlinkTask(flinkService);
-        managerFlinkTask.stop(flinkInfo);
+
+        try {
+            managerFlinkTask.stop(flinkInfo);
+        } catch (Exception e) {
+            log.error("pause exception ", e);
+            flinkInfo.setException(true);
+            flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
+            managerFlinkTask.pollFlinkStatus(flinkInfo);
+        }
         return ListenerResult.success();
     }
 

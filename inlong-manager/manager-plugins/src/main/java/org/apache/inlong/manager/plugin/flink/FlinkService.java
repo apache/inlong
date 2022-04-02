@@ -39,14 +39,12 @@ import org.apache.flink.configuration.JobManagerOptions;
 import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
-import org.apache.flink.runtime.messages.Acknowledge;
 import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
-import org.apache.inlong.manager.plugin.util.FlinkConfiguration;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.dto.JarRunRequestbody;
-import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequestBody;
+import org.apache.inlong.manager.plugin.util.FlinkConfiguration;
 
 import java.io.File;
 import java.io.IOException;
@@ -99,11 +97,10 @@ public class FlinkService {
     }
 
     /**
-     * init client Configuration
+     * init flink-client Configuration
      * @return
-     * @throws Exception
      */
-    public Configuration initConfiguration() throws Exception {
+    public Configuration initConfiguration()  {
         Configuration configuration = new Configuration();
         configuration.setString(JobManagerOptions.ADDRESS, address);
         configuration.setInteger(JobManagerOptions.PORT, jobManagerPort);
@@ -132,23 +129,6 @@ public class FlinkService {
             log.warn("get  req fail {}", e.getMessage());
         }
         return response.body();
-    }
-
-    /**
-     * list jars
-     * @param url
-     * @return
-     */
-    public ResponseBody listJars(String url) {
-        ResponseBody body = null;
-        try {
-            body = getReq(url);
-            log.info("all jarfileinfo : {}",body);
-            return body;
-        } catch (Exception e) {
-            log.error("fetch jars fail",e.getMessage());
-        }
-        return body;
     }
 
     /**
@@ -201,7 +181,6 @@ public class FlinkService {
         try {
             client = getFlinkClient();
             Configuration configuration = initConfiguration();
-            int parallelism = flinkConfig.getParallelism();
             File jarFile = new File(localJarPath);
                 SavepointRestoreSettings savepointRestoreSettings = SavepointRestoreSettings.none();
                 PackagedProgram program = PackagedProgram.newBuilder()
@@ -233,11 +212,10 @@ public class FlinkService {
         try {
             client = getFlinkClient();
             Configuration configuration = initConfiguration();
-            int parallelism = flinkConfig.getParallelism();
             File jarFile = new File(localJarPath);
             if (StringUtils.isNotEmpty(flinkInfo.getSavepointPath())) {
                 SavepointRestoreSettings savepointRestoreSettings =
-                        SavepointRestoreSettings.forPath(flinkInfo.getSavepointPath(),false);
+                        SavepointRestoreSettings.forPath(savepointDirectory,false);
                 PackagedProgram program = PackagedProgram.newBuilder()
                         .setConfiguration(configuration)
                         .setEntryPointClassName(Constants.ENTRYPOINT_CLASS)
@@ -260,12 +238,10 @@ public class FlinkService {
      * stop job
      * @param jobId
      */
-    public ResponseBody stopJobs(String jobId, StopWithSavepointRequestBody stopWithSavepointRequestBody) {
+    public ResponseBody stopJobs(String jobId, String requestBody) {
         ResponseBody responseBody = null;
         try {
             String httpUrl = urlHead + Constants.JOB_URL + Constants.URL_SEPARATOR + jobId + Constants.SUSPEND_URL;
-            ObjectMapper objectMapper = new ObjectMapper();
-            String requestBody = objectMapper.writeValueAsString(stopWithSavepointRequestBody);
             OkHttpClient client = new OkHttpClient();
             MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
             RequestBody body = RequestBody.create(mediaType, requestBody);
@@ -298,6 +274,23 @@ public class FlinkService {
             return body;
         } catch (Exception e) {
             log.error("triggerSavepoint after stop job fail",e.getMessage());
+        }
+        return body;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ResponseBody listJars() {
+        String url = urlHead + Constants.JARS_URL;
+        ResponseBody body = null;
+        try {
+            body = getReq(url);
+            log.info("all jarfileinfo : {}",body);
+            return body;
+        } catch (Exception e) {
+            log.error("fetch jars fail",e.getMessage());
         }
         return body;
     }
@@ -361,27 +354,10 @@ public class FlinkService {
     }
 
     /**
-     * cancel job
-     * @param jobId
-     */
-    public void cancelJobs(String jobId) {
-        try {
-            RestClusterClient<StandaloneClusterId> client = getFlinkClient();
-            JobID jobID = JobID.fromHexString(jobId);
-            CompletableFuture<Acknowledge> result =
-                    client.cancel(jobID);
-            String stringId = result.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * delete job
      * @param jobId
-     * @throws Exception
      */
-    public  void deleteJobs(String jobId) throws Exception {
+    public  void deleteJobs(String jobId) {
         String url = urlHead + Constants.JOB_URL + Constants.URL_SEPARATOR + jobId;
         OkHttpClient client = new OkHttpClient();
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
@@ -402,12 +378,10 @@ public class FlinkService {
     /**
      * delete jar
      * @param jarId
-     * @throws Exception
      */
-    public void deleteJars(String jarId) throws Exception {
+    public void deleteJars(String jarId) {
         String url = urlHead + Constants.JARS_URL + jarId;
         OkHttpClient client = new OkHttpClient();
-        MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
         RequestBody body = null;
         Request request = new Request.Builder()
                 .url(url)

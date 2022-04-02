@@ -26,7 +26,6 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.plugin.flink.Constants;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.ManagerFlinkTask;
@@ -41,6 +40,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
 
 @Slf4j
 public class StartupSortListener implements SortOperateListener {
@@ -91,11 +92,6 @@ public class StartupSortListener implements SortOperateListener {
         FlinkInfo flinkInfo = new FlinkInfo();
         parseDataflow(dataFlow, flinkInfo);
 
-        flinkInfo.setClusterId(kvConf.get(InlongGroupSettings.CLUSTER_ID));
-        String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
-        Preconditions.checkNotEmpty(sortUrl, "flink sortUrl is empty");
-        flinkInfo.setEndpoint(sortUrl);
-
         String jobName = Constants.INLONG + context.getProcessForm().getInlongGroupId();
         flinkInfo.setJobName(jobName);
 
@@ -109,14 +105,19 @@ public class StartupSortListener implements SortOperateListener {
              managerFlinkTask.start(flinkInfo);
             log.info("the jobId {} submit success");
         } catch (Exception e) {
-            log.warn("startup start exception [{}]", e.getMessage());
-            managerFlinkTask.pollFlinkStatus(flinkInfo, true);
+            log.warn("startup  exception [{}]", e.getMessage());
+            managerFlinkTask.pollFlinkStatus(flinkInfo);
+            flinkInfo.setException(true);
+            flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
+            managerFlinkTask.pollFlinkStatus(flinkInfo);
         }
-        // save job id
+
+        managerFlinkTask.pollFlinkStatus(flinkInfo);
+
         saveInfo(context.getProcessForm().getInlongGroupId(), InlongGroupSettings.SORT_JOB_ID, flinkInfo.getJobId(),
                 inlongGroupExtInfos);
 
-        managerFlinkTask.pollFlinkStatus(flinkInfo, false);
+        managerFlinkTask.pollFlinkStatus(flinkInfo);
         return ListenerResult.success();
     }
 
@@ -147,10 +148,6 @@ public class StartupSortListener implements SortOperateListener {
         flinkInfo.setSourceType(sourceType);
         JsonNode sinkInfo = dataflow.get(Constants.SINK_INFO);
         String sinkType = sinkInfo.get(Constants.TYPE).asText();
-        JsonNode data = sinkInfo.get(Constants.DATA_PATH);
-        if (data != null) {
-            flinkInfo.setDataPath(data.asText());
-        }
         flinkInfo.setSinkType(sinkType);
     }
 

@@ -19,13 +19,14 @@ package org.apache.inlong.manager.plugin.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.inlong.manager.plugin.flink.Constants;
 import org.apache.inlong.manager.plugin.flink.dto.LoginConf;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -64,6 +65,17 @@ public class FlinkUtils {
     }
 
     /**
+     * print exception
+     * @param throwable
+     * @return
+     */
+    public static String getExceptionStackMsg(Throwable throwable) {
+        StringWriter stringWriter = new StringWriter();
+        throwable.printStackTrace(new PrintWriter(stringWriter, true));
+        return stringWriter.getBuffer().toString();
+    }
+
+    /**
      * fetch sort-single-tenant jar path
      * @param baseDirName
      * @return
@@ -98,24 +110,8 @@ public class FlinkUtils {
      * @param name
      * @return
      */
-    public static String getResourceName(String name) {
-        return Constants.INLONG + name;
-    }
-
-    /**
-     * @param name
-     * @return
-     */
     public static String getConfigDirectory(String name) {
         return BASE_DIRECTORY + File.separator + name;
-    }
-
-    /**
-     * @param jobId
-     * @return
-     */
-    public static String getConfigPath(String jobId, String fileName) {
-        return getConfigDirectory(jobId) + File.separator + fileName;
     }
 
     /**
@@ -164,6 +160,11 @@ public class FlinkUtils {
         return loginConf;
     }
 
+    /**
+     * delete configuration file
+     * @param name
+     * @return
+     */
     public static boolean deleteConfigFile(String name) {
         String configDirectory = getConfigDirectory(name);
         File file = new File(configDirectory);

@@ -19,6 +19,7 @@ package org.apache.inlong.manager.plugin.flink;
 
 public class Constants {
 
+    //properties
     public static final String ADDRESS = "flink.rest.address";
 
     public static final String PORT = "flink.rest.port";
@@ -29,6 +30,7 @@ public class Constants {
 
     public static final String SAVEPOINT_DIRECTORY = "flink.savepoint.directory";
 
+    //dataflow
     public static final String SOURCE_INFO = "source_info";
 
     public static final String SINK_INFO = "sink_info";
@@ -39,10 +41,7 @@ public class Constants {
 
     public static final String INLONG = "INLONG_";
 
-    // flag
     public static final String RESOURCE_ID = "resource_id";
-
-    public static final String DATA_PATH = "data_path";
 
     //REST API URL
     public static final String JOB_URL = "/jobs";

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.plugin.flink;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobStatus;
@@ -33,10 +32,6 @@ import java.io.IOException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.flink.api.common.JobStatus.CANCELED;
-import static org.apache.flink.api.common.JobStatus.FAILED;
-import static org.apache.flink.api.common.JobStatus.FINISHED;
-import static org.apache.flink.api.common.JobStatus.INITIALIZING;
 import static org.apache.flink.api.common.JobStatus.RUNNING;
 import static org.apache.inlong.manager.plugin.util.FlinkUtils.findFiles;
 
@@ -73,8 +68,8 @@ public class ManagerFlinkTask {
                 throw new BusinessException(BusinessExceptionDesc.ResourceNotFound
                         + String.format("Flink job %s not found", flinkInfo.getJobId()));
             }
-            JobStatus jobStatus = flinkService.getJobStatus(flinkInfo.getJobId());
-           if (jobStatus == FINISHED && StringUtils.isNotEmpty(flinkInfo.getSavepointPath())) {
+            JobStatus jobStatus = jobDetailsInfo.getJobStatus();
+           if (!jobStatus.isTerminalState() && StringUtils.isNotEmpty(flinkInfo.getSavepointPath())) {
                try {
                    Future<?> future = TaskRunService.submit(
                            new IntergrationTaskRunner(flinkService, flinkInfo,
@@ -85,6 +80,9 @@ public class ManagerFlinkTask {
                    throw new BusinessException(BusinessExceptionDesc.UnsupportedOperation
                            + e.getMessage());
                }
+           } else {
+               throw new BusinessException(BusinessExceptionDesc.UnsupportedOperation
+                       + "not support resume when task has been terminaled or SavepointPath is null ");
            }
         }
     }
@@ -97,9 +95,9 @@ public class ManagerFlinkTask {
         String path = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         path = path.substring(0, path.lastIndexOf(File.separator));
         if (path.contains("inlong-manager")) {
-            path = path.substring(0, path.indexOf("inlong-manager"));
+            String startPath = path.substring(0, path.indexOf("inlong-manager"));
             String resource = "inlong-sort";
-            String basePath = path  + resource;
+            String basePath = startPath  + resource;
             File file = new File(basePath);
             if (!file.exists()) {
                 log.warn("file path:[{}] not found sort jar", basePath);
@@ -130,8 +128,8 @@ public class ManagerFlinkTask {
             throw new BusinessException(BusinessExceptionDesc.ResourceNotFound
                     + String.format("Flink job %s not found", flinkInfo.getJobId()));
         }
-        JobStatus jobStatus = flinkService.getJobStatus(flinkInfo.getJobId());
-        if (jobStatus == RUNNING) {
+        JobStatus jobStatus = jobDetailsInfo.getJobStatus();
+        if (!jobStatus.isTerminalState()) {
             Future<?> future = TaskRunService.submit(
                     new IntergrationTaskRunner(flinkService, flinkInfo,
                             TaskCommitType.RESTART.getCode()));
@@ -153,15 +151,15 @@ public class ManagerFlinkTask {
             throw new BusinessException(BusinessExceptionDesc.ResourceNotFound
                     + String.format("Flink job %s not found", flinkInfo.getJobId()));
         }
-        JobStatus jobStatus = flinkService.getJobStatus(flinkInfo.getJobId());
-        if (jobStatus == RUNNING) {
+        JobStatus jobStatus = jobDetailsInfo.getJobStatus();
+        if (!jobStatus.isTerminalState()) {
             Future<?> future = TaskRunService.submit(
                     new IntergrationTaskRunner(flinkService, flinkInfo,
                             TaskCommitType.STOP.getCode()));
             future.get();
         } else {
             throw new BusinessException(BusinessExceptionDesc.FailedOperation.getMessage()
-                    + String.format("Flink job %s pause fail", flinkInfo.getJobId()));
+                    + String.format("Flink job %s stop fail", flinkInfo.getJobId()));
         }
     }
 
@@ -176,38 +174,33 @@ public class ManagerFlinkTask {
             throw new BusinessException(BusinessExceptionDesc.ResourceNotFound
                     + String.format("Flink job %s not found", flinkInfo.getJobId()));
         }
-        JobStatus jobStatus = flinkService.getJobStatus(flinkInfo.getJobId());
-        switch (jobStatus) {
-            case CANCELED:
+        JobStatus jobStatus = jobDetailsInfo.getJobStatus();
+        if (jobStatus.isTerminalState()) {
+            if (jobStatus.isGloballyTerminalState()) {
                 throw new BusinessException(BusinessExceptionDesc.UnsupportedOperation
-                        + "not support delete when task has been canceled");
-            case RUNNING:
-                Future<?> future = TaskRunService.submit(
-                        new IntergrationTaskRunner(flinkService, flinkInfo,
-                                TaskCommitType.DELETE.getCode()));
-                future.get();
-                break;
-            default:
+                        + "not support delete when task has been terminaled globally");
+            } else {
                 throw new BusinessException(BusinessExceptionDesc.UnsupportedOperation
-                        + "not support delete when task is OPERATING");
+                        + "not support delete when task has been terminaled locally");
+            }
+        } else {
+            Future<?> future = TaskRunService.submit(
+                    new IntergrationTaskRunner(flinkService, flinkInfo,
+                            TaskCommitType.DELETE.getCode()));
+            future.get();
         }
     }
 
     /**
-     * poll flink status
+     * poll status
      * @param flinkInfo
-     * @param isException
-     * @throws Exception
      * @throws InterruptedException
      */
-    @SneakyThrows
-    public void pollFlinkStatus(FlinkInfo flinkInfo, boolean isException) throws Exception,
-            InterruptedException {
-        if (isException) {
-            delete(flinkInfo);
-            throw new BusinessException("startup fail");
+    public void pollFlinkStatus(FlinkInfo flinkInfo) throws InterruptedException {
+        if (flinkInfo.isException()) {
+            throw new BusinessException("startup fail reason:" + flinkInfo.getExceptionMsg());
         }
-        TimeUnit.SECONDS.sleep(15);
+        TimeUnit.SECONDS.sleep(5);
         while (true) {
             if (StringUtils.isNotEmpty(flinkInfo.getJobId())) {
                 JobDetailsInfo jobDetailsInfo = flinkService.getJobDetail(flinkInfo.getJobId());
@@ -215,22 +208,23 @@ public class ManagerFlinkTask {
                     throw new BusinessException(BusinessExceptionDesc.ResourceNotFound
                             + String.format("Flink job %s not found", flinkInfo.getJobId()));
                 }
-                JobStatus jobStatus = flinkService.getJobStatus(flinkInfo.getJobId());
-                if (jobStatus == INITIALIZING) {
-                    log.info("poll Flink status");
-                    Thread.sleep(2000L);
-                    continue;
-                }
-                if (jobStatus == RUNNING) {
-                    log.info("Flink status is Running");
-                    break;
-                }
-                if (jobStatus == CANCELED || jobStatus == FAILED) {
-                    delete(flinkInfo);
-                    log.warn("flink job fail for status [{}]",jobStatus);
-                    throw new BusinessException("startup fail");
+                JobStatus jobStatus = jobDetailsInfo.getJobStatus();
+
+                if (jobStatus.isTerminalState()) {
+                    log.warn("flink job fail for status [{}]", jobStatus);
+                    throw new BusinessException(
+                            "startup fail " + jobStatus + flinkInfo.getExceptionMsg());
+                } else {
+                    if (jobStatus == RUNNING) {
+                        log.info("Flink status is Running");
+                        break;
+                    } else {
+                            log.info("poll Flink status");
+                            TimeUnit.SECONDS.sleep(5);
+                            continue;
+                        }
+                    }
                 }
             }
         }
-    }
 }

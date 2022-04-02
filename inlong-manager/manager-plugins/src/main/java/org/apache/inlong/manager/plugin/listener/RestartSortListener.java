@@ -41,6 +41,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
+
 @Slf4j
 public class RestartSortListener implements SortOperateListener {
 
@@ -97,17 +99,21 @@ public class RestartSortListener implements SortOperateListener {
         }
         String jobName = Constants.INLONG + context.getProcessForm().getInlongGroupId();
         FlinkInfo flinkInfo = new FlinkInfo();
-        flinkInfo.setRegion(kvConf.get(InlongGroupSettings.REGION));
-        flinkInfo.setClusterId(kvConf.get(InlongGroupSettings.CLUSTER_ID));
         flinkInfo.setJobId(kvConf.get(InlongGroupSettings.SORT_JOB_ID));
-        flinkInfo.setResourceIds(kvConf.get(Constants.RESOURCE_ID));
         flinkInfo.setJobName(jobName);
 
         FlinkService flinkService = new FlinkService();
         ManagerFlinkTask managerFlinkTask = new ManagerFlinkTask(flinkService);
         managerFlinkTask.genPath(flinkInfo,dataFlow.toString());
-        managerFlinkTask.restart(flinkInfo);
 
+        try {
+            managerFlinkTask.restart(flinkInfo);
+        } catch (Exception e) {
+            log.error("pause exception ", e);
+            flinkInfo.setException(true);
+            flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
+            managerFlinkTask.pollFlinkStatus(flinkInfo);
+        }
         return ListenerResult.success();
     }
 

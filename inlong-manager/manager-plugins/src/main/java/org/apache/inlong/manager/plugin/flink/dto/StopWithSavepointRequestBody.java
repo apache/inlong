@@ -23,7 +23,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StopWithSavepointRequestBody {
+
+    /**
+     * tag
+     */
     private boolean drain;
+
+    /**
+     * savepoint directory
+     */
     private String targetDirectory;
 
 }

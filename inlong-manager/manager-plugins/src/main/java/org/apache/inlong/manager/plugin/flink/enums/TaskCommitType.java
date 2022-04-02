@@ -22,21 +22,15 @@ import lombok.Getter;
 @Getter
 public enum TaskCommitType {
 
-    ONLY_COMMIT(0, "only commit"),
-
     START_NOW(1, "startup now"),
 
-    RESTART(2, "no save state data and restart"),
+    RESTART(2, "save state data and restart"),
 
-    SUSPEND_RESUME(3, "save state data and restart"),
+    RESUME(3, "restore job"),
 
-    RESUME(4, "restore job"),
+    STOP(4, "stop job"),
 
-    PAUSE(5, "pause job"),
-
-    STOP(6, "stop job"),
-
-    DELETE(7, "delete job");
+    DELETE(5, "delete job");
 
     private final Integer code;
 

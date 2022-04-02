@@ -41,8 +41,6 @@ public class DeleteSortListenerTest {
         InlongGroupInfo inlongGroupInfo = new InlongGroupInfo();
         inlongGroupInfo.setInlongGroupId("1");
         updateGroupProcessForm.setGroupInfo(inlongGroupInfo);
-        Map<String, String> sortProperties = new HashMap<>(16);
-        sortProperties.put(InlongGroupSettings.CLUSTER_ID, "cluster-3pcta51b");
 
         InlongGroupExtInfo inlongGroupExtInfo1 = new InlongGroupExtInfo();
         inlongGroupExtInfo1.setKeyName(InlongGroupSettings.SORT_URL);
@@ -53,13 +51,14 @@ public class DeleteSortListenerTest {
         InlongGroupExtInfo inlongGroupExtInfo2 = new InlongGroupExtInfo();
         inlongGroupExtInfo2.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
         ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, String> sortProperties = new HashMap<>(16);
         String sortStr = objectMapper.writeValueAsString(sortProperties);
         inlongGroupExtInfo2.setKeyValue(sortStr);
         inlongGroupExtInfos.add(inlongGroupExtInfo2);
 
         InlongGroupExtInfo inlongGroupExtInfo5 = new InlongGroupExtInfo();
         inlongGroupExtInfo5.setKeyName(InlongGroupSettings.SORT_JOB_ID);
-        inlongGroupExtInfo5.setKeyValue("5b044e50c3ddd005fb4789ec2c0b0b4b");
+        inlongGroupExtInfo5.setKeyValue("209f30999d381d669378b476a4db59e9");
         inlongGroupExtInfos.add(inlongGroupExtInfo5);
 
         InlongGroupExtInfo inlongGroupExtInfo6 = new InlongGroupExtInfo();
@@ -71,8 +70,5 @@ public class DeleteSortListenerTest {
 
         DeleteSortListener deleteSortListener = new DeleteSortListener();
         deleteSortListener.listen(context);
-        while (true) {
-
-        }
     }
 }

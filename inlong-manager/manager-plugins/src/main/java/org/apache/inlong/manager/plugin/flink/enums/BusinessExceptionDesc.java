@@ -19,7 +19,6 @@ package org.apache.inlong.manager.plugin.flink.enums;
 
 public enum BusinessExceptionDesc {
 
-    InternalCallCloudApiError("InternalError.InternalCallCloudApiError"),
     ResourceNotFound("ResourceNotFound"),
     InternalError("InternalError"),
     FailedOperation("FailedOperation"),

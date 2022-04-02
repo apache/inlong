@@ -25,12 +25,6 @@ import java.util.List;
 @Data
 public class FlinkInfo {
 
-    private String endpoint;
-
-    private String region;
-
-    private String clusterId;
-
     private String jobName;
 
     private List<InlongStreamInfo> inlongStreamInfoList;
@@ -45,11 +39,11 @@ public class FlinkInfo {
 
     private String jobId;
 
-    private String resourceIds;
-
-    private String dataPath;
-
     private String savepointPath;
+
+    private boolean isException = false;
+
+    private String exceptionMsg;
 
 
 }

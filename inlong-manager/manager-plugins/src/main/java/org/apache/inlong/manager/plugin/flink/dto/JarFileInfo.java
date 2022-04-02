@@ -28,14 +28,17 @@ public class JarFileInfo {
      * jar id
      */
     private String id;
+
     /**
      * jar name
      */
     private String name;
+
     /**
      * upload time
      */
     private Integer uploaded;
+
     /**
      * entry
      */

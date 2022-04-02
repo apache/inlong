@@ -42,6 +42,7 @@ public class RestartProcessSelector implements EventSelector {
             log.info("inlongGroupId:{} not add restartProcess listener, not RESTART", inlongGroupId);
             return false;
         }
+        log.info("inlongGroupId:{} add restartProcess listener", inlongGroupId);
         return true;
     }
 }
