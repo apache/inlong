@@ -73,7 +73,7 @@ export const getDataSourcesBinLogFields = (
       type: 'input',
       label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.HistoryFilename'),
       rules: [{ required: true }],
-      initialValue: '/agentInstallPath/.history',
+      initialValue: '/data/inlong-agent/.history',
       props: {
         disabled: currentValues?.status === 101,
       },
