@@ -21,6 +21,7 @@ import type { GetStorageFormFieldsType, GetStorageColumnsType } from '@/utils/me
 import type { ColumnsType } from 'antd/es/table';
 import { StorageHive } from './StorageHive';
 import { StorageClickhouse } from './StorageClickhouse';
+import { StorageKafka } from './StorageKafka';
 
 export interface StoragesType {
   label: string;
@@ -47,5 +48,10 @@ export const Storages: StoragesType[] = [
     label: 'CLICK_HOUSE',
     value: 'CLICK_HOUSE',
     ...StorageClickhouse,
+  },
+  {
+    label: 'KAFKA',
+    value: 'KAFKA',
+    ...StorageKafka,
   },
 ];
