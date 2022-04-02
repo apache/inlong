@@ -77,6 +77,12 @@ public class ClusterServiceImpl implements ClusterService {
     }
 
     @Override
+    public ClusterEntry getOneCluster(String clusterName) {
+        return clusterRepository
+                .findClusterEntryByClusterName(clusterName);
+    }
+
+    @Override
     public List<ClusterEntry> getAllClusters() {
         return clusterRepository.findAll();
     }

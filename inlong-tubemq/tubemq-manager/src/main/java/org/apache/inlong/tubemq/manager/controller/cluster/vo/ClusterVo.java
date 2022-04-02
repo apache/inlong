@@ -19,13 +19,16 @@ package org.apache.inlong.tubemq.manager.controller.cluster.vo;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.tubemq.manager.entry.MasterEntry;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 public class ClusterVo {
     private Long clusterId;
     private String clusterName;
-    private String masterIp;
+    private List<MasterEntry> masterEntries;
     private int reloadBrokerSize;
     private int brokerCount;
     private int topicCount;

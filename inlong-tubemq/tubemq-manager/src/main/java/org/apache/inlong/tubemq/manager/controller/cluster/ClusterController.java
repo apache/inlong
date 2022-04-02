@@ -43,6 +43,7 @@ import org.apache.inlong.tubemq.manager.service.interfaces.MasterService;
 import org.apache.inlong.tubemq.manager.utils.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,6 +63,7 @@ import static org.apache.inlong.tubemq.manager.service.TubeConst.SUCCESS_CODE;
 public class ClusterController {
 
     private final Gson gson = new Gson();
+    private final TubeMQResult result = new TubeMQResult();
 
     @Autowired
     private ClusterService clusterService;
@@ -127,22 +129,30 @@ public class ClusterController {
      */
     @RequestMapping(value = "", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public TubeMQResult queryCluster(@RequestParam(required = false) Integer clusterId) {
-        // return all clusters if no clusterId passed
-        if (clusterId == null) {
+    public TubeMQResult queryCluster(@RequestParam(required = false) Integer clusterId,
+            @RequestParam(required = false) String clusterName, @RequestParam(required = false) String masterIp) {
+        TubeMQResult result = new TubeMQResult();
+        if (clusterId == null && clusterName == null && masterIp == null) {
             return queryAllClusterVo();
         }
-
-        ClusterEntry clusterEntry = clusterService.getOneCluster(clusterId);
-        if (clusterEntry == null) {
-            return TubeMQResult.errorResult("no such cluster with id " + clusterId);
+        if (clusterId != null) {
+            ClusterEntry clusterEntry = clusterService.getOneCluster(clusterId);
+            if (clusterEntry == null) {
+                return TubeMQResult.errorResult("no such cluster with id " + clusterId);
+            }
+            List<MasterEntry> masterNodes = masterService.getMasterNodes(clusterEntry.getClusterId());
+            ClusterVo allCount = getAllCount(clusterId);
+            result.setData(Lists.newArrayList(ConvertUtils.convertToClusterVo(clusterEntry, masterNodes, allCount)));
+            return  result;
         }
-
-        MasterEntry masterNode = masterService.getMasterNode(clusterEntry.getClusterId());
-
-        ClusterVo allCount = getAllCount(clusterId);
-        TubeMQResult result = new TubeMQResult();
-        result.setData(Lists.newArrayList(ConvertUtils.convertToClusterVo(clusterEntry, masterNode, allCount)));
+        if (clusterName != null) {
+            result = queryClusterByClusterName(clusterName);
+            return result;
+        }
+        if (masterIp != null) {
+            result = queryClusterByMasterIp(masterIp);
+            return result;
+        }
         return result;
     }
 
@@ -156,9 +166,9 @@ public class ClusterController {
         List<ClusterEntry> allClusters = clusterService.getAllClusters();
         List<ClusterVo> clusterVos = Lists.newArrayList();
         for (ClusterEntry cluster : allClusters) {
-            MasterEntry masterNode = masterService.getMasterNode(cluster.getClusterId());
+            List<MasterEntry> masterNodes = masterService.getMasterNodes(cluster.getClusterId());
             ClusterVo allCount = getAllCount(Integer.valueOf((int) cluster.getClusterId()));
-            ClusterVo clusterVo = ConvertUtils.convertToClusterVo(cluster, masterNode, allCount);
+            ClusterVo clusterVo = ConvertUtils.convertToClusterVo(cluster, masterNodes, allCount);
             clusterVos.add(clusterVo);
         }
         result.setData(clusterVos);
@@ -312,6 +322,43 @@ public class ClusterController {
             storeCount = storeCount + (int) Math.ceil(topicViewRes.getTotalCfgNumStore());
         }
         return storeCount;
+    }
+
+    /**
+     * query cluster by cluster name
+     */
+    public TubeMQResult queryClusterByClusterName(String clusterName) {
+        ClusterEntry clusterEntry = clusterService.getOneCluster(clusterName);
+        if (clusterEntry == null) {
+            return TubeMQResult.errorResult("no such cluster with name " + clusterName);
+        }
+        List<MasterEntry> masterNodes = masterService.getMasterNodes(clusterEntry.getClusterId());
+        ClusterVo allCount = getAllCount((int) clusterEntry.getClusterId());
+        result.setData(Lists.newArrayList(ConvertUtils.convertToClusterVo(clusterEntry, masterNodes, allCount)));
+        return result;
+    }
+
+    /**
+     * query cluster by cluster masterIp
+     */
+    public TubeMQResult queryClusterByMasterIp(String masterIp) {
+        List<ClusterEntry> clusterEntryList = Lists.newArrayList();
+        List<MasterEntry> masterNodes = masterService.getMasterNodes(masterIp);
+        if (CollectionUtils.isEmpty(masterNodes)) {
+            return TubeMQResult.errorResult("no such cluster with ip " + masterIp);
+        }
+        for (MasterEntry masterNode : masterNodes) {
+            ClusterEntry cluster = clusterService.getOneCluster(masterNode.getClusterId());
+            clusterEntryList.add(cluster);
+        }
+        List<ClusterVo> clusterVos = Lists.newArrayList();
+        for (ClusterEntry clusterEntry : clusterEntryList) {
+            ClusterVo allCount = getAllCount((int) clusterEntry.getClusterId());
+            ClusterVo clusterVo = ConvertUtils.convertToClusterVo(clusterEntry, masterNodes, allCount);
+            clusterVos.add(clusterVo);
+        }
+        result.setData(clusterVos);
+        return result;
     }
 
 }

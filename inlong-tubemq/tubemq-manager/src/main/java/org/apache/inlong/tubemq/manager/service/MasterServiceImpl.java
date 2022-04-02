@@ -157,6 +157,21 @@ public class MasterServiceImpl implements MasterService {
     }
 
     @Override
+    public List<MasterEntry> getMasterNodes(String masterIp) {
+        if (masterIp == null) {
+            return null;
+        }
+        List<MasterEntry> masters = masterRepository
+                .findMasterEntryByIpEquals(
+                        masterIp);
+        if (CollectionUtils.isEmpty(masters)) {
+            throw new RuntimeException("master ip "
+                    + masterIp + "no master node, please check");
+        }
+        return masters;
+    }
+
+    @Override
     public String getQueryUrl(Map<String, String> queryBody) throws Exception {
         int clusterId = Integer.parseInt(queryBody.get("clusterId"));
         queryBody.remove("clusterId");
@@ -174,8 +189,10 @@ public class MasterServiceImpl implements MasterService {
 
     @Override
     public String getQueryCountUrl(Integer clusterId, String method) {
-        MasterEntry masterEntry =
-                masterRepository.findMasterEntryByClusterIdEquals(clusterId);
+        List<MasterEntry> masterEntries =
+                masterRepository.findMasterEntriesByClusterIdEquals(clusterId);
+        int index = (int)(Math.random() * masterEntries.size());
+        MasterEntry masterEntry = masterEntries.get(index);
         return TubeConst.SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
                 + method + "&" + "clusterId=" + clusterId;
     }

@@ -112,10 +112,10 @@ public class ConvertUtils {
     }
 
     public static ClusterVo convertToClusterVo(ClusterEntry clusterEntry,
-                                               MasterEntry masterEntry, ClusterVo clusterVo) {
+                                               List<MasterEntry> masterEntries, ClusterVo clusterVo) {
         ClusterVo cluster = new ClusterVo();
         cluster.setClusterId(clusterEntry.getClusterId());
-        cluster.setMasterIp(masterEntry.getIp());
+        cluster.setMasterEntries(masterEntries);
         cluster.setClusterName(clusterEntry.getClusterName());
         cluster.setReloadBrokerSize(clusterEntry.getReloadBrokerSize());
         cluster.setBrokerCount(clusterVo.getBrokerCount());
