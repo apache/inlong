@@ -40,6 +40,9 @@ JAVA_OPTS="-Dspring.profiles.active=${ACTIVE_PROFILE}"
 
 # get plugins from remote address.
 if [[ "${PLUGINS_URL}" =~ ^http* ]]; then
+    # remove the default plugins
+    rm -rf plugins
+    # get the third party plugins
     wget ${PLUGINS_URL} -O plugins.tar.gz
     tar -zxvf plugins.tar.gz -C "${file_path}"/
     rm plugins.tar.gz

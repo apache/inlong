@@ -35,9 +35,9 @@
         <module>manager-dao</module>
         <module>manager-service</module>
         <module>manager-workflow</module>
+        <module>manager-plugins</module>
         <module>manager-web</module>
         <module>manager-docker</module>
-        <module>manager-plugins</module>
         <module>manager-client</module>
         <module>manager-client-examples</module>
     </modules>
@@ -87,13 +87,12 @@
         <fastjson.version>1.2.76</fastjson.version>
         <powermock.version>2.0.2</powermock.version>
         <flink-clients.version>1.13.5</flink-clients.version>
-        <docker.organization>inlong</docker.organization>
-
-        <project.build.encoding>UTF-8</project.build.encoding>
         <junit.version>4.12</junit.version>
         <commons-io.version>2.11.0</commons-io.version>
         <flink-core.version>1.13.5</flink-core.version>
         <jackson-core>2.13.1</jackson-core>
+        <docker.organization>inlong</docker.organization>
+        <project.build.encoding>UTF-8</project.build.encoding>
     </properties>
 
     <dependencies>
