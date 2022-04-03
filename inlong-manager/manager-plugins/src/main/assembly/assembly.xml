@@ -22,23 +22,16 @@
         xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
     <id>plugins</id>
     <formats>
-        <format>tar.gz</format>
+        <format>dir</format>
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <directory>target</directory>
+            <directory>${build.directory}</directory>
+            <outputDirectory>./</outputDirectory>
             <includes>
                 <include>${project.artifactId}-${project.version}.jar</include>
             </includes>
-            <outputDirectory>/plugins</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>target/classes</directory>
-            <includes>
-                <include>flink-sort-plugin.properties</include>
-            </includes>
-            <outputDirectory>/plugins</outputDirectory>
         </fileSet>
     </fileSets>
 </assembly>
