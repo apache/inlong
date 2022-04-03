@@ -20,10 +20,8 @@
 
 #======================================================================
 # Project start shell script
-# config directory: configuration file directory
-# log directory: project operation log directory
-# log/startup.log: record startup log
-# log/back directory: Project running log backup directory
+# logs directory: project operation log directory
+# logs/back directory: Project running log backup directory
 # nohup background process
 #
 #======================================================================
@@ -59,13 +57,10 @@ CLASSPATH=${CONFIG_DIR}:${JAR_LIBS}:${JAR_MAIN}
 MAIN_CLASS=org.apache.inlong.manager.web.InLongWebApplication
 
 # Project log output absolute path
-LOG_DIR=${BASE_PATH}"/log"
-LOG_FILE="${LOG_DIR}/sout-manager-web.log"
+LOG_DIR=${BASE_PATH}"/logs"
+LOG_FILE="${LOG_DIR}/manager-web.log"
 # Log backup directory
 LOG_BACK_DIR="${LOG_DIR}/back/"
-
-# Project startup log output absolute path
-LOG_STARTUP_PATH="${LOG_DIR}/startup.log"
 
 # current time
 NOW=$(date +'%Y-%m-%m-%H-%M-%S')
@@ -112,4 +107,4 @@ JAVA_OPT="${JAVA_OPT} -XX:+IgnoreUnrecognizedVMOptions -XX:+UseConcMarkSweepGC -
 #JAVA_OPT="${JAVA_OPT} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8081"
 
 # Execute the startup command: start the project in the background, and output the log to the logs folder under the project root directory
-nohup java ${JAVA_OPT} -Dlog4j2.formatMsgNoLookups=true -Dlog4j.formatMsgNoLookups=true -cp ${CLASSPATH} ${MAIN_CLASS} 1>${LOG_FILE} 2>${LOG_DIR}/error.log &
+nohup java ${JAVA_OPT} -Dlog4j2.formatMsgNoLookups=true -Dlog4j.formatMsgNoLookups=true -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &

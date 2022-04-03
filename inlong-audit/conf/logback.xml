@@ -18,11 +18,10 @@
  under the License.
 -->
 <configuration  scan="true" scanPeriod="60s">
-	<property name="PROJECT_NAME" value="audit"/>
 	<property name="LOG_BACK_DIR" value="logs"/>
 
 	<appender name="INFO_ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${LOG_BACK_DIR}/audit-proxy.log</file>
+		<file>${LOG_BACK_DIR}/audit.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<!-- rollover daily -->
 			<fileNamePattern>${LOG_BACK_DIR}/info-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>

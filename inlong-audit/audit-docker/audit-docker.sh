@@ -44,4 +44,4 @@ bash +x ${file_path}/bin/proxy-start.sh
 bash +x ${file_path}/bin/store-start.sh
 sleep 3
 # keep alive
-tail -F ${file_path}/logs/audit-*
+tail -F ${file_path}/logs/audit.log
