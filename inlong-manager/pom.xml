@@ -45,7 +45,7 @@
     <properties>
         <java.version>1.8</java.version>
         <java.compile.version>1.8</java.compile.version>
-        <spring-boot.version>2.4.3</spring-boot.version>
+        <spring-boot.version>2.5.12</spring-boot.version>
         <springframework.version>5.3.4</springframework.version>
         <mybatis.version>3.5.6</mybatis.version>
         <mybatis.starter.version>2.0.1</mybatis.starter.version>
