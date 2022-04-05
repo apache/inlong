@@ -62,7 +62,7 @@
         <servlet.jsp-api.version>2.3.3</servlet.jsp-api.version>
         <slf4j.version>1.7.25</slf4j.version>
         <guava.version>18.0</guava.version>
-        <jackson.version>2.12.0</jackson.version>
+        <jackson.version>2.12.6.1</jackson.version>
         <jackson.jsr310.version>2.13.1</jackson.jsr310.version>
         <reflections.version>0.10.2</reflections.version>
         <opencsv.version>5.4</opencsv.version>
