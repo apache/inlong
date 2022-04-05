@@ -58,9 +58,6 @@ MAIN_CLASS=org.apache.inlong.manager.web.InLongWebApplication
 
 # Project log output absolute path
 LOG_DIR=${BASE_PATH}"/logs"
-LOG_FILE="${LOG_DIR}/manager-web.log"
-# Log backup directory
-LOG_BACK_DIR="${LOG_DIR}/back/"
 
 # current time
 NOW=$(date +'%Y-%m-%m-%H-%M-%S')
@@ -70,19 +67,6 @@ NOW_PRETTY=$(date +'%Y-%m-%m %H:%M:%S')
 if [ ! -d "${LOG_DIR}" ]; then
   mkdir "${LOG_DIR}"
 fi
-
-# If the log/back folder does not exist, create a folder
-if [ ! -d "${LOG_BACK_DIR}" ]; then
-  mkdir "${LOG_BACK_DIR}"
-fi
-
-# If the project log exists, rename the backup
-if [ -f "${LOG_FILE}" ]; then
-  mv ${LOG_FILE} "${LOG_BACK_DIR}/${APPLICATION}_back_${NOW}.log"
-fi
-
-# Create a new project run log
-echo "" >${LOG_FILE}
 
 # JVM Configuration
 JAVA_OPT="-server -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m -XX:-OmitStackTraceInFastThrow"
