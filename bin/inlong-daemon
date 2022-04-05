@@ -136,7 +136,7 @@ start_inlong_agent() {
 
 # register dataproxy for standalone
 register_service() {
-  curl --header "Content-Type: application/json" --request POST http://localhost:8083/api/inlong/manager/openapi/cluster/save --data '
+  curl --header "Content-Type: application/json" --request POST http://${manager_server_hostname}:${manager_server_port}/api/inlong/manager/openapi/cluster/save --data '
   {
      "name": "default_dataproxy",
      "type": "DATA_PROXY",

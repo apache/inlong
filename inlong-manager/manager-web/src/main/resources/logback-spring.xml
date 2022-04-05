@@ -22,7 +22,7 @@
     <contextName>logback</contextName>
 
     <!-- The defined value will be inserted into the logger context. After definition, you can use "${}" to use variables. -->
-    <property name="log.path" value="${LOG_PATH}"/>
+    <property name="log.path" value="logs"/>
 
     <!--0. Log format and color rendering -->
     <!-- The rendering class that the color log depends on -->
