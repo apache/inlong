@@ -17,12 +17,12 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig;
 import org.apache.inlong.manager.common.pojo.source.SourceFileDetailPageRequest;
 import org.apache.inlong.manager.dao.entity.SourceFileDetailEntity;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface SourceFileDetailEntityMapper {
@@ -66,10 +66,6 @@ public interface SourceFileDetailEntityMapper {
     Integer selectDetailExist(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("ip") String ip, @Param("username") String username);
 
-    List<FileAgentTaskConfig> selectFileAgentTaskByIp(@Param("ip") String agentIp);
-
-    List<FileAgentTaskConfig> selectFileAgentTaskByIpForCheck(@Param("ip") String agentIp);
-
     /**
      * According to inlong group id and inlong stream id, query file source details
      *
@@ -94,7 +90,5 @@ public interface SourceFileDetailEntityMapper {
      */
     int logicDeleteByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("operator") String operator);
-
-    List<SourceFileDetailEntity> selectByIp(@Param("ip") String ip);
 
 }

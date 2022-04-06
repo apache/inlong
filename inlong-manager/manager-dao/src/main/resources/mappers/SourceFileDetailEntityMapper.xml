@@ -43,22 +43,6 @@
         <result column="temp_view" jdbcType="LONGVARCHAR" property="tempView"/>
     </resultMap>
 
-    <resultMap id="FileAgentTask" type="org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig">
-        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
-        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
-        <result column="ip" jdbcType="VARCHAR" property="ip"/>
-        <result column="file_path" jdbcType="VARCHAR" property="dataName"/>
-        <result column="op" jdbcType="VARCHAR" property="op"/>
-        <result column="status" jdbcType="VARCHAR" property="status"/>
-        <result column="modify_time" jdbcType="VARCHAR" property="deliveryTime"/>
-        <result column="id" jdbcType="VARCHAR" property="taskId"/>
-        <result column="timeOffset" jdbcType="VARCHAR" property="timeOffset"/>
-        <result column="middleware_type" jdbcType="VARCHAR" property="middlewareType"/>
-        <result column="mq_resource_obj" jdbcType="VARCHAR" property="topic"/>
-        <result column="data_generate_rule" jdbcType="VARCHAR" property="dataGenerateRule"/>
-        <result column="data_separator" jdbcType="VARCHAR" property="fieldSplitter"/>
-        <result column="sort_type" jdbcType="VARCHAR" property="sortType"/>
-    </resultMap>
     <sql id="Base_Column_List">
         id, inlong_group_id, inlong_stream_id, access_type, server_name, ip, port, is_inner_ip,
         issue_type, username, password, file_path, status, previous_status,
@@ -386,71 +370,4 @@
             and is_deleted = 0
         </where>
     </update>
-
-    <select id="selectFileAgentTaskByIp" resultMap="FileAgentTask">
-        select detail.inlong_group_id,
-               detail.inlong_stream_id,
-               detail.ip,
-               detail.file_path,
-               detail.status,
-               detail.status mod 100                             as op,
-               detail.modify_time,
-               detail.id,
-               concat(basic.date_offset, basic.date_offset_unit) as timeOffset,
-               biz.middleware_type,
-               biz.mq_resource_obj,
-               ds.data_generate_rule,
-               ds.sort_type,
-               stream.data_separator
-        from source_file_basic basic,
-             source_file_detail detail,
-             inlong_group biz,
-             data_schema ds,
-             inlong_stream stream
-        where detail.ip = #{ip,jdbcType=VARCHAR}
-          and detail.is_deleted = 0
-          and (floor(detail.STATUS / 100) = 2)
-          and basic.inlong_group_id = detail.inlong_group_id
-          and basic.inlong_stream_id = detail.inlong_stream_id
-          and biz.inlong_group_id = detail.inlong_group_id
-          and biz.schema_name = ds.name
-          and stream.inlong_stream_id = detail.inlong_stream_id
-          and stream.inlong_group_id = detail.inlong_group_id
-    </select>
-    <select id="selectFileAgentTaskByIpForCheck" resultMap="FileAgentTask">
-        select detail.inlong_group_id,
-               detail.inlong_stream_id,
-               detail.ip,
-               detail.file_path,
-               detail.status,
-               detail.status mod 100                             as op,
-               detail.modify_time,
-               detail.id,
-               concat(basic.date_offset, basic.date_offset_unit) as timeOffset,
-               biz.middleware_type,
-               biz.mq_resource_obj,
-               ds.data_generate_rule,
-               ds.sort_type,
-               stream.data_separator
-        from source_file_basic basic,
-             source_file_detail detail,
-             inlong_group biz,
-             data_schema ds,
-             inlong_stream stream
-        where detail.ip = #{ip,jdbcType=VARCHAR}
-          and detail.is_deleted = 0
-          and basic.inlong_group_id = detail.inlong_group_id
-          and basic.inlong_stream_id = detail.inlong_stream_id
-          and biz.inlong_group_id = basic.inlong_group_id
-          and biz.schema_name = ds.name
-          and stream.inlong_stream_id = basic.inlong_stream_id
-          and stream.inlong_group_id = basic.inlong_group_id
-    </select>
-
-    <select id="selectByIp" parameterType="java.lang.String" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from source_file_detail
-        where ip = #{ip,jdbcType=VARCHAR} and is_deleted = 0;
-    </select>
 </mapper>

@@ -98,17 +98,6 @@
         and is_deleted = 0
         order by id asc
     </select>
-    <select id="selectFields" resultMap="BaseResultMap">
-        select field.*
-        from inlong_stream_field field,
-             inlong_stream stream
-        where field.is_deleted = 0
-          and stream.is_deleted = 0
-          and stream.id = field.inlong_stream_id
-          and stream.inlong_group_id = #{groupId, jdbcType=VARCHAR}
-          and stream.inlong_stream_id = #{streamId, jdbcType=VARCHAR}
-          and field.is_predefined_field = 0
-    </select>
 
     <update id="logicDeleteAllByIdentifier">
         update inlong_stream_field
