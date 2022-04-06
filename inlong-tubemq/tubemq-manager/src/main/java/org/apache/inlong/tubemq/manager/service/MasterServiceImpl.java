@@ -147,9 +147,7 @@ public class MasterServiceImpl implements MasterService {
         if (clusterId == null) {
             return null;
         }
-        List<MasterEntry> masters = masterRepository
-                .findMasterEntriesByClusterIdEquals(
-                        clusterId);
+        List<MasterEntry> masters = masterRepository.findMasterEntriesByClusterIdEquals(clusterId);
         if (CollectionUtils.isEmpty(masters)) {
             throw new RuntimeException("cluster id " + clusterId + "no master node, please check");
         }
@@ -161,12 +159,9 @@ public class MasterServiceImpl implements MasterService {
         if (masterIp == null) {
             return null;
         }
-        List<MasterEntry> masters = masterRepository
-                .findMasterEntryByIpEquals(
-                        masterIp);
+        List<MasterEntry> masters = masterRepository.findMasterEntryByIpEquals(masterIp);
         if (CollectionUtils.isEmpty(masters)) {
-            throw new RuntimeException("master ip "
-                    + masterIp + "no master node, please check");
+            throw new RuntimeException("master ip " + masterIp + "no master node, please check");
         }
         return masters;
     }
