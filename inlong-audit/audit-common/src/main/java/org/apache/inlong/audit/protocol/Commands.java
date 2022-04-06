@@ -17,51 +17,50 @@
 
 package org.apache.inlong.audit.protocol;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import org.apache.inlong.audit.protocol.AuditApi.AuditReply;
 import org.apache.inlong.audit.protocol.AuditApi.AuditRequest;
 import org.apache.inlong.audit.protocol.AuditApi.BaseCommand;
 import org.apache.inlong.audit.protocol.AuditApi.BaseCommand.Type;
 import org.apache.inlong.audit.protocol.AuditApi.Pong;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
 
 public class Commands {
 
     public static int HEAD_LENGTH = 4;
 
-    public static ChannelBuffer getPongChannelBuffer() {
+    public static ByteBuf getPongChannelBuffer() {
         BaseCommand cmdPong = BaseCommand.newBuilder()
                 .setType(Type.PONG)
                 .setPong(Pong.getDefaultInstance()).build();
         return getChannelBuffer(cmdPong.toByteArray());
     }
 
-    public static ChannelBuffer getPingChannelBuffer() {
+    public static ByteBuf getPingChannelBuffer() {
         BaseCommand cmdPing = BaseCommand.newBuilder()
                 .setType(Type.PING)
                 .setPong(Pong.getDefaultInstance()).build();
         return getChannelBuffer(cmdPing.toByteArray());
     }
 
-    public static ChannelBuffer getAuditRequestBuffer(AuditRequest auditRequest) {
+    public static ByteBuf getAuditRequestBuffer(AuditRequest auditRequest) {
         BaseCommand cmdAuditRequest = BaseCommand.newBuilder()
                 .setType(Type.AUDITREQUEST)
                 .setAuditRequest(auditRequest).build();
         return getChannelBuffer(cmdAuditRequest.toByteArray());
     }
 
-    public static ChannelBuffer getAuditReplylBuffer(AuditReply auditReply) {
+    public static ByteBuf getAuditReplylBuffer(AuditReply auditReply) {
         BaseCommand cmdAuditReply = BaseCommand.newBuilder()
                 .setType(Type.AUDITREPLY)
                 .setAuditReply(auditReply).build();
         return getChannelBuffer(cmdAuditReply.toByteArray());
     }
 
-    private static ChannelBuffer getChannelBuffer(byte[] body) {
+    private static ByteBuf getChannelBuffer(byte[] body) {
         /* [totalSize] | [body]*/
         int totalLength = body.length;
-        ChannelBuffer cmdPingBuffer = ChannelBuffers.buffer(
-                HEAD_LENGTH + totalLength);
+        ByteBuf cmdPingBuffer = ByteBufAllocator.DEFAULT.buffer(HEAD_LENGTH + totalLength);
         cmdPingBuffer.writeInt(totalLength);
         cmdPingBuffer.writeBytes(body);
         return cmdPingBuffer;

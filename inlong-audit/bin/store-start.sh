@@ -24,6 +24,8 @@ base_dir=$(
   pwd
 )
 
+LOG_PATH="${base_dir}/logs"
+
 PID=$(ps -ef | grep "audit-store" | grep -v grep | awk '{ print $2}')
 LOG_DIR="${basedir}/logs"
 
@@ -57,7 +59,8 @@ JAVA_OPTS="${JAVA_OPTS} ${HEAP_OPTS}"
 
 SERVERJAR=`ls -lt ${base_dir}/lib |grep audit-store | head -2 | tail -1 | awk '{print $NF}'`
 
-nohup $JAVA $JAVA_OPTS -Dloader.path="$base_dir/conf,$base_dir/lib/" -jar "$base_dir/lib/$SERVERJAR"  1>${LOG_DIR}/store.log 2>${LOG_DIR}/store-error.log &
+nohup $JAVA $JAVA_OPTS -Daudit.log.path=$LOG_PATH -Dloader.path="$base_dir/conf,$base_dir/lib/" -jar "$base_dir/lib/$SERVERJAR"  1>${LOG_DIR}/store.log 2>${LOG_DIR}/store-error.log &
+
 PIDFILE="$base_dir/bin/PID"
 
 PID=$(ps -ef | grep "$base_dir" | grep -v grep | awk '{ print $2}')

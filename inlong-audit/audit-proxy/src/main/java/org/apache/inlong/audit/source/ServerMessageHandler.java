@@ -20,9 +20,13 @@ package org.apache.inlong.audit.source;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.gson.Gson;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.group.ChannelGroup;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.SocketAddress;
 import java.util.List;
 import org.apache.flume.Event;
 import org.apache.flume.channel.ChannelProcessor;
@@ -36,14 +40,6 @@ import org.apache.inlong.audit.protocol.AuditApi.AuditRequest;
 import org.apache.inlong.audit.protocol.AuditApi.BaseCommand;
 import org.apache.inlong.audit.protocol.AuditData;
 import org.apache.inlong.audit.protocol.Commands;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
-import org.jboss.netty.channel.group.ChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * Server message handler
  *
  */
-public class ServerMessageHandler extends SimpleChannelHandler {
+public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerMessageHandler.class);
 
@@ -77,32 +73,39 @@ public class ServerMessageHandler extends SimpleChannelHandler {
     }
 
     @Override
-    public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
         if (allChannels.size() - 1 >= maxConnections) {
             logger.warn("refuse to connect , and connections=" + (allChannels.size() - 1)
                     + ", maxConnections="
-                    + maxConnections + ",channel is " + e.getChannel());
-            e.getChannel().disconnect();
-            e.getChannel().close();
+                    + maxConnections + ",channel is " + ctx.channel());
+            ctx.channel().disconnect();
+            ctx.channel().close();
         }
+        allChannels.add(ctx.channel());
+        ctx.fireChannelActive();
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
+        ctx.fireChannelInactive();
+        allChannels.remove(ctx.channel());
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         logger.debug("message received");
-        if (e == null) {
+        if (msg == null) {
             logger.warn("get null message event, just skip");
             return;
         }
-        ChannelBuffer cb = ((ChannelBuffer) e.getMessage());
-        SocketAddress remoteSocketAddress = e.getRemoteAddress();
+        ByteBuf cb = (ByteBuf) msg;
         int len = cb.readableBytes();
         if (len == 0) {
             logger.warn("receive message skip empty msg.");
             cb.clear();
             return;
         }
-        Channel remoteChannel = e.getChannel();
+        Channel remoteChannel = ctx.channel();
         BaseCommand cmd = null;
         try {
             cmd = serviceDecoder.extractData(cb, remoteChannel);
@@ -115,7 +118,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
             logger.warn("receive message extractData is null");
             return;
         }
-        ChannelBuffer channelBuffer = null;
+        ByteBuf channelBuffer = null;
         switch (cmd.getType()) {
             case PING:
                 checkArgument(cmd.hasPing());
@@ -135,7 +138,7 @@ public class ServerMessageHandler extends SimpleChannelHandler {
                 break;
         }
         if (channelBuffer != null) {
-            writeResponse(remoteChannel, remoteSocketAddress, channelBuffer);
+            writeResponse(remoteChannel, channelBuffer);
         }
     }
 
@@ -194,19 +197,13 @@ public class ServerMessageHandler extends SimpleChannelHandler {
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-        logger.error("exception caught", e.getCause());
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        logger.error("exception caught", cause);
     }
 
-    @Override
-    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        logger.error("channel closed {}", ctx.getChannel());
-    }
-
-    private void writeResponse(Channel remoteChannel,
-            SocketAddress remoteSocketAddress, ChannelBuffer buffer) throws Exception {
+    private void writeResponse(Channel remoteChannel, ByteBuf buffer) throws Exception {
         if (remoteChannel.isWritable()) {
-            remoteChannel.write(buffer, remoteSocketAddress);
+            remoteChannel.writeAndFlush(buffer);
         } else {
             logger.warn(
                     "the send buffer2 is full, so disconnect it!please check remote client"

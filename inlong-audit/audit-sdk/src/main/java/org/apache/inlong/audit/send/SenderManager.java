@@ -17,16 +17,13 @@
 
 package org.apache.inlong.audit.send;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.ChannelHandlerContext;
 import org.apache.inlong.audit.protocol.AuditApi;
 import org.apache.inlong.audit.util.AuditConfig;
 import org.apache.inlong.audit.util.AuditData;
-import org.apache.inlong.audit.util.Decoder;
 import org.apache.inlong.audit.util.SenderResult;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +81,7 @@ public class SenderManager {
             this.auditConfig = config;
             this.maxConnectChannels = maxConnectChannels;
             SenderHandler clientHandler = new SenderHandler(this);
-            this.sender = new SenderGroup(DEFAULT_SEND_THREADNUM, new Decoder(), clientHandler);
+            this.sender = new SenderGroup(DEFAULT_SEND_THREADNUM, clientHandler);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
         }
@@ -153,7 +150,12 @@ public class SenderManager {
      * @param data
      */
     private void sendData(byte[] data) {
-        ChannelBuffer dataBuf = ChannelBuffers.wrappedBuffer(data);
+        if (data == null || data.length <= 0) {
+            logger.warn("send data is empty!");
+            return;
+        }
+        ByteBuf dataBuf =  ByteBufAllocator.DEFAULT.buffer(data.length);
+        dataBuf.writeBytes(data);
         SenderResult result = this.sender.send(dataBuf);
         if (!result.result) {
             this.sender.setHasSendError(true);
@@ -263,18 +265,14 @@ public class SenderManager {
     /**
      * processing return package
      *
-     * @param ctx
-     * @param e
+     * @param ctx ctx
+     * @param msg msg
      */
-    public void onMessageReceived(ChannelHandlerContext ctx, MessageEvent e) {
+    public void onMessageReceived(ChannelHandlerContext ctx, ByteBuf msg) {
         try {
             //Analyze abnormal events
-            if (!(e.getMessage() instanceof ChannelBuffer)) {
-                logger.error("onMessageReceived e.getMessage:" + e.getMessage());
-                return;
-            }
-            ChannelBuffer readBuffer = (ChannelBuffer) e.getMessage();
-            byte[] readBytes = readBuffer.toByteBuffer().array();
+            ByteBuf readBuffer = msg;
+            byte[] readBytes = readBuffer.array();
             AuditApi.BaseCommand baseCommand = AuditApi.BaseCommand.parseFrom(readBytes);
             // Parse request id
             Long requestId = baseCommand.getAuditReply().getRequestId();
@@ -304,7 +302,7 @@ public class SenderManager {
      * @param ctx
      * @param e
      */
-    public void onExceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
+    public void onExceptionCaught(ChannelHandlerContext ctx, Throwable e) {
         logger.error(e.getCause().getMessage());
         try {
             this.sender.setHasSendError(true);
