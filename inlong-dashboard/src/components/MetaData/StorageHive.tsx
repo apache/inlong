@@ -33,21 +33,22 @@ import { sourceDataFields } from './SourceDataFields';
 
 // hiveFieldTypes
 const hiveFieldTypes = [
+  'string',
+  'varchar',
+  'char',
   'tinyint',
   'smallint',
   'int',
   'bigint',
   'float',
   'double',
-  // 'decimal',
-  // 'numeric',
-  'timestamp',
-  'date',
-  'string',
-  // 'varchar',
-  // 'char',
+  'decimal',
+  'numeric',
   'boolean',
   'binary',
+  'timestamp',
+  'date',
+  // 'interval',
 ].map(item => ({
   label: item,
   value: item,
@@ -60,7 +61,7 @@ const getForm: GetStorageFormFieldsType = (
   const fileds = [
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.TargetDb'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.DbName'),
       name: 'dbName',
       rules: [{ required: true }],
       props: {
@@ -70,7 +71,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.TargetTable'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.TableName'),
       name: 'tableName',
       rules: [{ required: true }],
       props: {
@@ -155,11 +156,11 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: 'Data Path',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.DataPath'),
       name: 'dataPath',
       rules: [{ required: true }],
-      initialValue: 'hdfs://127.0.0.1:9000/user/hive/warehouse',
       props: {
+        placeholder: 'hdfs://127.0.0.1:9000/user/hive/warehouse',
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
     },
@@ -196,19 +197,6 @@ const getForm: GetStorageFormFieldsType = (
             value: 'Avro',
           },
         ],
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-    },
-    {
-      name: 'storagePeriod',
-      type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.StoragePeriod'),
-      tooltip: 'Optional range: -1 ~ 3600, -1 means permanent storage',
-      rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.Hive.Day'),
-      props: {
-        min: -1,
-        max: 3600,
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
     },

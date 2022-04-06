@@ -46,6 +46,11 @@ export const Storages: StoragesType[] = [
     ...StorageHive,
   },
   {
+    label: 'ICEBERG',
+    value: 'ICEBERG',
+    ...StorageIceberg,
+  },
+  {
     label: 'CLICK_HOUSE',
     value: 'CLICK_HOUSE',
     ...StorageClickhouse,
@@ -54,10 +59,5 @@ export const Storages: StoragesType[] = [
     label: 'KAFKA',
     value: 'KAFKA',
     ...StorageKafka,
-  },
-  {
-    label: 'ICEBERG',
-    value: 'ICEBERG',
-    ...StorageIceberg,
   },
 ];
