@@ -184,10 +184,7 @@ public class MasterServiceImpl implements MasterService {
 
     @Override
     public String getQueryCountUrl(Integer clusterId, String method) {
-        List<MasterEntry> masterEntries =
-                masterRepository.findMasterEntriesByClusterIdEquals(clusterId);
-        int index = (int)(Math.random() * masterEntries.size());
-        MasterEntry masterEntry = masterEntries.get(index);
+        MasterEntry masterEntry = getMasterNode(Long.valueOf(clusterId));
         return TubeConst.SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
                 + method + "&" + "clusterId=" + clusterId;
     }

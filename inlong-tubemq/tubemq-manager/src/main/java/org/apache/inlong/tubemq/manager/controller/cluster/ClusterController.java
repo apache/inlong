@@ -141,7 +141,7 @@ public class ClusterController {
                 return TubeMQResult.errorResult("no such cluster with id " + clusterId);
             }
             List<MasterEntry> masterNodes = masterService.getMasterNodes(clusterEntry.getClusterId());
-            ClusterVo allCount = getAllCount(clusterId);
+            ClusterVo allCount = getCountInCluster(clusterId);
             result.setData(Lists.newArrayList(ConvertUtils.convertToClusterVo(clusterEntry, masterNodes, allCount)));
             return  result;
         }
@@ -167,7 +167,7 @@ public class ClusterController {
         List<ClusterVo> clusterVos = Lists.newArrayList();
         for (ClusterEntry cluster : allClusters) {
             List<MasterEntry> masterNodes = masterService.getMasterNodes(cluster.getClusterId());
-            ClusterVo allCount = getAllCount(Integer.valueOf((int) cluster.getClusterId()));
+            ClusterVo allCount = getCountInCluster(Integer.valueOf((int) cluster.getClusterId()));
             ClusterVo clusterVo = ConvertUtils.convertToClusterVo(cluster, masterNodes, allCount);
             clusterVos.add(clusterVo);
         }
@@ -209,7 +209,7 @@ public class ClusterController {
      *
      * @param clusterId
      */
-    public ClusterVo getAllCount(Integer clusterId) {
+    public ClusterVo getCountInCluster(Integer clusterId) {
         ClusterVo clusterVo = new ClusterVo();
         int brokerSize = getBrokerSize(clusterId);
         ClusterVo countVo = getTopicAndPartitionCount(clusterId);
@@ -333,7 +333,7 @@ public class ClusterController {
             return TubeMQResult.errorResult("no such cluster with name " + clusterName);
         }
         List<MasterEntry> masterNodes = masterService.getMasterNodes(clusterEntry.getClusterId());
-        ClusterVo allCount = getAllCount((int) clusterEntry.getClusterId());
+        ClusterVo allCount = getCountInCluster((int) clusterEntry.getClusterId());
         result.setData(Lists.newArrayList(ConvertUtils.convertToClusterVo(clusterEntry, masterNodes, allCount)));
         return result;
     }
@@ -353,7 +353,7 @@ public class ClusterController {
         }
         List<ClusterVo> clusterVos = Lists.newArrayList();
         for (ClusterEntry clusterEntry : clusterEntryList) {
-            ClusterVo allCount = getAllCount((int) clusterEntry.getClusterId());
+            ClusterVo allCount = getCountInCluster((int) clusterEntry.getClusterId());
             ClusterVo clusterVo = ConvertUtils.convertToClusterVo(clusterEntry, masterNodes, allCount);
             clusterVos.add(clusterVo);
         }
