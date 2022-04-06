@@ -110,14 +110,6 @@ public class InlongStreamController {
         return Response.success(streamService.update(request, username));
     }
 
-    @RequestMapping(value = "/updateAll", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Update inlong stream page info")
-    public Response<Boolean> updateAll(@RequestBody InlongStreamRequest request) {
-        boolean result = streamService.updateAll(request, LoginUserUtils.getLoginUserDetail().getUserName());
-        return Response.success(result);
-    }
-
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete inlong stream info")

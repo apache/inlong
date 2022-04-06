@@ -445,17 +445,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         return pageInfo;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
-    @Override
-    public boolean updateAll(InlongStreamRequest request, String operator) {
-        LOGGER.info("begin to update all stream page info: " + request);
-        Preconditions.checkNotNull(request, "request is empty");
-
-        this.update(request, operator);
-        LOGGER.info("success to update all stream page info");
-        return true;
-    }
-
     @Override
     public int selectCountByGroupId(String groupId) {
         LOGGER.debug("begin to get count by groupId={}", groupId);

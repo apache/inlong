@@ -20,7 +20,6 @@ package org.apache.inlong.manager.common.pojo.sink.kafka;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * Kafka sink info
@@ -42,13 +42,20 @@ public class KafkaSinkDTO {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @ApiModelProperty("Kafka bootstrap servers")
-    private String address;
+    private String bootstrapServers;
 
     @ApiModelProperty("Kafka topicName")
     private String topicName;
 
+    @ApiModelProperty("Partition number of the topic")
+    private String partitionNum;
+
     @ApiModelProperty("Data Serialization, support: json, canal, avro")
     private String serializationType;
+
+    @ApiModelProperty(value = "The strategy of auto offset reset",
+            notes = "including earliest, latest (the default), none")
+    private String autoOffsetReset;
 
     @ApiModelProperty("Properties for kafka")
     private Map<String, Object> properties;
@@ -58,7 +65,7 @@ public class KafkaSinkDTO {
      */
     public static KafkaSinkDTO getFromRequest(KafkaSinkRequest request) {
         return KafkaSinkDTO.builder()
-                .address(request.getAddress())
+                .bootstrapServers(request.getAddress())
                 .topicName(request.getTopicName())
                 .serializationType(request.getSerializationType())
                 .properties(request.getProperties())

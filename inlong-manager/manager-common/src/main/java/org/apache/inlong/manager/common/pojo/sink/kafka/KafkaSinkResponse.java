@@ -39,7 +39,7 @@ public class KafkaSinkResponse extends SinkResponse {
     }
 
     @ApiModelProperty("Kafka bootstrap servers")
-    private String address;
+    private String bootstrapServers;
 
     @ApiModelProperty("Kafka topicName")
     private String topicName;

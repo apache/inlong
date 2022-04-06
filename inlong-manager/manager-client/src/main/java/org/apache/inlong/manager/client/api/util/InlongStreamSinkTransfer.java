@@ -191,7 +191,7 @@ public class InlongStreamSinkTransfer {
             kafkaSink.setDataFormat(snapshot.getDataFormat());
         } else {
             kafkaSink.setSinkName(sinkResponse.getSinkName());
-            kafkaSink.setAddress(sinkResponse.getAddress());
+            kafkaSink.setAddress(sinkResponse.getBootstrapServers());
             kafkaSink.setTopicName(sinkResponse.getTopicName());
             kafkaSink.setDataFormat(DataFormat.forName(sinkResponse.getSerializationType()));
         }

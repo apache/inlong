@@ -71,7 +71,7 @@ public class Constant {
 
     public static final String ID_IS_EMPTY = "primary key is empty";
 
-    public static final String GROUP_ID_IS_EMPTY = "data group id is empty";
+    public static final String GROUP_ID_IS_EMPTY = "inlong group id is empty";
 
     public static final String STREAM_ID_IS_EMPTY = "inlong stream id is empty";
 
