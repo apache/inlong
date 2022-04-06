@@ -1,0 +1,578 @@
+
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+
+========================================================================
+Apache InLong(Incubating) Subcomponents:
+
+The Apache InLong(Incubating) project contains subcomponents with separate copyright
+notices and license terms. Your use of the source code for the these
+subcomponents is subject to the terms and conditions of the following
+licenses.
+
+
+========================================================================
+Apache 2.0 License
+========================================================================
+
+The following components are provided under the Apache License. See project link for details.
+The text of each license is the standard Apache 2.0 license.
+
+  org.apache.avro:avro:1.7.4 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.avro:avro-ipc:1.7.4 - Apache Avro IPC (https://avro.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.pulsar:bouncy-castle-bc:2.8.1 - Apache Pulsar :: Bouncy Castle :: BC (https://github.com/apache/pulsar/tree/master/bouncy-castle/bc), (Apache License, Version 2.0)
+  org.apache-extras.beanshell:bsh:2.0b6 - BeanShell (https://github.com/beanshell/beanshell), (Apache License, Version 2.0)
+  commons-cli:commons-cli:1.2 - Commons CLI (http://commons.apache.org/proper/commons-cli), (The Apache Software License, Version 2.0)
+  commons-codec:commons-codec:1.15 - Apache Commons Codec (https://commons.apache.org/proper/commons-codec), (The Apache Software License, Version 2.0)
+  commons-collections:commons-collections:3.2.2 - Apache Commons Collections (https://commons.apache.org/proper/commons-collections), (The Apache Software License, Version 2.0)
+  org.apache.commons:commons-compress:1.19 - Commons Compress (https://commons.apache.org/proper/commons-compress), (The Apache Software License, Version 2.0)
+  commons-dbcp:commons-dbcp:1.4 - Commons DBCP (https://commons.apache.org/proper/commons-dbcp), (The Apache Software License, Version 2.0)
+  commons-io:commons-io:2.1 - Commons IO (https://commons.apache.org/proper/commons-io), (The Apache Software License, Version 2.0)
+  commons-lang:commons-lang:2.5 - Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
+  org.apache.commons:commons-lang3:3.3.2 - Apache Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
+  commons-logging:commons-logging:1.2 - Apache Commons Logging (https://commons.apache.org/proper/commons-logging), (The Apache Software License, Version 2.0)
+  commons-pool:commons-pool:1.5.4 - Commons Pool (https://commons.apache.org/proper/commons-pool), (The Apache Software License, Version 2.0)
+  org.apache.curator:curator-client:2.13.0 - Curator Client (https://curator.apache.org/curator-client), (The Apache Software License, Version 2.0)
+  org.apache.curator:curator-framework:2.6.0 - Curator Framework (https://curator.apache.org/curator-framework), (The Apache Software License, Version 2.0)
+  org.apache.curator:curator-recipes:2.6.0 - Curator Recipes (https://curator.apache.org/curator-recipes), (The Apache Software License, Version 2.0)
+  org.apache.derby:derby:10.14.1.0 - Apache Derby Database Engine and Embedded JDBC Driver (http://db.apache.org/derby), (Apache 2)
+  com.alibaba:fastjson:1.2.79 - fastjson (https://github.com/alibaba/fastjson), (Apache 2)
+  org.apache.flume.flume-ng-channels:flume-file-channel:1.9.0 - Flume NG file-based channel (https://github.com/apache/flume/tree/flume-1.9/flume-ng-channels/flume-file-channel), (The Apache Software License, Version 2.0)
+  org.apache.flume.flume-ng-sinks:flume-hdfs-sink:1.9.0 - Flume NG HDFS Sink (https://github.com/apache/flume/tree/flume-1.9/flume-ng-sinks/flume-hdfs-sink), (The Apache Software License, Version 2.0)
+  org.apache.flume.flume-ng-sinks:flume-irc-sink:1.9.0 - Flume NG IRC Sink (https://github.com/apache/flume/tree/flume-1.9/flume-ng-sinks/flume-irc-sink), (The Apache Software License, Version 2.0)
+  org.apache.flume.flume-ng-channels:flume-jdbc-channel:1.9.0 - Flume NG JDBC channel (https://github.com/apache/flume/tree/flume-1.9/flume-ng-channels/flume-jdbc-channel), (The Apache Software License, Version 2.0)
+  org.apache.flume:flume-ng-auth:1.9.0 - Flume Auth (https://github.com/apache/flume/tree/flume-1.9/flume-ng-auth), (The Apache Software License, Version 2.0)
+  org.apache.flume.flume-ng-configfilters:flume-ng-config-filter-api:1.9.0 - Flume NG Config Filters API (https://github.com/apache/flume/tree/flume-1.9/flume-ng-configfilters/flume-ng-config-filter-api), (The Apache Software License, Version 2.0)
+  org.apache.flume:flume-ng-configuration:1.9.0 - Flume NG Configuration (https://github.com/apache/flume/tree/flume-1.9/flume-ng-configuration), (The Apache Software License, Version 2.0)
+  org.apache.flume:flume-ng-core:1.9.0 - Flume NG Core (https://github.com/apache/flume/tree/flume-1.9/flume-ng-core), (The Apache Software License, Version 2.0)
+  org.apache.flume:flume-ng-node:1.9.0 - Flume NG Node (https://github.com/apache/flume/tree/flume-1.9/flume-ng-node), (The Apache Software License, Version 2.0)
+  org.apache.flume:flume-ng-sdk:1.9.0 - Flume NG SDK (https://github.com/apache/flume/tree/flume-1.9/flume-ng-sdk), (The Apache Software License, Version 2.0)
+  org.apache.flume.flume-ng-channels:flume-spillable-memory-channel:1.9.0 - Flume NG Spillable Memory channel (https://github.com/apache/flume/tree/flume-1.9/flume-ng-channels/flume-spillable-memory-channel), (The Apache Software License, Version 2.0)
+  com.google.code.gson:gson:2.8.5 - Gson (https://github.com/google/gson/gson), (Apache 2.0)
+  com.google.guava:guava:19.0 - Guava: Google Core Libraries for Java (http://code.google.com/p/guava-libraries/guava), (The Apache Software License, Version 2.0)
+  org.apache.httpcomponents:httpclient:4.5.13 - Apache HttpClient (https://hc.apache.org/httpcomponents-client-4.5.x), (Apache License, Version 2.0)
+  org.apache.httpcomponents:httpcore:4.4.14 - Apache HttpCore (https://hc.apache.org/httpcomponents-core-4.4.x), (Apache License, Version 2.0)
+  org.schwering:irclib:1.10 - IRC client library (http://moepii.sourceforge.net), (The Apache Software License, Version 2.0), (Apache 2.0 and EPL 1.0 and LGPL 2.1)
+  com.fasterxml.jackson.core:jackson-annotations:2.13.1 - Jackson-annotations (https://github.com/FasterXML/jackson-annotations), (The Apache Software License, Version 2.0)
+  org.codehaus.jackson:jackson-core-asl:1.8.8 - Jackson (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-core-asl/1.8.8), (The Apache Software License, Version 2.0)
+  org.codehaus.jackson:jackson-mapper-asl:1.8.8 - Data Mapper for Jackson (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-mapper-asl/1.8.8), (The Apache Software License, Version 2.0)
+  com.beust:jcommander:1.72 - jcommander (https://jcommander.org), (Apache 2.0)
+  org.mortbay.jetty:jetty:6.1.26 - Jetty Server (https://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.mortbay.jetty:jetty-util:6.1.26 - Jetty Utilities (https://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-http:9.4.6.v20170531 - Jetty :: Http Utility (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-io:9.4.6.v20170531 - Jetty :: IO Utility (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-jmx:9.4.6.v20170531 - Jetty :: JMX Management (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-security:9.4.6.v20170531 - Jetty :: Security (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-server:9.4.6.v20170531 - Jetty :: Server Core (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-servlet:9.4.6.v20170531 - Jetty :: Servlet Handling (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-util:9.4.6.v20170531 - Jetty :: Utilities (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  joda-time:joda-time:2.9.9 - Joda-Time (https://www.joda.org/joda-time/), (Apache 2)
+  org.apache.logging.log4j:log4j-api:2.17.1 - Apache Log4j API (https://logging.apache.org/log4j/2.x/log4j-api/), (Apache License, Version 2.0)
+  org.apache.logging.log4j:log4j-core:2.17.1 - Apache Log4j Core (https://logging.apache.org/log4j/2.x/log4j-core/), (Apache License, Version 2.0)
+  org.apache.logging.log4j:log4j-slf4j-impl:2.17.1 - Apache Log4j SLF4J Binding (https://logging.apache.org/log4j/2.x/log4j-slf4j-impl/), (Apache License, Version 2.0)
+  org.lz4:lz4-java:1.6.0 - LZ4 and xxHash (https://github.com/lz4/lz4-java), (The Apache Software License, Version 2.0)
+  org.mapdb:mapdb:0.9.9 - mapdb (http://www.mapdb.org), (The Apache Software License, Version 2.0)
+  org.apache.mina:mina-core:2.0.4 - Apache MINA Core (https://github.com/apache/mina), (Apache 2.0 License)
+  io.netty:netty:3.10.6.Final - Netty (http://netty.io/), (Apache License, Version 2.0)
+  io.netty:netty-buffer:4.1.72.Final - Netty/Buffer (http://netty.io/), (Apache License, Version 2.0)
+  io.netty:netty-codec:4.1.72.Final - Netty/Codec (http://netty.io/), (Apache License, Version 2.0)
+  io.netty:netty-common:4.1.72.Final - Netty/Common (http://netty.io/), (Apache License, Version 2.0)
+  io.netty:netty-handler:4.1.72.Final - Netty/Handler (http://netty.io/), (Apache License, Version 2.0)
+  io.netty:netty-resolver:4.1.72.Final - Netty/Resolver (http://netty.io/), (Apache License, Version 2.0)
+  io.netty:netty-transport:4.1.72.Final - Netty/Transport (http://netty.io/), (Apache License, Version 2.0)
+  io.netty:netty-transport-classes-epoll:4.1.72.Final - Netty/Transport/Classes/Epoll (http://netty.io/), (Apache License, Version 2.0)
+  io.netty:netty-transport-native-epoll:4.1.72.Final - Netty/Transport/Native/Epoll (http://netty.io/), (Apache License, Version 2.0)
+  io.netty:netty-transport-native-unix-common:4.1.72.Final - Netty/Transport/Native/Unix/Common (http://netty.io/), (Apache License, Version 2.0)
+  org.apache.pulsar:pulsar-client:2.8.1 - Pulsar Client Java (https://github.com/apache/pulsar), (Apache License, Version 2.0)
+  org.apache.pulsar:pulsar-client-admin-api:2.8.1 - Pulsar Client Admin :: API (https://github.com/apache/pulsar), (Apache License, Version 2.0)
+  org.apache.pulsar:pulsar-client-api:2.8.1 - Pulsar Client :: API (https://github.com/apache/pulsar), (Apache License, Version 2.0)
+  org.mortbay.jetty:servlet-api:2.5-20110124 - Servlet Specification API (https://mvnrepository.com/artifact/org.mortbay.jetty/servlet-api/2.5-20110124), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  io.prometheus:simpleclient:0.14.1 - Prometheus Java Simpleclient (https://github.com/prometheus/client_java), (The Apache Software License, Version 2.0)
+  io.prometheus:simpleclient_common:0.14.1 - Prometheus Java Simpleclient Common (https://github.com/prometheus/client_java), (The Apache Software License, Version 2.0)
+  io.prometheus:simpleclient_httpserver:0.14.1 - Prometheus Java Simpleclient Httpserver (https://github.com/prometheus/client_java), (The Apache Software License, Version 2.0)
+  io.prometheus:simpleclient_tracer_common:0.14.1 - Prometheus Java Span Context Supplier - Common (https://github.com/prometheus/client_java), (The Apache Software License, Version 2.0)
+  io.prometheus:simpleclient_tracer_otel:0.14.1 - Prometheus Java Span Context Supplier - OpenTelemetry (https://github.com/prometheus/client_java), (The Apache Software License, Version 2.0)
+  io.prometheus:simpleclient_tracer_otel_agent:0.14.1 - Prometheus Java Span Context Supplier - OpenTelemetry Agent (https://github.com/prometheus/client_java), (The Apache Software License, Version 2.0)
+  org.xerial.snappy:snappy-java:1.1.8.4 - snappy-java (https://github.com/xerial/snappy-java), (Apache-2.0)
+  org.testng:testng:6.14.3 - testng (http://testng.org), (Apache 2.0)
+  javax.validation:validation-api:1.1.0.Final - Bean Validation API (http://beanvalidation.org), (The Apache Software License, Version 2.0)
+  org.apache.velocity:velocity:1.7 - Apache Velocity (http://velocity.apache.org/engine/devel), (The Apache Software License, Version 2.0)
+  org.apache.zookeeper:zookeeper:3.4.6 - ZooKeeper (https://github.com/apache/zookeeper), (Apache License, Version 2.0)
+  net.minidev:accessors-smart:jar:1.2 - ASM Based Accessors Helper Used By JSON Smart (http://www.minidev.net/), (Apache License, Version 2.0)
+  org.elasticsearch.plugin:aggs-matrix-stats-client:jar:6.8.17 - Aggs Matrix Stats (https://github.com/elastic/elasticsearch), (Apache License, Version 2.0)
+  io.airlift:aircompressor:jar:0.8 - Aircompressor (http://github.com/airlift/aircompressor), (Apache License, Version 2.0)
+  org.apache.ant:ant:jar:1.9.1 - Apache Ant Core (http://ant.apache.org/), (Apache License, Version 2.0)
+  org.apache.ant:ant-launcher:jar:1.9.1 - Apache Ant Launcher (http://ant.apache.org/), (Apache License, Version 2.0)
+  org.apache.directory.server:apacheds-i18n:2.0.0-M15 - ApacheDS I18n (http://directory.apache.org/apacheds/1.5/apacheds-i18n), (The Apache Software License, Version 2.0)
+  org.apache.directory.server:apacheds-kerberos-codec:2.0.0-M15 - ApacheDS Protocol Kerberos Codec (http://directory.apache.org/apacheds/1.5/apacheds-kerberos-codec)£¬ (The Apache Software License, Version 2.0)
+  org.apache.directory.api:api-asn1-api:1.0.0-M20 - Apache Directory API ASN.1 API (http://directory.apache.org/api-parent/api-asn1-parent/api-asn1-api/), (The Apache Software License, Version 2.0)
+  org.apache.directory.api:api-util:1.0.0-M20 - Apache Directory LDAP API Utilities (http://directory.apache.org/api-parent/api-util/), (The Apache Software License, Version 2.0)
+  org.apache.yetus:audience-annotations:0.5.0 - Apache Yetus - Audience Annotations (https://yetus.apache.org/audience-annotations), (Apache License, Version 2.0)
+  com.jolbox:bonecp:0.8.0.RELEASE - BoneCP :: Core Library (http://jolbox.com/bonecp), (Apache v2)
+  org.apache.pulsar:bouncy-castle-bc:jar:2.8.1 - Apache Pulsar :: Bouncy Castle :: BC (https://mvnrepository.com/artifact/org.apache.pulsar/bouncy-castle-bc), (Apache License, Version 2.0)
+  commons-beanutils:commons-beanutils:1.9.4 - Apache Commons BeanUtils (https://commons.apache.org/proper/commons-beanutils/), (Apache License, Version 2.0)
+  commons-cli:commons-cli:1.2 - Apache Commons CLI (http://commons.apache.org/proper/commons-cli/), (Apache License, Version 2.0)
+  commons-configuration:commons-configuration:1.6 - Commons Configuration (http://commons.apache.org/configuration/), (The Apache Software License, Version 2.0)
+  commons-daemon:commons-daemon:1.0.13 - Commons Daemon (http://commons.apache.org/daemon/), (The Apache Software License, Version 2.0)
+  commons-digester:commons-digester:1.8 - Commons Digester (http://commons.apache.org/digester/), (The Apache Software License, Version 2.0)
+  commons-el:commons-el:1.0 - Commons EL (http://commons.apache.org/el/), (The Apache Software License, Version 2.0)
+  commons-httpclient:commons-httpclient:3.1 - HttpClient (http://jakarta.apache.org/httpcomponents/httpclient-3.x/) (Apache License)
+  org.apache.commons:commons-math:jar:2.2 - Commons Math (http://commons.apache.org/math/), (The Apache Software License, Version 2.0)
+  org.apache.commons:commons-math3:3.1.1 - Commons Math (http://commons.apache.org/math/), (The Apache Software License, Version 2.0)
+  commons-net:commons-net:3.1 - Commons Net (http://commons.apache.org/net/), (The Apache Software License, Version 2.0)
+  org.apache.commons:commons-text:1.3 - Apache Commons Text (http://commons.apache.org/proper/commons-text/), (Apache License, Version 2.0)
+  com.github.spullara.mustache.java:compiler:0.9.3 - compiler (http://github.com/spullara/mustache.java) (Apache License 2.0)
+  org.datanucleus:datanucleus-api-jdo:4.2.4 - DataNucleus JDO API plugin (http://www.datanucleus.org), (The Apache Software License, Version 2.0)
+  org.datanucleus:datanucleus-core:4.1.17 - DataNucleus Core (http://www.datanucleus.org), (The Apache Software License, Version 2.0)
+  org.datanucleus:datanucleus-rdbms:4.1.19 - DataNucleus RDBMS (http://www.datanucleus.org), (The Apache Software License, Version 2.0)
+  org.apache.derby:derby:10.14.1.0 - Apache Derby Database Engine and Embedded JDBC Driver (http://db.apache.org/derby/), (Apache 2)
+  com.lmax:disruptor:3.4.2 - Disruptor Framework (http://lmax-exchange.github.com/disruptor), (The Apache Software License, Version 2.0)
+  com.github.joshelser:dropwizard-metrics-hadoop-metrics2-reporter:jar:0.1.2 - Hadoop Metrics2 Reporter For Dropwizard Metrics (https://github.com/joshelser/dropwizard-hadoop-metrics2), (The Apache Software License, Version 2.0)
+  org.elasticsearch:elasticsearch:6.8.13 - Elasticsearch (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch:elasticsearch-cli:6.8.13 - Elasticsearch CLI (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch:elasticsearch-core:6.8.13 - Elasticsearch Core (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch:elasticsearch-rest-client:6.8.13 - Elasticsearch Rest Client (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch:elasticsearch-rest-high-level-client:6.8.13 - Elasticsearch Rest Hih Level Client (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch:elasticsearch-secure-sm:6.8.13 - Elasticsearch Secure SM (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.elasticsearch:elasticsearch-x-content:6.8.13 - Elasticsearch X-Content (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  com.google.errorprone:error_prone_annotations:2.3.4 - error-prone annotations (http://nexus.sonatype.org/oss-repository-hosting.html/error_prone_parent/error_prone_annotations), (Apache 2.0)
+  com.google.guava:failureaccess:jar:1.0.1 - Guava InternalFutureFailureAccess and InternalFutures (https://github.com/google/guava), (Apache 2.0)
+  it.unimi.dsi:fastutil:6.5.6 - fastutil (http://fasutil.dsi.unimi.it/), (Apache License, Version 2.0)
+  com.github.stephenc.findbugs:findbugs-annotations:1.3.9-1 - Findbugs Annotations under Apache License (http://stephenc.github.com/findbugs-annotations), (Apache License, Version 2.0)
+  org.apache.geronimo.specs:geronimo-annotation_1.0_spec:jar:1.1.1 - Annotation 1.0 (https://geronimo.apache.org/), (Apache License, Version 2.0)
+  org.apache.geronimo.specs:geronimo-jaspic_1.0_spec:jar:1.0 - Annotation 1.0 (https://geronimo.apache.org/maven/specs/geronimo-jaspic_1.0_spec/1.0/), (Apache License, Version 2.0)
+  org.apache.geronimo.specs:geronimo-jta_1.1_spec:jar:1.1.1 - Annotation 1.0 (https://geronimo.apache.org/), (Apache License, Version 2.0)
+  com.google.inject:guice:3.0 - Google Guice - Core Library (http://code.google.com/p/google-guice/guice/), (The Apache Software License, Version 2.0)
+  com.google.inject.extensions:guice-assistedinject:3.0 - Google Guice - Extensions - AssistedInject (http://code.google.com/p/google-guice/extensions-parent/guice-assistedinject/), (The Apache Software License, Version 2.0)
+  com.google.inject.extensions:guice-servlet:3.0 - Google Guice - Extensions - Servlet (http://code.google.com/p/google-guice/extensions-parent/guice-servlet/), (The Apache Software License, Version 2.0)
+  org.apache.hadoop:hadoop-annotations:2.10.1 - Apache Hadoop Annotations (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-client:2.7.1 - Apache Hadoop Client (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-common:2.10.1 - Apache Hadoop Common (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-hdfs:2.10.1 - Apache Hadoop HDFS (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-hdfs-client:2.10.1 - Apache Hadoop HDFS Client (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-mapreduce-client-app:2.7.1 - Apache Hadoop Mapreduce Client APP (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-mapreduce-client-common:2.7.1 - Apache Hadoop Mapreduce Client Common (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-mapreduce-client-jobclient:2.7.1 - Apache Hadoop Mapreduce Client Jobclient (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-mapreduce-client-shuffle:2.7.1 - Apache Hadoop Mapreduce Client Shuffle (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-yarn-api:2.7.2 - Apache Hadoop Yarn API (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-yarn-common:2.7.2 - Apache Hadoop Yarn Common (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-yarn-registry:2.7.1 - Apache Hadoop Yarn Registry (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-yarn-server-applicationhistoryservice:2.7.2 - Apache Hadoop Yarn Server Application History Service (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-yarn-server-common:2.7.2 - Apache Hadoop Yarn Server Common (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-yarn-server-resourcemanager:2.7.2 - Apache Hadoop Yarn Server Resource Manager (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-yarn-server-web-proxy:2.7.2 - Apache Hadoop Yarn Server Web Proxy (http://hadoop.apache.org/), (Apache License, Version 2.0)
+  org.apache.hbase:hbase-annotations:1.1.1 - Apache HBase - Annotations (http://hbase.apache.org/), (Apache License, Version 2.0)
+  org.apache.hbase:hbase-client:1.1.1 - Apache HBase - Client (http://hbase.apache.org/), (Apache License, Version 2.0)
+  org.apache.hbase:hbase-common:1.1.1 - Apache HBase - Common (http://hbase.apache.org/), (Apache License, Version 2.0)
+  org.apache.hbase:hbase-hadoop-compat:1.1.1 - Apache HBase - Hadoop Compat (http://hbase.apache.org/), (Apache License, Version 2.0)
+  org.apache.hbase:hbase-hadoop2-compat:1.1.1 - Apache HBase - Hadoop2 Compat (http://hbase.apache.org/), (Apache License, Version 2.0)
+  org.apache.hbase:hbase-prefix-tree:1.1.1 - Apache HBase - Prefix Tree (http://hbase.apache.org/), (Apache License, Version 2.0)
+  org.apache.hbase:hbase-procedure:1.1.1 - Apache HBase - Procedure (http://hbase.apache.org/), (Apache License, Version 2.0)
+  org.apache.hbase:hbase-protocol:1.1.1 - Apache HBase - Protocol (http://hbase.apache.org/), (Apache License, Version 2.0)
+  org.apache.hbase:hbase-server:1.1.1 - Apache HBase - Server (http://hbase.apache.org/), (Apache License, Version 2.0)
+  com.zaxxer:HikariCP:jar:2.5.1 - HikariCP (https://github.com/brettwooldridge/HikariCP), (Apache License, Version 2.0)
+  org.apache.hive:hive-common:jar:2.3.9 - Hive Common (http://hive.apache.org/), (Apache License, Version 2.0)
+  org.apache.hive:hive-jdbc:jar:2.3.9 - Hive JDBC (http://hive.apache.org/), (Apache License, Version 2.0)
+  org.apache.hive:hive-llap-client:jar:2.3.9 - Hive LLAP Client (http://hive.apache.org/), (Apache License, Version 2.0)
+  org.apache.hive:hive-llap-common:jar:2.3.9 - Hive LLAP Common (http://hive.apache.org/), (Apache License, Version 2.0)
+  org.apache.hive:hive-llap-server:jar:2.3.9 - Hive LLAP Server (http://hive.apache.org/), (Apache License, Version 2.0)
+  org.apache.hive:hive-llap-tez:jar:2.3.9 - Hive LLAP Tez (http://hive.apache.org/), (Apache License, Version 2.0)
+  org.apache.hive:hive-metastore:jar:2.3.9 - Hive Metastore (http://hive.apache.org/), (Apache License, Version 2.0)
+  org.apache.hive:hive-serde:jar:2.3.9 - Hive Serde (http://hive.apache.org/), (Apache License, Version 2.0)
+  org.apache.hive:hive-service:jar:2.3.9 - Hive Service (http://hive.apache.org/), (Apache License, Version 2.0)
+  org.apache.hive:hive-service-rpc:jar:2.3.9 - Hive Service RPC (http://hive.apache.org/), (Apache License, Version 2.0)
+  org.apache.hive:hive-shims:jar:2.3.9 - Hive Shims (http://hive.apache.org/), (Apache License, Version 2.0)
+  org.apache.hive:hive-shims-common:jar:2.3.9 - Hive Shims Common (http://hive.apache.org/), (Apache License, Version 2.0)
+  org.apache.hive:hive-shims-scheduler:jar:2.3.9 - Hive Shims Scheduler (http://hive.apache.org/), (Apache License, Version 2.0)
+  org.apache.hive:hive-storage-api:jar:2.4.0 - Hive Storage API (http://hive.apache.org/), (Apache License, Version 2.0)
+  com.carrotsearch:hppc:0.7.1 - HPPC Collections (http://labs.carrotsearch.com/hppc.html/hppc), (The Apache Software License, Version 2.0)
+  org.apache.htrace:htrace-core:3.1.0-incubating - htrace-core (http://incubator.apache.org/projects/htrace.html), (The Apache Software License, Version 2.0)
+  org.apache.htrace:htrace-core4:4.1.0-incubating - htrace-core4 (http://incubator.apache.org/projects/htrace.html), (The Apache Software License, Version 2.0)
+  org.apache.httpcomponents:httpasyncclient:4.1.2 - Apache HttpAsyncClient (http://hc.apache.org/httpcomponents-asyncclient), (Apache License, Version 2.0)
+  org.apache.httpcomponents:httpclient:4.5.13 - Apache HttpClient (http://hc.apache.org/httpcomponents-client), (Apache License, Version 2.0)
+  org.apache.httpcomponents:httpcore-nio:4.4.5 - Apache HttpCore NIO (http://hc.apache.org/httpcomponents-core-ga), (Apache License, Version 2.0)
+  org.ini4j:ini4j:jar:0.5.4 - Ini4J (http://www.ini4j.org), (Apache License, Version 2.0)
+  com.google.j2objc:j2objc-annotations:1.3 - J2ObjC Annotations (https://github.com/google/j2objc/), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.core:jackson-core:2.9.10 - Jackson-core (https://github.com/FasterXML/jackson-core), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.core:jackson-databind:2.9.10 - jackson-databind (http://github.com/FasterXML/jackson), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.8.11 - Jackson dataformat: CBOR (http://github.com/FasterXML/jackson-dataformats-binary), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.8.11 - Jackson dataformat: Smile (http://github.com/FasterXML/jackson-dataformats-binary), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.11 - Jackson dataformat: Yaml (http://github.com/FasterXML/jackson-dataformats-binary), (The Apache Software License, Version 2.0)
+  org.codehaus.jackson:jackson-jaxrs:jar:1.8.3 - JAX RS Provider For JSON Content Type (http://jackson.codehaus.org), (The Apache Software License, Version 2.0)
+  org.codehaus.jackson:jackson-mapper-asl:jar:1.9.13 - Data Mapper For Jackson (http://jackson.codehaus.org), (The Apache Software License, Version 2.0)
+  org.codehaus.jackson:jackson-xc:jar:1.8.3 - Xml Compatibility Extensions For Jackson (http://jackson.codehaus.org), (The Apache Software License, Version 2.0)
+  jakarta.validation:jakarta.validation-api:jar:2.0.2 - Jakarta Bean Validation API (https://beanvalidation.org), (The Apache Software License, Version 2.0)
+  tomcat:jasper-compiler:jar:5.5.23 - Jasper Compiler (http://tomcat.apache.org/), (The Apache Software License, Version 2.0)
+  tomcat:jasper-runtime:jar:5.5.23 - Jasper Runtime (http://tomcat.apache.org/), (The Apache Software License, Version 2.0)
+  com.jamesmurty.utils:java-xmlbuilder:0.4 - java-xmlbuilder (http://code.google.com/p/java-xmlbuilder/), (Apache License, Version 2.0)
+  javax.inject:javax.inject:1 - javax.inject (http://code.google.com/p/atinject/), (The Apache Software License, Version 2.0)
+  javax.jdo:jdo-api:3.0.1 - JDO API (http://db.apache.org/jdo), (Apache 2)
+  com.github.stephenc.jcip:jcip-annotations:1.0-1 - JCIP Annotations under Apache License (http://stephenc.github.com/jcip-annotations), (Apache License, Version 2.0)
+  net.java.dev.jets3t:jets3t:0.9.0 - An open source Java toolkit for Amazon S3 (http://www.jets3t.org), (Apache License, Version 2.0)
+  org.codehaus.jettison:jettison:1.1 - Jettison (https://github.com/jettison-json/jettison), (Apache License, Version 2.0)
+  org.elasticsearch:jna:jar:5.5.0 - Elastic JNA Distribution (https://github.com/java-native-access/jna), (Apache License, Version 2.0)
+  net.sf.jpam:jpam:1.1 - JPam (http://jpam.sf.net), (The Apache Software License, Version 2.0)
+  net.minidev:json-smart:2.3 - JSON Small and Fast Parser (http://www.minidev.net/), (The Apache Software License, Version 2.0)
+  com.google.code.findbugs:jsr305:3.0.2 - FindBugs-jsr305 (http://findbugs.sourceforge.net/), (The Apache Software License, Version 2.0)
+  org.elasticsearch.plugin:lang-mustache-client:6.8.13 - lang-mustache (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.apache.thrift:libfb303:0.9.3 - Apache Thrift (http://thrift.apache.org), (The Apache Software License, Version 2.0)
+  com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava - Guava ListenableFuture Only (https://github.com/google/guava), (The Apache Software License, Version 2.0)
+  org.apache.logging.log4j:log4j-web:jar:2.6.2 - Apache Log4j Web (https://logging.apache.org/log4j/), (The Apache Software License, Version 2.0)
+  com.squareup.okhttp3:logging-interceptor:4.9.1 - okhttp-logging-interceptor (https://square.github.io/okhttp/), (The Apache Software License, Version 2.0)
+  org.apache.lucene:lucene-analyzers-common:7.7.3 - Lucene Common Analyzers (http://lucene.apache.org/lucene-parent/lucene-analyzers-common), (Apache 2)
+  org.apache.lucene:lucene-core:7.7.3 - Lucene Core (http://lucene.apache.org/lucene-parent/lucene-core), (Apache 2)
+  org.apache.lucene:lucene-grouping:7.7.3 - Lucene Grouping (http://lucene.apache.org/lucene-parent/lucene-grouping), (Apache 2)
+  org.apache.lucene:lucene-highlighter:7.7.3 - Lucene Highlighter (http://lucene.apache.org/lucene-parent/lucene-highlighter), (Apache 2)
+  org.apache.lucene:lucene-join:7.7.3 - Lucene Join (http://lucene.apache.org/lucene-parent/lucene-join), (Apache 2)
+  org.apache.lucene:lucene-backward-codecs:7.7.3 - Lucene Memory (http://lucene.apache.org/lucene-parent/lucene-backward-codecs), (Apache 2)
+  org.apache.lucene:lucene-memory:7.7.3 - Lucene Memory (http://lucene.apache.org/lucene-parent/lucene-memory), (Apache 2)
+  org.apache.lucene:lucene-misc:7.7.3 - Lucene Miscellaneous (http://lucene.apache.org/lucene-parent/lucene-misc), (Apache 2)
+  org.apache.lucene:lucene-queries:7.7.3 - Lucene Queries (http://lucene.apache.org/lucene-parent/lucene-queries), (Apache 2)
+  org.apache.lucene:lucene-queryparser:7.7.3 - Lucene QueryParsers (http://lucene.apache.org/lucene-parent/lucene-queryparser), (Apache 2)
+  org.apache.lucene:lucene-sandbox:7.7.3 - Lucene Sandbox (http://lucene.apache.org/lucene-parent/lucene-sandbox), (Apache 2)
+  org.apache.lucene:lucene-spatial:7.7.3 - Lucene Spatial (http://lucene.apache.org/lucene-parent/lucene-spatial), (Apache 2)
+  org.apache.lucene:lucene-spatial3d:7.7.3 - Lucene Spatial 3D (http://lucene.apache.org/lucene-parent/lucene-spatial3d), (Apache 2)
+  org.apache.lucene:lucene-spatial-extras:7.7.3 - Lucene Spatial Extras (http://lucene.apache.org/lucene-parent/lucene-spatial-extras), (Apache 2)
+  org.apache.lucene:lucene-suggest:7.7.3 - Lucene Suggest (http://lucene.apache.org/lucene-parent/lucene-suggest), (Apache 2)
+  com.yammer.metrics:metrics-core:jar:3.1.0 - Metrics Core Library (http://metrics.yammer.com/), (The Apache Software License, Version 2.0)
+  io.dropwizard.metrics:metrics-json:jar:3.1.0 - Jackson Integration For Metrics (http://metrics.dropwizard.io/), (The Apache Software License, Version 2.0)
+  io.dropwizard.metrics:metrics-jvm:jar:3.1.0 - Jackson Integration For Metrics (http://metrics.dropwizard.io/), (The Apache Software License, Version 2.0)
+  com.nimbusds:nimbus-jose-jwt:7.9 - Nimbus JOSE+JWT (https://bitbucket.org/connect2id/nimbus-jose-jwt), (The Apache Software License, Version 2.0)
+  com.squareup.okhttp:okhttp:jar:2.7.5 - OkHttp (https://square.github.io/okhttp/), (The Apache Software License, Version 2.0)
+  com.squareup.okio:okio:1.12.0 - Okio (https://github.com/square/okio/okio), (Apache 2.0)
+  net.sf.opencsv:opencsv:2.3 - opencsv (http://opencsv.sf.net), (Apache 2)
+  org.apache.orc:orc-core:1.3.4 - ORC Core (http://orc.apache.org/orc-core), (Apache License, Version 2.0)
+  org.elasticsearch.plugin:parent-join-client:6.8.13 - parent-join (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  org.apache.parquet:parquet-hadoop-bundle:jar:1.8.1 - Apache Parquet Hadoop Bundle (https://parquet.apache.org/), (The Apache Software License, Version 2.0)
+  org.elasticsearch.plugin:rank-eval-client:6.8.13 - rank-eval (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
+  io.airlift:slice:jar:0.29 - Slice (http://slice.airlift.io/), (The Apache Software License, Version 2.0)
+  org.apache.slider:slider-core:jar:0.92.0-incubatin - Slider Core (http://slider.apache.org/), (The Apache Software License, Version 2.0)
+  org.yaml:snakeyaml:1.17 - SnakeYAML (http://www.snakeyaml.org), (Apache License, Version 2.0)
+  stax:stax-api:1.0.2 - StAX API (http://stax.codehaus.org/), (The Apache Software License, Version 2.0)
+  com.tdunning:t-digest:3.2 - T-Digest (https://github.com/tdunning/t-digest), (The Apache Software License, Version 2.0)
+  com.tencentcloudapi.cls:tencentcloud-cls-sdk-java:jar:1.0.5 - Tencentcloud Cls SDK Java (https://cloud.tencent.com/), (The Apache Software License, Version 2.0)
+  com.tencentcloudapi.cls:tencentcloud-cls-sdk-java:jar:1.0.5 - Tencentcloud Cls SDK Java (https://cloud.tencent.com/), (The Apache Software License, Version 2.0)
+  com.tencentcloudapi.cls:tencentcloud-cls-sdk-java:jar:1.0.5 - Tencentcloud Cls SDK Java (https://cloud.tencent.com/), (The Apache Software License, Version 2.0)
+  com.tencentcloudapi.cls:tencentcloud-cls-sdk-java:jar:1.0.5 - Tencentcloud Cls SDK Java (https://cloud.tencent.com/), (The Apache Software License, Version 2.0)
+  org.apache.tephra:tephra-api:0.6.0 - Apache Tephra API (http://tephra.incubator.apache.org/tephra-api), (The Apache Software License, Version 2.0)
+  org.apache.tephra:tephra-core:0.6.0 - Apache Tephra Core (http://tephra.incubator.apache.org/tephra-core), (The Apache Software License, Version 2.0)
+  org.apache.tephra:tephra-hbase-compat-1.0:0.6.0 - Apache Tephra Hbase(Compat) (http://tephra.incubator.apache.org/tephra-core), (The Apache Software License, Version 2.0)
+  org.apache.twill:twill-api:0.6.0-incubating - Apache Twill API (http://twill.apache.org/twill-api), (The Apache Software License, Version 2.0)
+  org.apache.twill:twill-common:0.6.0-incubating - Apache Twill Common (http://twill.apache.org/twill-api), (The Apache Software License, Version 2.0)
+  org.apache.twill:twill-core:0.6.0-incubating - Apache Twill Core (http://twill.apache.org/twill-api), (The Apache Software License, Version 2.0)
+  org.apache.twill:twill-discovery-api:0.6.0-incubating - Apache Twill Discovery API (http://twill.apache.org/twill-api), (The Apache Software License, Version 2.0)
+  org.apache.twill:twill-discovery-core:0.6.0-incubating - Apache Twill Discovery Core (http://twill.apache.org/twill-api), (The Apache Software License, Version 2.0)
+  org.apache.twill:twill-zookeeper:0.6.0-incubating - Apache Twill Zookeeper (http://twill.apache.org/twill-api), (The Apache Software License, Version 2.0)
+  com.fasterxml.woodstox:woodstox-core:5.0.3 - Woodstox (https://github.com/FasterXML/woodstox), (The Apache License, Version 2.0)
+  xerces:xercesImpl:2.12.0 - Xerces2 Java Parser (http://xerces.apache.org/xerces2-j), (The Apache Software License, Version 2.0)
+  xml-apis:xml-apis:1.3.04 - XML Commons External Components XML APIs (http://xml.apache.org/commons/components/external/), (The Apache Software License, Version 2.0)
+  
+  
+========================================================================
+Apache 2.0 licenses
+========================================================================
+
+The following components are provided under the Apache License. See project link for details.
+The text of each license is also included at licenses/LICENSE-[project].txt.
+  
+  org.apache.kafka:kafka-clients:2.4.1 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.thrift:libthrift:0.9.3 - Apache Thrift (http://thrift.apache.org), (The Apache Software License, Version 2.0)
+
+
+========================================================================
+BSD licenses
+========================================================================
+
+The following components are provided under BSD license. See project link for details.
+The text of each license is also included at licenses/LICENSE-[project].txt.
+  jline:jline:0.9.94 - JLine (https://jline.github.io), (BSD)
+  com.thoughtworks.paranamer:paranamer:2.3 - ParaNamer Core (https://github.com/paul-hammant/paranamer), (BSD)
+  com.google.protobuf:protobuf-java:2.5.0 - Protocol Buffer Java API (https://github.com/protocolbuffers/protobuf), (New BSD license)
+  com.github.luben:zstd-jni:1.4.3-1 - zstd-jni (https://github.com/luben/zstd-jni), (BSD 2-Clause License)
+  org.antlr:antlr-runtime:jar:3.5.2 - ANTLR 3 Runtime (http://www.antlr.org), (BSD)
+  org.ow2.asm:asm:5.0.4 - ASM Core (http://asm.objectweb.org/asm/), (BSD)
+  org.ow2.asm:asm-commons:7.1 - asm-commons (http://asm.ow2.org/), (BSD)
+  org.ow2.asm:asm-tree:7.1 - asm-tree (http://asm.ow2.org/), (BSD)
+  org.hamcrest:hamcrest-core:1.3 - Hamcrest Core (https://github.com/hamcrest/JavaHamcrest/hamcrest-core), (New BSD License)
+  javolution:javolution:5.5.1 - Javolution (http://javolution.org), (BSD License)
+  com.jcraft:jsch:0.1.54 - JSch (http://www.jcraft.com/jsch/), (Revised BSD)
+  org.fusesource.leveldbjni:leveldbjni-all:1.8 - leveldbjni-all (http://leveldbjni.fusesource.org/leveldbjni-all), (The BSD 3-Clause License)
+  com.google.protobuf:protobuf-java-util:jar:3.15.3 - Protocol Buffers [Util] (https://github.com/protocolbuffers/protobuf), (The BSD 3-Clause License)
+  org.codehaus.woodstox:stax2-api:3.1.4 - Stax2 API (http://wiki.fasterxml.com/WoodstoxStax2), (The BSD License)
+  xmlenc:xmlenc:0.52 - xmlenc Library (http://xmlenc.sourceforge.net), (The BSD License)
+
+========================================================================
+MIT licenses
+========================================================================
+
+The following components are provided under MIT license. See project link for details.
+The text of each license is also included at licenses/LICENSE-[project].txt.
+
+  org.bouncycastle:bcpkix-jdk15on:1.69 - Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs (https://www.bouncycastle.org/java.html), (MIT License)
+  org.bouncycastle:bcprov-ext-jdk15on:1.69 - Bouncy Castle Provider (https://www.bouncycastle.org/java.html), (MIT License)
+  org.bouncycastle:bcprov-jdk15on:1.69 - Bouncy Castle Provider (https://www.bouncycastle.org/java.html), (MIT License)
+  org.bouncycastle:bcutil-jdk15on:1.69 - Bouncy Castle ASN.1 Extension and Utility APIs (https://www.bouncycastle.org/java.html), (MIT License)
+  org.projectlombok:lombok:1.18.22 - Lombok (https://projectlombok.org), (The MIT License)
+  org.slf4j:slf4j-api:1.7.36 - SLF4J API Module (http://www.slf4j.org), (MIT License)
+  org.checkerframework:checker-qual:2.11.1 - Checker Qual (https://checkerframework.org), (The MIT License)
+  org.jruby.jcodings:jcodings:1.0.8 - JCodings (http://nexus.sonatype.org/oss-repository-hosting.html/jcodings), (MIT License)
+  org.jruby.joni:joni:2.1.2 - Joni (http://nexus.sonatype.org/oss-repository-hosting.html/joni), (MIT License)
+  net.sf.jopt-simple:jopt-simple:5.0.2 - JOpt Simple (http://pholser.github.io/jopt-simple), (The MIT License)
+  
+
+========================================================================
+CDDL licenses
+========================================================================
+
+The following components are provided under CDDL license. See project link for details.
+The text of each license is also included at licenses/LICENSE-[project].txt.
+
+  com.sun.activation:javax.activation:1.2.0 - JavaBeans Activation Framework (http://java.net/all/javax.activation/), (CDDL/GPLv2+CE)
+  javax.servlet:javax.servlet-api:3.1.0 - Java Servlet API (http://servlet-spec.java.net), (CDDL + GPLv2 with classpath exception)
+  javax.ws.rs:javax.ws.rs-api:2.1 - javax.ws.rs-api (http://jax-rs-spec.java.net), (CDDL 1.1), (CDDL 1.1 and GPL2 w/ CPE)
+  javax.activation:activation:jar:1.1 - JavaBeans(TM) Activation Framework (https://mvnrepository.com/artifact/javax.activation/activation), (CDDL 1.0)
+  javax.xml.bind:jaxb-api:2.3.0 - JAXB API (https://jaxb.dev.java.net/), (CDDL 1.1)
+  javax.xml.bind:jaxb-impl:2.2.3-1 - JAXB Impl (https://jaxb.dev.java.net/), (CDDL 1.1)
+  org.glassfish.jersey.core:jersey-client:1.9 - jersey-core-client (https://jersey.java.net/jersey-client/), (CDDL+GPL License)
+  org.glassfish.jersey.core:jersey-core:1.9 - jersey-core (https://jersey.java.net/jersey-core/), (CDDL+GPL License)
+  org.glassfish.jersey.core:jersey-guice:1.9 - jersey-core-guice (https://jersey.java.net/jersey-guice/), (CDDL+GPL License)
+  org.glassfish.jersey.core:jersey-json:1.9 - jersey-core-json (https://jersey.java.net/jersey-json/), (CDDL+GPL License)
+  org.glassfish.jersey.core:jersey-server:1.9 - jersey-core-server (https://jersey.java.net/jersey-server/), (CDDL+GPL License)
+  org.mortbay.jetty:jsp-2.1:jar:6.1.14 - Glassfish :: Jasper JSP 2.1 (http://jetty.mortbay.org/), (CDDL 1.1)
+  javax.servlet.jsp:jsp-api:2.1 - Java Servlet API (https://javaee.github.io/javaee-jsp-api), (CDDL + GPLv2 with classpath exception)
+  javax.transaction:jta:1.1 - Java Transaction API (http://java.sun.com/products/jta), (CDDL + GPLv2 with classpath exception)
+  javax.mail:mail:jar:1.4.1 - JavaMail API (compat) (https://glassfish.dev.java.net/javaee5/mail/), (CDDL 1.0)
+  javax.transaction:transaction-api:jar:1.1 - Java Transaction API (http://java.sun.com/products/jta), (CDDL + GPLv2 with classpath exception)
+  
+========================================================================
+Public Domain License
+========================================================================
+
+The following components are provided under Public Domain license. See project link for details.
+The text of each license is also included at licenses/LICENSE-[project].txt.
+
+  net.jcip:jcip-annotations:1.0 - "Java Concurrency in Practice" book annotations (http://jax-rs-spec.java.net), (Public Domain)
+  org.tukaani:xz:1.0 - XZ for Java (http://tukaani.org/xz/java.html), (Public Domain)
+  aopalliance 1.0: http://aopalliance.sourceforge.net Public Domain
+  org.hdrhistogram:HdrHistogram:2.1.9 - HdrHistogram (http://hdrhistogram.github.io/HdrHistogram/), (Public Domain, per Creative Commons CC0)
+
+
+========================================================================
+Mozilla Public License Version 2.0
+========================================================================
+
+The following components are provided under the Mozilla Public License. See project link for details.
+The text of each license is also included at licenses/LICENSE-[project].txt.
+
+  org.jamon:jamon-runtime:2.4.1 - jamon-runtime (org.jamon:jamon-runtime:2.4.1 - http://www.jamon.org/jamon-java-parent/jamon-runtime/), (Mozilla Public License Version 2.0)
+     
+========================================================================
+EPL licenses
+========================================================================
+
+The following components are provided under the EPL License. See project link for details.
+The text of each license is also included at licenses/LICENSE-[project].txt.
+
+  ch.qos.logback:logback-classic:jar:1.2.10 - Logback Classic Module (https://github.com/qos-ch/logback), (EPL 1.0)
+  ch.qos.logback:logback-core:jar:1.2.10 - Logback Core Module (https://github.com/qos-ch/logback), (EPL 1.0)
+  
