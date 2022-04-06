@@ -59,7 +59,7 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setSinkType(Constant.SINK_KAFKA);
         sinkInfo.setSinkName(sinkName);
         sinkInfo.setSerializationType(serializationType);
-        sinkInfo.setAddress(bootstrapServers);
+        sinkInfo.setBootstrapServers(bootstrapServers);
         sinkInfo.setTopicName(topicName);
         sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
         kafkaSinkId = sinkService.save(sinkInfo, globalOperator);

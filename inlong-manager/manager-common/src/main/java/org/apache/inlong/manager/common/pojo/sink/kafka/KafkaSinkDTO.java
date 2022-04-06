@@ -65,7 +65,7 @@ public class KafkaSinkDTO {
      */
     public static KafkaSinkDTO getFromRequest(KafkaSinkRequest request) {
         return KafkaSinkDTO.builder()
-                .bootstrapServers(request.getAddress())
+                .bootstrapServers(request.getBootstrapServers())
                 .topicName(request.getTopicName())
                 .serializationType(request.getSerializationType())
                 .properties(request.getProperties())
