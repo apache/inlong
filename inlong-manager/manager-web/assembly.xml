@@ -69,6 +69,13 @@
                 <include>${project.build.finalName}.jar</include>
             </includes>
         </fileSet>
+
+        <!-- package Manager Plugins -->
+        <fileSet>
+            <directory>../manager-plugins/target/plugins</directory>
+            <outputDirectory>plugins</outputDirectory>
+        </fileSet>
+
     </fileSets>
 
 </assembly>

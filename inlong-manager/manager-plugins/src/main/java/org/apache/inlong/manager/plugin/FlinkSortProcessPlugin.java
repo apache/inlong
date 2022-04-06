@@ -17,17 +17,25 @@
 
 package org.apache.inlong.manager.plugin;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.plugin.eventselect.DeleteProcessSelector;
+import org.apache.inlong.manager.plugin.eventselect.RestartProcessSelector;
+import org.apache.inlong.manager.plugin.eventselect.StartupProcessSelector;
+import org.apache.inlong.manager.plugin.eventselect.SuspendProcessSelector;
+import org.apache.inlong.manager.plugin.listener.DeleteSortListener;
+import org.apache.inlong.manager.plugin.listener.RestartSortListener;
+import org.apache.inlong.manager.plugin.listener.StartupSortListener;
+import org.apache.inlong.manager.plugin.listener.SuspendSortListener;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
-import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
-import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class EmptyProcessPlugin implements ProcessPlugin {
+@Slf4j
+public class FlinkSortProcessPlugin implements ProcessPlugin {
 
     @Override
     public Map<DataSourceOperateListener, EventSelector> createSourceOperateListeners() {
@@ -35,18 +43,12 @@ public class EmptyProcessPlugin implements ProcessPlugin {
     }
 
     @Override
-    public Map<QueueOperateListener, EventSelector> createQueueOperateListeners() {
-        return new LinkedHashMap<>();
-    }
-
-    @Override
     public Map<SortOperateListener, EventSelector> createSortOperateListeners() {
-        return ProcessPlugin.super.createSortOperateListeners();
+        Map<SortOperateListener, EventSelector> listeners = new LinkedHashMap<>();
+        listeners.put(new DeleteSortListener(), new DeleteProcessSelector());
+        listeners.put(new RestartSortListener(), new RestartProcessSelector());
+        listeners.put(new SuspendSortListener(), new SuspendProcessSelector());
+        listeners.put(new StartupSortListener(), new StartupProcessSelector());
+        return listeners;
     }
-
-    @Override
-    public Map<SinkOperateListener, EventSelector> createSinkOperateListeners() {
-        return ProcessPlugin.super.createSinkOperateListeners();
-    }
-
 }

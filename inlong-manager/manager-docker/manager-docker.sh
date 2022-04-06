@@ -33,13 +33,14 @@ sed -i "s/127.0.0.1:3306/${JDBC_URL}/g" "${conf_file}"
 sed -i "s/datasource.druid.username=.*$/datasource.druid.username=${USERNAME}/g" "${conf_file}"
 sed -i "s/datasource.druid.password=.*$/datasource.druid.password=${PASSWORD}/g" "${conf_file}"
 
-sed -i "s/cluster.zk.url=.*$/cluster.zk.url=${ZK_URL}/g" "${conf_file}"
-
 # startup the application
 JAVA_OPTS="-Dspring.profiles.active=${ACTIVE_PROFILE}"
 
 # get plugins from remote address.
 if [[ "${PLUGINS_URL}" =~ ^http* ]]; then
+    # remove the default plugins
+    rm -rf plugins
+    # get the third party plugins
     wget ${PLUGINS_URL} -O plugins.tar.gz
     tar -zxvf plugins.tar.gz -C "${file_path}"/
     rm plugins.tar.gz
@@ -48,4 +49,4 @@ fi
 sh "${file_path}"/bin/startup.sh "${JAVA_OPTS}"
 sleep 3
 # keep alive
-tail -F "${file_path}"/log/manager-web.log
+tail -F "${file_path}"/logs/manager-web.log
