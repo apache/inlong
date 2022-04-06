@@ -37,11 +37,19 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 public class KafkaSinkRequest extends SinkRequest {
 
     @ApiModelProperty("Kafka bootstrap servers")
-    private String address;
+    private String bootstrapServers;
 
     @ApiModelProperty("Kafka topicName")
     private String topicName;
 
+    @ApiModelProperty("Partition number of the topic")
+    private String partitionNum;
+
     @ApiModelProperty("Data Serialization, support: json, canal, avro")
     private String serializationType;
+
+    @ApiModelProperty(value = "The strategy of auto offset reset",
+            notes = "including earliest, latest (the default), none")
+    private String autoOffsetReset;
+
 }

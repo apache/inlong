@@ -199,7 +199,7 @@ public class Binlog2KafkaExample {
     private KafkaSink createKafkaSink() {
         KafkaSink kafkaSink = new KafkaSink();
         kafkaSink.setDataFormat(DataFormat.CANAL);
-        kafkaSink.setAddress("{kafka.bootstrap}");
+        kafkaSink.setBootstrapServers("{kafka.bootstrap}");
         kafkaSink.setTopicName("{kafka.topic}");
         kafkaSink.setNeedCreated(false);
         kafkaSink.setSinkName("{kafka.sink.name}");

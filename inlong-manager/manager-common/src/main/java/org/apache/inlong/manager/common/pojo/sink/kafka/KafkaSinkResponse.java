@@ -34,17 +34,24 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 @ApiModel(value = "Response of the Kafka sink")
 public class KafkaSinkResponse extends SinkResponse {
 
-    public KafkaSinkResponse() {
-        this.sinkType = Constant.SINK_KAFKA;
-    }
-
     @ApiModelProperty("Kafka bootstrap servers")
-    private String address;
+    private String bootstrapServers;
 
     @ApiModelProperty("Kafka topicName")
     private String topicName;
 
+    @ApiModelProperty("Partition number of the topic")
+    private String partitionNum;
+
     @ApiModelProperty("Data Serialization, support: json, canal, avro")
     private String serializationType;
+
+    @ApiModelProperty(value = "The strategy of auto offset reset",
+            notes = "including earliest, latest (the default), none")
+    private String autoOffsetReset;
+
+    public KafkaSinkResponse() {
+        this.sinkType = Constant.SINK_KAFKA;
+    }
 
 }

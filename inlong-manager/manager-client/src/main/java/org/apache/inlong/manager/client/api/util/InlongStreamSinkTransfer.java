@@ -164,7 +164,7 @@ public class InlongStreamSinkTransfer {
         KafkaSinkRequest kafkaSinkRequest = new KafkaSinkRequest();
         KafkaSink kafkaSink = (KafkaSink) streamSink;
         kafkaSinkRequest.setSinkName(streamSink.getSinkName());
-        kafkaSinkRequest.setAddress(kafkaSink.getAddress());
+        kafkaSinkRequest.setBootstrapServers(kafkaSink.getBootstrapServers());
         kafkaSinkRequest.setTopicName(kafkaSink.getTopicName());
         kafkaSinkRequest.setSinkType(kafkaSink.getSinkType().name());
         kafkaSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
@@ -186,12 +186,12 @@ public class InlongStreamSinkTransfer {
                     String.format("SinkName is not equal: %s != %s", sinkResponse, sink));
             KafkaSink snapshot = (KafkaSink) sink;
             kafkaSink.setSinkName(snapshot.getSinkName());
-            kafkaSink.setAddress(snapshot.getAddress());
+            kafkaSink.setBootstrapServers(snapshot.getBootstrapServers());
             kafkaSink.setTopicName(snapshot.getTopicName());
             kafkaSink.setDataFormat(snapshot.getDataFormat());
         } else {
             kafkaSink.setSinkName(sinkResponse.getSinkName());
-            kafkaSink.setAddress(sinkResponse.getAddress());
+            kafkaSink.setBootstrapServers(sinkResponse.getBootstrapServers());
             kafkaSink.setTopicName(sinkResponse.getTopicName());
             kafkaSink.setDataFormat(DataFormat.forName(sinkResponse.getSerializationType()));
         }

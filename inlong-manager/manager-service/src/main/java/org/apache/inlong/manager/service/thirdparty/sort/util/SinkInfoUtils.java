@@ -110,7 +110,7 @@ public class SinkInfoUtils {
 
     private static KafkaSinkInfo createKafkaSinkInfo(SourceResponse sourceResponse, KafkaSinkResponse sinkResponse,
             List<FieldInfo> sinkFields) {
-        String addressUrl = sinkResponse.getAddress();
+        String addressUrl = sinkResponse.getBootstrapServers();
         String topicName = sinkResponse.getTopicName();
         SerializationInfo serializationInfo = SerializationUtils.createSerialInfo(sourceResponse,
                 sinkResponse);

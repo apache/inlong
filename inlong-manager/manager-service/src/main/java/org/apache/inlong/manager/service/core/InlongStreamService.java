@@ -138,17 +138,6 @@ public interface InlongStreamService {
     PageInfo<FullStreamResponse> listAllWithGroupId(InlongStreamPageRequest request);
 
     /**
-     * Modify all inlong streams (including basic information about data sources)
-     *
-     * @param updateInfo inlong stream page information
-     * @param operator Edit person's name
-     * @return Whether the modification is successful
-     * @apiNote The data source details and data sink information are modified separately,
-     *         not in this all modification interface
-     */
-    boolean updateAll(InlongStreamRequest updateInfo, String operator);
-
-    /**
      * According to the group id, query the number of valid inlong streams belonging to this service
      *
      * @param groupId Inlong group id
