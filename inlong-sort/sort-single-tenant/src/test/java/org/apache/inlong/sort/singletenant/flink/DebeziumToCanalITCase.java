@@ -106,7 +106,7 @@ public class DebeziumToCanalITCase {
                 FieldMappingTransformer fieldMappingTransformer = new FieldMappingTransformer(
                         new Configuration(), sourceFieldInfos);
                 DeserializationFunction function = new DeserializationFunction(
-                        deserializationSchema, fieldMappingTransformer, false);
+                        deserializationSchema, fieldMappingTransformer, false, new Configuration(), "", "");
                 DataStream<Row> deserializedStream = sourceStream.process(function);
 
                 // Transform

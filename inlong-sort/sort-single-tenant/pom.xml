@@ -148,6 +148,12 @@
             <version>2.12.6.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>audit-sdk</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- test -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
