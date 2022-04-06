@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
@@ -85,7 +86,7 @@ public class Entrance {
         );
 
         DataStream<Row> deserializedStream =
-                buildDeserializationStream(sourceStream, dataFlowInfo.getSourceInfo(), config);
+                buildDeserializationStream(sourceStream, dataFlowInfo, config);
 
         DataStream<Row> transformationStream =
                 buildTransformationStream(deserializedStream, dataFlowInfo, config);
@@ -147,14 +148,17 @@ public class Entrance {
 
     private static DataStream<Row> buildDeserializationStream(
             DataStream<SerializedRecord> sourceStream,
-            SourceInfo sourceInfo,
+            DataFlowInfo dataFlowInfo,
             Configuration config
     ) throws IOException, ClassNotFoundException {
         final boolean orderlyOutput = config.getBoolean(Constants.JOB_ORDERLY_OUTPUT);
+        SourceInfo sourceInfo = dataFlowInfo.getSourceInfo();
         FieldInfo[] sourceFields = sourceInfo.getFields();
         DeserializationSchema<Row> schema = DeserializationSchemaFactory.build(
                 sourceFields, sourceInfo.getDeserializationInfo());
         FieldMappingTransformer fieldMappingTransformer = new FieldMappingTransformer(config, sourceFields);
+
+        Pair<String, String> inLongGroupIdAndStreamId = CommonUtils.getInLongGroupIdAndStreamId(dataFlowInfo);
 
         // Currently, canal and debezium deserialization schema will put a map at the first position
         // of the deserialized row. So the `appendAttributes` flag should be set false.
@@ -162,7 +166,10 @@ public class Entrance {
                 schema,
                 fieldMappingTransformer,
                 !(sourceInfo.getDeserializationInfo() instanceof DebeziumDeserializationInfo)
-                        && !(sourceInfo.getDeserializationInfo() instanceof CanalDeserializationInfo));
+                        && !(sourceInfo.getDeserializationInfo() instanceof CanalDeserializationInfo),
+                config,
+                inLongGroupIdAndStreamId.getLeft(),
+                inLongGroupIdAndStreamId.getRight());
 
         DataStream<Row> deserializedStream = sourceStream.process(function)
                 .uid(Constants.DESERIALIZATION_SCHEMA_UID)
