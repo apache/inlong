@@ -26,8 +26,8 @@ data:
   master.ini.raw: |
     [master]
     hostName=REPLACE_BY_POD_HOSTNAME
-    port=8715
-    webPort=8080
+    port={{ .Values.tubemqMaster.ports.rpcPort }}
+    webPort={{ .Values.tubemqMaster.ports.webPort }}
     consumerBalancePeriodMs=30000
     firstBalanceDelayAfterStartMs=60000
     consumerHeartbeatTimeoutMs=30000
@@ -49,5 +49,5 @@ data:
     [replication]
     repGroupName={{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}
     repNodeName={{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-REPLACE_BY_POD_ID
-    repNodePort=9001
-    repHelperHost={{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-0.{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}.{{ .Release.Name }}.svc.cluster.local:9001
+    repNodePort={{ .Values.tubemqMaster.ports.helpPort }}
+    repHelperHost={{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-0.{{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.helpPort }}
