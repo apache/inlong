@@ -49,7 +49,8 @@ public class TestContextIdTopicConfigLoader {
     @BeforeClass
     public static void setup() {
         Map<String, String> result = new ConcurrentHashMap<>();
-        try (InputStream inStream = TestContextIdTopicConfigLoader.class.getClassLoader().getResource("flume.conf")
+        try (InputStream inStream = TestContextIdTopicConfigLoader.class.getClassLoader().getResource(
+                "dataproxy-pulsar.conf")
                 .openStream()) {
             Properties props = new Properties();
             props.load(inStream);
@@ -59,9 +60,9 @@ public class TestContextIdTopicConfigLoader {
             context = new Context(result);
             sinkContext = new Context(context.getSubProperties("proxy_inlong5th_sz.sinks.pulsar-sink-more1."));
         } catch (UnsupportedEncodingException e) {
-            LOG.error("fail to load properties, file ={}, and e= {}", "flume.conf", e);
+            LOG.error("fail to load properties, file ={}, and e= {}", "dataproxy-pulsar.conf", e);
         } catch (Exception e) {
-            LOG.error("fail to load properties, file ={}, and e= {}", "flume.conf", e);
+            LOG.error("fail to load properties, file ={}, and e= {}", "dataproxy-pulsar.conf", e);
         }
     }
 

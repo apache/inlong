@@ -84,6 +84,7 @@
         <slf4j.version>1.7.36</slf4j.version>
         <spring.version>5.3.18</spring.version>
         <spring.boot.version>2.6.6</spring.boot.version>
+        <netty.version>3.10.6.Final</netty.version>
     </properties>
 
     <repositories>
