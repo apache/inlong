@@ -20,12 +20,12 @@ package org.apache.inlong.manager.common.pojo.sink;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Map;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
-import lombok.NoArgsConstructor;
+import java.util.Map;
 
 /**
  * Response of the stream sink
@@ -35,6 +35,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SinkResponse {
 
+    @ApiModelProperty("Sink type, including: HIVE, ICEBERG, etc.")
+    protected String sinkType;
+
+    @ApiModelProperty("Sink id")
     private Integer id;
 
     @ApiModelProperty("Inlong group id")
@@ -46,11 +50,8 @@ public class SinkResponse {
     @ApiModelProperty("Sink name, unique in one stream.")
     private String sinkName;
 
-    @ApiModelProperty("Sink type, including: HIVE, ES, etc.")
-    protected String sinkType;
-
-    @ApiModelProperty("Data storage period, unit: day")
-    private Integer storagePeriod;
+    @ApiModelProperty("Sink description")
+    private String description;
 
     @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. default is 1",
             notes = "Such as create Hive table")

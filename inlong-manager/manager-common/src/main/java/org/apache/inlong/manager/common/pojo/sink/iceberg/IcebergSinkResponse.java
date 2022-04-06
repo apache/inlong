@@ -34,10 +34,37 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 @ApiModel(value = "Response of the Iceberg sink")
 public class IcebergSinkResponse extends SinkResponse {
 
+    @ApiModelProperty("Hive JDBC URL")
+    private String jdbcUrl;
+
+    @ApiModelProperty("Username for JDBC URL")
+    private String username;
+
+    @ApiModelProperty("User password")
+    private String password;
+
+    @ApiModelProperty("Target database name")
+    private String dbName;
+
+    @ApiModelProperty("Target table name")
+    private String tableName;
+
+    @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
+    private String dataPath;
+
+    @ApiModelProperty("File format, support: Parquet, Orc, Avro")
+    private String fileFormat;
+
+    @ApiModelProperty("Data encoding type")
+    private String dataEncoding;
+
+    @ApiModelProperty("Data field separator")
+    private String dataSeparator;
+
+    @ApiModelProperty("Data consistency strategy, support: EXACTLY_ONCE(default), AT_LEAST_ONCE")
+    private String dataConsistency;
+
     public IcebergSinkResponse() {
         this.sinkType = Constant.SINK_ICEBERG;
     }
-
-    @ApiModelProperty("table Location like hdfs://")
-    private String tableLocation;
 }

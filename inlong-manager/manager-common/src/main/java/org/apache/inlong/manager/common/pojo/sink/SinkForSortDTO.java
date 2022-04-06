@@ -32,7 +32,7 @@ public class SinkForSortDTO {
     private String inlongStreamId;
     private String sinkType;
     private String sinkName;
-    private Integer storagePeriod;
+    private String description;
     private Integer enableCreateResource;
     private String extParams;
     private Integer status;
@@ -42,7 +42,6 @@ public class SinkForSortDTO {
     private String mqResourceObj;
     private String dataSourceType;
     private String dataType;
-    private String description;
     private String sourceSeparator; // Source separator configured in the stream info
     private String dataEscapeChar;
 

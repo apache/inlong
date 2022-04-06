@@ -43,13 +43,12 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
 
     public Integer saveSink() {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-
         IcebergSinkRequest sinkInfo = new IcebergSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
         sinkInfo.setSinkType(Constant.SINK_ICEBERG);
         sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
-        sinkInfo.setTableLocation("hdfs://127.0.0.1:8020/data");
+        sinkInfo.setDataPath("hdfs://127.0.0.1:8020/data");
         sinkInfo.setSinkName(sinkName);
         return sinkService.save(sinkInfo, globalOperator);
     }
