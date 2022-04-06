@@ -19,7 +19,7 @@ package org.apache.inlong.manager.plugin.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.inlong.manager.plugin.flink.dto.LoginConf;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -37,7 +37,6 @@ import java.util.regex.Pattern;
 @Slf4j
 public class FlinkUtils {
     public static final String BASE_DIRECTORY = "config";
-    private static final Pattern numberPattern = Pattern.compile("(\\d+\\.\\d+\\.\\d+\\.\\d+)\\:(\\d+)");
 
     /**
      */
@@ -107,6 +106,16 @@ public class FlinkUtils {
     }
 
     /**
+     * get value
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    public static String getValue(String key, String defaultValue) {
+        return StringUtils.isNotEmpty(key) ? key : defaultValue;
+    }
+
+    /**
      * @param name
      * @return
      */
@@ -137,27 +146,6 @@ public class FlinkUtils {
             return false;
         }
         return true;
-    }
-
-    /**
-     * sort_url to address&port
-     * @param endpoint
-     * @return
-     */
-    @Deprecated
-    public static LoginConf translateFromEndpont(String endpoint) {
-        LoginConf loginConf = new LoginConf();
-        try {
-            Matcher matcher = numberPattern.matcher(endpoint);
-            while (matcher.find()) {
-                loginConf.setRestAddress(matcher.group(1));
-                loginConf.setRestPort(Integer.valueOf(matcher.group(2)));
-                return loginConf;
-            }
-        } catch (Exception e) {
-            log.error("fetch addres:port fail", e.getMessage());
-        }
-        return loginConf;
     }
 
     /**

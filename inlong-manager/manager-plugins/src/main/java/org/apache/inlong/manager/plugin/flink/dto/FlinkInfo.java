@@ -25,6 +25,8 @@ import java.util.List;
 @Data
 public class FlinkInfo {
 
+    private String endpoint;
+
     private String jobName;
 
     private List<InlongStreamInfo> inlongStreamInfoList;

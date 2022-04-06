@@ -58,7 +58,7 @@ public class DeleteSortListenerTest {
 
         InlongGroupExtInfo inlongGroupExtInfo5 = new InlongGroupExtInfo();
         inlongGroupExtInfo5.setKeyName(InlongGroupSettings.SORT_JOB_ID);
-        inlongGroupExtInfo5.setKeyValue("209f30999d381d669378b476a4db59e9");
+        inlongGroupExtInfo5.setKeyValue("d7e613fb18876f173ec5ba17465fae64");
         inlongGroupExtInfos.add(inlongGroupExtInfo5);
 
         InlongGroupExtInfo inlongGroupExtInfo6 = new InlongGroupExtInfo();
