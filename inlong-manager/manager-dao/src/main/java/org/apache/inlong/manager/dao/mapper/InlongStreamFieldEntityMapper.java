@@ -35,9 +35,6 @@ public interface InlongStreamFieldEntityMapper {
     List<InlongStreamFieldEntity> selectByIdentifier(@Param("groupId") String groupId,
             @Param("streamId") String streamId);
 
-    List<InlongStreamFieldEntity> selectFields(@Param("groupId") String groupId,
-            @Param("streamId") String streamId);
-
     int deleteByPrimaryKey(Integer id);
 
     /**

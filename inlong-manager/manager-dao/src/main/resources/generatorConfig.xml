@@ -67,13 +67,7 @@
         </javaClientGenerator>
 
         <!-- Which entities to generate -->
-        <!--<table tableName="agent_heartbeat" domainObjectName="AgentHeartbeatEntity" enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="user" domainObjectName="UserEntity"
+        <!--<table tableName="user" domainObjectName="UserEntity"
           enableSelectByPrimaryKey="true"
           enableUpdateByPrimaryKey="true"
           enableDeleteByPrimaryKey="true" enableInsert="true"

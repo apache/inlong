@@ -25,55 +25,6 @@ CREATE DATABASE IF NOT EXISTS apache_inlong_manager;
 USE apache_inlong_manager;
 
 -- ----------------------------
--- Table structure for agent_heartbeat
--- ----------------------------
-DROP TABLE IF EXISTS `agent_heartbeat`;
-CREATE TABLE `agent_heartbeat`
-(
-    `ip`            varchar(64) NOT NULL COMMENT 'agent host ip',
-    `version`       varchar(128)         DEFAULT NULL,
-    `heartbeat_msg` text                 DEFAULT NULL COMMENT 'massage in heartbeat request',
-    `modify_time`   timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`ip`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8 COMMENT ='Agent heartbeat information table';
-
--- ----------------------------
--- Table structure for agent_sys_conf
--- ----------------------------
-DROP TABLE IF EXISTS `agent_sys_conf`;
-CREATE TABLE `agent_sys_conf`
-(
-    `ip`                            varchar(64) NOT NULL COMMENT 'ip',
-    `max_retry_threads`             int(11)     NOT NULL DEFAULT '6' COMMENT 'Maximum number of retry threads',
-    `min_retry_threads`             int(11)     NOT NULL DEFAULT '3' COMMENT 'Minimum number of retry threads',
-    `db_path`                       varchar(64)          DEFAULT '../db' COMMENT 'The path where bd is located, use a relative path',
-    `scan_interval_sec`             int(11)     NOT NULL DEFAULT '30' COMMENT 'Interval time to scan file directory',
-    `batch_size`                    int(11)     NOT NULL DEFAULT '20' COMMENT 'The amount sent to data proxy in batch',
-    `msg_size`                      int(11)     NOT NULL DEFAULT '100' COMMENT 'As many packages as possible at one time',
-    `send_runnable_size`            int(11)     NOT NULL DEFAULT '5' COMMENT 'The number of sending threads corresponding to a data source',
-    `msg_queue_size`                int(11)              DEFAULT '500',
-    `max_reader_cnt`                int(11)     NOT NULL DEFAULT '18' COMMENT 'The maximum number of threads of an Agent',
-    `thread_manager_sleep_interval` int(11)     NOT NULL DEFAULT '30000' COMMENT 'Interval time between manager thread to taskManager to fetch tasks',
-    `oneline_size`                  int(11)     NOT NULL DEFAULT '1048576' COMMENT 'Maximum length of a row of data',
-    `clear_day_offset`              int(11)     NOT NULL DEFAULT '11' COMMENT 'How many days ago to clear the data of BDB',
-    `clear_interval_sec`            int(11)     NOT NULL DEFAULT '86400' COMMENT 'Interval time for clearing bdb data',
-    `buffer_size_in_bytes`          int(16)     NOT NULL DEFAULT '268435456' COMMENT 'Maximum memory occupied by msg buffer',
-    `agent_rpc_reconnect_time`      int(11)     NOT NULL DEFAULT '0' COMMENT 'The interval time to update the link, if it is 0, it will not be updated',
-    `send_timeout_mill_sec`         int(11)     NOT NULL DEFAULT '60000' COMMENT 'The timeout period for sending a message (if the packet is not full within one minute, it will be sent out forcibly)',
-    `flush_event_timeout_mill_sec`  int(11)     NOT NULL DEFAULT '16000',
-    `stat_interval_sec`             int(11)     NOT NULL DEFAULT '60' COMMENT 'Statistical message sending frequency',
-    `conf_refresh_interval_secs`    int(11)     NOT NULL DEFAULT '300' COMMENT 'The frequency at which the Agent regularly pulls the configuration from the InLongManager',
-    `flow_size`                     int(11)              DEFAULT '1048576000',
-    `bufferSize`                    int(11)              DEFAULT '1048576' COMMENT 'bufferSize, default 1048576',
-    `compress`                      tinyint(2)           DEFAULT NULL COMMENT 'Whether to compress',
-    `event_check_interval`          int(11)              DEFAULT NULL COMMENT 'File scanning period',
-    `is_calMD5`                     tinyint(2)           DEFAULT NULL COMMENT 'Do you want to calculate the cumulative md5 of read characters',
-    PRIMARY KEY (`ip`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8 COMMENT ='Agent system configuration table';
-
--- ----------------------------
 -- Table structure for inlong_group
 -- ----------------------------
 DROP TABLE IF EXISTS `inlong_group`;
@@ -227,18 +178,18 @@ CREATE TABLE `common_file_server`
     `access_type`    varchar(20) NOT NULL COMMENT 'Collection type, with Agent, DataProxy, LoadProxy',
     `ip`             varchar(64) NOT NULL COMMENT 'Data source IP',
     `port`           int(11)     NOT NULL COMMENT 'Port number',
-    `is_inner_ip`    tinyint(1)           DEFAULT '0' COMMENT 'Whether it is intranet, 0: No, 1: Yes',
-    `issue_type`     varchar(128)         DEFAULT NULL COMMENT 'Issuance method, such as SSH, TCS, etc.',
+    `is_inner_ip`    tinyint(1)       DEFAULT '0' COMMENT 'Whether it is intranet, 0: No, 1: Yes',
+    `issue_type`     varchar(128)     DEFAULT NULL COMMENT 'Issuance method, such as SSH, TCS, etc.',
     `username`       varchar(64) NOT NULL COMMENT 'User name of the data source IP host',
     `password`       varchar(64) NOT NULL COMMENT 'The password corresponding to the above user name',
-    `status`         int(4)               DEFAULT '0' COMMENT 'status',
-    `is_deleted`     int(11)              DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `status`         int(4)           DEFAULT '0' COMMENT 'status',
+    `is_deleted`     int(11)          DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`        varchar(64) NOT NULL COMMENT 'Creator name',
-    `modifier`       varchar(64)          DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`    timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`    timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `visible_person` varchar(1024)        DEFAULT NULL COMMENT 'List of visible persons, separated by commas',
-    `visible_group`  varchar(1024)        DEFAULT NULL COMMENT 'List of visible groups, separated by commas',
+    `modifier`       varchar(64)      DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`    timestamp   NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`    timestamp   NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `visible_person` varchar(1024)    DEFAULT NULL COMMENT 'List of visible persons, separated by commas',
+    `visible_group`  varchar(1024)    DEFAULT NULL COMMENT 'List of visible groups, separated by commas',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Common File Server Table';
@@ -346,9 +297,9 @@ CREATE TABLE `stream_source_cmd_config`
     `task_id`             int(11)     NOT NULL,
     `specified_data_time` varchar(64) NOT NULL,
     `bSend`               tinyint(1)  NOT NULL,
-    `create_time`         timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`         timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `result_info`         varchar(64)          DEFAULT NULL,
+    `create_time`         timestamp   NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`         timestamp   NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `result_info`         varchar(64)      DEFAULT NULL,
     PRIMARY KEY (`id`),
     KEY `index_1` (`task_id`, `bSend`, `specified_data_time`)
 ) ENGINE = InnoDB
@@ -565,15 +516,15 @@ CREATE TABLE `stream_sink`
     `sink_name`              varchar(128) NOT NULL DEFAULT '' COMMENT 'Sink name',
     `storage_period`         int(11)               DEFAULT '10' COMMENT 'Data storage period, unit: day',
     `enable_create_resource` tinyint(1)            DEFAULT '1' COMMENT 'Whether to enable create sink resource? 0: disable, 1: enable. default is 1',
-    `ext_params`             text COMMENT 'Another fields, will saved as JSON type',
+    `ext_params`             text         NULL COMMENT 'Another fields, will saved as JSON type',
     `operate_log`            text                  DEFAULT NULL COMMENT 'Background operate log',
     `status`                 int(11)               DEFAULT '0' COMMENT 'Status',
     `previous_status`        int(11)               DEFAULT '0' COMMENT 'Previous status',
     `is_deleted`             int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`                varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`               varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `create_time`            timestamp    NULL     DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`            timestamp    NULL     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_sink_name` (`inlong_group_id`, `inlong_stream_id`, `sink_name`, `is_deleted`)
 ) ENGINE = InnoDB
@@ -614,7 +565,7 @@ CREATE TABLE `stream_sink_field`
     `field_type`        varchar(50)  NOT NULL COMMENT 'Field type',
     `field_comment`     varchar(2000) DEFAULT NULL COMMENT 'Field description',
     `is_meta_field`     smallint(3)   DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
-    `field_format`        varchar(50)  DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
+    `field_format`      varchar(50)   DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
     `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`        int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`)
@@ -674,14 +625,14 @@ CREATE TABLE `workflow_approver`
     `process_name`      varchar(256)  NOT NULL COMMENT 'Process name',
     `task_name`         varchar(256)  NOT NULL COMMENT 'Approval task name',
     `filter_key`        varchar(64)   NOT NULL COMMENT 'Filter condition KEY',
-    `filter_value`      varchar(256)           DEFAULT NULL COMMENT 'Filter matching value',
-    `filter_value_desc` varchar(256)           DEFAULT NULL COMMENT 'Filter value description',
+    `filter_value`      varchar(256)       DEFAULT NULL COMMENT 'Filter matching value',
+    `filter_value_desc` varchar(256)       DEFAULT NULL COMMENT 'Filter value description',
     `approvers`         varchar(1024) NOT NULL COMMENT 'Approvers, separated by commas',
     `creator`           varchar(64)   NOT NULL COMMENT 'Creator',
-    `modifier`          varchar(64)   NOT NULL COMMENT 'Modifier',
-    `create_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `is_deleted`        int(11)                DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
+    `modifier`          varchar(64)   NULL COMMENT 'Modifier',
+    `create_time`       timestamp     NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`       timestamp     NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `is_deleted`        int(11)            DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
     PRIMARY KEY (`id`),
     KEY `process_name_task_name_index` (`process_name`, `task_name`)
 ) ENGINE = InnoDB
@@ -1013,8 +964,8 @@ CREATE TABLE `db_collector_detail_task`
     `group_id`      varchar(64)  NULL COMMENT 'group id',
     `stream_id`     varchar(64)  NULL COMMENT 'stream id',
     `state`         int(11)      NOT NULL COMMENT 'task state',
-    `create_time`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
-    `modify_time`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
+    `create_time`   timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
+    `modify_time`   timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='db collector detail task table';

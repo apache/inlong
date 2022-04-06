@@ -20,14 +20,6 @@ package org.apache.inlong.manager.service.core;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
-import org.apache.inlong.manager.common.pojo.agent.AgentStatusReportRequest;
-import org.apache.inlong.manager.common.pojo.agent.CheckAgentTaskConfRequest;
-import org.apache.inlong.manager.common.pojo.agent.ConfirmAgentIpRequest;
-import org.apache.inlong.manager.common.pojo.agent.FileAgentCommandInfo;
-import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskConfig;
-import org.apache.inlong.manager.common.pojo.agent.FileAgentTaskInfo;
-
-import java.util.List;
 
 /**
  * The service interface for agent
@@ -56,14 +48,5 @@ public interface AgentService {
      * @return Task result.
      */
     TaskResult getTaskResult(TaskRequest request);
-
-    @Deprecated
-    FileAgentTaskInfo getFileAgentTask(FileAgentCommandInfo info);
-
-    String confirmAgentIp(ConfirmAgentIpRequest request);
-
-    List<FileAgentTaskConfig> checkAgentTaskConf(CheckAgentTaskConfRequest request);
-
-    String reportAgentStatus(AgentStatusReportRequest request);
 
 }
