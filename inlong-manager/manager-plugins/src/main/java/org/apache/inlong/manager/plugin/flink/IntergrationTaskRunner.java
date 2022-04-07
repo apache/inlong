@@ -101,7 +101,7 @@ public class IntergrationTaskRunner implements Runnable {
                                 String jobId = flinkService.restore(flinkInfo);
                                 log.info("Restore job {} success in backend", jobId);
                             } catch (Exception e) {
-                                log.error("Restore job failed in backend",e.getMessage());
+                                log.error("Restore job failed in backend", e.getMessage());
                             }
                             break;
                         }
