@@ -25,10 +25,6 @@ import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
  * 
  * ProxyEvent
  */
-/**
- * 
- * ProxyEvent
- */
 public class ProxyEvent extends SdkEvent {
 
     protected long sourceTime;
