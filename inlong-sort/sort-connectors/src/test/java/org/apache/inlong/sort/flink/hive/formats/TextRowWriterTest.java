@@ -20,7 +20,6 @@ package org.apache.inlong.sort.flink.hive.formats;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import io.airlift.compress.lzo.LzopCodec;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,7 +41,6 @@ import org.apache.flink.table.types.logical.IntType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.MapType;
 import org.apache.flink.types.Row;
-import org.apache.hadoop.io.compress.CompressionInputStream;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants.CompressionType;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.TextFileFormat;
@@ -100,37 +98,6 @@ public class TextRowWriterTest {
         textRowWriter.finish();
 
         assertTrue(isSameFile(gzipFile.getAbsolutePath(), "src/test/resources/testGzip.gz"));
-    }
-
-    @Test
-    public void testWriteLZO() throws IOException {
-        File lzoFile = temporaryFolder.newFile("test.lzo");
-        TextRowWriter textRowWriter = new TextRowWriter(
-                new LocalDataOutputStream(lzoFile),
-                new TextFileFormat(',', CompressionType.LZO),
-                new Configuration(),
-                new LogicalType[] {new CharType(), new IntType()}
-        );
-
-        textRowWriter.addElement(Row.of("zhangsan", 1));
-        textRowWriter.addElement(Row.of("lisi", 2));
-        textRowWriter.finish();
-
-        LzopCodec lzopCodec = new LzopCodec();
-        CompressionInputStream compressionInputStream = lzopCodec.createInputStream(
-                new FileInputStream(lzoFile.getAbsolutePath()));
-        final List<String> results = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(
-                compressionInputStream, StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                results.add(line);
-            }
-        }
-
-        assertEquals(2, results.size());
-        assertEquals("zhangsan,1", results.get(0));
-        assertEquals("lisi,2", results.get(1));
     }
 
     public static boolean isSameFile(String fileName1, String fileName2) {
