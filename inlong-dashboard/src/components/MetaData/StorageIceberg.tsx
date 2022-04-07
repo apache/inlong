@@ -141,11 +141,11 @@ const getForm: GetStorageFormFieldsType = (
         options: [
           {
             label: i18n.t('basic.Yes'),
-            value: 0,
+            value: 1,
           },
           {
             label: i18n.t('basic.No'),
-            value: 1,
+            value: 0,
           },
         ],
       },

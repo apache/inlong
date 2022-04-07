@@ -192,7 +192,7 @@ const Comp: React.FC<DetailModalProps> = ({
           { required: true },
           {
             pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-            message: i18n.t('components.AccessHelper.StorageMetaData.SinkNameRule'),
+            message: t('components.AccessHelper.StorageMetaData.SinkNameRule'),
           },
         ],
         props: {
@@ -202,8 +202,7 @@ const Comp: React.FC<DetailModalProps> = ({
       {
         name: 'description',
         type: 'textarea',
-        label: i18n.t('components.AccessHelper.StorageMetaData.Description'),
-        rules: [{ required: false }],
+        label: t('components.AccessHelper.StorageMetaData.Description'),
         props: {
           showCount: true,
           maxLength: 300,
