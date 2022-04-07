@@ -98,6 +98,6 @@ spec:
               value: {{ $value | quote }}
             {{- end }}
           ports:
-            - name: {{ .Values.tubemqManager.component }}-port
+            - name: tubemq-mgr-port
               containerPort: 8089
       restartPolicy: Always

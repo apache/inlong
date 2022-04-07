@@ -83,11 +83,11 @@ spec:
             - >
               /config-scripts/run
           ports:
-            - name: {{ .Values.zookeeper.component }}-client-port
+            - name: zk-client-port
               containerPort: 2181
-            - name: {{ .Values.zookeeper.component }}-follower-port
+            - name: zk-comm-port
               containerPort: 2888
-            - name: {{ .Values.zookeeper.component }}-leader-election-port
+            - name: zk-elect-port
               containerPort: 3888
           env:
             - name: ZOOKEEPER_SERVERS
