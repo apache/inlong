@@ -76,6 +76,13 @@ public interface MasterService {
     List<MasterEntry> getMasterNodes(Long clusterId);
 
     /**
+     * get master in master ip
+     * @param masterIp
+     * @return
+     */
+    List<MasterEntry> getMasterNodes(String masterIp);
+
+    /**
      * use queryBody to generate queryUrl for master query
      *
      * @param queryBody
