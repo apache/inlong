@@ -61,7 +61,6 @@
         <hive.version>2.3.8</hive.version>
         <pulsar.version>2.8.1</pulsar.version>
         <kafka.version>2.4.1</kafka.version>
-        <lzo.core.version>1.0.6</lzo.core.version>
     </properties>
 
     <modules>
@@ -408,12 +407,6 @@
                 <groupId>ru.yandex.clickhouse</groupId>
                 <artifactId>clickhouse-jdbc</artifactId>
                 <version>${clickhouse-jdbc.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.anarres.lzo</groupId>
-                <artifactId>lzo-core</artifactId>
-                <version>${lzo.core.version}</version>
             </dependency>
 
         </dependencies>

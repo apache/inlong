@@ -89,11 +89,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.anarres.lzo</groupId>
-            <artifactId>lzo-core</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.orc</groupId>
             <artifactId>orc-core</artifactId>
             <version>1.6.7</version>
