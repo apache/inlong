@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -145,7 +144,7 @@ public class FlinkService {
             return status;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("get job status error", e.getMessage());
         }
         return status;
     }
@@ -164,7 +163,7 @@ public class FlinkService {
             return jobDetailsInfo;
 
         } catch (Exception e) {
-            log.error("get job detail error", e);
+            log.error("get job detail error", e.getMessage());
         }
         return jobDetailsInfo;
     }
@@ -195,7 +194,7 @@ public class FlinkService {
                 jobId = result.get().toString();
                 return jobId;
         } catch (Exception e) {
-            log.error("submit job  error", e);
+            log.error("submit job error", e.getMessage());
         }
         return jobId;
     }
@@ -229,7 +228,7 @@ public class FlinkService {
                 return jobId;
             }
         } catch (Exception e) {
-            log.error("restore job  error", e);
+            log.error("restore job error", e.getMessage());
         }
         return jobId;
     }
@@ -262,12 +261,10 @@ public class FlinkService {
      * @return
      */
     public void cancelJobs(String jobId) {
-        CompletableFuture<Acknowledge> result = null;
         try {
             RestClusterClient<StandaloneClusterId> client = getFlinkClient();
             JobID jobID = JobID.fromHexString(jobId);
-             result = client.cancel(jobID);
-            String stringId = result.toString();
+            CompletableFuture<Acknowledge> result = client.cancel(jobID);
         } catch (Exception e) {
             log.error("cancel job error", e.getMessage());
         }

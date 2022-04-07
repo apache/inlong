@@ -64,7 +64,7 @@ public class StartupSortListener implements SortOperateListener {
         String dataFlows = kvConf.get(InlongGroupSettings.DATA_FLOW);
         String inlongGroupId = context.getProcessForm().getInlongGroupId();
         if (StringUtils.isEmpty(dataFlows)) {
-            String message = String.format("inlongGroupId:%s not exec startupProcess listener,dataflows is empty",
+            String message = String.format("inlongGroupId:%s not exec startupProcess listener, dataflows is empty",
                     inlongGroupId);
             log.warn(message);
             return ListenerResult.fail(message);
@@ -77,7 +77,7 @@ public class StartupSortListener implements SortOperateListener {
             dataFlow = dataflowOptional.get();
         }
         if (Objects.isNull(dataFlow)) {
-            String message = String.format("inlongGroupId:%s not exec startupProcess listener,dataflow is empty",
+            String message = String.format("inlongGroupId:%s not exec startupProcess listener, dataflow is empty",
                     inlongGroupId);
             log.warn(message);
             ListenerResult.fail(message);
@@ -108,7 +108,7 @@ public class StartupSortListener implements SortOperateListener {
              managerFlinkTask.start(flinkInfo);
             log.info("the jobId {} submit success");
         } catch (Exception e) {
-            log.warn("startup  exception [{}]", e.getMessage());
+            log.warn("startup exception [{}]", e.getMessage());
             managerFlinkTask.pollFlinkStatus(flinkInfo);
             flinkInfo.setException(true);
             flinkInfo.setExceptionMsg(getExceptionStackMsg(e));

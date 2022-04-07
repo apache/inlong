@@ -59,7 +59,7 @@ public class SuspendSortListener implements SortOperateListener {
                 InlongGroupExtInfo::getKeyName, InlongGroupExtInfo::getKeyValue));
         String sortExt = kvConf.get(InlongGroupSettings.SORT_PROPERTIES);
         if (StringUtils.isEmpty(sortExt)) {
-            String message = String.format("inlongGroupId:%s not add suspendProcess listener,sortProperties is empty",
+            String message = String.format("inlongGroupId:%s not add suspendProcess listener, sortProperties is empty",
                     inlongGroupId);
             log.warn(message);
             return ListenerResult.fail(message);

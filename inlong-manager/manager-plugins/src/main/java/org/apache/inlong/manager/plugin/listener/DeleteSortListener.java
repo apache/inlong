@@ -61,7 +61,7 @@ public class DeleteSortListener implements SortOperateListener {
         String sortExt = kvConf.get(InlongGroupSettings.SORT_PROPERTIES);
         if (StringUtils.isEmpty(sortExt)) {
             String message =
-                    String.format("inlongGroupId:%s not add deleteProcess listener,sortProperties is empty",
+                    String.format("inlongGroupId:%s not add deleteProcess listener, sortProperties is empty",
                             inlongGroupId);
             log.warn(message);
             return ListenerResult.fail(message);
