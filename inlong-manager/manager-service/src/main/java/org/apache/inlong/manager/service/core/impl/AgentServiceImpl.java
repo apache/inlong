@@ -32,13 +32,12 @@ import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogRequest;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
-import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.core.StreamConfigLogService;
@@ -65,17 +64,14 @@ public class AgentServiceImpl implements AgentService {
     private static final int UNISSUED_STATUS = 2;
     private static final int ISSUED_STATUS = 3;
     private static final int MODULUS_100 = 100;
+    private static final int TASK_FETCH_SIZE = 2;
 
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
     private SourceSnapshotOperation snapshotOperation;
     @Autowired
-    private SourceFileDetailEntityMapper fileDetailMapper;
-    @Autowired
     private DataSourceCmdConfigEntityMapper sourceCmdConfigMapper;
-    @Autowired
-    private InlongStreamFieldEntityMapper streamFieldMapper;
     @Autowired
     private InlongStreamEntityMapper streamMapper;
     @Autowired
@@ -154,6 +150,8 @@ public class AgentServiceImpl implements AgentService {
             throw new BusinessException("agent request or agent ip was empty, just return");
         }
 
+        final String agentIp = request.getAgentIp();
+        final String uuid = request.getUuid();
         // Query the tasks that needed to add or active - without agentIp and uuid
         List<Integer> needAddStatusList;
         if (PullJobTypeEnum.NEVER != PullJobTypeEnum.getPullJobType(request.getPullJobType())) {
@@ -163,10 +161,11 @@ public class AgentServiceImpl implements AgentService {
             LOGGER.warn("agent pull job type is [NEVER], just pull to be active tasks");
             needAddStatusList = Collections.singletonList(SourceState.TO_BE_ISSUED_ACTIVE.getCode());
         }
-        List<StreamSourceEntity> entityList = sourceMapper.selectByStatus(needAddStatusList);
+        List<String> sourceTypes = Lists.newArrayList(SourceType.BINLOG.getType(), SourceType.KAFKA.getType(),
+                SourceType.SQL.getType());
+        List<StreamSourceEntity> entityList = sourceMapper.selectByStatusAndType(needAddStatusList, sourceTypes,
+                TASK_FETCH_SIZE);
 
-        String agentIp = request.getAgentIp();
-        String uuid = request.getUuid();
         // Query other tasks by agentIp and uuid - not included status with TO_BE_ISSUED_ADD and TO_BE_ISSUED_ACTIVE
         List<Integer> statusList = Arrays.asList(SourceState.TO_BE_ISSUED_DELETE.getCode(),
                 SourceState.TO_BE_ISSUED_RETRY.getCode(), SourceState.TO_BE_ISSUED_BACKTRACK.getCode(),
@@ -174,6 +173,15 @@ public class AgentServiceImpl implements AgentService {
                 SourceState.TO_BE_ISSUED_REDO_METRIC.getCode(), SourceState.TO_BE_ISSUED_MAKEUP.getCode());
         List<StreamSourceEntity> needIssuedList = sourceMapper.selectByStatusAndIp(statusList, agentIp, uuid);
         entityList.addAll(needIssuedList);
+
+        List<StreamSourceEntity> fileEntityList = sourceMapper.selectByStatusAndType(needAddStatusList,
+                Lists.newArrayList(SourceType.FILE.getType()), TASK_FETCH_SIZE * 2);
+        for (StreamSourceEntity fileEntity : fileEntityList) {
+            FileSourceDTO fileSourceDTO = FileSourceDTO.getFromJson(fileEntity.getExtParams());
+            if (agentIp.equals(fileSourceDTO.getIp())) {
+                entityList.add(fileEntity);
+            }
+        }
 
         List<DataConfig> dataConfigs = Lists.newArrayList();
         for (StreamSourceEntity entity : entityList) {
@@ -208,6 +216,11 @@ public class AgentServiceImpl implements AgentService {
         return TaskResult.builder().dataConfigs(dataConfigs).cmdConfigs(cmdConfigs).build();
     }
 
+    /**
+     * If status of source is failed, record.
+     *
+     * @param entity
+     */
     private void logFailedStreamSource(StreamSourceEntity entity) {
         InlongStreamConfigLogRequest request = new InlongStreamConfigLogRequest();
         request.setInlongGroupId(entity.getInlongGroupId());

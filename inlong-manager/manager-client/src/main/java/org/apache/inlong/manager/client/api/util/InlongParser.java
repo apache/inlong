@@ -41,6 +41,8 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.file.FileSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.file.FileSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
@@ -51,9 +53,6 @@ import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 
 import java.util.List;
-
-import static org.apache.inlong.manager.common.enums.SourceType.BINLOG;
-import static org.apache.inlong.manager.common.enums.SourceType.KAFKA;
 
 /**
  * Parser for Inlong entity
@@ -136,6 +135,11 @@ public class InlongParser {
                                 KafkaSourceResponse.class);
                         sourceResponses.add(kafkaSourceResponse);
                         break;
+                    case FILE:
+                        FileSourceResponse fileSourceResponse = GsonUtil.fromJson(sourceJson.toString(),
+                                FileSourceResponse.class);
+                        sourceResponses.add(fileSourceResponse);
+                        break;
                     default:
                         throw new RuntimeException(String.format("Unsupport sourceType=%s for Inlong", sourceType));
                 }
@@ -187,18 +191,23 @@ public class InlongParser {
         if (pageInfo.getList() != null && !pageInfo.getList().isEmpty()) {
             SourceListResponse sourceListResponse = pageInfo.getList().get(0);
             SourceType sourceType = SourceType.forType(sourceListResponse.getSourceType());
-            if (sourceType == BINLOG) {
-                return GsonUtil.fromJson(pageInfoJson,
-                        new TypeToken<PageInfo<BinlogSourceListResponse>>() {
-                        }.getType());
+            switch (sourceType) {
+                case BINLOG:
+                    return GsonUtil.fromJson(pageInfoJson,
+                            new TypeToken<PageInfo<BinlogSourceListResponse>>() {
+                            }.getType());
+                case KAFKA:
+                    return GsonUtil.fromJson(pageInfoJson,
+                            new TypeToken<PageInfo<KafkaSourceListResponse>>() {
+                            }.getType());
+                case FILE:
+                    return GsonUtil.fromJson(pageInfoJson,
+                            new TypeToken<PageInfo<FileSourceListResponse>>() {
+                            }.getType());
+                default:
+                    throw new IllegalArgumentException(
+                            String.format("Unsupported sourceType=%s for Inlong", sourceType));
             }
-            if (sourceType == KAFKA) {
-                return GsonUtil.fromJson(pageInfoJson,
-                        new TypeToken<PageInfo<KafkaSourceListResponse>>() {
-                        }.getType());
-            }
-            throw new IllegalArgumentException(
-                    String.format("Unsupported sourceType=%s for Inlong", sourceType));
         } else {
             return new PageInfo<>();
         }
@@ -221,7 +230,8 @@ public class InlongParser {
         if (mqExtInfo != null && mqExtInfo.get(MIDDLEWARE_TYPE) != null) {
             MQType mqType = MQType.forType(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString());
             if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
-                InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
+                InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(),
+                        InlongGroupPulsarInfo.class);
                 groupApproveInfo.setAckQuorum(pulsarInfo.getAckQuorum());
                 groupApproveInfo.setEnsemble(pulsarInfo.getEnsemble());
                 groupApproveInfo.setWriteQuorum(pulsarInfo.getWriteQuorum());

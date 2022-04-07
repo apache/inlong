@@ -17,17 +17,17 @@
 
 package org.apache.inlong.agent.pojo;
 
-import static java.util.Objects.requireNonNull;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
-import static org.apache.inlong.agent.constant.JobConstants.SYNC_SEND_OPEN;
-
 import com.google.gson.Gson;
 import lombok.Data;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
+
+import static java.util.Objects.requireNonNull;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+import static org.apache.inlong.agent.constant.JobConstants.SYNC_SEND_OPEN;
 
 @Data
 public class JobProfileDto {
@@ -92,26 +92,20 @@ public class JobProfileDto {
 
     private static FileJob getFileJob(DataConfig dataConfigs) {
         FileJob fileJob = new FileJob();
+        fileJob.setId(dataConfigs.getTaskId());
         fileJob.setTrigger(DEFAULT_TRIGGER);
 
         FileJob.FileJobTaskConfig fileJobTaskConfig = GSON.fromJson(dataConfigs.getExtParams(),
                 FileJob.FileJobTaskConfig.class);
 
         FileJob.Dir dir = new FileJob.Dir();
-        dir.setPattern(fileJobTaskConfig.getDataName());
-        dir.setPath(fileJobTaskConfig.getPath());
+        dir.setPattern(fileJobTaskConfig.getPattern());
         fileJob.setDir(dir);
-
-        fileJob.setId(fileJobTaskConfig.getTaskId());
         fileJob.setTimeOffset(fileJobTaskConfig.getTimeOffset());
 
         if (!fileJobTaskConfig.getAdditionalAttr().isEmpty()) {
             fileJob.setAddictiveString(fileJobTaskConfig.getAdditionalAttr());
         }
-        if (fileJobTaskConfig.getCycleUnit() != null) {
-            fileJob.setCycleUnit(fileJobTaskConfig.getCycleUnit());
-        }
-
         return fileJob;
     }
 

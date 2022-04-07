@@ -156,7 +156,24 @@
             <foreach item="item" index="index" collection="list" open="(" close=")" separator=",">
                 #{item}
             </foreach>
-            limit 2
+            limit #{limit, jdbcType=INTEGER}
+        </where>
+    </select>
+    <select id="selectByStatusAndType" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            and status in
+            <foreach item="item" index="index" collection="list" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+            and source_type in
+            <foreach item="item" index="index" collection="sourceType" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+            limit #{limit, jdbcType=INTEGER}
         </where>
     </select>
     <select id="selectByStatusAndIp" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">

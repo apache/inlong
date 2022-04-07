@@ -28,14 +28,6 @@ public class Constant {
     public static final String URL_SPLITTER = ",";
     public static final String HOST_SPLITTER = ":";
 
-    public static final String SOURCE_FILE = "FILE";
-
-    public static final String SOURCE_SQL = "SQL";
-
-    public static final String SOURCE_BINLOG = "BINLOG";
-
-    public static final String SOURCE_KAFKA = "KAFKA";
-
     public static final String SINK_HIVE = "HIVE";
 
     public static final String SINK_KAFKA = "KAFKA";
@@ -76,10 +68,6 @@ public class Constant {
     public static final String STREAM_ID_IS_EMPTY = "inlong stream id is empty";
 
     public static final String REQUEST_IS_EMPTY = "request is empty";
-
-    public static final String SOURCE_TYPE_IS_EMPTY = "sourceType is empty";
-
-    public static final String SOURCE_TYPE_NOT_SAME = "Expected sourceType is %s, but found %s";
 
     public static final String SINK_TYPE_IS_EMPTY = "sinkType is empty";
 

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.source;
 
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
@@ -51,7 +51,7 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
         sourceInfo.setInlongGroupId(globalGroupId);
         sourceInfo.setInlongStreamId(globalStreamId);
         sourceInfo.setSourceName(sourceName);
-        sourceInfo.setSourceType(Constant.SOURCE_BINLOG);
+        sourceInfo.setSourceType(SourceType.BINLOG.getType());
         return sourceService.save(sourceInfo, globalOperator);
     }
 
@@ -60,7 +60,7 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
         Integer id = this.saveSource();
         Assert.assertNotNull(id);
 
-        boolean result = sourceService.delete(id, Constant.SOURCE_BINLOG, globalOperator);
+        boolean result = sourceService.delete(id, SourceType.BINLOG.getType(), globalOperator);
         Assert.assertTrue(result);
     }
 
@@ -68,16 +68,16 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
     public void testListByIdentifier() {
         Integer id = this.saveSource();
 
-        SourceResponse source = sourceService.get(id, Constant.SOURCE_BINLOG);
+        SourceResponse source = sourceService.get(id, SourceType.BINLOG.getType());
         Assert.assertEquals(globalGroupId, source.getInlongGroupId());
 
-        sourceService.delete(id, Constant.SOURCE_BINLOG, globalOperator);
+        sourceService.delete(id, SourceType.BINLOG.getType(), globalOperator);
     }
 
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSource();
-        SourceResponse response = sourceService.get(id, Constant.SOURCE_BINLOG);
+        SourceResponse response = sourceService.get(id, SourceType.BINLOG.getType());
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         BinlogSourceResponse binlogResponse = (BinlogSourceResponse) response;
@@ -86,7 +86,7 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
         boolean result = sourceService.update(request, globalOperator);
         Assert.assertTrue(result);
 
-        sourceService.delete(id, Constant.SOURCE_BINLOG, globalOperator);
+        sourceService.delete(id, SourceType.BINLOG.getType(), globalOperator);
     }
 
 }
