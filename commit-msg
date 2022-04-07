@@ -1,0 +1,13 @@
+#!/bin/sh
+
+MSG=`awk '{printf("%s",$0)}' $1`
+
+
+if [[ $MSG =~ ^(\[INLONG-[0-9]{1,100}\])(\[[a-zA-Z]+\]) ]]
+then
+	echo -e "\033[32m commit success! \033[0m"
+else
+        echo -e "commit message format error! eg: [INLONG-3160][Manager] describe"
+	exit 1
+fi
+
