@@ -91,7 +91,7 @@ public class FlinkService {
                 return map;
             }
         } catch (Exception e) {
-            log.error("fetch addres:port fail", e.getMessage());
+            log.error("fetch address:port fail: ", e);
         }
         return map;
     }
@@ -144,7 +144,7 @@ public class FlinkService {
             return status;
 
         } catch (Exception e) {
-            log.error("get job status error", e.getMessage());
+            log.error("get job status error: ", e);
         }
         return status;
     }
@@ -163,7 +163,7 @@ public class FlinkService {
             return jobDetailsInfo;
 
         } catch (Exception e) {
-            log.error("get job detail error", e.getMessage());
+            log.error("get job detail error: ", e);
         }
         return jobDetailsInfo;
     }
@@ -194,7 +194,7 @@ public class FlinkService {
                 jobId = result.get().toString();
                 return jobId;
         } catch (Exception e) {
-            log.error("submit job error", e.getMessage());
+            log.error("submit job error: ", e);
         }
         return jobId;
     }
@@ -228,7 +228,7 @@ public class FlinkService {
                 return jobId;
             }
         } catch (Exception e) {
-            log.error("restore job error", e.getMessage());
+            log.error("restore job error: ", e);
         }
         return jobId;
     }
@@ -250,7 +250,7 @@ public class FlinkService {
             return result;
 
         } catch (Exception e) {
-            log.error("stop job error", e.getMessage());
+            log.error("stop job error: ", e);
         }
         return result;
     }
@@ -266,7 +266,7 @@ public class FlinkService {
             JobID jobID = JobID.fromHexString(jobId);
             CompletableFuture<Acknowledge> result = client.cancel(jobID);
         } catch (Exception e) {
-            log.error("cancel job error", e.getMessage());
+            log.error("cancel job error: ", e);
         }
     }
 
