@@ -25,7 +25,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class OnlineOfflineBrokerReq extends BaseReq {
-    private Integer brokerId;
+    private String brokerId;
     private String modifyUser;
     private String confModAuthToken;
 }
