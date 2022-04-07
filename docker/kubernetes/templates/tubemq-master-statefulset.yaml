@@ -102,11 +102,11 @@ spec:
             - >
               /config-scripts/run
           ports:
-            - name: {{ .Values.tubemqMaster.component }}-web-port
+            - name: mstr-web-port
               containerPort: 8080
-            - name: {{ .Values.tubemqMaster.component }}-help-port
+            - name: mstr-help-port
               containerPort: 9001
-            - name: {{ .Values.tubemqMaster.component }}-rpc-port
+            - name: mstr-rpc-port
               containerPort: 8715
           env:
             - name: MY_POD_IP

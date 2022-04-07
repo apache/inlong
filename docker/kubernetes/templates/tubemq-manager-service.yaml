@@ -26,7 +26,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: {{ .Values.tubemqManager.component }}-port
+    - name: tubemq-mgr-port
       protocol: TCP
       port: {{ .Values.tubemqManager.port }}
       targetPort: 8089
