@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.command;
+package org.apache.inlong.manager.client.cli;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,9 +29,9 @@ import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import java.lang.reflect.Field;
 import java.util.List;
 
-abstract class CliCommand {
+abstract class CommandUtil {
 
-    InnerInlongManagerClient connect() {
+    public InnerInlongManagerClient connect() {
         String serviceUrl = "127.0.0.1:8080";
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setAuthentication(new DefaultAuthentication("admin", "inlong"));
@@ -57,7 +57,7 @@ abstract class CliCommand {
                 }
                 System.out.println();
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                System.err.println(e.getMessage());
             }
         });
     }

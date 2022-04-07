@@ -26,24 +26,22 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>manager-command</artifactId>
-    <name>Apache InLong - InLong Admin</name>
+    <artifactId>manager-client-tools</artifactId>
+    <name>Apache InLong - Manager Client Tools</name>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>manager-client</artifactId>
-            <version>1.1.0-incubating-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
-            <version>1.78</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -76,7 +74,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.apache.inlong.manager.command.InlongAdminTool</mainClass>
+                                    <mainClass>org.apache.inlong.manager.client.cli.InlongCommandTool</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

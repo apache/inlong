@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.command;
+package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -25,20 +25,20 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class InlongAdminTool {
+public class InlongCommandTool {
     protected final Map<String, Class<?>> commandMap = new HashMap<>();
     private final JCommander jcommander;
 
     @Parameter(names = {"-h", "--help"}, help = true, description = "Get all command about inlong-admin.")
     boolean help;
 
-    InlongAdminTool() {
+    InlongCommandTool() {
         jcommander = new JCommander();
-        jcommander.setProgramName("inlong-admin");
+        jcommander.setProgramName("inlongctl");
         jcommander.addObject(this);
 
-        commandMap.put("list", CmdList.class);
-        commandMap.put("describe", CmdDescribe.class);
+        commandMap.put("list", CommandList.class);
+        commandMap.put("describe", CommandDescribe.class);
 
         for (Map.Entry<String, Class<?>> cmd : commandMap.entrySet()) {
             try {
@@ -72,12 +72,12 @@ public class InlongAdminTool {
 
         String cmd = args[0];
         JCommander obj = jcommander.getCommands().get(cmd);
-        CmdBase cmdObj = (CmdBase) obj.getObjects().get(0);
+        CommandBase cmdObj = (CommandBase) obj.getObjects().get(0);
         return cmdObj.run(Arrays.copyOfRange(args, 1, args.length));
     }
 
     public static void main(String[] args) {
-        InlongAdminTool inlongAdminTool = new InlongAdminTool();
+        InlongCommandTool inlongAdminTool = new InlongCommandTool();
         if (inlongAdminTool.run(args)) {
             System.exit(0);
         } else {

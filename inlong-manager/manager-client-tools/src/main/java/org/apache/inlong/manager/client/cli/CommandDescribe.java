@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.command;
+package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -29,9 +29,9 @@ import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import java.util.List;
 
 @Parameters(commandDescription = "Display details of one or more resources.")
-public class CmdDescribe extends CmdBase {
+public class CommandDescribe extends CommandBase {
 
-    public CmdDescribe() {
+    public CommandDescribe() {
         super("describe");
         jcommander.addCommand("stream", new DescribeStream());
         jcommander.addCommand("group", new DescribeGroup());
@@ -43,7 +43,7 @@ public class CmdDescribe extends CmdBase {
     private java.util.List<String> params;
 
     @Parameters(commandDescription = "Get stream details")
-    private class DescribeStream extends CliCommand {
+    private class DescribeStream extends CommandUtil {
 
         @Parameter()
         private java.util.List<String> params;
@@ -60,7 +60,7 @@ public class CmdDescribe extends CmdBase {
     }
 
     @Parameters(commandDescription = "Get group details")
-    private class DescribeGroup extends CliCommand {
+    private class DescribeGroup extends CommandUtil {
 
         @Parameter()
         private java.util.List<String> params;
@@ -83,7 +83,7 @@ public class CmdDescribe extends CmdBase {
     }
 
     @Parameters(commandDescription = "Get sink details")
-    private class DescribeSink extends CliCommand {
+    private class DescribeSink extends CommandUtil {
 
         @Parameter()
         private java.util.List<String> params;
@@ -103,7 +103,7 @@ public class CmdDescribe extends CmdBase {
     }
 
     @Parameters(commandDescription = "Get source details")
-    private class DescribeSource extends CliCommand {
+    private class DescribeSource extends CommandUtil {
 
         @Parameter()
         private java.util.List<String> params;

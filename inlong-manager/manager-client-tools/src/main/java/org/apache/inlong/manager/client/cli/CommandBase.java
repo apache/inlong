@@ -15,22 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.command;
+package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
-abstract class CmdBase {
+abstract class CommandBase {
 
     protected final JCommander jcommander;
 
     @Parameter(names = { "-h", "--help" },help = true, hidden = true)
     private boolean help;
 
-    public CmdBase(String cmdName) {
+    public CommandBase(String cmdName) {
         jcommander = new JCommander();
-        jcommander.setProgramName("inlong-admin " + cmdName);
+        jcommander.setProgramName("inlongctl " + cmdName);
     }
 
     public boolean run(String[] args) {
@@ -43,7 +43,6 @@ abstract class CmdBase {
         try {
             jcommander.parse(args);
         } catch (Exception e) {
-            System.err.println("CmdBase-parse");
             System.err.println(e.getMessage());
             jcommander.usage();
             return false;
@@ -55,7 +54,7 @@ abstract class CmdBase {
             return false;
         } else {
             JCommander obj = jcommander.getCommands().get(cmd);
-            CliCommand cmdObj = (CliCommand) obj.getObjects().get(0);
+            CommandUtil cmdObj = (CommandUtil) obj.getObjects().get(0);
             try {
                 cmdObj.run();
                 return true;

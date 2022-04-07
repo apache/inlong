@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.command;
+package org.apache.inlong.manager.client.cli;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 
 @Slf4j
-public class TestCmd {
-    InlongAdminTool inlongAdminTool = new InlongAdminTool();
+public class TestCommand {
+    InlongCommandTool inlongAdminTool = new InlongCommandTool();
 
     @Test
     public void testListGroup() {

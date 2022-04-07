@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.command;
+package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -29,21 +29,21 @@ import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import java.util.List;
 
 @Parameters(commandDescription = "Displays main information for one or more resources.")
-public class CmdList extends CmdBase {
+public class CommandList extends CommandBase {
 
-    public CmdList() {
+    public CommandList() {
         super("list");
-        jcommander.addCommand("stream", new CmdList.ListStream());
-        jcommander.addCommand("group", new CmdList.ListGroup());
-        jcommander.addCommand("sink", new CmdList.ListSink());
-        jcommander.addCommand("source", new CmdList.ListSource());
+        jcommander.addCommand("stream", new CommandList.ListStream());
+        jcommander.addCommand("group", new CommandList.ListGroup());
+        jcommander.addCommand("sink", new CommandList.ListSink());
+        jcommander.addCommand("source", new CommandList.ListSource());
     }
 
     @Parameter()
     private java.util.List<String> params;
 
     @Parameters(commandDescription = "Get stream main information")
-    private class ListStream extends CliCommand {
+    private class ListStream extends CommandUtil {
 
         @Parameter()
         private java.util.List<String> params;
@@ -60,7 +60,7 @@ public class CmdList extends CmdBase {
     }
 
     @Parameters(commandDescription = "Get group details")
-    private class ListGroup extends CliCommand {
+    private class ListGroup extends CommandUtil {
 
         @Parameter()
         private java.util.List<String> params;
@@ -83,7 +83,7 @@ public class CmdList extends CmdBase {
     }
 
     @Parameters(commandDescription = "Get sink details")
-    private class ListSink extends CliCommand {
+    private class ListSink extends CommandUtil {
 
         @Parameter()
         private java.util.List<String> params;
@@ -103,7 +103,7 @@ public class CmdList extends CmdBase {
     }
 
     @Parameters(commandDescription = "Get source details")
-    private class ListSource extends CliCommand {
+    private class ListSource extends CommandUtil {
 
         @Parameter()
         private java.util.List<String> params;

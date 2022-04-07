@@ -40,6 +40,7 @@
         <module>manager-docker</module>
         <module>manager-client</module>
         <module>manager-client-examples</module>
+        <module>manager-client-tools</module>
     </modules>
 
     <properties>
@@ -93,6 +94,7 @@
         <jackson-core>2.13.1</jackson-core>
         <docker.organization>inlong</docker.organization>
         <project.build.encoding>UTF-8</project.build.encoding>
+        <jcommander.version>1.78</jcommander.version>
     </properties>
 
     <dependencies>
@@ -493,6 +495,11 @@
                 <artifactId>h2-functions-4-mysql</artifactId>
                 <version>${h2-mysql.version}</version>
                 <!--<scope>test</scope>-->
+            </dependency>
+            <dependency>
+                <groupId>com.beust</groupId>
+                <artifactId>jcommander</artifactId>
+                <version>${jcommander.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
