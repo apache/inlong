@@ -61,7 +61,7 @@ spec:
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           {{- if .Values.dashboard.resources }}
           resources:
-{{ toYaml .Values.dashboard.resources | indent 12 }}
+            {{- toYaml .Values.dashboard.resources | nindent 12 }}
           {{- end }}
           env:
             - name: MANAGER_API_ADDRESS

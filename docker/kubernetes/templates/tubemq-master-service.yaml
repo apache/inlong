@@ -24,7 +24,7 @@ metadata:
     {{- include "inlong.commonLabels" . | nindent 4 }}
     component: {{ .Values.tubemqMaster.component }}
   annotations:
-{{ toYaml .Values.tubemqMaster.service.annotations | indent 4 }}
+    {{- toYaml .Values.tubemqMaster.service.annotations | nindent 4 }}
 spec:
   type: {{ .Values.tubemqMaster.service.type }}
   ports:

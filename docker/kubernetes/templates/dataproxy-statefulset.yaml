@@ -61,7 +61,7 @@ spec:
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           {{- if .Values.dataproxy.resources }}
           resources:
-{{ toYaml .Values.dataproxy.resources | indent 12 }}
+            {{- toYaml .Values.dataproxy.resources | nindent 12 }}
           {{- end }}
           env:
             - name: MANAGER_OPENAPI_IP

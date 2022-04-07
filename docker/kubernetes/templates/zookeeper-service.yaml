@@ -24,7 +24,7 @@ metadata:
     {{- include "inlong.commonLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}
   annotations:
-{{ toYaml .Values.zookeeper.service.annotations | indent 4 }}
+    {{- toYaml .Values.zookeeper.service.annotations | nindent 4 }}
 spec:
   clusterIP: None
   ports:

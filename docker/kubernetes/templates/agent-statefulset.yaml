@@ -79,7 +79,7 @@ spec:
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           {{- if .Values.agent.resources }}
           resources:
-{{ toYaml .Values.agent.resources | indent 12 }}
+            {{- toYaml .Values.agent.resources | nindent 12 }}
           {{- end }}
           env:
             - name: MANAGER_OPENAPI_IP

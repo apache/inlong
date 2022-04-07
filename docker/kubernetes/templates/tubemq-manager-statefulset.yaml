@@ -79,7 +79,7 @@ spec:
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           {{- if .Values.tubemqManager.resources }}
           resources:
-{{ toYaml .Values.tubemqManager.resources | indent 12 }}
+            {{- toYaml .Values.tubemqManager.resources | nindent 12 }}
           {{- end }}
           env:
             - name: MYSQL_HOST

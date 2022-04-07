@@ -79,7 +79,7 @@ spec:
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           {{- if .Values.audit.resources }}
           resources:
-{{ toYaml .Values.audit.resources | indent 12 }}
+            {{- toYaml .Values.audit.resources | nindent 12 }}
           {{- end }}
           env:
             - name: JDBC_URL

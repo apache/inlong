@@ -31,7 +31,7 @@ spec:
       {{- include "inlong.matchLabels" . | nindent 6 }}
       component: {{ .Values.tubemqMaster.component }}
   updateStrategy:
-{{ toYaml .Values.tubemqMaster.updateStrategy | indent 4 }}
+    {{- toYaml .Values.tubemqMaster.updateStrategy | nindent 4 }}
   podManagementPolicy: {{ .Values.tubemqMaster.podManagementPolicy }}
   template:
     metadata:
@@ -39,15 +39,15 @@ spec:
         {{- include "inlong.template.labels" . | nindent 8 }}
         component: {{ .Values.tubemqMaster.component }}
       annotations:
-{{ toYaml .Values.tubemqMaster.annotations | indent 8 }}
+        {{- toYaml .Values.tubemqMaster.annotations | nindent 8 }}
     spec:
       {{- if .Values.tubemqMaster.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.tubemqMaster.nodeSelector | indent 8 }}
+        {{- toYaml .Values.tubemqMaster.nodeSelector | nindent 8 }}
       {{- end }}
       {{- if .Values.tubemqMaster.tolerations }}
       tolerations:
-{{ toYaml .Values.tubemqMaster.tolerations | indent 8 }}
+        {{- toYaml .Values.tubemqMaster.tolerations | nindent 8 }}
       {{- end }}
       initContainers:
         - name: wait-{{ .Values.zookeeper.component }}-ready
@@ -95,7 +95,7 @@ spec:
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           {{- if .Values.tubemqMaster.resources }}
           resources:
-{{ toYaml .Values.tubemqMaster.resources | indent 12 }}
+            {{- toYaml .Values.tubemqMaster.resources | nindent 12 }}
           {{- end }}
           command: [ "/bin/sh", "-c" ]
           args:

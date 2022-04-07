@@ -43,7 +43,7 @@ spec:
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           {{- if .Values.mysql.resources }}
           resources:
-{{ toYaml .Values.mysql.resources | indent 12 }}
+            {{- toYaml .Values.mysql.resources | nindent 12 }}
           {{- end }}
           env:
             - name: MYSQL_ROOT_PASSWORD

@@ -31,7 +31,7 @@ spec:
       {{- include "inlong.matchLabels" . | nindent 6 }}
       component: {{ .Values.zookeeper.component }}
   updateStrategy:
-{{ toYaml .Values.zookeeper.updateStrategy | indent 4 }}
+    {{- toYaml .Values.zookeeper.updateStrategy | nindent 4 }}
   podManagementPolicy: {{ .Values.zookeeper.podManagementPolicy }}
   template:
     metadata:
@@ -39,15 +39,15 @@ spec:
         {{- include "inlong.template.labels" . | nindent 8 }}
         component: {{ .Values.zookeeper.component }}
       annotations:
-{{ toYaml .Values.zookeeper.annotations | indent 8 }}
+        {{- toYaml .Values.zookeeper.annotations | nindent 8 }}
     spec:
       {{- if .Values.zookeeper.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.zookeeper.nodeSelector | indent 8 }}
+        {{- toYaml .Values.zookeeper.nodeSelector | nindent 8 }}
       {{- end }}
       {{- if .Values.zookeeper.tolerations }}
       tolerations:
-{{ toYaml .Values.zookeeper.tolerations | indent 8 }}
+        {{- toYaml .Values.zookeeper.tolerations | nindent 8 }}
       {{- end }}
       affinity:
         {{- if .Values.affinity.anti_affinity }}
@@ -76,7 +76,7 @@ spec:
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           {{- if .Values.zookeeper.resources }}
           resources:
-{{ toYaml .Values.zookeeper.resources | indent 12 }}
+            {{- toYaml .Values.zookeeper.resources | nindent 12 }}
           {{- end }}
           command: [ "/bin/sh", "-c" ]
           args:
