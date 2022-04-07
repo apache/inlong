@@ -49,12 +49,19 @@ import org.apache.inlong.manager.plugin.util.FlinkConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 public class FlinkService {
+
+    private static final Pattern numberPattern = Pattern.compile("(\\d+\\.\\d+\\.\\d+\\.\\d+)\\:(\\d+)");
+
     private final FlinkConfig flinkConfig;
     private final Integer port;
     private final Integer jobManagerPort;
@@ -63,16 +70,41 @@ public class FlinkService {
     private final Integer parallelism;
     private final String savepointDirectory;
 
-    public FlinkService() throws IOException {
+    public FlinkService(String endpoint) throws IOException {
         FlinkConfiguration flinkConfiguration = new FlinkConfiguration();
         flinkConfig = flinkConfiguration.getFlinkConfig();
-        address = flinkConfig.getAddress();
-        port = flinkConfig.getPort();
         jobManagerPort = flinkConfig.getJobManagerPort();
         parallelism = flinkConfig.getParallelism();
         savepointDirectory = flinkConfig.getSavepointDirectory();
+        if (StringUtils.isEmpty(endpoint)) {
+            address = flinkConfig.getAddress();
+            port = flinkConfig.getPort();
+        } else {
+            address = translateFromEndpont(endpoint).get("address");
+            port = Integer.valueOf(translateFromEndpont(endpoint).get("port"));
+        }
         urlHead = Constants.HTTP_URL +  address + Constants.SEPARATOR + port;
+    }
 
+    /**
+     * translate  Endpont to address & port
+     *
+     * @param endpoint
+     * @return
+     */
+    private Map<String, String> translateFromEndpont(String endpoint) {
+        Map<String, String> map = new HashMap<>(2);
+        try {
+            Matcher matcher = numberPattern.matcher(endpoint);
+            while (matcher.find()) {
+                map.put("address", matcher.group(1));
+                map.put("port", matcher.group(2));
+                return map;
+            }
+        } catch (Exception e) {
+            log.error("fetch addres:port fail", e.getMessage());
+        }
+        return map;
     }
 
     /**

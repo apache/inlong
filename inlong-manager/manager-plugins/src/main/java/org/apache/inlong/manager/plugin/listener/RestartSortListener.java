@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.plugin.flink.Constants;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.ManagerFlinkTask;
@@ -99,10 +100,16 @@ public class RestartSortListener implements SortOperateListener {
         }
         String jobName = Constants.INLONG + context.getProcessForm().getInlongGroupId();
         FlinkInfo flinkInfo = new FlinkInfo();
-        flinkInfo.setJobId(kvConf.get(InlongGroupSettings.SORT_JOB_ID));
         flinkInfo.setJobName(jobName);
 
-        FlinkService flinkService = new FlinkService();
+        String jobId = kvConf.get(InlongGroupSettings.SORT_JOB_ID);
+        Preconditions.checkNotEmpty(jobId, "sort jobId is empty");
+        flinkInfo.setJobId(jobId);
+
+        String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
+        flinkInfo.setEndpoint(sortUrl);
+
+        FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());
         ManagerFlinkTask managerFlinkTask = new ManagerFlinkTask(flinkService);
         managerFlinkTask.genPath(flinkInfo,dataFlow.toString());
 

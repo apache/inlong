@@ -43,7 +43,7 @@ public class RestartSortListenerTest {
 
         InlongGroupExtInfo inlongGroupExtInfo1 = new InlongGroupExtInfo();
         inlongGroupExtInfo1.setKeyName(InlongGroupSettings.SORT_URL);
-        inlongGroupExtInfo1.setKeyValue("127.0.0.1:8085");
+        inlongGroupExtInfo1.setKeyValue("127.0.0.1:8081");
         List<InlongGroupExtInfo> inlongGroupExtInfoList = new ArrayList<>();
         inlongGroupExtInfoList.add(inlongGroupExtInfo1);
 
@@ -57,7 +57,7 @@ public class RestartSortListenerTest {
 
         InlongGroupExtInfo inlongGroupExtInfo5 = new InlongGroupExtInfo();
         inlongGroupExtInfo5.setKeyName(InlongGroupSettings.SORT_JOB_ID);
-        inlongGroupExtInfo5.setKeyValue("52c8977bd28365cdd23ad4ea4cd767a4");
+        inlongGroupExtInfo5.setKeyValue("efdc85a977e72e0d9a99170d78f03ddb");
         inlongGroupExtInfoList.add(inlongGroupExtInfo5);
 
         InlongGroupExtInfo inlongGroupExtInfo6 = new InlongGroupExtInfo();

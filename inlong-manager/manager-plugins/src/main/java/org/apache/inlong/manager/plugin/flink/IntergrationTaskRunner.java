@@ -170,7 +170,13 @@ public class IntergrationTaskRunner implements Runnable {
                         String status = jobStatus.get("id").asText();
                         String savepointPath = operation.get("location").asText();
                         flinkInfo.setSavepointPath(savepointPath);
-                        log.info("the jobId :{} status: {} ", flinkInfo.getJobId(),status);
+                        log.info("the jobId {} status: {} ", flinkInfo.getJobId(),status);
+                    }
+                    JobStatus jobStatus = flinkService.getJobStatus(flinkInfo.getJobId());
+                    if (jobStatus.isTerminalState()) {
+                        log.info("stop job {}, status: {}, success in backend", flinkInfo.getJobId(), jobStatus);
+                    } else {
+                        log.info("stop job {}, status: {}, fail in backend", flinkInfo.getJobId(), jobStatus);
                     }
                 } catch (Exception e) {
                     String msg = String.format("stop job %s failed in backend exception[%s]", flinkInfo.getJobId(),

@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.ManagerFlinkTask;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
@@ -68,17 +69,17 @@ public class DeleteSortListener implements SortOperateListener {
         Map<String, String> result = objectMapper.convertValue(objectMapper.readTree(sortExt),
                 new TypeReference<Map<String, String>>(){});
         kvConf.putAll(result);
-        if (StringUtils.isEmpty(kvConf.get(InlongGroupSettings.SORT_JOB_ID))) {
-            String message = String.format("inlongGroupId:%s not add deleteProcess listener,SORT_JOB_ID is empty",
-                    inlongGroupId);
-            log.warn(message);
-            return ListenerResult.fail(message);
-        }
+
         FlinkInfo flinkInfo = new FlinkInfo();
 
-        flinkInfo.setJobId(kvConf.get(InlongGroupSettings.SORT_JOB_ID));
+        String jobId = kvConf.get(InlongGroupSettings.SORT_JOB_ID);
+        Preconditions.checkNotEmpty(jobId, "sort jobId is empty");
+        flinkInfo.setJobId(jobId);
 
-        FlinkService flinkService = new FlinkService();
+        String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
+        flinkInfo.setEndpoint(sortUrl);
+
+        FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());
         ManagerFlinkTask managerFlinkTask = new ManagerFlinkTask(flinkService);
 
         try {
