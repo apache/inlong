@@ -38,6 +38,7 @@
         <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
+            <version>${jcommander.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

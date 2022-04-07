@@ -54,8 +54,12 @@ public class CommandList extends CommandBase {
         @Override
         void run() {
             InnerInlongManagerClient managerClient = connect();
-            List<FullStreamResponse> fullStreamResponseList = managerClient.listStreamInfo(groupId);
-            print(fullStreamResponseList,FullStreamResponse.class);
+            try {
+                List<FullStreamResponse> fullStreamResponseList = managerClient.listStreamInfo(groupId);
+                print(fullStreamResponseList, FullStreamResponse.class);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
@@ -77,8 +81,12 @@ public class CommandList extends CommandBase {
         @Override
         void run() {
             InnerInlongManagerClient managerClient = connect();
-            PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, status, 1, pageSize);
-            print(groupPageInfo.getList(),InlongGroupListResponse.class);
+            try {
+                PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, status, 1, pageSize);
+                print(groupPageInfo.getList(), InlongGroupListResponse.class);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
@@ -97,8 +105,12 @@ public class CommandList extends CommandBase {
         @Override
         void run() {
             InnerInlongManagerClient managerClient = connect();
-            List<SinkListResponse> sinkListResponses = managerClient.listSinks(group, stream);
-            print(sinkListResponses,SinkListResponse.class);
+            try {
+                List<SinkListResponse> sinkListResponses = managerClient.listSinks(group, stream);
+                print(sinkListResponses, SinkListResponse.class);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
@@ -120,8 +132,12 @@ public class CommandList extends CommandBase {
         @Override
         void run() {
             InnerInlongManagerClient managerClient = connect();
-            List<SourceListResponse> sourceListResponses = managerClient.listSources(group, stream, type);
-            print(sourceListResponses,SourceListResponse.class);
+            try {
+                List<SourceListResponse> sourceListResponses = managerClient.listSources(group, stream, type);
+                print(sourceListResponses, SourceListResponse.class);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 }

@@ -26,15 +26,33 @@ import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Properties;
 
 abstract class CommandUtil {
 
     public InnerInlongManagerClient connect() {
-        String serviceUrl = "127.0.0.1:8080";
+        Properties properties = new Properties();
+        String currentPath = System.getProperty("user.dir");
+        String confPath = new File(currentPath).getParent() + "/conf/application.properties";
+        try {
+            InputStream inputStream = new BufferedInputStream(new FileInputStream(confPath));
+            properties.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String serviceUrl = properties.getProperty("server.host") + ":" + properties.getProperty("server.port");
+        String user = properties.getProperty("default.admin.user");
+        String password = properties.getProperty("default.admin.password");
+
         ClientConfiguration configuration = new ClientConfiguration();
-        configuration.setAuthentication(new DefaultAuthentication("admin", "inlong"));
+        configuration.setAuthentication(new DefaultAuthentication(user, password));
         InlongClientImpl inlongClient = new InlongClientImpl(serviceUrl, configuration);
         return new InnerInlongManagerClient(inlongClient.getConfiguration());
     }
@@ -45,21 +63,23 @@ abstract class CommandUtil {
             System.out.printf("%-30s", f.getName());
         }
         System.out.println();
-        item.forEach(t -> {
-            try {
-                for (Field f : fields) {
-                    f.setAccessible(true);
-                    if (f.get(t) != null) {
-                        System.out.printf("%-30s", f.get(t).toString());
-                    } else {
-                        System.out.printf("%-30s", "NULL");
+        if (!item.isEmpty()) {
+            item.forEach(t -> {
+                try {
+                    for (Field f : fields) {
+                        f.setAccessible(true);
+                        if (f.get(t) != null) {
+                            System.out.printf("%-30s", f.get(t).toString());
+                        } else {
+                            System.out.printf("%-30s", "NULL");
+                        }
                     }
+                    System.out.println();
+                } catch (IllegalAccessException e) {
+                    System.out.println(e.getMessage());
                 }
-                System.out.println();
-            } catch (IllegalAccessException e) {
-                System.err.println(e.getMessage());
-            }
-        });
+            });
+        }
     }
 
     <T> void printJson(T item) {

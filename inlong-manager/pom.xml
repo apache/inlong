@@ -496,11 +496,6 @@
                 <version>${h2-mysql.version}</version>
                 <!--<scope>test</scope>-->
             </dependency>
-            <dependency>
-                <groupId>com.beust</groupId>
-                <artifactId>jcommander</artifactId>
-                <version>${jcommander.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     <repositories>
