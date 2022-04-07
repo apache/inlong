@@ -30,7 +30,6 @@ import org.apache.flink.configuration.JobManagerOptions;
 import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
-import org.apache.flink.runtime.messages.Acknowledge;
 import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
@@ -142,7 +141,6 @@ public class FlinkService {
             CompletableFuture<JobStatus> jobStatus = client.getJobStatus(jobID);
             status = jobStatus.get();
             return status;
-
         } catch (Exception e) {
             log.error("get job status error: ", e);
         }
@@ -240,19 +238,17 @@ public class FlinkService {
      * @return
      */
     public String stopJobs(String jobId, StopWithSavepointRequestBody requestBody) {
-        String result = null;
         try {
             RestClusterClient<StandaloneClusterId> client = getFlinkClient();
             JobID jobID = JobID.fromHexString(jobId);
             CompletableFuture<String> stopResult =
                     client.stopWithSavepoint(jobID,requestBody.isDrain(),requestBody.getTargetDirectory());
-            result = stopResult.get();
+            String result = stopResult.get();
             return result;
-
         } catch (Exception e) {
             log.error("stop job error: ", e);
         }
-        return result;
+        return null;
     }
 
     /**
@@ -264,7 +260,7 @@ public class FlinkService {
         try {
             RestClusterClient<StandaloneClusterId> client = getFlinkClient();
             JobID jobID = JobID.fromHexString(jobId);
-            CompletableFuture<Acknowledge> result = client.cancel(jobID);
+            client.cancel(jobID);
         } catch (Exception e) {
             log.error("cancel job error: ", e);
         }

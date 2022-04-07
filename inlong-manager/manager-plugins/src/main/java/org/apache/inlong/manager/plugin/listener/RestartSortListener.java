@@ -80,8 +80,8 @@ public class RestartSortListener implements SortOperateListener {
         }
         String dataFlows = kvConf.get(InlongGroupSettings.DATA_FLOW);
         if (StringUtils.isEmpty(dataFlows)) {
-            String message = String.format("inlongGroupId:{} not add restartProcess listener, dataflows is empty",
-                    inlongGroupId);
+            String message = String.format("groupId [%s] not add restartProcess listener, "
+                    + "as the sortProperties is empty", inlongGroupId);
             log.warn(message);
             return ListenerResult.fail(message);
         }
