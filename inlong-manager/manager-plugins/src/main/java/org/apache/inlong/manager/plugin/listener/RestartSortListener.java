@@ -43,7 +43,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
-import static org.apache.inlong.manager.plugin.util.FlinkUtils.getValue;
 
 @Slf4j
 public class RestartSortListener implements SortOperateListener {
@@ -108,7 +107,7 @@ public class RestartSortListener implements SortOperateListener {
         flinkInfo.setJobId(jobId);
 
         String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
-        flinkInfo.setEndpoint(getValue(sortUrl,""));
+        flinkInfo.setEndpoint(sortUrl);
 
         FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());
         ManagerFlinkTask managerFlinkTask = new ManagerFlinkTask(flinkService);

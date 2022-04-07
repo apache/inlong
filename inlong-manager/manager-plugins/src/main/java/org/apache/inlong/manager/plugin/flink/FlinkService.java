@@ -76,7 +76,7 @@ public class FlinkService {
         jobManagerPort = flinkConfig.getJobManagerPort();
         parallelism = flinkConfig.getParallelism();
         savepointDirectory = flinkConfig.getSavepointDirectory();
-        if (endpoint.length() == 0) {
+        if (StringUtils.isEmpty(endpoint)) {
             address = flinkConfig.getAddress();
             port = flinkConfig.getPort();
         } else {

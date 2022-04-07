@@ -42,7 +42,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
-import static org.apache.inlong.manager.plugin.util.FlinkUtils.getValue;
 
 @Slf4j
 public class StartupSortListener implements SortOperateListener {
@@ -94,7 +93,7 @@ public class StartupSortListener implements SortOperateListener {
         parseDataflow(dataFlow, flinkInfo);
 
         String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
-        flinkInfo.setEndpoint(getValue(sortUrl,""));
+        flinkInfo.setEndpoint(sortUrl);
 
         String jobName = Constants.INLONG + context.getProcessForm().getInlongGroupId();
         flinkInfo.setJobName(jobName);
