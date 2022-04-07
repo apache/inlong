@@ -27,6 +27,7 @@ import FormGenerator, {
   FormItemProps,
   FormGeneratorProps,
 } from '@/components/FormGenerator';
+import i18n from '@/i18n';
 import { Storages, StoragesType } from '@/components/MetaData';
 
 export interface DetailModalProps extends ModalProps {
@@ -186,10 +187,25 @@ const Comp: React.FC<DetailModalProps> = ({
       {
         name: 'sinkName',
         type: 'input',
-        label: t('components.AccessHelper.DataStorageEditor.SinkName'),
-        rules: [{ required: true }],
+        label: t('components.AccessHelper.StorageMetaData.SinkName'),
+        rules: [
+          { required: true },
+          {
+            pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
+            message: t('components.AccessHelper.StorageMetaData.SinkNameRule'),
+          },
+        ],
         props: {
           disabled: !!id,
+        },
+      },
+      {
+        name: 'description',
+        type: 'textarea',
+        label: t('components.AccessHelper.StorageMetaData.Description'),
+        props: {
+          showCount: true,
+          maxLength: 300,
         },
       } as FormItemProps,
     ].concat(config);

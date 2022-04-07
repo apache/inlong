@@ -29,6 +29,8 @@ import EditableTable from '@/components/EditableTable';
 import { excludeObject } from '@/utils';
 import TextSwitch from '@/components/TextSwitch';
 import { sourceDataFields } from './SourceDataFields';
+import { Button, message } from 'antd';
+import request from '@/utils/request';
 
 const icebergFieldTypes = [
   'string',
@@ -104,13 +106,13 @@ const matchPartitionStrategies = fieldType => {
 
 const getForm: GetStorageFormFieldsType = (
   type: 'form' | 'col' = 'form',
-  { currentValues, isEdit, dataType } = {} as any,
+  { currentValues, isEdit, dataType, form } = {} as any,
 ) => {
   const fileds = [
     {
       name: 'dbName',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.Db'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.DbName'),
       rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -128,27 +130,96 @@ const getForm: GetStorageFormFieldsType = (
       _inTable: true,
     },
     {
-      name: 'dataType',
-      type: 'select',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.DataType'),
-      initialValue: 'Iceberg',
+      type: 'radio',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.EnableCreateResource'),
+      name: 'enableCreateResource',
       rules: [{ required: true }],
+      initialValue: 1,
+      tooltip: i18n.t('components.AccessHelper.StorageMetaData.Hive.EnableCreateResourceHelp'),
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         options: [
           {
-            label: 'Iceberg',
-            value: 'Iceberg',
+            label: i18n.t('basic.Yes'),
+            value: 1,
+          },
+          {
+            label: i18n.t('basic.No'),
+            value: 0,
           },
         ],
       },
     },
     {
-      name: 'fileType',
-      type: 'select',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.FileType'),
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.Username'),
+      name: 'username',
       rules: [{ required: true }],
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+      },
+      _inTable: true,
+    },
+    {
+      type: 'password',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.Password'),
+      name: 'password',
+      rules: [{ required: true }],
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+        style: {
+          maxWidth: 500,
+        },
+      },
+    },
+    {
+      type: 'input',
+      label: 'JDBC URL',
+      name: 'jdbcUrl',
+      rules: [{ required: true }],
+      props: {
+        placeholder: 'jdbc:hive2://127.0.0.1:10000',
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+        style: { width: 500 },
+      },
+      suffix: (
+        <Button
+          onClick={async () => {
+            const values = await form.validateFields(['username', 'password', 'jdbcUrl']);
+            const res = await request({
+              url: '/sink/query/testConnection',
+              method: 'POST',
+              data: values,
+            });
+            res
+              ? message.success(
+                  i18n.t('components.AccessHelper.StorageMetaData.Hive.ConnectionSucceeded'),
+                )
+              : message.error(
+                  i18n.t('components.AccessHelper.StorageMetaData.Hive.ConnectionFailed'),
+                );
+          }}
+        >
+          {i18n.t('components.AccessHelper.StorageMetaData.Hive.ConnectionTest')}
+        </Button>
+      ),
+    },
+    {
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.DataPath'),
+      name: 'dataPath',
+      rules: [{ required: true }],
+      props: {
+        placeholder: 'hdfs://127.0.0.1:9000/user/iceberg/warehouse',
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+      },
+    },
+    {
+      name: 'fileFormat',
+      type: 'radio',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.FileFormat'),
       initialValue: 'Parquet',
+      rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         options: [
@@ -165,16 +236,6 @@ const getForm: GetStorageFormFieldsType = (
             value: 'Avro',
           },
         ],
-      },
-      _inTable: true,
-    },
-    {
-      name: 'description',
-      type: 'textarea',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.Description'),
-      props: {
-        showCount: true,
-        maxLength: 30,
       },
     },
     {
@@ -225,7 +286,7 @@ const getForm: GetStorageFormFieldsType = (
       hidden: !currentValues?._showHigher,
     },
     {
-      name: 'icebergFieldList',
+      name: 'fieldList',
       type: EditableTable,
       props: {
         size: 'small',

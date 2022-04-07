@@ -83,7 +83,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'dbName',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.Db'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.DbName'),
       rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -93,7 +93,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'tableName',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.Table'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.TableName'),
       rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),

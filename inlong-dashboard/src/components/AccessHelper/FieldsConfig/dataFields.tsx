@@ -76,7 +76,6 @@ export default (
       label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamName'),
       name: 'name',
       initialValue: currentValues.name,
-      rules: [{ required: false }],
     },
     {
       type: 'textarea',
@@ -87,7 +86,6 @@ export default (
         maxLength: 100,
       },
       initialValue: currentValues.desc,
-      rules: [{ required: false }],
     },
     {
       type: 'radio',
