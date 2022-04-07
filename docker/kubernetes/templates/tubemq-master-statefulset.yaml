@@ -60,7 +60,7 @@ spec:
               for i in $(seq 0 $(expr $count - 1))
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}-$i"
-                host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}.{{ .Release.Namespace }}.svc.cluster.local"
+                host="$replica.{{ template "inlong.zookeeper.hostname" . }}"
                 port={{ .Values.zookeeper.ports.client }}
                 until [ $(echo ruok | nc $host $port ) = 'imok' ]
                 do

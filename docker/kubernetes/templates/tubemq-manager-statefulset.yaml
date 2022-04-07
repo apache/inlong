@@ -47,9 +47,9 @@ spec:
               for i in $(seq 0 $(expr $count - 1))
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-$i"
-                host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}.{{ .Release.Namespace }}.svc.cluster.local"
+                host="$replica.{{ template "inlong.mysql.hostname" . }}"
                 port={{ .Values.mysql.ports.server }}
-                until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
+                until nc -z $host $port 2>/dev/null
                 do
                   echo "waiting for $replica to be ready"
                   sleep 3
@@ -65,9 +65,9 @@ spec:
               for i in $(seq 0 $(expr $count - 1))
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-$i"
-                host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}.{{ .Release.Namespace }}.svc.cluster.local"
+                host="$replica.{{ template "inlong.tubemqMaster.hostname" . }}"
                 port={{ .Values.tubemqMaster.ports.webPort }}
-                until curl $host:$port/index.htm
+                until nc -z $host $port 2>/dev/null
                 do
                   echo "waiting for $replica to be ready"
                   sleep 3

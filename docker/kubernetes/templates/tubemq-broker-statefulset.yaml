@@ -51,7 +51,7 @@ spec:
       {{- end }}
       initContainers:
         - name: wait-{{ .Values.tubemqMaster.component }}-ready
-          image: {{ .Values.images.tubemqServer.repository }}:{{ .Values.images.tubemqServer.tag }}
+          image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           command: [ "/bin/sh", "-c" ]
           args:
@@ -60,9 +60,9 @@ spec:
               for i in $(seq 0 $(expr $count - 1))
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-$i"
-                host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}.{{ .Release.Namespace }}.svc.cluster.local"
+                host="$replica.{{ template "inlong.tubemqMaster.hostname" . }}"
                 port={{ .Values.tubemqMaster.ports.webPort }}
-                until curl $host:$port/index.htm
+                until nc -z $host $port 2>/dev/null
                 do
                   echo "waiting for $replica to be ready"
                   sleep 3

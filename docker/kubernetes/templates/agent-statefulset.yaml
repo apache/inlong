@@ -37,42 +37,42 @@ spec:
         component: {{ .Values.agent.component }}
     spec:
       initContainers:
-      - name: wait-{{ .Values.dashboard.component }}-ready
-        image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
-        imagePullPolicy: {{ .Values.images.pullPolicy }}
-        command: [ "/bin/sh", "-c" ]
-        args:
-          - |
-            count={{ .Values.dashboard.replicaCount }}
-            for i in $(seq 0 $(expr $count - 1))
-            do
-              replica="{{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }}-$i"
-              host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-              port={{ .Values.dashboard.port }}
-              until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
+        - name: wait-{{ .Values.dashboard.component }}-ready
+          image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
+          imagePullPolicy: {{ .Values.images.pullPolicy }}
+          command: [ "/bin/sh", "-c" ]
+          args:
+            - |
+              count={{ .Values.dashboard.replicaCount }}
+              for i in $(seq 0 $(expr $count - 1))
               do
-                echo "waiting for $replica to be ready"
-                sleep 3
+                replica="{{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }}-$i"
+                host="$replica.{{ template "inlong.dashboard.hostname" . }}"
+                port={{ .Values.dashboard.port }}
+                until nc -z $host $port 2>/dev/null
+                do
+                  echo "waiting for $replica to be ready"
+                  sleep 3
+                done
               done
-            done
-      - name: wait-{{ .Values.dataproxy.component }}-ready
-        image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
-        imagePullPolicy: {{ .Values.images.pullPolicy }}
-        command: [ "/bin/sh", "-c" ]
-        args:
-          - |
-            count={{ .Values.dataproxy.replicaCount }}
-            for i in $(seq 0 $(expr $count - 1))
-            do
-              replica="{{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}-$i"
-              host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-              port={{ .Values.dataproxy.port }}
-              until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
+        - name: wait-{{ .Values.dataproxy.component }}-ready
+          image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
+          imagePullPolicy: {{ .Values.images.pullPolicy }}
+          command: [ "/bin/sh", "-c" ]
+          args:
+            - |
+              count={{ .Values.dataproxy.replicaCount }}
+              for i in $(seq 0 $(expr $count - 1))
               do
-                echo "waiting for $replica to be ready"
-                sleep 3
+                replica="{{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}-$i"
+                host="$replica.{{ template "inlong.dataproxy.hostname" . }}"
+                port={{ .Values.dataproxy.port }}
+                until nc -z $host $port 2>/dev/null
+                do
+                  echo "waiting for $replica to be ready"
+                  sleep 3
+                done
               done
-            done
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.agent.component }}
           image: {{ .Values.images.agent.repository }}:{{ .Values.images.agent.tag }}

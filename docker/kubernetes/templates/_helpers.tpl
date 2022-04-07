@@ -81,6 +81,13 @@ Define the audit hostname
 {{- end -}}
 
 {{/*
+Define the dashboard hostname
+*/}}
+{{- define "inlong.dashboard.hostname" -}}
+{{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{- end -}}
+
+{{/*
 Define the manager hostname
 */}}
 {{- define "inlong.manager.hostname" -}}
