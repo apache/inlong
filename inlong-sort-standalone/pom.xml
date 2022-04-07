@@ -162,6 +162,10 @@
                     <groupId>commons-io</groupId>
                     <artifactId>commons-io</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-annotations</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -250,6 +254,10 @@
                 <exclusion>
                     <artifactId>protobuf-java</artifactId>
                     <groupId>com.google.protobuf</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.openjdk.jol</groupId>
+                    <artifactId>jol-core</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
