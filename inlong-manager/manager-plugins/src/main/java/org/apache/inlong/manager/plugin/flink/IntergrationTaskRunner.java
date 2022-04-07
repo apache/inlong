@@ -176,7 +176,7 @@ public class IntergrationTaskRunner implements Runnable {
                     if (jobStatus.isTerminalState()) {
                         log.info("stop job {}, status: {}, success in backend", flinkInfo.getJobId(), jobStatus);
                     } else {
-                        log.info("stop job {}, status: {}, fail in backend", flinkInfo.getJobId(),jobStatus);
+                        log.info("stop job {}, status: {}, fail in backend", flinkInfo.getJobId(), jobStatus);
                     }
                 } catch (Exception e) {
                     String msg = String.format("stop job %s failed in backend exception[%s]", flinkInfo.getJobId(),
