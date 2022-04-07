@@ -43,6 +43,18 @@ public class SinkFieldBase {
     @ApiModelProperty("Source field type")
     private String sourceFieldType;
 
+    @ApiModelProperty("Field length")
+    private Integer fieldLength;
+
+    @ApiModelProperty("Field precision")
+    private Integer fieldPrecision;
+
+    @ApiModelProperty("Field scale")
+    private Integer fieldScale;
+
+    @ApiModelProperty("Partition strategy, including: Identity, Year, Month, Day, Hour, Bucket")
+    private String partitionStrategy;
+
     @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
             + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
     private String fieldFormat;

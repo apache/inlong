@@ -109,7 +109,7 @@ public class HiveStreamSinkOperation implements StreamSinkOperation {
     @Override
     public void saveFieldOpt(SinkRequest request) {
         List<SinkFieldRequest> fieldList = request.getFieldList();
-        LOGGER.info("begin to save field={}", fieldList);
+        LOGGER.info("begin to save hive field={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
         }

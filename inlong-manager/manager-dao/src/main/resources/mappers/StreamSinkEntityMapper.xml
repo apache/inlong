@@ -27,7 +27,7 @@
         <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
         <result column="sink_type" jdbcType="VARCHAR" property="sinkType"/>
         <result column="sink_name" jdbcType="VARCHAR" property="sinkName"/>
-        <result column="storage_period" jdbcType="INTEGER" property="storagePeriod"/>
+        <result column="description" jdbcType="INTEGER" property="description"/>
         <result column="enable_create_resource" jdbcType="TINYINT" property="enableCreateResource"/>
         <result column="ext_params" jdbcType="VARCHAR" property="extParams"/>
         <result column="operate_log" jdbcType="VARCHAR" property="operateLog"/>
@@ -42,8 +42,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id
-        , inlong_group_id, inlong_stream_id, sink_type, sink_name, storage_period, enable_create_resource, ext_params,
+        id, inlong_group_id, inlong_stream_id, sink_type, sink_name, description, enable_create_resource, ext_params,
         operate_log, status, previous_status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
 
@@ -164,7 +163,7 @@
         sink.inlong_group_id,
         sink.inlong_stream_id,
         sink.sink_type,
-        sink.storage_period,
+        sink.description,
         sink.enable_create_resource,
         sink.ext_params,
         sink.status,
@@ -173,7 +172,6 @@
         stream.mq_resource_obj,
         stream.data_source_type,
         stream.data_type,
-        stream.description,
         stream.data_separator as sourceSeparator,
         stream.data_escape_char
         from inlong_stream stream, stream_sink sink
@@ -198,13 +196,13 @@
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         insert into stream_sink (id, inlong_group_id, inlong_stream_id,
-                                 sink_type, sink_name, storage_period,
+                                 sink_type, sink_name, description,
                                  enable_create_resource, ext_params,
                                  operate_log, status, previous_status,
                                  is_deleted, creator, modifier,
                                  create_time, modify_time)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
-                #{sinkType,jdbcType=VARCHAR}, #{sinkName,jdbcType=VARCHAR}, #{storagePeriod,jdbcType=INTEGER},
+                #{sinkType,jdbcType=VARCHAR}, #{sinkName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
                 #{enableCreateResource,jdbcType=TINYINT}, #{extParams,jdbcType=VARCHAR},
                 #{operateLog,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER},
                 #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
@@ -229,8 +227,8 @@
             <if test="sinkName != null">
                 sink_name,
             </if>
-            <if test="storagePeriod != null">
-                storage_period,
+            <if test="description != null">
+                description,
             </if>
             <if test="enableCreateResource != null">
                 enable_create_resource,
@@ -279,8 +277,8 @@
             <if test="sinkName != null">
                 #{sinkName,jdbcType=VARCHAR},
             </if>
-            <if test="storagePeriod != null">
-                #{storagePeriod,jdbcType=INTEGER},
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
             </if>
             <if test="enableCreateResource != null">
                 #{enableCreateResource,jdbcType=TINYINT},
@@ -325,8 +323,8 @@
             <if test="inlongStreamId != null">
                 inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
             </if>
-            <if test="storagePeriod != null">
-                storage_period = #{storagePeriod,jdbcType=INTEGER},
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
             </if>
             <if test="sinkType != null">
                 sink_type = #{sinkType,jdbcType=VARCHAR},
@@ -373,7 +371,7 @@
             inlong_stream_id       = #{inlongStreamId,jdbcType=VARCHAR},
             sink_type              = #{sinkType,jdbcType=VARCHAR},
             sink_name              = #{sinkName,jdbcType=VARCHAR},
-            storage_period         = #{storagePeriod,jdbcType=INTEGER},
+            description            = #{description,jdbcType=VARCHAR},
             enable_create_resource = #{enableCreateResource,jdbcType=TINYINT},
             ext_params             = #{extParams,jdbcType=VARCHAR},
             operate_log            = #{operateLog,jdbcType=VARCHAR},

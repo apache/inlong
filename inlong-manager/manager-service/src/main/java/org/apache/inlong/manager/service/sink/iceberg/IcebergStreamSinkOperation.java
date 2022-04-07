@@ -103,7 +103,7 @@ public class IcebergStreamSinkOperation implements StreamSinkOperation {
     @Override
     public void saveFieldOpt(SinkRequest request) {
         List<SinkFieldRequest> fieldList = request.getFieldList();
-        LOGGER.info("begin to save field={}", fieldList);
+        LOGGER.info("begin to save iceberg field={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
         }
@@ -128,7 +128,7 @@ public class IcebergStreamSinkOperation implements StreamSinkOperation {
         }
 
         sinkFieldMapper.insertAll(entityList);
-        LOGGER.info("success to save hive field");
+        LOGGER.info("success to save iceberg field");
     }
 
     @Override

@@ -31,28 +31,41 @@
         <result column="field_comment" jdbcType="VARCHAR" property="fieldComment"/>
         <result column="source_field_name" jdbcType="VARCHAR" property="sourceFieldName"/>
         <result column="source_field_type" jdbcType="VARCHAR" property="sourceFieldType"/>
+        <result column="field_length" jdbcType="INTEGER" property="fieldLength"/>
+        <result column="field_precision" jdbcType="INTEGER" property="fieldPrecision"/>
+        <result column="field_scale" jdbcType="INTEGER" property="fieldScale"/>
+        <result column="partition_strategy" jdbcType="VARCHAR" property="partitionStrategy"/>
         <result column="is_meta_field" jdbcType="SMALLINT" property="isMetaField"/>
         <result column="field_format" jdbcType="VARCHAR" property="fieldFormat"/>
         <result column="rank_num" jdbcType="SMALLINT" property="rankNum"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, sink_id, field_name, field_type, field_comment,
-        source_field_name, source_field_type, is_meta_field, field_format, rank_num, is_deleted
+        id, sink_id, field_name, field_type, field_comment, source_field_name, source_field_type,
+        field_length, field_precision, field_scale, partition_strategy, is_meta_field, field_format,
+        rank_num, is_deleted
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity">
-        insert into stream_sink_field (id, inlong_group_id, inlong_stream_id,
-                                       sink_id, sink_type, field_name,
-                                       field_type, field_comment, source_field_name,
-                                       source_field_type, is_meta_field, field_format,
+        insert into stream_sink_field (id, inlong_group_id,
+                                       inlong_stream_id, sink_id,
+                                       sink_type, field_name,
+                                       field_type, field_comment,
+                                       source_field_name, source_field_type,
+                                       field_length, field_precision,
+                                       field_scale, partition_strategy,
+                                       is_meta_field, field_format,
                                        rank_num, is_deleted)
-        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
-                #{sinkId,jdbcType=INTEGER}, #{sinkType,jdbcType=VARCHAR}, #{fieldName,jdbcType=VARCHAR},
-                #{fieldType,jdbcType=VARCHAR}, #{fieldComment,jdbcType=VARCHAR}, #{sourceFieldName,jdbcType=VARCHAR},
-                #{sourceFieldType,jdbcType=VARCHAR}, #{isMetaField,jdbcType=SMALLINT},
-                #{fieldFormat,jdbcType=VARCHAR}, #{rankNum,jdbcType=SMALLINT}, #{isDeleted,jdbcType=INTEGER})
+        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR},
+                #{inlongStreamId,jdbcType=VARCHAR}, #{sinkId,jdbcType=INTEGER},
+                #{sinkType,jdbcType=VARCHAR}, #{fieldName,jdbcType=VARCHAR},
+                #{fieldType,jdbcType=VARCHAR}, #{fieldComment,jdbcType=VARCHAR},
+                #{sourceFieldName,jdbcType=VARCHAR}, #{sourceFieldType,jdbcType=VARCHAR},
+                #{fieldLength,jdbcType=INTEGER}, #{fieldPrecision,jdbcType=INTEGER},
+                #{fieldScale,jdbcType=INTEGER}, #{partitionStrategy,jdbcType=VARCHAR},
+                #{isMetaField,jdbcType=SMALLINT}, #{fieldFormat,jdbcType=VARCHAR},
+                #{rankNum,jdbcType=SMALLINT}, #{isDeleted,jdbcType=INTEGER})
     </insert>
     <insert id="insertAll">
         insert into stream_sink_field (
@@ -61,7 +74,10 @@
         sink_type, field_name,
         field_type, field_comment,
         source_field_name, source_field_type,
-        is_meta_field, field_format, rank_num, is_deleted
+        field_length, field_precision,
+        field_scale, partition_strategy,
+        is_meta_field, field_format,
+        rank_num, is_deleted
         )
         values
         <foreach collection="list" index="index" item="item" separator=",">
@@ -71,9 +87,10 @@
             #{item.sinkType,jdbcType=VARCHAR}, #{item.fieldName,jdbcType=VARCHAR},
             #{item.fieldType,jdbcType=VARCHAR}, #{item.fieldComment,jdbcType=VARCHAR},
             #{item.sourceFieldName,jdbcType=VARCHAR}, #{item.sourceFieldType,jdbcType=VARCHAR},
+            #{item.fieldLength,jdbcType=INTEGER}, #{item.fieldPrecision,jdbcType=INTEGER},
+            #{item.fieldScale,jdbcType=INTEGER}, #{item.partitionStrategy,jdbcType=VARCHAR},
             #{item.isMetaField,jdbcType=SMALLINT}, #{item.fieldFormat,jdbcType=VARCHAR},
-            #{item.rankNum,jdbcType=SMALLINT},
-            #{item.isDeleted,jdbcType=INTEGER}
+            #{item.rankNum,jdbcType=SMALLINT}, #{item.isDeleted,jdbcType=INTEGER}
             )
         </foreach>
     </insert>
