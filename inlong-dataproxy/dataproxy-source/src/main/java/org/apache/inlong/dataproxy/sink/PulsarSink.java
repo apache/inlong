@@ -347,8 +347,6 @@ public class PulsarSink extends AbstractSink implements Configurable,
         this.dimensions = new HashMap<>();
         this.dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
         this.dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());
-        this.metricItemSet = new DataProxyMetricItemSet(this.getName());
-        MetricRegister.register(metricItemSet);
 
         sinkCounter.start();
         pulsarClientService.initCreateConnection(this);
@@ -380,6 +378,8 @@ public class PulsarSink extends AbstractSink implements Configurable,
             sinkThreadPool[i].start();
         }
 
+        this.metricItemSet = new DataProxyMetricItemSet(this.getName());
+        MetricRegister.register(metricItemSet);
         this.canTake = true;
         logger.info("[{}] Pulsar sink started", getName());
     }
