@@ -51,6 +51,10 @@ spec:
       nodeSelector:
         {{- toYaml .Values.dataproxy.nodeSelector | nindent 8 }}
       {{- end }}
+      {{- if .Values.dataproxy.affinity }}
+      affinity:
+        {{- toYaml .Values.dataproxy.affinity | nindent 8 }}
+      {{- end }}
       initContainers:
         - name: wait-{{ .Values.manager.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}

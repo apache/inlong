@@ -54,9 +54,6 @@ volumes:
   persistence: false
   storageClassName: "local-storage"
 
-affinity:
-  anti_affinity: false
-
 ingress:
   enabled: false
   hosts:
@@ -84,6 +81,9 @@ agent:
   # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
   nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
   resources:
     requests:
       cpu: 1
@@ -121,6 +121,9 @@ dashboard:
   # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
   nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
   resources:
     requests:
       cpu: 1
@@ -164,6 +167,9 @@ dataproxy:
   # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
   nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
   resources:
     requests:
       cpu: 1
@@ -213,6 +219,9 @@ tubemqManager:
   # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
   nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
   resources:
     requests:
       cpu: 1
@@ -249,6 +258,9 @@ manager:
   # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
   nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
   resources:
     requests:
       cpu: 1
@@ -300,6 +312,9 @@ audit:
   # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
   nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
   resources:
     requests:
       cpu: 1
@@ -336,6 +351,9 @@ mysql:
   # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
   nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
   resources:
     requests:
       cpu: 1
@@ -373,6 +391,10 @@ zookeeper:
   # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
   nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity:
+    antiAffinity: false
   ports:
     client: 2181
     follower: 2888
@@ -426,6 +448,10 @@ tubemqMaster:
   # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
   nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity:
+    antiAffinity: false
   ports:
     rpcPort: 8715
     webPort: 8080
@@ -498,6 +524,10 @@ tubemqBroker:
   # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
   nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity:
+    antiAffinity: false
   ports:
     rpcPort: 8123
     webPort: 8081

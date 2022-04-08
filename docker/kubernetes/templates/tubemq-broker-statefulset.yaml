@@ -51,6 +51,28 @@ spec:
       nodeSelector:
         {{- toYaml .Values.tubemqBroker.nodeSelector | nindent 8 }}
       {{- end }}
+      {{- if .Values.tubemqBroker.affinity }}
+      affinity:
+        {{- if .Values.tubemqBroker.affinity.antiAffinity }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - "{{ template "inlong.name" . }}-{{ .Values.tubemqBroker.component }}"
+                  - key: "release"
+                    operator: In
+                    values:
+                      - {{ .Release.Name }}
+                  - key: "component"
+                    operator: In
+                    values:
+                      - {{ .Values.tubemqBroker.component }}
+              topologyKey: "kubernetes.io/hostname"
+        {{- end }}
+      {{- end }}
       initContainers:
         - name: wait-{{ .Values.tubemqMaster.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
@@ -70,26 +92,6 @@ spec:
                   sleep 3
                 done
               done
-      affinity:
-        {{- if .Values.affinity.anti_affinity }}
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: "app"
-                    operator: In
-                    values:
-                      - "{{ template "inlong.name" . }}-{{ .Values.tubemqBroker.component }}"
-                  - key: "release"
-                    operator: In
-                    values:
-                      - {{ .Release.Name }}
-                  - key: "component"
-                    operator: In
-                    values:
-                      - {{ .Values.tubemqBroker.component }}
-              topologyKey: "kubernetes.io/hostname"
-        {{- end }}
       terminationGracePeriodSeconds: {{ .Values.tubemqBroker.gracePeriod }}
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }}

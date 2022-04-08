@@ -51,8 +51,9 @@ spec:
       nodeSelector:
         {{- toYaml .Values.zookeeper.nodeSelector | nindent 8 }}
       {{- end }}
+      {{- if .Values.zookeeper.affinity }}
       affinity:
-        {{- if .Values.affinity.anti_affinity }}
+        {{- if .Values.zookeeper.affinity.antiAffinity }}
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
@@ -71,6 +72,7 @@ spec:
                       - {{ .Values.zookeeper.component }}
               topologyKey: "kubernetes.io/hostname"
         {{- end }}
+      {{- end }}
       terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}

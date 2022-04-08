@@ -51,6 +51,10 @@ spec:
       nodeSelector:
         {{- toYaml .Values.dashboard.nodeSelector | nindent 8 }}
       {{- end }}
+      {{- if .Values.dashboard.affinity }}
+      affinity:
+        {{- toYaml .Values.dashboard.affinity | nindent 8 }}
+      {{- end }}
       initContainers:
         - name: wait-{{ .Values.manager.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}

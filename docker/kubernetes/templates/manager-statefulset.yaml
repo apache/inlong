@@ -51,6 +51,10 @@ spec:
       nodeSelector:
         {{- toYaml .Values.manager.nodeSelector | nindent 8 }}
       {{- end }}
+      {{- if .Values.manager.affinity }}
+      affinity:
+        {{- toYaml .Values.manager.affinity | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.manager.component }}
           image: {{ .Values.images.manager.repository }}:{{ .Values.images.manager.tag }}

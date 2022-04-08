@@ -52,6 +52,10 @@ spec:
       nodeSelector:
         {{- toYaml .Values.mysql.nodeSelector | nindent 8 }}
       {{- end }}
+      {{- if .Values.mysql.affinity }}
+      affinity:
+        {{- toYaml .Values.mysql.affinity | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
           image: {{ .Values.images.mysql.repository }}:{{ .Values.images.mysql.tag }}
