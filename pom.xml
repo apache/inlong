@@ -147,7 +147,7 @@
         <logback.version>1.2.10</logback.version>
         <junit.version>4.13.2</junit.version>
         <hadoop.version>2.10.1</hadoop.version>
-        <postgres.version>42.2.25</postgres.version>
+        <postgres.version>42.3.3</postgres.version>
 
         <testng.version>6.14.3</testng.version>
         <powermock.version>2.0.9</powermock.version>
