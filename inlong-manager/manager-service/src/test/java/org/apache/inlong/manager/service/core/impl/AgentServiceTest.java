@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.AgentService;
@@ -49,7 +49,7 @@ public class AgentServiceTest extends ServiceBaseTest {
         BinlogSourceRequest sourceInfo = new BinlogSourceRequest();
         sourceInfo.setInlongGroupId(globalGroupId);
         sourceInfo.setInlongStreamId(globalStreamId);
-        sourceInfo.setSourceType(Constant.SOURCE_BINLOG);
+        sourceInfo.setSourceType(SourceType.BINLOG.getType());
 
         return sourceService.save(sourceInfo, globalOperator);
     }
@@ -70,7 +70,7 @@ public class AgentServiceTest extends ServiceBaseTest {
         Boolean result = agentService.reportSnapshot(request);
         Assert.assertTrue(result);
 
-        sourceService.delete(id, Constant.SOURCE_BINLOG, globalOperator);
+        sourceService.delete(id, SourceType.BINLOG.getType(), globalOperator);
     }
 
 }

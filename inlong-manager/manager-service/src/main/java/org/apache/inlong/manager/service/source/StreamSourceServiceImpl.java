@@ -295,7 +295,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         String streamId = request.getInlongStreamId();
         Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
         String sourceType = request.getSourceType();
-        Preconditions.checkNotNull(sourceType, Constant.SOURCE_TYPE_IS_EMPTY);
+        Preconditions.checkNotNull(sourceType, SourceType.SOURCE_TYPE_IS_EMPTY);
     }
 
 }

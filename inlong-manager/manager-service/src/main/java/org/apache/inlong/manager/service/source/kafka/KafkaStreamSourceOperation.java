@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -57,7 +56,7 @@ public class KafkaStreamSourceOperation extends AbstractStreamSourceOperation {
 
     @Override
     protected String getSourceType() {
-        return Constant.SOURCE_KAFKA;
+        return SourceType.KAFKA.getType();
     }
 
     @Override
@@ -93,7 +92,7 @@ public class KafkaStreamSourceOperation extends AbstractStreamSourceOperation {
         }
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
-                String.format(Constant.SOURCE_TYPE_NOT_SAME, getSourceType(), existType));
+                String.format(SourceType.SOURCE_TYPE_NOT_SAME, getSourceType(), existType));
         KafkaSourceDTO dto = KafkaSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);

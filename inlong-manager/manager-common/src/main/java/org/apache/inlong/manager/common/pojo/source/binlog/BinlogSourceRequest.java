@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
@@ -34,7 +33,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Request of the binlog source info")
-@JsonTypeDefine(value = Constant.SOURCE_BINLOG)
+@JsonTypeDefine(value = SourceType.SOURCE_BINLOG)
 public class BinlogSourceRequest extends SourceRequest {
 
     @ApiModelProperty("Username of the DB server")
