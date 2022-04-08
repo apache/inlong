@@ -47,6 +47,7 @@
     </dependencies>
 
     <build>
+        <finalName>manager-client-tools</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

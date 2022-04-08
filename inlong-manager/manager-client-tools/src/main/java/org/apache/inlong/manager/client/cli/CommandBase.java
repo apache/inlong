@@ -30,7 +30,7 @@ abstract class CommandBase {
 
     public CommandBase(String cmdName) {
         jcommander = new JCommander();
-        jcommander.setProgramName("inlongctl " + cmdName);
+        jcommander.setProgramName("managerctl " + cmdName);
     }
 
     public boolean run(String[] args) {

@@ -34,7 +34,7 @@ public class InlongCommandTool {
 
     InlongCommandTool() {
         jcommander = new JCommander();
-        jcommander.setProgramName("inlongctl");
+        jcommander.setProgramName("managerctl");
         jcommander.addObject(this);
 
         commandMap.put("list", CommandList.class);
