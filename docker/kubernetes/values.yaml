@@ -64,6 +64,11 @@ ingress:
 agent:
   component: "agent"
   replicaCount: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy:
+    type: "RollingUpdate"
   resources:
     requests:
       cpu: 1
@@ -81,6 +86,11 @@ agent:
 dashboard:
   component: "dashboard"
   replicaCount: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy:
+    type: "RollingUpdate"
   resources:
     requests:
       cpu: 1
@@ -104,6 +114,11 @@ dashboard:
 dataproxy:
   component: "dataproxy"
   replicaCount: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy:
+    type: "RollingUpdate"
   resources:
     requests:
       cpu: 1
@@ -133,6 +148,11 @@ dataproxy:
 tubemqManager:
   component: "tubemq-manager"
   replicaCount: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy:
+    type: "RollingUpdate"
   resources:
     requests:
       cpu: 1
@@ -149,6 +169,11 @@ tubemqManager:
 manager:
   component: "manager"
   replicaCount: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy:
+    type: "RollingUpdate"
   resources:
     requests:
       cpu: 1
@@ -180,6 +205,11 @@ manager:
 audit:
   component: "audit"
   replicaCount: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy:
+    type: "RollingUpdate"
   resources:
     requests:
       cpu: 1
@@ -196,6 +226,11 @@ audit:
 mysql:
   component: "mysql"
   replicaCount: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy:
+    type: "RollingUpdate"
   resources:
     requests:
       cpu: 1
@@ -211,6 +246,9 @@ mysql:
 zookeeper:
   component: "zookeeper"
   replicaCount: 3
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
   podManagementPolicy: "OrderedReady"
@@ -251,6 +289,9 @@ zookeeper:
 tubemqMaster:
   component: "tubemq-master"
   replicaCount: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
   podManagementPolicy: "OrderedReady"
@@ -307,6 +348,9 @@ tubemqMaster:
 tubemqBroker:
   component: "tubemq-broker"
   replicaCount: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
   podManagementPolicy: "OrderedReady"
