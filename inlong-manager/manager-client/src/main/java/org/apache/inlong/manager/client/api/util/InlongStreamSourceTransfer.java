@@ -216,7 +216,6 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setInlongGroupId(stream.getInlongGroupId());
         sourceRequest.setInlongStreamId(stream.getInlongStreamId());
         sourceRequest.setSourceType(kafkaSource.getSourceType().getType());
-        sourceRequest.setAgentIp(kafkaSource.getAgentIp());
         sourceRequest.setBootstrapServers(kafkaSource.getBootstrapServers());
         sourceRequest.setTopic(kafkaSource.getTopic());
         sourceRequest.setRecordSpeedLimit(kafkaSource.getRecordSpeedLimit());
