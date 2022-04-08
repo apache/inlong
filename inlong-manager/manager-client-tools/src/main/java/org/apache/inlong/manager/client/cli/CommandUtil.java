@@ -27,7 +27,6 @@ import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,10 +38,10 @@ abstract class CommandUtil {
 
     public InnerInlongManagerClient connect() {
         Properties properties = new Properties();
-        String currentPath = System.getProperty("user.dir");
-        String confPath = new File(currentPath).getParent() + "/conf/application.properties";
+        String path = System.getProperty("user.dir") + "/conf/application.properties";
+
         try {
-            InputStream inputStream = new BufferedInputStream(new FileInputStream(confPath));
+            InputStream inputStream = new BufferedInputStream(new FileInputStream(path));
             properties.load(inputStream);
         } catch (IOException e) {
             e.printStackTrace();
