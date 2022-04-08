@@ -27,8 +27,6 @@ import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.StreamSource;
 import org.apache.inlong.manager.common.enums.SourceType;
 
-import java.util.Map;
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor

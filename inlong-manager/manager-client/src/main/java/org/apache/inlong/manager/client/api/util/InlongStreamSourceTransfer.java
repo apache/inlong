@@ -43,10 +43,8 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListRespons
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.pulsar.shade.com.google.common.base.Splitter;
 
 import java.util.Arrays;
-import java.util.Map;
 
 /**
  * Transfer the inlong stream source.
