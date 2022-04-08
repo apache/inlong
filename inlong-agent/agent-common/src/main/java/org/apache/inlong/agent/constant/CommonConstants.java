@@ -155,4 +155,6 @@ public class CommonConstants {
 
     public static final Integer DEFAULT_MAP_CAPACITY = 16;
 
+    public static final String KEY_METRICS_INDEX = "metricsIndex";
+
 }
