@@ -62,7 +62,8 @@ public class TestPulsarProducerFederation {
     @BeforeClass
     public static void setUp() {
         Map<String, String> result = new ConcurrentHashMap<>();
-        try (InputStream inStream = TestPulsarFederationSink.class.getClassLoader().getResource("flume.conf")
+        try (InputStream inStream = TestPulsarFederationSink.class.getClassLoader().getResource(
+                "dataproxy-pulsar.conf")
                 .openStream()) {
             MockUtils.mockMetricRegister();
             Properties props = new Properties();
@@ -74,7 +75,7 @@ public class TestPulsarProducerFederation {
             sinkContext = new Context(context.getSubProperties("proxy_inlong5th_sz.sinks.pulsar-sink-more1."));
             MockUtils.mockPulsarClient();
         } catch (Exception e) {
-            LOG.error("fail to load properties, file ={}, and e= {}", "flume.conf", e);
+            LOG.error("fail to load properties, file ={}, and e= {}", "dataproxy-pulsar.conf", e);
         }
     }
 
