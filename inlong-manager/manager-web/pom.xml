@@ -115,6 +115,11 @@
             <artifactId>guava</artifactId>
             <groupId>com.google.guava</groupId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>manager-client-tools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
