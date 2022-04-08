@@ -69,6 +69,9 @@ agent:
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: "OrderedReady"
   resources:
     requests:
       cpu: 1
@@ -91,6 +94,9 @@ dashboard:
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: "OrderedReady"
   resources:
     requests:
       cpu: 1
@@ -119,6 +125,9 @@ dataproxy:
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: "OrderedReady"
   resources:
     requests:
       cpu: 1
@@ -153,6 +162,9 @@ tubemqManager:
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: "OrderedReady"
   resources:
     requests:
       cpu: 1
@@ -174,6 +186,9 @@ manager:
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: "OrderedReady"
   resources:
     requests:
       cpu: 1
@@ -210,6 +225,9 @@ audit:
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: "OrderedReady"
   resources:
     requests:
       cpu: 1
@@ -231,6 +249,9 @@ mysql:
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: "OrderedReady"
   resources:
     requests:
       cpu: 1
@@ -251,6 +272,8 @@ zookeeper:
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
   ports:
     client: 2181
@@ -294,6 +317,8 @@ tubemqMaster:
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
   ports:
     rpcPort: 8715
@@ -353,6 +378,8 @@ tubemqBroker:
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
   ports:
     rpcPort: 8123

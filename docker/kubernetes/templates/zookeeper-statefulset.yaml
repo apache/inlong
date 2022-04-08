@@ -32,7 +32,7 @@ spec:
       component: {{ .Values.zookeeper.component }}
   updateStrategy:
     type: {{ .Values.zookeeper.updateStrategy.type | quote }}
-  podManagementPolicy: {{ .Values.zookeeper.podManagementPolicy }}
+  podManagementPolicy: {{ .Values.zookeeper.podManagementPolicy | quote }}
   template:
     metadata:
       labels:

@@ -32,6 +32,7 @@ spec:
       component: {{ .Values.dataproxy.component }}
   updateStrategy:
     type: {{ .Values.dataproxy.updateStrategy.type | quote }}
+  podManagementPolicy: {{ .Values.dataproxy.podManagementPolicy | quote }}
   template:
     metadata:
       labels:

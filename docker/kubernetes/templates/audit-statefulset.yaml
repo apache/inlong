@@ -32,6 +32,7 @@ spec:
       component: {{ .Values.audit.component }}
   updateStrategy:
     type: {{ .Values.audit.updateStrategy.type | quote }}
+  podManagementPolicy: {{ .Values.audit.podManagementPolicy | quote }}
   template:
     metadata:
       labels:

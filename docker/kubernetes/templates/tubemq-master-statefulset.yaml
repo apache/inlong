@@ -32,7 +32,7 @@ spec:
       component: {{ .Values.tubemqMaster.component }}
   updateStrategy:
     type: {{ .Values.tubemqMaster.updateStrategy.type | quote }}
-  podManagementPolicy: {{ .Values.tubemqMaster.podManagementPolicy }}
+  podManagementPolicy: {{ .Values.tubemqMaster.podManagementPolicy | quote }}
   template:
     metadata:
       labels:

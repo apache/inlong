@@ -33,6 +33,7 @@ spec:
       component: {{ .Values.mysql.component }}
   updateStrategy:
     type: {{ .Values.mysql.updateStrategy.type | quote }}
+  podManagementPolicy: {{ .Values.mysql.podManagementPolicy | quote }}
   template:
     metadata:
       labels:

@@ -32,6 +32,7 @@ spec:
       component: {{ .Values.manager.component }}
   updateStrategy:
     type: {{ .Values.manager.updateStrategy.type | quote }}
+  podManagementPolicy: {{ .Values.manager.podManagementPolicy | quote }}
   template:
     metadata:
       labels:
