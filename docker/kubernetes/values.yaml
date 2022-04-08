@@ -72,6 +72,10 @@ agent:
   # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
   resources:
     requests:
       cpu: 1
@@ -97,6 +101,10 @@ dashboard:
   # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
   resources:
     requests:
       cpu: 1
@@ -128,6 +136,10 @@ dataproxy:
   # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
   resources:
     requests:
       cpu: 1
@@ -165,6 +177,10 @@ tubemqManager:
   # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
   resources:
     requests:
       cpu: 1
@@ -189,6 +205,10 @@ manager:
   # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
   resources:
     requests:
       cpu: 1
@@ -228,6 +248,10 @@ audit:
   # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
   resources:
     requests:
       cpu: 1
@@ -252,6 +276,10 @@ mysql:
   # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
   resources:
     requests:
       cpu: 1
@@ -275,6 +303,12 @@ zookeeper:
   # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
   ports:
     client: 2181
     follower: 2888
@@ -290,9 +324,6 @@ zookeeper:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "8000"
   tolerations: []
   gracePeriod: 30
   resources:
@@ -320,6 +351,10 @@ tubemqMaster:
   # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
   ports:
     rpcPort: 8715
     webPort: 8080
@@ -381,6 +416,10 @@ tubemqBroker:
   # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
   # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
   ports:
     rpcPort: 8123
     webPort: 8081

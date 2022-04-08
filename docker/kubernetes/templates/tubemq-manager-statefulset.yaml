@@ -38,6 +38,10 @@ spec:
       labels:
         {{- include "inlong.template.labels" . | nindent 8 }}
         component: {{ .Values.tubemqManager.component }}
+      {{- if .Values.tubemqManager.annotations }}
+      annotations:
+        {{- toYaml .Values.tubemqManager.annotations | nindent 8 }}
+      {{- end }}
     spec:
       initContainers:
         - name: wait-{{ .Values.mysql.component }}-ready

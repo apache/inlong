@@ -38,8 +38,10 @@ spec:
       labels:
         {{- include "inlong.template.labels" . | nindent 8 }}
         component: {{ .Values.zookeeper.component }}
+      {{- if .Values.zookeeper.annotations }}
       annotations:
         {{- toYaml .Values.zookeeper.annotations | nindent 8 }}
+      {{- end }}
     spec:
       {{- if .Values.zookeeper.nodeSelector }}
       nodeSelector:

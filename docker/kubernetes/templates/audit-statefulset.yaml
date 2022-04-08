@@ -38,6 +38,10 @@ spec:
       labels:
         {{- include "inlong.template.labels" . | nindent 8 }}
         component: {{ .Values.audit.component }}
+      {{- if .Values.audit.annotations }}
+      annotations:
+        {{- toYaml .Values.audit.annotations | nindent 8 }}
+      {{- end }}
     spec:
       initContainers:
         - name: wait-{{ .Values.mysql.component }}-ready

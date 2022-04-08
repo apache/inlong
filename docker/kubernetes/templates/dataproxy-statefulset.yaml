@@ -38,6 +38,10 @@ spec:
       labels:
         {{- include "inlong.template.labels" . | nindent 8 }}
         component: {{ .Values.dataproxy.component }}
+      {{- if .Values.dataproxy.annotations }}
+      annotations:
+        {{- toYaml .Values.dataproxy.annotations | nindent 8 }}
+      {{- end }}
     spec:
       initContainers:
         - name: wait-{{ .Values.manager.component }}-ready

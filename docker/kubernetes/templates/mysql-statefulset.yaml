@@ -39,6 +39,10 @@ spec:
       labels:
         {{- include "inlong.template.labels" . | nindent 8 }}
         component: {{ .Values.mysql.component }}
+      {{- if .Values.mysql.annotations }}
+      annotations:
+        {{- toYaml .Values.mysql.annotations | nindent 8 }}
+      {{- end }}
     spec:
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}

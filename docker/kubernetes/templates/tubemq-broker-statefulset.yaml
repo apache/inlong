@@ -38,8 +38,10 @@ spec:
       labels:
         {{- include "inlong.template.labels" . | nindent 8 }}
         component: {{ .Values.tubemqBroker.component }}
+      {{- if .Values.tubemqBroker.annotations }}
       annotations:
         {{- toYaml .Values.tubemqBroker.annotations | nindent 8 }}
+      {{- end }}
     spec:
       {{- if .Values.tubemqBroker.nodeSelector }}
       nodeSelector:

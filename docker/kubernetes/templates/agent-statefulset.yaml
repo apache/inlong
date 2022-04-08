@@ -38,6 +38,10 @@ spec:
       labels:
         {{- include "inlong.template.labels" . | nindent 8 }}
         component: {{ .Values.agent.component }}
+      {{- if .Values.agent.annotations }}
+      annotations:
+        {{- toYaml .Values.agent.annotations | nindent 8 }}
+      {{- end }}
     spec:
       initContainers:
         - name: wait-{{ .Values.dashboard.component }}-ready
