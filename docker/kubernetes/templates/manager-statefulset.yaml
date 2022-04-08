@@ -43,6 +43,10 @@ spec:
         {{- toYaml .Values.manager.annotations | nindent 8 }}
       {{- end }}
     spec:
+      {{- if .Values.manager.tolerations }}
+      tolerations:
+        {{- toYaml .Values.manager.tolerations | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.manager.component }}
           image: {{ .Values.images.manager.repository }}:{{ .Values.images.manager.tag }}

@@ -43,6 +43,10 @@ spec:
         {{- toYaml .Values.dataproxy.annotations | nindent 8 }}
       {{- end }}
     spec:
+      {{- if .Values.dataproxy.tolerations }}
+      tolerations:
+        {{- toYaml .Values.dataproxy.tolerations | nindent 8 }}
+      {{- end }}
       initContainers:
         - name: wait-{{ .Values.manager.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}

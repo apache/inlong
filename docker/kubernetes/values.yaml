@@ -76,6 +76,9 @@ agent:
   # Clients such as tools and libraries can retrieve this metadata.
   # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
   resources:
     requests:
       cpu: 1
@@ -105,6 +108,9 @@ dashboard:
   # Clients such as tools and libraries can retrieve this metadata.
   # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
   resources:
     requests:
       cpu: 1
@@ -140,6 +146,9 @@ dataproxy:
   # Clients such as tools and libraries can retrieve this metadata.
   # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
   resources:
     requests:
       cpu: 1
@@ -181,6 +190,9 @@ tubemqManager:
   # Clients such as tools and libraries can retrieve this metadata.
   # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
   resources:
     requests:
       cpu: 1
@@ -209,6 +221,9 @@ manager:
   # Clients such as tools and libraries can retrieve this metadata.
   # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
   resources:
     requests:
       cpu: 1
@@ -252,6 +267,9 @@ audit:
   # Clients such as tools and libraries can retrieve this metadata.
   # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
   resources:
     requests:
       cpu: 1
@@ -280,6 +298,9 @@ mysql:
   # Clients such as tools and libraries can retrieve this metadata.
   # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
   resources:
     requests:
       cpu: 1
@@ -309,6 +330,9 @@ zookeeper:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
   ports:
     client: 2181
     follower: 2888
@@ -324,7 +348,6 @@ zookeeper:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-  tolerations: []
   gracePeriod: 30
   resources:
     requests:
@@ -355,6 +378,9 @@ tubemqMaster:
   # Clients such as tools and libraries can retrieve this metadata.
   # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
   ports:
     rpcPort: 8715
     webPort: 8080
@@ -370,7 +396,6 @@ tubemqMaster:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-  tolerations: []
   gracePeriod: 30
   resources:
     requests:
@@ -420,6 +445,9 @@ tubemqBroker:
   # Clients such as tools and libraries can retrieve this metadata.
   # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
   ports:
     rpcPort: 8123
     webPort: 8081
@@ -434,7 +462,6 @@ tubemqBroker:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-  tolerations: []
   gracePeriod: 30
   resources:
     requests:

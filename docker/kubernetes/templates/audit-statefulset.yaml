@@ -43,6 +43,10 @@ spec:
         {{- toYaml .Values.audit.annotations | nindent 8 }}
       {{- end }}
     spec:
+      {{- if .Values.audit.tolerations }}
+      tolerations:
+        {{- toYaml .Values.audit.tolerations | nindent 8 }}
+      {{- end }}
       initContainers:
         - name: wait-{{ .Values.mysql.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}

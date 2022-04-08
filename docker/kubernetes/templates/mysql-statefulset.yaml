@@ -44,6 +44,10 @@ spec:
         {{- toYaml .Values.mysql.annotations | nindent 8 }}
       {{- end }}
     spec:
+      {{- if .Values.mysql.tolerations }}
+      tolerations:
+        {{- toYaml .Values.mysql.tolerations | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
           image: {{ .Values.images.mysql.repository }}:{{ .Values.images.mysql.tag }}

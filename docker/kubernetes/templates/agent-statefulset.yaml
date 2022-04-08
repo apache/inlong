@@ -43,6 +43,10 @@ spec:
         {{- toYaml .Values.agent.annotations | nindent 8 }}
       {{- end }}
     spec:
+      {{- if .Values.agent.tolerations }}
+      tolerations:
+        {{- toYaml .Values.agent.tolerations | nindent 8 }}
+      {{- end }}
       initContainers:
         - name: wait-{{ .Values.dashboard.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
