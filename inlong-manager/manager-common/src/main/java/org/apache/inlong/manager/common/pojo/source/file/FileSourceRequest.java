@@ -26,8 +26,6 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
-import java.util.Map;
-
 /**
  * Request of File Source Info
  */
@@ -45,12 +43,11 @@ public class FileSourceRequest extends SourceRequest {
     private String pattern;
 
     @ApiModelProperty("TimeOffset for collection, "
-            + "'1m' means one minute before, '1h' means one hour before, '1d' means one day before, "
+            + "'1m' means from one minute after, '-1m' means from one minute before, "
+            + "'1h' means from one hour after, '-1h' means from one minute before"
+            + "'1d' means from one day after, '-1d' means from one minute before"
             + "Null means from current timestamp")
     private String timeOffset;
-
-    @ApiModelProperty("Addition attributes for file source")
-    private Map<String, String> additionAttrs;
 
     public FileSourceRequest() {
         this.setSourceType(SourceType.FILE.toString());

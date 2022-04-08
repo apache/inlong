@@ -24,12 +24,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
-import java.util.Map;
 
 /**
  * File source information data transfer object
@@ -49,19 +47,17 @@ public class FileSourceDTO {
     private String pattern;
 
     @ApiModelProperty("TimeOffset for collection, "
-            + "'1m' means one minute before, '1h' means one hour before, '1d' means one day before, "
+            + "'1m' means from one minute after, '-1m' means from one minute before, "
+            + "'1h' means from one hour after, '-1h' means from one minute before"
+            + "'1d' means from one day after, '-1d' means from one minute before"
             + "Null means from current timestamp")
     private String timeOffset;
-
-    @ApiModelProperty("Addition attributes for file source, save as a=b&c=d&e=f ")
-    private String additionalAttr;
 
     public static FileSourceDTO getFromRequest(@NotNull FileSourceRequest fileSourceRequest) {
         return FileSourceDTO.builder()
                 .ip(fileSourceRequest.getIp())
                 .pattern(fileSourceRequest.getPattern())
                 .timeOffset(fileSourceRequest.getTimeOffset())
-                .additionalAttr(serAttr(fileSourceRequest.getAdditionAttrs()))
                 .build();
     }
 
@@ -72,17 +68,6 @@ public class FileSourceDTO {
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }
-    }
-
-    private static String serAttr(Map<String, String> additionAttrs) {
-        if (MapUtils.isEmpty(additionAttrs)) {
-            return "";
-        }
-        StringBuilder attrBuilder = new StringBuilder();
-        for (Map.Entry<String, String> entry : additionAttrs.entrySet()) {
-            attrBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
-        }
-        return attrBuilder.substring(0, attrBuilder.length() - 1);
     }
 
 }

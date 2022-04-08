@@ -52,10 +52,10 @@ public class AgentFileSource extends StreamSource {
     private String pattern;
 
     @ApiModelProperty("TimeOffset for collection, "
-            + "'1m' means from one minute before, '1h' means from one hour before, '1d' means from one day before, "
+            + "'1m' means from one minute after, '-1m' means from one minute before, "
+            + "'1h' means from one hour after, '-1h' means from one minute before"
+            + "'1d' means from one day after, '-1d' means from one minute before"
             + "Null means from current timestamp")
     private String timeOffset;
 
-    @ApiModelProperty("Addition attributes for file source")
-    private Map<String, String> additionAttrs;
 }

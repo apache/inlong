@@ -196,11 +196,6 @@ public class InlongStreamSourceTransfer {
         fileSource.setState(State.parseByStatus(response.getStatus()));
         fileSource.setDataFormat(DataFormat.NONE);
         fileSource.setPattern(response.getPattern());
-        if (StringUtils.isNotEmpty(response.getAdditionalAttr())) {
-            Map<String, String> additionAttrs = Splitter.on("&").withKeyValueSeparator("=").split(
-                    response.getAdditionalAttr());
-            fileSource.setAdditionAttrs(additionAttrs);
-        }
         fileSource.setIp(response.getIp());
         fileSource.setTimeOffset(response.getTimeOffset());
         return fileSource;
@@ -212,11 +207,6 @@ public class InlongStreamSourceTransfer {
         fileSource.setState(State.parseByStatus(response.getStatus()));
         fileSource.setDataFormat(DataFormat.NONE);
         fileSource.setPattern(response.getPattern());
-        if (StringUtils.isNotEmpty(response.getAdditionalAttr())) {
-            Map<String, String> additionAttrs = Splitter.on("&").withKeyValueSeparator("=").split(
-                    response.getAdditionalAttr());
-            fileSource.setAdditionAttrs(additionAttrs);
-        }
         fileSource.setIp(response.getIp());
         fileSource.setTimeOffset(response.getTimeOffset());
         return fileSource;
@@ -291,7 +281,6 @@ public class InlongStreamSourceTransfer {
         }
         sourceRequest.setPattern(fileSource.getPattern());
         sourceRequest.setTimeOffset(fileSource.getTimeOffset());
-        sourceRequest.setAdditionAttrs(fileSource.getAdditionAttrs());
         return sourceRequest;
     }
 }

@@ -45,9 +45,6 @@ public class FileSourceResponse extends SourceResponse {
             + "Null means from current timestamp")
     private String timeOffset;
 
-    @ApiModelProperty("Addition attributes for file source, save as a=b&c=d&e=f ")
-    private String additionalAttr;
-
     public FileSourceResponse() {
         this.setSourceType(SourceType.FILE.getType());
     }

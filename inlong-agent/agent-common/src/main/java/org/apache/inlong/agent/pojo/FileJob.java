@@ -52,8 +52,10 @@ public class FileJob  {
     public static class FileJobTaskConfig {
 
         private String pattern;
-        //'1m' means one minute before, '1h' means one hour before, '1d' means one day before
-        //Null means from current timestamp
+        // '1m' means one minute after, '-1m' means one minute before
+        // '1h' means one hour after, '-1h' means one hour before
+        // '1d' means one day after, '-1d' means one day before
+        // Null means from current timestamp
         private String timeOffset;
         //For example: a=b&c=b&e=f
         private String additionalAttr;
