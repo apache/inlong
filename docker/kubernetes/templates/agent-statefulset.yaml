@@ -30,10 +30,8 @@ spec:
     matchLabels:
       {{- include "inlong.matchLabels" . | nindent 6 }}
       component: {{ .Values.agent.component }}
-  {{- if .Values.agent.updateStrategy.type }}
   updateStrategy:
     type: {{ .Values.agent.updateStrategy.type | quote }}
-  {{- end }}
   template:
     metadata:
       labels:

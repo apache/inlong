@@ -30,10 +30,8 @@ spec:
     matchLabels:
       {{- include "inlong.matchLabels" . | nindent 6 }}
       component: {{ .Values.tubemqBroker.component }}
-  {{- if .Values.tubemqBroker.updateStrategy.type }}
   updateStrategy:
     type: {{ .Values.tubemqBroker.updateStrategy.type | quote }}
-  {{- end }}
   podManagementPolicy: {{ .Values.tubemqBroker.podManagementPolicy }}
   template:
     metadata:
