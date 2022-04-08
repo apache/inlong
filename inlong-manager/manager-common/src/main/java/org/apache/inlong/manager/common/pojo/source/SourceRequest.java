@@ -51,9 +51,6 @@ public class SourceRequest {
     @ApiModelProperty("Source name, unique in one stream")
     private String sourceName;
 
-    @ApiModelProperty("Ip of the agent running the task")
-    private String agentIp;
-
     @ApiModelProperty("Mac uuid of the agent running the task")
     private String uuid;
 
