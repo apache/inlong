@@ -17,16 +17,7 @@
 
 package org.apache.inlong.manager.plugin.flink;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobStatus;
@@ -43,7 +34,7 @@ import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
-import org.apache.inlong.manager.plugin.flink.dto.JarRunRequestbody;
+import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequestBody;
 import org.apache.inlong.manager.plugin.util.FlinkConfiguration;
 
 import java.io.File;
@@ -52,7 +43,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,7 +56,6 @@ public class FlinkService {
     private final Integer port;
     private final Integer jobManagerPort;
     private final String  address;
-    private final String  urlHead;
     private final Integer parallelism;
     private final String savepointDirectory;
 
@@ -83,7 +72,6 @@ public class FlinkService {
             address = translateFromEndpont(endpoint).get("address");
             port = Integer.valueOf(translateFromEndpont(endpoint).get("port"));
         }
-        urlHead = Constants.HTTP_URL +  address + Constants.SEPARATOR + port;
     }
 
     /**
@@ -102,7 +90,7 @@ public class FlinkService {
                 return map;
             }
         } catch (Exception e) {
-            log.error("fetch addres:port fail", e.getMessage());
+            log.error("fetch address:port fail: ", e);
         }
         return map;
     }
@@ -142,44 +130,19 @@ public class FlinkService {
     }
 
     /**
-     * get request
-     * @param httpurl
-     * @return
-     */
-    public  ResponseBody getReq(String httpurl) {
-        Response response = null;
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .header("Authorization", "Client-ID " + UUID.randomUUID())
-                .url(httpurl)
-                .build();
-        try {
-            response = client.newCall(request).execute();
-            log.info("get  req {}",response.body());
-            return response.body();
-        } catch (IOException e) {
-            log.warn("get  req fail {}", e.getMessage());
-        }
-        return response.body();
-    }
-
-    /**
      * get job status
      * @return
      */
     public JobStatus getJobStatus(String jobId) {
-        JobStatus status = null;
         try {
             RestClusterClient<StandaloneClusterId> client = getFlinkClient();
             JobID jobID = JobID.fromHexString(jobId);
             CompletableFuture<JobStatus> jobStatus = client.getJobStatus(jobID);
-            status = jobStatus.get();
-            return status;
-
+            return jobStatus.get();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("get job status error: ", e);
         }
-        return status;
+        return null;
     }
 
     /**
@@ -187,18 +150,15 @@ public class FlinkService {
      * @return
      */
     public JobDetailsInfo getJobDetail(String jobId) {
-        JobDetailsInfo jobDetailsInfo = null;
         try {
             RestClusterClient<StandaloneClusterId> client = getFlinkClient();
             JobID jobID = JobID.fromHexString(jobId);
             CompletableFuture<JobDetailsInfo> jobDetails = client.getJobDetails(jobID);
-            jobDetailsInfo = jobDetails.get();
-            return jobDetailsInfo;
-
+            return jobDetails.get();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("get job detail error: ", e);
         }
-        return jobDetailsInfo;
+        return null;
     }
 
     /**
@@ -209,7 +169,6 @@ public class FlinkService {
         RestClusterClient<StandaloneClusterId> client = null;
         String localJarPath = flinkInfo.getLocalJarPath();
         String[] programArgs = genProgramArgs(flinkInfo);
-        String jobId = "";
         try {
             client = getFlinkClient();
             Configuration configuration = initConfiguration();
@@ -224,12 +183,11 @@ public class FlinkService {
                 JobGraph jobGraph =
                         PackagedProgramUtils.createJobGraph(program,configuration,parallelism,false);
                 CompletableFuture<JobID> result = client.submitJob(jobGraph);
-                jobId = result.get().toString();
-                return jobId;
+                return result.get().toString();
         } catch (Exception e) {
-            log.error("submit job  error", e);
+            log.error("submit job error: ", e);
         }
-        return jobId;
+        return null;
     }
 
     /**
@@ -240,7 +198,6 @@ public class FlinkService {
         RestClusterClient<StandaloneClusterId> client = null;
         String localJarPath = flinkInfo.getLocalJarPath();
         String[] programArgs = genProgramArgs(flinkInfo);
-        String jobId = "";
         try {
             client = getFlinkClient();
             Configuration configuration = initConfiguration();
@@ -257,173 +214,45 @@ public class FlinkService {
                 JobGraph jobGraph =
                         PackagedProgramUtils.createJobGraph(program,configuration,parallelism,false);
                 CompletableFuture<JobID> result = client.submitJob(jobGraph);
-                jobId = result.get().toString();
-                return jobId;
+                return result.get().toString();
             }
         } catch (Exception e) {
-            log.error("submit job  error", e);
+            log.error("restore job error: ", e);
         }
-        return jobId;
+        return null;
     }
 
     /**
-     * stop job
+     * stop job with savepoint
      * @param jobId
+     * @param requestBody
+     * @return
      */
-    public ResponseBody stopJobs(String jobId, String requestBody) {
-        ResponseBody responseBody = null;
+    public String stopJobs(String jobId, StopWithSavepointRequestBody requestBody) {
         try {
-            String httpUrl = urlHead + Constants.JOB_URL + Constants.URL_SEPARATOR + jobId + Constants.SUSPEND_URL;
-            OkHttpClient client = new OkHttpClient();
-            MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
-            RequestBody body = RequestBody.create(mediaType, requestBody);
-            Request request = new Request.Builder()
-                    .url(httpUrl)
-                    .method("POST", body)
-                    .build();
-            Response response = client.newCall(request).execute();
-            log.info("the job : {} has stop",jobId);
-            return response.body();
+            RestClusterClient<StandaloneClusterId> client = getFlinkClient();
+            JobID jobID = JobID.fromHexString(jobId);
+            CompletableFuture<String> stopResult =
+                    client.stopWithSavepoint(jobID,requestBody.isDrain(),requestBody.getTargetDirectory());
+            return stopResult.get();
         } catch (Exception e) {
-            log.error("stop job  error", e.getMessage());
+            log.error("stop job error: ", e);
         }
-        return responseBody;
+        return null;
     }
 
     /**
-     * trigger savepoint
+     * cancel job
      * @param jobId
-     * @param triggerId
      * @return
      */
-    public ResponseBody triggerSavepoint(String jobId,String triggerId) {
-        String url = urlHead + Constants.JOB_URL + Constants.URL_SEPARATOR + jobId
-                + Constants.SAVEPOINT + Constants.URL_SEPARATOR + triggerId;
-        ResponseBody body = null;
+    public void cancelJobs(String jobId) {
         try {
-            body = getReq(url);
-            log.info("triggerSavepoint success");
-            return body;
+            RestClusterClient<StandaloneClusterId> client = getFlinkClient();
+            JobID jobID = JobID.fromHexString(jobId);
+            client.cancel(jobID);
         } catch (Exception e) {
-            log.error("triggerSavepoint after stop job fail",e.getMessage());
-        }
-        return body;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public ResponseBody listJars() {
-        String url = urlHead + Constants.JARS_URL;
-        ResponseBody body = null;
-        try {
-            body = getReq(url);
-            log.info("all jarfileinfo : {}",body);
-            return body;
-        } catch (Exception e) {
-            log.error("fetch jars fail",e.getMessage());
-        }
-        return body;
-    }
-
-    /**
-     * upload jar
-     * @param jarPath
-     * @return
-     * @throws Exception
-     */
-    public ResponseBody uploadJar(String jarPath,String fileName) throws Exception {
-        String url = urlHead + Constants.JARS_URL + Constants.UPLOAD;
-        OkHttpClient client = new OkHttpClient();
-        RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("file", fileName,
-                        RequestBody.create(MediaType.parse("multipart/form-data"), new File(jarPath)))
-                .build();
-
-        Request request = new Request.Builder()
-                .header("Authorization", "Client-ID " + UUID.randomUUID())
-                .url(url)
-                .post(requestBody)
-                .build();
-
-        Response response = client.newCall(request).execute();
-        if (!response.isSuccessful()) {
-            throw new IOException("Unexpected code " + response);
-        }
-        return response.body();
-    }
-
-    /**
-     * submit Jobs Without Jar
-     * @param jarId
-     * @param jarRunRequestbody
-     * @return
-     * @throws JsonProcessingException
-     */
-    public  ResponseBody submitJobsWithoutJar(String jarId,JarRunRequestbody jarRunRequestbody)
-            throws JsonProcessingException {
-        String httpUrl = urlHead + Constants.JARS_URL + jarId + Constants.RUN_URL;
-        ObjectMapper objectMapper = new ObjectMapper();
-        String requestBody = objectMapper.writeValueAsString(jarRunRequestbody);
-        Response response = null;
-        OkHttpClient client = new OkHttpClient();
-        MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(mediaType, requestBody);
-        Request request = new Request.Builder()
-                .url(httpUrl)
-                .method("POST", body)
-                .build();
-        try {
-            response = client.newCall(request).execute();
-            log.info("send remote req {}", response.body().string());
-            return response.body();
-        } catch (IOException e) {
-            log.warn("send remote req fail {}", e.getMessage());
-        }
-        return response.body();
-    }
-
-    /**
-     * delete job
-     * @param jobId
-     */
-    public  void deleteJobs(String jobId) {
-        String url = urlHead + Constants.JOB_URL + Constants.URL_SEPARATOR + jobId;
-        OkHttpClient client = new OkHttpClient();
-        MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(mediaType, "");
-        Request request = new Request.Builder()
-                .url(url)
-                .method("PATCH", body)
-                .build();
-        try {
-            client.newCall(request).execute();
-            log.info("the jobId:{} delete successfuly",jobId);
-
-        } catch (IOException e) {
-            log.warn("the jobId:{} delete failure",jobId);
-        }
-    }
-
-    /**
-     * delete jar
-     * @param jarId
-     */
-    public void deleteJars(String jarId) {
-        String url = urlHead + Constants.JARS_URL + jarId;
-        OkHttpClient client = new OkHttpClient();
-        RequestBody body = null;
-        Request request = new Request.Builder()
-                .url(url)
-                .method("DELETE", body)
-                .build();
-        try {
-            client.newCall(request).execute();
-            log.info("the jobId:{} delete successfuly",jarId);
-        } catch (IOException e) {
-            log.warn("the jobId:{} delete successfuly",jarId);
+            log.error("cancel job error: ", e);
         }
     }
 

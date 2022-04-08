@@ -57,7 +57,7 @@ public class SuspendSortListenerTest {
 
         InlongGroupExtInfo inlongGroupExtInfo5 = new InlongGroupExtInfo();
         inlongGroupExtInfo5.setKeyName(InlongGroupSettings.SORT_JOB_ID);
-        inlongGroupExtInfo5.setKeyValue("118a77173079c7264f08f178da4473fa");
+        inlongGroupExtInfo5.setKeyValue("ea405ab424cfc35ae9be93df8ea87917");
         inlongGroupExtInfos.add(inlongGroupExtInfo5);
 
         inlongGroupInfo.setExtList(inlongGroupExtInfos);

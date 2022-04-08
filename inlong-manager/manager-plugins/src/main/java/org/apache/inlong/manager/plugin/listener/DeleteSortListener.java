@@ -60,9 +60,8 @@ public class DeleteSortListener implements SortOperateListener {
                 InlongGroupExtInfo::getKeyValue));
         String sortExt = kvConf.get(InlongGroupSettings.SORT_PROPERTIES);
         if (StringUtils.isEmpty(sortExt)) {
-            String message =
-                    String.format("inlongGroupId:%s not add deleteProcess listener,sortProperties is empty",
-                            inlongGroupId);
+            String message = String.format("groupId [%s] not add deleteProcess listener, "
+                    + "as the sortProperties is empty", inlongGroupId);
             log.warn(message);
             return ListenerResult.fail(message);
         }
@@ -73,7 +72,7 @@ public class DeleteSortListener implements SortOperateListener {
         FlinkInfo flinkInfo = new FlinkInfo();
 
         String jobId = kvConf.get(InlongGroupSettings.SORT_JOB_ID);
-        Preconditions.checkNotEmpty(jobId, "sort jobId is empty");
+        Preconditions.checkNotEmpty(jobId, "sortJobId is empty");
         flinkInfo.setJobId(jobId);
 
         String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);

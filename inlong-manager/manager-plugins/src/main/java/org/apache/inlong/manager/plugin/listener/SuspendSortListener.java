@@ -59,8 +59,8 @@ public class SuspendSortListener implements SortOperateListener {
                 InlongGroupExtInfo::getKeyName, InlongGroupExtInfo::getKeyValue));
         String sortExt = kvConf.get(InlongGroupSettings.SORT_PROPERTIES);
         if (StringUtils.isEmpty(sortExt)) {
-            String message = String.format("inlongGroupId:%s not add suspendProcess listener,sortProperties is empty",
-                    inlongGroupId);
+            String message = String.format("groupId [%s] not add suspendProcess listener, "
+                    + "as the sortProperties is empty", inlongGroupId);
             log.warn(message);
             return ListenerResult.fail(message);
         }
@@ -71,7 +71,7 @@ public class SuspendSortListener implements SortOperateListener {
         FlinkInfo flinkInfo = new FlinkInfo();
 
         String jobId = kvConf.get(InlongGroupSettings.SORT_JOB_ID);
-        Preconditions.checkNotEmpty(jobId, "sort jobId is empty");
+        Preconditions.checkNotEmpty(jobId, "sortJobId is empty");
         flinkInfo.setJobId(jobId);
 
         String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
