@@ -22,9 +22,6 @@
 
 APPLICATION_JAR="manager-client-tools.jar"
 
-JAVA_HOME=
-export PATH=$PATH:$JAVA_HOME/bin
-
 BIN_PATH=$(
   cd $(dirname $0)
   pwd
