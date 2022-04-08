@@ -57,7 +57,7 @@ public class ManagerFlinkTask {
                                 TaskCommitType.START_NOW.getCode()));
                 future.get();
             } catch (Exception e) {
-                log.warn("Flink job some exception [{}]", e.getMessage());
+                log.warn("Flink job some exception [{}]", e);
                 throw new BusinessException(BusinessExceptionDesc.UnsupportedOperation
                         + e.getMessage());
             }
@@ -76,7 +76,7 @@ public class ManagerFlinkTask {
                                    TaskCommitType.RESUME.getCode()));
                    future.get();
                } catch (Exception e) {
-                   log.warn("Flink job some exception [{}]", e.getMessage());
+                   log.warn("Flink job some exception [{}]", e);
                    throw new BusinessException(BusinessExceptionDesc.UnsupportedOperation
                            + e.getMessage());
                }

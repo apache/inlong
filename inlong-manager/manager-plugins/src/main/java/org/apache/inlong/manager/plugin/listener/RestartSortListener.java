@@ -72,16 +72,10 @@ public class RestartSortListener implements SortOperateListener {
         Map<String, String> result = objectMapper.convertValue(objectMapper.readTree(sortExt),
                 new TypeReference<Map<String, String>>(){});
         kvConf.putAll(result);
-        if (StringUtils.isEmpty(kvConf.get(InlongGroupSettings.SORT_JOB_ID))) {
-            String message = String.format("inlongGroupId:%s not add restartProcess listener, SORT_JOB_ID is empty",
-                    inlongGroupId);
-            log.warn(message);
-            return ListenerResult.fail(message);
-        }
         String dataFlows = kvConf.get(InlongGroupSettings.DATA_FLOW);
         if (StringUtils.isEmpty(dataFlows)) {
             String message = String.format("groupId [%s] not add restartProcess listener, "
-                    + "as the sortProperties is empty", inlongGroupId);
+                    + "as the dataflows is empty", inlongGroupId);
             log.warn(message);
             return ListenerResult.fail(message);
         }
@@ -93,8 +87,8 @@ public class RestartSortListener implements SortOperateListener {
             dataFlow = dataflowOptional.get();
         }
         if (Objects.isNull(dataFlow)) {
-            String message = String.format("inlongGroupId:{} not add restartProcess listener,dataflow is empty",
-                    inlongGroupId);
+            String message = String.format("groupId [%s] not add restartProcess listener, "
+                    + "as the dataflow is empty", inlongGroupId);
             log.warn(message);
             return ListenerResult.fail(message);
         }
@@ -103,7 +97,7 @@ public class RestartSortListener implements SortOperateListener {
         flinkInfo.setJobName(jobName);
 
         String jobId = kvConf.get(InlongGroupSettings.SORT_JOB_ID);
-        Preconditions.checkNotEmpty(jobId, "sort jobId is empty");
+        Preconditions.checkNotEmpty(jobId, "sortJobId is empty");
         flinkInfo.setJobId(jobId);
 
         String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);

@@ -134,17 +134,15 @@ public class FlinkService {
      * @return
      */
     public JobStatus getJobStatus(String jobId) {
-        JobStatus status = null;
         try {
             RestClusterClient<StandaloneClusterId> client = getFlinkClient();
             JobID jobID = JobID.fromHexString(jobId);
             CompletableFuture<JobStatus> jobStatus = client.getJobStatus(jobID);
-            status = jobStatus.get();
-            return status;
+            return jobStatus.get();
         } catch (Exception e) {
             log.error("get job status error: ", e);
         }
-        return status;
+        return null;
     }
 
     /**
@@ -152,18 +150,15 @@ public class FlinkService {
      * @return
      */
     public JobDetailsInfo getJobDetail(String jobId) {
-        JobDetailsInfo jobDetailsInfo = null;
         try {
             RestClusterClient<StandaloneClusterId> client = getFlinkClient();
             JobID jobID = JobID.fromHexString(jobId);
             CompletableFuture<JobDetailsInfo> jobDetails = client.getJobDetails(jobID);
-            jobDetailsInfo = jobDetails.get();
-            return jobDetailsInfo;
-
+            return jobDetails.get();
         } catch (Exception e) {
             log.error("get job detail error: ", e);
         }
-        return jobDetailsInfo;
+        return null;
     }
 
     /**
@@ -174,7 +169,6 @@ public class FlinkService {
         RestClusterClient<StandaloneClusterId> client = null;
         String localJarPath = flinkInfo.getLocalJarPath();
         String[] programArgs = genProgramArgs(flinkInfo);
-        String jobId = "";
         try {
             client = getFlinkClient();
             Configuration configuration = initConfiguration();
@@ -189,12 +183,11 @@ public class FlinkService {
                 JobGraph jobGraph =
                         PackagedProgramUtils.createJobGraph(program,configuration,parallelism,false);
                 CompletableFuture<JobID> result = client.submitJob(jobGraph);
-                jobId = result.get().toString();
-                return jobId;
+                return result.get().toString();
         } catch (Exception e) {
             log.error("submit job error: ", e);
         }
-        return jobId;
+        return null;
     }
 
     /**
@@ -205,7 +198,6 @@ public class FlinkService {
         RestClusterClient<StandaloneClusterId> client = null;
         String localJarPath = flinkInfo.getLocalJarPath();
         String[] programArgs = genProgramArgs(flinkInfo);
-        String jobId = "";
         try {
             client = getFlinkClient();
             Configuration configuration = initConfiguration();
@@ -222,13 +214,12 @@ public class FlinkService {
                 JobGraph jobGraph =
                         PackagedProgramUtils.createJobGraph(program,configuration,parallelism,false);
                 CompletableFuture<JobID> result = client.submitJob(jobGraph);
-                jobId = result.get().toString();
-                return jobId;
+                return result.get().toString();
             }
         } catch (Exception e) {
             log.error("restore job error: ", e);
         }
-        return jobId;
+        return null;
     }
 
     /**
@@ -243,8 +234,7 @@ public class FlinkService {
             JobID jobID = JobID.fromHexString(jobId);
             CompletableFuture<String> stopResult =
                     client.stopWithSavepoint(jobID,requestBody.isDrain(),requestBody.getTargetDirectory());
-            String result = stopResult.get();
-            return result;
+            return stopResult.get();
         } catch (Exception e) {
             log.error("stop job error: ", e);
         }

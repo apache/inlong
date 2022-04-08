@@ -71,7 +71,7 @@ public class SuspendSortListener implements SortOperateListener {
         FlinkInfo flinkInfo = new FlinkInfo();
 
         String jobId = kvConf.get(InlongGroupSettings.SORT_JOB_ID);
-        Preconditions.checkNotEmpty(jobId, "sort jobId is empty");
+        Preconditions.checkNotEmpty(jobId, "sortJobId is empty");
         flinkInfo.setJobId(jobId);
 
         String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
