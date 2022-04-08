@@ -43,13 +43,13 @@ spec:
         {{- toYaml .Values.tubemqMaster.annotations | nindent 8 }}
       {{- end }}
     spec:
-      {{- if .Values.tubemqMaster.nodeSelector }}
-      nodeSelector:
-        {{- toYaml .Values.tubemqMaster.nodeSelector | nindent 8 }}
-      {{- end }}
       {{- if .Values.tubemqMaster.tolerations }}
       tolerations:
         {{- toYaml .Values.tubemqMaster.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tubemqMaster.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.tubemqMaster.nodeSelector | nindent 8 }}
       {{- end }}
       initContainers:
         - name: wait-{{ .Values.zookeeper.component }}-ready

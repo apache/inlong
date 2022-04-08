@@ -43,13 +43,13 @@ spec:
         {{- toYaml .Values.tubemqBroker.annotations | nindent 8 }}
       {{- end }}
     spec:
-      {{- if .Values.tubemqBroker.nodeSelector }}
-      nodeSelector:
-        {{- toYaml .Values.tubemqBroker.nodeSelector | nindent 8 }}
-      {{- end }}
       {{- if .Values.tubemqBroker.tolerations }}
       tolerations:
         {{- toYaml .Values.tubemqBroker.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tubemqBroker.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.tubemqBroker.nodeSelector | nindent 8 }}
       {{- end }}
       initContainers:
         - name: wait-{{ .Values.tubemqMaster.component }}-ready

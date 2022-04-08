@@ -47,6 +47,10 @@ spec:
       tolerations:
         {{- toYaml .Values.audit.tolerations | nindent 8 }}
       {{- end }}
+      {{- if .Values.audit.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.audit.nodeSelector | nindent 8 }}
+      {{- end }}
       initContainers:
         - name: wait-{{ .Values.mysql.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}

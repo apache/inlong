@@ -43,13 +43,13 @@ spec:
         {{- toYaml .Values.zookeeper.annotations | nindent 8 }}
       {{- end }}
     spec:
-      {{- if .Values.zookeeper.nodeSelector }}
-      nodeSelector:
-        {{- toYaml .Values.zookeeper.nodeSelector | nindent 8 }}
-      {{- end }}
       {{- if .Values.zookeeper.tolerations }}
       tolerations:
         {{- toYaml .Values.zookeeper.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.zookeeper.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.zookeeper.nodeSelector | nindent 8 }}
       {{- end }}
       affinity:
         {{- if .Values.affinity.anti_affinity }}

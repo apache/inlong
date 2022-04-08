@@ -47,6 +47,10 @@ spec:
       tolerations:
         {{- toYaml .Values.tubemqManager.tolerations | nindent 8 }}
       {{- end }}
+      {{- if .Values.tubemqManager.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.tubemqManager.nodeSelector | nindent 8 }}
+      {{- end }}
       initContainers:
         - name: wait-{{ .Values.mysql.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}

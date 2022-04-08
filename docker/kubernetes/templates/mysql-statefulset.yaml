@@ -48,6 +48,10 @@ spec:
       tolerations:
         {{- toYaml .Values.mysql.tolerations | nindent 8 }}
       {{- end }}
+      {{- if .Values.mysql.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.mysql.nodeSelector | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
           image: {{ .Values.images.mysql.repository }}:{{ .Values.images.mysql.tag }}

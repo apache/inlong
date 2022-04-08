@@ -79,6 +79,11 @@ agent:
   # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
   tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
   resources:
     requests:
       cpu: 1
@@ -111,6 +116,11 @@ dashboard:
   # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
   tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
   resources:
     requests:
       cpu: 1
@@ -149,6 +159,11 @@ dataproxy:
   # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
   tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
   resources:
     requests:
       cpu: 1
@@ -193,6 +208,11 @@ tubemqManager:
   # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
   tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
   resources:
     requests:
       cpu: 1
@@ -224,6 +244,11 @@ manager:
   # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
   tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
   resources:
     requests:
       cpu: 1
@@ -270,6 +295,11 @@ audit:
   # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
   tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
   resources:
     requests:
       cpu: 1
@@ -301,6 +331,11 @@ mysql:
   # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
   tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
   resources:
     requests:
       cpu: 1
@@ -333,6 +368,11 @@ zookeeper:
   # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
   tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
   ports:
     client: 2181
     follower: 2888
@@ -381,6 +421,11 @@ tubemqMaster:
   # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
   tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
   ports:
     rpcPort: 8715
     webPort: 8080
@@ -448,6 +493,11 @@ tubemqBroker:
   # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
   tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
   ports:
     rpcPort: 8123
     webPort: 8081

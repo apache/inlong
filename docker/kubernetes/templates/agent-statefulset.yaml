@@ -47,6 +47,10 @@ spec:
       tolerations:
         {{- toYaml .Values.agent.tolerations | nindent 8 }}
       {{- end }}
+      {{- if .Values.agent.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.agent.nodeSelector | nindent 8 }}
+      {{- end }}
       initContainers:
         - name: wait-{{ .Values.dashboard.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
