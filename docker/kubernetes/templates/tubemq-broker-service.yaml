@@ -27,15 +27,31 @@ metadata:
     {{- toYaml .Values.tubemqBroker.service.annotations | nindent 4 }}
 spec:
   type: {{ .Values.tubemqBroker.service.type }}
+  {{- if and (eq .Values.tubemqBroker.service.type "ClusterIP") .Values.tubemqBroker.service.clusterIP }}
+  clusterIP: {{ .Values.tubemqBroker.service.clusterIP }}
+  {{- end }}
   ports:
     - name: broker-web-port
       protocol: TCP
       port: {{ .Values.tubemqBroker.ports.webPort }}
       targetPort: 8081
+      {{- if and (eq .Values.tubemqBroker.service.type "NodePort") .Values.tubemqBroker.service.webNodePort }}
+      nodePort: {{ .Values.tubemqBroker.service.webNodePort }}
+      {{- end }}
     - name: broker-rpc-port
       protocol: TCP
       port: {{ .Values.tubemqBroker.ports.rpcPort }}
       targetPort: 8123
+  {{- if and (eq .Values.tubemqBroker.service.type "LoadBalancer") .Values.tubemqBroker.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.tubemqBroker.service.loadBalancerIP }}
+  {{- end }}
+  {{- if and (eq .Values.tubemqBroker.service.type "ExternalName") .Values.tubemqBroker.service.externalName }}
+  externalName: {{ .Values.tubemqBroker.service.externalName }}
+  {{- end }}
+  {{- if .Values.tubemqBroker.service.externalIPs }}
+  externalIPs:
+    {{- toYaml .Values.tubemqBroker.service.externalIPs | nindent 4 }}
+  {{- end }}
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.tubemqBroker.component }}

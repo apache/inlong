@@ -279,9 +279,21 @@ tubemqMaster:
     name: data
     size: "10Gi"
   service:
-    type: LoadBalancer
     annotations:
       service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    # type determines how the service is exposed. Defaults to NodePort. Valid options are ClusterIP, NodePort, LoadBalancer, and ExternalName
+    type: NodePort
+    # clusterIP is the IP address of the service and is usually assigned randomly by the master when service type is ClusterIP
+    clusterIP:
+    # webNodePort is the web port on each node on which this service is exposed when service type is NodePort
+    # the range of valid ports is 30000-32767
+    webNodePort: 30880
+    # when service type is LoadBalancer, LoadBalancer will get created with the IP specified in this field
+    loadBalancerIP:
+    # externalName is the external reference that kubedns or equivalent will return as a CNAME record for this service, requires service type to be ExternalName
+    externalName:
+    # externalIPs is a list of IP addresses for which nodes in the cluster will also accept traffic for this service
+    externalIPs:
   pdb:
     usePolicy: true
     maxUnavailable: 1
@@ -322,9 +334,21 @@ tubemqBroker:
     name: data
     size: "10Gi"
   service:
-    type: LoadBalancer
     annotations:
       service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    # type determines how the service is exposed. Defaults to NodePort. Valid options are ClusterIP, NodePort, LoadBalancer, and ExternalName
+    type: NodePort
+    # clusterIP is the IP address of the service and is usually assigned randomly by the master when service type is ClusterIP
+    clusterIP:
+    # webNodePort is the web port on each node on which this service is exposed when service type is NodePort
+    # the range of valid ports is 30000-32767
+    webNodePort: 30881
+    # when service type is LoadBalancer, LoadBalancer will get created with the IP specified in this field
+    loadBalancerIP:
+    # externalName is the external reference that kubedns or equivalent will return as a CNAME record for this service, requires service type to be ExternalName
+    externalName:
+    # externalIPs is a list of IP addresses for which nodes in the cluster will also accept traffic for this service
+    externalIPs:
   pdb:
     usePolicy: true
     maxUnavailable: 1
