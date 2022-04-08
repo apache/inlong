@@ -39,6 +39,7 @@ public class InlongCommandTool {
 
         commandMap.put("list", CommandList.class);
         commandMap.put("describe", CommandDescribe.class);
+        commandMap.put("create", CommandCreate.class);
 
         for (Map.Entry<String, Class<?>> cmd : commandMap.entrySet()) {
             try {

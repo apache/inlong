@@ -27,9 +27,13 @@ import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Properties;
@@ -86,6 +90,34 @@ abstract class CommandUtil {
         JsonParser jsonParser = new JsonParser();
         JsonObject jsonObject = jsonParser.parse(gson.toJson(item)).getAsJsonObject();
         System.out.println(gson.toJson(jsonObject));
+    }
+
+    String readFile(File file) {
+        if (!file.exists()) {
+            System.out.println("File does not exist.");
+        } else {
+            try {
+                FileReader fileReader = new FileReader(file);
+                Reader reader = new InputStreamReader(new FileInputStream(file));
+                int ch;
+                StringBuffer stringBuffer = new StringBuffer();
+                while ((ch = reader.read()) != -1) {
+                    stringBuffer.append((char) ch);
+                }
+                fileReader.close();
+                reader.close();
+
+                return stringBuffer.toString();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    <T> T jsonToObject(String string, Class<T> clazz) {
+        Gson gson = new Gson();
+        return gson.fromJson(string, clazz);
     }
 
     abstract void run() throws Exception;
