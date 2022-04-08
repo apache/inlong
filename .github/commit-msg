@@ -1,0 +1,25 @@
+#!/bin/sh
+
+regular="^\[INLONG-[1-9][0-9]{3,4}\]\[(InLong|Agent|Audit|Dashboard|DataProxy|SDK|Sort|Sort-Flink|Sort-Standalone|TubeMQ|Manager|Website)\] [A-Z][a-zA-Z0-9.,-_ ]{10,100}"
+endRegular="[a-zA-Z0-9]$"
+
+error_msg="Your commit message was invalid, the format of the commit message is: [INLONG-1234][Module] Your message
+    1. [INLONG-1234] represents the issue number associated with this commit
+    2. [Module] indicates which module of Apache InLong this commit belongs to
+       Support: InLong|Agent|Audit|Dashboard|DataProxy|SDK|Sort|Sort-Flink|Sort-Standalone|TubeMQ|Manager|Website
+       If your commit involves multiple modules, please use [InLong] as the module
+    3. After a space, write your commit message, start with a capital letter and cannot end with a number, space or punctuation
+For example:
+    [INLONG-3293][Manager] Add version controller for stream source"
+
+commit_msg=$(head -n1 "$1")
+echo "$commit_msg"
+
+# shellcheck disable=SC2039
+if [[ ! $commit_msg =~ $regular || ! $commit_msg =~ $endRegular ]]; then
+    echo "\033[31mCommit failed! $error_msg\033[31m" >&2
+    exit 1
+else
+    echo "\033[32mCommit success!\033[32m"
+    exit 0
+fi
