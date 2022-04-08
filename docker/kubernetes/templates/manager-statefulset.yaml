@@ -55,6 +55,7 @@ spec:
       affinity:
         {{- toYaml .Values.manager.affinity | nindent 8 }}
       {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.manager.terminationGracePeriodSeconds }}
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.manager.component }}
           image: {{ .Values.images.manager.repository }}:{{ .Values.images.manager.tag }}

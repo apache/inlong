@@ -55,6 +55,7 @@ spec:
       affinity:
         {{- toYaml .Values.audit.affinity | nindent 8 }}
       {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.audit.terminationGracePeriodSeconds }}
       initContainers:
         - name: wait-{{ .Values.mysql.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}

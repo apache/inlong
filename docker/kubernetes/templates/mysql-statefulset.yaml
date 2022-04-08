@@ -56,6 +56,7 @@ spec:
       affinity:
         {{- toYaml .Values.mysql.affinity | nindent 8 }}
       {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.mysql.terminationGracePeriodSeconds }}
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
           image: {{ .Values.images.mysql.repository }}:{{ .Values.images.mysql.tag }}

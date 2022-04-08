@@ -73,6 +73,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
         {{- end }}
       {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.tubemqBroker.terminationGracePeriodSeconds }}
       initContainers:
         - name: wait-{{ .Values.tubemqMaster.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
@@ -92,7 +93,6 @@ spec:
                   sleep 3
                 done
               done
-      terminationGracePeriodSeconds: {{ .Values.tubemqBroker.gracePeriod }}
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }}
           image: {{ .Values.images.tubemqServer.repository }}:{{ .Values.images.tubemqServer.tag }}

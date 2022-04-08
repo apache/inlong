@@ -55,6 +55,7 @@ spec:
       affinity:
         {{- toYaml .Values.dashboard.affinity | nindent 8 }}
       {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.dashboard.terminationGracePeriodSeconds }}
       initContainers:
         - name: wait-{{ .Values.manager.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}

@@ -73,7 +73,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
         {{- end }}
       {{- end }}
-      terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
+      terminationGracePeriodSeconds: {{ .Values.zookeeper.terminationGracePeriodSeconds }}
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}
           image: {{ .Values.images.tubemqServer.repository }}:{{ .Values.images.tubemqServer.tag }}

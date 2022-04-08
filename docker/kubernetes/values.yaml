@@ -84,6 +84,9 @@ agent:
   # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   resources:
     requests:
       cpu: 1
@@ -124,6 +127,9 @@ dashboard:
   # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   resources:
     requests:
       cpu: 1
@@ -170,6 +176,9 @@ dataproxy:
   # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   resources:
     requests:
       cpu: 1
@@ -222,6 +231,9 @@ tubemqManager:
   # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   resources:
     requests:
       cpu: 1
@@ -261,6 +273,9 @@ manager:
   # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   resources:
     requests:
       cpu: 1
@@ -315,6 +330,9 @@ audit:
   # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   resources:
     requests:
       cpu: 1
@@ -354,6 +372,9 @@ mysql:
   # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   resources:
     requests:
       cpu: 1
@@ -395,6 +416,9 @@ zookeeper:
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity:
     antiAffinity: false
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   ports:
     client: 2181
     follower: 2888
@@ -410,7 +434,6 @@ zookeeper:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-  gracePeriod: 30
   resources:
     requests:
       cpu: 1
@@ -452,6 +475,9 @@ tubemqMaster:
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity:
     antiAffinity: false
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   ports:
     rpcPort: 8715
     webPort: 8080
@@ -467,7 +493,6 @@ tubemqMaster:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-  gracePeriod: 30
   resources:
     requests:
       cpu: 1
@@ -528,6 +553,9 @@ tubemqBroker:
   # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity:
     antiAffinity: false
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   ports:
     rpcPort: 8123
     webPort: 8081
@@ -542,7 +570,6 @@ tubemqBroker:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-  gracePeriod: 30
   resources:
     requests:
       cpu: 1
