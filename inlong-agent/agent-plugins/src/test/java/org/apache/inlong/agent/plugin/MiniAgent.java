@@ -17,15 +17,17 @@
 
 package org.apache.inlong.agent.plugin;
 
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_FETCH_CENTER_INTERVAL_SECONDS;
-
-import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.core.AgentManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.LinkedBlockingQueue;
+
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_FETCH_CENTER_INTERVAL_SECONDS;
+import static org.apache.inlong.agent.constant.AgentConstants.PROMETHEUS_ENABLE;
 
 public class MiniAgent {
 
@@ -36,6 +38,7 @@ public class MiniAgent {
     public MiniAgent() {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         conf.setInt(AGENT_FETCH_CENTER_INTERVAL_SECONDS, 1);
+        conf.setBoolean(PROMETHEUS_ENABLE, true);
         manager = new AgentManager();
         queueJobs = new LinkedBlockingQueue<>(100);
 
