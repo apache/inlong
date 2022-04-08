@@ -53,9 +53,13 @@ public class CommandDescribe extends CommandBase {
 
         @Override
         void run() {
-            InnerInlongManagerClient managerClient = connect();
-            List<FullStreamResponse> fullStreamResponseList = managerClient.listStreamInfo(groupId);
-            fullStreamResponseList.forEach(response -> printJson(response.getStreamInfo()));
+            try {
+                InnerInlongManagerClient managerClient = connect();
+                List<FullStreamResponse> fullStreamResponseList = managerClient.listStreamInfo(groupId);
+                fullStreamResponseList.forEach(response -> printJson(response.getStreamInfo()));
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
@@ -76,9 +80,13 @@ public class CommandDescribe extends CommandBase {
 
         @Override
         void run() {
-            InnerInlongManagerClient managerClient = connect();
-            PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, status, 1, pageSize);
-            groupPageInfo.getList().forEach(this::printJson);
+            try {
+                InnerInlongManagerClient managerClient = connect();
+                PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, status, 1, pageSize);
+                groupPageInfo.getList().forEach(this::printJson);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
@@ -97,8 +105,12 @@ public class CommandDescribe extends CommandBase {
         @Override
         void run() {
             InnerInlongManagerClient managerClient = connect();
-            List<SinkListResponse> sinkListResponses = managerClient.listSinks(group, stream);
-            sinkListResponses.forEach(this::printJson);
+            try {
+                List<SinkListResponse> sinkListResponses = managerClient.listSinks(group, stream);
+                sinkListResponses.forEach(this::printJson);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
@@ -119,9 +131,13 @@ public class CommandDescribe extends CommandBase {
 
         @Override
         void run() {
-            InnerInlongManagerClient managerClient = connect();
-            List<SourceListResponse> sourceListResponses = managerClient.listSources(group, stream, type);
-            sourceListResponses.forEach(this::printJson);
+            try {
+                InnerInlongManagerClient managerClient = connect();
+                List<SourceListResponse> sourceListResponses = managerClient.listSources(group, stream, type);
+                sourceListResponses.forEach(this::printJson);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 }
