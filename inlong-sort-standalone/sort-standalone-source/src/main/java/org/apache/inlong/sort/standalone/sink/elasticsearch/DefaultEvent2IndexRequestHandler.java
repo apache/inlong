@@ -114,7 +114,7 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
     public static String getExtInfo(ProfileEvent event) {
         String extinfoValue = event.getHeaders().get(KEY_EXTINFO);
         if (extinfoValue != null) {
-            return extinfoValue;
+            return KEY_EXTINFO + "=" + extinfoValue;
         }
         extinfoValue = KEY_EXTINFO + "=" + event.getHeaders().get(EventConstants.HEADER_KEY_SOURCE_IP);
         return extinfoValue;
