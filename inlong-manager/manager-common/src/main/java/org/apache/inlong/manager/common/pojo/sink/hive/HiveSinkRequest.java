@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
@@ -35,7 +35,7 @@ import java.util.List;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Request of the Hive sink info")
-@JsonTypeDefine(value = Constant.SINK_HIVE)
+@JsonTypeDefine(value = SinkType.SINK_HIVE)
 public class HiveSinkRequest extends SinkRequest {
 
     @ApiModelProperty("Whether to enable create table, 1: enable, 0: disable, default is 1")

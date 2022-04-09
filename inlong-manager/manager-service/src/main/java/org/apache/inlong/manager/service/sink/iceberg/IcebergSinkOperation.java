@@ -15,21 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.sink.ck;
+package org.apache.inlong.manager.service.sink.iceberg;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.function.Supplier;
-import javax.validation.constraints.NotNull;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
@@ -37,10 +31,10 @@ import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkDTO;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -53,13 +47,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * ClickHouse sink operation
- */
-@Service
-public class ClickHouseStreamSinkOperation implements StreamSinkOperation {
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.function.Supplier;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClickHouseStreamSinkOperation.class);
+@Service
+public class IcebergSinkOperation implements StreamSinkOperation {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(IcebergSinkOperation.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -70,17 +66,17 @@ public class ClickHouseStreamSinkOperation implements StreamSinkOperation {
 
     @Override
     public Boolean accept(SinkType sinkType) {
-        return SinkType.CLICKHOUSE.equals(sinkType);
+        return SinkType.ICEBERG.equals(sinkType);
     }
 
     @Override
     public Integer saveOpt(SinkRequest request, String operator) {
         String sinkType = request.getSinkType();
-        Preconditions.checkTrue(Constant.SINK_CLICKHOUSE.equals(sinkType),
+        Preconditions.checkTrue(SinkType.SINK_ICEBERG.equals(sinkType),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + sinkType);
 
-        ClickHouseSinkRequest sinkRequest = (ClickHouseSinkRequest) request;
-        StreamSinkEntity entity = CommonBeanUtils.copyProperties(sinkRequest, StreamSinkEntity::new);
+        IcebergSinkRequest icebergSinkRequest = (IcebergSinkRequest) request;
+        StreamSinkEntity entity = CommonBeanUtils.copyProperties(icebergSinkRequest, StreamSinkEntity::new);
         entity.setStatus(EntityStatus.SINK_NEW.getCode());
         entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
         entity.setCreator(operator);
@@ -90,25 +86,23 @@ public class ClickHouseStreamSinkOperation implements StreamSinkOperation {
         entity.setModifyTime(now);
 
         // get the ext params
-        ClickHouseSinkDTO dto = ClickHouseSinkDTO.getFromRequest(sinkRequest);
+        IcebergSinkDTO dto = IcebergSinkDTO.getFromRequest(icebergSinkRequest);
         try {
             entity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED);
         }
         sinkMapper.insert(entity);
-
         Integer sinkId = entity.getId();
         request.setId(sinkId);
         this.saveFieldOpt(request);
-
         return sinkId;
     }
 
     @Override
     public void saveFieldOpt(SinkRequest request) {
         List<SinkFieldRequest> fieldList = request.getFieldList();
-        LOGGER.info("begin to save field={}", fieldList);
+        LOGGER.info("begin to save iceberg field={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
         }
@@ -133,18 +127,18 @@ public class ClickHouseStreamSinkOperation implements StreamSinkOperation {
         }
 
         sinkFieldMapper.insertAll(entityList);
-        LOGGER.info("success to save clickHouse field");
+        LOGGER.info("success to save iceberg field");
     }
 
     @Override
-    public SinkResponse getById(@NotNull String sinkType, @NotNull Integer id) {
+    public SinkResponse getById(String sinkType, Integer id) {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
-        Preconditions.checkTrue(Constant.SINK_CLICKHOUSE.equals(existType),
-                String.format(Constant.SINK_TYPE_NOT_SAME, Constant.SINK_CLICKHOUSE, existType));
+        Preconditions.checkTrue(SinkType.SINK_ICEBERG.equals(existType),
+                String.format(SinkType.SINK_TYPE_NOT_SAME, SinkType.SINK_ICEBERG, existType));
 
-        SinkResponse response = this.getFromEntity(entity, ClickHouseSinkResponse::new);
+        SinkResponse response = this.getFromEntity(entity, IcebergSinkResponse::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(id);
         List<SinkFieldResponse> infos = CommonBeanUtils.copyListProperties(entities,
                 SinkFieldResponse::new);
@@ -161,10 +155,10 @@ public class ClickHouseStreamSinkOperation implements StreamSinkOperation {
         }
 
         String existType = entity.getSinkType();
-        Preconditions.checkTrue(Constant.SINK_CLICKHOUSE.equals(existType),
-                String.format(Constant.SINK_TYPE_NOT_SAME, Constant.SINK_CLICKHOUSE, existType));
+        Preconditions.checkTrue(SinkType.SINK_ICEBERG.equals(existType),
+                String.format(SinkType.SINK_TYPE_NOT_SAME, SinkType.SINK_ICEBERG, existType));
 
-        ClickHouseSinkDTO dto = ClickHouseSinkDTO.getFromJson(entity.getExtParams());
+        IcebergSinkDTO dto = IcebergSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
 
@@ -176,21 +170,21 @@ public class ClickHouseStreamSinkOperation implements StreamSinkOperation {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, ClickHouseSinkListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, IcebergSinkListResponse::new));
     }
 
     @Override
     public void updateOpt(SinkRequest request, String operator) {
         String sinkType = request.getSinkType();
-        Preconditions.checkTrue(Constant.SINK_CLICKHOUSE.equals(sinkType),
-                String.format(Constant.SINK_TYPE_NOT_SAME, Constant.SINK_CLICKHOUSE, sinkType));
+        Preconditions.checkTrue(SinkType.SINK_ICEBERG.equals(sinkType),
+                String.format(SinkType.SINK_TYPE_NOT_SAME, SinkType.SINK_ICEBERG, sinkType));
 
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
-        ClickHouseSinkRequest sinkRequest = (ClickHouseSinkRequest) request;
-        CommonBeanUtils.copyProperties(sinkRequest, entity, true);
+        IcebergSinkRequest icebergSinkRequest = (IcebergSinkRequest) request;
+        CommonBeanUtils.copyProperties(icebergSinkRequest, entity, true);
         try {
-            ClickHouseSinkDTO dto = ClickHouseSinkDTO.getFromRequest(sinkRequest);
+            IcebergSinkDTO dto = IcebergSinkDTO.getFromRequest(icebergSinkRequest);
             entity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
@@ -203,7 +197,7 @@ public class ClickHouseStreamSinkOperation implements StreamSinkOperation {
         sinkMapper.updateByPrimaryKeySelective(entity);
 
         boolean onlyAdd = EntityStatus.SINK_CONFIG_SUCCESSFUL.getCode().equals(entity.getPreviousStatus());
-        this.updateFieldOpt(onlyAdd, sinkRequest);
+        this.updateFieldOpt(onlyAdd, icebergSinkRequest);
 
         LOGGER.info("success to update sink of type={}", sinkType);
     }
@@ -235,5 +229,4 @@ public class ClickHouseStreamSinkOperation implements StreamSinkOperation {
 
         LOGGER.info("success to update field");
     }
-
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.source.binlog;
+package org.apache.inlong.manager.service.source.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -27,41 +27,41 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceDTO;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
-import org.apache.inlong.manager.service.source.AbstractStreamSourceOperation;
+import org.apache.inlong.manager.service.source.AbstractSourceOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Supplier;
 
 /**
- * Binlog source operation
+ * kafka stream source operation.
  */
 @Service
-public class BinlogStreamSourceOperation extends AbstractStreamSourceOperation {
+public class KafkaSourceOperation extends AbstractSourceOperation {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
     public Boolean accept(SourceType sourceType) {
-        return SourceType.BINLOG == sourceType;
+        return SourceType.KAFKA == sourceType;
     }
 
     @Override
     protected String getSourceType() {
-        return SourceType.BINLOG.getType();
+        return SourceType.KAFKA.getType();
     }
 
     @Override
     protected SourceResponse getResponse() {
-        return new BinlogSourceResponse();
+        return new KafkaSourceResponse();
     }
 
     @Override
@@ -69,15 +69,15 @@ public class BinlogStreamSourceOperation extends AbstractStreamSourceOperation {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, BinlogSourceListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, KafkaSourceListResponse::new));
     }
 
     @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
-        BinlogSourceRequest sourceRequest = (BinlogSourceRequest) request;
+        KafkaSourceRequest sourceRequest = (KafkaSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            BinlogSourceDTO dto = BinlogSourceDTO.getFromRequest(sourceRequest);
+            KafkaSourceDTO dto = KafkaSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
@@ -93,7 +93,7 @@ public class BinlogStreamSourceOperation extends AbstractStreamSourceOperation {
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
                 String.format(SourceType.SOURCE_TYPE_NOT_SAME, getSourceType(), existType));
-        BinlogSourceDTO dto = BinlogSourceDTO.getFromJson(entity.getExtParams());
+        KafkaSourceDTO dto = KafkaSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
         return result;

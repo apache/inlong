@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.core.sink;
 
 import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
@@ -46,7 +47,7 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
         IcebergSinkRequest sinkInfo = new IcebergSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(Constant.SINK_ICEBERG);
+        sinkInfo.setSinkType(SinkType.SINK_ICEBERG);
         sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
         sinkInfo.setDataPath("hdfs://127.0.0.1:8020/data");
         sinkInfo.setSinkName(sinkName);
@@ -57,22 +58,22 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
     public void testSaveAndDelete() {
         Integer id = this.saveSink();
         Assert.assertNotNull(id);
-        boolean result = sinkService.delete(id, Constant.SINK_ICEBERG, globalOperator);
+        boolean result = sinkService.delete(id, SinkType.SINK_ICEBERG, globalOperator);
         Assert.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer id = this.saveSink();
-        SinkResponse sink = sinkService.get(id, Constant.SINK_ICEBERG);
+        SinkResponse sink = sinkService.get(id, SinkType.SINK_ICEBERG);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
-        sinkService.delete(id, Constant.SINK_ICEBERG, globalOperator);
+        sinkService.delete(id, SinkType.SINK_ICEBERG, globalOperator);
     }
 
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSink();
-        SinkResponse response = sinkService.get(id, Constant.SINK_ICEBERG);
+        SinkResponse response = sinkService.get(id, SinkType.SINK_ICEBERG);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         IcebergSinkResponse icebergSinkResponse = (IcebergSinkResponse) response;

@@ -20,13 +20,13 @@ package org.apache.inlong.manager.service.thirdparty.hive;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -54,7 +54,7 @@ public class CreateHiveTableEventSelector implements EventSelector {
             return false;
         }
         String groupId = form.getInlongGroupId();
-        List<String> dsForHive = sinkService.getExistsStreamIdList(groupId, Constant.SINK_HIVE,
+        List<String> dsForHive = sinkService.getExistsStreamIdList(groupId, SinkType.SINK_HIVE,
                 streamMapper.selectByGroupId(groupId)
                         .stream()
                         .map(InlongStreamEntity::getInlongStreamId)

@@ -44,9 +44,9 @@ import java.util.List;
 /**
  * Default operation of stream source.
  */
-public abstract class AbstractStreamSourceOperation implements StreamSourceOperation {
+public abstract class AbstractSourceOperation implements StreamSourceOperation {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStreamSourceOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSourceOperation.class);
     @Autowired
     protected StreamSourceEntityMapper sourceMapper;
 

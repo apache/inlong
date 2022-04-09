@@ -15,57 +15,73 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.source.file;
+package org.apache.inlong.manager.service.source.binlog;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.file.FileSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.file.FileSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.file.FileSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceDTO;
+import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
-import org.apache.inlong.manager.service.source.AbstractStreamSourceOperation;
+import org.apache.inlong.manager.service.source.AbstractSourceOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Supplier;
 
+/**
+ * Binlog source operation
+ */
 @Service
-public class FileStreamSourceOperation extends AbstractStreamSourceOperation {
+public class BinlogSourceOperation extends AbstractSourceOperation {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
-    protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
-        FileSourceRequest sourceRequest = (FileSourceRequest) request;
-        CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
-        try {
-            FileSourceDTO dto = FileSourceDTO.getFromRequest(sourceRequest);
-            targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-        } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
-        }
+    public Boolean accept(SourceType sourceType) {
+        return SourceType.BINLOG == sourceType;
     }
 
     @Override
     protected String getSourceType() {
-        return SourceType.SOURCE_FILE;
+        return SourceType.BINLOG.getType();
     }
 
     @Override
     protected SourceResponse getResponse() {
-        return new FileSourceResponse();
+        return new BinlogSourceResponse();
     }
 
     @Override
-    public Boolean accept(SourceType sourceType) {
-        return sourceType == SourceType.FILE;
+    public PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage) {
+        if (CollectionUtils.isEmpty(entityPage)) {
+            return new PageInfo<>();
+        }
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, BinlogSourceListResponse::new));
+    }
+
+    @Override
+    protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
+        BinlogSourceRequest sourceRequest = (BinlogSourceRequest) request;
+        CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
+        try {
+            BinlogSourceDTO dto = BinlogSourceDTO.getFromRequest(sourceRequest);
+            targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+        }
     }
 
     @Override
@@ -77,7 +93,7 @@ public class FileStreamSourceOperation extends AbstractStreamSourceOperation {
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
                 String.format(SourceType.SOURCE_TYPE_NOT_SAME, getSourceType(), existType));
-        FileSourceDTO dto = FileSourceDTO.getFromJson(entity.getExtParams());
+        BinlogSourceDTO dto = BinlogSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
         return result;

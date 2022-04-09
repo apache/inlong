@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
@@ -33,7 +33,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Request of the ClickHouse sink info")
-@JsonTypeDefine(value = Constant.SINK_CLICKHOUSE)
+@JsonTypeDefine(value = SinkType.SINK_CLICKHOUSE)
 public class ClickHouseSinkRequest extends SinkRequest {
 
     @ApiModelProperty("ClickHouse JDBC URL")

@@ -22,7 +22,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
@@ -58,9 +57,9 @@ import java.util.function.Supplier;
  * Kafka sink operation
  */
 @Service
-public class KafkaStreamSinkOperation implements StreamSinkOperation {
+public class KafkaSinkOperation implements StreamSinkOperation {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaStreamSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSinkOperation.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -77,7 +76,7 @@ public class KafkaStreamSinkOperation implements StreamSinkOperation {
     @Override
     public Integer saveOpt(SinkRequest request, String operator) {
         String sinkType = request.getSinkType();
-        Preconditions.checkTrue(Constant.SINK_KAFKA.equals(sinkType),
+        Preconditions.checkTrue(SinkType.SINK_KAFKA.equals(sinkType),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + sinkType);
 
         KafkaSinkRequest kafkaSinkRequest = (KafkaSinkRequest) request;
@@ -140,12 +139,11 @@ public class KafkaStreamSinkOperation implements StreamSinkOperation {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
-        Preconditions.checkTrue(Constant.SINK_KAFKA.equals(existType),
-                String.format(Constant.SINK_TYPE_NOT_SAME, Constant.SINK_KAFKA, existType));
+        Preconditions.checkTrue(SinkType.SINK_KAFKA.equals(existType),
+                String.format(SinkType.SINK_TYPE_NOT_SAME, SinkType.SINK_KAFKA, existType));
         SinkResponse response = this.getFromEntity(entity, KafkaSinkResponse::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(id);
-        List<SinkFieldResponse> infos = CommonBeanUtils.copyListProperties(entities,
-                SinkFieldResponse::new);
+        List<SinkFieldResponse> infos = CommonBeanUtils.copyListProperties(entities, SinkFieldResponse::new);
         response.setFieldList(infos);
         return response;
     }
@@ -157,8 +155,8 @@ public class KafkaStreamSinkOperation implements StreamSinkOperation {
             return result;
         }
         String existType = entity.getSinkType();
-        Preconditions.checkTrue(Constant.SINK_KAFKA.equals(existType),
-                String.format(Constant.SINK_TYPE_NOT_SAME, Constant.SINK_KAFKA, existType));
+        Preconditions.checkTrue(SinkType.SINK_KAFKA.equals(existType),
+                String.format(SinkType.SINK_TYPE_NOT_SAME, SinkType.SINK_KAFKA, existType));
 
         KafkaSinkDTO dto = KafkaSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
@@ -178,8 +176,8 @@ public class KafkaStreamSinkOperation implements StreamSinkOperation {
     @Override
     public void updateOpt(SinkRequest request, String operator) {
         String sinkType = request.getSinkType();
-        Preconditions.checkTrue(Constant.SINK_KAFKA.equals(sinkType),
-                String.format(Constant.SINK_TYPE_NOT_SAME, Constant.SINK_KAFKA, sinkType));
+        Preconditions.checkTrue(SinkType.SINK_KAFKA.equals(sinkType),
+                String.format(SinkType.SINK_TYPE_NOT_SAME, SinkType.SINK_KAFKA, sinkType));
 
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
