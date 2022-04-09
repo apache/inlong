@@ -106,7 +106,9 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
     public void stop() {
         pool.shutdownNow();
         LOG.info("Close sort client {}.", taskName);
-        sortClient.close();
+        if (sortClient != null) {
+            sortClient.close();
+        }
     }
 
     /**
