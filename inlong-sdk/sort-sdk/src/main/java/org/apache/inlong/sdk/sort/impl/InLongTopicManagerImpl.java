@@ -66,8 +66,8 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
         super(context, queryConsumeConfig);
         updateMetaDataWorker = new UpdateMetaDataThread(context.getConfig().getUpdateMetaDataIntervalSec(),
                 TimeUnit.SECONDS);
-        String threadName = "sortsdk_inlongtopic_manager_"
-                + StringUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss");
+        String threadName = "sortsdk_inlongtopic_manager_" + context.getConfig().getSortTaskId()
+                + "_" + StringUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss");
         updateMetaDataWorker.start(threadName);
     }
 

@@ -17,12 +17,12 @@
 
 package org.apache.inlong.sdk.sort.impl;
 
-import com.google.gson.Gson;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -42,6 +42,9 @@ import org.apache.inlong.sdk.sort.entity.ConsumeConfig;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
 
 public class QueryConsumeConfigImpl implements QueryConsumeConfig {
 
@@ -67,9 +70,9 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     }
 
     // HTTP GET
-    private SortSourceConfigResponse doGetRequest() throws Exception {
+    private SortSourceConfigResponse doGetRequest(String getUrl) throws Exception {
         SortSourceConfigResponse managerResponse;
-        HttpGet request = getHttpGet();
+        HttpGet request = getHttpGet(getUrl);
 
         try (CloseableHttpResponse response = httpClient.execute(request)) {
 
@@ -93,8 +96,8 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
         return null;
     }
 
-    private HttpGet getHttpGet() {
-        HttpGet request = new HttpGet(getRequestUrlWithParam());
+    private HttpGet getHttpGet(String getUrl) {
+        HttpGet request = new HttpGet(getUrl);
         // add request headers
         request.addHeader("custom-key", "inlong-readapi");
         request.addHeader(HttpHeaders.USER_AGENT, "Googlebot");
@@ -107,12 +110,13 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     public void reload() {
         logger.debug("start to reload sort task config.");
         try {
-            SortSourceConfigResponse managerResponse = doGetRequest();
+            String getUrl = getRequestUrlWithParam();
+            SortSourceConfigResponse managerResponse = doGetRequest(getUrl);
             if (managerResponse == null) {
                 logger.info("## reload managerResponse == null");
                 return;
             }
-            if (handleSortTaskConfResult(managerResponse, managerResponse.getCode())) {
+            if (handleSortTaskConfResult(getUrl, managerResponse, managerResponse.getCode())) {
                 return;
             }
         } catch (Throwable e) {
@@ -126,34 +130,35 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     /**
      * handle request response
      *
-     * UPDATE_VALUE = 0; conf update
-     * NOUPDATE_VALUE = 1; conf no update, md5 is same
-     * REQ_PARAMS_ERROR = -101; request params error
-     * FAIL = -1; common error
+     * UPDATE_VALUE = 0; conf update NOUPDATE_VALUE = 1; conf no update, md5 is same REQ_PARAMS_ERROR = -101; request
+     * params error FAIL = -1; common error
      *
-     * @param response ManagerResponse
-     * @param respCodeValue int
-     * @return true/false
+     * @param  getUrl
+     * @param  response      ManagerResponse
+     * @param  respCodeValue int
+     * @return               true/false
      */
-    private boolean handleSortTaskConfResult(SortSourceConfigResponse response, int respCodeValue) throws Exception {
+    private boolean handleSortTaskConfResult(String getUrl, SortSourceConfigResponse response, int respCodeValue)
+            throws Exception {
         switch (respCodeValue) {
-            case NOUPDATE_VALUE:
+            case NOUPDATE_VALUE :
                 logger.debug("manager conf noupdate");
                 return true;
-            case UPDATE_VALUE:
+            case UPDATE_VALUE :
                 logger.info("manager conf update");
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
                         .addManagerConfChangedTimes(1);
                 this.md5 = response.getMd5();
                 updateSortTaskConf(response);
                 break;
-            case REQ_PARAMS_ERROR:
+            case REQ_PARAMS_ERROR :
                 logger.error("return code error:{}", respCodeValue);
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
                         .addRequestManagerParamErrorTimes(1);
                 break;
-            default:
-                logger.error("return code error:{}", respCodeValue);
+            default :
+                logger.error("return code error:{},request:{},response:{}",
+                        respCodeValue, getUrl, JSON.toJSONString(response));
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
                         .addRequestManagerCommonErrorTimes(1);
                 return true;
@@ -186,8 +191,8 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     /**
      * query ConsumeConfig
      *
-     * @param sortTaskId String
-     * @return ConsumeConfig
+     * @param  sortTaskId String
+     * @return            ConsumeConfig
      */
     @Override
     public ConsumeConfig queryCurrentConsumeConfig(String sortTaskId) {

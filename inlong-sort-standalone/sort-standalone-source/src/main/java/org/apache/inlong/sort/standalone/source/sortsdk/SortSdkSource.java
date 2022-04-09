@@ -19,22 +19,15 @@ package org.apache.inlong.sort.standalone.source.sortsdk;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.source.AbstractSource;
-import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
@@ -47,10 +40,9 @@ import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigType;
 import org.apache.inlong.sort.standalone.config.holder.SortSourceConfigType;
 import org.apache.inlong.sort.standalone.config.loader.ClassResourceQueryConsumeConfig;
+import org.apache.inlong.sort.standalone.utils.FlumeConfigGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Default Source implementation of InLong.
@@ -81,8 +73,10 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
     // Default consume strategy of {@link SortClient}.
     private static final SortClientConfig.ConsumeStrategy defaultStrategy = SortClientConfig.ConsumeStrategy.lastest;
 
-    // Map of {@link SortClient}.
-    private Map<String, SortClient> clients;
+    private String taskName;
+
+    // Context of SortSdkSource.
+    private SortSdkSourceContext context;
 
     // The cluster name of sort.
     private String sortClusterName;
@@ -90,18 +84,19 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
     // Reload config interval.
     private long reloadInterval;
 
-    // Context of SortSdkSource.
-    private SortSdkSourceContext context;
-
     // Executor for config reloading.
     private ScheduledExecutorService pool;
+
+    // {@link SortClient}.
+    private SortClient sortClient;
 
     /**
      * Start SortSdkSource.
      */
     @Override
     public synchronized void start() {
-        this.reloadAll();
+        LOG.info("start to SortSdkSource:{}", taskName);
+        this.sortClient = this.newClient(taskName);
     }
 
     /**
@@ -110,7 +105,8 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
     @Override
     public void stop() {
         pool.shutdownNow();
-        clients.forEach((sortId, client) -> client.close());
+        LOG.info("Close sort client {}.", taskName);
+        sortClient.close();
     }
 
     /**
@@ -118,7 +114,10 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
      */
     @Override
     public void run() {
-        this.reloadAll();
+        LOG.info("start to reload SortSdkSource:{}", taskName);
+        if (sortClient != null) {
+            sortClient.getConfig().setManagerApiUrl(ManagerUrlHandler.getSortSourceConfigUrl());
+        }
     }
 
     /**
@@ -128,10 +127,9 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
      */
     @Override
     public void configure(Context context) {
-        this.clients = new ConcurrentHashMap<>();
-        this.sortClusterName = SortClusterConfigHolder.getClusterConfig().getClusterName();
-        Preconditions.checkState(context != null, "No context, configure failed");
+        this.taskName = context.getString(FlumeConfigGenerator.KEY_TASK_NAME);
         this.context = new SortSdkSourceContext(getName(), context);
+        this.sortClusterName = SortClusterConfigHolder.getClusterConfig().getClusterName();
         this.reloadInterval = this.context.getReloadInterval();
         this.initReloadExecutor();
 
@@ -143,94 +141,6 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
     private void initReloadExecutor() {
         this.pool = Executors.newScheduledThreadPool(CORE_POOL_SIZE);
         pool.scheduleAtFixedRate(this, reloadInterval, reloadInterval, TimeUnit.SECONDS);
-    }
-
-    /**
-     * Reload clients by current {@link SortTaskConfig}.
-     *
-     * <p>
-     * Create new clients with new sort task id, and remove the finished or scheduled ones.
-     * </p>
-     *
-     * <p>
-     * Current version of SortSdk <b>DO NOT</b> support to get the corresponding sort id of {@link SortClient}. Hence,
-     * the maintenance of mapping of {@literal sortId, SortClient} should be done by Source itself.
-     */
-    private void reloadAll() {
-
-        final List<SortTaskConfig> configs = SortClusterConfigHolder.getClusterConfig().getSortTasks();
-        LOG.info("start to reload SortSdkSource");
-        this.startNewClients(configs);
-        this.stopExpiryClients(configs);
-        this.updateAllClientConfig();
-    }
-
-    /**
-     * Start a new client from SortTaskConfig.
-     * <p>
-     * If the sortId is in configs, but not in active clients, start it.
-     * </p>
-     *
-     * @param configs Updated SortTaskConfig
-     */
-    private void startNewClients(final List<SortTaskConfig> configs) {
-        configs.stream()
-                .map(SortTaskConfig::getName)
-                .filter(sortId -> !clients.containsKey(sortId))
-                .forEach(sortId -> {
-                    final SortClient client = this.newClient(sortId);
-                    Optional.ofNullable(client)
-                            .ifPresent(c -> clients.put(sortId, c));
-                });
-    }
-
-    /**
-     * Stop an expiry client from SortTaskConfig.
-     * <p>
-     * If the sortId is in active clients, but not in configs, stop it.
-     * </p>
-     *
-     * @param configs Updated SortTaskConfig
-     */
-    private void stopExpiryClients(final List<SortTaskConfig> configs) {
-        Set<String> updatedSortIds = configs.stream()
-                .map(SortTaskConfig::getName)
-                .collect(Collectors.toSet());
-
-        clients.keySet().stream()
-                .filter(sortId -> !updatedSortIds.contains(sortId))
-                .forEach(sortId -> {
-                    final SortClient client = clients.get(sortId);
-                    LOG.info("Close sort client {}.", sortId);
-                    try {
-                        client.close();
-                    } catch (Throwable th) {
-                        LOG.error("Got a throwable when close client {}, {}", sortId, th.getMessage());
-                    }
-                    clients.remove(sortId);
-                });
-    }
-
-    /**
-     * Update all client config.
-     */
-    private void updateAllClientConfig() {
-        String configType = CommonPropertiesHolder
-                .getString(SortSourceConfigType.KEY_TYPE, SortSourceConfigType.MANAGER.name());
-        if (SortClusterConfigType.MANAGER.name().equalsIgnoreCase(configType)) {
-            clients.values().stream()
-                    .map(SortClient::getConfig)
-                    .forEach(this::updateClientConfig);
-        }
-    }
-
-    /**
-     * Update one client config.
-     *
-     * @param config The config to be updated.
-     */
-    private void updateClientConfig(SortClientConfig config) {
-        config.setManagerApiUrl(ManagerUrlHandler.getSortSourceConfigUrl());
     }
 
     /**
@@ -266,7 +176,7 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
                         new ManagerReportHandlerImpl());
             } else if (SortClusterConfigType.MANAGER.name().equalsIgnoreCase(configType)) {
                 LOG.info("Create sort sdk client in manager way:{}", configType);
-                this.updateClientConfig(clientConfig);
+                clientConfig.setManagerApiUrl(ManagerUrlHandler.getSortSourceConfigUrl());
                 client = SortClientFactory.createSortClient(clientConfig);
             } else {
                 LOG.info("Create sort sdk client in custom way:{}", configType);
