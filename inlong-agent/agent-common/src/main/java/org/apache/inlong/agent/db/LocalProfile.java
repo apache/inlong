@@ -23,6 +23,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
+
 import org.apache.inlong.agent.conf.JobProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,16 +51,18 @@ public class LocalProfile {
         try {
             if (Files.isDirectory(this.filePath)) {
                 // list parent path and find files which name is end with .json or .properties
-                for (Iterator<Path> it = Files.list(this.filePath).iterator(); it.hasNext(); ) {
-                    String childPath = it.next().toString();
-                    JobProfile jobProfile = null;
-                    if (childPath.endsWith(JSON_SUFFIX)) {
-                        jobProfile = JobProfile.parseJsonFile(childPath);
-                    } else if (childPath.endsWith(PROPERTIES_SUFFIX)) {
-                        jobProfile = JobProfile.parsePropertiesFile(childPath);
-                    }
-                    if (jobProfile != null && jobProfile.allRequiredKeyExist()) {
-                        profileList.add(jobProfile);
+                try(final Stream<Path> pathStream = Files.list(this.filePath)) {
+                    for (Iterator<Path> it = pathStream.iterator(); it.hasNext(); ) {
+                        String childPath = it.next().toString();
+                        JobProfile jobProfile = null;
+                        if (childPath.endsWith(JSON_SUFFIX)) {
+                            jobProfile = JobProfile.parseJsonFile(childPath);
+                        } else if (childPath.endsWith(PROPERTIES_SUFFIX)) {
+                            jobProfile = JobProfile.parsePropertiesFile(childPath);
+                        }
+                        if (jobProfile != null && jobProfile.allRequiredKeyExist()) {
+                            profileList.add(jobProfile);
+                        }
                     }
                 }
             }

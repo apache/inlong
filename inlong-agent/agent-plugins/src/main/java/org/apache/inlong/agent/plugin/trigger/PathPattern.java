@@ -25,6 +25,8 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Stream;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.inlong.agent.plugin.filter.DateFormatRegex;
@@ -91,13 +93,15 @@ public class PathPattern {
         if (dirPath.isFile() && dateFormatRegex.withFile(dirPath).match()) {
             collectResult.add(dirPath);
         } else if (dirPath.isDirectory()) {
-            Files.list(dirPath.toPath()).forEach(path -> {
-                try {
-                    walkAllSuitableFiles(path.toFile(), collectResult, maxNum);
-                } catch (IOException ex) {
-                    LOGGER.warn("cannot add {}, please check it", path, ex);
-                }
-            });
+            try (final Stream<Path> pathStream = Files.list(dirPath.toPath())) {
+                pathStream.forEach(path -> {
+                    try {
+                        walkAllSuitableFiles(path.toFile(), collectResult, maxNum);
+                    } catch (IOException ex) {
+                        LOGGER.warn("cannot add {}, please check it", path, ex);
+                    }
+                });
+            }
         }
     }
 
