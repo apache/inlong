@@ -25,17 +25,37 @@ metadata:
     component: {{ .Values.audit.component }}
 spec:
   serviceName: {{ template "inlong.fullname" . }}-{{ .Values.audit.component }}
-  replicas: {{ .Values.audit.replicaCount }}
+  replicas: {{ .Values.audit.replicas }}
   selector:
     matchLabels:
       {{- include "inlong.matchLabels" . | nindent 6 }}
       component: {{ .Values.audit.component }}
+  updateStrategy:
+    type: {{ .Values.audit.updateStrategy.type | quote }}
+  podManagementPolicy: {{ .Values.audit.podManagementPolicy | quote }}
   template:
     metadata:
       labels:
         {{- include "inlong.template.labels" . | nindent 8 }}
         component: {{ .Values.audit.component }}
+      {{- if .Values.audit.annotations }}
+      annotations:
+        {{- toYaml .Values.audit.annotations | nindent 8 }}
+      {{- end }}
     spec:
+      {{- if .Values.audit.tolerations }}
+      tolerations:
+        {{- toYaml .Values.audit.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.audit.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.audit.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.audit.affinity }}
+      affinity:
+        {{- toYaml .Values.audit.affinity | nindent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.audit.terminationGracePeriodSeconds }}
       initContainers:
         - name: wait-{{ .Values.mysql.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
@@ -43,13 +63,13 @@ spec:
           command: [ "/bin/sh", "-c" ]
           args:
             - |
-              count={{ .Values.mysql.replicaCount }}
+              count={{ .Values.mysql.replicas }}
               for i in $(seq 0 $(expr $count - 1))
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-$i"
-                host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-                port={{ .Values.mysql.ports.server }}
-                until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
+                host="$replica.{{ template "inlong.mysql.hostname" . }}"
+                port={{ .Values.mysql.port }}
+                until nc -z $host $port 2>/dev/null
                 do
                   echo "waiting for $replica to be ready"
                   sleep 3
@@ -61,13 +81,13 @@ spec:
           command: [ "/bin/sh", "-c" ]
           args:
             - |
-              count={{ .Values.manager.replicaCount }}
+              count={{ .Values.manager.replicas }}
               for i in $(seq 0 $(expr $count - 1))
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}-$i"
-                host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}.{{ .Release.Namespace }}.svc.cluster.local"
+                host="$replica.{{ template "inlong.manager.hostname" . }}"
                 port={{ .Values.manager.port }}
-                until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
+                until nc -z $host $port 2>/dev/null
                 do
                   echo "waiting for $replica to be ready"
                   sleep 3
@@ -79,11 +99,11 @@ spec:
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           {{- if .Values.audit.resources }}
           resources:
-{{ toYaml .Values.audit.resources | indent 12 }}
+            {{- toYaml .Values.audit.resources | nindent 12 }}
           {{- end }}
           env:
             - name: JDBC_URL
-              value: "jdbc:mysql://{{ template "inlong.mysql.hostname" . }}:{{ .Values.mysql.ports.server }}/apache_inlong_audit?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&nullCatalogMeansCurrent=true&serverTimezone=GMT%2b8"
+              value: "jdbc:mysql://{{ template "inlong.mysql.hostname" . }}:{{ .Values.mysql.port }}/apache_inlong_audit?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&nullCatalogMeansCurrent=true&serverTimezone=GMT%2b8"
             - name: USERNAME
               value: {{ include "inlong.mysql.username" . | quote }}
             - name: PASSWORD

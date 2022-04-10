@@ -24,14 +24,20 @@ metadata:
     {{- include "inlong.commonLabels" . | nindent 4 }}
     component: {{ .Values.tubemqMaster.component }}
   annotations:
-{{ toYaml .Values.tubemqMaster.service.annotations | indent 4 }}
+    {{- toYaml .Values.tubemqMaster.service.annotations | nindent 4 }}
 spec:
   type: {{ .Values.tubemqMaster.service.type }}
+  {{- if and (eq .Values.tubemqMaster.service.type "ClusterIP") .Values.tubemqMaster.service.clusterIP }}
+  clusterIP: {{ .Values.tubemqMaster.service.clusterIP }}
+  {{- end }}
   ports:
     - name: mstr-web-port
       protocol: TCP
       port: {{ .Values.tubemqMaster.ports.webPort }}
       targetPort: 8080
+      {{- if and (eq .Values.tubemqMaster.service.type "NodePort") .Values.tubemqMaster.service.webNodePort }}
+      nodePort: {{ .Values.tubemqMaster.service.webNodePort }}
+      {{- end }}
     - name: mstr-help-port
       protocol: TCP
       port: {{ .Values.tubemqMaster.ports.helpPort }}
@@ -40,6 +46,16 @@ spec:
       protocol: TCP
       port: {{ .Values.tubemqMaster.ports.rpcPort }}
       targetPort: 8715
+  {{- if and (eq .Values.tubemqMaster.service.type "LoadBalancer") .Values.tubemqMaster.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.tubemqMaster.service.loadBalancerIP }}
+  {{- end }}
+  {{- if and (eq .Values.tubemqMaster.service.type "ExternalName") .Values.tubemqMaster.service.externalName }}
+  externalName: {{ .Values.tubemqMaster.service.externalName }}
+  {{- end }}
+  {{- if .Values.tubemqMaster.service.externalIPs }}
+  externalIPs:
+    {{- toYaml .Values.tubemqMaster.service.externalIPs | nindent 4 }}
+  {{- end }}
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.tubemqMaster.component }}

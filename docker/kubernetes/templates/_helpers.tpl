@@ -77,35 +77,42 @@ release: {{ .Release.Name }}
 Define the audit hostname
 */}}
 {{- define "inlong.audit.hostname" -}}
-${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.audit.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{ template "inlong.fullname" . }}-{{ .Values.audit.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{- end -}}
+
+{{/*
+Define the dashboard hostname
+*/}}
+{{- define "inlong.dashboard.hostname" -}}
+{{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }}.{{ .Release.Namespace }}.svc.cluster.local
 {{- end -}}
 
 {{/*
 Define the manager hostname
 */}}
 {{- define "inlong.manager.hostname" -}}
-${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}.{{ .Release.Namespace }}.svc.cluster.local
 {{- end -}}
 
 {{/*
 Define the dataproxy hostname
 */}}
 {{- define "inlong.dataproxy.hostname" -}}
-${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}.{{ .Release.Namespace }}.svc.cluster.local
 {{- end -}}
 
 {{/*
 Define the tubemq manager hostname
 */}}
 {{- define "inlong.tubemqManager.hostname" -}}
-${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.tubemqManager.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{ template "inlong.fullname" . }}-{{ .Values.tubemqManager.component }}.{{ .Release.Namespace }}.svc.cluster.local
 {{- end -}}
 
 {{/*
 Define the tubemq master hostname
 */}}
 {{- define "inlong.tubemqMaster.hostname" -}}
-${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}.{{ .Release.Namespace }}.svc.cluster.local
 {{- end -}}
 
 {{/*
@@ -115,7 +122,7 @@ Define the mysql hostname
 {{- if .Values.external.mysql.enabled -}}
 {{ .Values.external.mysql.hostname }}
 {{- else -}}
-${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}.{{ .Release.Namespace }}.svc.cluster.local
 {{- end -}}
 {{- end -}}
 
@@ -126,7 +133,7 @@ Define the mysql port
 {{- if .Values.external.mysql.enabled -}}
 {{ .Values.external.mysql.port }}
 {{- else -}}
-{{ .Values.mysql.ports.server }}
+{{ .Values.mysql.port }}
 {{- end -}}
 {{- end -}}
 
@@ -145,7 +152,7 @@ Define the mysql username
 Define the zookeeper hostname
 */}}
 {{- define "inlong.zookeeper.hostname" -}}
-${HOSTNAME}.{{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}.{{ .Release.Namespace }}.svc.cluster.local
+{{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}.{{ .Release.Namespace }}.svc.cluster.local
 {{- end -}}
 
 {{/*

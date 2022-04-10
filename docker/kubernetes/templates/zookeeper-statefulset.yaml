@@ -25,32 +25,35 @@ metadata:
     component: {{ .Values.zookeeper.component }}
 spec:
   serviceName: {{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}
-  replicas: {{ .Values.zookeeper.replicaCount }}
+  replicas: {{ .Values.zookeeper.replicas }}
   selector:
     matchLabels:
       {{- include "inlong.matchLabels" . | nindent 6 }}
       component: {{ .Values.zookeeper.component }}
   updateStrategy:
-{{ toYaml .Values.zookeeper.updateStrategy | indent 4 }}
-  podManagementPolicy: {{ .Values.zookeeper.podManagementPolicy }}
+    type: {{ .Values.zookeeper.updateStrategy.type | quote }}
+  podManagementPolicy: {{ .Values.zookeeper.podManagementPolicy | quote }}
   template:
     metadata:
       labels:
         {{- include "inlong.template.labels" . | nindent 8 }}
         component: {{ .Values.zookeeper.component }}
+      {{- if .Values.zookeeper.annotations }}
       annotations:
-{{ toYaml .Values.zookeeper.annotations | indent 8 }}
-    spec:
-      {{- if .Values.zookeeper.nodeSelector }}
-      nodeSelector:
-{{ toYaml .Values.zookeeper.nodeSelector | indent 8 }}
+        {{- toYaml .Values.zookeeper.annotations | nindent 8 }}
       {{- end }}
+    spec:
       {{- if .Values.zookeeper.tolerations }}
       tolerations:
-{{ toYaml .Values.zookeeper.tolerations | indent 8 }}
+        {{- toYaml .Values.zookeeper.tolerations | nindent 8 }}
       {{- end }}
+      {{- if .Values.zookeeper.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.zookeeper.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.zookeeper.affinity }}
       affinity:
-        {{- if .Values.affinity.anti_affinity }}
+        {{- if .Values.zookeeper.affinity.antiAffinity }}
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
@@ -69,14 +72,15 @@ spec:
                       - {{ .Values.zookeeper.component }}
               topologyKey: "kubernetes.io/hostname"
         {{- end }}
-      terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.zookeeper.terminationGracePeriodSeconds }}
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}
           image: {{ .Values.images.tubemqServer.repository }}:{{ .Values.images.tubemqServer.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           {{- if .Values.zookeeper.resources }}
           resources:
-{{ toYaml .Values.zookeeper.resources | indent 12 }}
+            {{- toYaml .Values.zookeeper.resources | nindent 12 }}
           {{- end }}
           command: [ "/bin/sh", "-c" ]
           args:
@@ -93,7 +97,7 @@ spec:
             - name: ZOOKEEPER_SERVERS
               value:
                 {{- $global := . }}
-                {{ range $i, $e := until (.Values.zookeeper.replicaCount | int) }}{{ if ne $i 0 }},{{ end }}{{ template "inlong.fullname" $global }}-{{ $global.Values.zookeeper.component }}-{{ printf "%d" $i }}{{ end }}
+                {{ range $i, $e := until (.Values.zookeeper.replicas | int) }}{{ if ne $i 0 }},{{ end }}{{ template "inlong.fullname" $global }}-{{ $global.Values.zookeeper.component }}-{{ printf "%d" $i }}{{ end }}
           {{- if .Values.zookeeper.probe.readiness.enabled }}
           readinessProbe:
             exec:

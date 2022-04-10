@@ -25,28 +25,48 @@ metadata:
     component: {{ .Values.manager.component }}
 spec:
   serviceName: {{ template "inlong.fullname" . }}-{{ .Values.manager.component }}
-  replicas: {{ .Values.manager.replicaCount }}
+  replicas: {{ .Values.manager.replicas }}
   selector:
     matchLabels:
       {{- include "inlong.matchLabels" . | nindent 6 }}
       component: {{ .Values.manager.component }}
+  updateStrategy:
+    type: {{ .Values.manager.updateStrategy.type | quote }}
+  podManagementPolicy: {{ .Values.manager.podManagementPolicy | quote }}
   template:
     metadata:
       labels:
         {{- include "inlong.template.labels" . | nindent 8 }}
         component: {{ .Values.manager.component }}
+      {{- if .Values.manager.annotations }}
+      annotations:
+        {{- toYaml .Values.manager.annotations | nindent 8 }}
+      {{- end }}
     spec:
+      {{- if .Values.manager.tolerations }}
+      tolerations:
+        {{- toYaml .Values.manager.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.manager.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.manager.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.manager.affinity }}
+      affinity:
+        {{- toYaml .Values.manager.affinity | nindent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.manager.terminationGracePeriodSeconds }}
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.manager.component }}
           image: {{ .Values.images.manager.repository }}:{{ .Values.images.manager.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           {{- if .Values.manager.resources }}
           resources:
-{{ toYaml .Values.manager.resources | indent 12 }}
+            {{- toYaml .Values.manager.resources | nindent 12 }}
           {{- end }}
           env:
             - name: JDBC_URL
-              value: "{{ template "inlong.mysql.hostname" . }}:{{ .Values.mysql.ports.server }}"
+              value: "{{ template "inlong.mysql.hostname" . }}:{{ .Values.mysql.port }}"
             - name: USERNAME
               value: {{ include "inlong.mysql.username" . | quote }}
             - name: PASSWORD

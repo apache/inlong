@@ -54,16 +54,39 @@ volumes:
   persistence: false
   storageClassName: "local-storage"
 
-affinity:
-  anti_affinity: false
-
 ingress:
   enabled: false
   hosts:
 
 agent:
   component: "agent"
-  replicaCount: 1
+  replicas: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy:
+    type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   resources:
     requests:
       cpu: 1
@@ -80,7 +103,33 @@ agent:
 
 dashboard:
   component: "dashboard"
-  replicaCount: 1
+  replicas: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy:
+    type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   resources:
     requests:
       cpu: 1
@@ -103,7 +152,33 @@ dashboard:
 
 dataproxy:
   component: "dataproxy"
-  replicaCount: 1
+  replicas: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy:
+    type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   resources:
     requests:
       cpu: 1
@@ -132,7 +207,33 @@ dataproxy:
 
 tubemqManager:
   component: "tubemq-manager"
-  replicaCount: 1
+  replicas: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy:
+    type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   resources:
     requests:
       cpu: 1
@@ -148,7 +249,33 @@ tubemqManager:
 
 manager:
   component: "manager"
-  replicaCount: 1
+  replicas: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy:
+    type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   resources:
     requests:
       cpu: 1
@@ -179,7 +306,33 @@ manager:
 
 audit:
   component: "audit"
-  replicaCount: 1
+  replicas: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy:
+    type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   resources:
     requests:
       cpu: 1
@@ -195,25 +348,76 @@ audit:
 # If not exists external MySQL, InLong will use it.
 mysql:
   component: "mysql"
-  replicaCount: 1
+  replicas: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy:
+    type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   resources:
     requests:
       cpu: 1
       memory: "1Gi"
   username: "root"
   password: "inlong"
-  ports:
-    server: 3306
+  port: 3306
   volumes:
     name: data
     size: "10Gi"
 
 zookeeper:
   component: "zookeeper"
-  replicaCount: 3
+  replicas: 3
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity:
+    antiAffinity: false
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   ports:
     client: 2181
     follower: 2888
@@ -229,11 +433,6 @@ zookeeper:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "8000"
-  tolerations: []
-  gracePeriod: 30
   resources:
     requests:
       cpu: 1
@@ -250,10 +449,34 @@ zookeeper:
 
 tubemqMaster:
   component: "tubemq-master"
-  replicaCount: 1
+  replicas: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity:
+    antiAffinity: false
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   ports:
     rpcPort: 8715
     webPort: 8080
@@ -269,8 +492,6 @@ tubemqMaster:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-  tolerations: []
-  gracePeriod: 30
   resources:
     requests:
       cpu: 1
@@ -279,9 +500,21 @@ tubemqMaster:
     name: data
     size: "10Gi"
   service:
-    type: LoadBalancer
     annotations:
       service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    # type determines how the service is exposed. Defaults to NodePort. Valid options are ClusterIP, NodePort, LoadBalancer, and ExternalName
+    type: NodePort
+    # clusterIP is the IP address of the service and is usually assigned randomly by the master when service type is ClusterIP
+    clusterIP:
+    # webNodePort is the web port on each node on which this service is exposed when service type is NodePort
+    # the range of valid ports is 30000-32767
+    webNodePort: 30880
+    # when service type is LoadBalancer, LoadBalancer will get created with the IP specified in this field
+    loadBalancerIP:
+    # externalName is the external reference that kubedns or equivalent will return as a CNAME record for this service, requires service type to be ExternalName
+    externalName:
+    # externalIPs is a list of IP addresses for which nodes in the cluster will also accept traffic for this service
+    externalIPs:
   pdb:
     usePolicy: true
     maxUnavailable: 1
@@ -294,10 +527,34 @@ tubemqMaster:
 
 tubemqBroker:
   component: "tubemq-broker"
-  replicaCount: 1
+  replicas: 1
+  # The updateStrategy field allows you to configure and disable automated rolling updates for containers, labels, resource request/limits, and annotations for the Pods in a StatefulSet.
+  # There are two possible values: OnDelete and RollingUpdate.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
   updateStrategy:
     type: "RollingUpdate"
+  # StatefulSet allows you to relax its ordering guarantees while preserving its uniqueness and identity guarantees via its .spec.podManagementPolicy field.
+  # For more details, please check out https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: "OrderedReady"
+  # You can use annotations to attach arbitrary non-identifying metadata to objects.
+  # Clients such as tools and libraries can retrieve this metadata.
+  # For more details, please check out https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  annotations: {}
+  # Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
+  # nodeSelector is the simplest recommended form of node selection constraint.
+  # You can add the nodeSelector field to your Pod specification and specify the node labels you want the target node to have.
+  # Kubernetes only schedules the Pod onto nodes that have each of the labels you specify.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+  # Node affinity is conceptually similar to nodeSelector, allowing you to constrain which nodes your Pod can be scheduled on based on node labels.
+  # For more details, please check out https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity:
+    antiAffinity: false
+  # Optional duration in seconds the pod needs to terminate gracefully.
+  # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  terminationGracePeriodSeconds: 30
   ports:
     rpcPort: 8123
     webPort: 8081
@@ -312,8 +569,6 @@ tubemqBroker:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-  tolerations: []
-  gracePeriod: 30
   resources:
     requests:
       cpu: 1
@@ -322,9 +577,21 @@ tubemqBroker:
     name: data
     size: "10Gi"
   service:
-    type: LoadBalancer
     annotations:
       service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    # type determines how the service is exposed. Defaults to NodePort. Valid options are ClusterIP, NodePort, LoadBalancer, and ExternalName
+    type: NodePort
+    # clusterIP is the IP address of the service and is usually assigned randomly by the master when service type is ClusterIP
+    clusterIP:
+    # webNodePort is the web port on each node on which this service is exposed when service type is NodePort
+    # the range of valid ports is 30000-32767
+    webNodePort: 30881
+    # when service type is LoadBalancer, LoadBalancer will get created with the IP specified in this field
+    loadBalancerIP:
+    # externalName is the external reference that kubedns or equivalent will return as a CNAME record for this service, requires service type to be ExternalName
+    externalName:
+    # externalIPs is a list of IP addresses for which nodes in the cluster will also accept traffic for this service
+    externalIPs:
   pdb:
     usePolicy: true
     maxUnavailable: 1

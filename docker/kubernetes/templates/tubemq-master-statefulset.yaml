@@ -25,51 +25,35 @@ metadata:
     component: {{ .Values.tubemqMaster.component }}
 spec:
   serviceName: {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}
-  replicas: {{ .Values.tubemqMaster.replicaCount }}
+  replicas: {{ .Values.tubemqMaster.replicas }}
   selector:
     matchLabels:
       {{- include "inlong.matchLabels" . | nindent 6 }}
       component: {{ .Values.tubemqMaster.component }}
   updateStrategy:
-{{ toYaml .Values.tubemqMaster.updateStrategy | indent 4 }}
-  podManagementPolicy: {{ .Values.tubemqMaster.podManagementPolicy }}
+    type: {{ .Values.tubemqMaster.updateStrategy.type | quote }}
+  podManagementPolicy: {{ .Values.tubemqMaster.podManagementPolicy | quote }}
   template:
     metadata:
       labels:
         {{- include "inlong.template.labels" . | nindent 8 }}
         component: {{ .Values.tubemqMaster.component }}
+      {{- if .Values.tubemqMaster.annotations }}
       annotations:
-{{ toYaml .Values.tubemqMaster.annotations | indent 8 }}
-    spec:
-      {{- if .Values.tubemqMaster.nodeSelector }}
-      nodeSelector:
-{{ toYaml .Values.tubemqMaster.nodeSelector | indent 8 }}
+        {{- toYaml .Values.tubemqMaster.annotations | nindent 8 }}
       {{- end }}
+    spec:
       {{- if .Values.tubemqMaster.tolerations }}
       tolerations:
-{{ toYaml .Values.tubemqMaster.tolerations | indent 8 }}
+        {{- toYaml .Values.tubemqMaster.tolerations | nindent 8 }}
       {{- end }}
-      initContainers:
-        - name: wait-{{ .Values.zookeeper.component }}-ready
-          image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
-          imagePullPolicy: {{ .Values.images.pullPolicy }}
-          command: [ "/bin/sh", "-c" ]
-          args:
-            - |
-              count={{ .Values.zookeeper.replicaCount }}
-              for i in $(seq 0 $(expr $count - 1))
-              do
-                replica="{{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}-$i"
-                host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-                port={{ .Values.zookeeper.ports.client }}
-                until [ $(echo ruok | nc $host $port ) = 'imok' ]
-                do
-                  echo "waiting for $replica to be ready"
-                  sleep 3
-                done
-              done
+      {{- if .Values.tubemqMaster.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.tubemqMaster.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tubemqMaster.affinity }}
       affinity:
-        {{- if .Values.affinity.anti_affinity }}
+        {{- if .Values.tubemqMaster.affinity.antiAffinity }}
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
@@ -88,14 +72,34 @@ spec:
                       - {{ .Values.tubemqMaster.component }}
               topologyKey: "kubernetes.io/hostname"
         {{- end }}
-      terminationGracePeriodSeconds: {{ .Values.tubemqMaster.gracePeriod }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.tubemqMaster.terminationGracePeriodSeconds }}
+      initContainers:
+        - name: wait-{{ .Values.zookeeper.component }}-ready
+          image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
+          imagePullPolicy: {{ .Values.images.pullPolicy }}
+          command: [ "/bin/sh", "-c" ]
+          args:
+            - |
+              count={{ .Values.zookeeper.replicas }}
+              for i in $(seq 0 $(expr $count - 1))
+              do
+                replica="{{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}-$i"
+                host="$replica.{{ template "inlong.zookeeper.hostname" . }}"
+                port={{ .Values.zookeeper.ports.client }}
+                until [ $(echo ruok | nc $host $port ) = 'imok' ]
+                do
+                  echo "waiting for $replica to be ready"
+                  sleep 3
+                done
+              done
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}
           image: {{ .Values.images.tubemqServer.repository }}:{{ .Values.images.tubemqServer.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
           {{- if .Values.tubemqMaster.resources }}
           resources:
-{{ toYaml .Values.tubemqMaster.resources | indent 12 }}
+            {{- toYaml .Values.tubemqMaster.resources | nindent 12 }}
           {{- end }}
           command: [ "/bin/sh", "-c" ]
           args:
