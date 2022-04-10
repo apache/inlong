@@ -20,7 +20,7 @@
 
 # Project startup jar package name
 
-APPLICATION_JAR="manager-client-tools.jar"
+APPLICATION_JAR="manager-client-tools-*.jar"
 
 BIN_PATH=$(
   cd $(dirname $0)
