@@ -68,7 +68,7 @@ spec:
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-$i"
                 host="$replica.{{ template "inlong.mysql.hostname" . }}"
-                port={{ .Values.mysql.ports.server }}
+                port={{ .Values.mysql.port }}
                 until nc -z $host $port 2>/dev/null
                 do
                   echo "waiting for $replica to be ready"

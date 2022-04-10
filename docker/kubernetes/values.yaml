@@ -381,8 +381,7 @@ mysql:
       memory: "1Gi"
   username: "root"
   password: "inlong"
-  ports:
-    server: 3306
+  port: 3306
   volumes:
     name: data
     size: "10Gi"

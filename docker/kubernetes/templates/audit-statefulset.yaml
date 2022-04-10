@@ -68,7 +68,7 @@ spec:
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-$i"
                 host="$replica.{{ template "inlong.mysql.hostname" . }}"
-                port={{ .Values.mysql.ports.server }}
+                port={{ .Values.mysql.port }}
                 until nc -z $host $port 2>/dev/null
                 do
                   echo "waiting for $replica to be ready"
@@ -103,7 +103,7 @@ spec:
           {{- end }}
           env:
             - name: JDBC_URL
-              value: "jdbc:mysql://{{ template "inlong.mysql.hostname" . }}:{{ .Values.mysql.ports.server }}/apache_inlong_audit?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&nullCatalogMeansCurrent=true&serverTimezone=GMT%2b8"
+              value: "jdbc:mysql://{{ template "inlong.mysql.hostname" . }}:{{ .Values.mysql.port }}/apache_inlong_audit?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&nullCatalogMeansCurrent=true&serverTimezone=GMT%2b8"
             - name: USERNAME
               value: {{ include "inlong.mysql.username" . | quote }}
             - name: PASSWORD

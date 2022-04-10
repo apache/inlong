@@ -133,7 +133,7 @@ Define the mysql port
 {{- if .Values.external.mysql.enabled -}}
 {{ .Values.external.mysql.port }}
 {{- else -}}
-{{ .Values.mysql.ports.server }}
+{{ .Values.mysql.port }}
 {{- end -}}
 {{- end -}}
 

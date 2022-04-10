@@ -29,7 +29,7 @@ spec:
   ports:
     - name: {{ .Values.mysql.component }}-port
       protocol: TCP
-      port: {{ .Values.mysql.ports.server }}
+      port: {{ .Values.mysql.port }}
       targetPort: 3306
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
