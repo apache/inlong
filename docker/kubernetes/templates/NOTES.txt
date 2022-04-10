@@ -106,6 +106,64 @@
 
 {{- end }}
 
+4. Access InLong TubeMQ Master by running these commands:
+
+{{- if .Values.ingress.enabled }}
+
+    InLong TubeMQ Master URL: http{{ if .Values.ingress.tls.enabled }}s{{ end }}://{{ .Values.ingress.host }}/{{ .Values.ingress.path }}
+
+{{- else if eq .Values.tubemqMaster.service.type "ClusterIP" }}
+
+    $ export TUBEMQ_MASTER_POD_NAME=$(sudo kubectl get pods -l "app.kubernetes.io/name={{ template "inlong.name" . }}-{{ .Values.tubemqMaster.component }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}" -n {{ .Release.Namespace }})
+    $ export TUBEMQ_MASTER_CONTAINER_PORT=$(sudo kubectl get pod $TUBEMQ_MASTER_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}" -n {{ .Release.Namespace }})
+    $ sudo kubectl port-forward $TUBEMQ_MASTER_POD_NAME 8183:$TUBEMQ_MASTER_CONTAINER_PORT -n {{ .Release.Namespace }}
+    $ echo "InLong TubeMQ Master URL: http://127.0.0.1:8183"
+
+{{- else if eq .Values.tubemqMaster.service.type "NodePort" }}
+
+    $ export TUBEMQ_MASTER_NODE_IP=$(sudo kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}" -n {{ .Release.Namespace }})
+    $ export TUBEMQ_MASTER_NODE_PORT=$(sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }} -o jsonpath="{.spec.ports[0].nodePort}" -n {{ .Release.Namespace }})
+    $ echo "InLong TubeMQ Master URL: http://$TUBEMQ_MASTER_NODE_IP:$TUBEMQ_MASTER_NODE_PORT"
+
+{{- else if eq .Values.tubemqMaster.service.type "LoadBalancer" }}
+
+    NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+          You can watch the status of by running 'sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }} -n {{ .Release.Namespace }} -w'
+
+    $ export TUBEMQ_MASTER_SERVICE_IP=$(sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}" -n {{ .Release.Namespace }})
+    $ echo "InLong TubeMQ Master URL: http://$TUBEMQ_MASTER_SERVICE_IP:{{ .Values.tubemqMaster.service.webNodePort }}"
+
+{{- end }}
+
+5. Access InLong TubeMQ Broker by running these commands:
+
+{{- if .Values.ingress.enabled }}
+
+    InLong TubeMQ Broker URL: http{{ if .Values.ingress.tls.enabled }}s{{ end }}://{{ .Values.ingress.host }}/{{ .Values.ingress.path }}
+
+{{- else if eq .Values.tubemqBroker.service.type "ClusterIP" }}
+
+    $ export TUBEMQ_BROKER_POD_NAME=$(sudo kubectl get pods -l "app.kubernetes.io/name={{ template "inlong.name" . }}-{{ .Values.tubemqBroker.component }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}" -n {{ .Release.Namespace }})
+    $ export TUBEMQ_BROKER_CONTAINER_PORT=$(sudo kubectl get pod $TUBEMQ_BROKER_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}" -n {{ .Release.Namespace }})
+    $ sudo kubectl port-forward $TUBEMQ_BROKER_POD_NAME 8183:$TUBEMQ_BROKER_CONTAINER_PORT -n {{ .Release.Namespace }}
+    $ echo "InLong TubeMQ Broker URL: http://127.0.0.1:8183"
+
+{{- else if eq .Values.tubemqBroker.service.type "NodePort" }}
+
+    $ export TUBEMQ_BROKER_NODE_IP=$(sudo kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}" -n {{ .Release.Namespace }})
+    $ export TUBEMQ_BROKER_NODE_PORT=$(sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }} -o jsonpath="{.spec.ports[0].nodePort}" -n {{ .Release.Namespace }})
+    $ echo "InLong TubeMQ Broker URL: http://$TUBEMQ_BROKER_NODE_IP:$TUBEMQ_BROKER_NODE_PORT"
+
+{{- else if eq .Values.tubemqBroker.service.type "LoadBalancer" }}
+
+    NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+          You can watch the status of by running 'sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }} -n {{ .Release.Namespace }} -w'
+
+    $ export TUBEMQ_BROKER_SERVICE_IP=$(sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}" -n {{ .Release.Namespace }})
+    $ echo "InLong TubeMQ Broker URL: http://$TUBEMQ_BROKER_SERVICE_IP:{{ .Values.tubemqBroker.service.webNodePort }}"
+
+{{- end }}
+
 To learn more about the release, try:
 
     $ sudo helm status {{ .Release.Name }} -n {{ .Release.Namespace }}
