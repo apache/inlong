@@ -25,7 +25,7 @@ metadata:
     component: {{ .Values.manager.component }}
 spec:
   serviceName: {{ template "inlong.fullname" . }}-{{ .Values.manager.component }}
-  replicas: {{ .Values.manager.replicaCount }}
+  replicas: {{ .Values.manager.replicas }}
   selector:
     matchLabels:
       {{- include "inlong.matchLabels" . | nindent 6 }}

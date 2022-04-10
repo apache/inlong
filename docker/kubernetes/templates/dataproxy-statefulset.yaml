@@ -25,7 +25,7 @@ metadata:
     component: {{ .Values.dataproxy.component }}
 spec:
   serviceName: {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}
-  replicas: {{ .Values.dataproxy.replicaCount }}
+  replicas: {{ .Values.dataproxy.replicas }}
   selector:
     matchLabels:
       {{- include "inlong.matchLabels" . | nindent 6 }}
@@ -63,7 +63,7 @@ spec:
           command: [ "/bin/sh", "-c" ]
           args:
             - |
-              count={{ .Values.manager.replicaCount }}
+              count={{ .Values.manager.replicas }}
               for i in $(seq 0 $(expr $count - 1))
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.manager.component }}-$i"

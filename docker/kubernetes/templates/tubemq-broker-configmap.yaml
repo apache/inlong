@@ -45,7 +45,7 @@ data:
       exit 1
     fi
     # get active master and register broker
-    for ((i=0;i<{{ .Values.tubemqMaster.replicaCount }};i++)); do
+    for ((i=0;i<{{ .Values.tubemqMaster.replicas }};i++)); do
       master="{{ template "inlong.fullname" $ }}-\
     {{ .Values.tubemqMaster.component }}-$i.{{ template "inlong.fullname" $ }}-\
     {{ .Values.tubemqMaster.component }}.{{ .Release.Namespace }}.svc.cluster.local"

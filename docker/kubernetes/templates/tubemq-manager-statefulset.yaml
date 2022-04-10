@@ -25,7 +25,7 @@ metadata:
     component: {{ .Values.tubemqManager.component }}
 spec:
   serviceName: {{ template "inlong.fullname" . }}-{{ .Values.tubemqManager.component }}
-  replicas: {{ .Values.tubemqManager.replicaCount }}
+  replicas: {{ .Values.tubemqManager.replicas }}
   selector:
     matchLabels:
       {{- include "inlong.matchLabels" . | nindent 6 }}
@@ -63,7 +63,7 @@ spec:
           command: [ "/bin/sh", "-c" ]
           args:
             - |
-              count={{ .Values.mysql.replicaCount }}
+              count={{ .Values.mysql.replicas }}
               for i in $(seq 0 $(expr $count - 1))
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-$i"
@@ -81,7 +81,7 @@ spec:
           command: [ "/bin/sh", "-c" ]
           args:
             - |
-              count={{ .Values.tubemqMaster.replicaCount }}
+              count={{ .Values.tubemqMaster.replicas }}
               for i in $(seq 0 $(expr $count - 1))
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-$i"

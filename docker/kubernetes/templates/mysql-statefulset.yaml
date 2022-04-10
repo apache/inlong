@@ -26,7 +26,7 @@ metadata:
     component: {{ .Values.mysql.component }}
 spec:
   serviceName: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
-  replicas: {{ .Values.mysql.replicaCount }}
+  replicas: {{ .Values.mysql.replicas }}
   selector:
     matchLabels:
       {{- include "inlong.matchLabels" . | nindent 6 }}

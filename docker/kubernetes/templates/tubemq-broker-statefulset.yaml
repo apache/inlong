@@ -25,7 +25,7 @@ metadata:
     component: {{ .Values.tubemqBroker.component }}
 spec:
   serviceName: {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }}
-  replicas: {{ .Values.tubemqBroker.replicaCount }}
+  replicas: {{ .Values.tubemqBroker.replicas }}
   selector:
     matchLabels:
       {{- include "inlong.matchLabels" . | nindent 6 }}
@@ -81,7 +81,7 @@ spec:
           command: [ "/bin/sh", "-c" ]
           args:
             - |
-              count={{ .Values.tubemqMaster.replicaCount }}
+              count={{ .Values.tubemqMaster.replicas }}
               for i in $(seq 0 $(expr $count - 1))
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-$i"

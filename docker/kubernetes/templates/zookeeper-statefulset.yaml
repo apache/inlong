@@ -25,7 +25,7 @@ metadata:
     component: {{ .Values.zookeeper.component }}
 spec:
   serviceName: {{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}
-  replicas: {{ .Values.zookeeper.replicaCount }}
+  replicas: {{ .Values.zookeeper.replicas }}
   selector:
     matchLabels:
       {{- include "inlong.matchLabels" . | nindent 6 }}
@@ -97,7 +97,7 @@ spec:
             - name: ZOOKEEPER_SERVERS
               value:
                 {{- $global := . }}
-                {{ range $i, $e := until (.Values.zookeeper.replicaCount | int) }}{{ if ne $i 0 }},{{ end }}{{ template "inlong.fullname" $global }}-{{ $global.Values.zookeeper.component }}-{{ printf "%d" $i }}{{ end }}
+                {{ range $i, $e := until (.Values.zookeeper.replicas | int) }}{{ if ne $i 0 }},{{ end }}{{ template "inlong.fullname" $global }}-{{ $global.Values.zookeeper.component }}-{{ printf "%d" $i }}{{ end }}
           {{- if .Values.zookeeper.probe.readiness.enabled }}
           readinessProbe:
             exec:

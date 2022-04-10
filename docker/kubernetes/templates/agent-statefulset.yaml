@@ -25,7 +25,7 @@ metadata:
     component: {{ .Values.agent.component }}
 spec:
   serviceName: {{ template "inlong.fullname" . }}-{{ .Values.agent.component }}
-  replicas: {{ .Values.agent.replicaCount }}
+  replicas: {{ .Values.agent.replicas }}
   selector:
     matchLabels:
       {{- include "inlong.matchLabels" . | nindent 6 }}
@@ -63,7 +63,7 @@ spec:
           command: [ "/bin/sh", "-c" ]
           args:
             - |
-              count={{ .Values.dashboard.replicaCount }}
+              count={{ .Values.dashboard.replicas }}
               for i in $(seq 0 $(expr $count - 1))
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }}-$i"
@@ -81,7 +81,7 @@ spec:
           command: [ "/bin/sh", "-c" ]
           args:
             - |
-              count={{ .Values.dataproxy.replicaCount }}
+              count={{ .Values.dataproxy.replicas }}
               for i in $(seq 0 $(expr $count - 1))
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}-$i"
