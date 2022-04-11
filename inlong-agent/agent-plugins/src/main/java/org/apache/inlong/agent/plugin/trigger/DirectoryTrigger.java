@@ -159,11 +159,13 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
                 LOGGER.info("overflow got {}", parentPath);
                 // check whether parent path is valid.
                 if (Files.isDirectory(parentPath)) {
-                    try(final Stream<Path> pathStream = Files.list(parentPath)) {
+                    try (final Stream<Path> pathStream = Files.list(parentPath)) {
                         for (Iterator<Path> it = pathStream.iterator(); it.hasNext(); ) {
                             Path childPath = it.next();
                             registerAllSubDir(entity, parentPath.resolve(childPath), tmpWatchers);
                         }
+                    } catch (Exception e) {
+                        LOGGER.error("error caught", e);
                     }
                 }
             }

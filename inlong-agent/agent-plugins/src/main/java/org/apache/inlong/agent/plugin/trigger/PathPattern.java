@@ -101,6 +101,8 @@ public class PathPattern {
                         LOGGER.warn("cannot add {}, please check it", path, ex);
                     }
                 });
+            } catch (Exception e) {
+                LOGGER.error("error caught", e);
             }
         }
     }

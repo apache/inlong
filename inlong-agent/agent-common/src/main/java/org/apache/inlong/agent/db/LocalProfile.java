@@ -63,6 +63,8 @@ public class LocalProfile {
                             profileList.add(jobProfile);
                         }
                     }
+                } catch (Exception e) {
+                    LOGGER.error("error caught", e);
                 }
             }
         } catch (Exception ex) {
