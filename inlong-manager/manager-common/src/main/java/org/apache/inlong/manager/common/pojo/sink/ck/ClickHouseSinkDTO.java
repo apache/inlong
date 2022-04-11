@@ -20,7 +20,6 @@ package org.apache.inlong.manager.common.pojo.sink.ck;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * Sink info of ClickHouse
@@ -44,38 +44,39 @@ public class ClickHouseSinkDTO {
     @ApiModelProperty("ClickHouse JDBC URL")
     private String jdbcUrl;
 
-    @ApiModelProperty("Target database name")
-    private String databaseName;
-
-    @ApiModelProperty("Target table name")
-    private String tableName;
-
     @ApiModelProperty("Username for JDBC URL")
     private String username;
 
     @ApiModelProperty("User password")
     private String password;
 
-    @ApiModelProperty("Whether distributed table")
-    private Boolean distributedTable;
+    @ApiModelProperty("Target database name")
+    private String dbName;
 
-    @ApiModelProperty("Partition strategy,support: BALANCE, RANDOM, HASH")
-    private String partitionStrategy;
+    @ApiModelProperty("Target table name")
+    private String tableName;
 
-    @ApiModelProperty("Partition key")
-    private String partitionKey;
-
-    @ApiModelProperty("Key field names")
-    private String[] keyFieldNames;
-
-    @ApiModelProperty("Flush interval")
+    @ApiModelProperty("Flush interval, unit: second, default is 1s")
     private Integer flushInterval;
 
-    @ApiModelProperty("Flush record number")
-    private Integer flushRecordNumber;
+    @ApiModelProperty("Flush when record number reaches flushRecord")
+    private Integer flushRecord;
 
-    @ApiModelProperty("Write max retry times")
-    private Integer writeMaxRetryTimes;
+    @ApiModelProperty("Write max retry times, default is 3")
+    private Integer retryTimes;
+
+    @ApiModelProperty("Whether distributed table? 0: no, 1: yes")
+    private Integer isDistributed;
+
+    @ApiModelProperty("Partition strategy, support: BALANCE, RANDOM, HASH")
+    private String partitionStrategy;
+
+    @ApiModelProperty(value = "Partition files, separate with commas",
+            notes = "Necessary when partitionStrategy is HASH, must be one of the field list")
+    private String partitionFields;
+
+    @ApiModelProperty("Key field names, separate with commas")
+    private String keyFieldNames;
 
     @ApiModelProperty("Properties for clickhouse")
     private Map<String, Object> properties;
@@ -88,15 +89,15 @@ public class ClickHouseSinkDTO {
                 .jdbcUrl(request.getJdbcUrl())
                 .username(request.getUsername())
                 .password(request.getPassword())
-                .databaseName(request.getDatabaseName())
+                .dbName(request.getDbName())
                 .tableName(request.getTableName())
-                .distributedTable(request.getDistributedTable())
-                .partitionStrategy(request.getPartitionStrategy())
-                .partitionKey(request.getPartitionKey())
-                .keyFieldNames(request.getKeyFieldNames())
                 .flushInterval(request.getFlushInterval())
-                .flushRecordNumber(request.getFlushRecordNumber())
-                .writeMaxRetryTimes(request.getWriteMaxRetryTimes())
+                .flushRecord(request.getFlushRecord())
+                .retryTimes(request.getRetryTimes())
+                .isDistributed(request.getIsDistributed())
+                .partitionStrategy(request.getPartitionStrategy())
+                .partitionFields(request.getPartitionFields())
+                .keyFieldNames(request.getKeyFieldNames())
                 .properties(request.getProperties())
                 .build();
     }
