@@ -28,6 +28,7 @@ import org.apache.inlong.tubemq.manager.controller.node.request.AddBrokersReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.BrokerSetReadOrWriteReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneBrokersReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.DeleteBrokerReq;
+import org.apache.inlong.tubemq.manager.controller.node.request.ModifyBrokerReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.OnlineOfflineBrokerReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.ReloadBrokerReq;
 import org.apache.inlong.tubemq.manager.repository.MasterRepository;
@@ -99,6 +100,8 @@ public class NodeController {
                 return nodeService.cloneBrokersWithTopic(gson.fromJson(req, CloneBrokersReq.class));
             case TubeConst.ADD:
                 return masterService.baseRequestMaster(gson.fromJson(req, AddBrokersReq.class));
+            case TubeConst.MODIFY:
+                return masterService.baseRequestMaster(gson.fromJson(req, ModifyBrokerReq.class));
             case TubeConst.ONLINE:
             case TubeConst.OFFLINE:
                 return masterService.baseRequestMaster(gson.fromJson(req, OnlineOfflineBrokerReq.class));
