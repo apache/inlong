@@ -42,6 +42,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>manager-client-tools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <exclusions>
@@ -115,11 +120,6 @@
             <artifactId>guava</artifactId>
             <groupId>com.google.guava</groupId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>manager-client-tools</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -146,6 +146,7 @@
         </resources>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${plugin.surefire.version}</version>
                 <configuration>

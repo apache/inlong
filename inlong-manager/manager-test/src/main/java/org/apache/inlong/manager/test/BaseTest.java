@@ -17,13 +17,11 @@
 
 package org.apache.inlong.manager.test;
 
-import org.junit.runner.RunWith;
 import org.mvnsearch.h2.H2FunctionsLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -31,7 +29,6 @@ import javax.sql.DataSource;
 @ActiveProfiles(value = {"test"})
 @EnableConfigurationProperties
 @ComponentScan(basePackages = "org.apache.inlong.manager")
-@RunWith(SpringRunner.class)
 public class BaseTest {
 
     @Autowired
