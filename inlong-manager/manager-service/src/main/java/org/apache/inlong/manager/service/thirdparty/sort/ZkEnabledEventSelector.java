@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.thirdparty.sort;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
@@ -28,18 +29,25 @@ import org.springframework.stereotype.Component;
 /**
  * Event selector for whether ZooKeeper is enabled.
  */
+@Slf4j
 @Component
 public class ZkEnabledEventSelector implements EventSelector {
 
     @Override
     public boolean accept(WorkflowContext context) {
         ProcessForm processForm = context.getProcessForm();
+        String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof GroupResourceProcessForm)) {
+            log.info("zookeeper enabled was [false] for groupId [{}]", groupId);
             return false;
         }
+
         GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
         InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
-        return groupInfo.getZookeeperEnabled() == 1 && MQType.forType(groupInfo.getMiddlewareType()) != MQType.NONE;
+        boolean enable =
+                groupInfo.getZookeeperEnabled() == 1 && MQType.forType(groupInfo.getMiddlewareType()) != MQType.NONE;
+        log.info("zookeeper enabled was [{}] for groupId [{}]", enable, groupId);
+        return enable;
     }
 
 }

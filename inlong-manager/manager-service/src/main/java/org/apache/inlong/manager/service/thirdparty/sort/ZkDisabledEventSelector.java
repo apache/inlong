@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.thirdparty.sort;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
@@ -29,23 +30,32 @@ import org.springframework.stereotype.Component;
 /**
  * Event selector for whether ZooKeeper is disabled.
  */
+@Slf4j
 @Component
 public class ZkDisabledEventSelector implements EventSelector {
 
     @Override
     public boolean accept(WorkflowContext context) {
         ProcessForm processForm = context.getProcessForm();
+        String groupId = processForm.getInlongGroupId();
         if (processForm instanceof GroupResourceProcessForm) {
             GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
             InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
-            return groupInfo.getZookeeperEnabled() == 0
+
+            boolean enable = groupInfo.getZookeeperEnabled() == 0
                     && MQType.forType(groupInfo.getMiddlewareType()) != MQType.NONE;
+            log.info("zookeeper disabled was [{}] for groupId [{}]", enable, groupId);
+            return enable;
         } else if (processForm instanceof UpdateGroupProcessForm) {
             UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
             InlongGroupInfo groupInfo = updateGroupProcessForm.getGroupInfo();
-            return groupInfo.getZookeeperEnabled() == 0
+
+            boolean enable = groupInfo.getZookeeperEnabled() == 0
                     && MQType.forType(groupInfo.getMiddlewareType()) != MQType.NONE;
+            log.info("zookeeper disabled was [{}] for groupId [{}]", enable, groupId);
+            return enable;
         } else {
+            log.info("zk disabled for groupId [{}]", groupId);
             return false;
         }
     }

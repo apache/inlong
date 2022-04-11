@@ -26,17 +26,18 @@ import org.apache.inlong.manager.workflow.event.EventSelector;
 
 @Slf4j
 public class StartupProcessSelector implements EventSelector {
+
     @SneakyThrows
     @Override
     public boolean accept(WorkflowContext workflowContext) {
-        String inlongGroupId = workflowContext.getProcessForm().getInlongGroupId();
-        log.info("inlongGroupId:{} enter startupProcess listener", inlongGroupId);
         ProcessForm processForm = workflowContext.getProcessForm();
-        if (processForm == null || !(processForm instanceof GroupResourceProcessForm)) {
-            log.info("inlongGroupId:{} not add startupProcess listener", inlongGroupId);
+        String groupId = processForm.getInlongGroupId();
+        if (!(processForm instanceof GroupResourceProcessForm)) {
+            log.info("not add startupProcess listener as the form was not GroupResource for groupId [{}]", groupId);
             return false;
         }
-        log.info("inlongGroupId:{} add startupProcess listener", inlongGroupId);
+
+        log.info("add startupProcess listener for groupId [{}]", groupId);
         return true;
     }
 }

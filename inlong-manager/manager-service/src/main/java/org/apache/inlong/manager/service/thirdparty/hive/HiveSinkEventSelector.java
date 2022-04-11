@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-public class CreateHiveTableEventSelector implements EventSelector {
+public class HiveSinkEventSelector implements EventSelector {
 
     @Autowired
     private StreamSinkService sinkService;
@@ -49,23 +49,27 @@ public class CreateHiveTableEventSelector implements EventSelector {
         if (!(processForm instanceof GroupResourceProcessForm)) {
             return false;
         }
+
         GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
+        String groupId = form.getInlongGroupId();
         if (form.getGroupInfo() == null || StringUtils.isEmpty(form.getGroupInfo().getInlongGroupId())) {
+            log.info("not add create hive table listener as the info was null for groupId [{}]", groupId);
             return false;
         }
-        String groupId = form.getInlongGroupId();
-        List<String> dsForHive = sinkService.getExistsStreamIdList(groupId, SinkType.SINK_HIVE,
+        List<String> streamWithHiveSink = sinkService.getExistsStreamIdList(groupId, SinkType.SINK_HIVE,
                 streamMapper.selectByGroupId(groupId)
                         .stream()
                         .map(InlongStreamEntity::getInlongStreamId)
                         .collect(Collectors.toList()));
 
-        if (CollectionUtils.isEmpty(dsForHive)) {
-            log.warn("groupId={} streamId={} does not have sink, skip to create hive table ",
+        if (CollectionUtils.isEmpty(streamWithHiveSink)) {
+            log.warn("skip to create hive table as no hive sink found for groupId={} streamId={}",
                     groupId, form.getInlongStreamId());
-            return true;
+            return false;
         }
-        return false;
+
+        log.info("add create hive table listener for groupId [{}]", groupId);
+        return true;
     }
 
 }
