@@ -44,17 +44,14 @@ public class SourceListResponse {
     @ApiModelProperty("Source name, unique in one stream.")
     private String sourceName;
 
+    @ApiModelProperty("Data Serialization, support: csv, json, canal, avro, etc")
+    private String serializationType;
+
     @ApiModelProperty("Id of the source server")
     private Integer serverId;
 
-    @ApiModelProperty("Name of the source server")
-    private String serverName;
-
     @ApiModelProperty("Id of the cluster that collected this source")
     private Integer clusterId;
-
-    @ApiModelProperty("Name of the cluster that collected this source")
-    private String clusterName;
 
     @ApiModelProperty(value = "Status")
     private Integer status;
