@@ -108,9 +108,9 @@ public class FieldMappingTransformer implements Serializable {
                 return CanalJsonSerializationSchema.rowKind2String(kind);
             case MYSQL_METADATA_DATA:
                 return attributes.get(MysqlBinLogData.MYSQL_METADATA_DATA);
+            default:
+                return null;
         }
-
-        return null;
     }
 
     /**
