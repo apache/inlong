@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveTableForStreamListener;
@@ -124,7 +124,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
             GroupResourceProcessForm form = (GroupResourceProcessForm) c.getProcessForm();
             String groupId = form.getInlongGroupId();
             String streamId = form.getInlongStreamId();
-            List<String> dsForHive = sinkService.getExistsStreamIdList(groupId, Constant.SINK_HIVE,
+            List<String> dsForHive = sinkService.getExistsStreamIdList(groupId, SinkType.SINK_HIVE,
                     Collections.singletonList(streamId));
             if (CollectionUtils.isEmpty(dsForHive)) {
                 log.warn("inlong group [{}] adn inlong stream [{}] does not have sink, skip create hive table", groupId,

@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 
 import java.util.List;
@@ -73,7 +73,7 @@ public class HiveSinkResponse extends SinkResponse {
     private String dataSeparator;
 
     public HiveSinkResponse() {
-        this.sinkType = Constant.SINK_HIVE;
+        this.sinkType = SinkType.SINK_HIVE;
     }
 
 }

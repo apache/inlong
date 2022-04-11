@@ -28,14 +28,6 @@ public class Constant {
     public static final String URL_SPLITTER = ",";
     public static final String HOST_SPLITTER = ":";
 
-    public static final String SINK_HIVE = "HIVE";
-
-    public static final String SINK_KAFKA = "KAFKA";
-
-    public static final String SINK_CLICKHOUSE = "CLICKHOUSE";
-
-    public static final String SINK_ICEBERG = "ICEBERG";
-
     public static final String DATA_SOURCE_DB = "DB";
 
     public static final String DATA_SOURCE_FILE = "FILE";
@@ -68,10 +60,6 @@ public class Constant {
     public static final String STREAM_ID_IS_EMPTY = "inlong stream id is empty";
 
     public static final String REQUEST_IS_EMPTY = "request is empty";
-
-    public static final String SINK_TYPE_IS_EMPTY = "sinkType is empty";
-
-    public static final String SINK_TYPE_NOT_SAME = "Expected sinkType is %s, but found %s";
 
     public static final String PULSAR_TOPIC_TYPE_SERIAL = "SERIAL";
 

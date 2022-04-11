@@ -333,7 +333,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         for (SinkApproveDTO dto : approveList) {
             // According to the sink type, save sink information
             String sinkType = dto.getSinkType();
-            Preconditions.checkNotNull(sinkType, Constant.SINK_TYPE_IS_EMPTY);
+            Preconditions.checkNotNull(sinkType, SinkType.SINK_TYPE_IS_EMPTY);
 
             StreamSinkEntity entity = new StreamSinkEntity();
             entity.setId(dto.getId());
@@ -357,7 +357,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         String streamId = request.getInlongStreamId();
         Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
         String sinkType = request.getSinkType();
-        Preconditions.checkNotNull(sinkType, Constant.SINK_TYPE_IS_EMPTY);
+        Preconditions.checkNotNull(sinkType, SinkType.SINK_TYPE_IS_EMPTY);
     }
 
     /**

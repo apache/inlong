@@ -15,73 +15,57 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.source.kafka;
+package org.apache.inlong.manager.service.source.file;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageInfo;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.file.FileSourceDTO;
+import org.apache.inlong.manager.common.pojo.source.file.FileSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.file.FileSourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
-import org.apache.inlong.manager.service.source.AbstractStreamSourceOperation;
+import org.apache.inlong.manager.service.source.AbstractSourceOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Supplier;
 
-/**
- * kafka stream source operation.
- */
 @Service
-public class KafkaStreamSourceOperation extends AbstractStreamSourceOperation {
+public class FileSourceOperation extends AbstractSourceOperation {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
-    public Boolean accept(SourceType sourceType) {
-        return SourceType.KAFKA == sourceType;
-    }
-
-    @Override
-    protected String getSourceType() {
-        return SourceType.KAFKA.getType();
-    }
-
-    @Override
-    protected SourceResponse getResponse() {
-        return new KafkaSourceResponse();
-    }
-
-    @Override
-    public PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage) {
-        if (CollectionUtils.isEmpty(entityPage)) {
-            return new PageInfo<>();
-        }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, KafkaSourceListResponse::new));
-    }
-
-    @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
-        KafkaSourceRequest sourceRequest = (KafkaSourceRequest) request;
+        FileSourceRequest sourceRequest = (FileSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            KafkaSourceDTO dto = KafkaSourceDTO.getFromRequest(sourceRequest);
+            FileSourceDTO dto = FileSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }
+    }
+
+    @Override
+    protected String getSourceType() {
+        return SourceType.SOURCE_FILE;
+    }
+
+    @Override
+    protected SourceResponse getResponse() {
+        return new FileSourceResponse();
+    }
+
+    @Override
+    public Boolean accept(SourceType sourceType) {
+        return sourceType == SourceType.FILE;
     }
 
     @Override
@@ -93,7 +77,7 @@ public class KafkaStreamSourceOperation extends AbstractStreamSourceOperation {
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
                 String.format(SourceType.SOURCE_TYPE_NOT_SAME, getSourceType(), existType));
-        KafkaSourceDTO dto = KafkaSourceDTO.getFromJson(entity.getExtParams());
+        FileSourceDTO dto = FileSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
         return result;

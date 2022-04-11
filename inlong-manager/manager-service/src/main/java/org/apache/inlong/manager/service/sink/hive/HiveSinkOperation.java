@@ -22,7 +22,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
@@ -59,9 +58,9 @@ import java.util.function.Supplier;
  * Hive sink operation
  */
 @Service
-public class HiveStreamSinkOperation implements StreamSinkOperation {
+public class HiveSinkOperation implements StreamSinkOperation {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HiveStreamSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HiveSinkOperation.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -78,7 +77,7 @@ public class HiveStreamSinkOperation implements StreamSinkOperation {
     @Override
     public Integer saveOpt(SinkRequest request, String operator) {
         String sinkType = request.getSinkType();
-        Preconditions.checkTrue(Constant.SINK_HIVE.equals(sinkType),
+        Preconditions.checkTrue(SinkType.SINK_HIVE.equals(sinkType),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + sinkType);
         HiveSinkRequest hiveRequest = (HiveSinkRequest) request;
         SinkInfoUtils.checkPartitionField(hiveRequest.getFieldList(), hiveRequest.getPartitionFieldList());
@@ -142,8 +141,8 @@ public class HiveStreamSinkOperation implements StreamSinkOperation {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
-        Preconditions.checkTrue(Constant.SINK_HIVE.equals(existType),
-                String.format(Constant.SINK_TYPE_NOT_SAME, Constant.SINK_HIVE, existType));
+        Preconditions.checkTrue(SinkType.SINK_HIVE.equals(existType),
+                String.format(SinkType.SINK_TYPE_NOT_SAME, SinkType.SINK_HIVE, existType));
 
         SinkResponse response = this.getFromEntity(entity, HiveSinkResponse::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(id);
@@ -162,8 +161,8 @@ public class HiveStreamSinkOperation implements StreamSinkOperation {
         }
 
         String existType = entity.getSinkType();
-        Preconditions.checkTrue(Constant.SINK_HIVE.equals(existType),
-                String.format(Constant.SINK_TYPE_NOT_SAME, Constant.SINK_HIVE, existType));
+        Preconditions.checkTrue(SinkType.SINK_HIVE.equals(existType),
+                String.format(SinkType.SINK_TYPE_NOT_SAME, SinkType.SINK_HIVE, existType));
 
         HiveSinkDTO dto = HiveSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
@@ -183,8 +182,8 @@ public class HiveStreamSinkOperation implements StreamSinkOperation {
     @Override
     public void updateOpt(SinkRequest request, String operator) {
         String sinkType = request.getSinkType();
-        Preconditions.checkTrue(Constant.SINK_HIVE.equals(sinkType),
-                String.format(Constant.SINK_TYPE_NOT_SAME, Constant.SINK_HIVE, sinkType));
+        Preconditions.checkTrue(SinkType.SINK_HIVE.equals(sinkType),
+                String.format(SinkType.SINK_TYPE_NOT_SAME, SinkType.SINK_HIVE, sinkType));
 
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());

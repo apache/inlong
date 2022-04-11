@@ -43,16 +43,16 @@ public class SinkFieldBase {
     @ApiModelProperty("Source field type")
     private String sourceFieldType;
 
-    @ApiModelProperty("Field length")
+    @ApiModelProperty("Length of fixed type")
     private Integer fieldLength;
 
-    @ApiModelProperty("Field precision")
+    @ApiModelProperty("Precision of decimal type, that is, field length. precision >= scale")
     private Integer fieldPrecision;
 
-    @ApiModelProperty("Field scale")
+    @ApiModelProperty("Range of decimal type, that is, the number of decimal places. precision >= scale")
     private Integer fieldScale;
 
-    @ApiModelProperty("Partition strategy, including: Identity, Year, Month, Day, Hour, Bucket")
+    @ApiModelProperty("Partition strategy, including: None, Identity, Year, Month, Day, Hour, Bucket, Truncate")
     private String partitionStrategy;
 
     @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"

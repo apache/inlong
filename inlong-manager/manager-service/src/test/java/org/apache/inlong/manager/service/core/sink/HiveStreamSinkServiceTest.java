@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.core.sink;
 
 import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
@@ -50,7 +51,7 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
         HiveSinkRequest sinkInfo = new HiveSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(Constant.SINK_HIVE);
+        sinkInfo.setSinkType(SinkType.SINK_HIVE);
         sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
         sinkInfo.setSinkName(sinkName);
         return sinkService.save(sinkInfo, globalOperator);
@@ -61,7 +62,7 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
         Integer id = this.saveSink();
         Assert.assertNotNull(id);
 
-        boolean result = sinkService.delete(id, Constant.SINK_HIVE, globalOperator);
+        boolean result = sinkService.delete(id, SinkType.SINK_HIVE, globalOperator);
         Assert.assertTrue(result);
     }
 
@@ -69,16 +70,16 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
     public void testListByIdentifier() {
         Integer id = this.saveSink();
 
-        SinkResponse sink = sinkService.get(id, Constant.SINK_HIVE);
+        SinkResponse sink = sinkService.get(id, SinkType.SINK_HIVE);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
 
-        sinkService.delete(id, Constant.SINK_HIVE, globalOperator);
+        sinkService.delete(id, SinkType.SINK_HIVE, globalOperator);
     }
 
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSink();
-        SinkResponse response = sinkService.get(id, Constant.SINK_HIVE);
+        SinkResponse response = sinkService.get(id, SinkType.SINK_HIVE);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         HiveSinkResponse hiveResponse = (HiveSinkResponse) response;

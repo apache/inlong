@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 
 /**
@@ -51,7 +51,7 @@ public class KafkaSinkResponse extends SinkResponse {
     private String autoOffsetReset;
 
     public KafkaSinkResponse() {
-        this.sinkType = Constant.SINK_KAFKA;
+        this.sinkType = SinkType.SINK_KAFKA;
     }
 
 }

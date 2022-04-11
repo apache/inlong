@@ -41,7 +41,7 @@ public class StreamSinkFieldEntity implements Serializable {
     private Integer fieldLength;
     private Integer fieldPrecision;
     private Integer fieldScale;
-    private String partitionStrategy; // For Iceberg, including: Identity, Year, Month, Day, Hour, Bucket
+    private String partitionStrategy;
 
     private Integer isMetaField;
     private String fieldFormat;
