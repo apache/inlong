@@ -133,9 +133,6 @@
                 <directory>bin</directory>
                 <filtering>true</filtering>
                 <targetPath>bin</targetPath>
-                <includes>
-                    <include>*.sh</include>
-                </includes>
             </resource>
             <!-- Filter sql files to sql directory -->
             <resource>
