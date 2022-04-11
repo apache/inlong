@@ -26,8 +26,8 @@ import org.apache.inlong.manager.service.source.listener.SourceRestartEventSelec
 import org.apache.inlong.manager.service.source.listener.SourceRestartListener;
 import org.apache.inlong.manager.service.source.listener.SourceStopEventSelector;
 import org.apache.inlong.manager.service.source.listener.SourceStopListener;
-import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveTableEventSelector;
-import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveTableListener;
+import org.apache.inlong.manager.service.thirdparty.hive.HiveSinkEventSelector;
+import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveSinkListener;
 import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarGroupTaskListener;
 import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarResourceTaskListener;
 import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeGroupTaskListener;
@@ -97,9 +97,9 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
 
     @Autowired
     @Setter
-    private CreateHiveTableListener createHiveTableListener;
+    private CreateHiveSinkListener createHiveSinkListener;
     @Autowired
-    private CreateHiveTableEventSelector createHiveTableEventSelector;
+    private HiveSinkEventSelector hiveSinkEventSelector;
 
     @Autowired
     @Setter
@@ -119,7 +119,7 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
         sourceOperateListeners.put(sourceDeleteListener, new SourceDeleteEventSelector());
         sourceOperateListeners.put(sourceRestartListener, new SourceRestartEventSelector());
         sinkOperateListeners = new LinkedHashMap<>();
-        sinkOperateListeners.put(createHiveTableListener, createHiveTableEventSelector);
+        sinkOperateListeners.put(createHiveSinkListener, hiveSinkEventSelector);
         queueOperateListeners = new LinkedHashMap<>();
         queueOperateListeners.put(createTubeTopicTaskListener, new TubeEventSelector());
         queueOperateListeners.put(createTubeGroupTaskListener, new TubeEventSelector());

@@ -26,23 +26,25 @@ import org.apache.inlong.manager.workflow.event.EventSelector;
 
 @Slf4j
 public class DeleteProcessSelector implements EventSelector {
+
     @SneakyThrows
     @Override
-    public boolean accept(WorkflowContext workflowContext) {
-        String inlongGroupId = workflowContext.getProcessForm().getInlongGroupId();
-        log.info("inlongGroupId:{} enter deleteProcess listener", inlongGroupId);
-        ProcessForm processForm = workflowContext.getProcessForm();
-        if (processForm == null || !(processForm instanceof UpdateGroupProcessForm)) {
-            log.info("inlongGroupId:{} not add deleteProcess listener", inlongGroupId);
+    public boolean accept(WorkflowContext context) {
+        ProcessForm processForm = context.getProcessForm();
+        String groupId = processForm.getInlongGroupId();
+        if (!(processForm instanceof UpdateGroupProcessForm)) {
+            log.info("not add deleteProcess listener as the form was not UpdateGroup for groupId [{}]", groupId);
             return false;
         }
-        UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
-        boolean flag = updateGroupProcessForm.getOperateType() == UpdateGroupProcessForm.OperateType.DELETE;
+
+        UpdateGroupProcessForm updateProcessForm = (UpdateGroupProcessForm) processForm;
+        boolean flag = updateProcessForm.getOperateType() == UpdateGroupProcessForm.OperateType.DELETE;
         if (!flag) {
-            log.info("inlongGroupId:{} not add deleteProcess listener, not DELETE", inlongGroupId);
+            log.info("not add deleteProcess listener as the operate was not DELETE for groupId [{}]", groupId);
             return false;
         }
-        log.info("inlongGroupId:{} add deleteProcess listener", inlongGroupId);
+
+        log.info("add deleteProcess listener for groupId [{}]", groupId);
         return true;
     }
 }

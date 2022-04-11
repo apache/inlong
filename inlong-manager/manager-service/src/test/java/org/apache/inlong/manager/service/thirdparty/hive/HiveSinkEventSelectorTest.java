@@ -25,21 +25,21 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class CreateHiveTableEventSelectorTest extends ServiceBaseTest {
+public class HiveSinkEventSelectorTest extends ServiceBaseTest {
 
     @Autowired
-    CreateHiveTableEventSelector createHiveTableEventSelector;
+    HiveSinkEventSelector hiveSinkEventSelector;
 
     @Test
     public void testAccept() {
         WorkflowContext workflowContext = new WorkflowContext();
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
         workflowContext.setProcessForm(processForm);
-        Assert.assertFalse(createHiveTableEventSelector.accept(workflowContext));
+        Assert.assertFalse(hiveSinkEventSelector.accept(workflowContext));
         processForm.setGroupInfo(new InlongGroupInfo());
-        Assert.assertFalse(createHiveTableEventSelector.accept(workflowContext));
+        Assert.assertFalse(hiveSinkEventSelector.accept(workflowContext));
         processForm.getGroupInfo().setInlongGroupId("test");
-        Assert.assertTrue(createHiveTableEventSelector.accept(workflowContext));
+        Assert.assertTrue(hiveSinkEventSelector.accept(workflowContext));
     }
 
 }

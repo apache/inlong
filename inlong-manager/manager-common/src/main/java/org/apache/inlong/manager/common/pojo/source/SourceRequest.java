@@ -60,7 +60,7 @@ public class SourceRequest {
     @ApiModelProperty("Id of the cluster that collected this source")
     private Integer clusterId;
 
-    @ApiModelProperty("Data Serialization, support: csv, json, canal, avro, etc")
+    @ApiModelProperty("Serialization type, support: csv, json, canal, avro, etc")
     private String serializationType;
 
     @ApiModelProperty("Snapshot of the source task")

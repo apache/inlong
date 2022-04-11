@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.thirdparty.hive;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.inlong.manager.common.pojo.sink.SinkForSortDTO;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
@@ -34,11 +33,11 @@ import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Event listener of create hive table for all inlong stream
+ * Event listener of create hive table for one inlong stream
  */
 @Service
 @Slf4j
-public class CreateHiveTableListener implements SinkOperateListener {
+public class CreateHiveSinkForStreamListener implements SinkOperateListener {
 
     @Autowired
     private StreamSinkEntityMapper sinkMapper;
@@ -54,19 +53,17 @@ public class CreateHiveTableListener implements SinkOperateListener {
     public ListenerResult listen(WorkflowContext context) {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
-        log.info("begin to create hive table for groupId={}", groupId);
+        String streamId = form.getInlongStreamId();
+        log.info("begin create hive table for groupId={}, streamId={}", groupId, streamId);
 
-        List<SinkForSortDTO> configList = sinkMapper.selectAllConfig(groupId, null);
-        List<SinkForSortDTO> needCreateList = configList.stream()
-                .filter(sinkForSortDTO -> sinkForSortDTO.getEnableCreateResource() == 1)
-                .collect(Collectors.toList());
+        List<SinkForSortDTO> configList = sinkMapper.selectAllConfig(groupId, streamId);
         if (hiveTableOperator == null) {
             hiveTableOperator = (IHiveTableOperator) SpringContextUtils.getBean(IHiveTableOperator.BEAN_NAME,
                     DefaultHiveTableOperator.class.getName());
         }
-        hiveTableOperator.createHiveResource(groupId, needCreateList);
+        hiveTableOperator.createHiveResource(groupId, configList);
 
-        String result = "success to create hive table for group [" + groupId + "]";
+        String result = "success to create hive table for group [" + groupId + "], stream [" + streamId + "]";
         log.info(result);
         return ListenerResult.success(result);
     }

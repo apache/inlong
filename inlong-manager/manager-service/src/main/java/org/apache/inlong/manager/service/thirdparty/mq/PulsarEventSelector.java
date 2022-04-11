@@ -34,14 +34,23 @@ public class PulsarEventSelector implements EventSelector {
         if (!(processForm instanceof GroupResourceProcessForm)) {
             return false;
         }
+
         GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
+        String groupId = form.getInlongGroupId();
         MQType mqType = MQType.forType(form.getGroupInfo().getMiddlewareType());
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) form.getGroupInfo().getMqExtInfo();
-            return pulsarInfo.getEnableCreateResource() == 1;
+            boolean enable = pulsarInfo.getEnableCreateResource() == 1;
+            if (enable) {
+                log.info("need to create pulsar resource as the createResource was true for groupId [{}]", groupId);
+                return true;
+            } else {
+                log.info("skip to create pulsar resource as the createResource was false for groupId [{}]", groupId);
+                return false;
+            }
         }
-        log.warn("no need to create pulsar subscription group for groupId={}, as the middlewareType={}",
-                form.getInlongGroupId(), mqType);
+
+        log.warn("skip to create pulsar subscription as the mq type is {} for groupId [{}]", mqType, groupId);
         return false;
     }
 
