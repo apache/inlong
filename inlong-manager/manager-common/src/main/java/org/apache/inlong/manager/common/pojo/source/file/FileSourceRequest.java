@@ -32,8 +32,8 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the kafka source info")
 @JsonTypeDefine(value = SourceType.SOURCE_FILE)
+@ApiModel(value = "Request of the kafka source info")
 public class FileSourceRequest extends SourceRequest {
 
     @ApiModelProperty("Agent IP address")

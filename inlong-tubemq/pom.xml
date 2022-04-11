@@ -94,7 +94,7 @@
             <name>berkeleydb-je</name>
             <url>https://download.oracle.com/maven/</url>
             <releases>
-                <enabled>false</enabled>
+                <enabled>true</enabled>
             </releases>
             <snapshots>
                 <enabled>false</enabled>
