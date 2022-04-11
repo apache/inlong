@@ -32,23 +32,57 @@ export const getDataSourcesFileFields = (
       label: i18n.t('components.AccessHelper.DataSourceMetaData.File.DataSourceIP'),
       name: 'ip',
       rules: [
-        { required: true },
         {
           pattern: rulesPattern.ip,
           message: i18n.t('components.AccessHelper.DataSourceMetaData.File.IpRule'),
         },
       ],
       _inTable: {
-        width: 120,
+        width: 150,
+      },
+    },
+    {
+      name: 'serializationType',
+      type: 'radio',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.File.SerializationType'),
+      initialValue: 'CSV',
+      rules: [{ required: true }],
+      props: {
+        options: [
+          {
+            label: 'CSV',
+            value: 'CSV',
+          },
+          {
+            label: 'JSON',
+            value: 'JSON',
+          },
+          {
+            label: 'AVRO',
+            value: 'AVRO',
+          },
+        ],
+      },
+      _inTable: {
+        width: 100,
       },
     },
     {
       type: 'input',
       label: i18n.t('components.AccessHelper.DataSourceMetaData.File.FilePath'),
-      name: 'filePath',
+      name: 'pattern',
+      tooltip: i18n.t('components.AccessHelper.DataSourceMetaData.File.FilePathHelp'),
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.DataSourceMetaData.File.FillInTheAbsolutePath'),
       _inTable: true,
+    },
+    {
+      type: 'input',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.File.TimeOffset'),
+      name: 'timeOffset',
+      tooltip: i18n.t('components.AccessHelper.DataSourceMetaData.File.TimeOffsetHelp'),
+      _inTable: {
+        width: 150,
+      },
     },
   ];
 
