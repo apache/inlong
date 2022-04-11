@@ -136,6 +136,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             case AUDITREPLY:
                 checkArgument(cmd.hasAuditReply());
                 break;
+            default:
+                channelBuffer = null;
         }
         if (channelBuffer != null) {
             writeResponse(remoteChannel, channelBuffer);

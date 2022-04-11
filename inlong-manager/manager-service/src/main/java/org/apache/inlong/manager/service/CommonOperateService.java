@@ -124,6 +124,8 @@ public class CommonOperateService {
                 }
                 break;
             }
+            default:
+                LOGGER.warn("case warn key {}", key);
         }
         return result;
     }
