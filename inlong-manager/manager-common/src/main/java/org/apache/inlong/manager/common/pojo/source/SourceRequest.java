@@ -57,20 +57,14 @@ public class SourceRequest {
     @ApiModelProperty("Id of the source server")
     private Integer serverId;
 
-    @ApiModelProperty("Name of the source server")
-    private String serverName;
-
     @ApiModelProperty("Id of the cluster that collected this source")
     private Integer clusterId;
 
-    @ApiModelProperty("Name of the cluster that collected this source")
-    private String clusterName;
+    @ApiModelProperty("Data Serialization, support: csv, json, canal, avro, etc")
+    private String serializationType;
 
     @ApiModelProperty("Snapshot of the source task")
     private String snapshot;
-
-    @ApiModelProperty("Data Serialization, support: csv, json, canal, avro, etc")
-    private String serializationType;
 
     @ApiModelProperty("Version")
     private Integer version;
