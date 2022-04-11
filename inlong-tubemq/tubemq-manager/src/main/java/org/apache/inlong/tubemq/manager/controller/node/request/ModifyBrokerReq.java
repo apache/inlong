@@ -24,7 +24,7 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class ModifyBrokerReq extends BaseReq{
+public class ModifyBrokerReq extends BaseReq {
     private String brokerId;
     private String brokerPort;
     private String brokerTLSPort;
