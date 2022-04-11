@@ -89,22 +89,22 @@ public class InlongStreamSinkTransfer {
         ClickHouseSinkRequest clickHouseSinkRequest = new ClickHouseSinkRequest();
         ClickHouseSink clickHouseSink = (ClickHouseSink) streamSink;
         clickHouseSinkRequest.setSinkName(clickHouseSink.getSinkName());
-        clickHouseSinkRequest.setDatabaseName(clickHouseSink.getDatabaseName());
+        clickHouseSinkRequest.setDbName(clickHouseSink.getDbName());
         clickHouseSinkRequest.setSinkType(clickHouseSink.getSinkType().name());
         clickHouseSinkRequest.setJdbcUrl(clickHouseSink.getJdbcUrl());
         DefaultAuthentication defaultAuthentication = clickHouseSink.getAuthentication();
         AssertUtil.notNull(defaultAuthentication,
-                String.format("Clickhouse storage:%s must be authenticated", clickHouseSink.getDatabaseName()));
+                String.format("Clickhouse storage:%s must be authenticated", clickHouseSink.getDbName()));
         clickHouseSinkRequest.setUsername(defaultAuthentication.getUserName());
         clickHouseSinkRequest.setPassword(defaultAuthentication.getPassword());
         clickHouseSinkRequest.setTableName(clickHouseSink.getTableName());
-        clickHouseSinkRequest.setDistributedTable(clickHouseSink.getDistributedTable());
+        clickHouseSinkRequest.setIsDistributed(clickHouseSink.getIsDistributed());
         clickHouseSinkRequest.setFlushInterval(clickHouseSink.getFlushInterval());
-        clickHouseSinkRequest.setFlushRecordNumber(clickHouseSink.getFlushRecordNumber());
+        clickHouseSinkRequest.setFlushRecord(clickHouseSink.getFlushRecord());
         clickHouseSinkRequest.setKeyFieldNames(clickHouseSink.getKeyFieldNames());
-        clickHouseSinkRequest.setPartitionKey(clickHouseSink.getPartitionKey());
+        clickHouseSinkRequest.setPartitionFields(clickHouseSink.getPartitionFields());
         clickHouseSinkRequest.setPartitionStrategy(clickHouseSink.getPartitionStrategy());
-        clickHouseSinkRequest.setWriteMaxRetryTimes(clickHouseSink.getWriteMaxRetryTimes());
+        clickHouseSinkRequest.setRetryTimes(clickHouseSink.getRetryTimes());
         clickHouseSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         clickHouseSinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         clickHouseSinkRequest.setProperties(clickHouseSink.getProperties());
@@ -125,19 +125,19 @@ public class InlongStreamSinkTransfer {
             ClickHouseSink snapshot = (ClickHouseSink) streamSink;
             clickHouseSink = CommonBeanUtils.copyProperties(snapshot, ClickHouseSink::new);
         } else {
-            clickHouseSink.setDistributedTable(sinkResponse.getDistributedTable());
+            clickHouseSink.setIsDistributed(sinkResponse.getIsDistributed());
             clickHouseSink.setSinkName(sinkResponse.getSinkName());
             clickHouseSink.setFlushInterval(sinkResponse.getFlushInterval());
             clickHouseSink.setAuthentication(new DefaultAuthentication(sinkResponse.getSinkName(),
                     sinkResponse.getPassword()));
-            clickHouseSink.setDatabaseName(sinkResponse.getDatabaseName());
-            clickHouseSink.setFlushRecordNumber(sinkResponse.getFlushRecordNumber());
+            clickHouseSink.setDbName(sinkResponse.getDbName());
+            clickHouseSink.setFlushRecord(sinkResponse.getFlushRecord());
             clickHouseSink.setJdbcUrl(sinkResponse.getJdbcUrl());
-            clickHouseSink.setPartitionKey(sinkResponse.getPartitionKey());
+            clickHouseSink.setPartitionFields(sinkResponse.getPartitionFields());
             clickHouseSink.setKeyFieldNames(sinkResponse.getKeyFieldNames());
             clickHouseSink.setPartitionStrategy(sinkResponse.getPartitionStrategy());
-            clickHouseSink.setWriteMaxRetryTimes(sinkResponse.getWriteMaxRetryTimes());
-            clickHouseSink.setDistributedTable(sinkResponse.getDistributedTable());
+            clickHouseSink.setRetryTimes(sinkResponse.getRetryTimes());
+            clickHouseSink.setIsDistributed(sinkResponse.getIsDistributed());
         }
         clickHouseSink.setProperties(sinkResponse.getProperties());
         clickHouseSink.setNeedCreated(sinkResponse.getEnableCreateResource() == 1);

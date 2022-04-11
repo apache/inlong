@@ -86,30 +86,33 @@ public class SinkInfoUtils {
             throw new BusinessException(String.format("ClickHouse={%s} fields cannot be empty", sinkResponse));
         } else if (StringUtils.isEmpty(sinkResponse.getTableName())) {
             throw new BusinessException(String.format("ClickHouse={%s} table name cannot be empty", sinkResponse));
-        } else if (StringUtils.isEmpty(sinkResponse.getDatabaseName())) {
+        } else if (StringUtils.isEmpty(sinkResponse.getDbName())) {
             throw new BusinessException(String.format("ClickHouse={%s} database name cannot be empty", sinkResponse));
         }
-        if (sinkResponse.getDistributedTable() == null) {
-            throw new BusinessException(String.format("ClickHouse={%s} distribute cannot be empty", sinkResponse));
+
+        Integer isDistributed = sinkResponse.getIsDistributed();
+        if (isDistributed == null) {
+            throw new BusinessException(String.format("ClickHouse={%s} isDistributed cannot be null", sinkResponse));
         }
 
-        ClickHouseSinkInfo.PartitionStrategy partitionStrategy;
-        if (PartitionStrategy.BALANCE.name().equalsIgnoreCase(sinkResponse.getPartitionStrategy())) {
-            partitionStrategy = PartitionStrategy.BALANCE;
-        } else if (PartitionStrategy.HASH.name().equalsIgnoreCase(sinkResponse.getPartitionStrategy())) {
-            partitionStrategy = PartitionStrategy.HASH;
-        } else if (PartitionStrategy.RANDOM.name().equalsIgnoreCase(sinkResponse.getPartitionStrategy())) {
-            partitionStrategy = PartitionStrategy.RANDOM;
-        } else {
-            partitionStrategy = PartitionStrategy.RANDOM;
+        // Default partition strategy is RANDOM
+        ClickHouseSinkInfo.PartitionStrategy partitionStrategy = PartitionStrategy.RANDOM;
+        boolean distributedTable = isDistributed == 1;
+        if (distributedTable) {
+            if (PartitionStrategy.BALANCE.name().equalsIgnoreCase(sinkResponse.getPartitionStrategy())) {
+                partitionStrategy = PartitionStrategy.BALANCE;
+            } else if (PartitionStrategy.HASH.name().equalsIgnoreCase(sinkResponse.getPartitionStrategy())) {
+                partitionStrategy = PartitionStrategy.HASH;
+            }
         }
 
-        return new ClickHouseSinkInfo(sinkResponse.getJdbcUrl(), sinkResponse.getDatabaseName(),
+        // TODO Add keyFieldNames instead of `new String[0]`
+        return new ClickHouseSinkInfo(sinkResponse.getJdbcUrl(), sinkResponse.getDbName(),
                 sinkResponse.getTableName(), sinkResponse.getUsername(), sinkResponse.getPassword(),
-                sinkResponse.getDistributedTable(), partitionStrategy, sinkResponse.getPartitionKey(),
-                sinkFields.toArray(new FieldInfo[0]), sinkResponse.getKeyFieldNames(),
-                sinkResponse.getFlushInterval(), sinkResponse.getFlushRecordNumber(),
-                sinkResponse.getWriteMaxRetryTimes());
+                distributedTable, partitionStrategy, sinkResponse.getPartitionFields(),
+                sinkFields.toArray(new FieldInfo[0]), new String[0],
+                sinkResponse.getFlushInterval(), sinkResponse.getFlushRecord(),
+                sinkResponse.getRetryTimes());
     }
 
     // TODO Need set more configs for IcebergSinkInfo

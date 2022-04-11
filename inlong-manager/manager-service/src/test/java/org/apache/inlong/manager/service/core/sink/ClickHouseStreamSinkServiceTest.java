@@ -62,7 +62,7 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setSinkType(SinkType.SINK_CLICKHOUSE);
         sinkInfo.setJdbcUrl(ckJdbcUrl);
         sinkInfo.setUsername(ckUsername);
-        sinkInfo.setDatabaseName(ckDatabaseName);
+        sinkInfo.setDbName(ckDatabaseName);
         sinkInfo.setTableName(ckTableName);
         sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
         sinkId = sinkService.save(sinkInfo, globalOperator);
