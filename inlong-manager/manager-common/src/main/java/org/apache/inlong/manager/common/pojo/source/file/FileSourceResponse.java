@@ -41,8 +41,10 @@ public class FileSourceResponse extends SourceResponse {
     private String pattern;
 
     @ApiModelProperty("TimeOffset for collection, "
-            + "'1m' means one minute before, '1h' means one hour before, '1d' means one day before, "
-            + "Null means from current timestamp")
+            + "'1m' means from one minute after, '-1m' means from one minute before, "
+            + "'1h' means from one hour after, '-1h' means from one minute before, "
+            + "'1d' means from one day after, '-1d' means from one minute before, "
+            + "Null or blank means from current timestamp")
     private String timeOffset;
 
     public FileSourceResponse() {

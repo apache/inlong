@@ -119,22 +119,22 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     public PageInfo<? extends SourceListResponse> listByCondition(SourcePageRequest request) {
         Preconditions.checkNotNull(request.getInlongGroupId(), Constant.GROUP_ID_IS_EMPTY);
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        List<StreamSourceEntity> entityPage = sourceMapper.selectByCondition(request);
+        List<StreamSourceEntity> entityList = sourceMapper.selectByCondition(request);
 
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
         Map<SourceType, Page<StreamSourceEntity>> sourceMap = Maps.newHashMap();
-        for (StreamSourceEntity streamSource : entityPage) {
-            SourceType sourceType = SourceType.forType(streamSource.getSourceType());
-            sourceMap.computeIfAbsent(sourceType, k -> new Page<>()).add(streamSource);
+        for (StreamSourceEntity entity : entityList) {
+            SourceType sourceType = SourceType.forType(entity.getSourceType());
+            sourceMap.computeIfAbsent(sourceType, k -> new Page<>()).add(entity);
         }
-        List<SourceListResponse> sourceListResponses = Lists.newArrayList();
+        List<SourceListResponse> responseList = Lists.newArrayList();
         for (Map.Entry<SourceType, Page<StreamSourceEntity>> entry : sourceMap.entrySet()) {
             SourceType sourceType = entry.getKey();
             StreamSourceOperation operation = operationFactory.getInstance(sourceType);
             PageInfo<? extends SourceListResponse> pageInfo = operation.getPageInfo(entry.getValue());
-            sourceListResponses.addAll(pageInfo.getList());
+            responseList.addAll(pageInfo.getList());
         }
-        PageInfo<? extends SourceListResponse> pageInfo = PageInfo.of(sourceListResponses);
+        PageInfo<? extends SourceListResponse> pageInfo = PageInfo.of(responseList);
 
         LOGGER.debug("success to list source page, result size {}", pageInfo.getSize());
         return pageInfo;

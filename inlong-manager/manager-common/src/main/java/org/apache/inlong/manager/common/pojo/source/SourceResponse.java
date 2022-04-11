@@ -54,14 +54,11 @@ public class SourceResponse {
     @ApiModelProperty("Id of the source server")
     private Integer serverId;
 
-    @ApiModelProperty("Name of the source server")
-    private String serverName;
-
     @ApiModelProperty("Id of the cluster that collected this source")
     private Integer clusterId;
 
-    @ApiModelProperty("Name of the cluster that collected this source")
-    private String clusterName;
+    @ApiModelProperty("Data Serialization, support: csv, json, canal, avro, etc")
+    private String serializationType;
 
     @ApiModelProperty("Snapshot of this source task")
     private String snapshot;
@@ -87,6 +84,4 @@ public class SourceResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
-    @ApiModelProperty("Data Serialization, support: json, canal, avro, etc")
-    private String serializationType;
 }
