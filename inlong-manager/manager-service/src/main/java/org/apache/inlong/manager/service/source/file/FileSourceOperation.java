@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.source.file;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -44,8 +45,12 @@ public class FileSourceOperation extends AbstractSourceOperation {
     @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
         FileSourceRequest sourceRequest = (FileSourceRequest) request;
-        CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
+        if (StringUtils.isBlank(sourceRequest.getSerializationType())) {
+            throw new BusinessException("The serialization type cannot be empty for File source");
+        }
+
         try {
+            CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
             FileSourceDTO dto = FileSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
