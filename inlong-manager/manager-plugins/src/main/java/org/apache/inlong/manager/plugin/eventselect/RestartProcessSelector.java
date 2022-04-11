@@ -26,23 +26,25 @@ import org.apache.inlong.manager.workflow.event.EventSelector;
 
 @Slf4j
 public class RestartProcessSelector implements EventSelector {
+
     @SneakyThrows
     @Override
     public boolean accept(WorkflowContext workflowContext) {
-        String inlongGroupId = workflowContext.getProcessForm().getInlongGroupId();
-        log.info("inlongGroupId:{} enter restartProcess listener", inlongGroupId);
         ProcessForm processForm = workflowContext.getProcessForm();
-        if (processForm == null || !(processForm instanceof UpdateGroupProcessForm)) {
-            log.info("inlongGroupId:{} not add restartProcess listener", inlongGroupId);
+        String groupId = processForm.getInlongGroupId();
+        if (!(processForm instanceof UpdateGroupProcessForm)) {
+            log.info("not add restartProcess listener as the form was not UpdateGroup for groupId [{}]", groupId);
             return false;
         }
-        UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
-        boolean flag = updateGroupProcessForm.getOperateType() == UpdateGroupProcessForm.OperateType.RESTART;
+
+        UpdateGroupProcessForm updateProcessForm = (UpdateGroupProcessForm) processForm;
+        boolean flag = updateProcessForm.getOperateType() == UpdateGroupProcessForm.OperateType.RESTART;
         if (!flag) {
-            log.info("inlongGroupId:{} not add restartProcess listener, not RESTART", inlongGroupId);
+            log.info("not add restartProcess listener as the operate was not RESTART for groupId [{}]", groupId);
             return false;
         }
-        log.info("inlongGroupId:{} add restartProcess listener", inlongGroupId);
+
+        log.info("add restartProcess listener for groupId [{}]", groupId);
         return true;
     }
 }

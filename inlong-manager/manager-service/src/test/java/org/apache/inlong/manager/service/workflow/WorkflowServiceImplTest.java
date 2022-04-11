@@ -44,7 +44,7 @@ import org.apache.inlong.manager.service.mocks.MockDeleteSortListener;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
 import org.apache.inlong.manager.service.mocks.MockRestartSortListener;
 import org.apache.inlong.manager.service.mocks.MockStopSortListener;
-import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveTableListener;
+import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveSinkListener;
 import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarGroupTaskListener;
 import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarResourceTaskListener;
 import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeGroupTaskListener;
@@ -188,7 +188,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     public void mockTaskListenerFactory() {
         CreateTubeGroupTaskListener createTubeGroupTaskListener = mock(CreateTubeGroupTaskListener.class);
         when(createTubeGroupTaskListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
-        when(createTubeGroupTaskListener.name()).thenReturn(CreateHiveTableListener.class.getSimpleName());
+        when(createTubeGroupTaskListener.name()).thenReturn(CreateHiveSinkListener.class.getSimpleName());
         when(createTubeGroupTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
         taskListenerFactory.setCreateTubeGroupTaskListener(createTubeGroupTaskListener);
 
@@ -212,11 +212,11 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         when(createPulsarGroupTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
         taskListenerFactory.setCreatePulsarGroupTaskListener(createPulsarGroupTaskListener);
 
-        CreateHiveTableListener createHiveTableListener = mock(CreateHiveTableListener.class);
-        when(createHiveTableListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
-        when(createHiveTableListener.name()).thenReturn(CreateHiveTableListener.class.getSimpleName());
-        when(createHiveTableListener.event()).thenReturn(TaskEvent.COMPLETE);
-        taskListenerFactory.setCreateHiveTableListener(createHiveTableListener);
+        CreateHiveSinkListener createHiveSinkListener = mock(CreateHiveSinkListener.class);
+        when(createHiveSinkListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
+        when(createHiveSinkListener.name()).thenReturn(CreateHiveSinkListener.class.getSimpleName());
+        when(createHiveSinkListener.event()).thenReturn(TaskEvent.COMPLETE);
+        taskListenerFactory.setCreateHiveSinkListener(createHiveSinkListener);
 
         PushSortConfigListener pushSortConfigListener = mock(PushSortConfigListener.class);
         when(pushSortConfigListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
