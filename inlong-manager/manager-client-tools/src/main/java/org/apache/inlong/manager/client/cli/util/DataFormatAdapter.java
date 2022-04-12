@@ -15,23 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.cli;
+package org.apache.inlong.manager.client.cli.util;
 
-import lombok.Data;
-import org.apache.inlong.manager.client.api.InlongGroupConf;
-import org.apache.inlong.manager.client.api.InlongStreamConf;
-import org.apache.inlong.manager.client.api.StreamField;
-import org.apache.inlong.manager.client.api.StreamSink;
-import org.apache.inlong.manager.client.api.StreamSource;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import org.apache.inlong.manager.client.api.DataFormat;
 
-import java.util.List;
+import java.lang.reflect.Type;
 
-@Data
-public class CreateGroupConf {
-
-    private InlongGroupConf groupConf;
-    private InlongStreamConf streamConf;
-    private List<StreamField> streamFieldList;
-    private StreamSource streamSource;
-    private StreamSink streamSink;
+public class DataFormatAdapter implements JsonDeserializer {
+    @Override
+    public DataFormat deserialize(JsonElement jsonElement, Type type,
+                                  JsonDeserializationContext context) throws JsonParseException {
+        return DataFormat.forName(jsonElement.getAsString());
+    }
 }
+
+
+
+

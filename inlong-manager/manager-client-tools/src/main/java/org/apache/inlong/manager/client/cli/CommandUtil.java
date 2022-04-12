@@ -22,13 +22,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.MQBaseConf;
-import org.apache.inlong.manager.client.api.SortBaseConf;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
-import org.apache.inlong.manager.client.cli.util.CharsetAdapter;
-import org.apache.inlong.manager.client.cli.util.PulsarConfAdapter;
-import org.apache.inlong.manager.client.cli.util.FlinkConfAdapter;
+import org.apache.inlong.manager.client.cli.util.GsonUtil;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -39,7 +35,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Field;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Properties;
 
@@ -142,11 +137,7 @@ abstract class CommandUtil {
     }
 
     CreateGroupConf jsonToObject(String string) {
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(MQBaseConf.class, new PulsarConfAdapter<MQBaseConf>())
-                .registerTypeAdapter(SortBaseConf.class, new FlinkConfAdapter<SortBaseConf>())
-                .registerTypeAdapter(Charset.class, new CharsetAdapter())
-                .create();
+        Gson gson = new GsonUtil().gsonBuilder();
         return gson.fromJson(string, CreateGroupConf.class);
     }
 

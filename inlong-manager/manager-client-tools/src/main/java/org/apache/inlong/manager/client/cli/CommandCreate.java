@@ -60,8 +60,8 @@ public class CommandCreate extends CommandBase {
                     InlongGroup group = inlongClient.forGroup(groupConf.getGroupConf());
                     InlongStreamBuilder streamBuilder = group.createStream(groupConf.getStreamConf());
                     streamBuilder.fields(groupConf.getStreamFieldList());
-                    streamBuilder.source(groupConf.getKafkaSource());
-                    streamBuilder.sink(groupConf.getHiveSink());
+                    streamBuilder.source(groupConf.getStreamSource());
+                    streamBuilder.sink(groupConf.getStreamSink());
                     streamBuilder.initOrUpdate();
                     group.init();
                     System.out.println("Create group success!");
