@@ -21,6 +21,7 @@
 #======================================================================
 # Project start shell script
 # logs directory: project operation log directory
+# logs/startup.log: record startup log
 # logs/back directory: Project running log backup directory
 # nohup background process
 #
@@ -28,6 +29,7 @@
 
 # Project name
 APPLICATION="InLong-Manager-Web"
+echo start ${APPLICATION} Application...
 
 # Project startup jar package name
 APPLICATION_JAR="manager-web.jar"
@@ -37,11 +39,13 @@ export PATH=$PATH:$JAVA_HOME/bin
 
 # Absolute path of bin directory
 BIN_PATH=$(
-  cd $(dirname $0)
+  # shellcheck disable=SC2164
+  cd "$(dirname $0)"
   pwd
 )
 
 # Enter the root directory path
+# shellcheck disable=SC2164
 cd "$BIN_PATH"
 cd ../
 
@@ -58,10 +62,7 @@ MAIN_CLASS=org.apache.inlong.manager.web.InLongWebApplication
 
 # Project log output absolute path
 LOG_DIR=${BASE_PATH}"/logs"
-
-# current time
-NOW=$(date +'%Y-%m-%m-%H-%M-%S')
-NOW_PRETTY=$(date +'%Y-%m-%m %H:%M:%S')
+LOG_STARTUP_PATH="${LOG_DIR}/startup.log"
 
 # If the logs folder does not exist, create the folder
 if [ ! -d "${LOG_DIR}" ]; then
@@ -90,5 +91,16 @@ JAVA_OPT="${JAVA_OPT} -XX:+IgnoreUnrecognizedVMOptions -XX:+UseConcMarkSweepGC -
 # Remote debugger
 #JAVA_OPT="${JAVA_OPT} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8081"
 
-# Execute the startup command: start the project in the background, and output the log to the logs folder under the project root directory
-nohup java ${JAVA_OPT} -Dlog4j2.formatMsgNoLookups=true -Dlog4j.formatMsgNoLookups=true -cp ${CLASSPATH} ${MAIN_CLASS} 1>startup.log 2>${LOG_DIR}/error.log &
+# Start service: start the project in the background, and output the log to the logs folder under the project root directory
+nohup java ${JAVA_OPT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &
+
+# Print the startup log
+STARTUP_LOG="startup command: nohup java ${JAVA_OPT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &\n"
+
+# Process ID
+PID="$!"
+STARTUP_LOG="${STARTUP_LOG}application pid: ${PID}\n"
+
+# Append and print the startup log
+echo -e ${STARTUP_LOG} >>${LOG_STARTUP_PATH}
+echo -e ${STARTUP_LOG}

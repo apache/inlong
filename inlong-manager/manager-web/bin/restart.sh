@@ -27,19 +27,20 @@
 
 # Project name
 APPLICATION="InLong-Manager-Web"
+echo restart ${APPLICATION} Application...
 
 BIN_PATH=$(
-  cd $(dirname $0)
+  # shellcheck disable=SC2164
+  cd "$(dirname $0)"
   pwd
 )
-echo "restart in " ${BIN_PATH}
+echo "restart in" ${BIN_PATH}
 
 # Stop service
-echo stop ${APPLICATION} Application...
 sh "$BIN_PATH"/shutdown.sh
 
 sleep 1s
+echo ""
 
 # Start service
-echo start ${APPLICATION} Application...
 sh "$BIN_PATH"/startup.sh
