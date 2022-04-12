@@ -41,22 +41,22 @@ export interface StoragesType {
 
 export const Storages: StoragesType[] = [
   {
-    label: 'HIVE',
+    label: 'Hive',
     value: 'HIVE',
     ...StorageHive,
   },
   {
-    label: 'ICEBERG',
+    label: 'Iceberg',
     value: 'ICEBERG',
     ...StorageIceberg,
   },
   {
-    label: 'CLICK_HOUSE',
-    value: 'CLICK_HOUSE',
+    label: 'ClickHouse',
+    value: 'CLICKHOUSE',
     ...StorageClickhouse,
   },
   {
-    label: 'KAFKA',
+    label: 'Kafka',
     value: 'KAFKA',
     ...StorageKafka,
   },

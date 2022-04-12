@@ -150,7 +150,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     {
       title: i18n.t('pages.AccessDetail.DataSources.DataStreams'),
       dataIndex: 'inlongStreamId',
-      width: 100,
     } as any,
   ]
     .concat(options.sourceType === 'FILE' ? dataSourcesFileColumns : dataSourcesBinLogColumns)

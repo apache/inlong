@@ -27,8 +27,9 @@ import { ColumnsType } from 'antd/es/table';
 import EditableTable from '@/components/EditableTable';
 import { excludeObject } from '@/utils';
 import { sourceDataFields } from './SourceDataFields';
+import React from 'react';
 
-// CLICK_HOUSE targetType
+// ClickHouse targetType
 const clickhouseTargetTypes = [
   'string',
   'boolean',
@@ -56,31 +57,6 @@ const getForm: GetStorageFormFieldsType = (
 ) => {
   const fileds = [
     {
-      name: 'clusterId',
-      type: 'select',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.Cluster'),
-      rules: [{ required: true }],
-      props: {
-        options: {
-          requestService: {
-            url: '/sink/listStorageCluster',
-            params: {
-              sinkType: 'CLICK_HOUSE',
-            },
-          },
-          requestParams: {
-            formatResult: result =>
-              result.clickHouseClusterList?.map(item => ({
-                label: item.name,
-                value: item.id,
-              })),
-          },
-          requestAuto: isEdit,
-        },
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-    },
-    {
       name: 'dbName',
       type: 'input',
       label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.DbName'),
@@ -101,6 +77,60 @@ const getForm: GetStorageFormFieldsType = (
       _inTable: true,
     },
     {
+      name: 'enableCreateResource',
+      type: 'radio',
+      label: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResource'),
+      rules: [{ required: true }],
+      initialValue: 1,
+      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+        options: [
+          {
+            label: i18n.t('basic.Yes'),
+            value: 1,
+          },
+          {
+            label: i18n.t('basic.No'),
+            value: 0,
+          },
+        ],
+      },
+    },
+    {
+      name: 'username',
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Username'),
+      rules: [{ required: true }],
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+      },
+      _inTable: true,
+    },
+    {
+      name: 'password',
+      type: 'password',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Password'),
+      rules: [{ required: true }],
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+        style: {
+          maxWidth: 500,
+        },
+      },
+    },
+    {
+      type: 'input',
+      label: 'JDBC URL',
+      name: 'jdbcUrl',
+      rules: [{ required: true }],
+      props: {
+        placeholder: 'jdbc:clickhouse://127.0.0.1:8123',
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+        style: { width: 500 },
+      },
+    },
+    {
       name: 'flushInterval',
       type: 'inputnumber',
       label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.FlushInterval'),
@@ -113,51 +143,33 @@ const getForm: GetStorageFormFieldsType = (
       suffix: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.FlushIntervalUnit'),
     },
     {
-      name: 'packageSize',
+      name: 'flushRecord',
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.PackageSize'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.FlushRecord'),
       initialValue: 1000,
       props: {
         min: 1,
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.PackageSizeUnit'),
+      suffix: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.FlushRecordUnit'),
     },
     {
       name: 'retryTime',
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.RetryTime'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.RetryTimes'),
       initialValue: 3,
       props: {
         min: 1,
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.RetryTimeUnit'),
+      suffix: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.RetryTimesUnit'),
     },
     {
-      name: 'username',
-      type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.Username'),
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-    },
-    {
-      name: 'password',
-      type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.Password'),
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-    },
-    {
-      name: 'isDistribute',
+      name: 'isDistributed',
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.IsDistribute'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.IsDistributed'),
       initialValue: 0,
       props: {
         options: [
@@ -197,7 +209,7 @@ const getForm: GetStorageFormFieldsType = (
         ],
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
-      visible: values => values.isDistribute,
+      visible: values => values.isDistributed,
       _inTable: true,
     },
     {
@@ -205,7 +217,7 @@ const getForm: GetStorageFormFieldsType = (
       type: 'input',
       label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.PartitionFields'),
       rules: [{ required: true }],
-      visible: values => values.isDistribute && values.partitionStrategy === 'HASH',
+      visible: values => values.isDistributed && values.partitionStrategy === 'HASH',
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },

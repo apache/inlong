@@ -81,7 +81,7 @@ export const getDataSourcesFileFields = (
       name: 'timeOffset',
       tooltip: i18n.t('components.AccessHelper.DataSourceMetaData.File.TimeOffsetHelp'),
       _inTable: {
-        width: 150,
+        width: 100,
       },
     },
   ];
