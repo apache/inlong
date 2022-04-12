@@ -41,7 +41,7 @@
 {{- else if eq .Values.dashboard.service.type "LoadBalancer" }}
 
     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-          You can watch the status of by running 'sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }} -n {{ .Release.Namespace }} -w'
+          You can check the status by running 'sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }} -n {{ .Release.Namespace }} -w'
 
     $ export DASHBOARD_SERVICE_IP=$(sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dashboard.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}"  -n {{ .Release.Namespace }})
     $ echo "http://$DASHBOARD_SERVICE_IP:{{ .Values.dashboard.service.nodePort }}"
@@ -70,7 +70,7 @@
 {{- else if eq .Values.manager.service.type "LoadBalancer" }}
 
     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-          You can watch the status of by running 'sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.manager.component }} -n {{ .Release.Namespace }} -w'
+          You can check the status by running 'sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.manager.component }} -n {{ .Release.Namespace }} -w'
 
     $ export MANAGER_SERVICE_IP=$(sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.manager.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}" -n {{ .Release.Namespace }})
     $ echo "InLong Manager URL: http://$MANAGER_SERVICE_IP:{{ .Values.manager.service.nodePort }}"
@@ -99,7 +99,7 @@
 {{- else if eq .Values.dataproxy.service.type "LoadBalancer" }}
 
     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-          You can watch the status of by running 'sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }} -n {{ .Release.Namespace }} -w'
+          You can check the status by running 'sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }} -n {{ .Release.Namespace }} -w'
 
     $ export DATA_PROXY_SERVICE_IP=$(sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}" -n {{ .Release.Namespace }})
     $ echo "InLong DataProxy URL: http://$DATA_PROXY_SERVICE_IP:{{ .Values.dataproxy.service.nodePort }}"
@@ -128,7 +128,7 @@
 {{- else if eq .Values.tubemqMaster.service.type "LoadBalancer" }}
 
     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-          You can watch the status of by running 'sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }} -n {{ .Release.Namespace }} -w'
+          You can check the status by running 'sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }} -n {{ .Release.Namespace }} -w'
 
     $ export TUBEMQ_MASTER_SERVICE_IP=$(sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}" -n {{ .Release.Namespace }})
     $ echo "InLong TubeMQ Master URL: http://$TUBEMQ_MASTER_SERVICE_IP:{{ .Values.tubemqMaster.service.webNodePort }}"
@@ -157,7 +157,7 @@
 {{- else if eq .Values.tubemqBroker.service.type "LoadBalancer" }}
 
     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-          You can watch the status of by running 'sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }} -n {{ .Release.Namespace }} -w'
+          You can check the status by running 'sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }} -n {{ .Release.Namespace }} -w'
 
     $ export TUBEMQ_BROKER_SERVICE_IP=$(sudo kubectl get svc {{ template "inlong.fullname" . }}-{{ .Values.tubemqBroker.component }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}" -n {{ .Release.Namespace }})
     $ echo "InLong TubeMQ Broker URL: http://$TUBEMQ_BROKER_SERVICE_IP:{{ .Values.tubemqBroker.service.webNodePort }}"
