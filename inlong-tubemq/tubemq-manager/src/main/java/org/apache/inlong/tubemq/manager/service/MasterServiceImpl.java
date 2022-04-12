@@ -37,6 +37,7 @@ import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
 import org.apache.inlong.tubemq.manager.repository.MasterRepository;
+import static org.apache.inlong.tubemq.manager.service.TubeConst.DELETE_FAIL;
 import org.apache.inlong.tubemq.manager.service.interfaces.MasterService;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpResponse;
 import org.apache.inlong.tubemq.manager.utils.ConvertUtils;
@@ -187,6 +188,14 @@ public class MasterServiceImpl implements MasterService {
         MasterEntry masterEntry = getMasterNode(Long.valueOf(clusterId));
         return TubeConst.SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
                 + method + "&" + "clusterId=" + clusterId;
+    }
+
+    @Override
+    public void deleteMaster(Long clusterId) {
+        Integer successCode = masterRepository.deleteByClusterId(clusterId);
+        if (successCode.equals(DELETE_FAIL)) {
+            throw new RuntimeException("no such master with clusterId = " + clusterId);
+        }
     }
 
 }

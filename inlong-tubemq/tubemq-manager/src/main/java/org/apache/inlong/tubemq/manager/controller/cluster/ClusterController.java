@@ -29,6 +29,7 @@ import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.cluster.dto.ClusterDto;
 import org.apache.inlong.tubemq.manager.controller.cluster.request.AddClusterReq;
 import org.apache.inlong.tubemq.manager.controller.cluster.request.DeleteClusterReq;
+import org.apache.inlong.tubemq.manager.controller.cluster.request.SwitchClusterReq;
 import org.apache.inlong.tubemq.manager.controller.cluster.vo.ClusterVo;
 import org.apache.inlong.tubemq.manager.controller.group.result.ConsumerGroupInfoRes;
 import org.apache.inlong.tubemq.manager.controller.group.result.ConsumerInfoRes;
@@ -81,6 +82,8 @@ public class ClusterController {
                 return deleteCluster(gson.fromJson(req, DeleteClusterReq.class));
             case TubeConst.MODIFY:
                 return changeCluster(gson.fromJson(req, ClusterDto.class));
+            case TubeConst.SWITCH:
+                return masterService.baseRequestMaster(gson.fromJson(req, SwitchClusterReq.class));
             default:
                 return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
         }

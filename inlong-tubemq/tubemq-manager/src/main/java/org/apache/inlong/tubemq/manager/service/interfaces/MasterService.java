@@ -101,4 +101,12 @@ public interface MasterService {
     TubeMQResult checkMasterNodeStatus(String masterIp, Integer masterPort);
 
     String getQueryCountUrl(Integer clusterId, String method);
+
+    /**
+     * delete master by cluster id
+     *
+     * @param clusterId
+     */
+    void deleteMaster(Long clusterId);
+
 }
