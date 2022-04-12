@@ -78,7 +78,7 @@ public class NettyRequestContext implements RequestContext {
             return;
         }
         dataPack = new RpcDataPack(response.getSerialNo(), prepareResponse(response));
-        ChannelFuture wf = ctx.channel().write(dataPack);
+        ChannelFuture wf = ctx.channel().writeAndFlush(dataPack);
         wf.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {

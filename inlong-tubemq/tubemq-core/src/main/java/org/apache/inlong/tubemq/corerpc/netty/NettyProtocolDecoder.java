@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.corerpc.netty;
 import static org.apache.inlong.tubemq.corebase.utils.AddressUtils.getRemoteAddressIP;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
@@ -44,47 +43,44 @@ public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
             new ConcurrentHashMap<>();
     private static AtomicLong lastProtolTime = new AtomicLong(0);
     private static AtomicLong lastSizeTime = new AtomicLong(0);
-    private boolean packHeaderRead = false;
-    private int listSize;
-    private RpcDataPack dataPack;
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf buffer, List<Object> out) throws Exception {
-        if (!packHeaderRead) {
-            if (buffer.readableBytes() < 12) {
-                return;
-            }
-            int frameToken = buffer.readInt();
-            filterIllegalPkgToken(frameToken,
-                    RpcConstants.RPC_PROTOCOL_BEGIN_TOKEN, ctx.channel());
-            int serialNo = buffer.readInt();
-            int tmpListSize = buffer.readInt();
-            filterIllegalPackageSize(true, tmpListSize,
-                    RpcConstants.MAX_FRAME_MAX_LIST_SIZE, ctx.channel());
-            this.listSize = tmpListSize;
-            this.dataPack = new RpcDataPack(serialNo, new ArrayList<ByteBuffer>(this.listSize));
-            this.packHeaderRead = true;
+        if (buffer.readableBytes() < 12) {
+            logger.warn("Decode buffer.readableBytes() < 12 !");
+            return;
         }
+        int frameToken = buffer.readInt();
+        filterIllegalPkgToken(frameToken,
+                RpcConstants.RPC_PROTOCOL_BEGIN_TOKEN, ctx.channel());
+        int serialNo = buffer.readInt();
+        int tmpListSize = buffer.readInt();
+        filterIllegalPackageSize(true, tmpListSize,
+                RpcConstants.MAX_FRAME_MAX_LIST_SIZE, ctx.channel());
+        RpcDataPack dataPack = new RpcDataPack(serialNo, new ArrayList<ByteBuffer>());
         // get PackBody
-        if (buffer.readableBytes() < 4) {
-            return;
+        int i = 0;
+        while (i < tmpListSize) {
+            i++;
+            if (buffer.readableBytes() < 4) {
+                logger.warn("Decode buffer.readableBytes() < 4 !");
+                break;
+            }
+            buffer.markReaderIndex();
+            int length = buffer.readInt();
+            filterIllegalPackageSize(false, length,
+                    RpcConstants.RPC_MAX_BUFFER_SIZE, ctx.channel());
+            ByteBuffer bb = ByteBuffer.allocate(length);
+            buffer.readBytes(bb);
+            bb.flip();
+            dataPack.getDataLst().add(bb);
         }
-        buffer.markReaderIndex();
-        int length = buffer.readInt();
-        filterIllegalPackageSize(false, length,
-                RpcConstants.RPC_MAX_BUFFER_SIZE, ctx.channel());
-        if (buffer.readableBytes() < length) {
-            buffer.resetReaderIndex();
-            return;
-        }
-        ByteBuffer bb = ByteBuffer.allocate(length);
-        buffer.readBytes(bb);
-        bb.flip();
-        dataPack.getDataLst().add(bb);
-        if (dataPack.getDataLst().size() == listSize) {
-            packHeaderRead = false;
+
+        if (dataPack.getDataLst().size() == tmpListSize) {
             out.add(dataPack);
         } else {
+            logger.warn("Decode dataPack.getDataLst().size()[{}] != tmpListSize [{}] !",
+                    dataPack.getDataLst().size(), tmpListSize);
             return;
         }
     }

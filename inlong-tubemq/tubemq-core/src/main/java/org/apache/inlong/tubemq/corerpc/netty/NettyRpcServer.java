@@ -27,6 +27,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.io.DataOutputStream;
@@ -80,6 +81,7 @@ public class NettyRpcServer implements ServiceRpcServer {
     private boolean needTwoWayAuthentic = false;
     private String trustStorePath = "";
     private String trustStorePassword = "";
+    private int maxMessageSize;
 
     /**
      * create a server with rpc config info
@@ -111,20 +113,23 @@ public class NettyRpcServer implements ServiceRpcServer {
                 }
             }
         }
+        this.enableBusyWait = conf.getBoolean(RpcConstants.NETTY_TCP_ENABLEBUSYWAIT, false);
+        this.maxMessageSize = conf.getInt(RpcConstants.NETTY_TCP_MAX_MESSAGE_SIZE,
+                RpcConstants.CFG_DEFAULT_NETTY_TCP_MAX_MESSAGE_SIZE);
         int bossCount =
                 conf.getInt(RpcConstants.BOSS_COUNT,
                         RpcConstants.CFG_DEFAULT_BOSS_COUNT);
         int workerCount =
                 conf.getInt(RpcConstants.WORKER_COUNT,
                         RpcConstants.CFG_DEFAULT_SERVER_WORKER_COUNT);
-        enableBusyWait = conf.getBoolean(RpcConstants.NETTY_TCP_ENABLEBUSYWAIT, false);
         this.acceptorGroup = EventLoopUtil.newEventLoopGroup(bossCount, false,
                 new DefaultThreadFactory("tcpSource-nettyBoss-threadGroup"));
-
         this.workerGroup = EventLoopUtil
                 .newEventLoopGroup(workerCount, enableBusyWait,
                         new DefaultThreadFactory("tcpSource-nettyWorker-threadGroup"));
         this.bootstrap = new ServerBootstrap();
+        bootstrap.channel(EventLoopUtil.getServerSocketChannelClass(workerGroup));
+        EventLoopUtil.enableTriggeredMode(bootstrap);
         bootstrap.group(acceptorGroup, workerGroup);
         bootstrap.childOption(ChannelOption.TCP_NODELAY,
                 conf.getBoolean(RpcConstants.TCP_NODELAY, true));
@@ -170,6 +175,8 @@ public class NettyRpcServer implements ServiceRpcServer {
                         System.exit(1);
                     }
                 }
+                socketChannel.pipeline().addLast("frameDecoder", new LengthFieldBasedFrameDecoder(
+                        maxMessageSize, 0, 4, 0, 4));
                 // Encode the data handler
                 socketChannel.pipeline().addLast("protocolEncoder", new NettyProtocolDecoder());
                 // Decode the bytes into a Rpc Data Pack
@@ -178,7 +185,7 @@ public class NettyRpcServer implements ServiceRpcServer {
                 socketChannel.pipeline().addLast("serverHandler", new NettyServerHandler(protocolType));
             }
         });
-        bootstrap.bind(new InetSocketAddress(listenPort));
+        bootstrap.bind(new InetSocketAddress(listenPort)).sync();
         this.started.set(true);
         if (isOverTLS) {
             logger.info(new StringBuilder(256)
@@ -256,7 +263,7 @@ public class NettyRpcServer implements ServiceRpcServer {
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) {
             if (!(e.getCause() instanceof IOException)) {
-                logger.error("catch some exception not IOException", e.getCause());
+                logger.error("catch some exception not IOException {}", e);
             }
             ctx.fireExceptionCaught(e);
         }
@@ -267,9 +274,11 @@ public class NettyRpcServer implements ServiceRpcServer {
          */
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) {
+            logger.debug("server message receive!");
             if (!(msg instanceof RpcDataPack)) {
                 return;
             }
+            logger.debug("server RpcDataPack message receive!");
             RpcDataPack dataPack = (RpcDataPack) msg;
             RPCProtos.RpcConnHeader connHeader;
             RPCProtos.RequestHeader requestHeader;
@@ -321,7 +330,7 @@ public class NettyRpcServer implements ServiceRpcServer {
                                         .append(e1.getMessage()).toString());
                 if (res != null) {
                     dataPack.setDataLst(res);
-                    channel.write(dataPack);
+                    channel.writeAndFlush(dataPack);
                 }
                 return;
             }
@@ -345,7 +354,7 @@ public class NettyRpcServer implements ServiceRpcServer {
                                         .append(ee.getMessage()).toString());
                 if (res != null) {
                     dataPack.setDataLst(res);
-                    ctx.channel().write(dataPack);
+                    ctx.channel().writeAndFlush(dataPack);
                 }
                 return;
             }

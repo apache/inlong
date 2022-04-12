@@ -49,7 +49,8 @@ public class NettyProtocolEncoder extends MessageToMessageEncoder<RpcDataPack> {
                 byteOut.write(entry.array());
             }
             byte[] body = byteOut.toByteArray();
-            ByteBuf buf = ByteBufAllocator.DEFAULT.buffer(body.length);
+            ByteBuf buf = ByteBufAllocator.DEFAULT.buffer(4 + body.length);
+            buf.writeInt(body.length);
             buf.writeBytes(body);
             out.add(buf);
         } catch (IOException e) {

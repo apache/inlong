@@ -24,6 +24,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -61,6 +62,7 @@ public class NettyClientFactory implements ClientFactory {
     private ExecutorService workerExecutorService;
     private AtomicInteger workerIdCounter = new AtomicInteger(0);
     // TSL encryption and need Two Way Authentic
+    private int maxMessageSize;
     private boolean enableTLS = false;
     private boolean needTwoWayAuthentic = false;
     private String keyStorePath;
@@ -82,6 +84,8 @@ public class NettyClientFactory implements ClientFactory {
         if (this.shutdown.compareAndSet(true, false)) {
             enableTLS = conf.getBoolean(RpcConstants.TLS_OVER_TCP, false);
             needTwoWayAuthentic = conf.getBoolean(RpcConstants.TLS_TWO_WAY_AUTHENTIC, false);
+            this.maxMessageSize = conf.getInt(RpcConstants.NETTY_TCP_MAX_MESSAGE_SIZE,
+                    RpcConstants.CFG_DEFAULT_NETTY_TCP_MAX_MESSAGE_SIZE);
             if (enableTLS) {
                 trustStorePath = conf.getString(RpcConstants.TLS_TRUSTSTORE_PATH);
                 trustStorePassword = conf.getString(RpcConstants.TLS_TRUSTSTORE_PASSWORD);
@@ -221,10 +225,12 @@ public class NettyClientFactory implements ClientFactory {
         final NettyClient client =
                 new NettyClient(this, connectTimeout);
         Bootstrap clientBootstrap = new Bootstrap();
+        clientBootstrap.group(eventLoopGroup);
+        clientBootstrap.channel(EventLoopUtil.getClientSocketChannelClass(eventLoopGroup));
         clientBootstrap.option(ChannelOption.TCP_NODELAY, true);
         clientBootstrap.option(ChannelOption.SO_REUSEADDR, true);
         clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
-        clientBootstrap.group(eventLoopGroup);
+
         int nettyWriteHighMark =
                 conf.getInt(RpcConstants.NETTY_WRITE_HIGH_MARK, -1);
         int nettyWriteLowMark =
@@ -252,6 +258,9 @@ public class NettyClientFactory implements ClientFactory {
                         throw new Exception(t);
                     }
                 }
+                socketChannel.pipeline().addLast("frameDecoder", new LengthFieldBasedFrameDecoder(maxMessageSize,
+                        0, 4, 0, 4));
+
                 // Encode the data
                 pipeline.addLast("protocolEncoder", new NettyProtocolEncoder());
                 // Decode the bytes into a Rpc Data Pack

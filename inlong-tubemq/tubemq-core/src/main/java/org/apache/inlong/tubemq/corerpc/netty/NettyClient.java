@@ -144,7 +144,7 @@ public class NettyClient implements Client {
         requests.put(request.getSerialNo(), future);
         if (callback == null) {
             try {
-                getChannel().write(pack);
+                getChannel().writeAndFlush(pack);
                 return future.get(timeout, timeUnit);
             } catch (Throwable e) {
                 Callback<ResponseWrapper> callback1 =
@@ -166,7 +166,7 @@ public class NettyClient implements Client {
                         timer.newTimeout(new TimeoutTask(request.getSerialNo()), timeout, timeUnit));
                 inserted = true;
                 //write data after build Timeout to avoid one request processed twice
-                getChannel().write(pack);
+                getChannel().writeAndFlush(pack);
             } catch (Throwable e) {
                 Callback<ResponseWrapper> callback1 =
                     requests.remove(request.getSerialNo());
@@ -285,7 +285,9 @@ public class NettyClient implements Client {
          */
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object e) {
+            logger.debug("client message receive!");
             if (e instanceof RpcDataPack) {
+                logger.debug("RpcDataPack client message receive!");
                 RpcDataPack dataPack = (RpcDataPack) e;
                 Callback callback = requests.remove(dataPack.getSerialNo());
                 if (callback != null) {
