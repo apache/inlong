@@ -632,7 +632,7 @@ tubemqBroker:
       -XX:MaxRAMPercentage=80.0
       -XX:-UseAdaptiveSizePolicy
 
-# InLong will use the external Services.
+# If exists external MySQL or Pulsar, you can set the 'enable' field value to true and configure related information.
 external:
   mysql:
     enabled: false
@@ -640,6 +640,7 @@ external:
     port: 3306
     username: "root"
     password: "password"
+  # If there is no external Pulsar, InLong will use TubeMQ.
   pulsar:
     enabled: false
     serviceUrl: "localhost:6650"
