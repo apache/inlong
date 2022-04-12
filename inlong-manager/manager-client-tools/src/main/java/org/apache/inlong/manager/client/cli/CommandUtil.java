@@ -22,9 +22,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
+import org.apache.inlong.manager.client.api.MQBaseConf;
+import org.apache.inlong.manager.client.api.SortBaseConf;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
-import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
+import org.apache.inlong.manager.client.cli.util.CharsetAdapter;
+import org.apache.inlong.manager.client.cli.util.PulsarConfAdapter;
+import org.apache.inlong.manager.client.cli.util.FlinkConfAdapter;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -35,12 +39,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Properties;
 
 abstract class CommandUtil {
 
-    public InnerInlongManagerClient connect() {
+    public InlongClientImpl connect() {
         Properties properties = new Properties();
         String path = System.getProperty("user.dir") + "/conf/application.properties";
 
@@ -56,8 +61,8 @@ abstract class CommandUtil {
 
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setAuthentication(new DefaultAuthentication(user, password));
-        InlongClientImpl inlongClient = new InlongClientImpl(serviceUrl, configuration);
-        return new InnerInlongManagerClient(inlongClient.getConfiguration());
+
+        return new InlongClientImpl(serviceUrl, configuration);
     }
 
     <T> void print(List<T> item, Class<T> clazz) {
@@ -82,6 +87,27 @@ abstract class CommandUtil {
                     System.out.println(e.getMessage());
                 }
             });
+        }
+    }
+
+    <T> void print(T item, Class<T> clazz) {
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field f : fields) {
+            System.out.printf("%-30s", f.getName());
+        }
+        System.out.println();
+        try {
+            for (Field f : fields) {
+                f.setAccessible(true);
+                if (f.get(item) != null) {
+                    System.out.printf("%-30s", f.get(item).toString());
+                } else {
+                    System.out.printf("%-30s", "NULL");
+                }
+            }
+            System.out.println();
+        } catch (IllegalAccessException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -115,9 +141,13 @@ abstract class CommandUtil {
         return null;
     }
 
-    <T> T jsonToObject(String string, Class<T> clazz) {
-        Gson gson = new Gson();
-        return gson.fromJson(string, clazz);
+    CreateGroupConf jsonToObject(String string) {
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(MQBaseConf.class, new PulsarConfAdapter<MQBaseConf>())
+                .registerTypeAdapter(SortBaseConf.class, new FlinkConfAdapter<SortBaseConf>())
+                .registerTypeAdapter(Charset.class, new CharsetAdapter())
+                .create();
+        return gson.fromJson(string, CreateGroupConf.class);
     }
 
     abstract void run() throws Exception;

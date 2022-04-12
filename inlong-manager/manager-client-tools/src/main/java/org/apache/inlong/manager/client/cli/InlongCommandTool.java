@@ -29,7 +29,7 @@ public class InlongCommandTool {
     protected final Map<String, Class<?>> commandMap = new HashMap<>();
     private final JCommander jcommander;
 
-    @Parameter(names = {"-h", "--help"}, help = true, description = "Get all command about inlong-admin.")
+    @Parameter(names = {"-h", "--help"}, help = true, description = "Get all command about managerctl.")
     boolean help;
 
     InlongCommandTool() {
@@ -58,7 +58,7 @@ public class InlongCommandTool {
 
     boolean run(String[] args) {
 
-        if (help) {
+        if (help || args.length == 0) {
             jcommander.usage();
             return true;
         }
