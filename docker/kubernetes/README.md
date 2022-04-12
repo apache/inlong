@@ -57,7 +57,7 @@ And then access `http://$DASHBOARD_SERVICE_IP:30080`
 
 > NOTE: It may take a few minutes for the `LoadBalancer` IP to be available. You can check the status by running `kubectl get svc inlong-dashboard -n inlong -w`
 
-The default username and password are `inlong`. You can access the InLong Dashboard through them.
+The default username is `admin` and the default password is `inlong`. You can access the InLong Dashboard through them.
 
 ### Configuration
 
