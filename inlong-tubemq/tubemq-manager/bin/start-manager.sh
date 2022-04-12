@@ -67,4 +67,4 @@ else
   JAVA="$JAVA_HOME/bin/java"
 fi
 
-nohup "$JAVA" $MANAGER_JVM_OPTS -cp "$CLASSPATH" org.apache.inlong.tubemq.manager.TubeMQManager "$@" > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null &
+nohup "$JAVA" -Dmanager.log.path=${LOG_DIR} $MANAGER_JVM_OPTS -cp "$CLASSPATH" org.apache.inlong.tubemq.manager.TubeMQManager "$@" > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null &

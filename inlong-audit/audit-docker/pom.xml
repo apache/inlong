@@ -47,7 +47,7 @@
           <plugin>
             <groupId>com.spotify</groupId>
             <artifactId>dockerfile-maven-plugin</artifactId>
-            <version>${dockerfile-maven.version}</version>
+            <version>${dockerfile.maven.version}</version>
             <executions>
               <execution>
                 <id>default</id>

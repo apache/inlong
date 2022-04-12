@@ -63,8 +63,7 @@ public class TestPulsarProducerFederation {
     public static void setUp() {
         Map<String, String> result = new ConcurrentHashMap<>();
         try (InputStream inStream = TestPulsarFederationSink.class.getClassLoader().getResource(
-                "dataproxy-pulsar.conf")
-                .openStream()) {
+                "dataproxy-pulsar.conf").openStream()) {
             MockUtils.mockMetricRegister();
             Properties props = new Properties();
             props.load(inStream);
