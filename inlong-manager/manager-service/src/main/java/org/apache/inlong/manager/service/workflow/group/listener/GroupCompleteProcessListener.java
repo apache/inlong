@@ -23,7 +23,6 @@ import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.dao.mapper.SourceFileDetailEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
@@ -47,8 +46,6 @@ public class GroupCompleteProcessListener implements ProcessEventListener {
     private InlongStreamService streamService;
     @Autowired
     private StreamSourceService sourceService;
-    @Autowired
-    private SourceFileDetailEntityMapper fileDetailMapper;
 
     @Override
     public ProcessEvent event() {
@@ -71,13 +68,6 @@ public class GroupCompleteProcessListener implements ProcessEventListener {
 
         // Update status of other related configs
         streamService.updateStatus(groupId, null, EntityStatus.STREAM_CONFIG_SUCCESSFUL.getCode(), applicant);
-
-        // TODO Remove update source file / db detail status
-        // Update file data source status
-        fileDetailMapper.updateStatusAfterApprove(groupId, null, EntityStatus.AGENT_ADD.getCode(), applicant);
-        // dbDetailMapper.updateStatusAfterApprove(bid, null, EntityStatus.AGENT_WAIT_CREATE.getCode(), username);
-
-        // Update stream source status
         sourceService.updateStatus(groupId, null, SourceState.TO_BE_ISSUED_ADD.getCode(), applicant);
 
         return ListenerResult.success();
