@@ -93,6 +93,7 @@ agent:
     requests:
       cpu: 1
       memory: "1Gi"
+  # The agent service port
   port: 8008
   env:
     AGENT_JVM_HEAP_OPTS: >-
@@ -138,6 +139,7 @@ dashboard:
     requests:
       cpu: 1
       memory: "1Gi"
+  # The dashboard service port
   port: 80
   service:
     # type determines how the service is exposed. Defaults to NodePort. Valid options are ClusterIP, NodePort, LoadBalancer, and ExternalName
@@ -189,6 +191,7 @@ dataproxy:
     requests:
       cpu: 1
       memory: "1Gi"
+  # The dataproxy service port
   port: 46801
   service:
     # type determines how the service is exposed. Defaults to NodePort. Valid options are ClusterIP, NodePort, LoadBalancer, and ExternalName
@@ -246,6 +249,7 @@ tubemqManager:
     requests:
       cpu: 1
       memory: "1Gi"
+  # The tubemq manager service port
   port: 8089
   env:
     TUBE_MANAGER_JVM_HEAP_OPTS: >-
@@ -290,6 +294,7 @@ manager:
     requests:
       cpu: 1
       memory: "1Gi"
+  # The manager service port
   port: 8083
   service:
     # type determines how the service is exposed. Defaults to NodePort. Valid options are ClusterIP, NodePort, LoadBalancer, and ExternalName
@@ -349,6 +354,7 @@ audit:
     requests:
       cpu: 1
       memory: "1Gi"
+  # The audit service port
   port: 10081
   env:
     AUDIT_JVM_HEAP_OPTS: >-
@@ -393,9 +399,10 @@ mysql:
     requests:
       cpu: 1
       memory: "1Gi"
+  # The mysql service port
+  port: 3306
   username: "root"
   password: "inlong"
-  port: 3306
   volumes:
     name: data
     size: "10Gi"
@@ -438,6 +445,7 @@ zookeeper:
     requests:
       cpu: 1
       memory: "1Gi"
+  # The zookeeper service ports
   ports:
     client: 2181
     follower: 2888
@@ -499,6 +507,7 @@ tubemqMaster:
     requests:
       cpu: 1
       memory: "1Gi"
+  # The tubemq master service ports
   ports:
     rpcPort: 8715
     webPort: 8080
@@ -579,6 +588,7 @@ tubemqBroker:
     requests:
       cpu: 1
       memory: "1Gi"
+  # The tubemq broker service ports
   ports:
     rpcPort: 8123
     webPort: 8081
