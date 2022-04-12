@@ -26,9 +26,10 @@ import org.apache.inlong.manager.client.api.DataSeparator;
 import java.lang.reflect.Type;
 
 public class SeparatorAdapter implements JsonDeserializer {
+
     @Override
     public DataSeparator deserialize(JsonElement jsonElement, Type type,
-                                     JsonDeserializationContext context) throws JsonParseException {
+            JsonDeserializationContext context) throws JsonParseException {
         return DataSeparator.forAscii(jsonElement.getAsCharacter());
     }
 }

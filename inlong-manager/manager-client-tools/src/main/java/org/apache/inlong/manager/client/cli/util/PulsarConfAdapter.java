@@ -27,10 +27,11 @@ import org.apache.inlong.manager.client.api.PulsarBaseConf;
 import java.lang.reflect.Type;
 
 public class PulsarConfAdapter<T> implements JsonDeserializer<T> {
+
     @Override
     public T deserialize(JsonElement jsonElement,
-                         Type type,
-                         JsonDeserializationContext context) throws JsonParseException {
+            Type type,
+            JsonDeserializationContext context) throws JsonParseException {
         try {
             return new Gson().fromJson(jsonElement, (Type) Class.forName((PulsarBaseConf.class).getName()));
         } catch (ClassNotFoundException e) {

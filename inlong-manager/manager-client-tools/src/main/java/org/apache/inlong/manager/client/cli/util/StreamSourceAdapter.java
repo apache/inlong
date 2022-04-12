@@ -31,12 +31,13 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import java.lang.reflect.Type;
 
 public class StreamSourceAdapter implements JsonDeserializer {
+
     @Override
     public Object deserialize(JsonElement jsonElement, Type type,
-                              JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
         String sourceType = jsonObject.get("sourceType").getAsString();
-        Gson gson = new GsonUtil().gsonBuilder();
+        Gson gson = GsonUtil.gsonBuilder();
         try {
             switch (sourceType) {
                 case SourceType.SOURCE_KAFKA:

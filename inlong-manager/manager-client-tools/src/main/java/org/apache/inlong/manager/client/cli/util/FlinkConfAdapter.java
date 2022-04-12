@@ -27,10 +27,11 @@ import org.apache.inlong.manager.client.api.FlinkSortBaseConf;
 import java.lang.reflect.Type;
 
 public class FlinkConfAdapter<T> implements JsonDeserializer<T> {
+
     @Override
     public T deserialize(JsonElement jsonElement,
-                         Type type,
-                         JsonDeserializationContext context) throws JsonParseException {
+            Type type,
+            JsonDeserializationContext context) throws JsonParseException {
         try {
             return new Gson().fromJson(jsonElement, (Type) Class.forName((FlinkSortBaseConf.class).getName()));
         } catch (ClassNotFoundException e) {

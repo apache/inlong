@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InlongCommandTool {
+
     protected final Map<String, Class<?>> commandMap = new HashMap<>();
     private final JCommander jcommander;
 
@@ -56,6 +57,15 @@ public class InlongCommandTool {
         }
     }
 
+    public static void main(String[] args) {
+        InlongCommandTool inlongAdminTool = new InlongCommandTool();
+        if (inlongAdminTool.run(args)) {
+            System.exit(0);
+        } else {
+            System.exit(1);
+        }
+    }
+
     boolean run(String[] args) {
 
         if (help || args.length == 0) {
@@ -75,14 +85,5 @@ public class InlongCommandTool {
         JCommander obj = jcommander.getCommands().get(cmd);
         CommandBase cmdObj = (CommandBase) obj.getObjects().get(0);
         return cmdObj.run(Arrays.copyOfRange(args, 1, args.length));
-    }
-
-    public static void main(String[] args) {
-        InlongCommandTool inlongAdminTool = new InlongCommandTool();
-        if (inlongAdminTool.run(args)) {
-            System.exit(0);
-        } else {
-            System.exit(1);
-        }
     }
 }

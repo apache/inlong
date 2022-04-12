@@ -30,7 +30,7 @@ import java.nio.charset.Charset;
 
 public class GsonUtil {
 
-    public Gson gsonBuilder() {
+    public static Gson gsonBuilder() {
         return new GsonBuilder()
                 .registerTypeAdapter(MQBaseConf.class, new PulsarConfAdapter<MQBaseConf>())
                 .registerTypeAdapter(SortBaseConf.class, new FlinkConfAdapter<SortBaseConf>())

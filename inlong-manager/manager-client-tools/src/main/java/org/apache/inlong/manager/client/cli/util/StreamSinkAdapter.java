@@ -31,12 +31,13 @@ import org.apache.inlong.manager.common.enums.SinkType;
 import java.lang.reflect.Type;
 
 public class StreamSinkAdapter implements JsonDeserializer {
+
     @Override
     public Object deserialize(JsonElement jsonElement, Type type,
-                              JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
         String sinkType = jsonObject.get("sinkType").getAsString();
-        Gson gson = new GsonUtil().gsonBuilder();
+        Gson gson = GsonUtil.gsonBuilder();
         try {
             switch (sinkType) {
                 case SinkType.SINK_HIVE:

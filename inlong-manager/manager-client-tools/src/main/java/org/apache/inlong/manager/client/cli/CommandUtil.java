@@ -137,7 +137,7 @@ abstract class CommandUtil {
     }
 
     CreateGroupConf jsonToObject(String string) {
-        Gson gson = new GsonUtil().gsonBuilder();
+        Gson gson = GsonUtil.gsonBuilder();
         return gson.fromJson(string, CreateGroupConf.class);
     }
 

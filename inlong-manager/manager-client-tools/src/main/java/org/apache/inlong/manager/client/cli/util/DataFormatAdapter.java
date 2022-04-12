@@ -26,9 +26,10 @@ import org.apache.inlong.manager.client.api.DataFormat;
 import java.lang.reflect.Type;
 
 public class DataFormatAdapter implements JsonDeserializer {
+
     @Override
     public DataFormat deserialize(JsonElement jsonElement, Type type,
-                                  JsonDeserializationContext context) throws JsonParseException {
+            JsonDeserializationContext context) throws JsonParseException {
         return DataFormat.forName(jsonElement.getAsString());
     }
 }

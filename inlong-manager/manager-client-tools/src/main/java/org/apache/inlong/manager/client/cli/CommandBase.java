@@ -25,7 +25,7 @@ abstract class CommandBase {
 
     protected final JCommander jcommander;
 
-    @Parameter(names = { "-h", "--help" },help = true, hidden = true)
+    @Parameter(names = {"-h", "--help"}, help = true, hidden = true)
     private boolean help;
 
     public CommandBase(String cmdName) {
