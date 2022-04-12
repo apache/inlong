@@ -18,23 +18,26 @@
 package org.apache.inlong.tubemq.corerpc.netty;
 
 import static org.apache.inlong.tubemq.corebase.utils.AddressUtils.getRemoteAddressIP;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToMessageDecoder;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corerpc.RpcConstants;
 import org.apache.inlong.tubemq.corerpc.RpcDataPack;
 import org.apache.inlong.tubemq.corerpc.exception.UnknownProtocolException;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.frame.FrameDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NettyProtocolDecoder extends FrameDecoder {
-    private static final Logger logger =
-            LoggerFactory.getLogger(NettyProtocolDecoder.class);
+public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
+    private static final Logger logger = LoggerFactory.getLogger(NettyProtocolDecoder.class);
+
     private static final ConcurrentHashMap<String, AtomicLong> errProtolAddrMap =
             new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, AtomicLong> errSizeAddrMap =
@@ -46,34 +49,33 @@ public class NettyProtocolDecoder extends FrameDecoder {
     private RpcDataPack dataPack;
 
     @Override
-    protected Object decode(ChannelHandlerContext ctx, Channel channel,
-                            ChannelBuffer buffer) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf buffer, List<Object> out) throws Exception {
         if (!packHeaderRead) {
             if (buffer.readableBytes() < 12) {
-                return null;
+                return;
             }
             int frameToken = buffer.readInt();
             filterIllegalPkgToken(frameToken,
-                    RpcConstants.RPC_PROTOCOL_BEGIN_TOKEN, channel);
+                    RpcConstants.RPC_PROTOCOL_BEGIN_TOKEN, ctx.channel());
             int serialNo = buffer.readInt();
             int tmpListSize = buffer.readInt();
             filterIllegalPackageSize(true, tmpListSize,
-                    RpcConstants.MAX_FRAME_MAX_LIST_SIZE, channel);
+                    RpcConstants.MAX_FRAME_MAX_LIST_SIZE, ctx.channel());
             this.listSize = tmpListSize;
             this.dataPack = new RpcDataPack(serialNo, new ArrayList<ByteBuffer>(this.listSize));
             this.packHeaderRead = true;
         }
         // get PackBody
         if (buffer.readableBytes() < 4) {
-            return null;
+            return;
         }
         buffer.markReaderIndex();
         int length = buffer.readInt();
         filterIllegalPackageSize(false, length,
-                RpcConstants.RPC_MAX_BUFFER_SIZE, channel);
+                RpcConstants.RPC_MAX_BUFFER_SIZE, ctx.channel());
         if (buffer.readableBytes() < length) {
             buffer.resetReaderIndex();
-            return null;
+            return;
         }
         ByteBuffer bb = ByteBuffer.allocate(length);
         buffer.readBytes(bb);
@@ -81,9 +83,9 @@ public class NettyProtocolDecoder extends FrameDecoder {
         dataPack.getDataLst().add(bb);
         if (dataPack.getDataLst().size() == listSize) {
             packHeaderRead = false;
-            return dataPack;
+            out.add(dataPack);
         } else {
-            return null;
+            return;
         }
     }
 
@@ -112,7 +114,7 @@ public class NettyProtocolDecoder extends FrameDecoder {
             }
             throw new UnknownProtocolException(new StringBuilder(256)
                     .append("Unknown protocol exception for message frame, channel.address = ")
-                    .append(channel.getRemoteAddress().toString()).toString());
+                    .append(channel.remoteAddress().toString()).toString());
         }
     }
 
@@ -141,7 +143,7 @@ public class NettyProtocolDecoder extends FrameDecoder {
             }
             StringBuilder sBuilder = new StringBuilder(256)
                     .append("Unknown protocol exception for message listSize! channel.address = ")
-                    .append(channel.getRemoteAddress().toString());
+                    .append(channel.remoteAddress().toString());
             if (isFrameSize) {
                 sBuilder.append(", Max list size=").append(allowSize)
                         .append(", request's list size=").append(inParamValue);

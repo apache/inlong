@@ -17,30 +17,44 @@
 
 package org.apache.inlong.tubemq.corerpc.netty;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToMessageEncoder;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.apache.inlong.tubemq.corerpc.RpcConstants;
 import org.apache.inlong.tubemq.corerpc.RpcDataPack;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class NettyProtocolEncoder extends OneToOneEncoder {
+public class NettyProtocolEncoder extends MessageToMessageEncoder<RpcDataPack> {
+
+    private static final Logger logger = LoggerFactory.getLogger(NettyProtocolEncoder.class);
 
     @Override
-    protected Object encode(ChannelHandlerContext ctx,
-                            Channel channel, Object msg) throws Exception {
-        RpcDataPack dataPack = (RpcDataPack) msg;
+    protected void encode(ChannelHandlerContext chx, RpcDataPack msg, List<Object> out) {
+        RpcDataPack dataPack = msg;
         List<ByteBuffer> origs = dataPack.getDataLst();
-        List<ByteBuffer> bbs = new ArrayList<>(origs.size() * 2 + 1);
-        bbs.add(getPackHeader(dataPack));
-        for (ByteBuffer b : origs) {
-            bbs.add(getLengthHeader(b));
-            bbs.add(b);
+        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        try {
+            byteOut.write(getPackHeader(dataPack).array());
+            Iterator<ByteBuffer> iter = origs.iterator();
+            while (iter.hasNext()) {
+                ByteBuffer entry = iter.next();
+                byteOut.write(getLengthHeader(entry).array());
+                byteOut.write(entry.array());
+            }
+            byte[] body = byteOut.toByteArray();
+            ByteBuf buf = ByteBufAllocator.DEFAULT.buffer(body.length);
+            buf.writeBytes(body);
+            out.add(buf);
+        } catch (IOException e) {
+            logger.error("encode has exception ", e);
         }
-        return ChannelBuffers.wrappedBuffer(bbs.toArray(new ByteBuffer[bbs.size()]));
     }
 
     private ByteBuffer getPackHeader(RpcDataPack dataPack) {

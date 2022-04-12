@@ -17,11 +17,12 @@
 
 package org.apache.inlong.tubemq.corerpc.netty;
 
+import io.netty.buffer.ByteBuf;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.inlong.tubemq.corerpc.RpcDataPack;
-import org.jboss.netty.buffer.ChannelBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,10 +43,11 @@ public class NettyProtocolEncoderTest {
         dataList.add(ByteBuffer.wrap("def".getBytes()));
         // append data list.
         obj.setDataLst(dataList);
+        List<Object> out = new ArrayList<>();
         try {
             // encode data
-            Object result = nettyProtocolEncoder.encode(null, null, obj);
-            ChannelBuffer buf = (ChannelBuffer) result;
+            nettyProtocolEncoder.encode(null, obj, out);
+            ByteBuf buf = (ByteBuf) out.get(0);
             // read data.
             int i = buf.readInt();
             i = buf.readInt();

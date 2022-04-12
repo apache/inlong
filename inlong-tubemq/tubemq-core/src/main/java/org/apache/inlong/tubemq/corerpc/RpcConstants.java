@@ -44,6 +44,7 @@ public final class RpcConstants {
     public static final String NETTY_WRITE_LOW_MARK = "rpc.netty.write.lowmark";
     public static final String NETTY_TCP_SENDBUF = "rpc.netty.send.buffer";
     public static final String NETTY_TCP_RECEIVEBUF = "rpc.netty.receive.buffer";
+    public static final String NETTY_TCP_ENABLEBUSYWAIT = "rpc.netty.enable.busy.wait";
 
     public static final String TCP_NODELAY = "rpc.tcp.nodelay";
     public static final String TCP_REUSEADDRESS = "rpc.tcp.reuseaddress";

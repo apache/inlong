@@ -17,6 +17,16 @@
 
 package org.apache.inlong.tubemq.corerpc.netty;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -32,20 +42,6 @@ import org.apache.inlong.tubemq.corerpc.client.Client;
 import org.apache.inlong.tubemq.corerpc.client.ClientFactory;
 import org.apache.inlong.tubemq.corerpc.exception.LocalConnException;
 import org.apache.inlong.tubemq.corerpc.utils.TSSLEngineUtil;
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.jboss.netty.channel.socket.nio.NioWorkerPool;
-import org.jboss.netty.handler.execution.ExecutionHandler;
-import org.jboss.netty.handler.execution.MemoryAwareThreadPoolExecutor;
-import org.jboss.netty.handler.ssl.SslHandler;
-import org.jboss.netty.util.HashedWheelTimer;
-import org.jboss.netty.util.ThreadNameDeterminer;
-import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,14 +56,10 @@ public class NettyClientFactory implements ClientFactory {
     protected final ConcurrentHashMap<String, Client> clients =
             new ConcurrentHashMap<>();
     protected AtomicBoolean shutdown = new AtomicBoolean(true);
-    private Timer timer = new HashedWheelTimer();
-    private volatile AtomicBoolean init = new AtomicBoolean(true);
-    private ChannelFactory channelFactory;
-    private MemoryAwareThreadPoolExecutor eventExecutor;
+    private EventLoopGroup eventLoopGroup;
     private ExecutorService bossExecutorService;
     private ExecutorService workerExecutorService;
     private AtomicInteger workerIdCounter = new AtomicInteger(0);
-    private RpcConfig factoryConf;
     // TSL encryption and need Two Way Authentic
     private boolean enableTLS = false;
     private boolean needTwoWayAuthentic = false;
@@ -87,11 +79,7 @@ public class NettyClientFactory implements ClientFactory {
      * @throws IllegalArgumentException  the exception while configuring object
      */
     public void configure(final RpcConfig conf) throws IllegalArgumentException {
-        if (this.init.compareAndSet(false, true)) {
-            this.timer = new HashedWheelTimer();
-        }
         if (this.shutdown.compareAndSet(true, false)) {
-            this.factoryConf = conf;
             enableTLS = conf.getBoolean(RpcConstants.TLS_OVER_TCP, false);
             needTwoWayAuthentic = conf.getBoolean(RpcConstants.TLS_TWO_WAY_AUTHENTIC, false);
             if (enableTLS) {
@@ -120,23 +108,14 @@ public class NettyClientFactory implements ClientFactory {
                     conf.getInt(RpcConstants.CALLBACK_WORKER_COUNT, 3);
             bossExecutorService = Executors.newCachedThreadPool();
             workerExecutorService = Executors.newCachedThreadPool();
-            this.channelFactory = new NioClientSocketChannelFactory(bossExecutorService, bossCount,
-                    new NioWorkerPool(workerExecutorService, workerCount, new ThreadNameDeterminer() {
-                        @Override
-                        public String determineThreadName(String currentThreadName, String proposedThreadName)
-                                throws Exception {
-                            return new StringBuilder(256)
-                                    .append(conf.getString(RpcConstants.WORKER_THREAD_NAME,
-                                            RpcConstants.CFG_DEFAULT_WORKER_THREAD_NAME))
-                                    .append(workerIdCounter.incrementAndGet()).toString();
-                        }
-                    }));
-            this.eventExecutor = new MemoryAwareThreadPoolExecutor(
-                    callbackCount,
-                    conf.getInt(RpcConstants.WORKER_MEM_SIZE,
-                            RpcConstants.CFG_DEFAULT_TOTAL_MEM_SIZE),
-                    conf.getInt(RpcConstants.WORKER_MEM_SIZE,
-                            RpcConstants.CFG_DEFAULT_TOTAL_MEM_SIZE));
+            String threadName = new StringBuilder(256)
+                    .append(conf.getString(RpcConstants.WORKER_THREAD_NAME,
+                            RpcConstants.CFG_DEFAULT_WORKER_THREAD_NAME))
+                    .append(workerIdCounter.incrementAndGet()).toString();
+            eventLoopGroup = EventLoopUtil.newEventLoopGroup(workerCount,
+                    conf.getBoolean(RpcConstants.NETTY_TCP_ENABLEBUSYWAIT, false),
+                    new DefaultThreadFactory(threadName,
+                            Thread.currentThread().isDaemon()));
         }
     }
 
@@ -203,10 +182,6 @@ public class NettyClientFactory implements ClientFactory {
 
     @Override
     public void shutdown() {
-        // stop timer
-        if (this.init.compareAndSet(true, false)) {
-            timer.stop();
-        }
         // shutdown and release network resources
         if (this.shutdown.compareAndSet(false, true)) {
             try {
@@ -226,12 +201,8 @@ public class NettyClientFactory implements ClientFactory {
                 if (this.workerExecutorService != null) {
                     this.workerExecutorService.shutdown();
                 }
-                if (this.eventExecutor != null) {
-                    this.eventExecutor.shutdown();
-                }
-            } finally {
-                this.channelFactory.releaseExternalResources();
-                this.channelFactory.shutdown();
+            } catch (Exception e) {
+                logger.error("has exception ", e);
             }
         }
     }
@@ -249,25 +220,25 @@ public class NettyClientFactory implements ClientFactory {
                                 int connectTimeout, final RpcConfig conf) throws Exception {
         final NettyClient client =
                 new NettyClient(this, connectTimeout);
-        ClientBootstrap clientBootstrap = new ClientBootstrap();
-        clientBootstrap.setOption("tcpNoDelay", true);
-        clientBootstrap.setOption("reuseAddress", true);
-        clientBootstrap.setOption("connectTimeoutMillis", connectTimeout);
-        clientBootstrap.setFactory(this.channelFactory);
-        long nettyWriteHighMark =
-                conf.getLong(RpcConstants.NETTY_WRITE_HIGH_MARK, -1);
-        long nettyWriteLowMark =
-                conf.getLong(RpcConstants.NETTY_WRITE_LOW_MARK, -1);
+        Bootstrap clientBootstrap = new Bootstrap();
+        clientBootstrap.option(ChannelOption.TCP_NODELAY, true);
+        clientBootstrap.option(ChannelOption.SO_REUSEADDR, true);
+        clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
+        clientBootstrap.group(eventLoopGroup);
+        int nettyWriteHighMark =
+                conf.getInt(RpcConstants.NETTY_WRITE_HIGH_MARK, -1);
+        int nettyWriteLowMark =
+                conf.getInt(RpcConstants.NETTY_WRITE_LOW_MARK, -1);
         if (nettyWriteHighMark > 0) {
-            clientBootstrap.setOption("writeBufferHighWaterMark", nettyWriteHighMark);
+            clientBootstrap.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, nettyWriteHighMark);
         }
         if (nettyWriteLowMark > 0) {
-            clientBootstrap.setOption("writeBufferLowWaterMark", nettyWriteLowMark);
+            clientBootstrap.option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, nettyWriteLowMark);
         }
-        clientBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+        clientBootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
-            public ChannelPipeline getPipeline() throws Exception {
-                ChannelPipeline pipeline = Channels.pipeline();
+            public void initChannel(SocketChannel socketChannel)throws Exception {
+                ChannelPipeline pipeline = socketChannel.pipeline();
                 if (enableTLS) {
                     try {
                         SSLEngine sslEngine =
@@ -286,21 +257,18 @@ public class NettyClientFactory implements ClientFactory {
                 // Decode the bytes into a Rpc Data Pack
                 pipeline.addLast("protocolDecoder", new NettyProtocolDecoder());
                 // handle the time out requests
-                pipeline.addLast("readTimeoutHandler", new ReadTimeoutHandler(timer,
+                pipeline.addLast("readTimeoutHandler", new ReadTimeoutHandler(
                         conf.getLong(RpcConstants.CONNECT_READ_IDLE_DURATION,
                                 RpcConstants.CFG_CONNECT_READ_IDLE_TIME), TimeUnit.MILLISECONDS));
-                // execution handler
-                pipeline.addLast("execution", new ExecutionHandler(eventExecutor));
                 // tube netty client handler
                 pipeline.addLast("clientHandler", client.new NettyClientHandler());
-                return pipeline;
             }
         });
         ChannelFuture future =
                 clientBootstrap.connect(new InetSocketAddress(addressInfo.getHost(), addressInfo.getPort()));
         future.awaitUninterruptibly(connectTimeout);
         if (!future.isDone()) {
-            future.cancel();
+            future.cancel(false);
             throw new LocalConnException(new StringBuilder(256).append("Create connection to ")
                     .append(addressInfo.getHostPortStr()).append(" timeout!").toString());
         }
@@ -310,9 +278,10 @@ public class NettyClientFactory implements ClientFactory {
         }
         if (!future.isSuccess()) {
             throw new LocalConnException(new StringBuilder(256).append("Create connection to ")
-                    .append(addressInfo.getHostPortStr()).append(" error").toString(), future.getCause());
+                    .append(addressInfo.getHostPortStr()).append(" error").toString(),
+                    future.cause());
         }
-        client.setChannel(future.getChannel(), addressInfo);
+        client.setChannel(future.channel(), addressInfo);
         return client;
     }
 

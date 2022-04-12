@@ -19,6 +19,16 @@ package org.apache.inlong.tubemq.corerpc.netty;
 
 import static org.apache.inlong.tubemq.corebase.utils.AddressUtils.getRemoteAddressIP;
 import com.google.protobuf.Message;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.ssl.SslHandler;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -26,7 +36,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.net.ssl.SSLEngine;
@@ -44,19 +53,6 @@ import org.apache.inlong.tubemq.corerpc.server.RequestContext;
 import org.apache.inlong.tubemq.corerpc.server.ServiceRpcServer;
 import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
 import org.apache.inlong.tubemq.corerpc.utils.TSSLEngineUtil;
-import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.DefaultChannelPipeline;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
-import org.jboss.netty.handler.ssl.SslHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +69,9 @@ public class NettyRpcServer implements ServiceRpcServer {
     private final ConcurrentHashMap<Integer, Protocol> protocols =
             new ConcurrentHashMap<>();
     private ServerBootstrap bootstrap;
-    private NioServerSocketChannelFactory channelFactory = null;
+    private EventLoopGroup acceptorGroup;
+    private EventLoopGroup workerGroup;
+    private boolean enableBusyWait;
     private AtomicBoolean started = new AtomicBoolean(false);
     private int protocolType = RpcProtocol.RPC_PROTOCOL_TCP;
     private boolean isOverTLS;
@@ -119,30 +117,36 @@ public class NettyRpcServer implements ServiceRpcServer {
         int workerCount =
                 conf.getInt(RpcConstants.WORKER_COUNT,
                         RpcConstants.CFG_DEFAULT_SERVER_WORKER_COUNT);
-        this.bootstrap =
-                new ServerBootstrap(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
-                        bossCount, Executors.newCachedThreadPool(), workerCount));
-        bootstrap.setOption("tcpNoDelay",
+        enableBusyWait = conf.getBoolean(RpcConstants.NETTY_TCP_ENABLEBUSYWAIT, false);
+        this.acceptorGroup = EventLoopUtil.newEventLoopGroup(bossCount, false,
+                new DefaultThreadFactory("tcpSource-nettyBoss-threadGroup"));
+
+        this.workerGroup = EventLoopUtil
+                .newEventLoopGroup(workerCount, enableBusyWait,
+                        new DefaultThreadFactory("tcpSource-nettyWorker-threadGroup"));
+        this.bootstrap = new ServerBootstrap();
+        bootstrap.group(acceptorGroup, workerGroup);
+        bootstrap.childOption(ChannelOption.TCP_NODELAY,
                 conf.getBoolean(RpcConstants.TCP_NODELAY, true));
-        bootstrap.setOption("reuseAddress",
+        bootstrap.childOption(ChannelOption.SO_REUSEADDR,
                 conf.getBoolean(RpcConstants.TCP_REUSEADDRESS, true));
-        long nettyWriteHighMark =
-                conf.getLong(RpcConstants.NETTY_WRITE_HIGH_MARK, -1);
+        int nettyWriteHighMark =
+                conf.getInt(RpcConstants.NETTY_WRITE_HIGH_MARK, -1);
         if (nettyWriteHighMark > 0) {
-            bootstrap.setOption("writeBufferHighWaterMark", nettyWriteHighMark);
+            bootstrap.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, nettyWriteHighMark);
         }
-        long nettyWriteLowMark =
-                conf.getLong(RpcConstants.NETTY_WRITE_LOW_MARK, -1);
+        int nettyWriteLowMark =
+                conf.getInt(RpcConstants.NETTY_WRITE_LOW_MARK, -1);
         if (nettyWriteLowMark > 0) {
-            bootstrap.setOption("writeBufferLowWaterMark", nettyWriteLowMark);
+            bootstrap.childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, nettyWriteLowMark);
         }
-        long nettySendBuf = conf.getLong(RpcConstants.NETTY_TCP_SENDBUF, -1);
+        int nettySendBuf = conf.getInt(RpcConstants.NETTY_TCP_SENDBUF, -1);
         if (nettySendBuf > 0) {
-            bootstrap.setOption("sendBufferSize", nettySendBuf);
+            bootstrap.childOption(ChannelOption.SO_SNDBUF, nettySendBuf);
         }
-        long nettyRecvBuf = conf.getLong(RpcConstants.NETTY_TCP_RECEIVEBUF, -1);
+        int nettyRecvBuf = conf.getInt(RpcConstants.NETTY_TCP_RECEIVEBUF, -1);
         if (nettyRecvBuf > 0) {
-            bootstrap.setOption("receiveBufferSize", nettyRecvBuf);
+            bootstrap.childOption(ChannelOption.SO_RCVBUF, nettyRecvBuf);
         }
     }
 
@@ -151,16 +155,15 @@ public class NettyRpcServer implements ServiceRpcServer {
         if (this.started.get()) {
             return;
         }
-        bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+        bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
-            public ChannelPipeline getPipeline() throws Exception {
-                ChannelPipeline pipeline = new DefaultChannelPipeline();
+            public void initChannel(SocketChannel socketChannel) {
                 if (isOverTLS) {
                     try {
                         SSLEngine sslEngine =
                                 TSSLEngineUtil.createSSLEngine(keyStorePath, trustStorePath,
                                         keyStorePassword, trustStorePassword, false, needTwoWayAuthentic);
-                        pipeline.addLast("ssl", new SslHandler(sslEngine));
+                        socketChannel.pipeline().addLast("ssl", new SslHandler(sslEngine));
                     } catch (Throwable t) {
                         logger.error(
                                 "TLS NettyRpcServer init SSLEngine error, system auto exit!", t);
@@ -168,12 +171,11 @@ public class NettyRpcServer implements ServiceRpcServer {
                     }
                 }
                 // Encode the data handler
-                pipeline.addLast("protocolEncoder", new NettyProtocolDecoder());
+                socketChannel.pipeline().addLast("protocolEncoder", new NettyProtocolDecoder());
                 // Decode the bytes into a Rpc Data Pack
-                pipeline.addLast("protocolDecoder", new NettyProtocolEncoder());
+                socketChannel.pipeline().addLast("protocolDecoder", new NettyProtocolEncoder());
                 // tube netty Server handler
-                pipeline.addLast("serverHandler", new NettyServerHandler(protocolType));
-                return pipeline;
+                socketChannel.pipeline().addLast("serverHandler", new NettyServerHandler(protocolType));
             }
         });
         bootstrap.bind(new InetSocketAddress(listenPort));
@@ -233,7 +235,6 @@ public class NettyRpcServer implements ServiceRpcServer {
         }
         if (this.started.compareAndSet(true, false)) {
             logger.info("Stopping RpcServer...");
-            bootstrap.releaseExternalResources();
             logger.info("RpcServer stop successfully.");
         }
     }
@@ -241,7 +242,7 @@ public class NettyRpcServer implements ServiceRpcServer {
     /**
      * Netty Server Handler
      */
-    private class NettyServerHandler extends SimpleChannelUpstreamHandler {
+    private class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
         private int protocolType = RpcProtocol.RPC_PROTOCOL_TCP;
 
@@ -251,31 +252,30 @@ public class NettyRpcServer implements ServiceRpcServer {
 
         /**
          * Invoked when an exception was raised by an I/O thread or a
-         * {@link ChannelHandler}.
          */
         @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) {
             if (!(e.getCause() instanceof IOException)) {
                 logger.error("catch some exception not IOException", e.getCause());
             }
+            ctx.fireExceptionCaught(e);
         }
 
         /**
-         * Invoked when a message object (e.g: {@link ChannelBuffer}) was received
+         * Invoked when a message object was received
          * from a remote peer.
          */
         @Override
-        public void messageReceived(final ChannelHandlerContext ctx,
-                                    MessageEvent e) throws Exception {
-            if (!(e.getMessage() instanceof RpcDataPack)) {
+        public void channelRead(ChannelHandlerContext ctx, Object msg) {
+            if (!(msg instanceof RpcDataPack)) {
                 return;
             }
-            RpcDataPack dataPack = (RpcDataPack) e.getMessage();
+            RpcDataPack dataPack = (RpcDataPack) msg;
             RPCProtos.RpcConnHeader connHeader;
             RPCProtos.RequestHeader requestHeader;
             RPCProtos.RequestBody rpcRequestBody;
             int rmtVersion = RpcProtocol.RPC_PROTOCOL_VERSION;
-            Channel channel = ctx.getChannel();
+            Channel channel = ctx.channel();
             if (channel == null) {
                 return;
             }
@@ -345,7 +345,7 @@ public class NettyRpcServer implements ServiceRpcServer {
                                         .append(ee.getMessage()).toString());
                 if (res != null) {
                     dataPack.setDataLst(res);
-                    ctx.getChannel().write(dataPack);
+                    ctx.channel().write(dataPack);
                 }
                 return;
             }
