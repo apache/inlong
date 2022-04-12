@@ -81,11 +81,11 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.EnableCreateResource'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResource'),
       name: 'enableCreateResource',
       rules: [{ required: true }],
       initialValue: 1,
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.Hive.EnableCreateResourceHelp'),
+      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         options: [
@@ -102,7 +102,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.Username'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Username'),
       name: 'username',
       rules: [{ required: true }],
       props: {
@@ -112,7 +112,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'password',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.Password'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Password'),
       name: 'password',
       rules: [{ required: true }],
       props: {

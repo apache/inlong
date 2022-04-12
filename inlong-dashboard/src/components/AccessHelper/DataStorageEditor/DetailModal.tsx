@@ -27,7 +27,6 @@ import FormGenerator, {
   FormItemProps,
   FormGeneratorProps,
 } from '@/components/FormGenerator';
-import i18n from '@/i18n';
 import { Storages, StoragesType } from '@/components/MetaData';
 
 export interface DetailModalProps extends ModalProps {
@@ -84,7 +83,7 @@ const Comp: React.FC<DetailModalProps> = ({
           fieldName: 'fieldName',
         },
       },
-      CLICK_HOUSE: {
+      CLICKHOUSE: {
         columnsKey: 'fieldList',
         restMapping: {
           fieldName: 'fieldName',
