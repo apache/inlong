@@ -257,7 +257,9 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     private void dealWithSqlTaskResult(DbCollectorTaskResult taskResult) {
-        LOGGER.info("deal with sql task result {}", taskResult);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("deal with sql task result {}", taskResult);
+        }
         if (!taskResult.getVersion().equals(VERSION)) {
             LOGGER.error("invalid version {} != {}", taskResult.getVersion(), VERSION);
             return;
