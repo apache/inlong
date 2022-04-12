@@ -29,7 +29,7 @@ Fixes #<xyz>
 
 ### Documentation
 
-  - Does this pull request introduces a new feature? (yes / no)
+  - Does this pull request introduce a new feature? (yes / no)
   - If yes, how is the feature documented? (not applicable / docs / JavaDocs / not documented)
   - If a feature is not applicable for documentation, explain why?
   - If a feature is not documented yet in this PR, please create a follow-up issue for adding the documentation
