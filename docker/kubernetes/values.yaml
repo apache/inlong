@@ -87,6 +87,8 @@ agent:
   # Optional duration in seconds the pod needs to terminate gracefully.
   # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   terminationGracePeriodSeconds: 30
+  # Optionally specify how much of each resource a container needs. The most common resources to specify are CPU and memory (RAM).
+  # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
       cpu: 1
@@ -130,6 +132,8 @@ dashboard:
   # Optional duration in seconds the pod needs to terminate gracefully.
   # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   terminationGracePeriodSeconds: 30
+  # Optionally specify how much of each resource a container needs. The most common resources to specify are CPU and memory (RAM).
+  # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
       cpu: 1
@@ -179,6 +183,8 @@ dataproxy:
   # Optional duration in seconds the pod needs to terminate gracefully.
   # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   terminationGracePeriodSeconds: 30
+  # Optionally specify how much of each resource a container needs. The most common resources to specify are CPU and memory (RAM).
+  # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
       cpu: 1
@@ -234,6 +240,8 @@ tubemqManager:
   # Optional duration in seconds the pod needs to terminate gracefully.
   # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   terminationGracePeriodSeconds: 30
+  # Optionally specify how much of each resource a container needs. The most common resources to specify are CPU and memory (RAM).
+  # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
       cpu: 1
@@ -276,6 +284,8 @@ manager:
   # Optional duration in seconds the pod needs to terminate gracefully.
   # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   terminationGracePeriodSeconds: 30
+  # Optionally specify how much of each resource a container needs. The most common resources to specify are CPU and memory (RAM).
+  # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
       cpu: 1
@@ -333,6 +343,8 @@ audit:
   # Optional duration in seconds the pod needs to terminate gracefully.
   # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   terminationGracePeriodSeconds: 30
+  # Optionally specify how much of each resource a container needs. The most common resources to specify are CPU and memory (RAM).
+  # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
       cpu: 1
@@ -375,6 +387,8 @@ mysql:
   # Optional duration in seconds the pod needs to terminate gracefully.
   # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   terminationGracePeriodSeconds: 30
+  # Optionally specify how much of each resource a container needs. The most common resources to specify are CPU and memory (RAM).
+  # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
       cpu: 1
@@ -418,6 +432,12 @@ zookeeper:
   # Optional duration in seconds the pod needs to terminate gracefully.
   # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   terminationGracePeriodSeconds: 30
+  # Optionally specify how much of each resource a container needs. The most common resources to specify are CPU and memory (RAM).
+  # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources:
+    requests:
+      cpu: 1
+      memory: "1Gi"
   ports:
     client: 2181
     follower: 2888
@@ -433,10 +453,6 @@ zookeeper:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-  resources:
-    requests:
-      cpu: 1
-      memory: "1Gi"
   volumes:
     name: data
     size: "10Gi"
@@ -477,6 +493,12 @@ tubemqMaster:
   # Optional duration in seconds the pod needs to terminate gracefully.
   # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   terminationGracePeriodSeconds: 30
+  # Optionally specify how much of each resource a container needs. The most common resources to specify are CPU and memory (RAM).
+  # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources:
+    requests:
+      cpu: 1
+      memory: "1Gi"
   ports:
     rpcPort: 8715
     webPort: 8080
@@ -492,10 +514,6 @@ tubemqMaster:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-  resources:
-    requests:
-      cpu: 1
-      memory: "1Gi"
   volumes:
     name: data
     size: "10Gi"
@@ -555,6 +573,12 @@ tubemqBroker:
   # Optional duration in seconds the pod needs to terminate gracefully.
   # For more details, please check out https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   terminationGracePeriodSeconds: 30
+  # Optionally specify how much of each resource a container needs. The most common resources to specify are CPU and memory (RAM).
+  # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources:
+    requests:
+      cpu: 1
+      memory: "1Gi"
   ports:
     rpcPort: 8123
     webPort: 8081
@@ -569,10 +593,6 @@ tubemqBroker:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-  resources:
-    requests:
-      cpu: 1
-      memory: "1Gi"
   volumes:
     name: data
     size: "10Gi"
