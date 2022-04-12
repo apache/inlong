@@ -19,8 +19,13 @@ package org.apache.inlong.agent.plugin;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.ProfileFetcher;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.core.AgentManager;
+import org.apache.inlong.agent.core.HeartbeatManager;
+import org.apache.inlong.agent.core.task.TaskPositionManager;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.api.support.membermodification.MemberModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,11 +40,23 @@ public class MiniAgent {
     private final AgentManager manager;
     private final LinkedBlockingQueue<JobProfile> queueJobs;
 
-    public MiniAgent() {
+    public MiniAgent() throws Exception {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         conf.setInt(AGENT_FETCH_CENTER_INTERVAL_SECONDS, 1);
         conf.setBoolean(PROMETHEUS_ENABLE, true);
         manager = new AgentManager();
+        TaskPositionManager taskPositionManager = PowerMockito.mock(TaskPositionManager.class);
+        HeartbeatManager heartbeatManager = PowerMockito.mock(HeartbeatManager.class);
+        ProfileFetcher profileFetcher = PowerMockito.mock(ProfileFetcher.class);
+        PowerMockito.doNothing().when(taskPositionManager, "start");
+        PowerMockito.doNothing().when(taskPositionManager, "stop");
+        PowerMockito.doNothing().when(heartbeatManager, "start");
+        PowerMockito.doNothing().when(heartbeatManager, "stop");
+        PowerMockito.doNothing().when(profileFetcher, "start");
+        PowerMockito.doNothing().when(profileFetcher, "stop");
+        MemberModifier.field(AgentManager.class, "taskPositionManager").set(manager, taskPositionManager);
+        MemberModifier.field(AgentManager.class, "heartbeatManager").set(manager, heartbeatManager);
+        MemberModifier.field(AgentManager.class, "fetcher").set(manager, profileFetcher);
         queueJobs = new LinkedBlockingQueue<>(100);
 
     }
