@@ -233,7 +233,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.directory.server:apacheds-kerberos-codec:2.0.0-M15 - ApacheDS Protocol Kerberos Codec (https://directory.apache.org/apacheds/), (The Apache Software License, Version 2.0)
   org.apache.directory.api:api-asn1-api:1.0.0-M20 - Apache Directory API ASN.1 API (https://directory.apache.org/), (The Apache Software License, Version 2.0)
   org.apache.directory.api:api-util:1.0.0-M20 - Apache Directory LDAP API Utilities (https://directory.apache.org/), (The Apache Software License, Version 2.0)
-  org.apache.yetus:audience-annotations:0.11.0  - Apache Yetus - Audience Annotations (https://yetus.apache.org/), (Apache License, Version 2.0)
+  org.apache.yetus:audience-annotations:0.11.0 - Apache Yetus - Audience Annotations (https://yetus.apache.org/), (Apache License, Version 2.0)
   org.apache.calcite.avatica:avatica-core:1.17.0 - Apache Calcite Avatica (https://calcite.apache.org/avatica), (The Apache License, Version 2.0)
   org.apache.avro:avro:1.10.0 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
   org.apache.avro:avro-ipc:1.7.4 - Apache Avro IPC (https://avro.apache.org), (The Apache Software License, Version 2.0)
@@ -339,7 +339,7 @@ The text of each license is the standard Apache 2.0 license.
   com.beust:jcommander:1.30 - JCommander (http://jcommander.org/), (The Apache Software License, Version 2.0)
   net.java.dev.jets3t:jets3t:0.9.0 - An open source Java toolkit for Amazon S3 (http://www.jets3t.org), (Apache License, Version 2.0)
   org.codehaus.jettison:jettison:1.1 - Jettison (https://github.com/jettison-json/jettison), (Apache License, Version 2.0)
-  org.eclipse.jetty.aggregate:jetty-all:7.6.0.v20120127 - Jetty :: Aggregate :: All core Jetty (hhttps://github.com/eclipse/jetty.project/tree/jetty-7.6.0.v20120127), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)  
+  org.eclipse.jetty.aggregate:jetty-all:7.6.0.v20120127 - Jetty :: Aggregate :: All core Jetty (https://github.com/eclipse/jetty.project/tree/jetty-7.6.0.v20120127), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
   joda-time:joda-time:2.9.9 - Joda-Time (http://www.joda.org/joda-time/), (Apache 2)
   net.sf.jpam:jpam:1.1 - JPam (http://jpam.sourceforge.net/), (The Apache Software License, Version 2.0)
   com.tdunning:json:1.8 - Open JSON (https://github.com/tdunning/open-json), (The Apache Software License, Version 2.0)
@@ -551,6 +551,6 @@ The following components are provided under Public Domain license. See project l
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
   aopalliance:aopalliance:1.0 - - AOP alliance (http://aopalliance.sourceforge.net), (Public Domain)
-  net.jcip:jcip-annotations:1.0 - "Java Concurrency in Practice" book annotations (http://jax-rs-spec.java.net), (Public Domain)
+  net.jcip:jcip-annotations:1.0 - "Java Concurrency in Practice" book annotations (http://jcip.net/), (Public Domain)
   
 
