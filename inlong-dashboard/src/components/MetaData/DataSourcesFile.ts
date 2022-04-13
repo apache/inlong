@@ -37,35 +37,7 @@ export const getDataSourcesFileFields = (
           message: i18n.t('components.AccessHelper.DataSourceMetaData.File.IpRule'),
         },
       ],
-      _inTable: {
-        width: 150,
-      },
-    },
-    {
-      name: 'serializationType',
-      type: 'radio',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.File.SerializationType'),
-      initialValue: 'CSV',
-      rules: [{ required: true }],
-      props: {
-        options: [
-          {
-            label: 'CSV',
-            value: 'CSV',
-          },
-          {
-            label: 'JSON',
-            value: 'JSON',
-          },
-          {
-            label: 'AVRO',
-            value: 'AVRO',
-          },
-        ],
-      },
-      _inTable: {
-        width: 100,
-      },
+      _inTable: true,
     },
     {
       type: 'input',
@@ -80,9 +52,7 @@ export const getDataSourcesFileFields = (
       label: i18n.t('components.AccessHelper.DataSourceMetaData.File.TimeOffset'),
       name: 'timeOffset',
       tooltip: i18n.t('components.AccessHelper.DataSourceMetaData.File.TimeOffsetHelp'),
-      _inTable: {
-        width: 100,
-      },
+      _inTable: true,
     },
   ];
 
