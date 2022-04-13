@@ -24,6 +24,7 @@ on:
       - '.github/ct.yml'
       - '.github/kind.yml'
       - 'docker/kubernetes/**'
+      - '!docker/kubernetes/NOTES.txt'
       - '!*.md'
 
   pull_request:
@@ -32,6 +33,7 @@ on:
       - '.github/ct.yml'
       - '.github/kind.yml'
       - 'docker/kubernetes/**'
+      - '!docker/kubernetes/NOTES.txt'
       - '!*.md'
 
 env:
@@ -79,9 +81,11 @@ jobs:
         run: |
           changed=$(ct list-changed --config ${{ env.CT_CONFIG_PATH }} --target-branch ${{ github.event.repository.default_branch }})
           if [[ -n "$changed" ]]; then
+            echo "changed charts: $changed"
             echo "::set-output name=changed::true"
           fi
 
+      # NOTE: If the charts have not changed, they will not be linted, validated, installed and tested.
       - name: Lint and validate charts
         run: ct lint --config ${{ env.CT_CONFIG_PATH }}
 
