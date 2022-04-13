@@ -32,8 +32,8 @@ public class GsonUtil {
 
     public static Gson gsonBuilder() {
         return new GsonBuilder()
-                .registerTypeAdapter(MQBaseConf.class, new PulsarConfAdapter<MQBaseConf>())
-                .registerTypeAdapter(SortBaseConf.class, new FlinkConfAdapter<SortBaseConf>())
+                .registerTypeAdapter(MQBaseConf.class, new MQBaseConfAdapter())
+                .registerTypeAdapter(SortBaseConf.class, new SortBaseConfAdapter())
                 .registerTypeAdapter(Charset.class, new CharsetAdapter())
                 .registerTypeAdapter(DataSeparator.class, new SeparatorAdapter())
                 .registerTypeAdapter(DataFormat.class, new DataFormatAdapter())

@@ -17,16 +17,20 @@
 
 package org.apache.inlong.manager.client.cli.util;
 
-import com.google.gson.InstanceCreator;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
-public class CharsetAdapter implements InstanceCreator {
+public class CharsetAdapter implements JsonDeserializer {
 
     @Override
-    public Charset createInstance(Type type) {
-        return StandardCharsets.UTF_8;
+    public Charset deserialize(JsonElement jsonElement, Type type,
+            JsonDeserializationContext jsonDeserializationContext)
+            throws JsonParseException {
+        return Charset.forName(jsonElement.getAsString());
     }
 }

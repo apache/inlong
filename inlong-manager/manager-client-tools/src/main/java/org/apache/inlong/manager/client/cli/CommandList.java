@@ -32,6 +32,9 @@ import java.util.List;
 @Parameters(commandDescription = "Displays main information for one or more resources")
 public class CommandList extends CommandBase {
 
+    @Parameter()
+    private java.util.List<String> params;
+
     public CommandList() {
         super("list");
         jcommander.addCommand("stream", new CommandList.ListStream());
@@ -39,9 +42,6 @@ public class CommandList extends CommandBase {
         jcommander.addCommand("sink", new CommandList.ListSink());
         jcommander.addCommand("source", new CommandList.ListSource());
     }
-
-    @Parameter()
-    private java.util.List<String> params;
 
     @Parameters(commandDescription = "Get stream main information")
     private class ListStream extends CommandUtil {
@@ -129,7 +129,7 @@ public class CommandList extends CommandBase {
         @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
         private String group;
 
-        @Parameter(names = {"-t", "--type"}, required = true, description = "sink type")
+        @Parameter(names = {"-t", "--type"}, description = "sink type")
         private String type;
 
         @Override

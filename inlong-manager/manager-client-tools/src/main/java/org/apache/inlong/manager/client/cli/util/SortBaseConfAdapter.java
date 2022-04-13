@@ -21,19 +21,31 @@ import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import org.apache.inlong.manager.client.api.FlinkSortBaseConf;
+import org.apache.inlong.manager.client.api.SortBaseConf;
+import org.apache.inlong.manager.client.api.UserDefinedSortConf;
 
 import java.lang.reflect.Type;
 
-public class FlinkConfAdapter<T> implements JsonDeserializer<T> {
+public class SortBaseConfAdapter implements JsonDeserializer {
 
     @Override
-    public T deserialize(JsonElement jsonElement,
-            Type type,
-            JsonDeserializationContext context) throws JsonParseException {
+    public SortBaseConf deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context)
+            throws JsonParseException {
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        String sortType = jsonObject.get("type").getAsString();
+        Gson gson = GsonUtil.gsonBuilder();
         try {
-            return new Gson().fromJson(jsonElement, (Type) Class.forName((FlinkSortBaseConf.class).getName()));
+            switch (sortType) {
+                case "FLINK":
+                    return gson.fromJson(jsonElement, (Type) Class.forName((FlinkSortBaseConf.class).getName()));
+                case "USER_DEFINED":
+                    return gson.fromJson(jsonElement, (Type) Class.forName((UserDefinedSortConf.class).getName()));
+                default:
+                    throw new ClassNotFoundException(String.format("Unsupported sort type=%s for Inlong", sortType));
+            }
         } catch (ClassNotFoundException e) {
             throw new JsonParseException(e);
         }

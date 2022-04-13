@@ -28,8 +28,8 @@ import java.lang.reflect.Type;
 public class DataFormatAdapter implements JsonDeserializer {
 
     @Override
-    public DataFormat deserialize(JsonElement jsonElement, Type type,
-            JsonDeserializationContext context) throws JsonParseException {
+    public DataFormat deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context)
+            throws JsonParseException {
         return DataFormat.forName(jsonElement.getAsString());
     }
 }

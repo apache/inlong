@@ -23,6 +23,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.sink.ClickHouseSink;
 import org.apache.inlong.manager.client.api.sink.HiveSink;
 import org.apache.inlong.manager.client.api.sink.KafkaSink;
@@ -33,8 +34,9 @@ import java.lang.reflect.Type;
 public class StreamSinkAdapter implements JsonDeserializer {
 
     @Override
-    public Object deserialize(JsonElement jsonElement, Type type,
-            JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+    public StreamSink deserialize(JsonElement jsonElement, Type type,
+            JsonDeserializationContext jsonDeserializationContext)
+            throws JsonParseException {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
         String sinkType = jsonObject.get("sinkType").getAsString();
         Gson gson = GsonUtil.gsonBuilder();
@@ -47,8 +49,7 @@ public class StreamSinkAdapter implements JsonDeserializer {
                 case SinkType.SINK_CLICKHOUSE:
                     return gson.fromJson(jsonElement, (Type) Class.forName((ClickHouseSink.class).getName()));
                 default:
-                    throw new ClassNotFoundException(
-                            String.format("Unsupported sink type=%s for Inlong", sinkType));
+                    throw new ClassNotFoundException(String.format("Unsupported sink type=%s for Inlong", sinkType));
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

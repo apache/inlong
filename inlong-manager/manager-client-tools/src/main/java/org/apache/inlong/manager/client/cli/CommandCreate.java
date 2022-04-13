@@ -29,13 +29,13 @@ import java.io.File;
 @Parameters(commandDescription = "Create resource by json file")
 public class CommandCreate extends CommandBase {
 
+    @Parameter()
+    private java.util.List<String> params;
+
     public CommandCreate() {
         super("create");
         jcommander.addCommand("group", new CommandCreate.CreateGroup());
     }
-
-    @Parameter()
-    private java.util.List<String> params;
 
     @Parameters(commandDescription = "Create group by json file")
     private class CreateGroup extends CommandUtil {

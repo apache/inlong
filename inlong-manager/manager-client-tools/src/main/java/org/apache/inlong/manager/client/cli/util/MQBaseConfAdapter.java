@@ -21,19 +21,33 @@ import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import org.apache.inlong.manager.client.api.MQBaseConf;
 import org.apache.inlong.manager.client.api.PulsarBaseConf;
+import org.apache.inlong.manager.client.api.TdmqPulsarBaseConf;
+import org.apache.inlong.manager.client.api.TubeBaseConf;
 
 import java.lang.reflect.Type;
 
-public class PulsarConfAdapter<T> implements JsonDeserializer<T> {
+public class MQBaseConfAdapter implements JsonDeserializer {
 
     @Override
-    public T deserialize(JsonElement jsonElement,
-            Type type,
-            JsonDeserializationContext context) throws JsonParseException {
+    public MQBaseConf deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context)
+            throws JsonParseException {
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        String mqType = jsonObject.get("type").getAsString();
         try {
-            return new Gson().fromJson(jsonElement, (Type) Class.forName((PulsarBaseConf.class).getName()));
+            switch (mqType) {
+                case "PULSAR":
+                    return new Gson().fromJson(jsonElement, (Type) Class.forName((PulsarBaseConf.class).getName()));
+                case "TUBE":
+                    return new Gson().fromJson(jsonElement, (Type) Class.forName((TubeBaseConf.class).getName()));
+                case "TDMQ_PULSAR":
+                    return new Gson().fromJson(jsonElement, (Type) Class.forName((TdmqPulsarBaseConf.class).getName()));
+                default:
+                    throw new ClassNotFoundException(String.format("Unsupported mq type=%s for Inlong", mqType));
+            }
         } catch (ClassNotFoundException e) {
             throw new JsonParseException(e);
         }
