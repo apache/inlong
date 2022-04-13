@@ -15,18 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.manager.controller.cluster.dto;
+package org.apache.inlong.tubemq.manager.controller.topic.request;
 
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 
 @Data
-public class ClusterDto {
-    private Long clusterId;
-    private String clusterName;
-    private int reloadBrokerSize;
-
-    public boolean legal() {
-        return (clusterId != null && StringUtils.isNotBlank(clusterName));
-    }
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class SetSubscribeReq extends BaseReq {
+    private String topicName;
+    private String brokerId;
+    private String confModAuthToken;
+    private String modifyUser;
+    private boolean acceptSubscribe;
 }

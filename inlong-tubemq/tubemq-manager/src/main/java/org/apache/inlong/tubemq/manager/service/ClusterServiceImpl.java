@@ -98,6 +98,7 @@ public class ClusterServiceImpl implements ClusterService {
             ClusterEntry cluster = clusterRepository
                     .findClusterEntryByClusterId(clusterDto.getClusterId());
             cluster.setClusterName(clusterDto.getClusterName());
+            cluster.setReloadBrokerSize(clusterDto.getReloadBrokerSize());
             clusterRepository.save(cluster);
         } catch (Exception e) {
             return TubeMQResult.errorResult(e.getMessage());
