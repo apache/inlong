@@ -19,5 +19,15 @@
 # under the License.
 #
 
+#stopService
+cd "$(dirname "$0")"/../conf || exit
+adminHost=`more common.properties |grep "adminTask.host"|awk -F"=" '{print $2}'`
+adminPort=`more common.properties |grep "adminTask.port"|awk -F"=" '{print $2}'`
+if [ ${adminHost} ] && [ ${adminPort} ]; then
+    curl -X POST -d'[{"headers":{"cmd":"stopService","sourceName":"*"},"body":"body"}]' "http://${adminHost}:${adminPort}"
+    echo "stop server and sleep."
+    sleep 61s
+fi
+
 # this program kills the dataProxy
 ps -ef |grep "org.apache.inlong.dataproxy.node.Application"|grep "inlong-dataproxy"|grep -v grep|awk '{print $2}'|xargs kill -9

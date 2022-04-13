@@ -17,15 +17,10 @@
 
 package org.apache.inlong.dataproxy.node;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -52,17 +47,24 @@ import org.apache.flume.node.PropertiesFileConfigurationProvider;
 import org.apache.flume.node.StaticZooKeeperConfigurationProvider;
 import org.apache.flume.util.SSLUtil;
 import org.apache.inlong.common.config.IDataProxyConfigHolder;
+import org.apache.inlong.common.metric.MetricObserver;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
-import org.apache.inlong.common.metric.MetricObserver;
+import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
+import org.apache.inlong.sdk.commons.admin.AdminTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 
@@ -81,6 +83,7 @@ public class Application {
     private MaterializedConfiguration materializedConfiguration;
     private MonitorService monitorServer;
     private final ReentrantLock lifecycleLock = new ReentrantLock();
+    private AdminTask adminTask;
 
     public Application() {
         this(new ArrayList<LifecycleAware>(0));
@@ -104,6 +107,9 @@ public class Application {
                 supervisor.supervise(component,
                         new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
             }
+            // start admin task
+            this.adminTask = new AdminTask(new Context(CommonPropertiesHolder.get()));
+            this.adminTask.start();
         } finally {
             lifecycleLock.unlock();
         }
@@ -133,6 +139,10 @@ public class Application {
             supervisor.stop();
             if (monitorServer != null) {
                 monitorServer.stop();
+            }
+            // stop admin task
+            if (this.adminTask != null) {
+                this.adminTask.stop();
             }
         } finally {
             lifecycleLock.unlock();
@@ -397,9 +407,6 @@ public class Application {
             // audit
             AuditUtils.initAudit();
 
-            // start application
-            application.start();
-
             final Application appReference = application;
             Runtime.getRuntime().addShutdownHook(new Thread("agent-shutdown-hook") {
 
@@ -410,6 +417,9 @@ public class Application {
                 }
             });
 
+            // start application
+            application.start();
+            Thread.sleep(5000);
         } catch (Exception e) {
             logger.error("A fatal error occurred while running. Exception follows.", e);
         }
