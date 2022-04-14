@@ -86,7 +86,9 @@ public class AgentServiceImpl implements AgentService {
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED,
             propagation = Propagation.REQUIRES_NEW)
     public void report(TaskRequest request) {
-        LOGGER.info("begin to get agent task: {}", request);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("begin to get agent task: {}", request);
+        }
         if (request == null || StringUtils.isBlank(request.getAgentIp())) {
             throw new BusinessException("agent request or agent ip was empty, just return");
         }
