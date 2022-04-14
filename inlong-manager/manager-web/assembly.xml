@@ -77,7 +77,6 @@
         <fileSet>
             <directory>../manager-plugins/target/plugins</directory>
             <outputDirectory>plugins</outputDirectory>
-            <lineEnding>unix</lineEnding>
         </fileSet>
 
     </fileSets>
