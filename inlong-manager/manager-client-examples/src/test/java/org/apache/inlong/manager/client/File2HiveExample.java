@@ -151,7 +151,7 @@ public class File2HiveExample {
         return streamConf;
     }
 
-    public AgentFileSource createAgentFileSource() {
+    private AgentFileSource createAgentFileSource() {
         AgentFileSource agentFileSource = new AgentFileSource();
         agentFileSource.setAgentIp("{agent.ip}");
         agentFileSource.setPattern("/a/b/*.txt");
@@ -180,7 +180,7 @@ public class File2HiveExample {
         return hiveSink;
     }
 
-    public List<StreamField> createStreamFields() {
+    private List<StreamField> createStreamFields() {
         List<StreamField> streamFieldList = Lists.newArrayList();
         streamFieldList.add(new StreamField(0, FieldType.STRING, "name", null, null));
         streamFieldList.add(new StreamField(1, FieldType.INT, "age", null, null));

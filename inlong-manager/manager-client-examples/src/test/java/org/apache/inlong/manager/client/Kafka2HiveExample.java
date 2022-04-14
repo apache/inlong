@@ -154,7 +154,7 @@ public class Kafka2HiveExample {
         return streamConf;
     }
 
-    public KafkaSource createKafkaSource() {
+    private KafkaSource createKafkaSource() {
         KafkaSource kafkaSource = new KafkaSource();
         kafkaSource.setBootstrapServers("{kafka.bootstrap}");
         kafkaSource.setTopic("{kafka.topic}");
@@ -184,7 +184,7 @@ public class Kafka2HiveExample {
         return hiveSink;
     }
 
-    public List<StreamField> createStreamFields() {
+    private List<StreamField> createStreamFields() {
         List<StreamField> streamFieldList = Lists.newArrayList();
         streamFieldList.add(new StreamField(0, FieldType.STRING, "name", null, null));
         streamFieldList.add(new StreamField(1, FieldType.INT, "age", null, null));

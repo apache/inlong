@@ -186,7 +186,7 @@ public class Binlog2KafkaExample {
         return streamConf;
     }
 
-    public MySQLBinlogSource createMysqlSource() {
+    private MySQLBinlogSource createMysqlSource() {
         MySQLBinlogSource mySQLBinlogSource = new MySQLBinlogSource();
         mySQLBinlogSource.setDbNames(Arrays.asList("{db.name}"));
         mySQLBinlogSource.setHostname("{db.url}");

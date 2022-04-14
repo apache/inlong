@@ -151,7 +151,7 @@ public class AutoPush2HiveExample {
         return streamConf;
     }
 
-    public AutoPushSource createAutoPushSource() {
+    private AutoPushSource createAutoPushSource() {
         AutoPushSource autoPushSource = new AutoPushSource();
         autoPushSource.setDataProxyGroup("{Dataproxy.group}");
         return autoPushSource;
@@ -178,7 +178,7 @@ public class AutoPush2HiveExample {
         return hiveSink;
     }
 
-    public List<StreamField> createStreamFields() {
+    private List<StreamField> createStreamFields() {
         List<StreamField> streamFieldList = Lists.newArrayList();
         streamFieldList.add(new StreamField(0, FieldType.STRING, "name", null, null));
         streamFieldList.add(new StreamField(1, FieldType.INT, "age", null, null));
