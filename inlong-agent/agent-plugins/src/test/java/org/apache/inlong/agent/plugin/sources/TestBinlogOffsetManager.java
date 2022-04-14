@@ -30,7 +30,6 @@ import java.nio.file.Paths;
 
 public class TestBinlogOffsetManager {
 
-    private static Path testDir;
     private static AgentBaseTestsHelper helper;
     private static final String fileName = "test.txt";
     private static Path filePath;
@@ -38,7 +37,7 @@ public class TestBinlogOffsetManager {
     @BeforeClass
     public static void setup() {
         helper = new AgentBaseTestsHelper(TestBinlogOffsetManager.class.getName()).setupAgentHome();
-        testDir = helper.getTestRootDir();
+        Path testDir = helper.getTestRootDir();
         filePath = Paths.get(testDir.toString(), fileName);
     }
 
