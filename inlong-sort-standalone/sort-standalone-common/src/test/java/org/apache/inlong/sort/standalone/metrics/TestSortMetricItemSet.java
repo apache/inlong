@@ -34,6 +34,7 @@ import org.apache.inlong.common.metric.MetricItemSetMBean;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.metric.MetricUtils;
 import org.apache.inlong.common.metric.MetricValue;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -80,6 +81,14 @@ public class TestSortMetricItemSet {
         itemSink.inlongGroupId = INLONG_GROUP_ID1;
         itemSink.inlongStreamId = INLONG_STREAM_ID;
         dimSink = itemSink.getDimensions();
+    }
+    
+    /**
+     * setdown
+     */
+    @AfterClass
+    public static void setdown() {
+        MetricRegister.unregister(itemSet);
     }
 
     /**

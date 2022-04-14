@@ -18,8 +18,9 @@
 package org.apache.inlong.sort.standalone.sink.kafka;
 
 import com.google.common.base.Preconditions;
-import org.apache.flume.Event;
+
 import org.apache.flume.Transaction;
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
@@ -138,11 +139,11 @@ public class KafkaProducerFederation implements Runnable {
     /**
      * send event
      *
-     * @param event event to send
+     * @param profileEvent event to send
      * @param tx transaction
      * @return send result
      */
-    public boolean send(Event event, Transaction tx) {
+    public boolean send(ProfileEvent profileEvent, Transaction tx) {
         int currentIndex = clusterIndex.getAndIncrement();
         if (currentIndex > Integer.MAX_VALUE / 2) {
             clusterIndex.set(0);
@@ -151,7 +152,7 @@ public class KafkaProducerFederation implements Runnable {
         int currentSize = currentClusterList.size();
         int realIndex = currentIndex % currentSize;
         KafkaProducerCluster clusterProducer = currentClusterList.get(realIndex);
-        return clusterProducer.send(event, tx);
+        return clusterProducer.send(profileEvent, tx);
     }
 
     /** Init ScheduledExecutorService with fix reload rate {@link #reloadInterval}. */
