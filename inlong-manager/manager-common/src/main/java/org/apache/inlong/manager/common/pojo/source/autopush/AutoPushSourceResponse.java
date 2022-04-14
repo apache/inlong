@@ -32,9 +32,9 @@ import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Response of DataProxy SDK source")
-public class DataProxySDKSourceResponse extends SourceResponse {
+public class AutoPushSourceResponse extends SourceResponse {
 
-    public DataProxySDKSourceResponse() {
+    public AutoPushSourceResponse() {
         this.setSourceType(SourceType.AUTO_PUSH.name());
     }
 

@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Response of DataProxy SDK source paging list")
-public class DataProxySDKSourceListResponse extends SourceListResponse {
+public class AutoPushSourceListResponse extends SourceListResponse {
 
     @ApiModelProperty(value = "DataProxy group name, "
             + "the name used for local configuration when the user enables local configuration")

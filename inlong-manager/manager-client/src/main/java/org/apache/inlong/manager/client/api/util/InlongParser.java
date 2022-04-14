@@ -39,9 +39,9 @@ import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.autopush.DataProxySDKSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.autopush.DataProxySDKSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.autopush.DataProxySDKSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.file.FileSourceListResponse;
@@ -144,9 +144,9 @@ public class InlongParser {
                         sourceResponses.add(fileSourceResponse);
                         break;
                     case AUTO_PUSH:
-                        DataProxySDKSourceResponse dataProxySDKSourceResponse = GsonUtil.fromJson(sourceJson.toString(),
-                                DataProxySDKSourceRequest.class);
-                        sourceResponses.add(dataProxySDKSourceResponse);
+                        AutoPushSourceResponse autoPushSourceResponse = GsonUtil.fromJson(sourceJson.toString(),
+                                AutoPushSourceRequest.class);
+                        sourceResponses.add(autoPushSourceResponse);
                         break;
                     default:
                         throw new RuntimeException(String.format("Unsupport sourceType=%s for Inlong", sourceType));
@@ -214,7 +214,7 @@ public class InlongParser {
                             }.getType());
                 case AUTO_PUSH:
                     return GsonUtil.fromJson(pageInfoJson,
-                            new TypeToken<PageInfo<DataProxySDKSourceListResponse>>() {
+                            new TypeToken<PageInfo<AutoPushSourceListResponse>>() {
                             }.getType());
                 default:
                     throw new IllegalArgumentException(

@@ -22,9 +22,9 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.autopush.DataProxySDKSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.autopush.DataProxySDKSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.autopush.DataProxySDKSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceDTO;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
@@ -39,17 +39,17 @@ import java.util.function.Supplier;
  * DataProxy SDK source operation
  */
 @Service
-public class DataProxySDKSourceOperation extends AbstractSourceOperation {
+public class AutoPushSourceOperation extends AbstractSourceOperation {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
-        DataProxySDKSourceRequest sourceRequest = (DataProxySDKSourceRequest) request;
+        AutoPushSourceRequest sourceRequest = (AutoPushSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            DataProxySDKSourceDTO dto = DataProxySDKSourceDTO.getFromRequest(sourceRequest);
+            AutoPushSourceDTO dto = AutoPushSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
@@ -63,7 +63,7 @@ public class DataProxySDKSourceOperation extends AbstractSourceOperation {
 
     @Override
     protected SourceResponse getResponse() {
-        return new DataProxySDKSourceResponse();
+        return new AutoPushSourceResponse();
     }
 
     @Override
@@ -80,7 +80,7 @@ public class DataProxySDKSourceOperation extends AbstractSourceOperation {
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
                 String.format(SourceType.SOURCE_TYPE_NOT_SAME, getSourceType(), existType));
-        DataProxySDKSourceDTO dto = DataProxySDKSourceDTO.getFromJson(entity.getExtParams());
+        AutoPushSourceDTO dto = AutoPushSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
         return result;

@@ -32,7 +32,7 @@ import org.apache.inlong.manager.common.enums.SourceType;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel("Base configuration for DataProxy SDK collection")
-public class DataProxySDKSource extends StreamSource {
+public class AutoPushSource extends StreamSource {
 
     @ApiModelProperty(value = "DataSource type", required = true)
     private SourceType sourceType = SourceType.AUTO_PUSH;

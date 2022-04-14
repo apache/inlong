@@ -34,13 +34,13 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Request of the binlog source info")
 @JsonTypeDefine(value = SourceType.SOURCE_AUTO_PUSH)
-public class DataProxySDKSourceRequest extends SourceRequest {
+public class AutoPushSourceRequest extends SourceRequest {
 
     @ApiModelProperty(value = "DataProxy group name, "
             + "the name used for local configuration when the user enables local configuration")
     private String dataProxyGroup;
 
-    public DataProxySDKSourceRequest() {
+    public AutoPushSourceRequest() {
         this.setSourceType(SourceType.AUTO_PUSH.toString());
     }
 

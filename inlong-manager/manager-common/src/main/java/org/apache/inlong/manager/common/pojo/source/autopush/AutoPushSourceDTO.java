@@ -36,7 +36,7 @@ import javax.validation.constraints.NotNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataProxySDKSourceDTO {
+public class AutoPushSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -44,16 +44,16 @@ public class DataProxySDKSourceDTO {
             + "the name used for local configuration when the user enables local configuration")
     private String dataProxyGroup;
 
-    public static DataProxySDKSourceDTO getFromRequest(DataProxySDKSourceRequest request) {
-        return DataProxySDKSourceDTO.builder()
+    public static AutoPushSourceDTO getFromRequest(AutoPushSourceRequest request) {
+        return AutoPushSourceDTO.builder()
                 .dataProxyGroup(request.getDataProxyGroup())
                 .build();
     }
 
-    public static DataProxySDKSourceDTO getFromJson(@NotNull String extParams) {
+    public static AutoPushSourceDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, DataProxySDKSourceDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, AutoPushSourceDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }
