@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class InlongCommandTool {
+public class CommandToolMain {
 
     protected final Map<String, Class<?>> commandMap = new HashMap<>();
     private final JCommander jcommander;
@@ -33,7 +33,7 @@ public class InlongCommandTool {
     @Parameter(names = {"-h", "--help"}, help = true, description = "Get all command about managerctl.")
     boolean help;
 
-    InlongCommandTool() {
+    CommandToolMain() {
         jcommander = new JCommander();
         jcommander.setProgramName("managerctl");
         jcommander.addObject(this);
@@ -58,7 +58,7 @@ public class InlongCommandTool {
     }
 
     public static void main(String[] args) {
-        InlongCommandTool inlongAdminTool = new InlongCommandTool();
+        CommandToolMain inlongAdminTool = new CommandToolMain();
         if (inlongAdminTool.run(args)) {
             System.exit(0);
         } else {
