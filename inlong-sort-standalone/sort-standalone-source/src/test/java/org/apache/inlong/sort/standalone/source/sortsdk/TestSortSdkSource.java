@@ -21,6 +21,7 @@ import org.apache.flume.Context;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.junit.Assert;
 import org.junit.Before;
@@ -28,6 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
@@ -36,8 +38,13 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SortClusterConfigHolder.class, LoggerFactory.class, Logger.class, MetricRegister.class})
+@PowerMockIgnore("javax.management.*")
+@PrepareForTest({SortClusterConfigHolder.class, LoggerFactory.class, Logger.class, MetricRegister.class,
+        AdminServiceRegister.class})
 public class TestSortSdkSource {
 
     private Context mockContext;
@@ -57,6 +64,12 @@ public class TestSortSdkSource {
 
     @Test
     public void testRun() {
+        PowerMockito.mockStatic(AdminServiceRegister.class);
+        try {
+            PowerMockito.doNothing().when(AdminServiceRegister.class, "register", anyString(), anyString(), any());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         SortSdkSource testSource = new SortSdkSource();
         testSource.configure(mockContext);
         testSource.run();
