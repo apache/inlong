@@ -51,7 +51,7 @@ import org.apache.inlong.tubemq.client.producer.MessageSentResult;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

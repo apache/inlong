@@ -117,7 +117,7 @@
 
         <dependency>
             <groupId>org.apache.pulsar</groupId>
-            <artifactId>pulsar-client-original</artifactId>
+            <artifactId>pulsar-client</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>javax.validation</groupId>
@@ -153,7 +153,7 @@
 
         <dependency>
             <groupId>org.apache.pulsar</groupId>
-            <artifactId>pulsar-client-admin-original</artifactId>
+            <artifactId>pulsar-client-admin</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>javax.validation</groupId>

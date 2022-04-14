@@ -18,7 +18,6 @@
 package org.apache.inlong.sort.standalone.sink.kafka;
 
 import com.google.common.base.Preconditions;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;
@@ -29,6 +28,7 @@ import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+import org.apache.pulsar.shade.org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.util.Map;

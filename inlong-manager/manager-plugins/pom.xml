@@ -36,24 +36,6 @@
             <artifactId>manager-common</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.pulsar</groupId>
-                    <artifactId>pulsar-client-original</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.pulsar</groupId>
-                    <artifactId>pulsar-client-admin-original</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-web</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-validation</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>

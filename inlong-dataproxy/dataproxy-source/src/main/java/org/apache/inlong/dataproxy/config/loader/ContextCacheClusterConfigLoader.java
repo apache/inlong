@@ -26,7 +26,7 @@ import java.util.Set;
 
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.pulsar.shade.org.apache.commons.lang3.StringUtils;
 
 /**
  * 
