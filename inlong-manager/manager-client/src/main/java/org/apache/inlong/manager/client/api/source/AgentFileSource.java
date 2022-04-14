@@ -37,10 +37,10 @@ public class AgentFileSource extends StreamSource {
     @ApiModelProperty(value = "DataSource type", required = true)
     private SourceType sourceType = SourceType.FILE;
 
-    @ApiModelProperty("SyncType for Kafka")
+    @ApiModelProperty("SyncType for File")
     private SyncType syncType = SyncType.INCREMENT;
 
-    @ApiModelProperty("Data format type for kafka")
+    @ApiModelProperty("Data format type")
     private DataFormat dataFormat = DataFormat.NONE;
 
     @ApiModelProperty(value = "Agent IP address", required = true)
