@@ -19,6 +19,8 @@ package org.apache.inlong.dataproxy.http;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+import java.util.EnumSet;
+import javax.servlet.DispatcherType;
 import org.apache.inlong.common.monitor.CounterGroup;
 import org.apache.inlong.common.monitor.CounterGroupExt;
 import java.lang.reflect.Constructor;
@@ -29,14 +31,18 @@ import org.apache.inlong.dataproxy.config.remote.ConfigMessageServlet;
 import org.apache.inlong.dataproxy.source.ServiceDecoder;
 import org.apache.flume.source.http.HTTPSource;
 import org.apache.flume.source.http.HTTPSourceConfigurationConstants;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.nio.SelectChannelConnector;
-import org.mortbay.jetty.security.SslSocketConnector;
-import org.mortbay.jetty.servlet.FilterHolder;
-import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.thread.QueuedThreadPool;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,38 +126,40 @@ public class SimpleHttpSource
             messageHandler = (MessageHandler) ctor
                     .newInstance(getChannelProcessor(), counterGroup, counterGroupExt, null);
             messageHandler.configure(new Context(subProps));
-            srv = new Server();
+            srv = new Server(new QueuedThreadPool(threadPoolSize));
             Connector[] connectors = new Connector[1];
             if (sslEnabled) {
-                SslSocketConnector sslSocketConnector = new SslSocketConnector();
-                sslSocketConnector.setKeystore(keyStorePath);
-                sslSocketConnector.setKeyPassword(keyStorePassword);
-                sslSocketConnector.setReuseAddress(true);
-                connectors[0] = sslSocketConnector;
+                SslContextFactory sslContextFactory = new SslContextFactory(keyStorePath);
+                sslContextFactory.setKeyStorePassword(keyStorePassword);
+                SslConnectionFactory ssl = new SslConnectionFactory(sslContextFactory,
+                        "http/1.1");
+                HttpConfiguration httpsConfig = new HttpConfiguration();
+                httpsConfig.setSecureScheme("https");
+                httpsConfig.setSecurePort(port);
+                httpsConfig.addCustomizer(new SecureRequestCustomizer());
+                ServerConnector http2Connector = new ServerConnector(srv, ssl,
+                        new HttpConnectionFactory(httpsConfig));
+                srv.addConnector(http2Connector);
+                connectors[0] = http2Connector;
                 LOG.info("sslEnabled {}", sslEnabled);
             } else {
-                SelectChannelConnector connector = new SelectChannelConnector();
+                ServerConnector connector = new ServerConnector(srv);
                 connector.setReuseAddress(true);
-                connector.setThreadPool(new QueuedThreadPool(threadPoolSize));
-                connector.setMaxIdleTime(maxIdelTime);
-                connector.setRequestBufferSize(requestBufferSize);
+                connector.setIdleTimeout(maxIdelTime);
+                connector.setAcceptedReceiveBufferSize(requestBufferSize);
                 connector.setAcceptQueueSize(backlog);
                 LOG.info("set config maxIdelTime {}, backlog {}", maxIdelTime, backlog);
                 connectors[0] = connector;
             }
 
-            connectors[0].setHost(host);
-            connectors[0].setPort(port);
             srv.setConnectors(connectors);
 
-            org.mortbay.jetty.servlet.Context servletContext =
-                    new org.mortbay.jetty.servlet.Context(srv, "/",
-                            org.mortbay.jetty.servlet.Context.SESSIONS);
+            ServletContextHandler servletContext =
+                    new ServletContextHandler(srv, "/", ServletContextHandler.SESSIONS);
             servletContext.setMaxFormContentSize(maxMsgLength);
-
             servletContext
                     .addFilter(new FilterHolder(new MessageFilter(maxMsgLength)), "/dataproxy/*",
-                            Handler.REQUEST);
+                            EnumSet.of(DispatcherType.REQUEST));
             servletContext.addServlet(new ServletHolder(new MessageProcessServlet(messageHandler)),
                     "/dataproxy/*");
             servletContext.addServlet(new ServletHolder(new ConfigMessageServlet()),
