@@ -135,6 +135,7 @@
   "components.AccessHelper.FieldsConfig.dataFields.AutoConsumption": "Auto Consumption",
   "components.AccessHelper.FieldsConfig.dataFields.DataFlowDirection": "Data stream direction",
   "components.AccessHelper.FieldsConfig.dataFields.DataType": "DataType",
+  "components.AccessHelper.FieldsConfig.dataFields.DataTypeCsvHelp": "CSV: Any file separated by a specific delimiter",
   "components.AccessHelper.FieldsConfig.dataFields.Source": "Source",
   "components.AccessHelper.FieldsConfig.dataFields.FieldType": "FieldType",
   "components.AccessHelper.FieldsConfig.dataFields.FieldComment": "FieldComment",
