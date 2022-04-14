@@ -112,7 +112,8 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                 consumer.acknowledgeAsync(messageId)
                         .thenAccept(consumer -> ackSucc(msgOffset))
                         .exceptionally(exception -> {
-                            logger.error("ack fail:{} {},error:{}", inLongTopic, msgOffset, exception.getMessage(), exception);
+                            logger.error("ack fail:{} {},error:{}", 
+                                    inLongTopic, msgOffset, exception.getMessage(), exception);
                             context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
                                     inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                                     .addAckFailTimes(1L);
