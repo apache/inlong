@@ -100,7 +100,11 @@
         <!--for pulsar-->
         <dependency>
             <groupId>org.apache.pulsar</groupId>
-            <artifactId>pulsar-client-all</artifactId>
+            <artifactId>pulsar-client-original</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.pulsar</groupId>
+            <artifactId>pulsar-client-admin-original</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>

@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.standalone.sink.kafka;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;
@@ -34,7 +35,6 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 
 import java.util.HashMap;

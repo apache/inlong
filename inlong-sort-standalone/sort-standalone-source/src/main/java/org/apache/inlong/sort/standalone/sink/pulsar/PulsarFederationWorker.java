@@ -30,7 +30,7 @@ import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 
 /**
