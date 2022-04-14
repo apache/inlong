@@ -57,6 +57,8 @@ public class SerializationUtils {
                 return deserializeForKafka((KafkaSourceResponse) sourceResponse, streamInfo);
             case FILE:
                 return deserializeForFile(streamInfo);
+            case AUTO_PUSH:
+                return deserializeForAutoPush(streamInfo);
             default:
                 throw new IllegalArgumentException(String.format("Unsupported sourceType: %s", sourceType));
         }
@@ -149,6 +151,26 @@ public class SerializationUtils {
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported data type for File source: %s", dataType));
+        }
+    }
+
+    /**
+     * Get deserialization info for DataProxy SDK source
+     */
+    private static DeserializationInfo deserializeForAutoPush(InlongStreamInfo streamInfo) {
+        String dataType = streamInfo.getDataType();
+        DataTypeEnum typeEnum = DataTypeEnum.forName(dataType);
+        switch (typeEnum) {
+            case CSV:
+                char separator = streamInfo.getDataSeparator().toCharArray()[0];
+                return new CsvDeserializationInfo(separator);
+            case AVRO:
+                return new AvroDeserializationInfo();
+            case JSON:
+                return new JsonDeserializationInfo();
+            default:
+                throw new IllegalArgumentException(
+                        String.format("Unsupported data type for DataProxy SDK source: %s", dataType));
         }
     }
 }

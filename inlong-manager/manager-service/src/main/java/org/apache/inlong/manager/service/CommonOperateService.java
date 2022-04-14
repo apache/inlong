@@ -203,7 +203,6 @@ public class CommonOperateService {
     public DataFlowInfo createDataFlow(InlongGroupInfo groupInfo, SinkResponse sinkResponse) {
         String groupId = sinkResponse.getInlongGroupId();
         String streamId = sinkResponse.getInlongStreamId();
-        // TODO Support all source type, include AUTO_PUSH.
         List<SourceResponse> sourceList = streamSourceService.listSource(groupId, streamId);
         if (CollectionUtils.isEmpty(sourceList)) {
             throw new WorkflowListenerException(String.format("Source not found by groupId=%s and streamId=%s",

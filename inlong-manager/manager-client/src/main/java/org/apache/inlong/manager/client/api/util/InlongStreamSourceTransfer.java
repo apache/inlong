@@ -27,12 +27,16 @@ import org.apache.inlong.manager.client.api.StreamSource.State;
 import org.apache.inlong.manager.client.api.StreamSource.SyncType;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.source.AgentFileSource;
+import org.apache.inlong.manager.client.api.source.AutoPushSource;
 import org.apache.inlong.manager.client.api.source.KafkaSource;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
@@ -60,6 +64,8 @@ public class InlongStreamSourceTransfer {
                 return createBinlogSourceRequest((MySQLBinlogSource) streamSource, streamInfo);
             case FILE:
                 return createFileSourceRequest((AgentFileSource) streamSource, streamInfo);
+            case AUTO_PUSH:
+                return createAutoPushSourceRequest((AutoPushSource) streamSource, streamInfo);
             default:
                 throw new RuntimeException(String.format("Unsupported source=%s for Inlong", sourceType));
         }
@@ -77,6 +83,9 @@ public class InlongStreamSourceTransfer {
         if (sourceType == SourceType.FILE && sourceResponse instanceof FileSourceResponse) {
             return parseAgentFileSource((FileSourceResponse) sourceResponse);
         }
+        if (sourceType == SourceType.AUTO_PUSH && sourceResponse instanceof AutoPushSourceResponse) {
+            return parseAutoPushSource((AutoPushSourceResponse) sourceResponse);
+        }
         throw new IllegalArgumentException(String.format("Unsupported source type : %s for Inlong", sourceType));
     }
 
@@ -91,6 +100,9 @@ public class InlongStreamSourceTransfer {
         }
         if (sourceType == SourceType.FILE && sourceListResponse instanceof FileSourceListResponse) {
             return parseAgentFileSource((FileSourceListResponse) sourceListResponse);
+        }
+        if (sourceType == SourceType.AUTO_PUSH && sourceListResponse instanceof AutoPushSourceListResponse) {
+            return parseAutoPushSource((AutoPushSourceListResponse) sourceListResponse);
         }
         throw new IllegalArgumentException(String.format("Unsupported source type : %s for Inlong", sourceType));
     }
@@ -210,6 +222,24 @@ public class InlongStreamSourceTransfer {
         return fileSource;
     }
 
+    private static AutoPushSource parseAutoPushSource(AutoPushSourceResponse response) {
+        AutoPushSource autoPushSource = new AutoPushSource();
+        autoPushSource.setSourceName(response.getSourceName());
+        autoPushSource.setState(State.parseByStatus(response.getStatus()));
+        autoPushSource.setDataFormat(DataFormat.NONE);
+        autoPushSource.setDataProxyGroup(response.getDataProxyGroup());
+        return autoPushSource;
+    }
+
+    private static AutoPushSource parseAutoPushSource(AutoPushSourceListResponse response) {
+        AutoPushSource autoPushSource = new AutoPushSource();
+        autoPushSource.setSourceName(response.getSourceName());
+        autoPushSource.setState(State.parseByStatus(response.getStatus()));
+        autoPushSource.setDataFormat(DataFormat.NONE);
+        autoPushSource.setDataProxyGroup(response.getDataProxyGroup());
+        return autoPushSource;
+    }
+
     private static KafkaSourceRequest createKafkaSourceRequest(KafkaSource kafkaSource, InlongStreamInfo stream) {
         KafkaSourceRequest sourceRequest = new KafkaSourceRequest();
         sourceRequest.setSourceName(kafkaSource.getSourceName());
@@ -278,6 +308,20 @@ public class InlongStreamSourceTransfer {
         }
         sourceRequest.setPattern(fileSource.getPattern());
         sourceRequest.setTimeOffset(fileSource.getTimeOffset());
+        return sourceRequest;
+    }
+
+    private static AutoPushSourceRequest createAutoPushSourceRequest(AutoPushSource source,
+            InlongStreamInfo streamInfo) {
+        AutoPushSourceRequest sourceRequest = new AutoPushSourceRequest();
+        sourceRequest.setSourceName(source.getSourceName());
+        if (StringUtils.isEmpty(sourceRequest.getSourceName())) {
+            sourceRequest.setSourceName(streamInfo.getName());
+        }
+        sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
+        sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+        sourceRequest.setSourceType(source.getSourceType().getType());
+        sourceRequest.setDataProxyGroup(source.getDataProxyGroup());
         return sourceRequest;
     }
 }
