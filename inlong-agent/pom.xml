@@ -38,38 +38,4 @@
         <module>agent-release</module>
         <module>agent-docker</module>
     </modules>
-
-    <properties>
-        <guava.version>30.0-jre</guava.version>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <artifactId>inlong-common</artifactId>
-                <groupId>org.apache.inlong</groupId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <artifactId>agent-common</artifactId>
-                <groupId>org.apache.tubemq</groupId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <artifactId>agent-core</artifactId>
-                <groupId>org.apache.inlong</groupId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <artifactId>agent-plugins</artifactId>
-                <groupId>org.apache.inlong</groupId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <artifactId>guava</artifactId>
-                <groupId>com.google.guava</groupId>
-                <version>${guava.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>

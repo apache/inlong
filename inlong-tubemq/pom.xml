@@ -71,12 +71,6 @@
         <module>tubemq-docker</module>
     </modules>
 
-    <properties>
-        <exec.maven.version>1.6.0</exec.maven.version>
-        <plugin.assembly.version>3.3.0</plugin.assembly.version>
-        <build.helper.maven.version>3.0.0</build.helper.maven.version>
-    </properties>
-
     <repositories>
         <!-- For the BDB JE dependency -->
         <repository>
@@ -127,7 +121,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>${plugin.maven.source}</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>

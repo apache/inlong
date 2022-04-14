@@ -111,6 +111,9 @@
         <plugin.assembly.version>3.2.0</plugin.assembly.version>
         <plugin.surefire.version>2.22.2</plugin.surefire.version>
         <plugin.failsafe.version>2.22.2</plugin.failsafe.version>
+        <plugin.maven.source>3.0.1</plugin.maven.source>
+        <exec.maven.version>1.6.0</exec.maven.version>
+        <build.helper.maven.version>3.0.0</build.helper.maven.version>
 
         <checkstyle.version>6.19</checkstyle.version>
         <dockerfile.maven.version>1.4.13</dockerfile.maven.version>
@@ -165,10 +168,7 @@
 
         <guava.version>19.0</guava.version>
         <lombok.version>1.18.22</lombok.version>
-        <mortbay.jetty.servlet.api.version>3.0.20100224</mortbay.jetty.servlet.api.version>
-        <mortbay.jetty.servlet.version>6.1.26</mortbay.jetty.servlet.version>
         <jetty.version>9.4.44.v20210927</jetty.version>
-        <jetty.servlet.version>2.5-20110124</jetty.servlet.version>
         <opencsv.version>5.4</opencsv.version>
         <javax.servlet.api.version>4.0.1</javax.servlet.api.version>
 
@@ -223,6 +223,7 @@
         <jsr.version>3.0.2</jsr.version>
         <jcommander.version>1.78</jcommander.version>
         <je.version>7.3.7</je.version>
+        <tencentcloud.cls.version>1.0.5</tencentcloud.cls.version>
     </properties>
 
     <dependencyManagement>
@@ -247,6 +248,25 @@
                 <groupId>org.apache.flume</groupId>
                 <artifactId>flume-ng-configuration</artifactId>
                 <version>${flume.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.flume.flume-ng-sinks</groupId>
+                <artifactId>flume-hdfs-sink</artifactId>
+                <version>${flume.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-io</groupId>
+                        <artifactId>commons-io</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-annotations</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- hive -->
@@ -374,6 +394,33 @@
                     <exclusion>
                         <groupId>org.apache.avro</groupId>
                         <artifactId>avro</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-hdfs</artifactId>
+                <version>${hadoop.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-slf4j-impl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>protobuf-java</artifactId>
+                        <groupId>com.google.protobuf</groupId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -647,17 +694,6 @@
                 <artifactId>netty-transport-native-epoll</artifactId>
                 <version>${netty.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>${mortbay.jetty.servlet.api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>jetty</artifactId>
-                <version>${mortbay.jetty.servlet.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
@@ -1077,16 +1113,7 @@
                 <artifactId>velocity-engine-core</artifactId>
                 <version>${velocity.engine.core.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-server</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-servlet</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>org.ini4j</groupId>
                 <artifactId>ini4j</artifactId>
@@ -1227,6 +1254,18 @@
                 <groupId>com.beust</groupId>
                 <artifactId>jcommander</artifactId>
                 <version>${jcommander.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.tencentcloudapi.cls</groupId>
+                <artifactId>tencentcloud-cls-sdk-java</artifactId>
+                <version>${tencentcloud.cls.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>protobuf-java</artifactId>
+                        <groupId>com.google.protobuf</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
