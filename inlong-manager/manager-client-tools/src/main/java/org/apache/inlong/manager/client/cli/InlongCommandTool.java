@@ -26,10 +26,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InlongCommandTool {
+
     protected final Map<String, Class<?>> commandMap = new HashMap<>();
     private final JCommander jcommander;
 
-    @Parameter(names = {"-h", "--help"}, help = true, description = "Get all command about inlong-admin.")
+    @Parameter(names = {"-h", "--help"}, help = true, description = "Get all command about managerctl.")
     boolean help;
 
     InlongCommandTool() {
@@ -39,6 +40,7 @@ public class InlongCommandTool {
 
         commandMap.put("list", CommandList.class);
         commandMap.put("describe", CommandDescribe.class);
+        commandMap.put("create", CommandCreate.class);
 
         for (Map.Entry<String, Class<?>> cmd : commandMap.entrySet()) {
             try {
@@ -55,9 +57,18 @@ public class InlongCommandTool {
         }
     }
 
+    public static void main(String[] args) {
+        InlongCommandTool inlongAdminTool = new InlongCommandTool();
+        if (inlongAdminTool.run(args)) {
+            System.exit(0);
+        } else {
+            System.exit(1);
+        }
+    }
+
     boolean run(String[] args) {
 
-        if (help) {
+        if (help || args.length == 0) {
             jcommander.usage();
             return true;
         }
@@ -74,14 +85,5 @@ public class InlongCommandTool {
         JCommander obj = jcommander.getCommands().get(cmd);
         CommandBase cmdObj = (CommandBase) obj.getObjects().get(0);
         return cmdObj.run(Arrays.copyOfRange(args, 1, args.length));
-    }
-
-    public static void main(String[] args) {
-        InlongCommandTool inlongAdminTool = new InlongCommandTool();
-        if (inlongAdminTool.run(args)) {
-            System.exit(0);
-        } else {
-            System.exit(1);
-        }
     }
 }

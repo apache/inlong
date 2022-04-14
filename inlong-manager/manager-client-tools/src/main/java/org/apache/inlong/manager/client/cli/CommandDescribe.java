@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 
 import java.util.List;
 
-@Parameters(commandDescription = "Display details of one or more resources.")
+@Parameters(commandDescription = "Display details of one or more resources")
 public class CommandDescribe extends CommandBase {
 
     public CommandDescribe() {
@@ -48,13 +48,13 @@ public class CommandDescribe extends CommandBase {
         @Parameter()
         private java.util.List<String> params;
 
-        @Parameter(names = {"-g", "--group"}, required = true, description = "Get stream details by group id.")
+        @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
         private String groupId;
 
         @Override
         void run() {
             try {
-                InnerInlongManagerClient managerClient = connect();
+                InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
                 List<FullStreamResponse> fullStreamResponseList = managerClient.listStreamInfo(groupId);
                 fullStreamResponseList.forEach(response -> printJson(response.getStreamInfo()));
             } catch (Exception e) {
@@ -69,19 +69,19 @@ public class CommandDescribe extends CommandBase {
         @Parameter()
         private java.util.List<String> params;
 
-        @Parameter(names = {"-s", "--status"}, description = "Get group details by status.")
+        @Parameter(names = {"-s", "--status"})
         private int status;
 
-        @Parameter(names = {"-g", "--group"}, description = "Get group details by group id.")
+        @Parameter(names = {"-g", "--group"}, description = "inlong group id")
         private String group;
 
-        @Parameter(names = {"-n", "--num"}, description = "Max number of groups to display.")
+        @Parameter(names = {"-n", "--num"}, description = "the number displayed")
         private int pageSize = 10;
 
         @Override
         void run() {
             try {
-                InnerInlongManagerClient managerClient = connect();
+                InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
                 PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, status, 1, pageSize);
                 groupPageInfo.getList().forEach(this::printJson);
             } catch (Exception e) {
@@ -96,15 +96,15 @@ public class CommandDescribe extends CommandBase {
         @Parameter()
         private java.util.List<String> params;
 
-        @Parameter(names = {"-s", "--stream"}, required = true, description = "stream id")
+        @Parameter(names = {"-s", "--stream"}, required = true, description = "inlong stream id")
         private String stream;
 
-        @Parameter(names = {"-g", "--group"}, required = true, description = "group id")
+        @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
         private String group;
 
         @Override
         void run() {
-            InnerInlongManagerClient managerClient = connect();
+            InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
             try {
                 List<SinkListResponse> sinkListResponses = managerClient.listSinks(group, stream);
                 sinkListResponses.forEach(this::printJson);
@@ -120,10 +120,10 @@ public class CommandDescribe extends CommandBase {
         @Parameter()
         private java.util.List<String> params;
 
-        @Parameter(names = {"-s", "--stream"}, required = true, description = "stream id")
+        @Parameter(names = {"-s", "--stream"}, required = true, description = "inlong stream id")
         private String stream;
 
-        @Parameter(names = {"-g", "--group"}, required = true, description = "group id")
+        @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
         private String group;
 
         @Parameter(names = {"-t", "--type"}, required = true, description = "sink type")
@@ -132,7 +132,7 @@ public class CommandDescribe extends CommandBase {
         @Override
         void run() {
             try {
-                InnerInlongManagerClient managerClient = connect();
+                InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
                 List<SourceListResponse> sourceListResponses = managerClient.listSources(group, stream, type);
                 sourceListResponses.forEach(this::printJson);
             } catch (Exception e) {
