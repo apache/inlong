@@ -38,11 +38,10 @@ import java.util.regex.Pattern;
 public class FlinkUtils {
     public static final String BASE_DIRECTORY = "config";
 
-    /**
-     */
     public static final List<String> FLINK_VERSION_COLLECTION = Arrays.asList("Flink-1.13");
 
     /**
+     * getLatestFlinkVersion
      * @param supportedFlink
      * @return
      */
@@ -116,6 +115,7 @@ public class FlinkUtils {
     }
 
     /**
+     * getConfigDirectory
      * @param name
      * @return
      */
@@ -124,6 +124,7 @@ public class FlinkUtils {
     }
 
     /**
+     * writeConfigToFile
      * @param configJobDirectory
      * @param configFileName
      * @param content

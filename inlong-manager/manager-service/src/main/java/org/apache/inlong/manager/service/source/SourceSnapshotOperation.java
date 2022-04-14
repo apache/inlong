@@ -116,10 +116,14 @@ public class SourceSnapshotOperation implements AutoCloseable {
         String agentIp = request.getAgentIp();
         List<TaskSnapshotMessage> snapshotList = request.getSnapshotList();
         if (CollectionUtils.isEmpty(snapshotList)) {
-            LOGGER.info("receive snapshot from ip={}, but snapshot list is empty", agentIp);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.info("receive snapshot from ip={}, but snapshot list is empty", agentIp);
+            }
             return true;
         }
-        LOGGER.debug("receive snapshot from ip={}, msg size={}", agentIp, snapshotList.size());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("receive snapshot from ip={}, msg size={}", agentIp, snapshotList.size());
+        }
 
         try {
             // Offer the request of snapshot to the queue, and another thread will parse the data in the queue.
