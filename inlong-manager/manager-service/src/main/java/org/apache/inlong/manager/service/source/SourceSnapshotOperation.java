@@ -128,7 +128,9 @@ public class SourceSnapshotOperation implements AutoCloseable {
             // Modify the task status based on the tasks reported in the snapshot and the tasks in the cache.
             ConcurrentHashMap<Integer, Integer> idStatusMap = agentTaskCache.getIfPresent(agentIp);
             if (MapUtils.isEmpty(idStatusMap)) {
-                LOGGER.info("success report snapshot for ip={}, task status cache is null", agentIp);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("success report snapshot for ip={}, task status cache is null", agentIp);
+                }
                 return true;
             }
             boolean isInvalid = false;
