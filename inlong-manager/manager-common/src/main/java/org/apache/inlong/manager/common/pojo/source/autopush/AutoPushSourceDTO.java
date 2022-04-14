@@ -40,8 +40,7 @@ public class AutoPushSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty(value = "DataProxy group name, "
-            + "the name used for local configuration when the user enables local configuration")
+    @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")
     private String dataProxyGroup;
 
     public static AutoPushSourceDTO getFromRequest(AutoPushSourceRequest request) {

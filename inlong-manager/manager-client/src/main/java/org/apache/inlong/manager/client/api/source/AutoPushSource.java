@@ -31,19 +31,18 @@ import org.apache.inlong.manager.common.enums.SourceType;
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel("Base configuration for DataProxy SDK collection")
+@ApiModel("Base configuration for AutoPush collection")
 public class AutoPushSource extends StreamSource {
 
     @ApiModelProperty(value = "DataSource type", required = true)
     private SourceType sourceType = SourceType.AUTO_PUSH;
 
-    @ApiModelProperty("SyncType for Kafka")
+    @ApiModelProperty("SyncType")
     private SyncType syncType = SyncType.INCREMENT;
 
-    @ApiModelProperty("Data format type for kafka")
+    @ApiModelProperty("Data format type")
     private DataFormat dataFormat = DataFormat.NONE;
 
-    @ApiModelProperty(value = "DataProxy group name, "
-            + "the name used for local configuration when the user enables local configuration")
+    @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")
     private String dataProxyGroup;
 }
