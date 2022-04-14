@@ -18,8 +18,8 @@
 package org.apache.inlong.dataproxy.config.pojo;
 
 import org.apache.flume.Context;
-import org.apache.pulsar.shade.io.netty.util.NettyRuntime;
-import org.apache.pulsar.shade.io.netty.util.internal.SystemPropertyUtil;
+import io.netty.util.NettyRuntime;
+import io.netty.util.internal.SystemPropertyUtil;
 
 import java.util.HashMap;
 import java.util.Map;

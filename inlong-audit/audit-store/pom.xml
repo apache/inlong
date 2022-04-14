@@ -129,7 +129,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.pulsar</groupId>
-            <artifactId>pulsar-client</artifactId>
+            <artifactId>pulsar-client-original</artifactId>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
