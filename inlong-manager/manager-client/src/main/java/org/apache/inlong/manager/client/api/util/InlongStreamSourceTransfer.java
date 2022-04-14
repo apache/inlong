@@ -27,12 +27,16 @@ import org.apache.inlong.manager.client.api.StreamSource.State;
 import org.apache.inlong.manager.client.api.StreamSource.SyncType;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.source.AgentFileSource;
+import org.apache.inlong.manager.client.api.source.DataProxySDKSource;
 import org.apache.inlong.manager.client.api.source.KafkaSource;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.autopush.DataProxySDKSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.autopush.DataProxySDKSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.autopush.DataProxySDKSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
@@ -60,6 +64,8 @@ public class InlongStreamSourceTransfer {
                 return createBinlogSourceRequest((MySQLBinlogSource) streamSource, streamInfo);
             case FILE:
                 return createFileSourceRequest((AgentFileSource) streamSource, streamInfo);
+            case AUTO_PUSH:
+                return createDataProxySDKSourceRequest((DataProxySDKSource) streamSource, streamInfo);
             default:
                 throw new RuntimeException(String.format("Unsupported source=%s for Inlong", sourceType));
         }
@@ -77,6 +83,9 @@ public class InlongStreamSourceTransfer {
         if (sourceType == SourceType.FILE && sourceResponse instanceof FileSourceResponse) {
             return parseAgentFileSource((FileSourceResponse) sourceResponse);
         }
+        if (sourceType == SourceType.AUTO_PUSH && sourceResponse instanceof DataProxySDKSourceResponse) {
+            return parseDataProxySDKSource((DataProxySDKSourceResponse) sourceResponse);
+        }
         throw new IllegalArgumentException(String.format("Unsupported source type : %s for Inlong", sourceType));
     }
 
@@ -91,6 +100,9 @@ public class InlongStreamSourceTransfer {
         }
         if (sourceType == SourceType.FILE && sourceListResponse instanceof FileSourceListResponse) {
             return parseAgentFileSource((FileSourceListResponse) sourceListResponse);
+        }
+        if (sourceType == SourceType.AUTO_PUSH && sourceListResponse instanceof DataProxySDKSourceListResponse) {
+            return parseDataProxySDKSource((DataProxySDKSourceListResponse) sourceListResponse);
         }
         throw new IllegalArgumentException(String.format("Unsupported source type : %s for Inlong", sourceType));
     }
@@ -210,6 +222,24 @@ public class InlongStreamSourceTransfer {
         return fileSource;
     }
 
+    private static DataProxySDKSource parseDataProxySDKSource(DataProxySDKSourceResponse response) {
+        DataProxySDKSource dataProxySDKSource = new DataProxySDKSource();
+        dataProxySDKSource.setSourceName(response.getSourceName());
+        dataProxySDKSource.setState(State.parseByStatus(response.getStatus()));
+        dataProxySDKSource.setDataFormat(DataFormat.NONE);
+        dataProxySDKSource.setDataProxyGroup(response.getDataProxyGroup());
+        return dataProxySDKSource;
+    }
+
+    private static DataProxySDKSource parseDataProxySDKSource(DataProxySDKSourceListResponse response) {
+        DataProxySDKSource dataProxySDKSource = new DataProxySDKSource();
+        dataProxySDKSource.setSourceName(response.getSourceName());
+        dataProxySDKSource.setState(State.parseByStatus(response.getStatus()));
+        dataProxySDKSource.setDataFormat(DataFormat.NONE);
+        dataProxySDKSource.setDataProxyGroup(response.getDataProxyGroup());
+        return dataProxySDKSource;
+    }
+
     private static KafkaSourceRequest createKafkaSourceRequest(KafkaSource kafkaSource, InlongStreamInfo stream) {
         KafkaSourceRequest sourceRequest = new KafkaSourceRequest();
         sourceRequest.setSourceName(kafkaSource.getSourceName());
@@ -278,6 +308,20 @@ public class InlongStreamSourceTransfer {
         }
         sourceRequest.setPattern(fileSource.getPattern());
         sourceRequest.setTimeOffset(fileSource.getTimeOffset());
+        return sourceRequest;
+    }
+
+    private static DataProxySDKSourceRequest createDataProxySDKSourceRequest(DataProxySDKSource source,
+            InlongStreamInfo streamInfo) {
+        DataProxySDKSourceRequest sourceRequest = new DataProxySDKSourceRequest();
+        sourceRequest.setSourceName(source.getSourceName());
+        if (StringUtils.isEmpty(sourceRequest.getSourceName())) {
+            sourceRequest.setSourceName(streamInfo.getName());
+        }
+        sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
+        sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+        sourceRequest.setSourceType(source.getSourceType().getType());
+        sourceRequest.setDataProxyGroup(source.getDataProxyGroup());
         return sourceRequest;
     }
 }

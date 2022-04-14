@@ -33,10 +33,12 @@ public enum SourceType {
     BINLOG("BINLOG", TaskTypeEnum.BINLOG),
     KAFKA("KAFKA", TaskTypeEnum.KAFKA);
 
+    public static final String SOURCE_AUTO_PUSH = "AUTO_PUSH";
     public static final String SOURCE_FILE = "FILE";
     public static final String SOURCE_SQL = "SQL";
     public static final String SOURCE_BINLOG = "BINLOG";
     public static final String SOURCE_KAFKA = "KAFKA";
+
     public static final String SOURCE_TYPE_IS_EMPTY = "Source type is empty";
     public static final String SOURCE_TYPE_NOT_SAME = "Expected source type is %s, but found %s";
 
