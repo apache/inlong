@@ -149,7 +149,7 @@ public class InlongParser {
                         sourceResponses.add(autoPushSourceResponse);
                         break;
                     default:
-                        throw new RuntimeException(String.format("Unsupport sourceType=%s for Inlong", sourceType));
+                        throw new RuntimeException(String.format("Unsupported sourceType=%s for Inlong", sourceType));
                 }
             }
 
@@ -183,7 +183,7 @@ public class InlongParser {
                         sinkResponses.add(clickHouseSinkResponse);
                         break;
                     default:
-                        throw new RuntimeException(String.format("Unsupport sinkType=%s for Inlong", sinkType));
+                        throw new RuntimeException(String.format("Unsupported sinkType=%s for Inlong", sinkType));
                 }
             }
         }

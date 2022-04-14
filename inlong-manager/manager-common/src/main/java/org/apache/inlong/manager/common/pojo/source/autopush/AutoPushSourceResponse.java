@@ -34,11 +34,10 @@ import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 @ApiModel(value = "Response of DataProxy SDK source")
 public class AutoPushSourceResponse extends SourceResponse {
 
+    @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")
+    private String dataProxyGroup;
+
     public AutoPushSourceResponse() {
         this.setSourceType(SourceType.AUTO_PUSH.name());
     }
-
-    @ApiModelProperty(value = "DataProxy group name, "
-            + "the name used for local configuration when the user enables local configuration")
-    private String dataProxyGroup;
 }
