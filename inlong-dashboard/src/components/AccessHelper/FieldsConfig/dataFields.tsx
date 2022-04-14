@@ -127,35 +127,12 @@ export default (
     },
     {
       type: 'radio',
-      label: '同步类型',
-      name: 'syncType',
-      initialValue: currentValues.syncType ?? 0,
-      props: {
-        options: [
-          {
-            label: '全量',
-            value: 0,
-          },
-          {
-            label: '增量',
-            value: 1,
-          },
-        ],
-      },
-      rules: [{ required: true }],
-      visible: values => currentValues.dataSourceType === 'BINLOG',
-    },
-    {
-      type: 'radio',
       label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataType'),
       name: 'dataType',
-      initialValue: currentValues.dataType ?? 'TEXT',
+      initialValue: currentValues.dataType ?? 'CSV',
+      tooltip: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataTypeCsvHelp'),
       props: {
         options: [
-          {
-            label: 'TEXT',
-            value: 'TEXT',
-          },
           {
             label: 'CSV',
             value: 'CSV',
@@ -247,7 +224,7 @@ export default (
       ],
       visible: values =>
         (values.dataSourceType === 'FILE' || values.dataSourceType === 'AUTO_PUSH') &&
-        (values.dataType === 'TEXT' || values.dataType === 'CSV'),
+        values.dataType === 'CSV',
     },
     {
       type: (

@@ -185,6 +185,8 @@
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>false</overWriteSnapshots>
                             <overWriteIfNewer>true</overWriteIfNewer>
+                            <excludeGroupIds>junit,org.powermock,org.junit.jupiter,org.opentest4j,org.junit.platform,org.xmlunit,org.hamcrest</excludeGroupIds>
+                            <excludeArtifactIds>spring-test,spring-boot-test,spring-boot-starter-test,spring-boot-test-autoconfigure,manager-test,assertj-core,jsonassert</excludeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>

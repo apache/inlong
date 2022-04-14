@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import java.nio.file.Path;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.sources.snapshot.BinlogSnapshotBase;
@@ -25,19 +24,21 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class TestBinlogOffsetManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestBinlogOffsetManager.class);
-    private static Path testDir;
     private static AgentBaseTestsHelper helper;
+    private static final String fileName = "test.txt";
+    private static Path filePath;
 
     @BeforeClass
     public static void setup() {
         helper = new AgentBaseTestsHelper(TestBinlogOffsetManager.class.getName()).setupAgentHome();
-        testDir = helper.getTestRootDir();
+        Path testDir = helper.getTestRootDir();
+        filePath = Paths.get(testDir.toString(), fileName);
     }
 
     @AfterClass
@@ -47,7 +48,7 @@ public class TestBinlogOffsetManager {
 
     @Test
     public void testOffset() {
-        BinlogSnapshotBase snapshotManager = new BinlogSnapshotBase(testDir.toString());
+        BinlogSnapshotBase snapshotManager = new BinlogSnapshotBase(filePath.toString());
         byte[] snapshotBytes = new byte[]{-65, -14, -23};
         final Base64 base64 = new Base64();
         String encodeSnapshot = base64.encodeAsString(snapshotBytes);

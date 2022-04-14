@@ -135,6 +135,7 @@
   "components.AccessHelper.FieldsConfig.dataFields.AutoConsumption": "自主消费",
   "components.AccessHelper.FieldsConfig.dataFields.DataFlowDirection": "数据流向",
   "components.AccessHelper.FieldsConfig.dataFields.DataType": "数据格式",
+  "components.AccessHelper.FieldsConfig.dataFields.DataTypeCsvHelp": "CSV：按特定分隔符分隔的任意文件",
   "components.AccessHelper.FieldsConfig.dataFields.Source": "消息来源",
   "components.AccessHelper.FieldsConfig.dataFields.FieldType": "字段类型",
   "components.AccessHelper.FieldsConfig.dataFields.FieldComment": "字段描述",
