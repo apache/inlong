@@ -35,16 +35,19 @@
             <directory>../bin</directory>
             <outputDirectory>bin</outputDirectory>
             <fileMode>0755</fileMode>
+            <lineEnding>unix</lineEnding>
         </fileSet>
         <fileSet>
             <directory>../sql</directory>
             <outputDirectory>sql</outputDirectory>
             <fileMode>0644</fileMode>
+            <lineEnding>unix</lineEnding>
         </fileSet>
         <fileSet>
             <directory>../conf</directory>
             <outputDirectory>conf</outputDirectory>
             <fileMode>0644</fileMode>
+            <lineEnding>unix</lineEnding>
         </fileSet>
     </fileSets>
     <dependencySets>

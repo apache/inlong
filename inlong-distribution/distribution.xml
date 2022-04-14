@@ -21,6 +21,7 @@
 
     <!-- Types of packaging, if there are N, N types of packages will be printed -->
     <formats>
+        <format>dir</format>
         <format>tar.gz</format>
     </formats>
     <includeBaseDirectory>true</includeBaseDirectory>
@@ -80,16 +81,19 @@
             <directory>../bin</directory>
             <outputDirectory>bin</outputDirectory>
             <fileMode>0755</fileMode>
+            <lineEnding>unix</lineEnding>
         </fileSet>
         <!-- package InLong Standalone conf-->
         <fileSet>
             <directory>../conf</directory>
             <outputDirectory>conf</outputDirectory>
+            <lineEnding>unix</lineEnding>
         </fileSet>
         <!-- package InLong docker -->
         <fileSet>
             <directory>../docker</directory>
             <outputDirectory>docker</outputDirectory>
+            <lineEnding>unix</lineEnding>
         </fileSet>
         <!-- package sql file for docker compose-->
         <fileSet>
