@@ -36,6 +36,7 @@
             </includes>
             <fileMode>0755</fileMode>
             <outputDirectory>bin</outputDirectory>
+            <lineEnding>unix</lineEnding>
         </fileSet>
 
         <!-- for configs -->
@@ -45,6 +46,7 @@
                 <include>*.*</include>
             </includes>
             <outputDirectory>conf</outputDirectory>
+            <lineEnding>unix</lineEnding>
         </fileSet>
     </fileSets>
     <!-- for sub-module dependencies -->

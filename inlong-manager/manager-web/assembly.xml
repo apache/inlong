@@ -39,6 +39,7 @@
             <directory>${build.outputDirectory}/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <fileMode>0755</fileMode>
+            <lineEnding>unix</lineEnding>
         </fileSet>
 
         <!-- Output all files in the sql directory to the packaged sql directory -->
@@ -46,6 +47,7 @@
             <directory>${build.outputDirectory}/sql</directory>
             <outputDirectory>sql</outputDirectory>
             <fileMode>0644</fileMode>
+            <lineEnding>unix</lineEnding>
         </fileSet>
 
         <!-- Specify to output the configuration file in target/classes to the conf directory-->
@@ -53,6 +55,7 @@
             <directory>${build.directory}/conf</directory>
             <outputDirectory>conf</outputDirectory>
             <fileMode>0644</fileMode>
+            <lineEnding>unix</lineEnding>
         </fileSet>
 
         <!-- Package third-party dependencies into the lib directory-->
@@ -74,6 +77,7 @@
         <fileSet>
             <directory>../manager-plugins/target/plugins</directory>
             <outputDirectory>plugins</outputDirectory>
+            <lineEnding>unix</lineEnding>
         </fileSet>
 
     </fileSets>

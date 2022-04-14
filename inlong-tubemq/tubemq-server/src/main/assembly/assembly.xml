@@ -32,9 +32,6 @@
         <fileSet>
             <directory>../</directory>
             <includes>
-                <include>./bin/*</include>
-                <include>./conf/*</include>
-                <include>./logs</include>
                 <include>./resources/**</include>
                 <include>LICENSE</include>
                 <include>NOTICE</include>
@@ -48,9 +45,17 @@
         </fileSet>
         <fileSet>
             <includes>
+                <include>./conf/*</include>
+            </includes>
+            <fileMode>0644</fileMode>
+            <lineEnding>unix</lineEnding>
+        </fileSet>
+        <fileSet>
+            <includes>
                 <include>./bin/*</include>
             </includes>
             <fileMode>0755</fileMode>
+            <lineEnding>unix</lineEnding>
         </fileSet>
     </fileSets>
 </assembly>

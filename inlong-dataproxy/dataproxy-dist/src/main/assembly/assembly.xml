@@ -82,12 +82,14 @@
         <fileSet>
             <directory>../conf</directory>
             <outputDirectory>conf</outputDirectory>
+            <lineEnding>unix</lineEnding>
         </fileSet>
 
         <fileSet>
             <directory>../bin</directory>
             <outputDirectory>bin</outputDirectory>
             <fileMode>0755</fileMode>
+            <lineEnding>unix</lineEnding>
         </fileSet>
 
     </fileSets>
