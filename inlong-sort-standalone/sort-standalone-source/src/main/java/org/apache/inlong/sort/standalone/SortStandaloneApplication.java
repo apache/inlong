@@ -41,18 +41,19 @@ public class SortStandaloneApplication {
         LOG.info("start to sort-standalone");
         try {
             SortCluster cluster = new SortCluster();
-            //
-            cluster.start();
-            // metrics
-            MetricObserver.init(CommonPropertiesHolder.get());
-            AuditUtils.initAudit();
             Runtime.getRuntime().addShutdownHook(new Thread("sortstandalone-shutdown-hook") {
 
                 @Override
                 public void run() {
                     AuditUtils.sendReport();
+                    cluster.close();
                 }
             });
+            //
+            cluster.start();
+            // metrics
+            MetricObserver.init(CommonPropertiesHolder.get());
+            AuditUtils.initAudit();
             Thread.sleep(5000);
         } catch (Exception e) {
             LOG.error("A fatal error occurred while running. Exception follows.", e);

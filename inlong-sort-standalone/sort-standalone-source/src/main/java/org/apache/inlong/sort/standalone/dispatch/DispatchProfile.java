@@ -17,10 +17,10 @@
 
 package org.apache.inlong.sort.standalone.dispatch;
 
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 
 /**
  * 
@@ -171,4 +171,12 @@ public class DispatchProfile {
         return dispatchTime;
     }
 
+    /**
+     * ack
+     */
+    public void ack() {
+        this.events.forEach((event) -> {
+            event.ack();
+        });
+    }
 }

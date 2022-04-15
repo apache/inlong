@@ -20,9 +20,10 @@ package org.apache.inlong.common.metric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.management.ManagementFactory;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import java.lang.management.ManagementFactory;
 
 /**
  * MetricRegister
@@ -64,6 +65,42 @@ public class MetricRegister {
             mbs.registerMBean(obj, objName);
         } catch (Exception ex) {
             LOGGER.error("exception while register mbean:{},error:{}", strBeanName, ex.getMessage());
+            LOGGER.error(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * unregister MetricItem
+     */
+    public static void unregister(MetricItem obj) {
+        final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+        StringBuilder beanName = new StringBuilder();
+        beanName.append(JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR).append("type=")
+                .append(MetricUtils.getDomain(obj.getClass())).append(",").append(obj.getDimensionsKey());
+        String strBeanName = beanName.toString();
+        try {
+            ObjectName objName = new ObjectName(strBeanName);
+            mbs.unregisterMBean(objName);
+        } catch (Exception ex) {
+            LOGGER.error("exception while unregister mbean:{},error:{}", strBeanName, ex.getMessage());
+            LOGGER.error(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * unregister MetricItemSet
+     */
+    public static void unregister(MetricItemSet<? extends MetricItem> obj) {
+        final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+        StringBuilder beanName = new StringBuilder();
+        beanName.append(JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR).append("type=")
+                .append(MetricUtils.getDomain(obj.getClass())).append(",name=").append(obj.getName());
+        String strBeanName = beanName.toString();
+        try {
+            ObjectName objName = new ObjectName(strBeanName);
+            mbs.unregisterMBean(objName);
+        } catch (Exception ex) {
+            LOGGER.error("exception while unregister mbean:{},error:{}", strBeanName, ex.getMessage());
             LOGGER.error(ex.getMessage(), ex);
         }
     }
