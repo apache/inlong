@@ -91,6 +91,7 @@ public class CreateSortConfigListener implements SortOperateListener {
         }
 
         try {
+            // TODO Support more than one sinks under a stream
             Map<String, DataFlowInfo> dataFlowInfoMap = sinkResponseList.stream().map(sink -> {
                         DataFlowInfo flowInfo = commonOperateService.createDataFlow(groupInfo, sink);
                         return Pair.of(sink.getInlongStreamId(), flowInfo);

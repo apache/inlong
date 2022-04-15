@@ -62,12 +62,12 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
     @Test
     public void testFrozenSource() {
         groupInfo = initGroupForm("PULSAR");
-        groupInfo.setStatus(GroupState.CONFIG_SUCCESSFUL.getCode());
+        groupService.updateStatus(GROUP_ID, GroupState.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
         final int sourceId = createBinlogSource(groupInfo);
-        streamSourceService.updateStatus(groupInfo.getInlongGroupId(), null, SourceState.SOURCE_NORMAL.getCode(),
-                OPERATOR);
+        streamSourceService.updateStatus(groupInfo.getInlongGroupId(), null,
+                SourceState.SOURCE_NORMAL.getCode(), OPERATOR);
 
         form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
@@ -89,14 +89,14 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
     public void testRestartSource() {
         // testFrozenSource();
         groupInfo = initGroupForm("PULSAR");
-        groupInfo.setStatus(GroupState.CONFIG_SUCCESSFUL.getCode());
+        groupService.updateStatus(GROUP_ID, GroupState.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
-        groupInfo.setStatus(GroupState.SUSPENDED.getCode());
+        groupService.updateStatus(GROUP_ID, GroupState.SUSPENDED.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
         final int sourceId = createBinlogSource(groupInfo);
-        streamSourceService.updateStatus(groupInfo.getInlongGroupId(), null, SourceState.SOURCE_NORMAL.getCode(),
-                OPERATOR);
+        streamSourceService.updateStatus(groupInfo.getInlongGroupId(), null,
+                SourceState.SOURCE_NORMAL.getCode(), OPERATOR);
 
         form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
