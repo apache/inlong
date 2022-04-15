@@ -46,6 +46,20 @@ if [[ "${PLUGINS_URL}" =~ ^http* ]]; then
     rm plugins.tar.gz
 fi
 
+# Whether the database table exists. If it does not exist, initialize the database and skip if it exists.
+if [[ "${JDBC_URL}" =~ (.+):([0-9]+) ]]; then
+  datasource_hostname=${BASH_REMATCH[1]}
+  datasource_port=${BASH_REMATCH[2]}
+
+  select_db_sql="SELECT COUNT(*) FROM information_schema.TABLES WHERE table_schema = 'apache_inlong_manager'"
+  inlong_manager_count=$(mysql -h${datasource_hostname} -P${datasource_port} -u${USERNAME} -p${PASSWORD} -e "${select_db_sql}")
+  inlong_num=$(echo "$inlong_manager_count" | tr -cd "[0-9]")
+  if [ $inlong_num -eq 0 ]; then
+    echo "init apache_inlong_manager database"
+    mysql -h${datasource_hostname} -P${datasource_port} -u${USERNAME} -p${PASSWORD} < sql/apache_inlong_manager.sql
+  fi
+fi
+
 sh "${file_path}"/bin/startup.sh "${JAVA_OPTS}"
 sleep 3
 # keep alive
