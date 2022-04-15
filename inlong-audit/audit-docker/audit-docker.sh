@@ -39,6 +39,19 @@ if [ "${MQ_TYPE}" == "tube" ]; then
   sed -i "s/agent1.sinks.tube-sink-msg2.master-host-port-list = .*$/agent1.sinks.tube-sink-msg2.master-host-port-list = ${TUBE_MASTER_LIST}/g" "${proxy_conf_file}"
 fi
 
+# Whether the database table exists. If it does not exist, initialize the database and skip if it exists.
+if [[ "${JDBC_URL}" =~ (.+):([0-9]+) ]]; then
+  datasource_hostname=${BASH_REMATCH[1]}
+  datasource_port=${BASH_REMATCH[2]}
+
+  select_db_sql="SELECT COUNT(*) FROM information_schema.TABLES WHERE table_schema = 'apache_inlong_audit'"
+  inlong_audit_count=$(mysql -h${datasource_hostname} -P${datasource_port} -u${USERNAME} -p${PASSWORD} -e "${select_db_sql}")
+  inlong_num=$(echo "$inlong_audit_count" | tr -cd "[0-9]")
+  if [ $inlong_num -eq 0 ]; then
+    mysql -h${datasource_hostname} -P${datasource_port} -u${USERNAME} -p${PASSWORD} < sql/apache_inlong_audit.sql
+  fi
+fi
+
 # start
 bash +x ${file_path}/bin/proxy-start.sh
 bash +x ${file_path}/bin/store-start.sh
