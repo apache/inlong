@@ -268,11 +268,10 @@ public class SenderManager {
      * @param ctx ctx
      * @param msg msg
      */
-    public void onMessageReceived(ChannelHandlerContext ctx, ByteBuf msg) {
+    public void onMessageReceived(ChannelHandlerContext ctx, byte[] msg) {
         try {
             //Analyze abnormal events
-            ByteBuf readBuffer = msg;
-            byte[] readBytes = readBuffer.array();
+            byte[] readBytes = msg;
             AuditApi.BaseCommand baseCommand = AuditApi.BaseCommand.parseFrom(readBytes);
             // Parse request id
             Long requestId = baseCommand.getAuditReply().getRequestId();
