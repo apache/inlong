@@ -109,18 +109,13 @@ public class StartupSortListener implements SortOperateListener {
             log.info("the jobId {} submit success", flinkInfo.getJobId());
         } catch (Exception e) {
             log.warn("startup exception: ", e);
-            managerFlinkTask.pollFlinkStatus(flinkInfo);
             flinkInfo.setException(true);
             flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
             managerFlinkTask.pollFlinkStatus(flinkInfo);
         }
-
         managerFlinkTask.pollFlinkStatus(flinkInfo);
-
         saveInfo(context.getProcessForm().getInlongGroupId(), InlongGroupSettings.SORT_JOB_ID, flinkInfo.getJobId(),
                 inlongGroupExtInfos);
-
-        managerFlinkTask.pollFlinkStatus(flinkInfo);
         return ListenerResult.success();
     }
 
