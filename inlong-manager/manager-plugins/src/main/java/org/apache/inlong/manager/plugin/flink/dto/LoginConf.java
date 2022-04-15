@@ -33,7 +33,7 @@ public class LoginConf {
     private Integer restPort;
 
     /**
-     * jobmanager port
+     * job manager port
      */
     private Integer jobManagerPort;
 
