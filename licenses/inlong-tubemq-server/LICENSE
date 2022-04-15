@@ -203,12 +203,167 @@
 
 
 =======================================================================
+
+1 This projects includes modified/copied source files with the following licenses:
+
+=========
+1.1 Third party MIT license licenses
+=========
+
+1.1.1 inlong-tubemq/resources/assets/lib/jquery.min.js
+ Source  : jquery 1.11.3
+ License : https://github.com/jquery/jquery/blob/1.11.3/MIT-LICENSE.txt
+| Copyright 2014 jQuery Foundation and other contributors
+| http://jquery.com/
+|
+| Permission is hereby granted, free of charge, to any person obtaining
+| a copy of this software and associated documentation files (the
+| "Software"), to deal in the Software without restriction, including
+| without limitation the rights to use, copy, modify, merge, publish,
+| distribute, sublicense, and/or sell copies of the Software, and to
+| permit persons to whom the Software is furnished to do so, subject to
+| the following conditions:
+|
+| The above copyright notice and this permission notice shall be
+| included in all copies or substantial portions of the Software.
+|
+| THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+| EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+| MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+| NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+| LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+| OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+| WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
+1.1.2 inlong-tubemq/resources/assets/lib/DataTables/*
+ Source  : datatables  1.10.7
+ License : https://github.com/DataTables/DataTables/blob/1.10.7/license.txt
+| Copyright (c) 2008-2013 SpryMedia Limited
+| http://datatables.net
+|
+| Permission is hereby granted, free of charge, to any person obtaining a copy
+| of this software and associated documentation files (the "Software"), to deal
+| in the Software without restriction, including without limitation the rights
+| to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+| copies of the Software, and to permit persons to whom the Software is
+| furnished to do so, subject to the following conditions:
+|
+| The above copyright notice and this permission notice shall be included in
+| all copies or substantial portions of the Software.
+|
+| THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+| IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+| FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+| AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+| LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+| OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+| THE SOFTWARE.
+
+----
+
+1.1.3 inlong-tubemq/resources/assets/public/css/style.css
+      inlong-tubemq/resources/assets/public/css/ie.css
+ Source  : Compass
+ License :  https://github.com/Compass/compass/blob/stable/LICENSE.markdown
+ | Copyright (c) 2009-2014 Christopher M. Eppstein
+ |
+ | Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ |
+ | The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. No attribution is required by products that make use of this software.
+ |
+ | THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ |
+ | Except as contained in this notice, the name(s) of the above copyright holders shall not be used in advertising or otherwise to promote the sale, use or other dealings in this Software without prior written authorization.
+ |
+ | Contributors to this project agree to grant all rights to the copyright holder of the primary product. Attribution is maintained in the source control history of the product.
+
+----
+
+=========
+1.2 Third party BSD 3-Clause license
+=========
+
+1.2.1 inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/src/any.h
+      inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/src/buffer.h
+ Source  : https://github.com/Qihoo360/evpp/blob/master/evpp/any.h version c5038a6
+           https://github.com/Qihoo360/evpp/blob/master/evpp/buffer.h version b2535d7
+ License : https://github.com/Qihoo360/evpp/blob/master/LICENSE
+ | BSD 3-Clause License
+ |
+ | Copyright (c) 2017, Qihoo 360
+ | All rights reserved.
+ |
+ | Redistribution and use in source and binary forms, with or without
+ | modification, are permitted provided that the following conditions are met:
+ |
+ | * Redistributions of source code must retain the above copyright notice, this
+ |   list of conditions and the following disclaimer.
+ |
+ | * Redistributions in binary form must reproduce the above copyright notice,
+ |   this list of conditions and the following disclaimer in the documentation
+ |   and/or other materials provided with the distribution.
+ |
+ | * Neither the name of the copyright holder nor the names of its
+ |   contributors may be used to endorse or promote products derived from
+ |   this software without specific prior written permission.
+ |
+ | THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ | AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ | IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ | DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ | FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ | DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ | SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ | CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ | OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ | OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+----
+
+=========
+1.3 Third party Apache 2.0 Licenses
+=========
+
+1.3.1 inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/Bytes.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HashedBytes.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HasThread.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/zookeeper/RecoverableZooKeeper.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/zookeeper/ZooKeeperWatcher.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/zookeeper/ZooKeeperListener.java
+      inlong-tubemq/tubemq-core/src/main/java/org/apache/tubemq/corebase/utils/ThreadUtils.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/zookeeper/ZooKeeperConnectionException.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/master/utils/Chore.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/zookeeper/ZKUtil.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/RowLock.java
+ Source  : hbase 0.94.27 (Please note that the software have been modified.)
+ License : https://github.com/apache/hbase/blob/rel/0.94.27/LICENSE.txt
+
+1.3.2 inlong-tubemq/tubemq-core/src/main/java/org/apache/tubemq/corerpc/netty/ByteBufferInputStream.java
+      inlong-tubemq/tubemq-core/src/main/java/org/apache/tubemq/corerpc/netty/ByteBufferOutputStream.java
+ Source  : Apache Avro 1.7.6
+ License : https://github.com/apache/avro/blob/release-1.7.6/LICENSE.txt
+
+1.3.3 inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/src/future.h
+ Source  : Apache Pulsar
+ License : https://github.com/apache/pulsar/blob/master/LICENSE
+ 
+1.3.4 codestyle/checkstyle.xml  
+ Source  : checkstyle 8.44 (Modified from src/main/resources/google_checks.xml)
+ License : https://github.com/checkstyle/checkstyle/blob/master/LICENSE.apache20
+
+
+
+
+=======================================================================
 Apache InLong(Incubating) Subcomponents:
 
 The Apache InLong(Incubating) project contains subcomponents with separate copyright
-notices and license terms. Your use of the source code for the these
-subcomponents is subject to the terms and conditions of the following
-licenses.
+notices and license terms.
+
+Your use of the source code for the these subcomponents is subject to
+the terms and conditions of the following licenses.
 
 
 ========================================================================
@@ -218,62 +373,35 @@ Apache 2.0 License
 The following components are provided under the Apache License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
 
-  net.minidev:accessors-smart:2.4.7 - ASM based accessors helper used by json-smart (https://github.com/netplex/json-smart-v2), (The Apache Software License, Version 2.0)
-  net.bytebuddy:byte-buddy:1.8.3 - Byte Buddy (without dependencies) (https://github.com/raphw/byte-buddy/tree/byte-buddy-1.8.3), (Apache License, Version 2.0)
+  org.apache.yetus:audience-annotations:0.5.0 - Apache Yetus - Audience Annotations (https://yetus.apache.org/audience-annotations), (Apache License, Version 2.0)
+  commons-beanutils:commons-beanutils:1.9.4 - Apache Commons BeanUtils (https://github.com/apache/commons-beanutils), (Apache License, Version 2.0)
+  commons-cli:commons-cli:1.4 - Apache Commons CLI (http://commons.apache.org/proper/commons-cli), (Apache License, Version 2.0)
   commons-codec:commons-codec:1.10 - Apache Commons Codec (https://commons.apache.org/proper/commons-codec), (Apache License, Version 2.0)
-  org.apache.commons:commons-collections4:4.3 - Apache Commons Collections (https://commons.apache.org/proper/commons-collections/), (Apache License, Version 2.0)
-  org.apache.commons:commons-lang3:3.10 - Apache Commons Lang (https://commons.apache.org/proper/commons-lang), (Apache License, Version 2.0)
+  commons-collections:commons-collections:3.2.2 - Apache Commons Collections (https://commons.apache.org/proper/commons-collections), (Apache License, Version 2.0)
+  org.apache.commons:commons-digester3:3.2 - Apache Commons Digester (https://commons.apache.org/proper/commons-digester), (The Apache Software License, Version 2.0)
+  commons-io:commons-io:2.11.0 - Apache Commons IO (https://commons.apache.org/proper/commons-io), (Apache License, Version 2.0)
+  commons-lang:commons-lang:2.6 - Commons Lang (https://commons.apache.org/proper/commons-lang), (Apache License, Version 2.0)
+  org.apache.commons:commons-lang3:3.11 - Apache Commons Lang (https://commons.apache.org/proper/commons-lang), (Apache License, Version 2.0)
   commons-logging:commons-logging:1.2 - Apache Commons Logging (https://commons.apache.org/proper/commons-logging), (The Apache Software License, Version 2.0)
-  org.atteo:evo-inflector:1.3 - Evo Inflector (https://github.com/atteo/evo-inflector), (Apache License, Version 2.0)
   com.google.code.gson:gson:2.8.5 - Gson (https://github.com/google/gson/gson), (Apache 2.0)
-  com.google.guava:guava:21.0 - Guava: Google Core Libraries for Java (http://code.google.com/p/guava-libraries/guava), (The Apache Software License, Version 2.0)
-  com.zaxxer:HikariCP:4.0.3 - HikariCP (https://github.com/brettwooldridge/HikariCP/tree/HikariCP-4.0.3), (The Apache Software License, Version 2.0)
+  com.google.guava:guava:19.0 - Guava: Google Core Libraries for Java (http://code.google.com/p/guava-libraries/guava), (The Apache Software License, Version 2.0)
   org.apache.httpcomponents:httpclient:4.5.13 - Apache HttpClient (https://hc.apache.org/httpcomponents-client-4.5.x), (Apache License, Version 2.0)
-  org.apache.httpcomponents:httpcore:4.4.14 - Apache HttpCore (https://hc.apache.org/httpcomponents-core-4.4.x), (Apache License, Version 2.0)
-  com.fasterxml.jackson.core:jackson-annotations:2.13.1 - Jackson-annotations (https://github.com/FasterXML/jackson-annotations), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.core:jackson-core:2.13.1 - Jackson-core (https://github.com/FasterXML/jackson-core/tree/jackson-core-2.13.1), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.core:jackson-databind:2.13.1 - jackson-databind (https://github.com/FasterXML/jackson-databind/tree/jackson-databind-2.13.1), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.13.2 - Jackson datatype: jdk8 (https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.13.2), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.module:jackson-module-parameter-names:2.13.2 - Jackson-module-parameter-names (https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.13.2/parameter-names), (The Apache Software License, Version 2.0)
-  jakarta.validation:jakarta.validation-api:2.0.2 - Jakarta Bean Validation API (https://beanvalidation.org), (Apache License 2.0)
-  com.jayway.jsonpath:json-path:2.6.0 - project ':json-path' (https://github.com/jayway/JsonPath), (The Apache Software License, Version 2.0)
-  net.minidev:json-smart:2.4.7 - JSON Small and Fast Parser (https://urielch.github.io/), (The Apache Software License, Version 2.0)
-  org.apache.logging.log4j:log4j-api:2.17.1 - Apache Log4j API (https://logging.apache.org/log4j/2.x/log4j-api/), (Apache License, Version 2.0)
-  org.apache.logging.log4j:log4j-to-slf4j:2.17.2 - Apache Log4j to SLF4J Adapter (https://logging.apache.org/log4j/2.x/log4j-to-slf4j/), (Apache License, Version 2.0)
-  org.yaml:snakeyaml:1.29 - SnakeYAML (https://bitbucket.org/snakeyaml/snakeyaml/src/snakeyaml-1.29/), (Apache License, Version 2.0)
-  org.springframework.boot:spring-boot:2.6.6 - spring-boot (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
-  org.springframework.boot:spring-boot-autoconfigure:2.6.6 - spring-boot-autoconfigure (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
-  org.springframework.boot:spring-boot-starter:2.6.6 - spring-boot-starter (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
-  org.springframework.boot:spring-boot-starter-aop:2.6.6 - spring-boot-starter-aop (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
-  org.springframework.boot:spring-boot-starter-data-jpa:2.6.6 - spring-boot-starter-data-jpa (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
-  org.springframework.boot:spring-boot-starter-data-rest:2.6.6 - spring-boot-starter-data-rest (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
-  org.springframework.boot:spring-boot-starter-jdbc:2.6.6 - spring-boot-starter-jdbc (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
-  org.springframework.boot:spring-boot-starter-json:2.6.6 - spring-boot-starter-json (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
-  org.springframework.boot:spring-boot-starter-logging:2.6.6 - spring-boot-starter-logging (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
-  org.springframework.boot:spring-boot-starter-tomcat:2.6.6 - spring-boot-starter-tomcat (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
-  org.springframework.boot:spring-boot-starter-validation:2.6.6 - spring-boot-starter-validation (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
-  org.springframework.boot:spring-boot-starter-web:2.6.6 - spring-boot-starter-web (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
-  org.springframework.data:spring-data-rest-core:3.6.3 - Spring Data REST - Core (https://github.com/spring-projects/spring-data-rest/tree/3.6.3/spring-data-rest-core), (Apache License, Version 2.0)
-  org.springframework.data:spring-data-rest-webmvc:3.6.3 - Spring Data REST - WebMVC (https://github.com/spring-projects/spring-data-rest/tree/3.6.3/spring-data-rest-webmvc), (Apache License, Version 2.0)
-  io.springfox:springfox-bean-validators:3.0.0 - springfox-bean-validators (https://github.com/springfox/springfox), (The Apache Software License, Version 2.0)
-  io.springfox:springfox-boot-starter:3.0.0 - springfox-boot-starter (https://github.com/springfox/springfox), (The Apache Software License, Version 2.0)
-  io.springfox:springfox-core:3.0.0 - springfox-core (https://github.com/springfox/springfox), (The Apache Software License, Version 2.0)
-  io.springfox:springfox-data-rest:3.0.0 - springfox-data-rest (https://github.com/springfox/springfox), (The Apache Software License, Version 2.0)
-  io.springfox:springfox-oas:3.0.0 - springfox-oas (https://github.com/springfox/springfox), (The Apache Software License, Version 2.0)
-  io.springfox:springfox-schema:3.0.0 - springfox-schema (https://github.com/springfox/springfox), (The Apache Software License, Version 2.0)
-  io.springfox:springfox-spi:3.0.0 - springfox-spi (https://github.com/springfox/springfox), (The Apache Software License, Version 2.0)
-  io.springfox:springfox-spring-web:3.0.0 - springfox-spring-web (https://github.com/springfox/springfox), (The Apache Software License, Version 2.0)
-  io.springfox:springfox-spring-webflux:3.0.0 - springfox-spring-webflux (https://github.com/springfox/springfox), (The Apache Software License, Version 2.0)
-  io.springfox:springfox-spring-webmvc:3.0.0 - springfox-spring-webmvc (https://github.com/springfox/springfox), (The Apache Software License, Version 2.0)
-  io.springfox:springfox-swagger-common:3.0.0 - springfox-swagger-common (https://github.com/springfox/springfox), (The Apache Software License, Version 2.0)
-  io.springfox:springfox-swagger-ui:3.0.0 - springfox-swagger-ui (https://github.com/springfox/springfox), (The Apache Software License, Version 2.0)
-  io.springfox:springfox-swagger2:3.0.0 - springfox-swagger2 (https://github.com/springfox/springfox), (The Apache Software License, Version 2.0)
-  io.swagger:swagger-annotations:1.5.20 - swagger-annotations (https://github.com/swagger-api/swagger-core/tree/v1.5.20/modules/swagger-annotations), (Apache License, Version 2.0)
-  io.swagger:swagger-models:1.5.20 - swagger-models (https://github.com/swagger-api/swagger-core/tree/v1.5.20/modules/swagger-models), (Apache License, Version 2.0)
-  io.swagger.core.v3:swagger-annotations:2.1.2 - swagger-annotations (https://github.com/swagger-api/swagger-core/tree/v2.1.2/modules/swagger-annotations), (Apache License, Version 2.0)
-  io.swagger.core.v3:swagger-models:2.1.2 - swagger-models (https://github.com/swagger-api/swagger-core/tree/v2.1.2/modules/swagger-models), (Apache License, Version 2.0)
-  org.apache.tomcat.embed:tomcat-embed-el:9.0.60 - tomcat-embed-el (https://tomcat.apache.org/), (Apache License, Version 2.0)
-  org.apache.tomcat.embed:tomcat-embed-websocket:9.0.60 - tomcat-embed-websocket (https://tomcat.apache.org/), (Apache License, Version 2.0)
+  org.apache.httpcomponents:httpcore:4.4.13 - Apache HttpCore (https://hc.apache.org/httpcomponents-core-4.4.x), (Apache License, Version 2.0)
+  org.ini4j:ini4j:0.5.1 - ini4j (http://ini4j.sourceforge.net), (Apache 2)
+  org.eclipse.jetty:jetty-http:9.4.44.v20210927 - Jetty :: Http Utility (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-io:9.4.44.v20210927 - Jetty :: IO Utility (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-security:9.4.44.v20210927 - Jetty :: Security (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-server:9.4.44.v20210927 - Jetty :: Server Core (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-servlet:9.4.44.v20210927 - Jetty :: Servlet Handling (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-util:9.4.44.v20210927 - Jetty :: Utilities (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  org.eclipse.jetty:jetty-util-ajax:9.4.44.v20210927 - Jetty :: Utilities :: Ajax(JSON) (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  com.github.cliftonlabs:json-simple:3.0.2 - JSON.simple (http://code.google.com/p/json-simple), (The Apache Software License, Version 2.0)
+  log4j:log4j:1.2.17 - Apache Log4j (http://logging.apache.org/log4j/1.2/), (The Apache Software License, Version 2.0)
+  io.netty:netty:3.10.6.Final - Netty (http://netty.io/), (Apache License, Version 2.0)
+  ch.qos.reload4j:reload4j:1.2.19 - reload4j (https://reload4j.qos.ch), (The Apache Software License, Version 2.0)
+  org.apache.velocity:velocity-engine-core:2.3 - Apache Velocity - Engine (https://github.com/apache/velocity-engine), (Apache License, Version 2.0)
+  org.apache.velocity.tools:velocity-tools-generic:3.1 - Apache Velocity Tools - Generic tools (https://github.com/apache/velocity-tools), (Apache License, Version 2.0)
+  org.apache.zookeeper:zookeeper:3.4.6 - ZooKeeper (https://github.com/apache/zookeeper), (Apache License, Version 2.0)
 
 
 ========================================================================
@@ -282,12 +410,8 @@ Apache 2.0 licenses
 
 The following components are provided under the Apache License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
-
-  com.fasterxml:classmate:1.5.1 - ClassMate (https://github.com/FasterXML/java-classmate), (Apache License, Version 2.0)
-  com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2 - Jackson datatype: JSR310 (https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.13.2), (The Apache Software License, Version 2.0)
-  org.mapstruct:mapstruct:1.3.1.Final - MapStruct Core (http://mapstruct.org), (The Apache Software License, Version 2.0)
+  
   org.springframework:spring-aop:5.3.18 - Spring AOP (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
-  org.springframework:spring-aspects:5.3.18 - Spring Aspects (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
   org.springframework:spring-beans:5.3.18 - Spring Beans (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
   org.springframework:spring-context:5.3.18 - Spring Context (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
   org.springframework:spring-core:5.3.18 - Spring Core (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
@@ -295,16 +419,8 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.springframework:spring-jcl:5.3.18 - Spring Commons Logging Bridge (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
   org.springframework:spring-jdbc:5.3.18 - Spring JDBC (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
   org.springframework:spring-orm:5.3.18 - Spring Object/Relational Mapping (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
-  org.springframework:spring-web:5.3.18 - Spring Web (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
-  org.springframework:spring-webmvc:5.3.18 - Spring Web MVC (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
-  org.springframework:spring-tx:5.3.17 - Spring Transaction (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
-  org.springframework.data:spring-data-commons:2.6.3 - Spring Data Core (https://github.com/spring-projects/spring-data-commons), (Apache License, Version 2.0)
-  org.springframework.data:spring-data-jpa:2.6.3 - Spring Data JPA (https://github.com/spring-projects/spring-data-jpa), (Apache License, Version 2.0)
-  org.springframework.hateoas:spring-hateoas:1.4.1 - Spring HATEOAS (https://github.com/spring-projects/spring-hateoas), (Apache License, Version 2.0)
-  org.springframework.plugin:spring-plugin-core:2.0.0.RELEASE - Spring Plugin - Core (https://github.com/spring-projects/spring-plugin/tree/2.0.0.RELEASE), (Apache License, Version 2.0)
-  org.springframework.plugin:spring-plugin-metadata:2.0.0.RELEASE - Spring Plugin - Metadata Extension (https://github.com/spring-projects/spring-plugin/tree/2.0.0.RELEASE), (Apache License, Version 2.0)
-  org.apache.tomcat.embed:tomcat-embed-core:9.0.60 - tomcat-embed-core (https://tomcat.apache.org/), (Apache License, Version 2.0)
-  
+  org.springframework:spring-tx:5.3.18 - Spring Transaction (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
+
 
 ========================================================================
 BSD licenses
@@ -313,8 +429,8 @@ BSD licenses
 The following components are provided under BSD license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  org.ow2.asm:asm:9.1 - asm (http://asm.ow2.io/), (BSD-3-Clause)
-  org.postgresql:postgresql:42.3.3 - PostgreSQL JDBC Driver (https://jdbc.postgresql.org), (BSD-2-Clause)
+  org.dom4j:dom4j:2.1.3 - dom4j (http://dom4j.github.io), (BSD 3-clause New License)
+  com.google.protobuf:protobuf-java:3.19.4 - Protocol Buffers [Core] (https://github.com/protocolbuffers/protobuf), (3-Clause BSD License)
 
 
 ========================================================================
@@ -324,24 +440,16 @@ MIT licenses
 The following components are provided under MIT license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  org.checkerframework:checker-qual:3.5.0 - Checker Qual (https://checkerframework.org), (The MIT License)
-  io.github.classgraph:classgraph:4.8.83 - ClassGraph (https://github.com/classgraph/classgraph), (The MIT License (MIT))
-  org.slf4j:jul-to-slf4j:1.7.36 - JUL to SLF4J bridge (https://github.com/qos-ch/slf4j/tree/v_1.7.36), (MIT License)
-  org.projectlombok:lombok:1.18.22 - Project Lombok (https://projectlombok.org), (The MIT License)
   org.slf4j:slf4j-api:1.7.36 - SLF4J API Module (http://www.slf4j.org), (MIT License)
+  org.slf4j:slf4j-reload4j:1.7.36 - SLF4J Reload4j Binding (http://www.slf4j.org), (MIT License)
 
 
 ========================================================================
-EPL licenses
+CDDL licenses
 ========================================================================
 
-The following components are provided under EPL license. See project link for details.
+The following components are provided under CDDL license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  org.aspectj:aspectjweaver:1.9.7 - AspectJ Weaver (https://www.eclipse.org/aspectj/), (Eclipse Public License - v 2.0)
-  jakarta.annotation:jakarta.annotation-api:1.3.5 - Jakarta Annotations API (https://projects.eclipse.org/projects/ee4j.ca), (EPL 2.0, GPL2 w/ CPE)
-  jakarta.persistence:jakarta.persistence-api:2.2.3 - Jakarta Persistence API (https://github.com/eclipse-ee4j/jpa-api/tree/2.2-2.2.3-RELEASE), (Eclipse Public License v. 2.0, Eclipse Distribution License v. 1.0)
-  jakarta.transaction:jakarta.transaction-api:1.3.3 - javax.transaction API (https://github.com/jakartaee/transactions), (EPL 2.0, GPL2 w/ CPE)
-  ch.qos.logback:logback-access:1.2.10 - Logback Access Module (https://github.com/qos-ch/logback/tree/v_1.2.10), (Eclipse Public License - v 1.0, GNU Lesser General Public License)
-  ch.qos.logback:logback-classic:1.2.10 - Logback Classic Module (https://github.com/qos-ch/logback/tree/v_1.2.10), (Eclipse Public License - v 1.0, GNU Lesser General Public License)
-  ch.qos.logback:logback-core:1.2.10 - Logback Core Module (https://github.com/qos-ch/logback/tree/v_1.2.10), (Eclipse Public License - v 1.0, GNU Lesser General Public License)
+  javax.servlet:javax.servlet-api:4.0.1 - Java Servlet API (http://servlet-spec.java.net), (CDDL + GPLv2 with classpath exception)
+
