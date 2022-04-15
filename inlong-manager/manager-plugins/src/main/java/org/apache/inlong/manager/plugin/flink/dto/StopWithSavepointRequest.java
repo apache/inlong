@@ -22,7 +22,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class StopWithSavepointRequestBody {
+public class StopWithSavepointRequest {
 
     /**
      * tag

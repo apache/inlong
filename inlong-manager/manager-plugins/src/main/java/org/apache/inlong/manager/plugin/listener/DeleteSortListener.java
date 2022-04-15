@@ -18,16 +18,16 @@
 package org.apache.inlong.manager.plugin.listener;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.plugin.flink.FlinkOperation;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
-import org.apache.inlong.manager.plugin.flink.ManagerFlinkTask;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -42,6 +42,7 @@ import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStack
 
 @Slf4j
 public class DeleteSortListener implements SortOperateListener {
+
     @Override
     public TaskEvent event() {
         return TaskEvent.COMPLETE;
@@ -49,47 +50,59 @@ public class DeleteSortListener implements SortOperateListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
-        String inlongGroupId = context.getProcessForm().getInlongGroupId();
-        ObjectMapper objectMapper = new ObjectMapper();
-        UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) context.getProcessForm();
-        InlongGroupInfo inlongGroupInfo = updateGroupProcessForm.getGroupInfo();
-        List<InlongGroupExtInfo> inlongGroupExtInfoList = inlongGroupInfo.getExtList();
-        log.info("inlongGroupExtInfoList:{}", inlongGroupExtInfoList);
-        Map<String, String> kvConf =
-                inlongGroupExtInfoList.stream().collect(Collectors.toMap(InlongGroupExtInfo::getKeyName,
-                InlongGroupExtInfo::getKeyValue));
-        String sortExt = kvConf.get(InlongGroupSettings.SORT_PROPERTIES);
-        if (StringUtils.isEmpty(sortExt)) {
-            String message = String.format("groupId [%s] not add deleteProcess listener, "
-                    + "as the sortProperties is empty", inlongGroupId);
-            log.warn(message);
+        ProcessForm processForm = context.getProcessForm();
+        String groupId = processForm.getInlongGroupId();
+        if (!(processForm instanceof UpdateGroupProcessForm)) {
+            String message = String.format("process form was not UpdateGroup for groupId [%s]", groupId);
+            log.error(message);
             return ListenerResult.fail(message);
         }
-        Map<String, String> result = objectMapper.convertValue(objectMapper.readTree(sortExt),
-                new TypeReference<Map<String, String>>(){});
+
+        UpdateGroupProcessForm updateGroupForm = (UpdateGroupProcessForm) processForm;
+        InlongGroupInfo inlongGroupInfo = updateGroupForm.getGroupInfo();
+        List<InlongGroupExtInfo> extList = inlongGroupInfo.getExtList();
+        log.info("inlong group ext info: {}", extList);
+
+        Map<String, String> kvConf = extList.stream().collect(
+                Collectors.toMap(InlongGroupExtInfo::getKeyName, InlongGroupExtInfo::getKeyValue));
+        String sortExt = kvConf.get(InlongGroupSettings.SORT_PROPERTIES);
+        if (StringUtils.isEmpty(sortExt)) {
+            String message = String.format("delete sort failed for groupId [%s], as the sort properties is empty",
+                    groupId);
+            log.error(message);
+            return ListenerResult.fail(message);
+        }
+
+        Map<String, String> result = JsonUtils.OBJECT_MAPPER.convertValue(JsonUtils.OBJECT_MAPPER.readTree(sortExt),
+                new TypeReference<Map<String, String>>() {
+                });
         kvConf.putAll(result);
+        String jobId = kvConf.get(InlongGroupSettings.SORT_JOB_ID);
+        if (StringUtils.isBlank(jobId)) {
+            String message = String.format("sort job id is empty for groupId [%s]", groupId);
+            return ListenerResult.fail(message);
+        }
 
         FlinkInfo flinkInfo = new FlinkInfo();
-
-        String jobId = kvConf.get(InlongGroupSettings.SORT_JOB_ID);
-        Preconditions.checkNotEmpty(jobId, "sortJobId is empty");
         flinkInfo.setJobId(jobId);
-
         String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
         flinkInfo.setEndpoint(sortUrl);
 
         FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());
-        ManagerFlinkTask managerFlinkTask = new ManagerFlinkTask(flinkService);
-
+        FlinkOperation flinkOperation = new FlinkOperation(flinkService);
         try {
-            managerFlinkTask.delete(flinkInfo);
+            flinkOperation.delete(flinkInfo);
+            log.info("job delete success for [{}]", jobId);
+            return ListenerResult.success();
         } catch (Exception e) {
-            log.error("pause exception ", e);
             flinkInfo.setException(true);
             flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
-            managerFlinkTask.pollFlinkStatus(flinkInfo);
+            flinkOperation.pollJobStatus(flinkInfo);
+
+            String message = String.format("delete sort failed for groupId [%s] ", groupId);
+            log.error(message, e);
+            return ListenerResult.fail(message + e.getMessage());
         }
-        return ListenerResult.success();
     }
 
     @Override

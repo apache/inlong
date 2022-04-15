@@ -54,7 +54,7 @@ public class WorkflowFormParserUtils {
 
         UserTask userTask = (UserTask) task;
         try {
-            JavaType javaType = JsonUtils.MAPPER.constructType(userTask.getFormClass());
+            JavaType javaType = JsonUtils.OBJECT_MAPPER.constructType(userTask.getFormClass());
             return JsonUtils.parse(workflowTaskEntity.getFormData(), javaType);
         } catch (Exception e) {
             log.error("task form parse failed, form is: {}", workflowTaskEntity.getFormData(), e);
@@ -74,7 +74,7 @@ public class WorkflowFormParserUtils {
         }
 
         try {
-            JavaType javaType = JsonUtils.MAPPER.constructType(process.getFormClass());
+            JavaType javaType = JsonUtils.OBJECT_MAPPER.constructType(process.getFormClass());
             return JsonUtils.parse(form, javaType);
         } catch (Exception e) {
             log.error("process form parse failed, form is: {}", form, e);

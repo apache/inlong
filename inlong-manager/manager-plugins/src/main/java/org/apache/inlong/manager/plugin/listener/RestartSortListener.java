@@ -19,17 +19,17 @@ package org.apache.inlong.manager.plugin.listener;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.plugin.flink.Constants;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.plugin.flink.enums.Constants;
+import org.apache.inlong.manager.plugin.flink.FlinkOperation;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
-import org.apache.inlong.manager.plugin.flink.ManagerFlinkTask;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -54,68 +54,83 @@ public class RestartSortListener implements SortOperateListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
-        String inlongGroupId = context.getProcessForm().getInlongGroupId();
-        ObjectMapper objectMapper = new ObjectMapper();
-        UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) context.getProcessForm();
-        InlongGroupInfo inlongGroupInfo = updateGroupProcessForm.getGroupInfo();
-        List<InlongGroupExtInfo> inlongGroupExtInfos = inlongGroupInfo.getExtList();
-        log.info("inlongGroupExtInfos:{}", inlongGroupExtInfos);
-        Map<String, String> kvConf = inlongGroupExtInfos.stream()
-                .collect(Collectors.toMap(InlongGroupExtInfo::getKeyName, InlongGroupExtInfo::getKeyValue));
+        ProcessForm processForm = context.getProcessForm();
+        String groupId = processForm.getInlongGroupId();
+        if (!(processForm instanceof UpdateGroupProcessForm)) {
+            String message = String.format("process form was not UpdateGroup for groupId [%s]", groupId);
+            log.error(message);
+            return ListenerResult.fail(message);
+        }
+
+        UpdateGroupProcessForm updateGroupForm = (UpdateGroupProcessForm) processForm;
+        InlongGroupInfo inlongGroupInfo = updateGroupForm.getGroupInfo();
+        List<InlongGroupExtInfo> extList = inlongGroupInfo.getExtList();
+        log.info("inlong group ext info: {}", extList);
+
+        Map<String, String> kvConf = extList.stream().collect(
+                Collectors.toMap(InlongGroupExtInfo::getKeyName, InlongGroupExtInfo::getKeyValue));
         String sortExt = kvConf.get(InlongGroupSettings.SORT_PROPERTIES);
         if (StringUtils.isEmpty(sortExt)) {
-            String message = String.format("inlongGroupId:%s not add restartProcess listener,sortProperties is empty",
-                    inlongGroupId);
-            log.warn(message);
+            String message = String.format("restart sort failed for groupId [%s], as the sort properties is empty",
+                    groupId);
+            log.error(message);
             return ListenerResult.fail(message);
         }
-        Map<String, String> result = objectMapper.convertValue(objectMapper.readTree(sortExt),
-                new TypeReference<Map<String, String>>(){});
+
+        Map<String, String> result = JsonUtils.OBJECT_MAPPER.convertValue(JsonUtils.OBJECT_MAPPER.readTree(sortExt),
+                new TypeReference<Map<String, String>>() {
+                });
         kvConf.putAll(result);
+        String jobId = kvConf.get(InlongGroupSettings.SORT_JOB_ID);
+        if (StringUtils.isBlank(jobId)) {
+            String message = String.format("sort job id is empty for groupId [%s]", groupId);
+            return ListenerResult.fail(message);
+        }
         String dataFlows = kvConf.get(InlongGroupSettings.DATA_FLOW);
         if (StringUtils.isEmpty(dataFlows)) {
-            String message = String.format("groupId [%s] not add restartProcess listener, "
-                    + "as the dataflows is empty", inlongGroupId);
-            log.warn(message);
+            String message = String.format("dataflow is empty for groupId [%s]", groupId);
+            log.error(message);
             return ListenerResult.fail(message);
         }
-        Map<String, JsonNode> dataflowMap = objectMapper.convertValue(objectMapper.readTree(dataFlows),
-                new TypeReference<Map<String, JsonNode>>(){});
+
+        // TODO Support more than one dataflow in one sort job
+        Map<String, JsonNode> dataflowMap = JsonUtils.OBJECT_MAPPER.convertValue(
+                JsonUtils.OBJECT_MAPPER.readTree(dataFlows), new TypeReference<Map<String, JsonNode>>() {
+                });
         Optional<JsonNode> dataflowOptional = dataflowMap.values().stream().findFirst();
         JsonNode dataFlow = null;
         if (dataflowOptional.isPresent()) {
             dataFlow = dataflowOptional.get();
         }
         if (Objects.isNull(dataFlow)) {
-            String message = String.format("groupId [%s] not add restartProcess listener, "
-                    + "as the dataflow is empty", inlongGroupId);
+            String message = String.format("dataflow is empty for groupId [%s]", groupId);
             log.warn(message);
             return ListenerResult.fail(message);
         }
-        String jobName = Constants.INLONG + context.getProcessForm().getInlongGroupId();
+
         FlinkInfo flinkInfo = new FlinkInfo();
-        flinkInfo.setJobName(jobName);
-
-        String jobId = kvConf.get(InlongGroupSettings.SORT_JOB_ID);
-        Preconditions.checkNotEmpty(jobId, "sortJobId is empty");
         flinkInfo.setJobId(jobId);
-
+        String jobName = Constants.INLONG + context.getProcessForm().getInlongGroupId();
+        flinkInfo.setJobName(jobName);
         String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
         flinkInfo.setEndpoint(sortUrl);
 
         FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());
-        ManagerFlinkTask managerFlinkTask = new ManagerFlinkTask(flinkService);
-        managerFlinkTask.genPath(flinkInfo,dataFlow.toString());
-
+        FlinkOperation flinkOperation = new FlinkOperation(flinkService);
         try {
-            managerFlinkTask.restart(flinkInfo);
+            flinkOperation.genPath(flinkInfo, dataFlow.toString());
+            flinkOperation.restart(flinkInfo);
+            log.info("job restart success for [{}]", jobId);
+            return ListenerResult.success();
         } catch (Exception e) {
-            log.error("pause exception ", e);
             flinkInfo.setException(true);
             flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
-            managerFlinkTask.pollFlinkStatus(flinkInfo);
+            flinkOperation.pollJobStatus(flinkInfo);
+
+            String message = String.format("restart sort failed for groupId [%s] ", groupId);
+            log.error(message, e);
+            return ListenerResult.fail(message + e.getMessage());
         }
-        return ListenerResult.success();
     }
 
     @Override
