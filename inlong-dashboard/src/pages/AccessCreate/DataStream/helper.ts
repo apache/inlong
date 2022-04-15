@@ -40,10 +40,14 @@ export const valuesToData = (values, inlongGroupId) => {
         };
       });
     } else {
-      output.sourceInfo = {
-        sourceType: dataSourceType,
-        sourceName: inlongStreamId,
-      };
+      output.sourceInfo = [
+        {
+          sourceType: dataSourceType,
+          sourceName: inlongStreamId,
+          inlongGroupId,
+          inlongStreamId,
+        },
+      ];
     }
 
     output.sinkInfo = streamSink.reduce((acc, type) => {
