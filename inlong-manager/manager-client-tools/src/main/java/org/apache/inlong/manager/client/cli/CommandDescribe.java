@@ -31,6 +31,9 @@ import java.util.List;
 @Parameters(commandDescription = "Display details of one or more resources")
 public class CommandDescribe extends CommandBase {
 
+    @Parameter()
+    private java.util.List<String> params;
+
     public CommandDescribe() {
         super("describe");
         jcommander.addCommand("stream", new DescribeStream());
@@ -38,9 +41,6 @@ public class CommandDescribe extends CommandBase {
         jcommander.addCommand("sink", new DescribeSink());
         jcommander.addCommand("source", new DescribeSource());
     }
-
-    @Parameter()
-    private java.util.List<String> params;
 
     @Parameters(commandDescription = "Get stream details")
     private class DescribeStream extends CommandUtil {
@@ -126,7 +126,7 @@ public class CommandDescribe extends CommandBase {
         @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
         private String group;
 
-        @Parameter(names = {"-t", "--type"}, required = true, description = "sink type")
+        @Parameter(names = {"-t", "--type"}, description = "sink type")
         private String type;
 
         @Override

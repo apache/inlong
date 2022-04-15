@@ -21,10 +21,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.cli.util.GsonUtil;
+import org.springframework.beans.BeanUtils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -35,6 +37,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -60,50 +65,13 @@ abstract class CommandUtil {
         return new InlongClientImpl(serviceUrl, configuration);
     }
 
-    <T> void print(List<T> item, Class<T> clazz) {
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field f : fields) {
-            System.out.printf("%-30s", f.getName());
+    <T, K> void print(List<T> item, Class<K> clazz) {
+        if (item.isEmpty()) {
+            return;
         }
-        System.out.println();
-        if (!item.isEmpty()) {
-            item.forEach(t -> {
-                try {
-                    for (Field f : fields) {
-                        f.setAccessible(true);
-                        if (f.get(t) != null) {
-                            System.out.printf("%-30s", f.get(t).toString());
-                        } else {
-                            System.out.printf("%-30s", "NULL");
-                        }
-                    }
-                    System.out.println();
-                } catch (IllegalAccessException e) {
-                    System.out.println(e.getMessage());
-                }
-            });
-        }
-    }
-
-    <T> void print(T item, Class<T> clazz) {
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field f : fields) {
-            System.out.printf("%-30s", f.getName());
-        }
-        System.out.println();
-        try {
-            for (Field f : fields) {
-                f.setAccessible(true);
-                if (f.get(item) != null) {
-                    System.out.printf("%-30s", f.get(item).toString());
-                } else {
-                    System.out.printf("%-30s", "NULL");
-                }
-            }
-            System.out.println();
-        } catch (IllegalAccessException e) {
-            System.out.println(e.getMessage());
-        }
+        List<K> list = copyObject(item, clazz);
+        int[] maxColumnWidth = getColumnWidth(list);
+        printTable(list, maxColumnWidth);
     }
 
     <T> void printJson(T item) {
@@ -142,4 +110,78 @@ abstract class CommandUtil {
     }
 
     abstract void run() throws Exception;
+
+    private <K> void printTable(List<K> list, int[] columnWidth) {
+        Field[] fields = list.get(0).getClass().getDeclaredFields();
+        System.out.print("|");
+        for (int i = 0; i < fields.length; i++) {
+            System.out.printf("%s|", StringUtils.center(fields[i].getName(), columnWidth[i]));
+        }
+        System.out.println();
+        for (int i = 0; i < fields.length; i++) {
+            System.out.printf("%s", StringUtils.leftPad("—", columnWidth[i] + 1, "—"));
+        }
+        System.out.println();
+        list.forEach(k -> {
+            for (int j = 0; j < fields.length; j++) {
+                fields[j].setAccessible(true);
+                try {
+                    System.out.print("|");
+                    if (fields[j].get(k) != null) {
+                        if (fields[j].getType().equals(Date.class)) {
+                            SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            String dataFormat = sf.format(fields[j].get(k));
+                            System.out.printf("%s", StringUtils.center(dataFormat, columnWidth[j]));
+                        } else {
+                            System.out.printf("%s", StringUtils.center(fields[j].get(k).toString(), columnWidth[j]));
+                        }
+                    } else {
+                        System.out.printf("%s", StringUtils.center("NULL", columnWidth[j]));
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("|");
+        });
+    }
+
+    private <T, K> List<K> copyObject(List<T> item, Class<K> clazz) {
+        List<K> newList = new ArrayList<>();
+        item.forEach(t -> {
+            try {
+                K k = clazz.newInstance();
+                BeanUtils.copyProperties(t, k);
+                newList.add(k);
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        });
+        return newList;
+    }
+
+    private <K> int[] getColumnWidth(List<K> list) {
+        Field[] fields = list.get(0).getClass().getDeclaredFields();
+        int[] maxWidth = new int[fields.length];
+        for (int i = 0; i < fields.length; i++) {
+            maxWidth[i] = Math.max(fields[i].getName().length(), maxWidth[i]);
+        }
+        list.forEach(k -> {
+            try {
+                for (int j = 0; j < fields.length; j++) {
+                    fields[j].setAccessible(true);
+                    if (fields[j].get(k) != null) {
+                        int length = fields[j].get(k).toString().length();
+                        maxWidth[j] = Math.max(length, maxWidth[j]);
+                    }
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        });
+        for (int i = 0; i < maxWidth.length; i++) {
+            maxWidth[i] += 4;
+        }
+        return maxWidth;
+    }
 }
