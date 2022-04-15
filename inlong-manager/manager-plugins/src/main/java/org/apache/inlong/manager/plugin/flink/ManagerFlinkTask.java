@@ -88,6 +88,7 @@ public class ManagerFlinkTask {
     }
 
     /**
+     * genPath
      * @param flinkInfo
      * @param dataflow
      */
