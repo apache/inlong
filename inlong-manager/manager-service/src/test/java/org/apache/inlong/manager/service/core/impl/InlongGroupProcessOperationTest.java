@@ -86,11 +86,11 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
     public void testSuspendProcess() {
         testStartProcess();
         InlongGroupInfo groupInfo = groupService.get(GROUP_ID);
-        groupInfo.setStatus(GroupState.APPROVE_PASSED.getCode());
+        groupService.updateStatus(GROUP_ID, GroupState.APPROVE_PASSED.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
-        groupInfo.setStatus(GroupState.CONFIG_ING.getCode());
+        groupService.updateStatus(GROUP_ID, GroupState.CONFIG_ING.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
-        groupInfo.setStatus(GroupState.CONFIG_SUCCESSFUL.getCode());
+        groupService.updateStatus(GROUP_ID, GroupState.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
         WorkflowResult result = groupProcessOperation.suspendProcess(GROUP_ID, OPERATOR);

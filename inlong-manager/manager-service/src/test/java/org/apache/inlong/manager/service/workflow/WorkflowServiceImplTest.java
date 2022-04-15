@@ -121,16 +121,17 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         InlongGroupInfo groupInfo = new InlongGroupInfo();
         groupInfo.setName("test");
         groupInfo.setInCharges(OPERATOR);
-        groupInfo.setInlongGroupId("b_test");
+        groupInfo.setInlongGroupId(GROUP_ID);
         groupInfo.setMiddlewareType(middlewareType);
         groupInfo.setMqExtInfo(new InlongGroupPulsarInfo());
         groupInfo.setMqResourceObj("test-queue");
         groupService.save(groupInfo.genRequest(), OPERATOR);
-        groupInfo.setStatus(GroupState.TO_BE_APPROVAL.getCode());
+
+        groupService.updateStatus(GROUP_ID, GroupState.TO_BE_APPROVAL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
-        groupInfo.setStatus(GroupState.APPROVE_PASSED.getCode());
+        groupService.updateStatus(GROUP_ID, GroupState.APPROVE_PASSED.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
-        groupInfo.setStatus(GroupState.CONFIG_ING.getCode());
+        groupService.updateStatus(GROUP_ID, GroupState.CONFIG_ING.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
         form = new GroupResourceProcessForm();
@@ -267,8 +268,9 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     @Test
     public void testSuspendProcess() {
         InlongGroupInfo groupInfo = initGroupForm(MQType.PULSAR.getType());
-        groupInfo.setStatus(GroupState.CONFIG_SUCCESSFUL.getCode());
+        groupService.updateStatus(GROUP_ID, GroupState.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
+
         UpdateGroupProcessForm form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
         form.setOperateType(OperateType.SUSPEND);
@@ -294,10 +296,11 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     @Test
     public void testRestartProcess() {
         InlongGroupInfo groupInfo = initGroupForm(MQType.PULSAR.getType());
-        groupInfo.setStatus(GroupState.CONFIG_SUCCESSFUL.getCode());
+        groupService.updateStatus(GROUP_ID, GroupState.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
-        groupInfo.setStatus(GroupState.SUSPENDED.getCode());
+        groupService.updateStatus(GROUP_ID, GroupState.SUSPENDED.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
+
         UpdateGroupProcessForm form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
         form.setOperateType(OperateType.RESTART);
@@ -325,10 +328,12 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     @Test
     public void testStopProcess() {
         InlongGroupInfo groupInfo = initGroupForm(MQType.PULSAR.getType());
-        groupInfo.setStatus(GroupState.CONFIG_SUCCESSFUL.getCode());
+
+        groupService.updateStatus(GROUP_ID, GroupState.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
-        groupInfo.setStatus(GroupState.SUSPENDED.getCode());
+        groupService.updateStatus(GROUP_ID, GroupState.SUSPENDED.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
+
         UpdateGroupProcessForm form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
         form.setOperateType(OperateType.DELETE);
