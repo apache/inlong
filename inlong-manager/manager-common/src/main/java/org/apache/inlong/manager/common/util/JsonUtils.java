@@ -26,12 +26,13 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.exceptions.JsonException;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * JSON utils
@@ -39,12 +40,12 @@ import org.apache.inlong.manager.common.exceptions.JsonException;
 @Slf4j
 public class JsonUtils {
 
-    public static final ObjectMapper MAPPER = new ObjectMapper();
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     static {
-        MAPPER.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-        MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        OBJECT_MAPPER.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+        OBJECT_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     /**
@@ -61,7 +62,7 @@ public class JsonUtils {
             return (String) obj;
         }
         try {
-            return MAPPER.writeValueAsString(obj);
+            return OBJECT_MAPPER.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
             log.error("JSON transform error: {}", obj, e);
             throw new JsonException("JSON transform error");
@@ -78,7 +79,7 @@ public class JsonUtils {
      */
     public static <T> T parse(String json, TypeReference<T> type) {
         try {
-            return MAPPER.readValue(json, type);
+            return OBJECT_MAPPER.readValue(json, type);
         } catch (IOException e) {
             log.error("JSON transform error: {}", json, e);
             throw new JsonException("JSON transform error");
@@ -96,7 +97,7 @@ public class JsonUtils {
             return null;
         }
         try {
-            return MAPPER.readTree(json);
+            return OBJECT_MAPPER.readTree(json);
         } catch (IOException e) {
             log.error("JSON transform error: {}", json, e);
             throw new JsonException("JSON transform error");
@@ -113,7 +114,7 @@ public class JsonUtils {
      */
     public static <T> T parse(String json, Class<T> tClass) {
         try {
-            return MAPPER.readValue(json, tClass);
+            return OBJECT_MAPPER.readValue(json, tClass);
         } catch (IOException e) {
             log.error("JSON transform error: {}", json, e);
             throw new JsonException("JSON transform error");
@@ -122,7 +123,7 @@ public class JsonUtils {
 
     public static <T> T parse(String json, JavaType javaType) {
         try {
-            return MAPPER.readValue(json, javaType);
+            return OBJECT_MAPPER.readValue(json, javaType);
         } catch (IOException e) {
             log.error("JSON transform error: {}", json, e);
             throw new JsonException("JSON transform error");
@@ -139,7 +140,8 @@ public class JsonUtils {
      */
     public static <E> List<E> parseList(String json, Class<E> eClass) {
         try {
-            return MAPPER.readValue(json, MAPPER.getTypeFactory().constructCollectionType(List.class, eClass));
+            return OBJECT_MAPPER.readValue(json,
+                    OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, eClass));
         } catch (IOException e) {
             log.error("JSON transform error: {}", json, e);
             throw new JsonException("JSON transform error");
@@ -158,7 +160,8 @@ public class JsonUtils {
      */
     public static <K, V> Map<K, V> parseMap(String json, Class<K> kClass, Class<V> vClass) {
         try {
-            return MAPPER.readValue(json, MAPPER.getTypeFactory().constructMapType(Map.class, kClass, vClass));
+            return OBJECT_MAPPER.readValue(json,
+                    OBJECT_MAPPER.getTypeFactory().constructMapType(Map.class, kClass, vClass));
         } catch (IOException e) {
             log.error("JSON transform error: {}", json, e);
             throw new JsonException("JSON transform error");
