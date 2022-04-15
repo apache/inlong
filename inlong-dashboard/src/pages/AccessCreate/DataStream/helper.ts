@@ -39,6 +39,11 @@ export const valuesToData = (values, inlongGroupId) => {
           inlongStreamId,
         };
       });
+    } else {
+      output.sourceInfo = {
+        sourceType: dataSourceType,
+        sourceName: inlongStreamId,
+      };
     }
 
     output.sinkInfo = streamSink.reduce((acc, type) => {
