@@ -21,10 +21,12 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
+import org.apache.inlong.manager.client.cli.enums.InlongGroupState;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.pojo.SinkInfo;
 import org.apache.inlong.manager.client.cli.pojo.SourceInfo;
 import org.apache.inlong.manager.client.cli.pojo.StreamInfo;
+import org.apache.inlong.manager.client.cli.util.PrintUtil;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
@@ -66,7 +68,7 @@ public class CommandList extends CommandBase {
                 fullStreamResponseList.forEach(fullStreamResponse -> {
                     inlongStreamInfoList.add(fullStreamResponse.getStreamInfo());
                 });
-                print(inlongStreamInfoList, StreamInfo.class);
+                PrintUtil.print(inlongStreamInfoList, StreamInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -80,7 +82,7 @@ public class CommandList extends CommandBase {
         private java.util.List<String> params;
 
         @Parameter(names = {"-s", "--status"})
-        private int status;
+        private String status;
 
         @Parameter(names = {"-g", "--group"}, description = "inlong group id")
         private String group;
@@ -90,10 +92,16 @@ public class CommandList extends CommandBase {
 
         @Override
         void run() {
-            InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
             try {
-                PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, status, 1, pageSize);
-                print(groupPageInfo.getList(), GroupInfo.class);
+                List<Integer> stateList = InlongGroupState.parseStatus(status);
+                InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
+                List<InlongGroupListResponse> groupList = new ArrayList<>();
+                for (int state : stateList) {
+                    PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, state, 1,
+                            pageSize);
+                    groupList.addAll(groupPageInfo.getList());
+                }
+                PrintUtil.print(groupList, GroupInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -117,7 +125,7 @@ public class CommandList extends CommandBase {
             InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
             try {
                 List<SinkListResponse> sinkListResponses = managerClient.listSinks(group, stream);
-                print(sinkListResponses, SinkInfo.class);
+                PrintUtil.print(sinkListResponses, SinkInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -144,7 +152,7 @@ public class CommandList extends CommandBase {
             InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
             try {
                 List<SourceListResponse> sourceListResponses = managerClient.listSources(group, stream, type);
-                print(sourceListResponses, SourceInfo.class);
+                PrintUtil.print(sourceListResponses, SourceInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

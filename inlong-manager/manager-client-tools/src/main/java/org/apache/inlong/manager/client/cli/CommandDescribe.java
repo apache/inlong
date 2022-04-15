@@ -21,6 +21,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
+import org.apache.inlong.manager.client.cli.util.PrintUtil;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
@@ -56,7 +57,7 @@ public class CommandDescribe extends CommandBase {
             try {
                 InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
                 List<FullStreamResponse> fullStreamResponseList = managerClient.listStreamInfo(groupId);
-                fullStreamResponseList.forEach(response -> printJson(response.getStreamInfo()));
+                fullStreamResponseList.forEach(response -> PrintUtil.printJson(response.getStreamInfo()));
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -83,7 +84,7 @@ public class CommandDescribe extends CommandBase {
             try {
                 InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
                 PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, status, 1, pageSize);
-                groupPageInfo.getList().forEach(this::printJson);
+                groupPageInfo.getList().forEach(PrintUtil::printJson);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -107,7 +108,7 @@ public class CommandDescribe extends CommandBase {
             InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
             try {
                 List<SinkListResponse> sinkListResponses = managerClient.listSinks(group, stream);
-                sinkListResponses.forEach(this::printJson);
+                sinkListResponses.forEach(PrintUtil::printJson);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -134,7 +135,7 @@ public class CommandDescribe extends CommandBase {
             try {
                 InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
                 List<SourceListResponse> sourceListResponses = managerClient.listSources(group, stream, type);
-                sourceListResponses.forEach(this::printJson);
+                sourceListResponses.forEach(PrintUtil::printJson);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
