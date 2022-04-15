@@ -22,9 +22,9 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class JarRunRequestbody {
+public class JarRunRequest {
 
-    private  Boolean allowNonRestoredState;
+    private Boolean allowNonRestoredState;
 
     private String entryClass;
 

@@ -21,37 +21,28 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
-import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequestBody;
+import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequest;
+import org.apache.inlong.manager.plugin.flink.enums.Constants;
 import org.apache.inlong.manager.plugin.flink.enums.TaskCommitType;
 
 import static org.apache.flink.api.common.JobStatus.FINISHED;
 import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
 
 @Slf4j
-public class IntergrationTaskRunner implements Runnable {
+public class IntegrationTaskRunner implements Runnable {
 
-    private FlinkService flinkService;
-    private FlinkInfo flinkInfo;
-    private Integer commitType;
     private static final Integer TRY_MAX_TIMES = 60;
     private static final Integer INTERVAL = 10;
+    private final FlinkService flinkService;
+    private final FlinkInfo flinkInfo;
+    private final Integer commitType;
 
-    public IntergrationTaskRunner(FlinkService flinkService, FlinkInfo flinkInfo,Integer commitType) {
+    public IntegrationTaskRunner(FlinkService flinkService, FlinkInfo flinkInfo, Integer commitType) {
         this.flinkService = flinkService;
         this.flinkInfo = flinkInfo;
         this.commitType = commitType;
     }
 
-    /**
-     * When an object implementing interface <code>Runnable</code> is used
-     * to create a thread, starting the thread causes the object's
-     * <code>run</code> method to be called in that separately executing
-     * thread.
-     * <p>The general contract of the method <code>run</code> is that it may
-     * take any action whatsoever.
-     *
-     * @see Thread#run()
-     */
     @Override
     public void run() {
         TaskCommitType commitType = TaskCommitType.getInstance(this.commitType);
@@ -61,7 +52,7 @@ public class IntergrationTaskRunner implements Runnable {
         switch (commitType) {
             case START_NOW:
                 try {
-                    String jobId = flinkService.submitJobs(flinkInfo);
+                    String jobId = flinkService.submit(flinkInfo);
                     flinkInfo.setJobId(jobId);
                     log.info("Start job {} success in backend", jobId);
                 } catch (Exception e) {
@@ -86,10 +77,10 @@ public class IntergrationTaskRunner implements Runnable {
                 break;
             case RESTART:
                 try {
-                    StopWithSavepointRequestBody stopWithSavepointRequestBody = new StopWithSavepointRequestBody();
-                    stopWithSavepointRequestBody.setDrain(Constants.DRAIN);
-                    stopWithSavepointRequestBody.setTargetDirectory(Constants.SAVEPOINT_DIRECTORY);
-                    String location = flinkService.stopJobs(flinkInfo.getJobId(), stopWithSavepointRequestBody);
+                    StopWithSavepointRequest stopWithSavepointRequest = new StopWithSavepointRequest();
+                    stopWithSavepointRequest.setDrain(Constants.DRAIN);
+                    stopWithSavepointRequest.setTargetDirectory(Constants.SAVEPOINT_DIRECTORY);
+                    String location = flinkService.stopJob(flinkInfo.getJobId(), stopWithSavepointRequest);
                     flinkInfo.setSavepointPath(location);
                     log.info("the jobId: {} savepoint: {} ", flinkInfo.getJobId(), location);
                     int times = 0;
@@ -124,11 +115,11 @@ public class IntergrationTaskRunner implements Runnable {
                 break;
             case STOP:
                 try {
-                    StopWithSavepointRequestBody stopWithSavepointRequestBody = new StopWithSavepointRequestBody();
-                    stopWithSavepointRequestBody.setDrain(Constants.DRAIN);
+                    StopWithSavepointRequest stopWithSavepointRequest = new StopWithSavepointRequest();
+                    stopWithSavepointRequest.setDrain(Constants.DRAIN);
                     FlinkConfig flinkConfig = flinkService.getFlinkConfig();
-                    stopWithSavepointRequestBody.setTargetDirectory(flinkConfig.getSavepointDirectory());
-                    String location = flinkService.stopJobs(flinkInfo.getJobId(), stopWithSavepointRequestBody);
+                    stopWithSavepointRequest.setTargetDirectory(flinkConfig.getSavepointDirectory());
+                    String location = flinkService.stopJob(flinkInfo.getJobId(), stopWithSavepointRequest);
                     flinkInfo.setSavepointPath(location);
                     log.info("the jobId {} savepoint: {} ", flinkInfo.getJobId(), location);
                 } catch (Exception e) {
@@ -141,7 +132,7 @@ public class IntergrationTaskRunner implements Runnable {
                 break;
             case DELETE:
                 try {
-                    flinkService.cancelJobs(flinkInfo.getJobId());
+                    flinkService.cancelJob(flinkInfo.getJobId());
                     log.info("delete job {} success in backend", flinkInfo.getJobId());
                     JobStatus jobStatus = flinkService.getJobStatus(flinkInfo.getJobId());
                     if (jobStatus.isTerminalState()) {
