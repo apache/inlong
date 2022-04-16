@@ -92,10 +92,8 @@ jobs:
           success()
           && github.event_name == 'push'
           && github.repository_owner == 'apache'
-          && (github.ref_name == github.event.repository.default_branch
-              || contains(github.ref_name, 'release'))
         run: |
-          if [[ ${{ github.ref_name }} =~ ^release-[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[ ${{ github.ref_name }} == ${{ github.event.repository.default_branch }} || ${{ github.ref_name }} =~ ^release-[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               echo "::set-output name=match::true"
           fi
 
