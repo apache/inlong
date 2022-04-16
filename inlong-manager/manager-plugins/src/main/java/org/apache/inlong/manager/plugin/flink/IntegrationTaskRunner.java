@@ -79,7 +79,8 @@ public class IntegrationTaskRunner implements Runnable {
                 try {
                     StopWithSavepointRequest stopWithSavepointRequest = new StopWithSavepointRequest();
                     stopWithSavepointRequest.setDrain(Constants.DRAIN);
-                    stopWithSavepointRequest.setTargetDirectory(Constants.SAVEPOINT_DIRECTORY);
+                    FlinkConfig flinkConfig = flinkService.getFlinkConfig();
+                    stopWithSavepointRequest.setTargetDirectory(flinkConfig.getSavepointDirectory());
                     String location = flinkService.stopJob(flinkInfo.getJobId(), stopWithSavepointRequest);
                     flinkInfo.setSavepointPath(location);
                     log.info("the jobId: {} savepoint: {} ", flinkInfo.getJobId(), location);
