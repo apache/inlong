@@ -86,7 +86,7 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
                                         Stream.of(ReadableMetadata.values())
                                                 .filter(rm -> rm.key.equals(k))
                                                 .findFirst()
-                                                .orElseThrow(IllegalStateException::new))
+                                                .<IllegalStateException>orElseThrow(IllegalStateException::new))
                         .collect(Collectors.toList());
         final List<DataTypes.Field> metadataFields =
                 readableMetadata.stream()
