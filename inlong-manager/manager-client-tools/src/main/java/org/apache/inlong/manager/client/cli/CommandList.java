@@ -93,13 +93,20 @@ public class CommandList extends CommandBase {
         @Override
         void run() {
             try {
-                List<Integer> stateList = InlongGroupState.parseStatus(status);
                 InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
                 List<InlongGroupListResponse> groupList = new ArrayList<>();
-                for (int state : stateList) {
-                    PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, state, 1,
+                if (!status.isEmpty()) {
+                    List<Integer> stateList = InlongGroupState.parseStatus(status);
+                    for (int state : stateList) {
+                        PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, state, 1,
+                                pageSize);
+                        groupList.addAll(groupPageInfo.getList());
+                        PrintUtil.print(groupList, GroupInfo.class);
+                    }
+                } else {
+                    PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, 0, 1,
                             pageSize);
-                    groupList.addAll(groupPageInfo.getList());
+                    groupList = groupPageInfo.getList();
                 }
                 PrintUtil.print(groupList, GroupInfo.class);
             } catch (Exception e) {
