@@ -186,7 +186,7 @@ public class FlinkService {
     private String submitJobBySavepoint(FlinkInfo flinkInfo, SavepointRestoreSettings settings) throws Exception {
         String localJarPath = flinkInfo.getLocalJarPath();
         File jarFile = new File(localJarPath);
-        String[] programArgs = genProgramArgs(flinkInfo);
+        String[] programArgs = genProgramArgs(flinkInfo, flinkConfig);
 
         PackagedProgram program = PackagedProgram.newBuilder()
                 .setConfiguration(configuration)
@@ -234,7 +234,7 @@ public class FlinkService {
     /**
      * Build the program of the Flink job.
      */
-    private String[] genProgramArgs(FlinkInfo flinkInfo) {
+    private String[] genProgramArgs(FlinkInfo flinkInfo, FlinkConfig flinkConfig) {
         List<String> list = new ArrayList<>();
         list.add("-cluster-id");
         list.add(flinkInfo.getJobName());
@@ -244,6 +244,8 @@ public class FlinkService {
         list.add(flinkInfo.getSourceType());
         list.add("-sink.type");
         list.add(flinkInfo.getSinkType());
+        list.add("-metrics.audit.proxy.hosts");
+        list.add(flinkConfig.getAuditProxyHosts());
         // TODO Support more than one stream with one group
         if (flinkInfo.getInlongStreamInfoList() != null
                 && !flinkInfo.getInlongStreamInfoList().isEmpty()) {
