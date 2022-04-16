@@ -198,11 +198,11 @@ public class FlinkOperation {
                 }
 
                 if (jobStatus == RUNNING) {
-                    log.info("job status is Running for {}", jobDetailsInfo);
+                    log.info("job status is Running for {}", jobId);
                     break;
                 }
-                log.info("job was not Running for {}", jobDetailsInfo);
-                TimeUnit.SECONDS.sleep(5000);
+                log.info("job was not Running for {}", jobId);
+                TimeUnit.SECONDS.sleep(5);
             } catch (Exception e) {
                 log.error("poll job status error for {}, exception: ", flinkInfo, e);
             }
