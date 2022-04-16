@@ -88,7 +88,7 @@ jobs:
       # If the changes are being pushed to a branch like 'release-1.0.0', this step will output true.
       - name: Check release version
         id: check-release-version
-        if: >
+        if: |
           success()
           && github.event_name == 'push'
           && github.repository_owner == 'apache'
@@ -99,7 +99,7 @@ jobs:
           fi
 
       - name: Push docker image to Docker Hub
-        if: >
+        if: |
           success()
           && github.event_name == 'push'
           && github.repository_owner == 'apache'
