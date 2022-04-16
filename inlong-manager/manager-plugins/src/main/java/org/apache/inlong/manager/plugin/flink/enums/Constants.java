@@ -30,6 +30,8 @@ public class Constants {
 
     public static final String SAVEPOINT_DIRECTORY = "flink.savepoint.directory";
 
+    public static final String METRICS_AUDIT_PROXY_HOSTS = "metrics.audit.proxy.hosts";
+
     //dataflow
     public static final String SOURCE_INFO = "source_info";
 
