@@ -38,7 +38,6 @@ public enum InlongGroupState {
         switch (groupState) {
             case CREATE:
                 stateList.add(GroupState.DRAFT.getCode());
-                stateList.add(GroupState.TO_BE_SUBMIT.getCode());
                 return stateList;
             case OPERATING:
                 stateList.add(GroupState.DELETING.getCode());
