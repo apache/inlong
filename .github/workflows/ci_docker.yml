@@ -85,26 +85,22 @@ jobs:
         env:
           CI: false
 
-      # If the changes are being pushed to a branch like 'release-1.0.0', this step will output true.
-      - name: Match release branch
-        id: match-release-branch
-        if: |
-          success()
-          && github.event_name == 'push'
-          && github.repository_owner == 'apache'
-          && contains(github.ref_name, 'release')
-        run: |
-          if [[ ${{ github.ref_name }} =~ ^release-[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo ::set-output name=match::true
-          fi
-
-      - name: Push docker image to Docker Hub
+      # If the changes are being pushed to the master branch or a branch like 'release-1.0.0', this step will output true.
+      - name: Match branch
+        id: match-branch
         if: |
           success()
           && github.event_name == 'push'
           && github.repository_owner == 'apache'
           && (github.ref_name == github.event.repository.default_branch
-              || steps.match-release-branch.outputs.match == 'true')
+              || contains(github.ref_name, 'release'))
+        run: |
+          if [[ ${{ github.ref_name }} =~ ^release-[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::set-output name=match::true"
+          fi
+
+      - name: Push docker image to Docker Hub
+        if: ${{ success() && steps.match-branch.outputs.match == 'true' }}
         working-directory: docker
         run: bash +x publish.sh
         env:
