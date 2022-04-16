@@ -30,6 +30,8 @@ public class Constants {
 
     public static final String SAVEPOINT_DIRECTORY = "flink.savepoint.directory";
 
+    public static final String DRAIN = "flink.drain";
+
     public static final String METRICS_AUDIT_PROXY_HOSTS = "metrics.audit.proxy.hosts";
 
     //dataflow
@@ -63,7 +65,5 @@ public class Constants {
     public static final String URL_SEPARATOR = "/";
 
     public static final String SEPARATOR = ":";
-
-    public static final boolean DRAIN = false;
 
 }

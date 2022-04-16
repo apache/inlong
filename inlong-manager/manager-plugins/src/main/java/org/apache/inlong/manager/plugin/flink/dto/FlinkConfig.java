@@ -32,6 +32,8 @@ public class FlinkConfig {
 
     private Integer parallelism;
 
+    private boolean drain;
+
     private String auditProxyHosts;
 
 }

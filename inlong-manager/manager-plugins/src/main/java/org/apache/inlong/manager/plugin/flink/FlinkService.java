@@ -186,7 +186,7 @@ public class FlinkService {
     private String submitJobBySavepoint(FlinkInfo flinkInfo, SavepointRestoreSettings settings) throws Exception {
         String localJarPath = flinkInfo.getLocalJarPath();
         File jarFile = new File(localJarPath);
-        String[] programArgs = genProgramArgs(flinkInfo,flinkConfig);
+        String[] programArgs = genProgramArgs(flinkInfo, flinkConfig);
 
         PackagedProgram program = PackagedProgram.newBuilder()
                 .setConfiguration(configuration)
