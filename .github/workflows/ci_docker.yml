@@ -15,12 +15,12 @@
 # limitations under the License.
 #
 
-name: InLong Docker Build
+name: InLong Docker Build and Push
 
 on:
   push:
     paths:
-      - '.github/workflows/ci_build_docker.yml'
+      - '.github/workflows/ci_docker.yml'
       - '**/pom.xml'
       - 'inlong-agent/**'
       - 'inlong-audit/**'
@@ -37,7 +37,7 @@ on:
 
   pull_request:
     paths:
-      - '.github/workflows/ci_build_docker.yml'
+      - '.github/workflows/ci_docker.yml'
       - '**/pom.xml'
       - 'inlong-agent/**'
       - 'inlong-audit/**'
@@ -53,8 +53,8 @@ on:
       - '!*.md'
 
 jobs:
-  build:
-    name: Docker Build
+  docker:
+    name: Docker Build and Push
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
