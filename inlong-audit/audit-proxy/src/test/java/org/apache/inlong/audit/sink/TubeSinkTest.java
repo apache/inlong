@@ -31,21 +31,21 @@ import org.apache.flume.lifecycle.LifecycleController;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.powermock.api.mockito.PowerMockito;
 import org.testng.Assert;
 
 public class TubeSinkTest {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TubeSink.class);
 
     private TubeSink tubeSink;
     private Channel channel;
     private Context context;
 
     @Before
-    public void setUp() {
-        tubeSink = new TubeSink();
+    public void setUp() throws Exception {
+        tubeSink = PowerMockito.mock(TubeSink.class);
+        PowerMockito.doNothing().when(tubeSink, "start");
+        PowerMockito.when(tubeSink.process()).thenReturn(Sink.Status.READY);
+        PowerMockito.when(tubeSink.getLifecycleState()).thenReturn(LifecycleState.ERROR);
         channel = new MemoryChannel();
         context = new Context();
 
