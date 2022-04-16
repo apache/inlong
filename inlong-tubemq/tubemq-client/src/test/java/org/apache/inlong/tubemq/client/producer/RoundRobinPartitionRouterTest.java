@@ -25,7 +25,9 @@ import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.junit.Test;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 
+@PowerMockIgnore("javax.management.*")
 public class RoundRobinPartitionRouterTest {
 
     @Test(expected = TubeClientException.class)
