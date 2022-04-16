@@ -63,6 +63,19 @@ InLong is based on MQ and aims to provide a one-stop, practice-tested module plu
 
 InLong is only a one-stop data reporting pipeline platform. It cannot be used as a persistent data storage, nor does it support complex business logic processing on data streams.
 
+## Supported Data Nodes (Updating)
+| Type         | Name             | Version      | Other                                                                                                             |
+|--------------|------------------|--------------|-------------------------------------------------------------------------------------------------------------------|
+| Extract Node | Auto Push        | None         | Using [SDK](https://inlong.apache.org/docs/next/sdk/dataproxy-sdk/example) to send                                |
+|              | File             | None         | CSV, Key-Value, JSON, Avro                                                                                        |
+|              | Kafka            | 2.x          | Canal JSON                                                                                                        |
+|              | MySQL            | 5.x, 8.x     | Debezium JSON                                                                                                     |
+| Load Node    | Auto Consumption | None         | Using MQ SDK consume messages and [Parse InLongMsg](https://inlong.apache.org/docs/next/development/inlong_msg)   |
+|              | Hive             | 2.x          | TextFile, SequenceFile,OrcFile, Parquet, Avro                                                                     |
+|              | Iceberg          | 0.12.x       | Parquet, Orc, Avro                                                                                                |
+|              | ClickHouse       | v20+         | Canal JSON                                                                                                        |
+|              | Kafka            | 2.x          | JSON, Canal, Avro                                                                                                 |
+
 ## Build InLong
 More detailed instructions can be found at [Quick Start](https://inlong.apache.org/docs/next/quick_start/how_to_build) section in the documentation.
 
