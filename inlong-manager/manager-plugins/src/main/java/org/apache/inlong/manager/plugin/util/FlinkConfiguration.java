@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.ADDRESS;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.DRAIN;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.JOB_MANAGER_PORT;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.PARALLELISM;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.PORT;
@@ -99,6 +100,7 @@ public class FlinkConfiguration {
         flinkConfig.setParallelism(Integer.valueOf(properties.getProperty(PARALLELISM)));
         flinkConfig.setSavepointDirectory(properties.getProperty(SAVEPOINT_DIRECTORY));
         flinkConfig.setJobManagerPort(Integer.valueOf(properties.getProperty(JOB_MANAGER_PORT)));
+        flinkConfig.setDrain(Boolean.parseBoolean(properties.getProperty(DRAIN)));
         return flinkConfig;
     }
 

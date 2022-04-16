@@ -78,8 +78,8 @@ public class IntegrationTaskRunner implements Runnable {
             case RESTART:
                 try {
                     StopWithSavepointRequest stopWithSavepointRequest = new StopWithSavepointRequest();
-                    stopWithSavepointRequest.setDrain(Constants.DRAIN);
                     FlinkConfig flinkConfig = flinkService.getFlinkConfig();
+                    stopWithSavepointRequest.setDrain(flinkConfig.isDrain());
                     stopWithSavepointRequest.setTargetDirectory(flinkConfig.getSavepointDirectory());
                     String location = flinkService.stopJob(flinkInfo.getJobId(), stopWithSavepointRequest);
                     flinkInfo.setSavepointPath(location);
@@ -117,8 +117,8 @@ public class IntegrationTaskRunner implements Runnable {
             case STOP:
                 try {
                     StopWithSavepointRequest stopWithSavepointRequest = new StopWithSavepointRequest();
-                    stopWithSavepointRequest.setDrain(Constants.DRAIN);
                     FlinkConfig flinkConfig = flinkService.getFlinkConfig();
+                    stopWithSavepointRequest.setDrain(flinkConfig.isDrain());
                     stopWithSavepointRequest.setTargetDirectory(flinkConfig.getSavepointDirectory());
                     String location = flinkService.stopJob(flinkInfo.getJobId(), stopWithSavepointRequest);
                     flinkInfo.setSavepointPath(location);
