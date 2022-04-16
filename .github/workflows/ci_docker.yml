@@ -86,7 +86,7 @@ jobs:
           CI: false
 
       # If the changes are being pushed to the master branch or a branch like 'release-1.0.0', this step will output true.
-      - name: Match branch
+      - name: Match Branch
         id: match-branch
         if: |
           success()
