@@ -165,6 +165,10 @@
                     <artifactId>nimbus-jose-jwt</artifactId>
                     <groupId>com.nimbusds</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>dropwizard-metrics-hadoop-metrics2-reporter</artifactId>
+                    <groupId>com.github.joshelser</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
