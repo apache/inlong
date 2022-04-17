@@ -513,6 +513,6 @@ Public Domain License
 The following components are provided under Public Domain license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  net.jcip:jcip-annotations:1.0 - "Java Concurrency in Practice" book annotations (http://jax-rs-spec.java.net), (Public Domain)
+  net.jcip:jcip-annotations:1.0 - "Java Concurrency in Practice" book annotations (http://jcip.net/), (Public Domain)
   org.tukaani:xz:1.0 - XZ for Java (http://tukaani.org/xz/java.html), (Public Domain)
 

@@ -11,8 +11,8 @@
       a) in the case of the initial Contributor, the initial content
          Distributed under this Agreement, and
 
-      b) in the case of each subsequent Contributor: 
-         i) changes to the Program, and 
+      b) in the case of each subsequent Contributor:
+         i) changes to the Program, and
          ii) additions to the Program;
       where such changes and/or additions to the Program originate from
       and are Distributed by that particular Contributor. A Contribution
