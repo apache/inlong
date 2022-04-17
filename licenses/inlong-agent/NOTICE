@@ -7,13 +7,39 @@ The Apache Software Foundation (https://www.apache.org/).
 The initial codebase was donated to the ASF by Tencent, copyright 2012-2019.
 
 
+=======================================================================
+
+Apache HBase
+Copyright 2007-2020 The Apache Software Foundation
+
+Apache Avro
+Copyright 2010-2019 The Apache Software Foundation
+
+Apache Pulsar
+Copyright 2017-2019 The Apache Software Foundation
+
+
+
+========================================================================
+
+Apache Yetus - Audience Annotations NOTICE
+========================================================================
+
+Apache Yetus - Audience Annotations
+Copyright 2015-2017 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
 ========================================================================
 
 Apache Avro NOTICE
 ========================================================================
 
 Apache Avro
-Copyright 2009-2013 The Apache Software Foundation
+Copyright 2009-2020 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -26,7 +52,7 @@ Apache Avro IPC NOTICE
 ========================================================================
 
 Apache Avro IPC
-Copyright 2009-2013 The Apache Software Foundation
+Copyright 2009-2020 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -35,11 +61,12 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Curator Client NOTICE
+Apache Pulsar :: Bouncy Castle :: BC NOTICE
+
 ========================================================================
 
-Curator Client
-Copyright 2011-2014 The Apache Software Foundation
+Apache Pulsar :: Bouncy Castle :: BC
+Copyright 2017-2020 Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -48,11 +75,11 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Curator Framework NOTICE
+Apache Commons CLI NOTICE
 ========================================================================
 
-Curator Framework
-Copyright 2011-2014 The Apache Software Foundation
+Apache Commons CLI
+Copyright 2001-2017 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -61,25 +88,114 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Curator Recipes NOTICE
+Apache Commons Codec NOTICE
 ========================================================================
 
-Curator Recipes
-Copyright 2011-2014 The Apache Software Foundation
+Apache Commons Codec
+Copyright 2002-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (https://www.apache.org/).
+
+src/test/org/apache/commons/codec/language/DoubleMetaphoneTest.java
+contains test data from http://aspell.net/test/orig/batch0.tab.
+Copyright (C) 2002 Kevin Atkinson (kevina@gnu.org)
+
+===============================================================================
+
+The content of package org.apache.commons.codec.language.bm has been translated
+from the original php source code available at http://stevemorse.org/phoneticinfo.htm
+with permission from the original authors.
+Original source copyright:
+Copyright (c) 2008 Alexander Beider & Stephen P. Morse.
+
+
+
+========================================================================
+
+Apache Commons Collections NOTICE
+========================================================================
+
+Apache Commons Collections
+Copyright 2001-2015 The Apache Software Foundation
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Commons DBCP NOTICE
+========================================================================
+
+Apache Commons DBCP
+Copyright 2001-2010 The Apache Software Foundation
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Commons DbUtils NOTICE
+========================================================================
+
+Apache Commons DbUtils
+Copyright 2002-2017 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
 
 
 
+========================================================================
+
+Apache Commons IO NOTICE
+========================================================================
+
+Apache Commons IO
+Copyright 2002-2021 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (https://www.apache.org/).
+
+
 
 ========================================================================
 
-Apache HttpClient NOTICE
+Commons Lang NOTICE
 ========================================================================
 
-Apache HttpClient
-Copyright 1999-2020 The Apache Software Foundation
+Apache Commons Lang
+Copyright 2001-2011 The Apache Software Foundation
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Commons Lang3 NOTICE
+========================================================================
+
+Apache Commons Lang
+Copyright 2001-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (https://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Commons Logging NOTICE
+========================================================================
+
+Apache Commons Logging
+Copyright 2003-2014 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -88,162 +204,14 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Apache HttpCore NOTICE
+Commons Pool NOTICE
 ========================================================================
 
-Apache HttpCore
-Copyright 2005-2020 The Apache Software Foundation
+Apache Commons Pool
+Copyright 1999-2009 The Apache Software Foundation
 
-This product includes software developed at
+This product includes software developed by
 The Apache Software Foundation (http://www.apache.org/).
-
-
-
-
-
-
-=======================================================================
-
-fastjson NOTICE
-========================================================================
-
-/*
- * Copyright 1999-2017 Alibaba Group.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-
-
-========================================================================
-
-Snappy Copyright Notices
-=========================
-
-* Copyright 2011 Dain Sundstrom <dain@iq80.com>
-* Copyright 2011, Google Inc.<opensource@google.com>
-
-
-Snappy License
-===============
-Copyright 2011, Google Inc.
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
-
-    * Redistributions of source code must retain the above copyright
-notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
-copyright notice, this list of conditions and the following disclaimer
-in the documentation and/or other materials provided with the
-distribution.
-    * Neither the name of Google Inc. nor the names of its
-contributors may be used to endorse or promote products derived from
-this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
-========================================================================
-
-Netty 2.0.46.Final NOTICE
-========================================================================
-
-                          The Netty Project
-                            =================
-
-Please visit the Netty web site for more information:
-
-  * http://netty.io/
-
-Copyright 2016 The Netty Project
-
-The Netty Project licenses this file to you under the Apache License,
-version 2.0 (the "License"); you may not use this file except in compliance
-with the License. You may obtain a copy of the License at:
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-License for the specific language governing permissions and limitations
-under the License.
-
--------------------------------------------------------------------------------
-This product contains a forked and modified version of Tomcat Native
-
-  * LICENSE:
-    * license/LICENSE.tomcat-native.txt (Apache License 2.0)
-  * HOMEPAGE:
-    * http://tomcat.apache.org/native-doc/
-    * https://svn.apache.org/repos/asf/tomcat/native/
-
-This product contains the Maven wrapper scripts from 'Maven Wrapper', that provides an easy way to ensure a user has everything necessary to run the Maven build.
-
-  * LICENSE:
-    * license/LICENSE.mvn-wrapper.txt (Apache License 2.0)
-  * HOMEPAGE:
-    * https://github.com/takari/maven-wrapper
-
-This product contains small piece of code to support AIX, taken from netbsd.
-
-  * LICENSE:
-    * license/LICENSE.aix-netbsd.txt (OpenSSL License)
-  * HOMEPAGE:
-    * https://ftp.netbsd.org/pub/NetBSD/NetBSD-current/src/crypto/external/bsd/openssl/dist
-
-
-This product contains code from boringssl.
-
-  * LICENSE (Combination ISC and OpenSSL license)
-    * license/LICENSE.boringssl.txt (Combination ISC and OpenSSL license)
-  * HOMEPAGE:
-    * https://boringssl.googlesource.com/boringssl/
-
-
-
-
-
-========================================================================
-
-Prometheus Java Simpleclient 0.9.0 NOTICE
-========================================================================
-
-Prometheus instrumentation library for JVM applications
-Copyright 2012-2015 The Prometheus Authors
-
-This product includes software developed at
-Boxever Ltd. (http://www.boxever.com/).
-
-This product includes software developed at
-SoundCloud Ltd. (http://soundcloud.com/).
-
-This product includes software developed as part of the
-Ocelli project by Netflix Inc. (https://github.com/Netflix/ocelli/).
-
 
 
 
@@ -278,69 +246,13 @@ streams/src/main/java/org/apache/kafka/streams/state/internals/Murmur3.java
 
 
 
-
-
 ========================================================================
 
-Apache Thrift NOTICE
+Curator Client NOTICE
 ========================================================================
 
-Apache Thrift
-Copyright 2006-2010 The Apache Software Foundation.
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-
-
-========================================================================
-
-Apache MINA Core NOTICE
-========================================================================
-
-Apache MINA Core
-Copyright 2004-2011 Apache MINA Project
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-
-========================================================================
-
-Apache Derby Database Engine and Embedded JDBC Driver NOTICE
-========================================================================
-
-The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
-
-
-
-
-
-========================================================================
-
-Apache Log4j  NOTICE
-========================================================================
-
-Apache log4j
-Copyright 2007 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-
-========================================================================
-
-Flume Auth NOTICE
-========================================================================
-
-Flume Auth
-Copyright 2009-2018 Apache Software Foundation
+Curator Client
+Copyright 2011-2017 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -349,40 +261,11 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Flume NG Configuration NOTICE
+Curator Framework NOTICE
 ========================================================================
 
-Flume NG Configuration
-Copyright 2009-2018 Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-
-========================================================================
-
-Flume NG Core NOTICE
-========================================================================
-
-Flume NG Core
-Copyright 2009-2018 Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-
-
-========================================================================
-
-Flume NG Node NOTICE
-========================================================================
-
-Flume NG Node
-Copyright 2009-2018 Apache Software Foundation
+Curator Framework
+Copyright 2011-2017 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -391,14 +274,37 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Flume NG SDK NOTICE
+Curator Recipes NOTICE
 ========================================================================
 
-Flume NG SDK
-Copyright 2009-2018 Apache Software Foundation
+Curator Recipes
+Copyright 2011-2017 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+fastjson NOTICE
+========================================================================
+
+/*
+ * Copyright 1999-2017 Alibaba Group.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 
 
@@ -408,45 +314,6 @@ Flume NG file-based channel NOTICE
 ========================================================================
 
 Flume NG file-based channel
-Copyright 2009-2018 Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
-Flume NG JDBC channel NOTICE
-========================================================================
-
-Flume NG JDBC channel
-Copyright 2009-2018 Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
-Flume NG Spillable Memory channel NOTICE
-========================================================================
-
-Flume NG Spillable Memory channel
-Copyright 2009-2018 Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
-Flume NG Config Filters API NOTICE
-========================================================================
-
-Flume NG Config Filters API
 Copyright 2009-2018 Apache Software Foundation
 
 This product includes software developed at
@@ -482,11 +349,11 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Pulsar Client Java NOTICE
+Flume NG JDBC channel NOTICE
 ========================================================================
 
-Pulsar Client Java
-Copyright 2017-2020 Apache Software Foundation
+Flume NG JDBC channel
+Copyright 2009-2018 Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -495,11 +362,11 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Pulsar Client :: API NOTICE
+Flume Auth NOTICE
 ========================================================================
 
-Pulsar Client :: API
-Copyright 2017-2020 Apache Software Foundation
+Flume Auth
+Copyright 2009-2018 Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -508,11 +375,11 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Pulsar Transaction :: Common NOTICE
+Flume NG Config Filters API NOTICE
 ========================================================================
 
-Pulsar Transaction :: Common
-Copyright 2017-2020 Apache Software Foundation
+Flume NG Config Filters API
+Copyright 2009-2018 Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -521,150 +388,192 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Plexus Common Utilities NOTICE
+Flume NG Configuration NOTICE
 ========================================================================
 
-This product includes software developed by the Indiana University
-  Extreme! Lab (http://www.extreme.indiana.edu/).
+Flume NG Configuration
+Copyright 2009-2018 Apache Software Foundation
 
-This product includes software developed by
+This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
 
-This product includes software developed by
-ThoughtWorks (http://www.thoughtworks.com).
 
-This product includes software developed by
-javolution (http://javolution.org/).
 
-This product includes software developed by
-Rome (https://rome.dev.java.net/).
+========================================================================
+
+Flume NG Core NOTICE
+========================================================================
+
+Flume NG Core
+Copyright 2009-2018 Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
 
 
 
 ========================================================================
 
-scala-logging NOTICE
+Flume NG Node NOTICE
 ========================================================================
 
-Copyright 2014-2021 Lightbend, Inc.
+Flume NG Node
+Copyright 2009-2018 Apache Software Foundation
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
 
 
 
 ========================================================================
 
-Jakarta Activation API jar NOTICE
+Flume NG SDK NOTICE
 ========================================================================
 
-The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
+Flume NG SDK
+Copyright 2009-2018 Apache Software Foundation
 
-
-
-========================================================================
-
-Jakarta Annotations API NOTICE
-========================================================================
-
-The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
 
 
 
 ========================================================================
 
-Jakarta XML Binding API NOTICE
+Flume NG Spillable Memory channel NOTICE
 ========================================================================
 
-The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
+Flume NG Spillable Memory channel
+Copyright 2009-2018 Apache Software Foundation
 
-
-
-========================================================================
-
-jakarta.ws.rs-api NOTICE
-========================================================================
-
-The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
-
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
 
 
 
 ========================================================================
 
-Common Development and Distribution License 1.1
+Apache HttpClient NOTICE
 ========================================================================
 
-The following components are provided under the Common Development and Distribution License 1.1. See project link for details.
+Apache HttpClient
+Copyright 1999-2020 The Apache Software Foundation
 
-     (CDDL 1.1) (GPL2 w/ CPE) org.glassfish.hk2 (https://hk2.java.net)
-     (CDDL 1.1) (GPL2 w/ CPE) Jersey 2 (https://jersey.java.net)
-
-
-
-
-========================================================================
-
-Jersey 2 NOTICE
-========================================================================
-
-The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
-
-
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
 
 
 
 ========================================================================
 
-glassfish.hk2 NOTICE
+Apache HttpCore NOTICE
 ========================================================================
 
-The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
+Apache HttpCore
+Copyright 2005-2020 The Apache Software Foundation
 
-
-
-========================================================================
-
-Jackson NOTICE
-========================================================================
-
-This product currently only contains code developed by authors
-of specific components, as identified by the source code files;
-if such notes are missing files have been created by
-Tatu Saloranta.
-
-For additional credits (generally to people who reported problems)
-see CREDITS file.
-
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
 
 
 
 ========================================================================
 
-JAX-RS provider for JSON content type NOTICE
+Jackson-core NOTICE
 ------------------------------------------------------
-Data Mapper for Jackson NOTICE
-------------------------------------------------------
-Xml Compatibility extensions for Jackson NOTICE
+jackson-databind NOTICE
 ========================================================================
 
-This product currently only contains code developed by authors
-of specific components, as identified by the source code files;
-if such notes are missing files have been created by
-Tatu Saloranta.
+# Jackson JSON processor
 
-For additional credits (generally to people who reported problems)
-see CREDITS file.
+Jackson is a high-performance, Free/Open Source JSON processing library.
+It was originally written by Tatu Saloranta (tatu.saloranta@iki.fi), and has
+been in development since 2007.
+It is currently developed by a community of developers.
 
+## Licensing
+
+Jackson 2.x core and extension components are licensed under Apache License 2.0
+To find the details that apply to this artifact see the accompanying LICENSE file.
+
+## Credits
+
+A list of contributors may be found from CREDITS(-2.x) file, which is included
+in some artifacts (usually source distributions); but is always available
+from the source code management (SCM) system project uses.
+
+
+
+========================================================================
+
+Jackson-JAXRS-JSON NOTICE
+------------------------------------------------------
+Jackson module: JAXB Annotations NOTICE
+------------------------------------------------------
+Jackson module: Paranamer NOTICE
+========================================================================
+
+# Jackson JSON processor
+
+Jackson is a high-performance, Free/Open Source JSON processing library.
+It was originally written by Tatu Saloranta (tatu.saloranta@iki.fi), and has
+been in development since 2007.
+It is currently developed by a community of developers, as well as supported
+commercially by FasterXML.com.
+
+## Licensing
+
+Jackson core and extension components may be licensed under different licenses.
+To find the details that apply to this artifact see the accompanying LICENSE file.
+For more information, including possible other licensing options, contact
+FasterXML.com (http://fasterxml.com).
+
+## Credits
+
+A list of contributors may be found from CREDITS file, which is included
+in some artifacts (usually source distributions); but is always available
+from the source code management (SCM) system project uses.
+
+
+
+========================================================================
+
+JavaBeans Activation Framework API jar NOTICE
+========================================================================
+
+# Notices for Eclipse Project for JAF
+
+This content is produced and maintained by the Eclipse Project for JAF project.
+
+* Project home: https://projects.eclipse.org/projects/ee4j.jaf
+
+## Copyright
+
+All content is the property of the respective authors or their employers. For
+more information regarding authorship of content, please consult the listed
+source code repository logs.
+
+## Declared Project Licenses
+
+This program and the accompanying materials are made available under the terms
+of the Eclipse Distribution License v. 1.0,
+which is available at http://www.eclipse.org/org/documents/edl-v10.php.
+
+SPDX-License-Identifier: BSD-3-Clause
+
+## Source Code
+
+The project maintains the following source code repositories:
+
+* https://github.com/eclipse-ee4j/jaf
+
+## Third-party Content
+
+This project leverages the following third party content.
+
+JUnit (4.12)
+
+* License: Eclipse Public License
 
 
 
@@ -681,239 +590,80 @@ Joda.org (http://www.joda.org/).
 
 
 
-
 ========================================================================
 
-Scala Compiler NOTICE
-========================================================================
-Scala
-Copyright (c) 2002-2022 EPFL
-Copyright (c) 2011-2022 Lightbend, Inc.
-
-Scala includes software developed at
-LAMP/EPFL (https://lamp.epfl.ch/) and
-Lightbend, Inc. (https://www.lightbend.com/).
-
-Licensed under the Apache License, Version 2.0 (the "License").
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-This software includes projects with other licenses -- see `doc/LICENSE.md`.
-
-
-
+Apache Kafka :: kafka_2.11 NOTICE
+------------------------------------------------------
+Apache Kafka :: kafka-clients NOTICE
 ========================================================================
 
-Apache Log4j SLF4J Binding NOTICE
-========================================================================
-
-Apache Log4j SLF4J Binding
-Copyright 1999-1969 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-
-========================================================================
-
-Spring Framework 5.3.13 NOTICE
-========================================================================
-
-Spring Framework 5.3.13
-Copyright (c) 2002-2021 Pivotal, Inc.
-
-This product is licensed to you under the Apache License, Version 2.0
-(the "License"). You may not use this product except in compliance with
-the License.
-
-This product may include a number of subcomponents with separate
-copyright notices and license terms. Your use of the source code for
-these subcomponents is subject to the terms and conditions of the
-subcomponent's license, as noted in the license.txt file.
-
-
-
-
-========================================================================
-
-Spring Framework 5.3.18 NOTICE
-========================================================================
-
-Spring Framework 5.3.18
-Copyright (c) 2002-2022 Pivotal, Inc.
-
-This product is licensed to you under the Apache License, Version 2.0
-(the "License"). You may not use this product except in compliance with
-the License.
-
-This product may include a number of subcomponents with separate
-copyright notices and license terms. Your use of the source code for
-these subcomponents is subject to the terms and conditions of the
-subcomponent's license, as noted in the license.txt file.
-
-
-
-========================================================================
-
-Apache Commons Collections NOTICE
-========================================================================
-
-Apache Commons Collections
-Copyright 2001-2015 The Apache Software Foundation
-
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-
-========================================================================
-
-Apache Commons DBCP NOTICE
-========================================================================
-
-Apache Commons DBCP
-Copyright 2001-2010 The Apache Software Foundation
-
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
-
-
-========================================================================
-
-Apache Commons DbUtils NOTICE
-========================================================================
-
-Apache Commons DbUtils
-Copyright 2002-2017 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
-Commons Lang NOTICE
-========================================================================
-
-Apache Commons Lang
-Copyright 2001-2008 The Apache Software Foundation
-
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
-Apache Commons Logging NOTICE
-========================================================================
-
-Apache Commons Logging
-Copyright 2003-2014 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-
-========================================================================
-
-Apache Commons Pool NOTICE
-========================================================================
-
-Apache Commons Pool
-Copyright 1999-2009 The Apache Software Foundation
-
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-
-========================================================================
-
-Apache Velocity NOTICE
-========================================================================
-
-Apache Velocity
-
-Copyright (C) 2000-2007 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-
-
-========================================================================
-
-Apache Commons CLI NOTICE
-========================================================================
-
-Apache Commons CLI
-Copyright 2001-2017 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-========================================================================
-
-Apache Commons Codec NOTICE
-========================================================================
-
-Apache Commons Codec
-Copyright 2002-2020 The Apache Software Foundation
+Apache Kafka
+Copyright 2020 The Apache Software Foundation.
 
 This product includes software developed at
 The Apache Software Foundation (https://www.apache.org/).
 
-src/test/org/apache/commons/codec/language/DoubleMetaphoneTest.java
-contains test data from http://aspell.net/test/orig/batch0.tab.
-Copyright (C) 2002 Kevin Atkinson (kevina@gnu.org)
-
-===============================================================================
-
-The content of package org.apache.commons.codec.language.bm has been translated
-from the original php source code available at http://stevemorse.org/phoneticinfo.htm
-with permission from the original authors.
-Original source copyright:
-Copyright (c) 2008 Alexander Beider & Stephen P. Morse.
+This distribution has a binary dependency on jersey, which is available under the CDDL
+License. The source code of jersey can be found at https://github.com/jersey/jersey/.
 
 
 
-===============================================================================
+========================================================================
 
-Apache Commons IO NOTICE
-===============================================================================
+Apache Kafka :: kafka-log4j-appender NOTICE
+------------------------------------------------------
+Apache Kafka :: kafka-tools NOTICE
+========================================================================
 
-Apache Commons IO
-Copyright 2002-2021 The Apache Software Foundation
+Apache Kafka
+Copyright 2021 The Apache Software Foundation.
 
 This product includes software developed at
 The Apache Software Foundation (https://www.apache.org/).
 
+This distribution has a binary dependency on jersey, which is available under the CDDL
+License. The source code of jersey can be found at https://github.com/jersey/jersey/.
+
+This distribution has a binary test dependency on jqwik, which is available under
+the Eclipse Public License 2.0. The source code can be found at
+https://github.com/jlink/jqwik.
+
+The streams-scala (streams/streams-scala) module was donated by Lightbend and the original code was copyrighted by them:
+Copyright (C) 2018 Lightbend Inc. <https://www.lightbend.com>
+Copyright (C) 2017-2018 Alexis Seigneurin.
+
+This project contains the following code copied from Apache Hadoop:
+clients/src/main/java/org/apache/kafka/common/utils/PureJavaCrc32C.java
+Some portions of this file Copyright (c) 2004-2006 Intel Corporation and licensed under the BSD license.
+
+This project contains the following code copied from Apache Hive:
+streams/src/main/java/org/apache/kafka/streams/state/internals/Murmur3.java
 
 
-===============================================================================
 
-Apache Commons Lang NOTICE
-===============================================================================
-Apache Commons Lang
-Copyright 2001-2008 The Apache Software Foundation
+========================================================================
 
-This product includes software developed by
+Apache Thrift NOTICE
+========================================================================
+
+Apache Thrift
+Copyright 2006-2010 The Apache Software Foundation.
+
+This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
 
+
+
+========================================================================
+
+Apache Log4j NOTICE
+========================================================================
+
+Apache log4j
+Copyright 2007 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
 
 
 
@@ -923,7 +673,7 @@ Apache Log4j API NOTICE
 ========================================================================
 
 Apache Log4j API
-Copyright 1999-1969 The Apache Software Foundation
+Copyright 1999-2022 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -952,7 +702,7 @@ Apache Log4j SLF4J Binding NOTICE
 ========================================================================
 
 Apache Log4j SLF4J Binding
-Copyright 1999-1969 The Apache Software Foundation
+Copyright 1999-2022 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -974,159 +724,147 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Apache ZooKeeper NOTICE
+Metrics Core Library NOTICE
 ========================================================================
 
-Apache ZooKeeper
-Copyright 2009-2021 The Apache Software Foundation
+Metrics
+Copyright 2010-2012 Coda Hale and Yammer, Inc.
+
+This product includes software developed by Coda Hale and Yammer, Inc.
+
+This product includes code derived from the JSR-166 project (ThreadLocalRandom), which was released
+with the following comments:
+
+    Written by Doug Lea with assistance from members of JCP JSR-166
+    Expert Group and released to the public domain, as explained at
+    http://creativecommons.org/publicdomain/zero/1.0/
+
+
+
+========================================================================
+
+Apache MINA Core NOTICE
+========================================================================
+
+Apache MINA Core
+Copyright 2004-2011 Apache MINA Project
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
 
-This product includes software components originally
-developed for Airlift (https://github.com/airlift/airlift),
-licensed under the Apache 2.0 license. The licensing terms
-for Airlift code can be found at:
-https://github.com/airlift/airlift/blob/master/LICENSE
 
 
 ========================================================================
 
-Netty NOTICE
+Plexus Common Utilities NOTICE
+========================================================================
+
+This product includes software developed by the Indiana University 
+  Extreme! Lab (http://www.extreme.indiana.edu/).
+
+This product includes software developed by 
+The Apache Software Foundation (http://www.apache.org/).
+
+This product includes software developed by 
+ThoughtWorks (http://www.thoughtworks.com).
+
+This product includes software developed by 
+javolution (http://javolution.org/).
+
+This product includes software developed by 
+Rome (https://rome.dev.java.net/).
+
+
+
+========================================================================
+
+Pulsar Client Java NOTICE
+========================================================================
+
+Pulsar Client Java
+Copyright 2017-2020 Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Pulsar Client Admin :: API NOTICE
+========================================================================
+
+Pulsar Client Admin :: API
+Copyright 2017-2020 Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Pulsar Client :: API NOTICE
+========================================================================
+
+Pulsar Client :: API
+Copyright 2017-2020 Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+scala-collection-compat NOTICE
+========================================================================
+
+scala-collection-compat
+Copyright (c) 2002-2019 EPFL
+Copyright (c) 2011-2019 Lightbend, Inc.
+
+Scala includes software developed at
+LAMP/EPFL (https://lamp.epfl.ch/) and
+Lightbend, Inc. (https://www.lightbend.com/).
+
+Licensed under the Apache License, Version 2.0 (the "License").
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
+
+========================================================================
+
+Prometheus Java Simpleclient NOTICE
 ------------------------------------------------------
-Netty/All-in-One NOTICE
-
+Prometheus Java Simpleclient Common NOTICE
+------------------------------------------------------
+Prometheus Java Simpleclient Hotspot NOTICE
+------------------------------------------------------
+Prometheus Java Simpleclient Httpserver NOTICE
+------------------------------------------------------
+Prometheus Java Span Context Supplier - Common NOTICE
+------------------------------------------------------
+Prometheus Java Span Context Supplier - OpenTelemetry NOTICE
+------------------------------------------------------
+Prometheus Java Span Context Supplier - OpenTelemetry Agent NOTICE
 ========================================================================
 
-The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
+Prometheus instrumentation library for JVM applications
+Copyright 2012-2015 The Prometheus Authors
 
+This product includes software developed at
+Boxever Ltd. (http://www.boxever.com/).
 
+This product includes software developed at
+SoundCloud Ltd. (http://soundcloud.com/).
 
-
-========================================================================
-
-Jetty :: Aggregate :: All core Jetty NOTICE
-========================================================================
-
-==============================================================
-
- Jetty Web Container
- Copyright 1995-2018 Mort Bay Consulting Pty Ltd.
-==============================================================
-
-The Jetty Web Container is Copyright Mort Bay Consulting Pty Ltd
-unless otherwise noted.
-
-Jetty is dual licensed under both
-
-  * The Apache 2.0 License
-    http://www.apache.org/licenses/LICENSE-2.0.html
-
-      and
-
-  * The Eclipse Public 1.0 License
-    http://www.eclipse.org/legal/epl-v10.html
-
-Jetty may be distributed under either license.
-
-------
-Eclipse
-
-The following artifacts are EPL.
- * org.eclipse.jetty.orbit:org.eclipse.jdt.core
-
-The following artifacts are EPL and ASL2.
- * org.eclipse.jetty.orbit:javax.security.auth.message
-
-
-The following artifacts are EPL and CDDL 1.0.
- * org.eclipse.jetty.orbit:javax.mail.glassfish
-
-
-------
-Oracle
-
-The following artifacts are CDDL + GPLv2 with classpath exception.
-https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html
-
- * javax.servlet:javax.servlet-api
- * javax.annotation:javax.annotation-api
- * javax.transaction:javax.transaction-api
- * javax.websocket:javax.websocket-api
-
-------
-Oracle OpenJDK
-
-If ALPN is used to negotiate HTTP/2 connections, then the following
-artifacts may be included in the distribution or downloaded when ALPN
-module is selected.
-
- * java.sun.security.ssl
-
-These artifacts replace/modify OpenJDK classes.  The modififications
-are hosted at github and both modified and original are under GPL v2 with
-classpath exceptions.
-http://openjdk.java.net/legal/gplv2+ce.html
-
-
-------
-OW2
-
-The following artifacts are licensed by the OW2 Foundation according to the
-terms of http://asm.ow2.org/license.html
-
-org.ow2.asm:asm-commons
-org.ow2.asm:asm
-
-
-------
-Apache
-
-The following artifacts are ASL2 licensed.
-
-org.apache.taglibs:taglibs-standard-spec
-org.apache.taglibs:taglibs-standard-impl
-
-
-------
-MortBay
-
-The following artifacts are ASL2 licensed.  Based on selected classes from
-following Apache Tomcat jars, all ASL2 licensed.
-
-org.mortbay.jasper:apache-jsp
-  org.apache.tomcat:tomcat-jasper
-  org.apache.tomcat:tomcat-juli
-  org.apache.tomcat:tomcat-jsp-api
-  org.apache.tomcat:tomcat-el-api
-  org.apache.tomcat:tomcat-jasper-el
-  org.apache.tomcat:tomcat-api
-  org.apache.tomcat:tomcat-util-scan
-  org.apache.tomcat:tomcat-util
-
-org.mortbay.jasper:apache-el
-  org.apache.tomcat:tomcat-jasper-el
-  org.apache.tomcat:tomcat-el-api
-
-
-------
-Mortbay
-
-The following artifacts are CDDL + GPLv2 with classpath exception.
-
-https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html
-
-org.eclipse.jetty.toolchain:jetty-schemas
-
-------
-Assorted
-
-The UnixCrypt.java code implements the one way cryptography used by
-Unix systems for simple password protection.  Copyright 1996 Aki Yoshida,
-modified April 2001  by Iris Van den Broeke, Daniel Deville.
-Permission to use, copy, modify and distribute UnixCrypt
-for non-commercial or commercial purposes and without fee is
-granted provided that the copyright notice appears in all copies.
+This product includes software developed as part of the
+Ocelli project by Netflix Inc. (https://github.com/Netflix/ocelli/).
 
 
 
@@ -1142,12 +880,12 @@ This product includes software developed by Apache
  PureJavaCrc32C from apache-hadoop-common http://hadoop.apache.org/
  (Apache 2.0 license)
 
-This library containd statically linked libstdc++. This inclusion is allowed by
-"GCC RUntime Library Exception"
+This library containd statically linked libstdc++. This inclusion is allowed by 
+"GCC RUntime Library Exception" 
 http://gcc.gnu.org/onlinedocs/libstdc++/manual/license.html
 
 == Contributors ==
-  * Tatu Saloranta
+  * Tatu Saloranta  
     * Providing benchmark suite
   * Alec Wysoker
     * Performance and memory usage improvement
@@ -1156,38 +894,120 @@ http://gcc.gnu.org/onlinedocs/libstdc++/manual/license.html
 
 ========================================================================
 
-jose4j NOTICE
+Apache Velocity - Engine NOTICE
 ========================================================================
 
-jose4j
-Copyright 2012-2015 Brian Campbell
+Apache Velocity - Engine
+Copyright 2000-2020 The Apache Software Foundation
 
-EcdsaUsingShaAlgorithm contains code for converting the concatenated
-R & S values of the signature to and from DER, which was originally
-derived from the Apache Santuario XML Security library's SignatureECDSA
-implementation. http://santuario.apache.org/
-
-The Base64 implementation in this software was derived from the
-Apache Commons Codec project. http://commons.apache.org/proper/commons-codec/
-
-JSON processing in this software was derived from the JSON.simple toolkit.
-https://code.google.com/p/json-simple/
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
 
 
 
 ========================================================================
 
-Metrics Core NOTICE
+Apache ZooKeeper - Server NOTICE
+------------------------------------------------------
+Apache ZooKeeper - Jute NOTICE
 ========================================================================
 
-Metrics
-Copyright 2010-2013 Coda Hale and Yammer, Inc., 2014-2017 Dropwizard Team
+Apache ZooKeeper
+Copyright 2009-2021 The Apache Software Foundation
 
-This product includes software developed by Coda Hale and Yammer, Inc.
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
 
-This product includes code derived from the JSR-166 project (ThreadLocalRandom, Striped64,
-LongAdder), which was released with the following comments:
+This product includes software components originally
+developed for Airlift (https://github.com/airlift/airlift),
+licensed under the Apache 2.0 license. The licensing terms
+for Airlift code can be found at:
+https://github.com/airlift/airlift/blob/master/LICENSE
 
-    Written by Doug Lea with assistance from members of JCP JSR-166
-    Expert Group and released to the public domain, as explained at
-    http://creativecommons.org/publicdomain/zero/1.0/
+
+
+========================================================================
+
+aopalliance version 1.0 repackaged as a module NOTICE
+------------------------------------------------------
+Apache Commons Compress NOTICE
+------------------------------------------------------
+Apache Derby Database Engine and Embedded JDBC Driver NOTICE
+------------------------------------------------------
+HK2 API module NOTICE
+------------------------------------------------------
+ServiceLocator Default Implementation NOTICE
+------------------------------------------------------
+HK2 Implementation Utilities NOTICE
+------------------------------------------------------
+Jakarta Annotations API NOTICE
+------------------------------------------------------
+javax.inject:1 as OSGi bundle NOTICE
+------------------------------------------------------
+Jakarta Bean Validation API NOTICE
+------------------------------------------------------
+jakarta.ws.rs-api NOTICE
+------------------------------------------------------
+jakarta.xml.bind-api NOTICE
+------------------------------------------------------
+jersey-core-client NOTICE
+------------------------------------------------------
+jersey-common NOTICE
+------------------------------------------------------
+jersey-container-servlet NOTICE
+------------------------------------------------------
+jersey-container-servlet-core NOTICE
+------------------------------------------------------
+jersey-inject-hk2 NOTICE
+------------------------------------------------------
+jersey-core-server NOTICE
+------------------------------------------------------
+Jetty :: Asynchronous HTTP Client NOTICE
+------------------------------------------------------
+Jetty :: Continuation NOTICE
+------------------------------------------------------
+Jetty :: Http Utility NOTICE
+------------------------------------------------------
+Jetty :: IO Utility NOTICE
+------------------------------------------------------
+Jetty :: JMX Management NOTICE
+------------------------------------------------------
+Jetty :: Security NOTICE
+------------------------------------------------------
+Jetty :: Server Core NOTICE
+------------------------------------------------------
+Jetty :: Servlet Handling NOTICE
+------------------------------------------------------
+Jetty :: Utility Servlets and Filters NOTICE
+------------------------------------------------------
+Jetty :: Utilities NOTICE
+------------------------------------------------------
+Jetty :: Utilities :: Ajax(JSON) NOTICE
+------------------------------------------------------
+Netty NOTICE
+------------------------------------------------------
+Netty/Buffer NOTICE
+------------------------------------------------------
+Netty/Codec NOTICE
+------------------------------------------------------
+Netty/Common NOTICE
+------------------------------------------------------
+Netty/Handler NOTICE
+------------------------------------------------------
+Netty/Resolver NOTICE
+------------------------------------------------------
+Netty/Transport NOTICE
+------------------------------------------------------
+Netty/Transport/Classes/Epoll NOTICE
+------------------------------------------------------
+Netty/Transport/Native/Epoll NOTICE
+------------------------------------------------------
+Netty/Transport/Native/Unix/Common NOTICE
+------------------------------------------------------
+Netty/TomcatNative [OpenSSL - Classes] NOTICE
+------------------------------------------------------
+OSGi resource locator NOTICE
+========================================================================
+
+The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
+

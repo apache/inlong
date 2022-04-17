@@ -508,7 +508,6 @@ The text of each license is the standard Apache 2.0 license.
   net.sf.opencsv:opencsv:2.3 - opencsv (http://opencsv.sf.net), (Apache 2)
   org.apache.orc:orc-core:1.3.4 - ORC Core (https://orc.apache.org/), (Apache License, Version 2.0)
   org.elasticsearch.plugin:parent-join-client:6.8.17 - parent-join (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
-  org.apache.pulsar:pulsar-client:2.8.1 - Pulsar Client Java (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
   org.apache.pulsar:pulsar-client-admin-api:2.8.1 - Pulsar Client Admin :: API (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
   org.apache.pulsar:pulsar-client-api:2.8.1 - Pulsar Client :: API (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
   org.elasticsearch.plugin:rank-eval-client:6.8.17 - rank-eval (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
@@ -595,6 +594,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.apache.lucene:lucene-spatial3d:7.7.3 - Lucene Spatial 3D (http://lucene.apache.org), (Apache 2)
   org.apache.lucene:lucene-suggest:7.7.3 - Lucene Suggest (http://lucene.apache.org), (Apache 2)
   org.apache.parquet:parquet-hadoop-bundle:1.8.1 - Apache Parquet Hadoop Bundle (https://parquet.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.pulsar:pulsar-client:2.8.1 - Pulsar Client Java (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
 
 
 ========================================================================
