@@ -48,14 +48,8 @@ jobs:
       matrix:
         kubernetes-version:
           - 'kindest/node:v1.14.10'
-          - 'kindest/node:v1.15.12'
-          - 'kindest/node:v1.16.15'
-          - 'kindest/node:v1.17.17'
           - 'kindest/node:v1.18.20'
-          - 'kindest/node:v1.19.16'
-          - 'kindest/node:v1.20.15'
           - 'kindest/node:v1.21.10'
-          - 'kindest/node:v1.22.7'
           - 'kindest/node:v1.23.4'
     steps:
       - name: Checkout
@@ -81,8 +75,8 @@ jobs:
         run: |
           changed=$(ct list-changed --config ${{ env.CT_CONFIG_PATH }} --target-branch ${{ github.event.repository.default_branch }})
           if [[ -n "$changed" ]]; then
-            echo -e "\e[96mchanged charts: $changed\e[0m"
             echo "::set-output name=changed::true"
+            echo -e "\e[96mchanged charts: $changed\e[0m"
           else
             echo -e "\e[91mCharts are not changed, they will not be linted, validated, installed and tested.\e[0m"
           fi
@@ -92,7 +86,7 @@ jobs:
         run: ct lint --config ${{ env.CT_CONFIG_PATH }}
 
       - name: Create kind cluster
-        if: steps.list-changed.outputs.changed == 'true'
+        if: ${{ steps.list-changed.outputs.changed == 'true' }}
         uses: helm/kind-action@v1.2.0
         with:
           config: ${{ env.KIND_CONFIG_PATH }}
