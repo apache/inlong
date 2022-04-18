@@ -129,7 +129,9 @@ public class HeartbeatManager extends AbstractDaemon {
                 try {
                     TaskSnapshotRequest taskSnapshotRequest = getHeartBeat();
                     httpManager.doSentPost(reportSnapshotUrl, taskSnapshotRequest);
-                    LOGGER.info(" {} report to manager", taskSnapshotRequest);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(" {} report to manager", taskSnapshotRequest);
+                    }
                     int heartbeatInterval = conf.getInt(AGENT_HEARTBEAT_INTERVAL,
                             DEFAULT_AGENT_HEARTBEAT_INTERVAL);
                     TimeUnit.SECONDS.sleep(heartbeatInterval);

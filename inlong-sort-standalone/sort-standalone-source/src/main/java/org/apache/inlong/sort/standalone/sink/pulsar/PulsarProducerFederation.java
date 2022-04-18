@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
+import org.apache.flume.Transaction;
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+import org.slf4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -25,12 +31,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.flume.Event;
-import org.apache.flume.Transaction;
-import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
-import org.slf4j.Logger;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 /**
  * 
@@ -148,10 +148,10 @@ public class PulsarProducerFederation {
     /**
      * send
      * 
-     * @param event
+     * @param profileEvent
      * @param tx
      */
-    public boolean send(Event event, Transaction tx) {
+    public boolean send(ProfileEvent profileEvent, Transaction tx) {
         int currentIndex = clusterIndex.getAndIncrement();
         if (currentIndex > Integer.MAX_VALUE / 2) {
             clusterIndex.set(0);
@@ -160,6 +160,6 @@ public class PulsarProducerFederation {
         int currentSize = currentClusterList.size();
         int realIndex = currentIndex % currentSize;
         PulsarProducerCluster clusterProducer = currentClusterList.get(realIndex);
-        return clusterProducer.send(event, tx);
+        return clusterProducer.send(profileEvent, tx);
     }
 }

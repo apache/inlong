@@ -63,14 +63,14 @@ public class AdminJsonHandler implements AdminHttpSourceHandler {
         for (Event event : events) {
             String cmd = event.getHeaders().get(KEY_CMD);
             if (cmd == null) {
-                LOG.error("Invalid admin event,%s is null", KEY_CMD);
+                LOG.error("Invalid admin event,{} is null", KEY_CMD);
                 continue;
             }
             AdminEventHandler handler = this.handlerMap.get(cmd);
             if (handler == null) {
                 String handlerType = context.getString(cmd + ".type");
                 if (handlerType == null) {
-                    LOG.error("Invalid admin event,%s:%s,type is null", KEY_CMD, cmd);
+                    LOG.error("Invalid admin event,{}:{},type is null", KEY_CMD, cmd);
                     continue;
                 }
                 try {
@@ -82,12 +82,12 @@ public class AdminJsonHandler implements AdminHttpSourceHandler {
                         handler.configure(subContext);
                         this.handlerMap.put(cmd, handler);
                     } else {
-                        LOG.error("Invalid admin event,%s:%s,type:%s is not AdminEventHandler", KEY_CMD, cmd,
+                        LOG.error("Invalid admin event,{}:{},type:{} is not AdminEventHandler", KEY_CMD, cmd,
                                 handlerType);
                         continue;
                     }
                 } catch (Exception e) {
-                    LOG.error("Invalid admin event,%s:%s,type:%s can not be created,error:%s", KEY_CMD, cmd,
+                    LOG.error("Invalid admin event,{}:{},type:{} can not be created,error:{}", KEY_CMD, cmd,
                             handlerType, e.getMessage(), e);
                     continue;
                 }

@@ -116,10 +116,14 @@ public class SourceSnapshotOperation implements AutoCloseable {
         String agentIp = request.getAgentIp();
         List<TaskSnapshotMessage> snapshotList = request.getSnapshotList();
         if (CollectionUtils.isEmpty(snapshotList)) {
-            LOGGER.info("receive snapshot from ip={}, but snapshot list is empty", agentIp);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("receive snapshot from ip={}, but snapshot list is empty", agentIp);
+            }
             return true;
         }
-        LOGGER.debug("receive snapshot from ip={}, msg size={}", agentIp, snapshotList.size());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("receive snapshot from ip={}, msg size={}", agentIp, snapshotList.size());
+        }
 
         try {
             // Offer the request of snapshot to the queue, and another thread will parse the data in the queue.
@@ -128,7 +132,9 @@ public class SourceSnapshotOperation implements AutoCloseable {
             // Modify the task status based on the tasks reported in the snapshot and the tasks in the cache.
             ConcurrentHashMap<Integer, Integer> idStatusMap = agentTaskCache.getIfPresent(agentIp);
             if (MapUtils.isEmpty(idStatusMap)) {
-                LOGGER.info("success report snapshot for ip={}, task status cache is null", agentIp);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("success report snapshot for ip={}, task status cache is null", agentIp);
+                }
                 return true;
             }
             boolean isInvalid = false;

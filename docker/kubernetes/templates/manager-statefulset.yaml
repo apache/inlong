@@ -56,6 +56,25 @@ spec:
         {{- toYaml .Values.manager.affinity | nindent 8 }}
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.manager.terminationGracePeriodSeconds }}
+      initContainers:
+        - name: wait-{{ .Values.mysql.component }}-ready
+          image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
+          imagePullPolicy: {{ .Values.images.pullPolicy }}
+          command: [ "/bin/sh", "-c" ]
+          args:
+            - |-
+              count={{ .Values.mysql.replicas }}
+              for i in $(seq 0 $(expr $count - 1))
+              do
+                replica="{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-$i"
+                host="$replica.{{ template "inlong.mysql.hostname" . }}"
+                port={{ .Values.mysql.port }}
+                until nc -z $host $port 2>/dev/null
+                do
+                  echo "waiting for $replica to be ready"
+                  sleep 3
+                done
+              done
       containers:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.manager.component }}
           image: {{ .Values.images.manager.repository }}:{{ .Values.images.manager.tag }}

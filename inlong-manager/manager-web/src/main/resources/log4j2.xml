@@ -20,16 +20,13 @@
 <configuration status="WARN" monitorInterval="30">
     <Properties>
         <property name="basePath">logs</property>
-        <property name="log_pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p ${PID:-} [%15.15t] %-30.30C{1.} : %m%n</property>
+        <property name="log_pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%15.15t] %-30.30C{1.}:%L - %m%n</property>
         <property name="every_file_size">1G</property>
         <property name="output_log_level">DEBUG</property>
         <property name="rolling_max">50</property>
-        <property name="info_fileName">${basePath}/info.log</property>
-        <property name="info_filePattern">${basePath}/info-%d{yyyy-MM-dd}-%i.log.gz</property>
-        <property name="info_max">10</property>
-        <property name="debug_fileName">${basePath}/debug.log</property>
-        <property name="debug_filePattern">${basePath}/debug-%d{yyyy-MM-dd}-%i.log.gz</property>
-        <property name="debug_max">10</property>
+        <property name="all_fileName">${basePath}/manager-web.log</property>
+        <property name="all_filePattern">${basePath}/info-%d{yyyy-MM-dd}-%i.log.gz</property>
+        <property name="all_max">10</property>
         <property name="warn_fileName">${basePath}/warn.log</property>
         <property name="warn_filePattern">${basePath}/warn-%d{yyyy-MM-dd}-%i.log.gz</property>
         <property name="warn_max">10</property>
@@ -40,11 +37,11 @@
     </Properties>
 
     <conversionRule conversionWord="clr"
-        converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+            converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
     <conversionRule conversionWord="wex"
-        converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+            converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
     <conversionRule conversionWord="wEx"
-        converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
+            converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
     <appenders>
         <Console name="Console" target="SYSTEM_OUT">
@@ -52,31 +49,19 @@
             <PatternLayout pattern="${log_pattern}"/>
         </Console>
 
-        <RollingFile name="DebugFile" fileName="${debug_fileName}" filePattern="${debug_filePattern}">
+        <RollingFile name="AllFile" fileName="${all_fileName}" filePattern="${all_filePattern}">
             <PatternLayout pattern="${log_pattern}"/>
             <SizeBasedTriggeringPolicy size="${every_file_size}"/>
-            <DefaultRolloverStrategy max="${debug_max}" />
+            <DefaultRolloverStrategy max="${all_max}"/>
             <Filters>
-                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
-                <ThresholdFilter level="INFO" onMatch="DENY" onMismatch="NEUTRAL"/>
                 <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
-        </RollingFile>
-
-        <RollingFile name="InfoFile" fileName="${info_fileName}" filePattern="${info_filePattern}">
-            <PatternLayout pattern="${log_pattern}"/>
-            <SizeBasedTriggeringPolicy size="${every_file_size}"/>
-            <DefaultRolloverStrategy max="${info_max}" />
-            <Filters>
-                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
-                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
         </RollingFile>
 
         <RollingFile name="WarnFile" fileName="${warn_fileName}" filePattern="${warn_filePattern}">
             <PatternLayout pattern="${log_pattern}"/>
             <SizeBasedTriggeringPolicy size="${every_file_size}"/>
-            <DefaultRolloverStrategy max="${warn_max}" />
+            <DefaultRolloverStrategy max="${warn_max}"/>
             <Filters>
                 <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
                 <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
@@ -86,9 +71,8 @@
         <RollingFile name="ErrorFile" fileName="${error_fileName}" filePattern="${error_filePattern}">
             <PatternLayout pattern="${log_pattern}"/>
             <SizeBasedTriggeringPolicy size="${every_file_size}"/>
-            <DefaultRolloverStrategy max="${error_max}" />
+            <DefaultRolloverStrategy max="${error_max}"/>
             <Filters>
-                <ThresholdFilter level="FATAL" onMatch="DENY" onMismatch="NEUTRAL"/>
                 <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
         </RollingFile>
@@ -96,12 +80,11 @@
 
     <loggers>
         <logger name="org.apache.pulsar" level="info" additivity="false">
-            <appender-ref ref="InfoFile"/>
+            <appender-ref ref="AllFile"/>
         </logger>
         <root level="${output_log_level}">
             <appender-ref ref="Console"/>
-            <appender-ref ref="DebugFile"/>
-            <appender-ref ref="InfoFile"/>
+            <appender-ref ref="AllFile"/>
             <appender-ref ref="WarnFile"/>
             <appender-ref ref="ErrorFile"/>
         </root>

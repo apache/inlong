@@ -56,7 +56,9 @@ public class SerializationUtils {
             case KAFKA:
                 return deserializeForKafka((KafkaSourceResponse) sourceResponse, streamInfo);
             case FILE:
-                return deserializeForFile(sourceResponse, streamInfo);
+                return deserializeForFile(streamInfo);
+            case AUTO_PUSH:
+                return deserializeForAutoPush(streamInfo);
             default:
                 throw new IllegalArgumentException(String.format("Unsupported sourceType: %s", sourceType));
         }
@@ -135,10 +137,10 @@ public class SerializationUtils {
     /**
      * Get deserialization info for File
      */
-    private static DeserializationInfo deserializeForFile(SourceResponse sourceResponse, InlongStreamInfo streamInfo) {
-        String serializationType = sourceResponse.getSerializationType();
-        DataTypeEnum dataType = DataTypeEnum.forName(serializationType);
-        switch (dataType) {
+    private static DeserializationInfo deserializeForFile(InlongStreamInfo streamInfo) {
+        String dataType = streamInfo.getDataType();
+        DataTypeEnum typeEnum = DataTypeEnum.forName(dataType);
+        switch (typeEnum) {
             case CSV:
                 char separator = streamInfo.getDataSeparator().toCharArray()[0];
                 return new CsvDeserializationInfo(separator);
@@ -148,7 +150,27 @@ public class SerializationUtils {
                 return new JsonDeserializationInfo();
             default:
                 throw new IllegalArgumentException(
-                        String.format("Unsupported type for File source:%s", serializationType));
+                        String.format("Unsupported data type for File source: %s", dataType));
+        }
+    }
+
+    /**
+     * Get deserialization info for DataProxy SDK source
+     */
+    private static DeserializationInfo deserializeForAutoPush(InlongStreamInfo streamInfo) {
+        String dataType = streamInfo.getDataType();
+        DataTypeEnum typeEnum = DataTypeEnum.forName(dataType);
+        switch (typeEnum) {
+            case CSV:
+                char separator = streamInfo.getDataSeparator().toCharArray()[0];
+                return new CsvDeserializationInfo(separator);
+            case AVRO:
+                return new AvroDeserializationInfo();
+            case JSON:
+                return new JsonDeserializationInfo();
+            default:
+                throw new IllegalArgumentException(
+                        String.format("Unsupported data type for DataProxy SDK source: %s", dataType));
         }
     }
 }

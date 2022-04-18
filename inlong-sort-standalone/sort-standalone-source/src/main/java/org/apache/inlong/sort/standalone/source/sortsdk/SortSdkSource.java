@@ -17,23 +17,19 @@
 
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang.ClassUtils;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.source.AbstractSource;
+import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.api.SortClientFactory;
 import org.apache.inlong.sdk.sort.impl.ManagerReportHandlerImpl;
 import org.apache.inlong.sdk.sort.impl.MetricReporterImpl;
+import org.apache.inlong.sort.standalone.admin.ConsumerServiceMBean;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.ManagerUrlHandler;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
@@ -43,6 +39,12 @@ import org.apache.inlong.sort.standalone.config.loader.ClassResourceQueryConsume
 import org.apache.inlong.sort.standalone.utils.FlumeConfigGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Default Source implementation of InLong.
@@ -62,7 +64,8 @@ import org.slf4j.LoggerFactory;
  * <b>WITHOUT</b> any arguments, and parameters will be configured by {@link Configurable#configure(Context)}.
  * </p>
  */
-public final class SortSdkSource extends AbstractSource implements Configurable, Runnable, EventDrivenSource {
+public final class SortSdkSource extends AbstractSource
+        implements Configurable, Runnable, EventDrivenSource, ConsumerServiceMBean {
 
     // Log of {@link SortSdkSource}.
     private static final Logger LOG = LoggerFactory.getLogger(SortSdkSource.class);
@@ -107,6 +110,7 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
         pool.shutdownNow();
         LOG.info("Close sort client {}.", taskName);
         if (sortClient != null) {
+            sortClient.getConfig().setStopConsume(true);
             sortClient.close();
         }
     }
@@ -134,7 +138,8 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
         this.sortClusterName = SortClusterConfigHolder.getClusterConfig().getClusterName();
         this.reloadInterval = this.context.getReloadInterval();
         this.initReloadExecutor();
-
+        // register
+        AdminServiceRegister.register(ConsumerServiceMBean.MBEAN_TYPE, taskName, this);
     }
 
     /**
@@ -211,5 +216,21 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
             LOG.error("Got one throwable when init client of id:{}", sortId, th);
         }
         return null;
+    }
+
+    /**
+     * stopConsumer
+     */
+    @Override
+    public void stopConsumer() {
+        sortClient.getConfig().setStopConsume(true);
+    }
+
+    /**
+     * recoverConsumer
+     */
+    @Override
+    public void recoverConsumer() {
+        sortClient.getConfig().setStopConsume(false);
     }
 }

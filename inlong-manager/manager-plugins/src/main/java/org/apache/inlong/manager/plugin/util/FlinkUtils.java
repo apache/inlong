@@ -36,26 +36,23 @@ import java.util.regex.Pattern;
 
 @Slf4j
 public class FlinkUtils {
+
     public static final String BASE_DIRECTORY = "config";
 
-    /**
-     */
-    public static final List<String> FLINK_VERSION_COLLECTION = Arrays.asList("Flink-1.13");
+    public static final List<String> FLINK_VERSION_COLLECTION = Collections.singletonList("Flink-1.13");
 
     /**
-     * @param supportedFlink
-     * @return
+     * getLatestFlinkVersion
      */
-    public static String getLatestFlinkVersion(String [] supportedFlink) {
+    public static String getLatestFlinkVersion(String[] supportedFlink) {
         if (Objects.isNull(supportedFlink)) {
             return null;
         }
         Arrays.sort(supportedFlink, Collections.reverseOrder());
         String latestFinkVersion = null;
-        for (int i = 0; i < supportedFlink.length; i++) {
-            String flinkVersion = supportedFlink[i];
+        for (String flinkVersion : supportedFlink) {
             latestFinkVersion = FLINK_VERSION_COLLECTION.stream()
-                            .filter(v -> v.equals(flinkVersion)).findFirst().orElse(null);
+                    .filter(v -> v.equals(flinkVersion)).findFirst().orElse(null);
             if (Objects.nonNull(latestFinkVersion)) {
                 return latestFinkVersion;
             }
@@ -65,8 +62,6 @@ public class FlinkUtils {
 
     /**
      * print exception
-     * @param throwable
-     * @return
      */
     public static String getExceptionStackMsg(Throwable throwable) {
         StringWriter stringWriter = new StringWriter();
@@ -76,24 +71,22 @@ public class FlinkUtils {
 
     /**
      * fetch sort-single-tenant jar path
-     * @param baseDirName
-     * @return
      */
-    public static String findFiles(String baseDirName,String pattern) {
+    public static String findFiles(String baseDirName, String pattern) {
         File baseDir = new File(baseDirName);
         if (!baseDir.exists() || !baseDir.isDirectory()) {
             log.error("baseDirName find fail :{}", baseDirName);
             return null;
         }
-        String tempName = null;
+        String tempName;
         File tempFile;
         File[] files = baseDir.listFiles();
-        if (files.length == 0) {
+        if (files == null || files.length == 0) {
             log.info("baseDirName is empty");
             return null;
         }
-        for (int i = 0; i < files.length; i++) {
-            tempFile = files[i];
+        for (File file : files) {
+            tempFile = file;
             tempName = tempFile.getName();
             Pattern jarPathPattern = Pattern.compile(pattern);
             Matcher matcher = jarPathPattern.matcher(tempName);
@@ -107,27 +100,20 @@ public class FlinkUtils {
 
     /**
      * get value
-     * @param key
-     * @param defaultValue
-     * @return
      */
     public static String getValue(String key, String defaultValue) {
         return StringUtils.isNotEmpty(key) ? key : defaultValue;
     }
 
     /**
-     * @param name
-     * @return
+     * getConfigDirectory
      */
     public static String getConfigDirectory(String name) {
         return BASE_DIRECTORY + File.separator + name;
     }
 
     /**
-     * @param configJobDirectory
-     * @param configFileName
-     * @param content
-     * @return
+     * writeConfigToFile
      */
     public static boolean writeConfigToFile(String configJobDirectory, String configFileName, String content) {
         File file = new File(configJobDirectory);
@@ -150,8 +136,6 @@ public class FlinkUtils {
 
     /**
      * delete configuration file
-     * @param name
-     * @return
      */
     public static boolean deleteConfigFile(String name) {
         String configDirectory = getConfigDirectory(name);
@@ -160,7 +144,7 @@ public class FlinkUtils {
             try {
                 FileUtils.deleteDirectory(file);
             } catch (IOException e) {
-                log.error("delete %s failed", configDirectory);
+                log.error("delete {} failed", configDirectory, e);
                 return false;
             }
         }

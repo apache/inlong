@@ -27,7 +27,6 @@ import { ColumnsType } from 'antd/es/table';
 import EditableTable from '@/components/EditableTable';
 import { excludeObject } from '@/utils';
 import { sourceDataFields } from './SourceDataFields';
-import React from 'react';
 
 // ClickHouse targetType
 const clickhouseTargetTypes = [

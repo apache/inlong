@@ -127,42 +127,32 @@ export default (
     },
     {
       type: 'radio',
-      label: '同步类型',
-      name: 'syncType',
-      initialValue: currentValues.syncType ?? 0,
-      props: {
-        options: [
-          {
-            label: '全量',
-            value: 0,
-          },
-          {
-            label: '增量',
-            value: 1,
-          },
-        ],
-      },
-      rules: [{ required: true }],
-      visible: values => currentValues.dataSourceType === 'BINLOG',
-    },
-    {
-      type: 'radio',
       label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataType'),
       name: 'dataType',
-      initialValue: currentValues.dataType ?? 'TEXT',
+      initialValue: currentValues.dataType ?? 'CSV',
+      tooltip: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataTypeCsvHelp'),
       props: {
         options: [
           {
-            label: 'TEXT',
-            value: 'TEXT',
+            label: 'CSV',
+            value: 'CSV',
           },
           {
             label: 'KEY-VALUE',
             value: 'KEY-VALUE',
           },
+          {
+            label: 'JSON',
+            value: 'JSON',
+          },
+          {
+            label: 'AVRO',
+            value: 'AVRO',
+          },
         ],
       },
       rules: [{ required: true }],
+      visible: values => values.dataSourceType !== 'BINLOG',
     },
     {
       type: 'radio',
@@ -193,6 +183,10 @@ export default (
         dropdownMatchSelectWidth: false,
         options: [
           {
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Space'),
+            value: '32',
+          },
+          {
             label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.VerticalLine'),
             value: '124',
           },
@@ -201,20 +195,16 @@ export default (
             value: '44',
           },
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DoubleQuotes'),
-            value: '34',
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Semicolon'),
+            value: '59',
           },
           {
             label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Asterisk'),
             value: '42',
           },
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Space'),
-            value: '32',
-          },
-          {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Semicolon'),
-            value: '59',
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DoubleQuotes'),
+            value: '34',
           },
         ],
         useInput: true,
@@ -232,7 +222,9 @@ export default (
           max: 127,
         },
       ],
-      visible: values => values.dataSourceType === 'FILE' || values.dataSourceType === 'AUTO_PUSH',
+      visible: values =>
+        (values.dataSourceType === 'FILE' || values.dataSourceType === 'AUTO_PUSH') &&
+        values.dataType === 'CSV',
     },
     {
       type: (

@@ -17,15 +17,7 @@
 
 package org.apache.inlong.sort.standalone.sink.hive;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import com.alibaba.fastjson.JSON;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -40,7 +32,15 @@ import org.apache.inlong.sort.standalone.dispatch.DispatchProfile;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-import com.alibaba.fastjson.JSON;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -186,6 +186,7 @@ public class HiveSink extends AbstractSink implements Configurable {
                 // monitor
                 LOG.error("can not find uid:{},idConfigMap:{}", uid, JSON.toJSONString(context.getIdConfigMap()));
                 this.context.addSendResultMetric(dispatchProfile, uid, false, 0);
+                dispatchProfile.ack();
                 dispatchProfile = this.dispatchQueue.poll();
                 continue;
             }
@@ -203,6 +204,7 @@ public class HiveSink extends AbstractSink implements Configurable {
                     LOG.error(String.format("can not connect to hdfsPath:%s,write file:%s,error:%s",
                             context.getHdfsPath(), strIdRootPath, e.getMessage()), e);
                     this.context.addSendResultMetric(dispatchProfile, uid, false, 0);
+                    this.dispatchQueue.offer(dispatchProfile);
                     dispatchProfile = this.dispatchQueue.poll();
                     continue;
                 }

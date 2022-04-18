@@ -17,21 +17,27 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
+import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
+import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.Constants;
-import org.slf4j.Logger;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+import org.slf4j.Logger;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
@@ -118,5 +124,84 @@ public class PulsarFederationSinkContext extends SinkContext {
      */
     public List<CacheClusterConfig> getCacheClusters() {
         return this.clusterConfigList;
+    }
+
+    /**
+     * addSendMetric
+     * 
+     * @param currentRecord
+     * @param topic
+     */
+    public void addSendMetric(ProfileEvent currentRecord, String topic) {
+        Map<String, String> dimensions = new HashMap<>();
+        dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(SortMetricItem.KEY_TASK_NAME, this.getTaskName());
+        // metric
+        fillInlongId(currentRecord, dimensions);
+        dimensions.put(SortMetricItem.KEY_SINK_ID, this.getSinkName());
+        dimensions.put(SortMetricItem.KEY_SINK_DATA_ID, topic);
+        long msgTime = currentRecord.getRawLogTime();
+        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
+        SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
+        long count = 1;
+        long size = currentRecord.getBody().length;
+        metricItem.sendCount.addAndGet(count);
+        metricItem.sendSize.addAndGet(size);
+    }
+
+    /**
+     * addReadFailMetric
+     */
+    public void addSendFailMetric() {
+        Map<String, String> dimensions = new HashMap<>();
+        dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(SortMetricItem.KEY_SINK_ID, this.getSinkName());
+        long msgTime = System.currentTimeMillis();
+        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
+        SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
+        metricItem.readFailCount.incrementAndGet();
+    }
+
+    /**
+     * addSendResultMetric
+     * 
+     * @param currentRecord
+     * @param topic
+     * @param result
+     * @param sendTime
+     */
+    public void addSendResultMetric(ProfileEvent currentRecord, String topic, boolean result, long sendTime) {
+        Map<String, String> dimensions = new HashMap<>();
+        dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(SortMetricItem.KEY_TASK_NAME, this.getTaskName());
+        // metric
+        fillInlongId(currentRecord, dimensions);
+        dimensions.put(SortMetricItem.KEY_SINK_ID, this.getSinkName());
+        dimensions.put(SortMetricItem.KEY_SINK_DATA_ID, topic);
+        long msgTime = currentRecord.getRawLogTime();
+        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
+        SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
+        long count = 1;
+        long size = currentRecord.getBody().length;
+        if (result) {
+            metricItem.sendSuccessCount.addAndGet(count);
+            metricItem.sendSuccessSize.addAndGet(size);
+            AuditUtils.add(AuditUtils.AUDIT_ID_SEND_SUCCESS, currentRecord);
+            if (sendTime > 0) {
+                long currentTime = System.currentTimeMillis();
+                long sinkDuration = currentTime - sendTime;
+                long nodeDuration = currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
+                long wholeDuration = currentTime - msgTime;
+                metricItem.sinkDuration.addAndGet(sinkDuration * count);
+                metricItem.nodeDuration.addAndGet(nodeDuration * count);
+                metricItem.wholeDuration.addAndGet(wholeDuration * count);
+            }
+        } else {
+            metricItem.sendFailCount.addAndGet(count);
+            metricItem.sendFailSize.addAndGet(size);
+        }
     }
 }

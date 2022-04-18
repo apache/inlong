@@ -59,7 +59,7 @@ init_compo() {
   if [[ "$SERVICE" != standalone ]]; then
     cd $INLONG_HOME/bin
     echo "init $SERVICE"
-    ./init-config.sh $SERVICE
+    bash +x ./init-config.sh $SERVICE
   fi
 }
 
@@ -75,13 +75,13 @@ start_inlong_audit() {
   fi
   echo "start audit proxy"
   if [ $mq_type == "pulsar" ]; then
-    ./bin/proxy-start.sh pulsar
+    bash +x ./bin/proxy-start.sh pulsar
   fi
   if [ $mq_type == "tubemq" ]; then
-    ./bin/proxy-start.sh tube
+    bash +x ./bin/proxy-start.sh tube
   fi
   echo "start audit store"
-  ./bin/store-start.sh
+  bash +x ./bin/store-start.sh
   # wait to start
   wait_port_to_listen audit ${audit_proxys_port}
 }
@@ -98,7 +98,7 @@ start_inlong_manager() {
     echo "init apache_inlong_manager database"
     mysql -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} <sql/apache_inlong_manager.sql
   fi
-  ./bin/startup.sh
+  bash +x ./bin/startup.sh
   # wait to start
   wait_port_to_listen manager ${manager_server_port}
 }
@@ -116,10 +116,10 @@ start_inlong_dataproxy() {
   echo "start dataproxy"
   cd $INLONG_HOME/inlong-dataproxy
   if [ $mq_type == "pulsar" ]; then
-    ./bin/dataproxy-start.sh pulsar
+    bash +x ./bin/dataproxy-start.sh pulsar
   fi
   if [ $mq_type == "tubemq" ]; then
-    ./bin/dataproxy-start.sh tube
+    bash +x ./bin/dataproxy-start.sh tube
   fi
   # wait to start
   wait_port_to_listen dataproxy ${dataproxy_port}
@@ -129,7 +129,7 @@ start_inlong_agent() {
   init_compo
   echo "start agent"
   cd $INLONG_HOME/inlong-agent
-  ./bin/agent.sh start
+  bash +x ./bin/agent.sh start
   # wait to start
   wait_port_to_listen agent ${agent_port}
 }
@@ -153,7 +153,7 @@ register_service() {
 start_inlong_all() {
   echo "init configuration"
   cd $INLONG_HOME/bin
-  ./init-config.sh
+  bash +x ./init-config.sh
   # start inlong manager
   start_inlong_manager
   # start inlong audit
@@ -170,7 +170,7 @@ start_inlong_all() {
 stop_inlong_manager() {
   echo "stop manager"
   cd $INLONG_HOME/inlong-manager/bin
-  ./shutdown.sh
+  bash +x ./shutdown.sh
 }
 
 stop_inlong_dashboard() {
@@ -181,20 +181,20 @@ stop_inlong_dashboard() {
 stop_inlong_dataproxy() {
   echo "stop dataproxy"
   cd $INLONG_HOME/inlong-dataproxy/bin
-  ./dataproxy-stop.sh
+  bash +x ./dataproxy-stop.sh
 }
 
 stop_inlong_audit() {
   echo "stop audit"
   cd $INLONG_HOME/inlong-audit/bin
-  ./proxy-stop.sh
-  ./store-stop.sh
+  bash +x ./proxy-stop.sh
+  bash +x ./store-stop.sh
 }
 
 stop_inlong_agent() {
   echo "stop agent"
   cd $INLONG_HOME/inlong-agent/bin
-  ./agent.sh stop
+  bash +x ./agent.sh stop
 }
 
 # stop inlong

@@ -25,7 +25,7 @@ public class JarEntryInfo {
     /**
      * description
      */
-    private String deacription;
+    private String description;
 
     /**
      * name

@@ -29,6 +29,8 @@ import org.apache.inlong.tubemq.manager.controller.topic.request.DeleteTopicReq;
 import org.apache.inlong.tubemq.manager.controller.topic.request.ModifyTopicReq;
 import org.apache.inlong.tubemq.manager.controller.topic.request.QueryCanWriteReq;
 import org.apache.inlong.tubemq.manager.controller.topic.request.SetAuthControlReq;
+import org.apache.inlong.tubemq.manager.controller.topic.request.SetPublishReq;
+import org.apache.inlong.tubemq.manager.controller.topic.request.SetSubscribeReq;
 import org.apache.inlong.tubemq.manager.service.TubeConst;
 import org.apache.inlong.tubemq.manager.service.TubeMQErrorConst;
 import org.apache.inlong.tubemq.manager.service.interfaces.MasterService;
@@ -79,6 +81,10 @@ public class TopicWebController {
                 return masterService.baseRequestMaster(gson.fromJson(req, DeleteTopicReq.class));
             case TubeConst.QUERY_CAN_WRITE:
                 return queryCanWrite(gson.fromJson(req, QueryCanWriteReq.class));
+            case TubeConst.PUBLISH:
+                return masterService.baseRequestMaster(gson.fromJson(req, SetPublishReq.class));
+            case TubeConst.SUBSCRIBE:
+                return masterService.baseRequestMaster(gson.fromJson(req, SetSubscribeReq.class));
             default:
                 return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
         }

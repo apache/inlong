@@ -109,25 +109,6 @@ public class Binlog2KafkaExample {
     }
 
     @Test
-    public void testRestartGroup() {
-        ClientConfiguration configuration = new ClientConfiguration();
-        configuration.setWriteTimeout(10);
-        configuration.setReadTimeout(10);
-        configuration.setConnectTimeout(10);
-        configuration.setTimeUnit(TimeUnit.SECONDS);
-        configuration.setAuthentication(INLONG_AUTH);
-        InlongClient inlongClient = InlongClient.create(SERVICE_URL, configuration);
-        InlongGroupConf groupConf = createGroupConf();
-        try {
-            InlongGroup group = inlongClient.forGroup(groupConf);
-            InlongGroupContext groupContext = group.restart(true);
-            Assert.notNull(groupContext);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
     public void testSuspendGroup() {
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setWriteTimeout(10);
@@ -140,6 +121,25 @@ public class Binlog2KafkaExample {
         try {
             InlongGroup group = inlongClient.forGroup(groupConf);
             InlongGroupContext groupContext = group.suspend(true);
+            Assert.notNull(groupContext);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testRestartGroup() {
+        ClientConfiguration configuration = new ClientConfiguration();
+        configuration.setWriteTimeout(10);
+        configuration.setReadTimeout(10);
+        configuration.setConnectTimeout(10);
+        configuration.setTimeUnit(TimeUnit.SECONDS);
+        configuration.setAuthentication(INLONG_AUTH);
+        InlongClient inlongClient = InlongClient.create(SERVICE_URL, configuration);
+        InlongGroupConf groupConf = createGroupConf();
+        try {
+            InlongGroup group = inlongClient.forGroup(groupConf);
+            InlongGroupContext groupContext = group.restart(true);
             Assert.notNull(groupContext);
         } catch (Exception e) {
             e.printStackTrace();
@@ -186,7 +186,7 @@ public class Binlog2KafkaExample {
         return streamConf;
     }
 
-    public MySQLBinlogSource createMysqlSource() {
+    private MySQLBinlogSource createMysqlSource() {
         MySQLBinlogSource mySQLBinlogSource = new MySQLBinlogSource();
         mySQLBinlogSource.setDbNames(Arrays.asList("{db.name}"));
         mySQLBinlogSource.setHostname("{db.url}");

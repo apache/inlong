@@ -20,8 +20,6 @@
 
 # Project startup jar package name
 
-APPLICATION_JAR="manager-client-tools-*.jar"
-
 BIN_PATH=$(
   cd $(dirname $0)
   pwd
@@ -32,6 +30,9 @@ cd ../
 
 BASE_PATH=$(pwd)
 
-JAR_MAIN=${BASE_PATH}"/lib/"${APPLICATION_JAR}
+CONFIG_DIR=${BASE_PATH}"/conf/"
+JAR_LIBS=${BASE_PATH}"/lib/*"
+CLASSPATH=${CONFIG_DIR}:${JAR_LIBS}
+MAIN_CLASS="org.apache.inlong.manager.client.cli.CommandToolMain"
 
-java -jar  ${JAR_MAIN} $*;
+java ${JAVA_OPT} -cp ${CLASSPATH} ${MAIN_CLASS} $*

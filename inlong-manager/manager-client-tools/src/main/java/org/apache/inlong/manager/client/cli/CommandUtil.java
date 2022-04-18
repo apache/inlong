@@ -18,25 +18,24 @@
 package org.apache.inlong.manager.client.cli;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
-import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
+import org.apache.inlong.manager.client.cli.util.GsonUtil;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.util.List;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Properties;
 
 abstract class CommandUtil {
 
-    public InnerInlongManagerClient connect() {
+    public InlongClientImpl connect() {
         Properties properties = new Properties();
         String path = System.getProperty("user.dir") + "/conf/application.properties";
 
@@ -52,40 +51,36 @@ abstract class CommandUtil {
 
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setAuthentication(new DefaultAuthentication(user, password));
-        InlongClientImpl inlongClient = new InlongClientImpl(serviceUrl, configuration);
-        return new InnerInlongManagerClient(inlongClient.getConfiguration());
+
+        return new InlongClientImpl(serviceUrl, configuration);
     }
 
-    <T> void print(List<T> item, Class<T> clazz) {
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field f : fields) {
-            System.out.printf("%-30s", f.getName());
-        }
-        System.out.println();
-        if (!item.isEmpty()) {
-            item.forEach(t -> {
-                try {
-                    for (Field f : fields) {
-                        f.setAccessible(true);
-                        if (f.get(t) != null) {
-                            System.out.printf("%-30s", f.get(t).toString());
-                        } else {
-                            System.out.printf("%-30s", "NULL");
-                        }
-                    }
-                    System.out.println();
-                } catch (IllegalAccessException e) {
-                    System.out.println(e.getMessage());
+    String readFile(File file) {
+        if (!file.exists()) {
+            System.out.println("File does not exist.");
+        } else {
+            try {
+                FileReader fileReader = new FileReader(file);
+                Reader reader = new InputStreamReader(new FileInputStream(file));
+                int ch;
+                StringBuffer stringBuffer = new StringBuffer();
+                while ((ch = reader.read()) != -1) {
+                    stringBuffer.append((char) ch);
                 }
-            });
+                fileReader.close();
+                reader.close();
+
+                return stringBuffer.toString();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
+        return null;
     }
 
-    <T> void printJson(T item) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        JsonParser jsonParser = new JsonParser();
-        JsonObject jsonObject = jsonParser.parse(gson.toJson(item)).getAsJsonObject();
-        System.out.println(gson.toJson(jsonObject));
+    CreateGroupConf jsonToObject(String string) {
+        Gson gson = GsonUtil.gsonBuilder();
+        return gson.fromJson(string, CreateGroupConf.class);
     }
 
     abstract void run() throws Exception;

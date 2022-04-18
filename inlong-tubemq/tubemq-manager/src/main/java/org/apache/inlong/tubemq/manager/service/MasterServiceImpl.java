@@ -106,8 +106,7 @@ public class MasterServiceImpl implements MasterService {
         if (req.getClusterId() == null) {
             return TubeMQResult.errorResult("please input clusterId");
         }
-        MasterEntry masterEntry = masterRepository.findMasterEntryByClusterIdEquals(
-                req.getClusterId());
+        MasterEntry masterEntry = getMasterNode(Long.valueOf(req.getClusterId()));
         if (masterEntry == null) {
             return TubeMQResult.errorResult("no such cluster");
         }
@@ -171,8 +170,7 @@ public class MasterServiceImpl implements MasterService {
     public String getQueryUrl(Map<String, String> queryBody) throws Exception {
         int clusterId = Integer.parseInt(queryBody.get("clusterId"));
         queryBody.remove("clusterId");
-        MasterEntry masterEntry =
-                masterRepository.findMasterEntryByClusterIdEquals(clusterId);
+        MasterEntry masterEntry = getMasterNode(Long.valueOf(clusterId));
         return TubeConst.SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
                 + "/" + TubeConst.TUBE_REQUEST_PATH + "?" + ConvertUtils.covertMapToQueryString(queryBody);
     }
