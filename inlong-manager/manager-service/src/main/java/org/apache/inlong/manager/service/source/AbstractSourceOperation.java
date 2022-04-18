@@ -18,11 +18,9 @@
 package org.apache.inlong.manager.service.source;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.SourceState;
-import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
@@ -91,7 +89,6 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         } else {
             entity.setStatus(SourceState.SOURCE_NEW.getCode());
         }
-        entity.setIsDeleted(Constant.UN_DELETED);
         entity.setCreator(operator);
         entity.setModifier(operator);
         Date now = new Date();
@@ -110,7 +107,7 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
-                String.format(SourceType.SOURCE_TYPE_NOT_SAME, getSourceType(), existType));
+                String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
         return this.getFromEntity(entity, this::getResponse);
     }
 

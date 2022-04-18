@@ -140,7 +140,7 @@ public class KafkaSinkOperation implements StreamSinkOperation {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_KAFKA.equals(existType),
-                String.format(SinkType.SINK_TYPE_NOT_SAME, SinkType.SINK_KAFKA, existType));
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_KAFKA, existType));
         SinkResponse response = this.getFromEntity(entity, KafkaSinkResponse::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(id);
         List<SinkFieldResponse> infos = CommonBeanUtils.copyListProperties(entities, SinkFieldResponse::new);
@@ -156,7 +156,7 @@ public class KafkaSinkOperation implements StreamSinkOperation {
         }
         String existType = entity.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_KAFKA.equals(existType),
-                String.format(SinkType.SINK_TYPE_NOT_SAME, SinkType.SINK_KAFKA, existType));
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_KAFKA, existType));
 
         KafkaSinkDTO dto = KafkaSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
@@ -177,7 +177,7 @@ public class KafkaSinkOperation implements StreamSinkOperation {
     public void updateOpt(SinkRequest request, String operator) {
         String sinkType = request.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_KAFKA.equals(sinkType),
-                String.format(SinkType.SINK_TYPE_NOT_SAME, SinkType.SINK_KAFKA, sinkType));
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_KAFKA, sinkType));
 
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());

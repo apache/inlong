@@ -24,9 +24,9 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.inlong.manager.client.api.InlongStream;
-import org.apache.inlong.manager.client.api.StreamField;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.StreamSource;
+import org.apache.inlong.manager.client.api.StreamTransform;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.InlongStreamSinkTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamSourceTransfer;
@@ -36,6 +36,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,8 @@ public class InlongStreamImpl extends InlongStream {
     private Map<String, StreamSource> streamSources = Maps.newHashMap();
 
     private Map<String, StreamSink> streamSinks = Maps.newHashMap();
+
+    private Map<String, StreamTransform> streamTransforms = Maps.newHashMap();
 
     private List<StreamField> streamFields = Lists.newArrayList();
 
@@ -117,6 +120,11 @@ public class InlongStreamImpl extends InlongStream {
     }
 
     @Override
+    public Map<String, StreamTransform> getTransforms() {
+        return this.streamTransforms;
+    }
+
+    @Override
     public void addSource(StreamSource source) {
         AssertUtil.notNull(source.getSourceName(), "Source name should not be empty");
         String sourceName = source.getSourceName();
@@ -134,6 +142,16 @@ public class InlongStreamImpl extends InlongStream {
             throw new IllegalArgumentException(String.format("StreamSink=%s has already be set", sink));
         }
         streamSinks.put(sinkName, sink);
+    }
+
+    @Override
+    public void addTransform(StreamTransform transform) {
+        AssertUtil.notNull(transform.getTransformName(), "Transform name should not be empty");
+        String transformName = transform.getTransformName();
+        if (streamTransforms.get(transformName) != null) {
+            throw new IllegalArgumentException(String.format("TransformName=%s has already be set", transform));
+        }
+        streamTransforms.put(transformName, transform);
     }
 
     @Override

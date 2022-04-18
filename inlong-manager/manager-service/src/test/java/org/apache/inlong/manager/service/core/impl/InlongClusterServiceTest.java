@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
+import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
 import org.junit.Assert;
@@ -56,7 +56,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
 
     @Test
     public void testSaveAndDelete() {
-        Integer id = this.saveOpt(CLUSTER_NAME, Constant.CLUSTER_DATA_PROXY, CLUSTER_IP, CLUSTER_PORT);
+        Integer id = this.saveOpt(CLUSTER_NAME, InlongGroupSettings.CLUSTER_DATA_PROXY, CLUSTER_IP, CLUSTER_PORT);
         Assert.assertNotNull(id);
 
         Boolean success = this.deleteOpt(id);
@@ -69,7 +69,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Integer p1 = 46800;
         Integer p2 = 46801;
         String url = "127.0.0.1:" + p1 + ",127.0.0.2";
-        Integer id = this.saveOpt(CLUSTER_NAME, Constant.CLUSTER_DATA_PROXY, url, p2);
+        Integer id = this.saveOpt(CLUSTER_NAME, InlongGroupSettings.CLUSTER_DATA_PROXY, url, p2);
         Assert.assertNotNull(id);
 
         // Get the data proxy cluster ip list, the first port should is p1, second port is p2
@@ -86,7 +86,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         // Simulate saving and parsing dirty url without port, default port is p1
         Integer p1 = 46801;
         String url = ":,,, :127.0 .0.1:,: ,,,";
-        Integer id = this.saveOpt(CLUSTER_NAME, Constant.CLUSTER_DATA_PROXY, url, p1);
+        Integer id = this.saveOpt(CLUSTER_NAME, InlongGroupSettings.CLUSTER_DATA_PROXY, url, p1);
         List<DataProxyResponse> ipList = clusterService.getIpList(CLUSTER_NAME);
         // The result port is p1
         Assert.assertEquals(p1, ipList.get(0).getPort());

@@ -23,8 +23,6 @@ package org.apache.inlong.manager.common.enums;
 @Deprecated
 public class Constant {
 
-    public static final Integer UN_DELETED = 0;
-    public static final Integer IS_DELETED = 1;
     public static final String URL_SPLITTER = ",";
     public static final String HOST_SPLITTER = ":";
 
@@ -38,28 +36,11 @@ public class Constant {
 
     public static final String DATA_TYPE_KEY_VALUE = "KEY-VALUE";
 
-    public static final String FILE_FORMAT_TEXT = "TextFile";
-
-    public static final String FILE_FORMAT_ORC = "OrcFile";
-
-    public static final String FILE_FORMAT_SEQUENCE = "SequenceFile";
-
-    public static final String FILE_FORMAT_PARQUET = "Parquet";
-
     public static final String SCHEMA_M0_DAY = "m0_day";
 
     public static final String CLUSTER_TUBE = "TUBE";
     public static final String CLUSTER_PULSAR = "PULSAR";
     public static final String CLUSTER_TDMQ_PULSAR = "TDMQ_PULSAR";
-    public static final String CLUSTER_DATA_PROXY = "DATA_PROXY";
-
-    public static final String ID_IS_EMPTY = "primary key is empty";
-
-    public static final String GROUP_ID_IS_EMPTY = "inlong group id is empty";
-
-    public static final String STREAM_ID_IS_EMPTY = "inlong stream id is empty";
-
-    public static final String REQUEST_IS_EMPTY = "request is empty";
 
     public static final String PULSAR_TOPIC_TYPE_SERIAL = "SERIAL";
 
@@ -74,17 +55,5 @@ public class Constant {
     public static final Integer ENABLE_CREATE_RESOURCE = 1; // Enable create resource
 
     public static final Integer DISABLE_CREATE_RESOURCE = 0; // Disable create resource
-
-    public static final String CLUSTER_TUBE_MANAGER = "cluster_tube_manager";
-
-    public static final String CLUSTER_TUBE_CLUSTER_ID = "cluster_tube_clusterId";
-
-    public static final String PULSAR_ADMINURL = "pulsar_adminUrl";
-
-    public static final String PULSAR_SERVICEURL = "pulsar_serviceUrl";
-
-    public static final String TUBE_MASTER_URL = "tube_masterUrl";
-
-    public static final String DATA_FLOW_GROUP_ID_KEY = "inlong.group.id";
 
 }

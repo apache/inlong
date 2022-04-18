@@ -23,7 +23,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.MQType;
@@ -33,6 +32,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -95,14 +95,14 @@ public class CommonOperateService {
         Map<String, String> params;
 
         switch (key) {
-            case Constant.PULSAR_SERVICEURL: {
+            case InlongGroupSettings.PULSAR_SERVICE_URL: {
                 clusterEntity = getMQCluster(MQType.PULSAR);
                 if (clusterEntity != null) {
                     result = clusterEntity.getUrl();
                 }
                 break;
             }
-            case Constant.PULSAR_ADMINURL: {
+            case InlongGroupSettings.PULSAR_ADMIN_URL: {
                 clusterEntity = getMQCluster(MQType.PULSAR);
                 if (clusterEntity != null) {
                     params = gson.fromJson(clusterEntity.getExtParams(), Map.class);
@@ -110,12 +110,12 @@ public class CommonOperateService {
                 }
                 break;
             }
-            case Constant.CLUSTER_TUBE_MANAGER:
-            case Constant.CLUSTER_TUBE_CLUSTER_ID:
-            case Constant.TUBE_MASTER_URL: {
+            case InlongGroupSettings.TUBE_MANAGER_URL:
+            case InlongGroupSettings.TUBE_CLUSTER_ID:
+            case InlongGroupSettings.TUBE_MASTER_URL: {
                 clusterEntity = getMQCluster(MQType.TUBE);
                 if (clusterEntity != null) {
-                    if (key.equals(Constant.TUBE_MASTER_URL)) {
+                    if (key.equals(InlongGroupSettings.TUBE_MASTER_URL)) {
                         result = clusterEntity.getUrl();
                     } else {
                         params = gson.fromJson(clusterEntity.getExtParams(), Map.class);
@@ -136,7 +136,8 @@ public class CommonOperateService {
      * TODO Add data_proxy_cluster_name for query.
      */
     private ThirdPartyClusterEntity getMQCluster(MQType type) {
-        List<ThirdPartyClusterEntity> clusterList = thirdPartyClusterMapper.selectByType(Constant.CLUSTER_DATA_PROXY);
+        List<ThirdPartyClusterEntity> clusterList = thirdPartyClusterMapper.selectByType(
+                InlongGroupSettings.CLUSTER_DATA_PROXY);
         if (CollectionUtils.isEmpty(clusterList)) {
             LOGGER.warn("no data proxy cluster found");
             return null;
@@ -166,7 +167,7 @@ public class CommonOperateService {
         Map<String, String> configParams = JsonUtils.parse(clusterEntity.getExtParams(), Map.class);
         PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder().brokerServiceUrl(
                 clusterEntity.getUrl()).token(clusterEntity.getToken()).build();
-        String adminUrl = configParams.get(Constant.PULSAR_ADMINURL);
+        String adminUrl = configParams.get(InlongGroupSettings.PULSAR_ADMIN_URL);
         Preconditions.checkNotNull(adminUrl, "adminUrl is empty, check third party cluster table");
         pulsarClusterInfo.setAdminUrl(adminUrl);
         pulsarClusterInfo.setType(clusterEntity.getType());
@@ -229,7 +230,7 @@ public class CommonOperateService {
         FieldMappingRule fieldMappingRule = new FieldMappingRule(mappingUnitList.toArray(new FieldMappingUnit[0]));
 
         // Get source info
-        String masterAddress = getSpecifiedParam(Constant.TUBE_MASTER_URL);
+        String masterAddress = getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL);
         PulsarClusterInfo pulsarCluster = getPulsarClusterInfo(groupInfo.getMiddlewareType());
         SourceInfo sourceInfo = SourceInfoUtils.createSourceInfo(pulsarCluster, masterAddress, clusterBean,
                 groupInfo, streamInfo, sourceResponse, sourceFields);
@@ -245,7 +246,7 @@ public class CommonOperateService {
         if (MapUtils.isNotEmpty(sinkResponse.getProperties())) {
             properties.putAll(sinkResponse.getProperties());
         }
-        properties.put(Constant.DATA_FLOW_GROUP_ID_KEY, groupId);
+        properties.put(InlongGroupSettings.DATA_FLOW_GROUP_ID_KEY, groupId);
 
         return new DataFlowInfo(sinkResponse.getId(), sourceInfo, transInfo, sinkInfo, properties);
     }

@@ -22,10 +22,11 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
 @Data
 @ApiModel("Stream source configuration")
-public abstract class StreamSource {
+public abstract class StreamSource extends StreamNode {
 
     public enum State {
         INIT, NORMAL, FROZING, FROZEN, FAILED, DELETING, DELETE;

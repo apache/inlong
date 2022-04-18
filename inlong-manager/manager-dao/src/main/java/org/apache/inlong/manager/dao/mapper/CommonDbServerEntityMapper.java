@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerPageRequ
 import org.apache.inlong.manager.dao.entity.CommonDbServerEntity;
 import org.springframework.stereotype.Repository;
 
+@Deprecated
 @Repository
 public interface CommonDbServerEntityMapper {
 

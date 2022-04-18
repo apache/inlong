@@ -1,0 +1,44 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.inlong.manager.client.api.transform;
+
+import io.swagger.annotations.ApiModel;
+import org.apache.inlong.manager.client.api.StreamTransform;
+import org.apache.inlong.manager.client.api.util.AssertUtil;
+import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
+
+@ApiModel("StreamTransform with one pre streamNode, such as filter,splitter etc")
+public class SingleDependencyTransform extends StreamTransform {
+
+    /**
+     * Constructor of SingleDependencyTransform
+     *
+     * @param transformName
+     * @param transformDefinition
+     * @param preNode name of pre streamNode, if pre streamNode is streamSource, then preNode is sourceName
+     *                if pre streamNode is streamTransform, preNode is transformName
+     */
+    public SingleDependencyTransform(String transformName, TransformDefinition transformDefinition, String preNode) {
+        AssertUtil.notNull(transformDefinition, "TransformDefinition should not be null");
+        this.transformDefinition = transformDefinition;
+        AssertUtil.notNull(transformName, "TransformName should not be empty");
+        this.transformName = transformName;
+        AssertUtil.notNull(preNode, "Pre streamNode should not be null");
+        this.addPre(preNode);
+    }
+}
