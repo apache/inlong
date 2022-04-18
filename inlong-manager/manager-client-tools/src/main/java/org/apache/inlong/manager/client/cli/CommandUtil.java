@@ -18,9 +18,6 @@
 package org.apache.inlong.manager.client.cli;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
@@ -34,8 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Properties;
 
 abstract class CommandUtil {
@@ -58,59 +53,6 @@ abstract class CommandUtil {
         configuration.setAuthentication(new DefaultAuthentication(user, password));
 
         return new InlongClientImpl(serviceUrl, configuration);
-    }
-
-    <T> void print(List<T> item, Class<T> clazz) {
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field f : fields) {
-            System.out.printf("%-30s", f.getName());
-        }
-        System.out.println();
-        if (!item.isEmpty()) {
-            item.forEach(t -> {
-                try {
-                    for (Field f : fields) {
-                        f.setAccessible(true);
-                        if (f.get(t) != null) {
-                            System.out.printf("%-30s", f.get(t).toString());
-                        } else {
-                            System.out.printf("%-30s", "NULL");
-                        }
-                    }
-                    System.out.println();
-                } catch (IllegalAccessException e) {
-                    System.out.println(e.getMessage());
-                }
-            });
-        }
-    }
-
-    <T> void print(T item, Class<T> clazz) {
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field f : fields) {
-            System.out.printf("%-30s", f.getName());
-        }
-        System.out.println();
-        try {
-            for (Field f : fields) {
-                f.setAccessible(true);
-                if (f.get(item) != null) {
-                    System.out.printf("%-30s", f.get(item).toString());
-                } else {
-                    System.out.printf("%-30s", "NULL");
-                }
-            }
-            System.out.println();
-        } catch (IllegalAccessException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    <T> void printJson(T item) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        JsonParser jsonParser = new JsonParser();
-        JsonObject jsonObject = jsonParser.parse(gson.toJson(item)).getAsJsonObject();
-        System.out.println(gson.toJson(jsonObject));
     }
 
     String readFile(File file) {

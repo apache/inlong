@@ -18,7 +18,6 @@
 package org.apache.inlong.audit.util;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import java.util.List;
@@ -49,7 +48,8 @@ public class Decoder extends MessageToMessageDecoder<ByteBuf> {
             buffer.resetReaderIndex();
             return;
         }
-        ByteBuf returnBuffer = ByteBufAllocator.DEFAULT.buffer(totalLen);
+        byte[] returnBuffer = new byte[totalLen];
         buffer.readBytes(returnBuffer, 0, totalLen);
+        out.add(returnBuffer);
     }
 }

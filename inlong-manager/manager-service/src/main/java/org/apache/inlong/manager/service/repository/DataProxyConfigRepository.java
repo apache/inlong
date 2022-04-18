@@ -85,7 +85,7 @@ public class DataProxyConfigRepository implements IRepository {
 
     @PostConstruct
     public void initialize() {
-        LOGGER.info("create repository for {}" + DataProxyConfigRepository.class.getSimpleName());
+        LOGGER.info("create repository for " + DataProxyConfigRepository.class.getSimpleName());
         try {
             this.reloadInterval = DEFAULT_HEARTBEAT_INTERVAL_MS;
             reload();

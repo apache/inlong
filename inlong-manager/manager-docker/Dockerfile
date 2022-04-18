@@ -18,7 +18,7 @@
 #
 FROM openjdk:8-jdk
 RUN apt-get update \
-    && apt-get install -y net-tools vim \
+    && apt-get install -y net-tools vim default-mysql-client \
     && rm -rf /var/lib/apt/lists/*
 EXPOSE 8083
 # profile and env virables

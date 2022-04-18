@@ -17,10 +17,7 @@
 
 package org.apache.inlong.sort.standalone.channel;
 
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicLong;
+import com.google.common.base.Preconditions;
 
 import org.apache.flume.ChannelException;
 import org.apache.flume.Context;
@@ -33,7 +30,10 @@ import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.apache.inlong.sort.standalone.utils.SizeSemaphore;
 import org.slf4j.Logger;
 
-import com.google.common.base.Preconditions;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 
@@ -81,7 +81,7 @@ public class BufferQueueChannel extends AbstractChannel {
             ProfileEvent profile = (ProfileEvent) event;
             transaction.doPut(profile);
         } else {
-            ProfileEvent profile = new ProfileEvent(event.getBody(), event.getHeaders());
+            ProfileEvent profile = new ProfileEvent(event.getBody(), event.getHeaders(), null);
             transaction.doPut(profile);
         }
     }

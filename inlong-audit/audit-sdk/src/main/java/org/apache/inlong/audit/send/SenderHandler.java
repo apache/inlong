@@ -17,13 +17,12 @@
 
 package org.apache.inlong.audit.send;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SenderHandler extends SimpleChannelInboundHandler<ByteBuf> {
+public class SenderHandler extends SimpleChannelInboundHandler<byte[]> {
     private static final Logger logger = LoggerFactory.getLogger(SenderHandler.class);
     private SenderManager manager;
 
@@ -40,7 +39,7 @@ public class SenderHandler extends SimpleChannelInboundHandler<ByteBuf> {
      * Message Received
      */
     @Override
-    public void channelRead0(io.netty.channel.ChannelHandlerContext ctx, ByteBuf e)  {
+    public void channelRead0(io.netty.channel.ChannelHandlerContext ctx, byte[] e)  {
         try {
             manager.onMessageReceived(ctx, e);
         } catch (Throwable ex) {

@@ -203,12 +203,165 @@
 
 
 =======================================================================
+
+1 This projects includes modified/copied source files with the following licenses:
+
+=========
+1.1 Third party MIT license licenses
+=========
+
+1.1.1 inlong-tubemq/resources/assets/lib/jquery.min.js
+ Source  : jquery 1.11.3
+ License : https://github.com/jquery/jquery/blob/1.11.3/MIT-LICENSE.txt
+| Copyright 2014 jQuery Foundation and other contributors
+| http://jquery.com/
+|
+| Permission is hereby granted, free of charge, to any person obtaining
+| a copy of this software and associated documentation files (the
+| "Software"), to deal in the Software without restriction, including
+| without limitation the rights to use, copy, modify, merge, publish,
+| distribute, sublicense, and/or sell copies of the Software, and to
+| permit persons to whom the Software is furnished to do so, subject to
+| the following conditions:
+|
+| The above copyright notice and this permission notice shall be
+| included in all copies or substantial portions of the Software.
+|
+| THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+| EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+| MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+| NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+| LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+| OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+| WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
+1.1.2 inlong-tubemq/resources/assets/lib/DataTables/*
+ Source  : datatables  1.10.7
+ License : https://github.com/DataTables/DataTables/blob/1.10.7/license.txt
+| Copyright (c) 2008-2013 SpryMedia Limited
+| http://datatables.net
+|
+| Permission is hereby granted, free of charge, to any person obtaining a copy
+| of this software and associated documentation files (the "Software"), to deal
+| in the Software without restriction, including without limitation the rights
+| to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+| copies of the Software, and to permit persons to whom the Software is
+| furnished to do so, subject to the following conditions:
+|
+| The above copyright notice and this permission notice shall be included in
+| all copies or substantial portions of the Software.
+|
+| THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+| IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+| FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+| AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+| LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+| OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+| THE SOFTWARE.
+
+----
+
+1.1.3 inlong-tubemq/resources/assets/public/css/style.css
+      inlong-tubemq/resources/assets/public/css/ie.css
+ Source  : Compass
+ License :  https://github.com/Compass/compass/blob/stable/LICENSE.markdown
+ | Copyright (c) 2009-2014 Christopher M. Eppstein
+ |
+ | Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ |
+ | The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. No attribution is required by products that make use of this software.
+ |
+ | THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ |
+ | Except as contained in this notice, the name(s) of the above copyright holders shall not be used in advertising or otherwise to promote the sale, use or other dealings in this Software without prior written authorization.
+ |
+ | Contributors to this project agree to grant all rights to the copyright holder of the primary product. Attribution is maintained in the source control history of the product.
+
+----
+
+=========
+1.2 Third party BSD 3-Clause license
+=========
+
+1.2.1 inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/src/any.h
+      inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/src/buffer.h
+ Source  : https://github.com/Qihoo360/evpp/blob/master/evpp/any.h version c5038a6
+           https://github.com/Qihoo360/evpp/blob/master/evpp/buffer.h version b2535d7
+ License : https://github.com/Qihoo360/evpp/blob/master/LICENSE
+ | BSD 3-Clause License
+ |
+ | Copyright (c) 2017, Qihoo 360
+ | All rights reserved.
+ |
+ | Redistribution and use in source and binary forms, with or without
+ | modification, are permitted provided that the following conditions are met:
+ |
+ | * Redistributions of source code must retain the above copyright notice, this
+ |   list of conditions and the following disclaimer.
+ |
+ | * Redistributions in binary form must reproduce the above copyright notice,
+ |   this list of conditions and the following disclaimer in the documentation
+ |   and/or other materials provided with the distribution.
+ |
+ | * Neither the name of the copyright holder nor the names of its
+ |   contributors may be used to endorse or promote products derived from
+ |   this software without specific prior written permission.
+ |
+ | THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ | AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ | IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ | DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ | FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ | DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ | SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ | CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ | OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ | OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+----
+
+=========
+1.3 Third party Apache 2.0 Licenses
+=========
+
+1.3.1 inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/Bytes.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HashedBytes.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/HasThread.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/zookeeper/RecoverableZooKeeper.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/zookeeper/ZooKeeperWatcher.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/zookeeper/ZooKeeperListener.java
+      inlong-tubemq/tubemq-core/src/main/java/org/apache/tubemq/corebase/utils/ThreadUtils.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/zookeeper/ZooKeeperConnectionException.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/master/utils/Chore.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/zookeeper/ZKUtil.java
+      inlong-tubemq/tubemq-server/src/main/java/org/apache/tubemq/server/common/utils/RowLock.java
+ Source  : hbase 0.94.27 (Please note that the software have been modified.)
+ License : https://github.com/apache/hbase/blob/rel/0.94.27/LICENSE.txt
+
+1.3.2 inlong-tubemq/tubemq-core/src/main/java/org/apache/tubemq/corerpc/netty/ByteBufferInputStream.java
+      inlong-tubemq/tubemq-core/src/main/java/org/apache/tubemq/corerpc/netty/ByteBufferOutputStream.java
+ Source  : Apache Avro 1.7.6
+ License : https://github.com/apache/avro/blob/release-1.7.6/LICENSE.txt
+
+1.3.3 inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/src/future.h
+ Source  : Apache Pulsar
+ License : https://github.com/apache/pulsar/blob/master/LICENSE
+ 
+1.3.4 codestyle/checkstyle.xml  
+ Source  : checkstyle 8.44 (Modified from src/main/resources/google_checks.xml)
+ License : https://github.com/checkstyle/checkstyle/blob/master/LICENSE.apache20
+
+
+
+
+=======================================================================
 Apache InLong(Incubating) Subcomponents:
 
-The Apache InLong(Incubating) project contains subcomponents with separate copyright
-notices and license terms. Your use of the source code for the these
-subcomponents is subject to the terms and conditions of the following
-licenses.
+The compiled Apache InLong(Incubating) distribution includes the following
+sources/binaries. The use of these sources/binaries is subject to the
+terms and conditions of their respective licenses.
 
 
 ========================================================================
@@ -218,138 +371,99 @@ Apache 2.0 License
 The following components are provided under the Apache License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
 
-  org.apache.avro:avro:1.7.2 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.avro:avro-ipc:1.7.2 - Apache Avro IPC (https://avro.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.curator:curator-client:2.6.0 - Curator Client (https://curator.apache.org/curator-client), (The Apache Software License, Version 2.0)
-  org.apache.curator:curator-framework:2.6.0 - Curator Framework (https://curator.apache.org/curator-framework), (The Apache Software License, Version 2.0)
-  org.apache.curator:curator-recipes:2.6.0 - Curator Recipes (https://curator.apache.org/curator-recipes), (The Apache Software License, Version 2.0)
-  com.alibaba:fastjson:1.2.79 - fastjson (https://github.com/alibaba/fastjson), (Apache 2)
-  com.google.code.gson:gson:2.8.5 - Gson (https://github.com/google/gson/gson), (Apache 2.0)
-  com.google.errorprone:error_prone_annotations:2.3.4 - error-prone annotations (https://github.com/google/error-prone), (Apache 2.0)
-  com.google.guava:failureaccess:jar:1.0.1 - Guava InternalFutureFailureAccess and InternalFutures (https://github.com/google/guava), (Apache 2.0)
-  com.google.guava:guava:30.0 - Guava: Google Core Libraries for Java (https://github.com/google/guava), (The Apache Software License, Version 2.0)
-  com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava - Guava ListenableFuture Only (https://github.com/google/guava), (The Apache Software License, Version 2.0)
-  com.google.j2objc:j2objc-annotations:1.3 - J2ObjC Annotations (https://github.com/google/j2objc/), (The Apache Software License, Version 2.0)
-  com.yammer.metrics:metrics-core:jar:2.2.0 - Metrics Core Library (http://metrics.yammer.com/), (The Apache Software License, Version 2.0)
-  io.airlift:aircompressor:0.16 - aircompressor (http://github.com/airlift/aircompressor), (Apache License 2.0)
-  io.netty:netty-tcnative-classes:2.0.46.Final - Netty (https://github.com/netty/netty-tcnative/), (Apache License, Version 2.0)
-  io.prometheus:simpleclient:0.9.0 - Prometheus Java Simpleclient (https://github.com/prometheus/client_java), (The Apache Software License, Version 2.0)
-  io.prometheus:simpleclient_common:0.9.0 - Prometheus Java Simpleclient Common (https://github.com/prometheus/client_java), (The Apache Software License, Version 2.0)
-  io.prometheus:simpleclient_hotspot:0.9.0 - Prometheus Java Simpleclient Common (https://github.com/prometheus/client_java), (The Apache Software License, Version 2.0)
-  io.prometheus:simpleclient_httpserver:0.9.0 - Prometheus Java Simpleclient Httpserver (https://github.com/prometheus/client_java), (The Apache Software License, Version 2.0)
-  javax.validation:validation-api:1.1.0.Final - Bean Validation API (http://beanvalidation.org), (The Apache Software License, Version 2.0)
+  org.apache.yetus:audience-annotations:0.5.0 - Apache Yetus - Audience Annotations (https://yetus.apache.org/), (Apache License, Version 2.0)
+  org.apache.avro:avro:1.11.0 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.avro:avro-ipc:1.11.0 - Apache Avro IPC (https://avro.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.pulsar:bouncy-castle-bc:2.8.1 - Apache Pulsar :: Bouncy Castle :: BC (https://github.com/apache/pulsar/tree/master/bouncy-castle/bc), (Apache License, Version 2.0)
+  commons-cli:commons-cli:1.4 - Apache Commons CLI (http://commons.apache.org/proper/commons-cli), (The Apache Software License, Version 2.0)
+  commons-codec:commons-codec:1.15 - Apache Commons Codec (https://commons.apache.org/proper/commons-codec), (Apache License, Version 2.0)
+  commons-collections:commons-collections:3.2.2 - Apache Commons Collections (https://commons.apache.org/proper/commons-collections), (Apache License, Version 2.0)
+  org.apache.commons:commons-compress:1.21 - Apache Commons Compress (https://commons.apache.org/proper/commons-compress/), (Apache License, Version 2.0)
+  commons-dbcp:commons-dbcp:1.4 - Commons DBCP (https://commons.apache.org/proper/commons-dbcp/), (The Apache Software License, Version 2.0)
+  commons-dbutils:commons-dbutils:1.7 - Apache Commons DbUtils (https://commons.apache.org/proper/commons-dbutils/), (Apache License, Version 2.0)
+  commons-io:commons-io:2.11.0 - Apache Commons IO (https://commons.apache.org/proper/commons-io/), (The Apache Software License, Version 2.0)
+  commons-lang:commons-lang:2.6 - Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
+  org.apache.commons:commons-lang3:3.11 - Apache Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
+  commons-logging:commons-logging:1.2 - Apache Commons Logging (https://commons.apache.org/proper/commons-logging/), (The Apache Software License, Version 2.0)
+  commons-pool:commons-pool:1.5.4 - Commons Pool (https://commons.apache.org/proper/commons-pool/), (The Apache Software License, Version 2.0)
+  com.typesafe:config:1.3.3 - config (https://github.com/lightbend/config), (Apache License, Version 2.0)
   org.apache.kafka:connect-api:3.0.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
   org.apache.kafka:connect-file:3.0.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
   org.apache.kafka:connect-json:3.0.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
   org.apache.kafka:connect-runtime:3.0.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
   org.apache.kafka:connect-transforms:3.0.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.kafka:kafka-clients:3.1.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.kafka:kafka-log4j-appender:3.0.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.kafka:kafka-metadata:3.1.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.kafka:kafka-raft:3.1.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.kafka:kafka-server-common:3.1.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.kafka:kafka-storage:3.1.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.kafka:kafka-storage-api:3.1.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.kafka:kafka-tools:3.0.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.kafka:kafka_2.13:3.1.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
-  org.lz4:lz4-java:1.8.0 - LZ4 and xxHash (https://github.com/lz4/lz4-java), (The Apache Software License, Version 2.0)
-  org.mapdb:mapdb:0.9.9 - mapdb (http://www.mapdb.org), (The Apache Software License, Version 2.0)
-  org.schwering:irclib:1.10 - IRC client library (http://moepii.sourceforge.net), (The Apache Software License, Version 2.0), (Apache 2.0 and EPL 1.0 and LGPL 2.1)
-  org.apache.mina:mina-core:2.0.4 - Apache MINA Core (https://mina.apache.org/), (Apache 2.0 License)
+  org.apache.curator:curator-client:2.12.0 - Curator Client (https://curator.apache.org/curator-client), (The Apache Software License, Version 2.0)
+  org.apache.curator:curator-framework:2.12.0 - Curator Framework (https://curator.apache.org/curator-framework), (The Apache Software License, Version 2.0)
+  org.apache.curator:curator-recipes:2.12.0 - Curator Recipes (https://curator.apache.org/curator-recipes), (The Apache Software License, Version 2.0)
+  io.debezium:debezium-api:1.8.0.Final - Debezium API (https://github.com/debezium/debezium/tree/v1.8.0.Final), (The Apache Software License, Version 2.0)
+  io.debezium:debezium-connector-mysql:1.8.0.Final - Debezium Connector for MySQL (https://github.com/debezium/debezium/tree/v1.8.0.Final), (The Apache Software License, Version 2.0)
+  io.debezium:debezium-core:1.8.0.Final - Debezium Core (https://github.com/debezium/debezium/tree/v1.8.0.Final), (The Apache Software License, Version 2.0)
+  io.debezium:debezium-ddl-parser:1.8.0.Final - Debezium ANTLR DDL parsers (https://github.com/debezium/debezium/tree/v1.8.0.Final), (The Apache Software License, Version 2.0)
+  io.debezium:debezium-embedded:1.8.0.Final - Debezium Embedded (https://github.com/debezium/debezium/tree/v1.8.0.Final), (The Apache Software License, Version 2.0)
   org.apache.derby:derby:10.14.1.0 - Apache Derby Database Engine and Embedded JDBC Driver (http://db.apache.org/derby/), (Apache 2)
-  log4j:log4j:1.2.17 - Apache Log4j (http://logging.apache.org/log4j/1.2/), (The Apache Software License, Version 2.0)
+  com.alibaba:fastjson:1.2.79 - fastjson (https://github.com/alibaba/fastjson), (Apache 2)
+  org.apache.flume.flume-ng-channels:flume-file-channel:1.9.0 - Flume NG file-based channel (https://github.com/apache/flume/tree/flume-1.9/flume-ng-channels/flume-file-channel), (The Apache Software License, Version 2.0)
+  org.apache.flume.flume-ng-sinks:flume-hdfs-sink:1.9.0 - Flume NG HDFS Sink (https://github.com/apache/flume/tree/flume-1.9/flume-ng-sinks/flume-hdfs-sink), (The Apache Software License, Version 2.0)
+  org.apache.flume.flume-ng-sinks:flume-irc-sink:1.9.0 - Flume NG IRC Sink (https://github.com/apache/flume/tree/flume-1.9/flume-ng-sinks/flume-irc-sink), (The Apache Software License, Version 2.0)
+  org.apache.flume.flume-ng-channels:flume-jdbc-channel:1.9.0 - Flume NG JDBC channel (https://github.com/apache/flume/tree/flume-1.9/flume-ng-channels/flume-jdbc-channel), (The Apache Software License, Version 2.0)
   org.apache.flume:flume-ng-auth:1.9.0 - Flume Auth (https://github.com/apache/flume/tree/flume-1.9/flume-ng-auth), (The Apache Software License, Version 2.0)
+  org.apache.flume.flume-ng-configfilters:flume-ng-config-filter-api:1.9.0 - Flume NG Config Filters API (https://github.com/apache/flume/tree/flume-1.9/flume-ng-configfilters/flume-ng-config-filter-api), (The Apache Software License, Version 2.0)
   org.apache.flume:flume-ng-configuration:1.9.0 - Flume NG Configuration (https://github.com/apache/flume/tree/flume-1.9/flume-ng-configuration), (The Apache Software License, Version 2.0)
   org.apache.flume:flume-ng-core:1.9.0 - Flume NG Core (https://github.com/apache/flume/tree/flume-1.9/flume-ng-core), (The Apache Software License, Version 2.0)
   org.apache.flume:flume-ng-node:1.9.0 - Flume NG Node (https://github.com/apache/flume/tree/flume-1.9/flume-ng-node), (The Apache Software License, Version 2.0)
   org.apache.flume:flume-ng-sdk:1.9.0 - Flume NG SDK (https://github.com/apache/flume/tree/flume-1.9/flume-ng-sdk), (The Apache Software License, Version 2.0)
-  org.apache.flume.flume-ng-channels:flume-file-channel:1.9.0 - Flume NG file-based channel (https://github.com/apache/flume/tree/flume-1.9/flume-ng-channels/flume-file-channel), (The Apache Software License, Version 2.0)
-  org.apache.flume.flume-ng-channels:flume-jdbc-channel:1.9.0 - Flume NG JDBC channel (https://github.com/apache/flume/tree/flume-1.9/flume-ng-channels/flume-jdbc-channel), (The Apache Software License, Version 2.0)
   org.apache.flume.flume-ng-channels:flume-spillable-memory-channel:1.9.0 - Flume NG Spillable Memory channel (https://github.com/apache/flume/tree/flume-1.9/flume-ng-channels/flume-spillable-memory-channel), (The Apache Software License, Version 2.0)
-  org.apache.flume.flume-ng-configfilters:flume-ng-config-filter-api:1.9.0 - Flume NG Config Filters API (https://github.com/apache/flume/tree/flume-1.9/flume-ng-configfilters/flume-ng-config-filter-api), (The Apache Software License, Version 2.0)
-  org.apache.flume.flume-ng-sinks:flume-hdfs-sink:1.9.0 - Flume NG HDFS Sink (https://github.com/apache/flume/tree/flume-1.9/flume-ng-sinks/flume-hdfs-sink), (The Apache Software License, Version 2.0)
-  org.apache.flume.flume-ng-sinks:flume-irc-sink:1.9.0 - Flume NG IRC Sink (https://github.com/apache/flume/tree/flume-1.9/flume-ng-sinks/flume-irc-sink), (The Apache Software License, Version 2.0)
-  org.apache.pulsar:bouncy-castle-bc:2.6.2 - Apache Pulsar :: Bouncy Castle :: BC (https://github.com/apache/pulsar/tree/master/bouncy-castle/bc), (Apache License, Version 2.0)
-  org.apache.pulsar:pulsar-client:2.6.2 - Pulsar Client Java (https://github.com/apache/pulsar), (Apache License, Version 2.0)
-  org.apache.pulsar:pulsar-client-api:2.6.2 - Pulsar Client :: API (https://github.com/apache/pulsar), (Apache License, Version 2.0)
-  org.apache.pulsar:pulsar-transaction-common:2.6.2 - Pulsar Transaction :: Common (https://github.com/apache/pulsar/tree/master/pulsar-transaction), (Apache License, Version 2.0)
-  org.codehaus.plexus:plexus-utils:3.2.1 - Plexus Common Utilities (http://codehaus-plexus.github.io/plexus-utils/), (Apache License, Version 2.0)
-  com.typesafe:config:1.3.3 - config (https://github.com/lightbend/config), (Apache License, Version 2.0)
-  com.typesafe.scala-logging:scala-logging_2.13:3.9.3 - scala-logging (https://github.com/lightbend/scala-logging), (Apache License, Version 2.0)
-  jakarta.validation:jakarta.validation-api:2.0.2 - Jakarta Bean Validation API (https://beanvalidation.org), (Apache License, Version 2.0)
-  org.rocksdb:rocksdbjni:6.14.6 - RocksDB JNI (https://rocksdb.org), (Apache License, Version 2.0)
-  org.codehaus.jackson:jackson-core-asl:1.8.8 - Jackson (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-core-asl/1.8.8), (The Apache Software License, Version 2.0)
-  org.codehaus.jackson:jackson-mapper-asl:jar:1.8.8 - Data Mapper for Jackson (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-mapper-asl/1.8.8), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.core:jackson-annotations:2.13.1 - Jackson-annotations (https://github.com/FasterXML/jackson-annotations), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.core:jackson-core:2.13.1 - Jackson-core (https://github.com/FasterXML/jackson-core), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.core:jackson-databind:2.13.1 - jackson-databind (https://github.com/FasterXML/jackson-databind), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.12.3 - Jackson-dataformat-CSV (https://github.com/FasterXML/jackson-dataformats-text), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.12.3 - Jackson datatype: jdk8 (https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jdk8), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.10.5 - Jackson datatype: JSR310 (https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.10.5/datatypes), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.12.3 - Jackson-JAXRS-base (http://github.com/FasterXML/jackson-jaxrs-providers/jackson-jaxrs-base), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.12.3 - Jackson-JAXRS-JSON (http://github.com/FasterXML/jackson-jaxrs-providers/jackson-jaxrs-json-provider), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.3 - Jackson module: JAXB Annotations (https://github.com/FasterXML/jackson-modules-base), (The Apache Software License, Version 2.0)
-  io.debezium:debezium-api:1.8.0.Final - Debezium API (https://debezium.io/debezium-parent/debezium-api), (The Apache Software License, Version 2.0)
-  io.debezium:debezium-connector-mysql:1.8.0.Final - Debezium Connector for MySQL (https://debezium.io/debezium-parent/debezium-connector-mysql), (The Apache Software License, Version 2.0)
-  io.debezium:debezium-core:1.8.0.Final - Debezium Core (https://debezium.io/debezium-parent/debezium-core), (The Apache Software License, Version 2.0)
-  io.debezium:debezium-ddl-parser:1.8.0.Final - Debezium ANTLR DDL parsers (https://debezium.io/debezium-parent/debezium-ddl-parser), (The Apache Software License, Version 2.0)
-  io.debezium:debezium-embedded:1.8.0.Final - Debezium Embedded (https://debezium.io/debezium-parent/debezium-embedded), (The Apache Software License, Version 2.0)
-  joda-time:joda-time:2.8.2 - Joda-Time (http://www.joda.org/joda-time/), (Apache 2)
-  org.scala-lang:scala-reflect:2.13.6 - Scala Compiler (https://www.scala-lang.org/), (Apache 2)
-  org.scala-lang.modules:scala-collection-compat_2.13:2.4.4 - scala-collection-compat (http://www.scala-lang.org/), (Apache 2)
-  org.scala-lang.modules:scala-java8-compat_2.13:1.0.0- scala-java8-compat (http://www.scala-lang.org/), (Apache 2)
-  com.typesafe:ssl-config-core_2.11:0.3.7 - ssl-config-core (https://github.com/lightbend/ssl-config), (Apache 2)
-  com.typesafe.akka:akka-actor_2.11:2.5.21 - akka-actor (http://akka.io/), (Apache License, Version 2.0)
-  com.typesafe.akka:akka-protobuf_2.11:2.5.21 - akka-protobuf (http://akka.io/), (Apache License, Version 2.0)
-  com.typesafe.akka:akka-stream_2.11:2.5.21 - akka-stream (http://akka.io/), (Apache License, Version 2.0)
-  org.mortbay.jetty:servlet-api:2.5-20110124 - Servlet Specification API (https://mvnrepository.com/artifact/org.mortbay.jetty/servlet-api/2.5-20110124), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.javassist:javassist:3.25.0-GA - Javassist （http://www.javassist.org/）,(Apache License 2.0, LGPL 2.1, MPL 1.1)
-  org.springframework:spring-aop:5.3.13 - Spring AOP (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
-  org.springframework:spring-beans:5.3.18 - Spring Beans (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
-  commons-collections:commons-collections:3.2.2 - Apache Commons Collections (https://commons.apache.org/proper/commons-collections), (Apache License, Version 2.0)
-  commons-dbcp:commons-dbcp:1.4 - Commons DBCP (https://commons.apache.org/proper/commons-dbcp/), (The Apache Software License, Version 2.0)
-  commons-dbutils:commons-dbutils:1.7 - Apache Commons DbUtils (https://commons.apache.org/proper/commons-dbutils/), (Apache License, Version 2.0)
-  commons-lang:commons-lang:2.4 - Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
-  commons-logging:commons-logging:1.2 - Logging (https://commons.apache.org/proper/commons-logging/), (The Apache Software License, Version 2.0)
-  commons-pool:commons-pool:1.5.4 - Commons Pool (https://commons.apache.org/proper/commons-pool/), (The Apache Software License, Version 2.0)
-  org.apache.httpcomponents:httpclient:4.5.13 - Apache HttpClient (https://hc.apache.org/httpcomponents-client-4.5.x), (Apache License, Version 2.0)
-  org.apache.httpcomponents:httpcore:4.4.14 - Apache HttpCore (https://hc.apache.org/httpcomponents-core-4.4.x), (Apache License, Version 2.0)
-  org.apache.velocity:velocity:1.7 - Apache Velocity (http://velocity.apache.org/engine/devel), (The Apache Software License, Version 2.0)
-  commons-cli:commons-cli:1.4 - Commons CLI (http://commons.apache.org/proper/commons-cli), (The Apache Software License, Version 2.0)
-  commons-codec:commons-codec:1.15 - Apache Commons Codec (https://commons.apache.org/proper/commons-codec), (The Apache Software License, Version 2.0)
-  commons-io:commons-io:2.11.0 - Commons IO (https://commons.apache.org/proper/commons-io), (The Apache Software License, Version 2.0)
-  commons-lang:commons-lang3:3.10 - Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
-  org.apache.logging.log4j:log4j-api:2.17.1 - Apache Log4j API (https://logging.apache.org/log4j/2.x/log4j-api/), (Apache License, Version 2.0)
-  org.apache.logging.log4j:log4j-core:2.17.1 - Apache Log4j Core (https://logging.apache.org/log4j/2.x/log4j-core/), (Apache License, Version 2.0)
-  org.apache.logging.log4j:log4j-slf4j-impl:2.17.1 - Apache Log4j SLF4J Binding (https://logging.apache.org/log4j/2.x/log4j-slf4j-impl/), (Apache License, Version 2.0)
-  org.apache.maven:maven-artifact:3.8.1 - Maven Artifact (https://maven.apache.org/ref/3.8.1/maven-artifact/), (Apache License, Version 2.0)
-  org.apache.zookeeper:zookeeper:3.6.3 - ZooKeeper (https://github.com/apache/zookeeper), (Apache License, Version 2.0)
-  io.netty:netty:3.10.6.Final - Netty (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-buffer:4.1.72.Final - Netty/Buffer (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-codec:4.1.72.Final - Netty/Codec (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-common:4.1.72.Final - Netty/Common (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-handler:4.1.72.Final - Netty/Handler (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-resolver:4.1.72.Final - Netty/Resolver (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-transport:4.1.72.Final - Netty/Transport (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-transport-classes-epoll:4.1.72.Final - Netty/Transport/Classes/Epoll (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-transport-native-epoll:4.1.72.Final - Netty/Transport/Native/Epoll (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-transport-native-unix-common:4.1.72.Final - Netty/Transport/Native/Unix/Common (http://netty.io/), (Apache License, Version 2.0)
-  org.eclipse.jetty:jetty-client:9.4.44.v20210927 - Jetty :: Asynchronous HTTP Client (https://eclipse.org/jetty/jetty-client), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-http:9.4.44.v20210927 - Jetty :: Http Utility (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-continuation:9.4.44.v20210927 - Jetty :: Continuation (https://eclipse.org/jetty/jetty-continuation), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-io:9.4.44.v20210927 - Jetty :: IO Utility (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-jmx:9.4.44.v20210927 - Jetty :: JMX Management (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-security:9.4.44.v20210927 - Jetty :: Security (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-server:9.4.44.v20210927 - Jetty :: Server Core (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-servlet:9.4.44.v20210927 - Jetty :: Servlet Handling (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-servlets:9.4.44.v20210927 - Jetty :: Utility Servlets and Filters (https://eclipse.org/jetty/jetty-servlets), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-util:9.4.44.v20210927 - Jetty :: Utilities (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-util-ajax:9.4.44.v20210927 - Jetty :: Utilities :: Ajax(JSON) (https://eclipse.org/jetty/jetty-util-ajax), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.xerial.snappy:snappy-java:1.1.8.4 - snappy-java (https://github.com/xerial/snappy-java), (Apache-2.0)
-  com.fasterxml.jackson.module:jackson-module-scala_2.13:2.12.3 - jackson-module-scala (https://github.com/FasterXML/jackson-module-scala/tree/v2.13.0), (Apache Software License - Version 2.0)
-  org.bitbucket.b_c:jose4j:0.7.8 - jose4j (https://bitbucket.org/b_c/jose4j/), (Apache Software License - Version 2.0)
-  io.dropwizard.metrics:metrics-core:4.1.12.1 - Metrics Core (https://github.com/dropwizard/metrics/tree/v4.1.12.1), (Apache License, Version 2.0)
+  com.google.code.gson:gson:2.8.6 - Gson (https://github.com/google/gson/gson), (Apache 2.0)
+  com.google.guava:guava:19.0 - Guava: Google Core Libraries for Java (https://github.com/google/guava), (The Apache Software License, Version 2.0)
+  org.apache.httpcomponents:httpclient:4.5.13 - Apache HttpClient (http://hc.apache.org/httpcomponents-client), (Apache License, Version 2.0)
+  org.apache.httpcomponents:httpcore:4.4.14 - Apache HttpCore (http://hc.apache.org/httpcomponents-core-ga), (Apache License, Version 2.0)
+  org.schwering:irclib:1.10 - IRC client library (http://moepii.sourceforge.net), (The Apache Software License, Version 2.0, Eclipse Public License, Version 1.0;  GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1)
+  com.fasterxml.jackson.core:jackson-annotations:2.13.1 - Jackson-annotations (https://github.com/FasterXML/jackson-annotations/tree/jackson-annotations-2.13.1), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.core:jackson-core:2.13.1 - Jackson-core (https://github.com/FasterXML/jackson-core/tree/jackson-core-2.13.1), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.core:jackson-databind:2.12.6.1 - jackson-databind (https://github.com/FasterXML/jackson-databind/tree/jackson-databind-2.12.6.1), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.10.0 - Jackson-dataformat-CSV (https://github.com/FasterXML/jackson-dataformats-text/tree/jackson-dataformats-text-2.10.0), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.10.0 - Jackson datatype: jdk8 (https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.10.0), (The Apache Software License, Version 2.0)
+  jakarta.validation:jakarta.validation-api:2.0.2 - Jakarta Bean Validation API (https://beanvalidation.org), (Apache License 2.0)
+  joda-time:joda-time:2.9.9 - Joda-Time (http://www.joda.org/joda-time/), (Apache 2)
+  org.apache.kafka:kafka-log4j-appender:3.0.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.kafka:kafka-tools:3.0.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.logging.log4j:log4j-api:2.17.2 - Apache Log4j API (https://logging.apache.org/log4j/2.x/log4j-api/), (Apache License, Version 2.0)
+  org.apache.logging.log4j:log4j-slf4j-impl:2.17.2 - Apache Log4j SLF4J Binding (https://logging.apache.org/log4j/2.x/log4j-slf4j-impl/), (Apache License, Version 2.0)
+  org.lz4:lz4-java:1.6.0 - LZ4 and xxHash (https://github.com/lz4/lz4-java/tree/1.6.0), (The Apache Software License, Version 2.0)
+  org.mapdb:mapdb:0.9.9 - mapdb (http://www.mapdb.org), (The Apache Software License, Version 2.0)
+  com.yammer.metrics:metrics-core:2.2.0 - Metrics Core Library (https://github.com/infusionsoft/yammer-metrics/tree/v2.2.0), (Apache License 2.0)
+  org.apache.mina:mina-core:2.0.4 - Apache MINA Core (https://mina.apache.org/), (Apache 2.0 License)
   com.zendesk:mysql-binlog-connector-java:0.25.4 - mysql-binlog-connector-java (https://github.com/osheroff/mysql-binlog-connector-java), (Apache License, Version 2.0)
+  io.netty:netty:3.10.6.Final - Netty (http://netty.io/), (Apache License, Version 2.0)
+  io.netty:netty-buffer:4.1.72.Final - Netty/Buffer (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-codec:4.1.72.Final - Netty/Codec (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-common:4.1.72.Final - Netty/Common (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-handler:4.1.72.Final - Netty/Handler (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-resolver:4.1.72.Final - Netty/Resolver (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-transport:4.1.72.Final - Netty/Transport (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-transport-classes-epoll:4.1.72.Final - Netty/Transport/Classes/Epoll (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-transport-native-epoll:4.1.72.Final - Netty/Transport/Native/Epoll (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-transport-native-unix-common:4.1.72.Final - Netty/Transport/Native/Unix/Common (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-tcnative-classes:2.0.46.Final - Netty/TomcatNative [OpenSSL - Classes] (https://github.com/netty/netty-tcnative/tree/netty-tcnative-parent-2.0.46.Final), (Apache 2.0)
+  org.codehaus.plexus:plexus-utils:3.2.1 - Plexus Common Utilities (http://codehaus-plexus.github.io/plexus-utils/), (Apache License, Version 2.0)
+  org.apache.pulsar:pulsar-client-admin-api:2.8.1 - Pulsar Client Admin :: API (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
+  org.apache.pulsar:pulsar-client-api:2.8.1 - Pulsar Client :: API (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
+  org.reflections:reflections:0.10.2 - Reflections (https://github.com/ronmamo/reflections/tree/0.10.2), (The Apache Software License, Version 2.0;  WTFPL)
+  org.rocksdb:rocksdbjni:6.14.6 - RocksDB JNI (https://github.com/facebook/rocksdb/tree/v6.14.6), (Apache License 2.0;  GNU General Public License, version 2)
+  org.scala-lang.modules:scala-collection-compat_2.11:2.1.2 - scala-collection-compat (https://github.com/scala/scala-collection-compat/tree/v2.1.2), (Apache-2.0)
+  com.typesafe.scala-logging:scala-logging_2.11:3.9.2 - scala-logging (https://github.com/lightbend/scala-logging), (Apache 2.0 License)
+  io.prometheus:simpleclient:0.14.1 - Prometheus Java Simpleclient (https://github.com/prometheus/client_java/tree/parent-0.14.1), (The Apache Software License, Version 2.0)
+  io.prometheus:simpleclient_common:0.14.1 - Prometheus Java Simpleclient Common (https://github.com/prometheus/client_java/tree/parent-0.14.1), (The Apache Software License, Version 2.0)
+  io.prometheus:simpleclient_hotspot:0.14.1 - Prometheus Java Simpleclient Hotspot (https://github.com/prometheus/client_java/tree/parent-0.14.1), (The Apache Software License, Version 2.0)
+  io.prometheus:simpleclient_httpserver:0.14.1 - Prometheus Java Simpleclient Httpserver (https://github.com/prometheus/client_java/tree/parent-0.14.1), (The Apache Software License, Version 2.0)
+  io.prometheus:simpleclient_tracer_common:0.14.1 - Prometheus Java Span Context Supplier - Common (https://github.com/prometheus/client_java/tree/parent-0.14.1), (The Apache Software License, Version 2.0)
+  io.prometheus:simpleclient_tracer_otel:0.14.1 - Prometheus Java Span Context Supplier - OpenTelemetry (https://github.com/prometheus/client_java/tree/parent-0.14.1), (The Apache Software License, Version 2.0)
+  io.prometheus:simpleclient_tracer_otel_agent:0.14.1 - Prometheus Java Span Context Supplier - OpenTelemetry Agent (https://github.com/prometheus/client_java/tree/parent-0.14.1), (The Apache Software License, Version 2.0)
+  org.xerial.snappy:snappy-java:1.1.8.4 - snappy-java (https://github.com/xerial/snappy-java), (Apache-2.0)
+  javax.validation:validation-api:1.1.0.Final - Bean Validation API (https://github.com/eclipse-ee4j/beanvalidation-api/tree/1.1.0.Final), (The Apache Software License, Version 2.0)
+  org.apache.velocity:velocity-engine-core:2.3 - Apache Velocity - Engine (https://github.com/apache/velocity-engine/tree/2.3/velocity-engine-core), (Apache License, Version 2.0)
+  org.apache.zookeeper:zookeeper:3.6.3 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-server), (Apache License, Version 2.0)
+  org.apache.zookeeper:zookeeper-jute:3.6.3 - Apache ZooKeeper - Jute (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-jute), (Apache License, Version 2.0)
 
 
 ========================================================================
@@ -359,13 +473,35 @@ Apache 2.0 licenses
 The following components are provided under the Apache License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  org.apache.thrift:libthrift:0.9.3 - Apache Thrift (http://thrift.apache.org), (The Apache Software License, Version 2.0)
-  org.mortbay.jetty:jetty:6.1.26 - Jetty Server (https://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.mortbay.jetty:jetty-util:6.1.26 - Jetty Utilities (https://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.springframework:spring-context:5.3.18 - Spring Context (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
-  org.springframework:spring-core:5.3.13 - Spring Core (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
-  org.springframework:spring-expression:5.3.13 - Spring Expression Language (SpEL) (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
-  org.springframework:spring-jcl:5.3.13 - Spring Commons Logging Bridge (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
+  com.typesafe.akka:akka-actor_2.11:2.5.21 - akka-actor (https://github.com/akka/akka/tree/v2.5.21), (Apache License, Version 2.0)
+  com.typesafe.akka:akka-protobuf_2.11:2.5.21 - akka-protobuf (https://github.com/akka/akka/tree/v2.5.21), (Apache License, Version 2.0)
+  com.typesafe.akka:akka-stream_2.11:2.5.21 - akka-stream (https://github.com/akka/akka/tree/v2.5.21), (Apache License, Version 2.0)
+  com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1 - Jackson datatype: JSR310 (https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.13.1), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.12.3 - Jackson-JAXRS-base (https://github.com/FasterXML/jackson-jaxrs-providers/tree/jackson-jaxrs-providers-2.12.3/base), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.12.3 - Jackson-JAXRS-JSON (https://github.com/FasterXML/jackson-jaxrs-providers/tree/jackson-jaxrs-providers-2.12.3/json), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.3 - Jackson module: JAXB Annotations (https://github.com/FasterXML/jackson-modules-base/tree/jackson-modules-base-2.12.3/jaxb), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.module:jackson-module-paranamer:2.10.0 - Jackson module: Paranamer (https://github.com/FasterXML/jackson-modules-base/tree/jackson-modules-base-2.10.0/paranamer), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.module:jackson-module-scala_2.11:2.10.0 - jackson-module-scala (https://github.com/FasterXML/jackson-module-scala/tree/jackson-module-scala-2.10.0), (The Apache Software License, Version 2.0)
+  org.javassist:javassist:3.25.0-GA - Javassist (https://github.com/jboss-javassist/javassist/tree/rel_3_25_0_ga), (Apache License 2.0;  MPL 1.1;  LGPL 2.1)
+  org.eclipse.jetty:jetty-client:9.4.43.v20210629 - Jetty :: Asynchronous HTTP Client (https://eclipse.org/jetty/jetty-client), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-continuation:9.4.43.v20210629 - Jetty :: Continuation (https://eclipse.org/jetty/jetty-continuation), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-http:9.4.44.v20210927 - Jetty :: Http Utility (https://eclipse.org/jetty/jetty-http), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-io:9.4.44.v20210927 - Jetty :: IO Utility (https://eclipse.org/jetty/jetty-io), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-jmx:9.4.6.v20170531 - Jetty :: JMX Management (https://github.com/eclipse/jetty.project/tree/jetty-9.4.6.v20170531), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-security:9.4.44.v20210927 - Jetty :: Security (https://eclipse.org/jetty/jetty-security), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-server:9.4.44.v20210927 - Jetty :: Server Core (https://eclipse.org/jetty/jetty-server), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-servlet:9.4.44.v20210927 - Jetty :: Servlet Handling (https://eclipse.org/jetty/jetty-servlet), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-servlets:9.4.43.v20210629 - Jetty :: Utility Servlets and Filters (https://eclipse.org/jetty/jetty-servlets), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-util:9.4.44.v20210927 - Jetty :: Utilities (https://eclipse.org/jetty/jetty-util), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-util-ajax:9.4.44.v20210927 - Jetty :: Utilities :: Ajax(JSON) (https://eclipse.org/jetty/jetty-util-ajax), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.apache.kafka:kafka_2.11:2.4.1 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.kafka:kafka-clients:2.4.1 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.thrift:libthrift:0.9.3 - Apache Thrift (http://thrift.apache.org),  (The Apache Software License, Version 2.0)
+  log4j:log4j:1.2.17 - Apache Log4j (http://logging.apache.org/log4j/1.2/), (The Apache Software License, Version 2.0)
+  org.apache.logging.log4j:log4j-core:2.17.2 - Apache Log4j Core (https://logging.apache.org/log4j/2.x/log4j-core/), (Apache License, Version 2.0)
+  org.apache.maven:maven-artifact:3.8.1 - Maven Artifact (https://maven.apache.org/ref/3.8.1/maven-artifact/), (Apache License, Version 2.0)
+  org.apache.pulsar:pulsar-client:2.8.1 - Pulsar Client Java (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
+  com.typesafe:ssl-config-core_2.11:0.3.7 - ssl-config-core (https://github.com/lightbend/ssl-config), (Apache-2.0)
 
 
 ========================================================================
@@ -375,8 +511,9 @@ EDL licenses
 The following components are provided under EDL license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  jakarta.activation:jakarta.activation-api:1.2.1 - Jakarta Activation API jar (https://github.com/eclipse-ee4j/jaf/tree/1.2.2/activationapi), (EDL 1.0)
-  jakarta.xml.bind:jakarta.xml.bind-api:2.3.2 - Jakarta XML Binding API (https://github.com/eclipse-ee4j/jaxb-api/tree/2.3.2/jaxb-api), (Eclipse Distribution License - v 1.0)
+  jakarta.activation:jakarta.activation-api:1.2.1 - JavaBeans Activation Framework API jar (https://github.com/eclipse-ee4j/jaf/tree/1.2.1/activationapi), (EDL 1.0)
+  jakarta.xml.bind:jakarta.xml.bind-api:2.3.2 - jakarta.xml.bind-api (https://github.com/eclipse-ee4j/jaxb-api/tree/2.3.2/jaxb-api), (Eclipse Distribution License - v 1.0)
+
 
 ========================================================================
 EPL licenses
@@ -385,20 +522,21 @@ EPL licenses
 The following components are provided under EPL license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  jakarta.annotation:jakarta.annotation-api:1.3.5 - Jakarta Annotations API (https://projects.eclipse.org/projects/ee4j.ca), (EPL 2.0)
-  jakarta.ws.rs:jakarta.ws.rs-api:2.1.6 - jakarta.ws.rs-api (https://github.com/jakartaee/rest/tree/2.1.6/jaxrs-api), (EPL 2.0), (EPL 2.0 and GPL2 w/ CPE)
-  org.glassfish.hk2:osgi-resource-locator:1.0.3 - OSGi resource locator (https://projects.eclipse.org/projects/ee4j/osgi-resource-locator), (EPL 2.0), (EPL 2.0 and GPL2 w/ CPE)
-  org.glassfish.hk2:hk2-api:2.6.1 - HK2 API module (https://github.com/eclipse-ee4j/glassfish-hk2/hk2-api), (EPL 2.0), (EPL 2.0 and GPL2 w/ CPE)
-  org.glassfish.hk2:hk2-locator:2.6.1- ServiceLocator Default Implementation (https://github.com/eclipse-ee4j/glassfish-hk2/hk2-locator), (EPL 2.0), (EPL 2.0 and GPL2 w/ CPE)
-  org.glassfish.hk2:hk2-utils:2.6.1 - HK2 Implementation Utilities (https://github.com/eclipse-ee4j/glassfish-hk2/hk2-utils), (EPL 2.0), (EPL 2.0 and GPL2 w/ CPE)
-  org.glassfish.hk2.external:aopalliance-repackaged:2.6.1- aopalliance version 1.0 repackaged as a module (https://github.com/eclipse-ee4j/glassfish-hk2/external/aopalliance-repackaged), (EPL 2.0), (EPL 2.0 and GPL2 w/ CPE)
-  org.glassfish.hk2.external:jakarta.inject:2.6.1 - javax.inject:1 as OSGi bundle (https://github.com/eclipse-ee4j/glassfish-hk2/external/jakarta.inject), (EPL 2.0), (EPL 2.0 and GPL2 w/ CPE)
-  org.glassfish.jersey.containers:jersey-container-servlet:2.34 - jersey-container-servlet (https://projects.eclipse.org/projects/ee4j.jersey/project/jersey-container-servlet), (EPL 2.0)
-  org.glassfish.jersey.containers:jersey-container-servlet-core:jar:2.34 - jersey-container-servlet-core (https://projects.eclipse.org/projects/ee4j.jersey/project/jersey-container-servlet-core), (EPL 2.0)
-  org.glassfish.jersey.core:jersey-common:2.34 - jersey-core-common (https://projects.eclipse.org/projects/ee4j.jersey/jersey-common), (EPL 2.0)
-  org.glassfish.jersey.core:jersey-client:2.34 - jersey-core-client (https://projects.eclipse.org/projects/ee4j.jersey/jersey-client), (EPL 2.0)
-  org.glassfish.jersey.core:jersey-server:2.34 - jersey-core-server (https://projects.eclipse.org/projects/ee4j.jersey/jersey-server), (EPL 2.0)
-  org.glassfish.jersey.inject:jersey-hk2:2.34  - jersey-inject-hk2 (https://projects.eclipse.org/projects/ee4j.jersey/project/jersey-hk2), (EPL 2.0)
+  org.glassfish.hk2.external:aopalliance-repackaged:2.6.1- aopalliance version 1.0 repackaged as a module (https://github.com/eclipse-ee4j/glassfish-hk2/external/aopalliance-repackaged), (EPL 2.0;  GPL2 w/ CPE)
+  org.glassfish.hk2:hk2-api:2.6.1 - HK2 API module (https://github.com/eclipse-ee4j/glassfish-hk2/tree/2.6.1/hk2-api), (EPL 2.0;  GPL2 w/ CPE)
+  org.glassfish.hk2:hk2-locator:2.6.1 - ServiceLocator Default Implementation (https://github.com/eclipse-ee4j/glassfish-hk2/tree/2.6.1/hk2-locator), (EPL 2.0;  GPL2 w/ CPE)
+  org.glassfish.hk2:hk2-utils:2.6.1 - HK2 Implementation Utilities (https://github.com/eclipse-ee4j/glassfish-hk2/tree/2.6.1/hk2-utils), (EPL 2.0;  GPL2 w/ CPE)
+  jakarta.annotation:jakarta.annotation-api:1.3.5 - Jakarta Annotations API (https://projects.eclipse.org/projects/ee4j.ca), (EPL 2.0;  GPL2 w/ CPE)
+  org.glassfish.hk2.external:jakarta.inject:2.6.1 - javax.inject:1 as OSGi bundle (https://github.com/eclipse-ee4j/glassfish-hk2/tree/2.6.1/external/jsr330), (EPL 2.0;  GPL2 w/ CPE)
+  jakarta.ws.rs:jakarta.ws.rs-api:2.1.6 - jakarta.ws.rs-api (https://github.com/jakartaee/rest/tree/2.1.6/jaxrs-api), (EPL 2.0;  GPL2 w/ CPE)
+  org.glassfish.jersey.core:jersey-client:2.34 - jersey-core-client (https://projects.eclipse.org/projects/ee4j.jersey/jersey-client), (EPL 2.0;  GPL2 w/ CPE;  EDL 1.0;  BSD 2-Clause;  Apache License, 2.0;  Public Domain;  Modified BSD;  MIT license;  W3C license)
+  org.glassfish.jersey.core:jersey-common:2.34 - jersey-core-common (https://projects.eclipse.org/projects/ee4j.jersey/jersey-common), (EPL 2.0;  The GNU General Public License (GPL), Version 2, With Classpath Exception;  Apache License, 2.0;  Public Domain)
+  org.glassfish.jersey.containers:jersey-container-servlet:2.34 - jersey-container-servlet (https://projects.eclipse.org/projects/ee4j.jersey/project/jersey-container-servlet), (EPL 2.0;  GPL2 w/ CPE;  EDL 1.0;  BSD 2-Clause;  Apache License, 2.0;  Public Domain;  Modified BSD;  MIT license;  W3C license)
+  org.glassfish.jersey.containers:jersey-container-servlet-core:2.34 - jersey-container-servlet-core (https://projects.eclipse.org/projects/ee4j.jersey/project/jersey-container-servlet-core), (EPL 2.0;  GPL2 w/ CPE;  EDL 1.0;  BSD 2-Clause;  Apache License, 2.0;  Public Domain;  Modified BSD;  MIT license;  W3C license)
+  org.glassfish.jersey.inject:jersey-hk2:2.34 - jersey-inject-hk2 (https://projects.eclipse.org/projects/ee4j.jersey/project/jersey-hk2), (EPL 2.0;  GPL2 w/ CPE;  EDL 1.0;  BSD 2-Clause;  Apache License, 2.0;  Public Domain;  Modified BSD;  MIT license;  W3C license)
+  org.glassfish.jersey.core:jersey-server:2.34 - jersey-core-server (https://projects.eclipse.org/projects/ee4j.jersey/jersey-server), (EPL 2.0;  The GNU General Public License (GPL), Version 2, With Classpath Exception;  Apache License, 2.0;  Modified BSD)
+  org.glassfish.hk2:osgi-resource-locator:1.0.3 - OSGi resource locator (https://github.com/eclipse-ee4j/glassfish-hk2-extra/tree/1.0.3-RELEASE/osgi-resource-locator), (EPL 2.0;  GPL2 w/ CPE)
+
 
 ========================================================================
 BSD licenses
@@ -407,19 +545,16 @@ BSD licenses
 The following components are provided under BSD license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.G
 
+  org.antlr:antlr4-runtime:4.8 - ANTLR 4 Runtime (https://github.com/antlr/antlr4/tree/4.8), (The BSD License)
   com.google.code.findbugs:jsr305:3.0.2 - FindBugs-jsr305 (http://findbugs.sourceforge.net/), (New BSD License)
-  com.google.protobuf:protobuf-java:3.19.4 - Protocol Buffer Java API (https://github.com/protocolbuffers/protobuf), (New BSD license)
-  com.thoughtworks.paranamer:paranamer:2.8 - ParaNamer Core (https://github.com/paul-hammant/paranamer), (BSD)
-  jline:jline:0.9.94 - JLine (https://jline.github.io), (BSD)
-  org.apache.kafka:connect-api:3.0.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
-  org.antlr:antlr-runtime:4.8 - ANTLR 4 Runtime (http://www.antlr.org), (BSD)
-  com.github.luben:zstd-jni:1.5.0-4 - zstd-jni (https://github.com/luben/zstd-jni), (BSD 2-Clause License)
-  com.google.protobuf:protobuf-java-util:3.5.1 - Protocol Buffers [Util] (https://github.com/protocolbuffers/protobuf), (The BSD 3-Clause License)
-  org.scala-lang:scala-library:2.11.12 - Scala Library (http://www.scala-lang.org/), (The BSD 3-Clause License)
-  org.scala-lang.modules:scala-java8-compat_2.11:0.7.0 - scala-java8-compat (http://www.scala-lang.org/), (The BSD 3-Clause License)
-  org.scala-lang.modules:scala-parser-combinators_2.11:1.1.1 - scala-parser-combinators (http://www.scala-lang.org/), (The BSD 3-Clause License)
-  org.postgresql:postgresql:42.3.3 - PostgreSQL JDBC Driver (https://jdbc.postgresql.org), (BSD-2-Clause)
-  org.reflections:reflections:0.9.12  - Reflections (http://github.com/ronmamo/reflections), (The New BSD License)
+  com.thoughtworks.paranamer:paranamer:2.8 - ParaNamer Core (https://github.com/paul-hammant/paranamer/tree/paranamer-parent-2.8), (BSD)
+  org.postgresql:postgresql:42.2.25 - PostgreSQL JDBC Driver (https://jdbc.postgresql.org), (BSD-2-Clause)
+  com.google.protobuf:protobuf-java:3.19.4 - Protocol Buffers [Core] (https://github.com/protocolbuffers/protobuf/tree/v3.19.4), (3-Clause BSD License)
+  org.scala-lang.modules:scala-java8-compat_2.11:0.9.0 - scala-java8-compat (https://github.com/scala/scala-java8-compat/tree/v0.9.0), (BSD 3-clause)
+  org.scala-lang:scala-library:2.11.12 - Scala Library (https://github.com/scala/scala/tree/v2.11.12), (BSD 3-clause)
+  org.scala-lang.modules:scala-parser-combinators_2.11:1.1.1 - scala-parser-combinators (http://www.scala-lang.org/), (BSD 3-clause)
+  org.scala-lang:scala-reflect:2.11.12 - Scala Compiler (https://github.com/scala/scala/tree/v2.11.12), (BSD 3-clause)
+  com.github.luben:zstd-jni:1.4.3-1 - zstd-jni (https://github.com/luben/zstd-jni/tree/v1.4.3-1), (BSD 2-Clause License)
 
 
 ========================================================================
@@ -429,12 +564,16 @@ MIT licenses
 The following components are provided under MIT license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  net.sf.jopt-simple:jopt-simple:5.0.4 - JOpt Simple (http://pholser.github.io/jopt-simple), (The MIT License)
+  net.sourceforge.argparse4j:argparse4j:0.7.0 - argparse4j (https://github.com/argparse4j/argparse4j/tree/argparse4j-0.7.0), (MIT)
+  org.bouncycastle:bcpkix-jdk15on:1.69 - Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs (https://www.bouncycastle.org/java.html), (MIT License)
+  org.bouncycastle:bcprov-ext-jdk15on:1.69 - Bouncy Castle Provider (https://www.bouncycastle.org/java.html), (MIT License)
+  org.bouncycastle:bcprov-jdk15on:1.69 - Bouncy Castle Provider (https://www.bouncycastle.org/java.html), (MIT License)
+  org.bouncycastle:bcutil-jdk15on:1.69 - Bouncy Castle ASN.1 Extension and Utility APIs (https://www.bouncycastle.org/java.html), (MIT License)
   org.checkerframework:checker-qual:3.5.0 - Checker Qual (https://checkerframework.org), (The MIT License)
-  org.projectlombok:lombok:1.18.22 - Lombok (https://projectlombok.org), (The MIT License)
+  net.sf.jopt-simple:jopt-simple:5.0.4 - JOpt Simple (https://github.com/jopt-simple/jopt-simple/tree/jopt-simple-5.0.4), (The MIT License)
+  org.projectlombok:lombok:1.18.22 - Project Lombok (https://projectlombok.org), (The MIT License)
   org.slf4j:slf4j-api:1.7.36 - SLF4J API Module (http://www.slf4j.org), (MIT License)
-  org.codehaus.mojo:animal-sniffer-annotations:1.14 - Animal Sniffer Annotations (http://mojo.codehaus.org/animal-sniffer/animal-sniffer-annotations), (MIT License)
-  net.sourceforge.argparse4j:argparse4j:0.7.0 - argparse4j (http://argparse4j.github.io), (MIT License)
+
 
 ========================================================================
 CDDL licenses
@@ -443,11 +582,12 @@ CDDL licenses
 The following components are provided under CDDL license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  javax.servlet:javax.servlet-api:3.1.0 - Java Servlet API (http://servlet-spec.java.net), (CDDL + GPLv2 with classpath exception)
+  javax.activation:activation:1.1.1 - JavaBeans(TM) Activation Framework (http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp), (COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0)
   com.sun.activation:javax.activation:1.2.0 - JavaBeans Activation Framework (http://java.net/all/javax.activation/), (CDDL/GPLv2+CE)
-  javax.ws.rs:javax.ws.rs-api:2.1 - javax.ws.rs-api (http://jax-rs-spec.java.net), (CDDL 1.1), (CDDL 1.1 and GPL2 w/ CPE)
-  javax.xml.bind:jaxb-api:2.3.0 - Java Architecture for XML Binding (https://github.com/javaee/jaxb-spec/jaxb-api), (CDDL 1.1, GPL2 w/ CPE)
-
+  javax.annotation:javax.annotation-api:1.3.2 - javax.annotation API (http://jcp.org/en/jsr/detail?id=250), (CDDL + GPLv2 with classpath exception)
+  javax.servlet:javax.servlet-api:4.0.1 - Java Servlet API (https://javaee.github.io/servlet-spec/), (CDDL + GPLv2 with classpath exception)
+  javax.ws.rs:javax.ws.rs-api:2.1 - javax.ws.rs-api (https://github.com/javaee/jax-rs-api/tree/2.1/jaxrs-api), (CDDL 1.1;  GPL2 w/ CPE)
+  javax.xml.bind:jaxb-api:2.3.0 - jaxb-api (https://github.com/javaee/jaxb-spec/tree/2.3.0/jaxb-api), (CDDL 1.1;  GPL2 w/ CPE)
 
 
 ========================================================================
@@ -457,5 +597,7 @@ Public Domain License
 The following components are provided under Public Domain license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  net.jcip:jcip-annotations:1.0 - "Java Concurrency in Practice" book annotations (http://jax-rs-spec.java.net), (Public Domain)
-  org.reactivestreams:reactive-streams:1.0.2 - reactive-streams (http://www.reactive-streams.org/)
+  net.jcip:jcip-annotations:1.0 - "Java Concurrency in Practice" book annotations (http://jcip.net/), (Public Domain)
+  org.reactivestreams:reactive-streams:1.0.2 - reactive-streams (http://www.reactive-streams.org/), (CC0)
+  org.tukaani:xz:1.9 - XZ for Java (http://tukaani.org/xz/java.html), (Public Domain)
+

@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>1.1.0-incubating-SNAPSHOT</version>
+        <version>1.2.0-incubating-SNAPSHOT</version>
     </parent>
     <packaging>pom</packaging>
     <artifactId>inlong-sort-standalone</artifactId>
@@ -176,6 +176,10 @@
             <version>${hive.version}</version>
             <exclusions>
                 <exclusion>
+                    <groupId>org.eclipse.jetty.orbit</groupId>
+                    <artifactId>javax.servlet</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.apache.hadoop</groupId>
                     <artifactId>hadoop-mapreduce-client-core</artifactId>
                 </exclusion>
@@ -218,6 +222,10 @@
                 <exclusion>
                     <groupId>org.openjdk.jol</groupId>
                     <artifactId>jol-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty.aggregate</groupId>
+                    <artifactId>jetty-all</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

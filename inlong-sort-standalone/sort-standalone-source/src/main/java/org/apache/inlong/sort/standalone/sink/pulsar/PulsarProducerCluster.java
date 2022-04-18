@@ -18,14 +18,11 @@
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
 import org.apache.flume.Context;
-import org.apache.flume.Event;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
-import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
-import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
-import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.apache.pulsar.client.api.AuthenticationFactory;
@@ -37,10 +34,8 @@ import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
-import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
@@ -194,12 +189,12 @@ public class PulsarProducerCluster implements LifecycleAware {
     /**
      * send
      * 
-     * @param event
+     * @param profileEvent
      * @param tx
      */
-    public boolean send(Event event, Transaction tx) {
+    public boolean send(ProfileEvent profileEvent, Transaction tx) {
         // send
-        Map<String, String> headers = event.getHeaders();
+        Map<String, String> headers = profileEvent.getHeaders();
         String topic = headers.get(Constants.TOPIC);
         // get producer
         Producer<byte[]> producer = this.producerMap.get(topic);
@@ -224,7 +219,7 @@ public class PulsarProducerCluster implements LifecycleAware {
         if (producer == null) {
             tx.rollback();
             tx.close();
-            this.addMetric(event, topic, false, 0);
+            sinkContext.addSendResultMetric(profileEvent, topic, false, System.currentTimeMillis());
             return false;
         }
         String messageKey = headers.get(Constants.HEADER_KEY_MESSAGE_KEY);
@@ -234,7 +229,7 @@ public class PulsarProducerCluster implements LifecycleAware {
         // sendAsync
         long sendTime = System.currentTimeMillis();
         CompletableFuture<MessageId> future = producer.newMessage().key(messageKey).properties(headers)
-                .value(event.getBody()).sendAsync();
+                .value(profileEvent.getBody()).sendAsync();
         // callback
         future.whenCompleteAsync((msgId, ex) -> {
             if (ex != null) {
@@ -242,38 +237,15 @@ public class PulsarProducerCluster implements LifecycleAware {
                 LOG.error(ex.getMessage(), ex);
                 tx.rollback();
                 tx.close();
-                this.addMetric(event, topic, false, 0);
+                sinkContext.addSendResultMetric(profileEvent, topic, false, sendTime);
             } else {
                 tx.commit();
                 tx.close();
-                this.addMetric(event, topic, true, sendTime);
+                sinkContext.addSendResultMetric(profileEvent, topic, true, sendTime);
+                profileEvent.ack();
             }
         });
         return true;
-    }
-
-    /**
-     * addMetric
-     * 
-     * @param currentRecord
-     * @param topic
-     * @param result
-     */
-    private void addMetric(Event currentRecord, String topic, boolean result, long sendTime) {
-        Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.sinkContext.getClusterId());
-        // metric
-        SortMetricItem.fillInlongId(currentRecord, dimensions);
-        dimensions.put(SortMetricItem.KEY_SINK_ID, this.cacheClusterName);
-        dimensions.put(SortMetricItem.KEY_SINK_DATA_ID, topic);
-        long msgTime = NumberUtils.toLong(currentRecord.getHeaders().get(Constants.HEADER_KEY_MSG_TIME), sendTime);
-        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
-        dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
-        SortMetricItem.reportDurations(currentRecord, result, sendTime,
-                dimensions, msgTime, this.sinkContext.getMetricItemSet());
-        if (result) {
-            AuditUtils.add(AuditUtils.AUDIT_ID_SEND_SUCCESS, currentRecord);
-        }
     }
 
     /**

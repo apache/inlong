@@ -30,30 +30,29 @@
     </dependencySets>
     <fileSets>
         <fileSet>
-            <directory>../</directory>
+            <directory>../resources</directory>
             <includes>
-                <include>./resources/**</include>
-                <include>LICENSE</include>
-                <include>NOTICE</include>
-                <include>DISCLAIMER-WIP</include>
+                <include>**/*</include>
             </includes>
-            <excludes>
-                <exclude>**/src/**</exclude>
-                <exclude>**/target/**</exclude>
-                <exclude>**/.*/**</exclude>
-            </excludes>
-        </fileSet>
-        <fileSet>
-            <includes>
-                <include>./conf/*</include>
-            </includes>
+            <outputDirectory>resources</outputDirectory>
             <fileMode>0644</fileMode>
             <lineEnding>unix</lineEnding>
         </fileSet>
         <fileSet>
+            <directory>../conf</directory>
             <includes>
-                <include>./bin/*</include>
+                <include>*.*</include>
             </includes>
+            <outputDirectory>conf</outputDirectory>
+            <fileMode>0644</fileMode>
+            <lineEnding>unix</lineEnding>
+        </fileSet>
+        <fileSet>
+            <directory>../bin</directory>
+            <includes>
+                <include>*.*</include>
+            </includes>
+            <outputDirectory>bin</outputDirectory>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </fileSet>

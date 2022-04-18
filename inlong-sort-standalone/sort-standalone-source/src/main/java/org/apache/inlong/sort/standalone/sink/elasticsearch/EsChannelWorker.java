@@ -93,6 +93,7 @@ public class EsChannelWorker extends Thread {
                 context.offerDispatchQueue(indexRequest);
             } else {
                 context.addSendFailMetric();
+                profileEvent.ack();
             }
             tx.commit();
             return;

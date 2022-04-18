@@ -17,21 +17,18 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleState;
-import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
-import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
+
+import java.util.Map;
 
 /**
  * 
@@ -46,7 +43,6 @@ public class PulsarFederationWorker extends Thread {
 
     private PulsarProducerFederation producerFederation;
     private LifecycleState status;
-    private Map<String, String> dimensions;
 
     /**
      * Constructor
@@ -61,10 +57,6 @@ public class PulsarFederationWorker extends Thread {
         this.context = context;
         this.producerFederation = new PulsarProducerFederation(workerName, this.context);
         this.status = LifecycleState.IDLE;
-        this.dimensions = new HashMap<>();
-        this.dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.context.getClusterId());
-        this.dimensions.put(SortMetricItem.KEY_TASK_NAME, this.context.getTaskName());
-        this.dimensions.put(SortMetricItem.KEY_SINK_ID, this.context.getSinkName());
     }
 
     /**
@@ -104,28 +96,27 @@ public class PulsarFederationWorker extends Thread {
                     sleepOneInterval();
                     continue;
                 }
+                if (!(event instanceof ProfileEvent)) {
+                    tx.commit();
+                    this.context.addSendFailMetric();
+                    Thread.sleep(context.getProcessInterval());
+                    return;
+                }
+                // to profileEvent
+                ProfileEvent profileEvent = (ProfileEvent) event;
                 // fill topic
-                this.fillTopic(event);
+                String topic = this.fillTopic(profileEvent);
                 // metric
-                SortMetricItem.fillInlongId(event, dimensions);
-                this.dimensions.put(SortMetricItem.KEY_SINK_DATA_ID, event.getHeaders().get(Constants.TOPIC));
-                long msgTime = NumberUtils.toLong(event.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
-                        System.currentTimeMillis());
-                long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
-                dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
-                SortMetricItem metricItem = this.context.getMetricItemSet().findMetricItem(dimensions);
-                metricItem.sendCount.incrementAndGet();
-                metricItem.sendSize.addAndGet(event.getBody().length);
+                this.context.addSendMetric(profileEvent, topic);
                 // send
-                this.producerFederation.send(event, tx);
+                this.producerFederation.send(profileEvent, tx);
             } catch (Throwable t) {
                 LOG.error("Process event failed!" + this.getName(), t);
                 try {
                     tx.rollback();
                     tx.close();
                     // metric
-                    SortMetricItem metricItem = this.context.getMetricItemSet().findMetricItem(dimensions);
-                    metricItem.readFailCount.incrementAndGet();
+                    context.addSendFailMetric();
                     sleepOneInterval();
                 } catch (Throwable e) {
                     LOG.error("Channel take transaction rollback exception:" + getName(), e);
@@ -139,7 +130,7 @@ public class PulsarFederationWorker extends Thread {
      * 
      * @param currentRecord
      */
-    private void fillTopic(Event currentRecord) {
+    private String fillTopic(Event currentRecord) {
         Map<String, String> headers = currentRecord.getHeaders();
         String inlongGroupId = headers.get(Constants.INLONG_GROUP_ID);
         String inlongStreamId = headers.get(Constants.INLONG_STREAM_ID);
@@ -147,7 +138,9 @@ public class PulsarFederationWorker extends Thread {
         String topic = this.context.getTopic(uid);
         if (!StringUtils.isBlank(topic)) {
             headers.put(Constants.TOPIC, topic);
+            return topic;
         }
+        return "-";
     }
 
     /**

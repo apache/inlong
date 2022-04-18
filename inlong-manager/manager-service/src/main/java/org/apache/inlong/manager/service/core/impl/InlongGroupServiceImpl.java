@@ -222,18 +222,18 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         List<InlongGroupListResponse> groupList = CommonBeanUtils.copyListProperties(entityPage,
                 InlongGroupListResponse::new);
         if (request.isListSources() && CollectionUtils.isNotEmpty(groupList)) {
-            List<String> groupIds = groupList.stream().map(response -> response.getInlongGroupId())
+            List<String> groupIds = groupList.stream().map(InlongGroupListResponse::getInlongGroupId)
                     .collect(Collectors.toList());
             List<StreamSourceEntity> sourceEntities = streamSourceEntityMapper.selectByGroupIds(groupIds);
             Map<String, List<SourceListResponse>> sourceMap = Maps.newHashMap();
-            sourceEntities.stream().forEach(sourceEntity -> {
+            sourceEntities.forEach(sourceEntity -> {
                 SourceType sourceType = SourceType.forType(sourceEntity.getSourceType());
                 StreamSourceOperation operation = operationFactory.getInstance(sourceType);
                 SourceListResponse sourceListResponse = operation.getFromEntity(sourceEntity, SourceListResponse::new);
                 sourceMap.computeIfAbsent(sourceEntity.getInlongGroupId(), k -> Lists.newArrayList())
                         .add(sourceListResponse);
             });
-            groupList.stream().forEach(group -> {
+            groupList.forEach(group -> {
                 List<SourceListResponse> sourceListResponses = sourceMap.getOrDefault(group.getInlongGroupId(),
                         Lists.newArrayList());
                 group.setSourceListResponses(sourceListResponses);
@@ -247,8 +247,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         return page;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ,
+            propagation = Propagation.REQUIRES_NEW)
     public String update(InlongGroupRequest groupRequest, String operator) {
         LOGGER.debug("begin to update inlong group={}", groupRequest);
         Preconditions.checkNotNull(groupRequest, "inlong group is empty");
