@@ -22,6 +22,8 @@ import org.apache.inlong.manager.client.api.StreamTransform;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 
+import java.util.List;
+
 @ApiModel("StreamTransform with multiple pre streamNodes, such as join etc")
 public class MultiDependencyTransform extends StreamTransform {
 
@@ -31,7 +33,7 @@ public class MultiDependencyTransform extends StreamTransform {
      * @param transformName
      * @param transformDefinition
      * @param preNodes name of pre streamNodes, if pre streamNode is streamSource, then preNode is sourceName
-     *                if pre streamNode is streamTransform, preNode is transformName
+     *         if pre streamNode is streamTransform, preNode is transformName
      */
     public MultiDependencyTransform(String transformName, TransformDefinition transformDefinition, String... preNodes) {
         AssertUtil.notNull(transformDefinition, "TransformDefinition should not be null");
@@ -41,6 +43,26 @@ public class MultiDependencyTransform extends StreamTransform {
         AssertUtil.noNullElements(preNodes, "Pre streamNode should not be null");
         for (String preNode : preNodes) {
             this.addPre(preNode);
+        }
+    }
+
+    /**
+     * Constructor of MultiDependencyTransform
+     *
+     * @param transformName
+     * @param transformDefinition
+     * @param preNodes name of pre streamNodes, if pre streamNode is streamSource, then preNode is sourceName
+     *         if pre streamNode is streamTransform, preNode is transformName
+     * @param postNodes postNodes name of post streamNode, if post streamNode is streamSource, then postNode is
+     *         sourceName, if post streamNode is streamTransform, postNode is transformName
+     */
+    public MultiDependencyTransform(String transformName, TransformDefinition transformDefinition,
+            List<String> preNodes, List<String> postNodes) {
+        this(transformName, transformDefinition, preNodes.toArray(new String[preNodes.size()]));
+        if (postNodes != null) {
+            for (String postNode : postNodes) {
+                this.addPost(postNode);
+            }
         }
     }
 }

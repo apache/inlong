@@ -31,7 +31,7 @@ public class SingleDependencyTransform extends StreamTransform {
      * @param transformName
      * @param transformDefinition
      * @param preNode name of pre streamNode, if pre streamNode is streamSource, then preNode is sourceName
-     *                if pre streamNode is streamTransform, preNode is transformName
+     *         if pre streamNode is streamTransform, preNode is transformName
      */
     public SingleDependencyTransform(String transformName, TransformDefinition transformDefinition, String preNode) {
         AssertUtil.notNull(transformDefinition, "TransformDefinition should not be null");
@@ -41,4 +41,25 @@ public class SingleDependencyTransform extends StreamTransform {
         AssertUtil.notNull(preNode, "Pre streamNode should not be null");
         this.addPre(preNode);
     }
+
+    /**
+     * Constructor of SingleDependencyTransform
+     *
+     * @param transformName
+     * @param transformDefinition
+     * @param preNode name of pre streamNode, if pre streamNode is streamSource, then preNode is sourceName
+     *         if pre streamNode is streamTransform, preNode is transformName
+     * @param postNodes name of post streamNode, if post streamNode is streamSource, then postNode is sourceName
+     *         if post streamNode is streamTransform, postNode is transformName
+     */
+    public SingleDependencyTransform(String transformName, TransformDefinition transformDefinition, String preNode,
+            String... postNodes) {
+        this(transformName, transformDefinition, preNode);
+        if (postNodes != null) {
+            for (String postNode : postNodes) {
+                this.addPost(postNode);
+            }
+        }
+    }
+
 }
