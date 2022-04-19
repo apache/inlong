@@ -57,7 +57,7 @@ public class TestEsCallbackListener {
     public void testBeforeBulk() {
         // prepare
         ProfileEvent event = TestEsSinkContext.mockProfileEvent();
-        EsIndexRequest indexRequest = context.getIndexRequestHandler().parse(context, event);
+        EsIndexRequest indexRequest = context.createIndexRequestHandler().parse(context, event);
         long executionId = 0;
         BulkRequest bulkRequest = new BulkRequest();
         bulkRequest.add(indexRequest);
@@ -77,7 +77,7 @@ public class TestEsCallbackListener {
         LinkedBlockingQueue<EsIndexRequest> dispatchQueue = new LinkedBlockingQueue<>();
         EsSinkContext context = TestEsSinkContext.mock(dispatchQueue);
         ProfileEvent event = TestEsSinkContext.mockProfileEvent();
-        EsIndexRequest indexRequest = context.getIndexRequestHandler().parse(context, event);
+        EsIndexRequest indexRequest = context.createIndexRequestHandler().parse(context, event);
         long executionId = 0;
         EsCallbackListener listener = new EsCallbackListener(context);
         // request

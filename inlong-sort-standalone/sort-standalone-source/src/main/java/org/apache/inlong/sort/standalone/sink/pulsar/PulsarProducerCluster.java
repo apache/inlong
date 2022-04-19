@@ -36,6 +36,7 @@ import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
@@ -71,6 +72,7 @@ public class PulsarProducerCluster implements LifecycleAware {
     private final Context context;
     private final String cacheClusterName;
     private LifecycleState state;
+    private IEvent2PulsarRecordHandler handler;
 
     /**
      * pulsar client
@@ -94,6 +96,7 @@ public class PulsarProducerCluster implements LifecycleAware {
         this.context = context.getProducerContext();
         this.state = LifecycleState.IDLE;
         this.cacheClusterName = config.getClusterName();
+        this.handler = sinkContext.createEventHandler();
     }
 
     /**
@@ -189,10 +192,12 @@ public class PulsarProducerCluster implements LifecycleAware {
     /**
      * send
      * 
-     * @param profileEvent
-     * @param tx
+     * @param  profileEvent
+     * @param  tx
+     * @return              boolean
+     * @throws IOException
      */
-    public boolean send(ProfileEvent profileEvent, Transaction tx) {
+    public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
         // send
         Map<String, String> headers = profileEvent.getHeaders();
         String topic = headers.get(Constants.TOPIC);
@@ -227,9 +232,17 @@ public class PulsarProducerCluster implements LifecycleAware {
             messageKey = headers.get(Constants.HEADER_KEY_SOURCE_IP);
         }
         // sendAsync
+        byte[] sendBytes = this.handler.parse(sinkContext, profileEvent);
+        // check
+        if (sendBytes == null) {
+            tx.commit();
+            profileEvent.ack();
+            tx.close();
+            return true;
+        }
         long sendTime = System.currentTimeMillis();
         CompletableFuture<MessageId> future = producer.newMessage().key(messageKey).properties(headers)
-                .value(profileEvent.getBody()).sendAsync();
+                .value(sendBytes).sendAsync();
         // callback
         future.whenCompleteAsync((msgId, ex) -> {
             if (ex != null) {

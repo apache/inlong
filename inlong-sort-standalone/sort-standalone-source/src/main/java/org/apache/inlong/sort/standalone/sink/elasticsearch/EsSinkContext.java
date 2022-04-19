@@ -17,13 +17,7 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicLong;
+import com.alibaba.fastjson.JSON;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
@@ -43,7 +37,13 @@ import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-import com.alibaba.fastjson.JSON;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 
@@ -93,8 +93,6 @@ public class EsSinkContext extends SinkContext {
     // http host
     private String strHttpHosts;
     private HttpHost[] httpHosts;
-    // handler
-    private IEvent2IndexRequestHandler indexRequestHandler;
 
     /**
      * Constructor
@@ -166,19 +164,6 @@ public class EsSinkContext extends SinkContext {
                     HttpHost[] newHostHostArray = new HttpHost[newHttpHosts.size()];
                     this.httpHosts = newHttpHosts.toArray(newHostHostArray);
                 }
-            }
-            // IEvent2IndexRequestHandler
-            String indexRequestHandlerClass = CommonPropertiesHolder.getString(KEY_EVENT_INDEXREQUEST_HANDLER,
-                    DefaultEvent2IndexRequestHandler.class.getName());
-            try {
-                Class<?> handlerClass = ClassUtils.getClass(indexRequestHandlerClass);
-                Object handlerObject = handlerClass.getDeclaredConstructor().newInstance();
-                if (handlerObject instanceof IEvent2IndexRequestHandler) {
-                    this.indexRequestHandler = (IEvent2IndexRequestHandler) handlerObject;
-                }
-            } catch (Throwable t) {
-                LOG.error("Fail to init IEvent2IndexRequestHandler,handlerClass:{},error:{}",
-                        indexRequestHandlerClass, t.getMessage());
             }
             // log
             LOG.info("end to get SortTaskConfig:taskName:{}:newIdConfigMap:{}", taskName,
@@ -565,21 +550,25 @@ public class EsSinkContext extends SinkContext {
     }
 
     /**
-     * get indexRequestHandler
+     * create indexRequestHandler
      * 
      * @return the indexRequestHandler
      */
-    public IEvent2IndexRequestHandler getIndexRequestHandler() {
-        return indexRequestHandler;
+    public IEvent2IndexRequestHandler createIndexRequestHandler() {
+        // IEvent2IndexRequestHandler
+        String indexRequestHandlerClass = CommonPropertiesHolder.getString(KEY_EVENT_INDEXREQUEST_HANDLER,
+                DefaultEvent2IndexRequestHandler.class.getName());
+        try {
+            Class<?> handlerClass = ClassUtils.getClass(indexRequestHandlerClass);
+            Object handlerObject = handlerClass.getDeclaredConstructor().newInstance();
+            if (handlerObject instanceof IEvent2IndexRequestHandler) {
+                IEvent2IndexRequestHandler handler = (IEvent2IndexRequestHandler) handlerObject;
+                return handler;
+            }
+        } catch (Throwable t) {
+            LOG.error("Fail to init IEvent2IndexRequestHandler,handlerClass:{},error:{}",
+                    indexRequestHandlerClass, t.getMessage());
+        }
+        return null;
     }
-
-    /**
-     * set indexRequestHandler
-     * 
-     * @param indexRequestHandler the indexRequestHandler to set
-     */
-    public void setIndexRequestHandler(IEvent2IndexRequestHandler indexRequestHandler) {
-        this.indexRequestHandler = indexRequestHandler;
-    }
-
 }

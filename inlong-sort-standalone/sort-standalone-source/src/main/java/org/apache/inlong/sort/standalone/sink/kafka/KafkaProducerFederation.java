@@ -25,6 +25,7 @@ import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * KafkaProducerFederation.
  */
 public class KafkaProducerFederation implements Runnable {
+
     private static final Logger LOG = InlongLoggerFactory.getLogger(KafkaProducerFederation.class);
     private static final int CORE_POOL_SIZE = 1;
 
@@ -55,7 +57,7 @@ public class KafkaProducerFederation implements Runnable {
      * constructor of KafkaProducerFederation
      *
      * @param workerName workerName
-     * @param context context
+     * @param context    context
      */
     public KafkaProducerFederation(String workerName, KafkaFederationSinkContext context) {
         this.workerName = Preconditions.checkNotNull(workerName);
@@ -106,15 +108,13 @@ public class KafkaProducerFederation implements Runnable {
             newClusterConfigList.forEach(
                     clusterConfig -> newClusterNames.add(clusterConfig.getClusterName()));
             clusterList.forEach(cluster -> oldClusterNames.add(cluster.getCacheClusterName()));
-            List<KafkaProducerCluster> newClusterList =
-                    new ArrayList<>(newClusterConfigList.size());
+            List<KafkaProducerCluster> newClusterList = new ArrayList<>(newClusterConfigList.size());
 
             // add new cluster
             newClusterConfigList.forEach(
                     config -> {
                         if (!oldClusterNames.contains(config.getClusterName())) {
-                            KafkaProducerCluster cluster =
-                                    new KafkaProducerCluster(workerName, config, context);
+                            KafkaProducerCluster cluster = new KafkaProducerCluster(workerName, config, context);
                             cluster.start();
                             newClusterList.add(cluster);
                         }
@@ -139,11 +139,12 @@ public class KafkaProducerFederation implements Runnable {
     /**
      * send event
      *
-     * @param profileEvent event to send
-     * @param tx transaction
-     * @return send result
+     * @param  profileEvent event to send
+     * @param  tx           transaction
+     * @return              send result
+     * @throws IOException
      */
-    public boolean send(ProfileEvent profileEvent, Transaction tx) {
+    public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
         int currentIndex = clusterIndex.getAndIncrement();
         if (currentIndex > Integer.MAX_VALUE / 2) {
             clusterIndex.set(0);
