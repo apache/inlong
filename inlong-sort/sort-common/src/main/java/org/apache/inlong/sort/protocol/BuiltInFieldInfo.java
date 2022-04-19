@@ -26,16 +26,6 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
  */
 public class BuiltInFieldInfo extends FieldInfo {
 
-    public enum BuiltInField {
-        DATA_TIME,
-        MYSQL_METADATA_DATABASE,
-        MYSQL_METADATA_TABLE,
-        MYSQL_METADATA_EVENT_TIME,
-        MYSQL_METADATA_IS_DDL,
-        MYSQL_METADATA_EVENT_TYPE,
-        MYSQL_METADATA_DATA
-    }
-
     private static final long serialVersionUID = -3436204467879205139L;
 
     @JsonProperty("builtin_field")
@@ -69,5 +59,15 @@ public class BuiltInFieldInfo extends FieldInfo {
         BuiltInFieldInfo that = (BuiltInFieldInfo) o;
         return builtInField == that.builtInField
                 && super.equals(that);
+    }
+
+    public enum BuiltInField {
+        DATA_TIME,
+        MYSQL_METADATA_DATABASE,
+        MYSQL_METADATA_TABLE,
+        MYSQL_METADATA_EVENT_TIME,
+        MYSQL_METADATA_IS_DDL,
+        MYSQL_METADATA_EVENT_TYPE,
+        MYSQL_METADATA_DATA
     }
 }

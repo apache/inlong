@@ -20,6 +20,7 @@ package org.apache.inlong.sort.protocol.transformation;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 
 @JsonTypeInfo(
@@ -27,7 +28,8 @@ import org.apache.inlong.sort.protocol.FieldInfo;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = FieldInfo.class, name = "base")
+        @JsonSubTypes.Type(value = FieldInfo.class, name = "base"),
+        @JsonSubTypes.Type(value = BuiltInFieldInfo.class, name = "builtin")
 })
 public interface FunctionParam {
 
