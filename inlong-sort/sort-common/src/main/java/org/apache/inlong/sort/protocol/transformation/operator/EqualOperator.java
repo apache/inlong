@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.protocol.transformation.operator;
 
 import lombok.AccessLevel;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.transformation.SingleValueCompareOperator;
@@ -26,6 +27,7 @@ import java.io.Serializable;
 
 @JsonTypeName("equal")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Data
 public class EqualOperator implements SingleValueCompareOperator, Serializable {
 
     private static final long serialVersionUID = -1098367949098922950L;

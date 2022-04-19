@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.protocol.transformation.operator;
 
 import lombok.AccessLevel;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.transformation.MultiValueCompareOperator;
@@ -26,6 +27,7 @@ import java.io.Serializable;
 
 @JsonTypeName("in")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Data
 public class InOperator implements MultiValueCompareOperator, Serializable {
 
     private static final long serialVersionUID = 8080256460638878190L;

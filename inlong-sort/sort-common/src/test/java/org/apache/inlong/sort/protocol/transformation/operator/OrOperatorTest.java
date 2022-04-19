@@ -23,17 +23,17 @@ public class OrOperatorTest extends OperatorBaseTest {
 
     @Override
     public Operator getOperator() {
-        return AndOperator.getInstance();
+        return OrOperator.getInstance();
     }
 
     @Override
     public String getExpectFormat() {
-        return "AND";
+        return "OR";
     }
 
     @Override
     public String getExpectSerializeStr() {
-        return "{\"type\":\"and\"}";
+        return "{\"type\":\"or\"}";
     }
 
 }

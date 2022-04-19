@@ -53,7 +53,6 @@ public abstract class OperatorBaseTest {
 
     @Test
     public void testDeserialize() throws JsonProcessingException {
-        AndOperator operator = AndOperator.getInstance();
         ObjectMapper objectMapper = new ObjectMapper();
         Operator expected = objectMapper.readValue(expectSerializeStr, operator.getClass());
         assertEquals(expected, operator);
