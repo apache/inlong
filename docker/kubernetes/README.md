@@ -221,6 +221,14 @@ Here is the [.github/ct.yml](../../.github/ct.yml) configuration file.
 
 > NOTE: If the charts have not changed, they will not be linted, validated, installed and tested.
 
+### Raise a Pull Request
+
+When you decide to raise a Pull Request, firstly, you should make sure to bump up the version in [Chart.yaml](Chart.yaml) and verify your changes locally.
+And feel free to make a [Pull Request](https://github.com/apache/incubator-inlong/compare)!
+Finally, you can view the status of the [lint and test workflow](https://github.com/apache/incubator-inlong/actions/workflows/ci_chart_test.yml).
+In this workflow, changes between your branch and the master branch will be checked and listed.
+All changed charts will be linted, validated, installed and tested.
+
 ## Troubleshooting
 
 We've done our best to make these charts as seamless as possible, but occasionally there are circumstances beyond our control.
