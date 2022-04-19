@@ -15,19 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol.transformation;
+package org.apache.inlong.sort.protocol.transformation.operator;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.inlong.sort.protocol.transformation.operator.AndOperator;
+import org.apache.inlong.sort.protocol.transformation.Operator;
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = AndOperator.class, name = "and")
-})
-public interface LogicOperator extends Operator {
+public class AndOperatorTest extends OperatorBaseTest {
+
+    @Override
+    public Operator getOperator() {
+        return AndOperator.getInstance();
+    }
+
+    @Override
+    public String getExpectFormat() {
+        return "AND";
+    }
+
+    @Override
+    public String getExpectSerializeStr() {
+        return "{\"type\":\"and\"}";
+    }
 
 }
