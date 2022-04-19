@@ -17,12 +17,31 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.IsNotNullOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.IsNullOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.LessThanOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.LessThanOrEqualOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.MoreThanOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.MoreThanOrEqualOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.NotEqualOperator;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = EqualOperator.class, name = "equal"),
+        @JsonSubTypes.Type(value = NotEqualOperator.class, name = "notEqual"),
+        @JsonSubTypes.Type(value = IsNotNullOperator.class, name = "isNotNull"),
+        @JsonSubTypes.Type(value = IsNullOperator.class, name = "isNull"),
+        @JsonSubTypes.Type(value = LessThanOperator.class, name = "lessThan"),
+        @JsonSubTypes.Type(value = LessThanOrEqualOperator.class, name = "lessThanOrEqual"),
+        @JsonSubTypes.Type(value = MoreThanOperator.class, name = "moreThan"),
+        @JsonSubTypes.Type(value = MoreThanOrEqualOperator.class, name = "moreThanOrEqual")
+})
 public interface SingleValueCompareOperator extends CompareOperator {
 
 }

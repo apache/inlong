@@ -15,21 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol.transformation;
+package org.apache.inlong.sort.protocol.transformation.operator;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.inlong.sort.protocol.transformation.operator.InOperator;
-import org.apache.inlong.sort.protocol.transformation.operator.NotInOperator;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.inlong.sort.protocol.transformation.SingleValueCompareOperator;
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = InOperator.class, name = "in"),
-        @JsonSubTypes.Type(value = NotInOperator.class, name = "notIn")
-})
-public interface MultiValueCompareOperator extends CompareOperator {
+import java.io.Serializable;
 
+@JsonTypeName("equal")
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class EqualOperator implements SingleValueCompareOperator, Serializable {
+
+    private static final long serialVersionUID = -1098367949098922950L;
+
+    private static final EqualOperator INSTANCE = new EqualOperator();
+
+    public static EqualOperator getInstance() {
+        return INSTANCE;
+    }
+
+    @Override
+    public String format() {
+        return "=";
+    }
 }
