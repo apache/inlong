@@ -26,7 +26,7 @@ public class FieldMappingRuleTest extends ProtocolBaseTest {
 
     @Override
     public void init() {
-        expectedObject = new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[] {
+        expectedObject = new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[]{
                 new FieldMappingRule.FieldMappingUnit(
                         new FieldInfo("f1", StringFormatInfo.INSTANCE),
                         new FieldInfo("f2", DoubleFormatInfo.INSTANCE)
@@ -40,14 +40,14 @@ public class FieldMappingRuleTest extends ProtocolBaseTest {
                 + "            \"source_field\":{\n"
                 + "                \"type\":\"base\",\n"
                 + "                \"name\":\"f1\",\n"
-                + "                \"format_info\":{\n"
+                + "                \"formatInfo\":{\n"
                 + "                    \"type\":\"string\"\n"
                 + "                }\n"
                 + "            },\n"
                 + "            \"sink_field\":{\n"
                 + "                \"type\":\"base\",\n"
                 + "                \"name\":\"f2\",\n"
-                + "                \"format_info\":{\n"
+                + "                \"formatInfo\":{\n"
                 + "                    \"type\":\"double\"\n"
                 + "                }\n"
                 + "            }\n"
@@ -56,13 +56,13 @@ public class FieldMappingRuleTest extends ProtocolBaseTest {
                 + "}";
 
         equalObj1 = expectedObject;
-        equalObj2 = new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[] {
+        equalObj2 = new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[]{
                 new FieldMappingRule.FieldMappingUnit(
                         new FieldInfo("f1", StringFormatInfo.INSTANCE),
                         new FieldInfo("f2", DoubleFormatInfo.INSTANCE)
                 )
         });
-        unequalObj = new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[] {
+        unequalObj = new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[]{
                 new FieldMappingRule.FieldMappingUnit(
                         new FieldInfo("f1", StringFormatInfo.INSTANCE),
                         new FieldInfo("f3", DoubleFormatInfo.INSTANCE)

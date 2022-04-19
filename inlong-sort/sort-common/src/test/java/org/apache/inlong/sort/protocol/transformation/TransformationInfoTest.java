@@ -27,7 +27,7 @@ public class TransformationInfoTest extends ProtocolBaseTest {
     @Override
     public void init() {
         expectedObject = new TransformationInfo(
-                new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[] {
+                new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[]{
                         new FieldMappingRule.FieldMappingUnit(
                                 new FieldInfo("f1", StringFormatInfo.INSTANCE),
                                 new FieldInfo("f2", DoubleFormatInfo.INSTANCE)
@@ -43,14 +43,14 @@ public class TransformationInfoTest extends ProtocolBaseTest {
                 + "                \"source_field\":{\n"
                 + "                    \"type\":\"base\",\n"
                 + "                    \"name\":\"f1\",\n"
-                + "                    \"format_info\":{\n"
+                + "                    \"formatInfo\":{\n"
                 + "                        \"type\":\"string\"\n"
                 + "                    }\n"
                 + "                },\n"
                 + "                \"sink_field\":{\n"
                 + "                    \"type\":\"base\",\n"
                 + "                    \"name\":\"f2\",\n"
-                + "                    \"format_info\":{\n"
+                + "                    \"formatInfo\":{\n"
                 + "                        \"type\":\"double\"\n"
                 + "                    }\n"
                 + "                }\n"
@@ -61,7 +61,7 @@ public class TransformationInfoTest extends ProtocolBaseTest {
 
         equalObj1 = expectedObject;
         equalObj2 = new TransformationInfo(
-                new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[] {
+                new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[]{
                         new FieldMappingRule.FieldMappingUnit(
                                 new FieldInfo("f1", StringFormatInfo.INSTANCE),
                                 new FieldInfo("f2", DoubleFormatInfo.INSTANCE)
@@ -69,7 +69,7 @@ public class TransformationInfoTest extends ProtocolBaseTest {
                 })
         );
         unequalObj = new TransformationInfo(
-                new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[] {
+                new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[]{
                         new FieldMappingRule.FieldMappingUnit(
                                 new FieldInfo("f1", StringFormatInfo.INSTANCE),
                                 new FieldInfo("f3", DoubleFormatInfo.INSTANCE)

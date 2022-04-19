@@ -30,7 +30,7 @@ public class FieldInfoTest {
     public void testSerialize() throws JsonProcessingException {
         FieldInfo fieldInfo = new FieldInfo("field_name", StringFormatInfo.INSTANCE);
         ObjectMapper objectMapper = new ObjectMapper();
-        String expected = "{\"type\":\"base\",\"name\":\"field_name\",\"format_info\":{\"type\":\"string\"}}";
+        String expected = "{\"type\":\"base\",\"name\":\"field_name\",\"formatInfo\":{\"type\":\"string\"}}";
         assertEquals(expected, objectMapper.writeValueAsString(fieldInfo));
     }
 
@@ -38,7 +38,7 @@ public class FieldInfoTest {
     public void testDeserialize() throws JsonProcessingException {
         FieldInfo fieldInfo = new FieldInfo("field_name", StringFormatInfo.INSTANCE);
         ObjectMapper objectMapper = new ObjectMapper();
-        String fieldInfoStr = "{\"type\":\"base\",\"name\":\"field_name\",\"format_info\":{\"type\":\"string\"}}";
+        String fieldInfoStr = "{\"type\":\"base\",\"name\":\"field_name\",\"formatInfo\":{\"type\":\"string\"}}";
         FieldInfo expected = objectMapper.readValue(fieldInfoStr, FieldInfo.class);
         assertEquals(expected, fieldInfo);
     }
@@ -48,7 +48,7 @@ public class FieldInfoTest {
         FieldInfo fieldInfo = new FieldInfo("field_name", "1", StringFormatInfo.INSTANCE);
         ObjectMapper objectMapper = new ObjectMapper();
         String expected = "{\"type\":\"base\",\"name\":\"field_name\","
-                + "\"format_info\":{\"type\":\"string\"},\"nodeId\":\"1\"}";
+                + "\"formatInfo\":{\"type\":\"string\"},\"nodeId\":\"1\"}";
         assertEquals(expected, objectMapper.writeValueAsString(fieldInfo));
     }
 
@@ -58,7 +58,7 @@ public class FieldInfoTest {
         fieldInfo.setNodeId("1L");
         ObjectMapper objectMapper = new ObjectMapper();
         String fieldInfoStr = "{\"type\":\"base\",\"name\":\"field_name\","
-                + "\"format_info\":{\"type\":\"string\"},\"nodeId\":\"1\"}";
+                + "\"formatInfo\":{\"type\":\"string\"},\"nodeId\":\"1\"}";
         FieldInfo expected = objectMapper.readValue(fieldInfoStr, FieldInfo.class);
         assertEquals(expected, fieldInfo);
     }
