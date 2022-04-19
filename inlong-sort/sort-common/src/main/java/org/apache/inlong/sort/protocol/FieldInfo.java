@@ -18,11 +18,17 @@
 package org.apache.inlong.sort.protocol;
 
 import com.google.common.base.Preconditions;
+import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -35,34 +41,50 @@ import java.util.Objects;
         @JsonSubTypes.Type(value = FieldInfo.class, name = "base"),
         @JsonSubTypes.Type(value = BuiltInFieldInfo.class, name = "builtin")
 })
-public class FieldInfo implements Serializable {
+@Data
+public class FieldInfo implements FunctionParam, Serializable {
 
     private static final long serialVersionUID = 5871970550803344673L;
-
     @JsonProperty("name")
     private final String name;
-
-    @JsonProperty("format_info")
+    @JsonInclude(Include.NON_NULL)
+    @JsonProperty("nodeId")
+    private String nodeId;
+    @JsonIgnore
+    private String tableNameAlias;
+    @JsonProperty("formatInfo")
     private FormatInfo formatInfo;
 
-    @JsonCreator
     public FieldInfo(
             @JsonProperty("name") String name,
-            @JsonProperty("format_info") FormatInfo formatInfo) {
+            @JsonProperty("formatInfo") FormatInfo formatInfo) {
         this.name = Preconditions.checkNotNull(name);
         this.formatInfo = Preconditions.checkNotNull(formatInfo);
     }
 
-    public String getName() {
-        return name;
+    @JsonCreator
+    public FieldInfo(
+            @JsonProperty("name") String name,
+            @JsonProperty("nodeId") String nodeId,
+            @JsonProperty("formatInfo") FormatInfo formatInfo) {
+        this.name = Preconditions.checkNotNull(name);
+        this.nodeId = nodeId;
+        this.formatInfo = Preconditions.checkNotNull(formatInfo);
     }
 
-    public FormatInfo getFormatInfo() {
-        return formatInfo;
-    }
-
-    public void setFormatInfo(FormatInfo formatInfo) {
-        this.formatInfo = formatInfo;
+    @Override
+    public String format() {
+        String formatName = name.trim();
+        if (!formatName.startsWith("`")) {
+            formatName = String.format("`%s", formatName);
+        }
+        if (!formatName.endsWith("`")) {
+            formatName = String.format("%s`", formatName);
+        }
+        if (StringUtils.isNotBlank(tableNameAlias)) {
+            return String.format("%s.%s", tableNameAlias, formatName);
+        }
+        return formatName;
     }
 
     @Override
@@ -81,4 +103,5 @@ public class FieldInfo implements Serializable {
     public int hashCode() {
         return Objects.hash(name, formatInfo);
     }
+
 }
