@@ -17,26 +17,48 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Preconditions;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
-import org.apache.inlong.sort.protocol.FieldInfo;
+
+import java.io.Serializable;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = FieldInfo.class, name = "base"),
-        @JsonSubTypes.Type(value = BuiltInFieldInfo.class, name = "builtin"),
         @JsonSubTypes.Type(value = ConstantParam.class, name = "constant")
 })
-public interface FunctionParam {
+@NoArgsConstructor
+@Data
+public class ConstantParam implements FunctionParam, Serializable {
 
-    @JsonIgnore
-    String getName();
+    private static final long serialVersionUID = 7216146498324134122L;
 
-    String format();
+    @JsonProperty("value")
+    private String value;
+
+    @JsonCreator
+    public ConstantParam(@JsonProperty("value") String value) {
+        this.value = Preconditions.checkNotNull(value, "value is null");
+    }
+
+    @Override
+    public String getName() {
+        return "constant";
+    }
+
+    @Override
+    public String format() {
+        if (!value.startsWith("'") && !value.startsWith("\"")) {
+            return String.format("'%s'", value);
+        }
+        return value;
+    }
 
 }
