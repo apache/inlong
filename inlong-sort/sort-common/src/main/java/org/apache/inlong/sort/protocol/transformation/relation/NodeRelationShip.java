@@ -33,11 +33,6 @@ import java.util.List;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = FullOuterJoinRelationShip.class, name = "fullOuterJoin"),
-        @JsonSubTypes.Type(value = InnerJoinNodeRelationShip.class, name = "innerJoin"),
-        @JsonSubTypes.Type(value = LeftOuterJoinNodeRelationShip.class, name = "leftOuterJoin"),
-        @JsonSubTypes.Type(value = RightOuterJoinNodeRelationShip.class, name = "rightOutJoin"),
-        @JsonSubTypes.Type(value = UnionNodeRelationShip.class, name = "union"),
         @JsonSubTypes.Type(value = NodeRelationShip.class, name = "baseRelation")
 })
 @Data
