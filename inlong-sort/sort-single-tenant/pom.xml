@@ -31,10 +31,6 @@
 
     <artifactId>sort-single-tenant</artifactId>
     <name>Apache InLong - Sort Single Tenant</name>
-    <properties>
-        <flink-table-planner-blink_2.11.version>1.13.5</flink-table-planner-blink_2.11.version>
-        <flink-connector-mysql-cdc.version>2.0.2</flink-connector-mysql-cdc.version>
-    </properties>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -168,18 +164,6 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-minicluster</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ververica</groupId>
-            <artifactId>flink-connector-mysql-cdc</artifactId>
-            <version>${flink-connector-mysql-cdc.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-planner-blink_2.11</artifactId>
-            <version>${flink-table-planner-blink_2.11.version}</version>
         </dependency>
 
     </dependencies>
