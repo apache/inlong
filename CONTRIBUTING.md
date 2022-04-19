@@ -22,5 +22,5 @@
 ## Contributing to Apache InLong(incubating)
 
 We would love for you to contribute to Apache InLong and make it even better!
-Please check the [Contribution Guide for Apache InLong](https://inlong.apache.org/development/how-to-contribute)
+Please check the [Contribution Guide for Apache InLong](https://inlong.apache.org/community/how-to-contribute)
 page before starting to work on the project.
