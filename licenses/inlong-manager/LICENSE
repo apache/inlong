@@ -623,7 +623,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.hamcrest:hamcrest-core:1.3 - Hamcrest Core (https://github.com/hamcrest/JavaHamcrest/hamcrest-core), (New BSD License)
   javolution:javolution:5.5.1 - Javolution (http://javolution.org), (BSD License)
   jline:jline:2.12 - JLine (https://jline.github.io), (BSD)
-  org.postgresql:postgresql:42.2.25 - PostgreSQL JDBC Driver (https://jdbc.postgresql.org), (BSD-2-Clause)
+  org.postgresql:postgresql:42.3.4 - PostgreSQL JDBC Driver (https://jdbc.postgresql.org), (BSD-2-Clause)
   sqlline:sqlline:1.3.0 - Sqlline (https://github.com/julianhyde/sqlline), (BSD-3-Clause)
   xmlenc:xmlenc:0.52 - xmlenc Library (http://xmlenc.sourceforge.net), (The BSD License)
 
