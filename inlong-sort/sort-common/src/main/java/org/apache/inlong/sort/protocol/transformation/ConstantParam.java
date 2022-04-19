@@ -32,7 +32,8 @@ import java.io.Serializable;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ConstantParam.class, name = "constant")
+        @JsonSubTypes.Type(value = ConstantParam.class, name = "constant"),
+        @JsonSubTypes.Type(value = TimeUnitConstantParam.class, name = "timeUnitConstant")
 })
 @NoArgsConstructor
 @Data
