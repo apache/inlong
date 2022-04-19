@@ -69,7 +69,7 @@ jobs:
           python-version: 3.7
 
       - name: Set up chart-testing
-        uses: ./.github/actions/chart-testing-action@v2.2.1
+        uses: ./.github/actions/chart-testing-action
 
       - name: List changed charts
         id: list-changed
@@ -88,7 +88,7 @@ jobs:
 
       - name: Create kind cluster
         if: ${{ steps.list-changed.outputs.changed == 'true' }}
-        uses: ./.github/actions/kind-action@v1.2.0
+        uses: ./.github/actions/kind-action
         with:
           config: ${{ env.KIND_CONFIG_PATH }}
           node_image: ${{ matrix.kubernetes-version }}
