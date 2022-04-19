@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.api;
 
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
+import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
 
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,8 @@ public abstract class InlongStream {
     public abstract void addSink(StreamSink sink);
 
     public abstract void addTransform(StreamTransform transform);
+
+    public abstract StreamPipeline createPipeline();
 
     @Deprecated
     public abstract void updateSource(StreamSource source);

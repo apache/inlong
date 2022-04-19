@@ -83,6 +83,9 @@ public class InlongStreamRequest extends InlongStreamBaseInfo {
     @ApiModelProperty(value = "Names of responsible persons, separated by commas")
     private String inCharges;
 
+    @ApiModelProperty(value = "StreamPipeline snapshot of stream,, string in JSON format")
+    private String tempView;
+
     @ApiModelProperty(value = "Field list")
     private List<InlongStreamFieldInfo> fieldList;
 

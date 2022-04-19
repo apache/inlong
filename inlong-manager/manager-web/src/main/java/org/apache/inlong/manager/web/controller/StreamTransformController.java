@@ -59,8 +59,8 @@ public class StreamTransformController {
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ApiOperation(value = "Query stream transform list")
-    public Response<List<TransformResponse>> list(@RequestParam("groupId") String groupId,
-            @RequestParam("streamId") String streamId) {
+    public Response<List<TransformResponse>> list(@RequestParam("inlongGroupId") String groupId,
+            @RequestParam("inlongStreamId") String streamId) {
         return Response.success(streamTransformService.listTransform(groupId, streamId));
     }
 
@@ -72,11 +72,11 @@ public class StreamTransformController {
                 streamTransformService.update(request, LoginUserUtils.getLoginUserDetail().getUserName()));
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Modify stream source")
-    public Response<Boolean> delete(@RequestParam("groupId") String groupId,
-            @RequestParam("streamId") String streamId, @RequestParam("transformName") String transformName) {
+    public Response<Boolean> delete(@RequestParam("inlongGroupId") String groupId,
+            @RequestParam("inlongStreamId") String streamId, @RequestParam("transformName") String transformName) {
         return Response.success(
                 streamTransformService.delete(groupId, streamId, transformName,
                         LoginUserUtils.getLoginUserDetail().getUserName()));

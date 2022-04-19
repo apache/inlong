@@ -21,31 +21,31 @@ import com.google.common.collect.Sets;
 import lombok.Data;
 import org.apache.inlong.manager.common.util.Preconditions;
 
-import java.util.List;
 import java.util.Set;
 
 @Data
-public abstract class StreamNode {
+public class StreamNodeRelationship {
 
-    protected Set<String> preNodes;
+    private Set<String> inputNodes;
 
-    protected Set<String> postNodes;
+    private Set<String> outputNodes;
 
-    protected List<StreamField> fields;
-
-    public void addPre(String pre) {
-        Preconditions.checkNotEmpty(pre, "Pre node should not be empty");
-        if (preNodes == null) {
-            preNodes = Sets.newHashSet();
-        }
-        preNodes.add(pre);
+    public StreamNodeRelationship() {
+        this(Sets.newHashSet(), Sets.newHashSet());
     }
 
-    public void addPost(String post) {
-        Preconditions.checkNotEmpty(post, "Post node should not be empty");
-        if (postNodes == null) {
-            postNodes = Sets.newHashSet();
-        }
-        postNodes.add(post);
+    public StreamNodeRelationship(Set<String> inputNodes, Set<String> outputNodes) {
+        this.inputNodes = inputNodes;
+        this.outputNodes = outputNodes;
+    }
+
+    public void addInputNode(String inputNode) {
+        Preconditions.checkNotEmpty(inputNode, "Input node should not be empty");
+        inputNodes.add(inputNode);
+    }
+
+    public void addOutputNode(String outputNode) {
+        Preconditions.checkNotEmpty(outputNode, "Input node should not be empty");
+        outputNodes.add(outputNode);
     }
 }

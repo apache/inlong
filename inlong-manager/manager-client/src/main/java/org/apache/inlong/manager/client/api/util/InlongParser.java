@@ -52,6 +52,7 @@ import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 
@@ -223,6 +224,14 @@ public class InlongParser {
         } else {
             return new PageInfo<>();
         }
+    }
+
+    public static List<TransformResponse> parseTransformList(Response response) {
+        Object data = response.getData();
+        String pageInfoJson = GsonUtil.toJson(data);
+        return GsonUtil.fromJson(pageInfoJson,
+                new TypeToken<List<TransformResponse>>() {
+                }.getType());
     }
 
     public static PageInfo<SinkListResponse> parseSinkList(Response response) {

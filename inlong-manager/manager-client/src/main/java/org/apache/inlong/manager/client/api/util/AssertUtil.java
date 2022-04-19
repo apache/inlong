@@ -107,6 +107,12 @@ public class AssertUtil {
         }
     }
 
+    public static void notEmpty(String obj, String message) {
+        if (StringUtils.isEmpty(obj)) {
+            throw new IllegalStateException(message);
+        }
+    }
+
     public static void notEmpty(Object[] array) {
         notEmpty(array, "[Assertion failed] - this array must not be empty: it must contain at least 1 element");
     }
