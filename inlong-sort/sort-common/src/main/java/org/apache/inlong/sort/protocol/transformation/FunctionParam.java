@@ -30,7 +30,8 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = FieldInfo.class, name = "base"),
         @JsonSubTypes.Type(value = BuiltInFieldInfo.class, name = "builtin"),
-        @JsonSubTypes.Type(value = ConstantParam.class, name = "constant")
+        @JsonSubTypes.Type(value = ConstantParam.class, name = "constant"),
+        @JsonSubTypes.Type(value = TimeUnitConstantParam.class, name = "timeUnitConstant")
 })
 public interface FunctionParam {
 
