@@ -57,7 +57,8 @@ import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
         @JsonSubTypes.Type(value = MoreThanOperator.class, name = "moreThan"),
         @JsonSubTypes.Type(value = MoreThanOrEqualOperator.class, name = "moreThanOrEqual"),
         @JsonSubTypes.Type(value = InOperator.class, name = "in"),
-        @JsonSubTypes.Type(value = NotInOperator.class, name = "notIn")
+        @JsonSubTypes.Type(value = NotInOperator.class, name = "notIn"),
+        @JsonSubTypes.Type(value = WatermarkField.class, name = "watermark")
 })
 public interface FunctionParam {
 
