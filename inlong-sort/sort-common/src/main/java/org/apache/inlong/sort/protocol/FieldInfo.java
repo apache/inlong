@@ -52,12 +52,12 @@ public class FieldInfo implements FunctionParam, Serializable {
     private String nodeId;
     @JsonIgnore
     private String tableNameAlias;
-    @JsonProperty("format_info")
+    @JsonProperty("formatInfo")
     private FormatInfo formatInfo;
 
     public FieldInfo(
             @JsonProperty("name") String name,
-            @JsonProperty("format_info") FormatInfo formatInfo) {
+            @JsonProperty("formatInfo") FormatInfo formatInfo) {
         this.name = Preconditions.checkNotNull(name);
         this.formatInfo = Preconditions.checkNotNull(formatInfo);
     }
@@ -66,7 +66,7 @@ public class FieldInfo implements FunctionParam, Serializable {
     public FieldInfo(
             @JsonProperty("name") String name,
             @JsonProperty("nodeId") String nodeId,
-            @JsonProperty("format_info") FormatInfo formatInfo) {
+            @JsonProperty("formatInfo") FormatInfo formatInfo) {
         this.name = Preconditions.checkNotNull(name);
         this.nodeId = nodeId;
         this.formatInfo = Preconditions.checkNotNull(formatInfo);

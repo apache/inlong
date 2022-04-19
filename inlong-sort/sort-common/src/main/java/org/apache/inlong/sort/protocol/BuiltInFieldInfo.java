@@ -28,19 +28,28 @@ public class BuiltInFieldInfo extends FieldInfo {
 
     private static final long serialVersionUID = -3436204467879205139L;
 
-    @JsonProperty("builtin_field")
+    @JsonProperty("builtinField")
     private final BuiltInField builtInField;
 
     @JsonCreator
     public BuiltInFieldInfo(
             @JsonProperty("name") String name,
-            @JsonProperty("format_info") FormatInfo formatInfo,
-            @JsonProperty("builtin_field") BuiltInField builtInField) {
+            @JsonProperty("nodeId") String nodeId,
+            @JsonProperty("formatInfo") FormatInfo formatInfo,
+            @JsonProperty("builtinField") BuiltInField builtInField) {
+        super(name, nodeId, formatInfo);
+        this.builtInField = builtInField;
+    }
+
+    public BuiltInFieldInfo(
+            @JsonProperty("name") String name,
+            @JsonProperty("formatInfo") FormatInfo formatInfo,
+            @JsonProperty("builtinField") BuiltInField builtInField) {
         super(name, formatInfo);
         this.builtInField = builtInField;
     }
 
-    @JsonProperty("builtin_field")
+    @JsonProperty("builtinField")
     public BuiltInField getBuiltInField() {
         return builtInField;
     }
