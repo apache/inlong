@@ -41,7 +41,7 @@ public class KafkaSinkInfoTest extends ProtocolBaseTest {
                 + "        {\n"
                 + "            \"type\":\"base\",\n"
                 + "            \"name\":\"field1\",\n"
-                + "            \"format_info\":{\n"
+                + "            \"formatInfo\":{\n"
                 + "                \"type\":\"string\"\n"
                 + "            }\n"
                 + "        }\n"
