@@ -76,7 +76,10 @@ public class FieldInfo implements FunctionParam, Serializable {
     public String format() {
         String formatName = name.trim();
         if (!formatName.startsWith("`")) {
-            formatName = String.format("`%s`", formatName);
+            formatName = String.format("`%s", formatName);
+        }
+        if (!formatName.endsWith("`")) {
+            formatName = String.format("%s`", formatName);
         }
         if (StringUtils.isNotBlank(tableNameAlias)) {
             return String.format("%s.%s", tableNameAlias, formatName);
