@@ -27,6 +27,9 @@ inlong-manager:
 inlong-sort:
   - inlong-sort/**/*
 
+inlong-sort-standalone:
+  - inlong-sort-standalone/**/*
+
 inlong-tubemq:
   - inlong-tubemq/**/*
 
@@ -38,3 +41,6 @@ inlong-audit:
 
 inlong-sdk:
   - inlong-sdk/**/*
+
+ci:
+  - .github/workflows/**/*
