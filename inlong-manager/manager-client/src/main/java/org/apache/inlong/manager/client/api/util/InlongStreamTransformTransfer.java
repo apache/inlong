@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api.util;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.StreamTransform;
@@ -76,7 +77,7 @@ public class InlongStreamTransformTransfer {
         String postNodeNames = transformResponse.getPostNodeNames();
         if (StringUtils.isNotEmpty(postNodeNames)) {
             List<String> postNodes = Splitter.on(",").splitToList(postNodeNames);
-            streamTransform.setPostNodes(postNodes);
+            streamTransform.setPostNodes(Sets.newHashSet(postNodes));
         }
         return streamTransform;
     }

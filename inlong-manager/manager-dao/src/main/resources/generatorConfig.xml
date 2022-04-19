@@ -67,14 +67,11 @@
         </javaClientGenerator>
 
         <!-- Which entities to generate -->
-        <table tableName="stream_transform" domainObjectName="StreamTransformEntity"
+        <table tableName="stream_source_field" domainObjectName="StreamSourceFieldEntity"
                 enableSelectByPrimaryKey="true" enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"
                 enableCountByExample="false" enableDeleteByExample="false"
                 enableSelectByExample="false" enableUpdateByExample="false">
-            <columnOverride column="pre_node_names" javaType="java.lang.String" jdbcType="VARCHAR"/>
-            <columnOverride column="post_node_names" javaType="java.lang.String" jdbcType="VARCHAR"/>
-            <columnOverride column="transform_definition" javaType="java.lang.String" jdbcType="VARCHAR"/>
         </table>
         <!--<table tableName="user" domainObjectName="UserEntity"
           enableSelectByPrimaryKey="true"
