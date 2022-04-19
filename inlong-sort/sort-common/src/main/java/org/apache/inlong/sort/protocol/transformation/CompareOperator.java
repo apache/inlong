@@ -23,6 +23,6 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
-public interface ComareOperator extends Operator {
+public interface CompareOperator extends Operator {
 
 }
