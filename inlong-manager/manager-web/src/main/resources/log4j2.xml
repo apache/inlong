@@ -18,11 +18,10 @@
     under the License.
 -->
 <configuration status="WARN" monitorInterval="30">
-    <Properties>
+    <properties>
         <property name="basePath">logs</property>
         <property name="log_pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%15.15t] %-30.30C{1.}:%L - %m%n</property>
         <property name="every_file_size">1G</property>
-        <property name="output_log_level">DEBUG</property>
         <property name="rolling_max">50</property>
         <property name="all_fileName">${basePath}/manager-web.log</property>
         <property name="all_filePattern">${basePath}/info-%d{yyyy-MM-dd}-%i.log.gz</property>
@@ -33,8 +32,7 @@
         <property name="error_fileName">${basePath}/error.log</property>
         <property name="error_filePattern">${basePath}/error-%d{yyyy-MM-dd}-%i.log.gz</property>
         <property name="error_max">10</property>
-        <property name="console_print_level">DEBUG</property>
-    </Properties>
+    </properties>
 
     <conversionRule conversionWord="clr"
             converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
@@ -44,10 +42,10 @@
             converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
     <appenders>
-        <Console name="Console" target="SYSTEM_OUT">
-            <ThresholdFilter level="${console_print_level}" onMatch="ACCEPT" onMismatch="DENY"/>
+        <console name="Console" target="SYSTEM_OUT">
+            <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${log_pattern}"/>
-        </Console>
+        </console>
 
         <RollingFile name="AllFile" fileName="${all_fileName}" filePattern="${all_filePattern}">
             <PatternLayout pattern="${log_pattern}"/>
@@ -79,10 +77,9 @@
     </appenders>
 
     <loggers>
-        <logger name="org.apache.pulsar" level="info" additivity="false">
-            <appender-ref ref="AllFile"/>
-        </logger>
-        <root level="${output_log_level}">
+        <logger name="org.apache.pulsar" level="info" additivity="false"/>
+        <logger name="org.apache.zookeeper" level="info" additivity="false"/>
+        <root level="ALL">
             <appender-ref ref="Console"/>
             <appender-ref ref="AllFile"/>
             <appender-ref ref="WarnFile"/>
