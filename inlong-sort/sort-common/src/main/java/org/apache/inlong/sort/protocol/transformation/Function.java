@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.protocol.transformation;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.List;
@@ -26,6 +27,9 @@ import java.util.List;
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = WatermarkField.class, name = "watermark")
+})
 public interface Function extends FunctionParam {
 
     @JsonIgnore
