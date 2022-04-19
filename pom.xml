@@ -141,7 +141,7 @@
         <debezium.version>1.8.0.Final</debezium.version>
         <rocksdb.version>6.14.6</rocksdb.version>
         <hadoop.version>2.10.1</hadoop.version>
-        <postgresql.version>42.2.25</postgresql.version>
+        <postgresql.version>42.3.4</postgresql.version>
         <mybatis.starter.version>2.1.3</mybatis.starter.version>
         <mybatis.version>3.5.9</mybatis.version>
         <druid.version>1.2.6</druid.version>
