@@ -19,47 +19,54 @@ package org.apache.inlong.sort.protocol.transformation;
 
 import com.google.common.base.Preconditions;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.io.Serializable;
+import javax.annotation.Nonnull;
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = ConstantParam.class, name = "constant"),
-        @JsonSubTypes.Type(value = TimeUnitConstantParam.class, name = "timeUnitConstant")
-})
-@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeName("timeUnitConstant")
 @Data
-public class ConstantParam implements FunctionParam, Serializable {
+@NoArgsConstructor
+public class TimeUnitConstantParam extends ConstantParam {
 
-    private static final long serialVersionUID = 7216146498324134122L;
+    private static final long serialVersionUID = 659127597540343115L;
 
-    @JsonProperty("value")
-    private String value;
+    @JsonProperty("timeUnit")
+    private TimeUnit timeUnit;
 
     @JsonCreator
-    public ConstantParam(@JsonProperty("value") String value) {
-        this.value = Preconditions.checkNotNull(value, "value is null");
+    public TimeUnitConstantParam(@JsonProperty("timeUnit") @Nonnull TimeUnit timeUnit) {
+        super(Preconditions.checkNotNull(timeUnit, "timeUnit is null").name());
+        this.timeUnit = timeUnit;
     }
 
     @Override
     public String getName() {
-        return "constant";
+        return "timeUnitConstant";
     }
 
     @Override
     public String format() {
-        if (!value.startsWith("'") && !value.startsWith("\"")) {
-            return String.format("'%s'", value);
-        }
-        return value;
+        return super.getValue();
+    }
+
+    public enum TimeUnit {
+        /**
+         * Time unit for second
+         */
+        SECOND,
+        /**
+         * Time unit for minute
+         */
+        MINUTE,
+        /**
+         * Time unit for hour
+         */
+        HOUR
     }
 
 }
