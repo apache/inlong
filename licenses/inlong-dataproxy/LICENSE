@@ -501,7 +501,7 @@ CDDL licenses
 The following components are provided under CDDL license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  com.sun.activation:javax.activation:1.2.0 - JavaBeans Activation Framework (http://java.net/all/javax.activation/), (CDDL/GPLv2+CE)
+  com.sun.activation:javax.activation:1.2.0 - JavaBeans Activation Framework (https://github.com/javaee/activation/tree/JAF-1_2_0), (CDDL/GPLv2+CE)
   javax.servlet:javax.servlet-api:3.1.0 - Java Servlet API (http://servlet-spec.java.net), (CDDL + GPLv2 with classpath exception)
   javax.ws.rs:javax.ws.rs-api:2.1 - javax.ws.rs-api (http://jax-rs-spec.java.net), (CDDL 1.1), (CDDL 1.1 and GPL2 w/ CPE)
 

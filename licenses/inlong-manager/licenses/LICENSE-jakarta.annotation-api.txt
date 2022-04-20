@@ -11,8 +11,8 @@
       a) in the case of the initial Contributor, the initial content
          Distributed under this Agreement, and
 
-      b) in the case of each subsequent Contributor:
-         i) changes to the Program, and
+      b) in the case of each subsequent Contributor: 
+         i) changes to the Program, and 
          ii) additions to the Program;
       where such changes and/or additions to the Program originate from
       and are Distributed by that particular Contributor. A Contribution
@@ -261,8 +261,8 @@
 
     Exhibit A - Form of Secondary Licenses Notice
 
-    "This Source Code may also be made available under the following
-    Secondary Licenses when the conditions for such availability set forth
+    "This Source Code may also be made available under the following 
+    Secondary Licenses when the conditions for such availability set forth 
     in the Eclipse Public License, v. 2.0 are satisfied: {name license(s),
     version(s), and exceptions or additional permissions here}."
 
