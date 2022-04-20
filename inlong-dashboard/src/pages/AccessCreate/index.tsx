@@ -60,7 +60,7 @@ const Create: React.FC = () => {
       ref: businessRef,
     },
     {
-      title: middlewareType === 'PULSAR' ? 'TOPIC' : t('pages.AccessCreate.DataStreams'),
+      title: t('pages.AccessCreate.DataStreams'),
       content: (
         <DataStream
           ref={dataStreamRef}
