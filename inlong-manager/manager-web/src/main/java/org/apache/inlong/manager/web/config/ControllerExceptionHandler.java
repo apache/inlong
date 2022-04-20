@@ -17,23 +17,26 @@
 
 package org.apache.inlong.manager.web.config;
 
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.pojo.user.UserDetail;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authz.AuthorizationException;
+import org.apache.shiro.authz.UnauthorizedException;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import java.util.Set;
 
 @Slf4j
 @ControllerAdvice
@@ -42,7 +45,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseBody
     public Response<String> handleConstraintViolationException(HttpServletRequest request,
-            ConstraintViolationException e) {
+                                                               ConstraintViolationException e) {
         Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
         StringBuilder stringBuilder = new StringBuilder(64);
         for (ConstraintViolation<?> violation : violations) {
@@ -57,7 +60,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
     public Response<String> handleMethodArgumentNotValidException(HttpServletRequest request,
-            MethodArgumentNotValidException e) {
+                                                                  MethodArgumentNotValidException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
         log.error("Failed to handle request on path:" + request.getRequestURI()
                 + (userDetail != null ? ", user:" + userDetail.getUserName() : ""), e);
@@ -85,7 +88,7 @@ public class ControllerExceptionHandler {
     @ResponseBody
     @ExceptionHandler(value = HttpMessageConversionException.class)
     public Response<String> handleHttpMessageConversionExceptionHandler(HttpServletRequest request,
-            HttpMessageConversionException e) {
+                                                                        HttpMessageConversionException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
         log.error("Failed to handle request on path:" + request.getRequestURI()
                 + (userDetail != null ? ", user:" + userDetail.getUserName() : ""), e);
@@ -115,6 +118,15 @@ public class ControllerExceptionHandler {
     public Response<String> handleAuthenticationException(HttpServletRequest request, AuthenticationException e) {
         log.error("Failed to handle request on path:" + request.getRequestURI(), e);
         return Response.fail("username or password is incorrect, or the account has expired");
+    }
+
+    @ResponseBody
+    @ExceptionHandler(value = UnauthorizedException.class)
+    public Response<String> handleUnauthorizedException(HttpServletRequest request, AuthorizationException e) {
+        log.error("Failed to handle request on path:" + request.getRequestURI(), e);
+        UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
+        return Response.fail("Current user [" + (userDetail != null ? userDetail.getUserName() : "")
+                + "] has no permission to access URL: " + request.getRequestURI());
     }
 
     @ExceptionHandler(Exception.class)
