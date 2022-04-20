@@ -32,31 +32,24 @@ public class TransformResponse {
 
     private int id;
 
-    @NotNull
     @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
-    @NotNull
     @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
 
-    @NotNull
     @ApiModelProperty("Transform name, unique in one stream")
     private String transformName;
 
-    @NotNull
     @ApiModelProperty("Transform type, including: splitter, filter, joiner, etc.")
     private String transformType;
 
-    @NotNull
     @ApiModelProperty("Pre node names of transform in this stream")
     private String preNodeNames;
 
-    @NotNull
     @ApiModelProperty("Post node names of transform in this stream")
     private String postNodeNames;
 
-    @NotNull
     @ApiModelProperty("Transform definition in json type")
     private String transformDefinition;
 

@@ -42,14 +42,14 @@ public class InlongStreamImplTest {
     @Test
     public void testCreatePipeline() {
         InlongStream inlongStream = new InlongStreamImpl();
-        //add stream source
+        // add stream source
         KafkaSource kafkaSource = new KafkaSource();
         kafkaSource.setSourceName("A");
         MySQLBinlogSource mySQLBinlogSource = new MySQLBinlogSource();
         mySQLBinlogSource.setSourceName("B");
         inlongStream.addSource(kafkaSource);
         inlongStream.addSource(mySQLBinlogSource);
-        //add stream sink
+        // add stream sink
         ClickHouseSink clickHouseSink = new ClickHouseSink();
         clickHouseSink.setSinkName("E");
         HiveSink hiveSink = new HiveSink();
@@ -62,7 +62,7 @@ public class InlongStreamImplTest {
         inlongStream.addSink(hiveSink);
         inlongStream.addSink(kafkaSink1);
         inlongStream.addSink(kafkaSink2);
-        //add stream transform
+        // add stream transform
         StreamTransform multiDependencyTransform = new MultiDependencyTransform(
                 "C",
                 new JoinerDefinition(kafkaSource, mySQLBinlogSource, Lists.newArrayList(), Lists.newArrayList(),
