@@ -17,12 +17,21 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.inlong.sort.protocol.transformation.function.HopFunction;
+import org.apache.inlong.sort.protocol.transformation.function.SessionFunction;
+import org.apache.inlong.sort.protocol.transformation.function.TumbleFunction;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = HopFunction.class, name = "hop"),
+        @JsonSubTypes.Type(value = SessionFunction.class, name = "session"),
+        @JsonSubTypes.Type(value = TumbleFunction.class, name = "tumble")
+})
 public interface GroupTimeWindowFunction extends TimeWindowFunction {
 
 }
