@@ -101,6 +101,7 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
+        entity.setIsDeleted(0);
         // get the ext params
         setTargetEntity(request, entity);
         sourceMapper.insert(entity);

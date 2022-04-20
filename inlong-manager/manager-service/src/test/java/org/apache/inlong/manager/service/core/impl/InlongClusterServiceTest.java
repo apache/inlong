@@ -46,12 +46,12 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         request.setType(type);
         request.setIp(ip);
         request.setPort(port);
-        request.setInCharges(globalOperator);
-        return clusterService.save(request, globalOperator);
+        request.setInCharges(GLOBAL_OPERATOR);
+        return clusterService.save(request, GLOBAL_OPERATOR);
     }
 
     public Boolean deleteOpt(Integer id) {
-        return clusterService.delete(id, globalOperator);
+        return clusterService.delete(id, GLOBAL_OPERATOR);
     }
 
     @Test

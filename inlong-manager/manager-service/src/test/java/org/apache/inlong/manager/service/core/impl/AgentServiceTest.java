@@ -44,14 +44,14 @@ public class AgentServiceTest extends ServiceBaseTest {
     private InlongStreamServiceTest streamServiceTest;
 
     public Integer saveSource() {
-        streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
+        streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
 
         BinlogSourceRequest sourceInfo = new BinlogSourceRequest();
-        sourceInfo.setInlongGroupId(globalGroupId);
-        sourceInfo.setInlongStreamId(globalStreamId);
+        sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
+        sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
         sourceInfo.setSourceType(SourceType.BINLOG.getType());
 
-        return sourceService.save(sourceInfo, globalOperator);
+        return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class AgentServiceTest extends ServiceBaseTest {
         Boolean result = agentService.reportSnapshot(request);
         Assert.assertTrue(result);
 
-        sourceService.delete(id, SourceType.BINLOG.getType(), globalOperator);
+        sourceService.delete(id, SourceType.BINLOG.getType(), GLOBAL_OPERATOR);
     }
 
 }

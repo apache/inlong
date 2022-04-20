@@ -75,7 +75,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         Date now = new Date();
         transformEntity.setCreateTime(now);
         transformEntity.setModifyTime(now);
-        transformEntityMapper.insert(transformEntity);
+        transformEntityMapper.insertSelective(transformEntity);
         return transformEntity.getId();
     }
 

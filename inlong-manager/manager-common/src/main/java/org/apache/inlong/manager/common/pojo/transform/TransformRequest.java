@@ -30,7 +30,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Request of stream transform")
 public class TransformRequest {
 
-    private Integer id;
+    private int id;
 
     @NotNull
     @ApiModelProperty("Inlong group id")
@@ -50,11 +50,11 @@ public class TransformRequest {
 
     @NotNull
     @ApiModelProperty("Pre node names of transform in this stream, join by ','")
-    private String preNodeNames;
+    private String preNodeNames = "";
 
     @NotNull
     @ApiModelProperty("Post node names of transform in this stream, join by ','")
-    private String postNodeNames;
+    private String postNodeNames = "";
 
     @NotNull
     @ApiModelProperty("Transform definition in json type")

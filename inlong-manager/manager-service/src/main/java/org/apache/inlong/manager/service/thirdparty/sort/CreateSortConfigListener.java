@@ -31,8 +31,8 @@ import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
+import org.apache.inlong.manager.service.thirdparty.sort.util.DataFlowUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
@@ -57,9 +57,9 @@ public class CreateSortConfigListener implements SortOperateListener {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
     @Autowired
-    private CommonOperateService commonOperateService;
-    @Autowired
     private StreamSinkService streamSinkService;
+    @Autowired
+    private DataFlowUtils dataFlowUtils;
 
     @Override
     public TaskEvent event() {
@@ -93,7 +93,7 @@ public class CreateSortConfigListener implements SortOperateListener {
         try {
             // TODO Support more than one sinks under a stream
             Map<String, DataFlowInfo> dataFlowInfoMap = sinkResponseList.stream().map(sink -> {
-                        DataFlowInfo flowInfo = commonOperateService.createDataFlow(groupInfo, sink);
+                        DataFlowInfo flowInfo = dataFlowUtils.createDataFlow(groupInfo, sink);
                         return Pair.of(sink.getInlongStreamId(), flowInfo);
                     }
             ).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
