@@ -56,7 +56,7 @@ public class TumbleFunction implements GroupTimeWindowFunction {
     @Override
     public String format() {
         return String.format("%s(%s, INTERVAL %s %s)", getName(),
-                timeAttr.format(), interval.format(), timeUnit.format());
+                timeAttr.format(), interval.getValue(), timeUnit.format());
     }
 
     @Override

@@ -56,7 +56,7 @@ public class TumbleEndFunction implements TimeWindowFunction {
     @Override
     public String format() {
         return String.format("%s(%s, INTERVAL %s %s)", getName(),
-                timeAttr.format(), interval.format(), timeUnit.getValue());
+                timeAttr.format(), interval.getValue(), timeUnit.getValue());
     }
 
     @Override
