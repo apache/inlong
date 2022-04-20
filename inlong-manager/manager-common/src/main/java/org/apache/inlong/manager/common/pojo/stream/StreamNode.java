@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-public abstract class StreamNode {
+public class StreamNode {
 
     protected Set<String> preNodes;
 

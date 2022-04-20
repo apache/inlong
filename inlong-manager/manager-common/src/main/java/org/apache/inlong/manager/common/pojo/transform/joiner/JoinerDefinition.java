@@ -25,7 +25,7 @@ import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * A class to define operations to join two streamNode in one with relation defined.
@@ -36,12 +36,14 @@ public class JoinerDefinition extends TransformDefinition {
 
     public JoinerDefinition(StreamNode leftNode,
             StreamNode rightNode,
-            Map<StreamField, StreamField> joinKeyFields,
+            List<StreamField> leftJoinFields,
+            List<StreamField> rightJoinFields,
             JoinMode joinMode) {
         this.transformType = TransformType.JOINER;
         this.leftNode = leftNode;
         this.rightNode = rightNode;
-        this.joinKeyFields = joinKeyFields;
+        this.leftJoinFields = leftJoinFields;
+        this.rightJoinFields = rightJoinFields;
         this.joinMode = joinMode;
     }
 
@@ -56,9 +58,14 @@ public class JoinerDefinition extends TransformDefinition {
     private StreamNode rightNode;
 
     /**
-     * Key is streamField from left node, value is streamField from right node;
+     * Join streamFields from left node
      */
-    private Map<StreamField, StreamField> joinKeyFields;
+    private List<StreamField> leftJoinFields;
+
+    /**
+     * Join streamFields from right node
+     */
+    private List<StreamField> rightJoinFields;
 
     @JsonFormat
     public enum JoinMode {

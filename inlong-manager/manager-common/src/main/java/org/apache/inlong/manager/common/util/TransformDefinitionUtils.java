@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.common.util;
 
+import com.google.gson.Gson;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.common.pojo.transform.deduplication.DeDuplicationDefinition;
@@ -27,19 +28,21 @@ import org.apache.inlong.manager.common.pojo.transform.splitter.SplitterDefiniti
 
 public class TransformDefinitionUtils {
 
+    private static Gson gson = new Gson();
+
     public static TransformDefinition parseTransformDefinition(String transformDefinition,
             TransformType transformType) {
         switch (transformType) {
             case FILTER:
-                return JsonUtils.parse(transformDefinition, FilterDefinition.class);
+                return gson.fromJson(transformDefinition, FilterDefinition.class);
             case JOINER:
-                return JsonUtils.parse(transformDefinition, JoinerDefinition.class);
+                return gson.fromJson(transformDefinition, JoinerDefinition.class);
             case SPLITTER:
-                return JsonUtils.parse(transformDefinition, SplitterDefinition.class);
+                return gson.fromJson(transformDefinition, SplitterDefinition.class);
             case DE_DUPLICATION:
-                return JsonUtils.parse(transformDefinition, DeDuplicationDefinition.class);
+                return gson.fromJson(transformDefinition, DeDuplicationDefinition.class);
             case STRING_REPLACER:
-                return JsonUtils.parse(transformDefinition, StringReplacerDefinition.class);
+                return gson.fromJson(transformDefinition, StringReplacerDefinition.class);
             default:
                 throw new IllegalArgumentException(String.format("Unsupported transformType for %s", transformType));
         }

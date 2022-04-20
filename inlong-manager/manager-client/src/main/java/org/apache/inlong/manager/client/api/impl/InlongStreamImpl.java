@@ -172,6 +172,7 @@ public class InlongStreamImpl extends InlongStream {
         }
         Map<Set<String>, List<StreamNodeRelationship>> relationshipMap = Maps.newHashMap();
         // Create StreamNodeRelationships
+        // Check preNodes
         for (StreamTransform streamTransform : streamTransforms.values()) {
             String transformName = streamTransform.getTransformName();
             Set<String> preNodes = streamTransform.getPreNodes();
@@ -185,6 +186,25 @@ public class InlongStreamImpl extends InlongStream {
                 }
             }
             relationshipMap.computeIfAbsent(preNodes, key -> Lists.newArrayList()).add(relationship);
+        }
+        // Check postNodes
+        for (StreamTransform streamTransform : streamTransforms.values()) {
+            String transformName = streamTransform.getTransformName();
+            Set<String> postNodes = streamTransform.getPostNodes();
+            Set<String> sinkSet = Sets.newHashSet();
+            for (String postNode : postNodes) {
+                StreamSink sink = streamSinks.get(postNode);
+                if (sink != null) {
+                    sinkSet.add(sink.getSinkName());
+                }
+            }
+            if (CollectionUtils.isNotEmpty(sinkSet)) {
+                StreamNodeRelationship relationship = new StreamNodeRelationship();
+                Set<String> preNodes = Sets.newHashSet(transformName);
+                relationship.setInputNodes(preNodes);
+                relationship.setOutputNodes(sinkSet);
+                relationshipMap.computeIfAbsent(preNodes, key -> Lists.newArrayList()).add(relationship);
+            }
         }
         List<StreamNodeRelationship> relationships = Lists.newArrayList();
         // Merge StreamNodeRelationship with same preNodes

@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.common.pojo.stream;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.util.Preconditions;
 
