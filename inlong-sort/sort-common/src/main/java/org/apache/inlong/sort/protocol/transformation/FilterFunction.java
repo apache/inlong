@@ -17,12 +17,19 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.inlong.sort.protocol.transformation.function.MultiValueFilterFunction;
+import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = SingleValueFilterFunction.class, name = "singleValueFilter"),
+        @JsonSubTypes.Type(value = MultiValueFilterFunction.class, name = "multiValueFilter")}
+)
 public interface FilterFunction extends Function {
 
 }
