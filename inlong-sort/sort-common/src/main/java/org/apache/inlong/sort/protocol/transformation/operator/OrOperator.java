@@ -15,21 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol.transformation;
+package org.apache.inlong.sort.protocol.transformation.operator;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.inlong.sort.protocol.transformation.operator.InOperator;
-import org.apache.inlong.sort.protocol.transformation.operator.NotInOperator;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.inlong.sort.protocol.transformation.LogicOperator;
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = InOperator.class, name = "in"),
-        @JsonSubTypes.Type(value = NotInOperator.class, name = "notIn")
-})
-public interface MultiValueCompareOperator extends CompareOperator {
+import java.io.Serializable;
 
+@JsonTypeName("or")
+@Data
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class OrOperator implements LogicOperator, Serializable {
+
+    private static final long serialVersionUID = -5062182569422834309L;
+
+    private static final OrOperator INSTANCE = new OrOperator();
+
+    public static OrOperator getInstance() {
+        return INSTANCE;
+    }
+
+    @Override
+    public String format() {
+        return "OR";
+    }
 }

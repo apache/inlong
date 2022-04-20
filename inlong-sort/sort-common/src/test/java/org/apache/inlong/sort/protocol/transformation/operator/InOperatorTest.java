@@ -15,21 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol.transformation;
+package org.apache.inlong.sort.protocol.transformation.operator;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.inlong.sort.protocol.transformation.operator.InOperator;
-import org.apache.inlong.sort.protocol.transformation.operator.NotInOperator;
+import org.apache.inlong.sort.protocol.transformation.Operator;
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = InOperator.class, name = "in"),
-        @JsonSubTypes.Type(value = NotInOperator.class, name = "notIn")
-})
-public interface MultiValueCompareOperator extends CompareOperator {
+public class InOperatorTest extends OperatorBaseTest {
+
+    @Override
+    public Operator getOperator() {
+        return InOperator.getInstance();
+    }
+
+    @Override
+    public String getExpectFormat() {
+        return "IN";
+    }
+
+    @Override
+    public String getExpectSerializeStr() {
+        return "{\"type\":\"in\"}";
+    }
 
 }
