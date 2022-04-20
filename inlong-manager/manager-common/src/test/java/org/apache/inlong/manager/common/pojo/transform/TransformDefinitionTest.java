@@ -44,13 +44,14 @@ public class TransformDefinitionTest {
 
     }
 
+    public static Gson gson = new Gson();
+
     @Test
     public void testParseDeDuplicationDefinition() {
         List<StreamField> streamFields = createStreamFields();
         StreamField timingField = new StreamField(2, FieldType.TIMESTAMP, "event_time", null, null);
         DeDuplicationDefinition deDuplicationDefinition = new DeDuplicationDefinition(streamFields, timingField, 100,
                 TimeUnit.MICROSECONDS, DeDuplicationStrategy.RESERVE_FIRST);
-        Gson gson = new Gson();
         String definitionJson = gson.toJson(deDuplicationDefinition);
         DeDuplicationDefinition parsedDefinition = gson.fromJson(definitionJson, DeDuplicationDefinition.class);
         Assert.assertEquals(deDuplicationDefinition, parsedDefinition);
@@ -60,7 +61,6 @@ public class TransformDefinitionTest {
     public void testParseFilterDefinition() {
         List<FilterRule> filterRules = createFilterRule();
         FilterDefinition filterDefinition = new FilterDefinition(FilterStrategy.RETAIN, filterRules);
-        Gson gson = new Gson();
         String definitionJson = gson.toJson(filterDefinition);
         FilterDefinition parsedDefinition = gson.fromJson(definitionJson, FilterDefinition.class);
         Assert.assertEquals(filterDefinition, parsedDefinition);
@@ -75,7 +75,6 @@ public class TransformDefinitionTest {
         rightNode.setFields(streamFields);
         JoinerDefinition joinerDefinition = new JoinerDefinition(leftNode, rightNode, streamFields, streamFields,
                 JoinMode.INNER_JOIN);
-        Gson gson = new Gson();
         String definitionJson = gson.toJson(joinerDefinition);
         JoinerDefinition parsedDefinition = gson.fromJson(definitionJson, JoinerDefinition.class);
         Assert.assertEquals(joinerDefinition, parsedDefinition);
