@@ -39,6 +39,6 @@ public enum MQType {
                 return mqType;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupport queue=%s for Inlong", type));
+        throw new IllegalArgumentException(String.format("Unsupported queue=%s for Inlong", type));
     }
 }

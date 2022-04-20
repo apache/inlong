@@ -27,10 +27,10 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
-import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
+import org.apache.inlong.manager.service.thirdparty.sort.util.DataFlowUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
@@ -56,8 +56,6 @@ public class PushSortConfigListener implements SortOperateListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(PushSortConfigListener.class);
 
     @Autowired
-    private CommonOperateService commonOperateService;
-    @Autowired
     private ClusterBean clusterBean;
     @Autowired
     private InlongGroupService groupService;
@@ -65,6 +63,8 @@ public class PushSortConfigListener implements SortOperateListener {
     private InlongStreamService streamService;
     @Autowired
     private StreamSinkService streamSinkService;
+    @Autowired
+    private DataFlowUtils dataFlowUtils;
 
     @Override
     public TaskEvent event() {
@@ -94,7 +94,7 @@ public class PushSortConfigListener implements SortOperateListener {
                 LOGGER.debug("sink info: {}", sinkResponse);
             }
 
-            DataFlowInfo dataFlowInfo = commonOperateService.createDataFlow(groupInfo, sinkResponse);
+            DataFlowInfo dataFlowInfo = dataFlowUtils.createDataFlow(groupInfo, sinkResponse);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("try to push config to sort: {}", JsonUtils.toJson(dataFlowInfo));
             }

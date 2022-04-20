@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
+@Deprecated
 @Repository
 public interface CommonFileServerEntityMapper {
 

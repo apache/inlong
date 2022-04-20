@@ -49,6 +49,11 @@ public class BlankInlongGroup implements InlongGroup {
     }
 
     @Override
+    public InlongGroupContext reInitOnUpdate(InlongGroupConf conf) throws Exception {
+        throw new UnsupportedOperationException("Inlong group is not exists");
+    }
+
+    @Override
     public InlongGroupContext initOnUpdate(InlongGroupConf conf) throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }

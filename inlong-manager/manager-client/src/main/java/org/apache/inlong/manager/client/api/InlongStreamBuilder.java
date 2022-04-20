@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.client.api;
 
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
+
 import java.util.List;
 
 public abstract class InlongStreamBuilder {
@@ -42,6 +44,13 @@ public abstract class InlongStreamBuilder {
      * @return inlong stream builder
      */
     public abstract InlongStreamBuilder fields(List<StreamField> fieldList);
+
+    /**
+     * Create stream transform
+     *
+     * @return inlong stream builder
+     */
+    public abstract InlongStreamBuilder transform(StreamTransform streamTransform);
 
     /**
      * Create data stream by builder

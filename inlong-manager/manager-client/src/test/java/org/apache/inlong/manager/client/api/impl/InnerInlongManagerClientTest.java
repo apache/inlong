@@ -41,5 +41,4 @@ public class InnerInlongManagerClientTest {
         List<FullStreamResponse> fullStreamResponseList = innerInlongManagerClient.listStreamInfo("test");
         Assert.assertNull(fullStreamResponseList);
     }
-
 }

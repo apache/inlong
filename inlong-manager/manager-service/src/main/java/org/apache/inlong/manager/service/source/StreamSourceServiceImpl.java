@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.SourceState;
@@ -104,7 +103,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
     @Override
     public List<SourceResponse> listSource(String groupId, String streamId) {
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
@@ -117,7 +116,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
     @Override
     public PageInfo<? extends SourceListResponse> listByCondition(SourcePageRequest request) {
-        Preconditions.checkNotNull(request.getInlongGroupId(), Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         List<StreamSourceEntity> entityList = sourceMapper.selectByCondition(request);
 
@@ -146,7 +145,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     public boolean update(SourceRequest request, String operator) {
         LOGGER.info("begin to update source info: {}", request);
         this.checkParams(request);
-        Preconditions.checkNotNull(request.getId(), Constant.ID_IS_EMPTY);
+        Preconditions.checkNotNull(request.getId(), ErrorCodeEnum.ID_IS_EMPTY.getMessage());
 
         // Check if it can be modified
         String groupId = request.getInlongGroupId();
@@ -175,7 +174,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             isolation = Isolation.READ_COMMITTED)
     public boolean delete(Integer id, String sourceType, String operator) {
         LOGGER.info("begin to delete source by id={}, sourceType={}", id, sourceType);
-        Preconditions.checkNotNull(id, Constant.ID_IS_EMPTY);
+        Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
 
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
@@ -231,8 +230,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             isolation = Isolation.READ_COMMITTED)
     public boolean logicDeleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to logic delete all source info by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be deleted
         InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
@@ -266,8 +265,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             isolation = Isolation.READ_COMMITTED)
     public boolean deleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to delete all source by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be deleted
         commonOperateService.checkGroupStatus(groupId, operator);
@@ -289,13 +288,15 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     private void checkParams(SourceRequest request) {
-        Preconditions.checkNotNull(request, Constant.REQUEST_IS_EMPTY);
+        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String groupId = request.getInlongGroupId();
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         String streamId = request.getInlongStreamId();
-        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
         String sourceType = request.getSourceType();
-        Preconditions.checkNotNull(sourceType, SourceType.SOURCE_TYPE_IS_EMPTY);
+        Preconditions.checkNotNull(sourceType, ErrorCodeEnum.SOURCE_TYPE_IS_NULL.getMessage());
+        String sourceName = request.getSourceName();
+        Preconditions.checkNotNull(sourceName, ErrorCodeEnum.SOURCE_NAME_IS_NULL.getMessage());
     }
 
 }

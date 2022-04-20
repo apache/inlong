@@ -37,6 +37,7 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterResponse;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
+import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.InLongStringUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -95,7 +96,6 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         }
         Preconditions.checkNotNull(entity.getCreator(), "cluster creator is empty");
         entity.setCreateTime(new Date());
-        entity.setIsDeleted(Constant.UN_DELETED);
         thirdPartyClusterMapper.insert(entity);
         LOGGER.info("success to add a cluster");
         return entity.getId();
@@ -184,9 +184,10 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         if (StringUtils.isNotBlank(clusterName)) {
             entity = thirdPartyClusterMapper.selectByName(clusterName);
         } else {
-            List<ThirdPartyClusterEntity> list = thirdPartyClusterMapper.selectByType(Constant.CLUSTER_DATA_PROXY);
+            List<ThirdPartyClusterEntity> list = thirdPartyClusterMapper.selectByType(
+                    InlongGroupSettings.CLUSTER_DATA_PROXY);
             if (CollectionUtils.isEmpty(list)) {
-                LOGGER.warn("data proxy cluster not found by type=" + Constant.CLUSTER_DATA_PROXY);
+                LOGGER.warn("data proxy cluster not found by type=" + InlongGroupSettings.CLUSTER_DATA_PROXY);
                 return null;
             }
             entity = list.get(0);
@@ -196,7 +197,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
             LOGGER.warn("data proxy cluster not found by name={}", clusterName);
             return null;
         }
-        if (!Constant.CLUSTER_DATA_PROXY.equals(entity.getType())) {
+        if (!InlongGroupSettings.CLUSTER_DATA_PROXY.equals(entity.getType())) {
             LOGGER.warn("expected cluster type is DATA_PROXY, but found {}", entity.getType());
             return null;
         }
