@@ -20,6 +20,17 @@ package org.apache.inlong.sort.protocol.transformation;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.inlong.sort.protocol.transformation.function.HopEndFunction;
+import org.apache.inlong.sort.protocol.transformation.function.HopFunction;
+import org.apache.inlong.sort.protocol.transformation.function.HopStartFunction;
+import org.apache.inlong.sort.protocol.transformation.function.MultiValueFilterFunction;
+import org.apache.inlong.sort.protocol.transformation.function.SessionEndFunction;
+import org.apache.inlong.sort.protocol.transformation.function.SessionFunction;
+import org.apache.inlong.sort.protocol.transformation.function.SessionStartFunction;
+import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
+import org.apache.inlong.sort.protocol.transformation.function.TumbleEndFunction;
+import org.apache.inlong.sort.protocol.transformation.function.TumbleFunction;
+import org.apache.inlong.sort.protocol.transformation.function.TumbleStartFunction;
 
 import java.util.List;
 
@@ -28,7 +39,18 @@ import java.util.List;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = WatermarkField.class, name = "watermark")
+        @JsonSubTypes.Type(value = WatermarkField.class, name = "watermark"),
+        @JsonSubTypes.Type(value = HopStartFunction.class, name = "hopStart"),
+        @JsonSubTypes.Type(value = HopEndFunction.class, name = "hopEnd"),
+        @JsonSubTypes.Type(value = TumbleStartFunction.class, name = "tumbleStart"),
+        @JsonSubTypes.Type(value = TumbleEndFunction.class, name = "tumbleEnd"),
+        @JsonSubTypes.Type(value = SessionStartFunction.class, name = "sessionStart"),
+        @JsonSubTypes.Type(value = SessionEndFunction.class, name = "sessionEnd"),
+        @JsonSubTypes.Type(value = SessionFunction.class, name = "session"),
+        @JsonSubTypes.Type(value = TumbleFunction.class, name = "tumble"),
+        @JsonSubTypes.Type(value = HopFunction.class, name = "hop"),
+        @JsonSubTypes.Type(value = SingleValueFilterFunction.class, name = "singleValueFilter"),
+        @JsonSubTypes.Type(value = MultiValueFilterFunction.class, name = "multiValueFilter")
 })
 public interface Function extends FunctionParam {
 
