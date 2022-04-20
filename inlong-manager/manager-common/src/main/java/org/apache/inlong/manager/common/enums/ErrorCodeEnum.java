@@ -23,6 +23,10 @@ public enum ErrorCodeEnum {
     PERMISSION_REQUIRED(2003, "The current user does not have operation authority"),
     AUTHENTICATION_REQUIRED(2004, "Authentication failed"),
 
+    ID_IS_EMPTY(101, "Primary key is empty"),
+    GROUP_ID_IS_EMPTY(102, "Inlong group id is empty"),
+    STREAM_ID_IS_EMPTY(103, "Inlong stream id is empty"),
+    REQUEST_IS_EMPTY(104, "Request is empty"),
     USER_IS_NOT_MANAGER(110, "%s is not the manager, please contact %s"),
 
     GROUP_NOT_FOUND(1001, "Inlong group does not exist/no operation authority"),
@@ -65,13 +69,8 @@ public enum ErrorCodeEnum {
     SOURCE_ALREADY_EXISTS(1304, "Source already exist with the groupId and streamId"),
     SOURCE_SAVE_FAILED(1305, "Failed to save or update source info"),
     SOURCE_OPT_NOT_ALLOWED(1306, "Current status does not allow add/modification/delete source info"),
-
-    SOURCE_DUPLICATE(1301, "Stream source already exists"),
-    SOURCE_BASIC_NOT_FOUND(1302, "The basic information of the stream source does not exist"),
-    SOURCE_DETAIL_NOT_FOUND(1303, "Stream source info does not exist"),
-    SOURCE_TYPE_NOT_SUPPORTED(1304, "Source type is not supported"),
-    SOURCE_BASIC_DELETE_HAS_DETAIL(1305,
-            "The stream source contains detailed info and is not allowed to be deleted"),
+    SOURCE_TYPE_NOT_SAME(1307, "Expected source type is %s, but found %s"),
+    SOURCE_NAME_IS_NULL(1308, "Source name is null"),
 
     HIVE_OPERATION_FAILED(1311, "Hive operation failed"),
 
@@ -90,7 +89,11 @@ public enum ErrorCodeEnum {
     PARTITION_FIELD_NAME_IS_EMPTY(1412, "Partition field name cannot be empty"),
     PARTITION_FIELD_NOT_FOUND(1413, "Sink partition field [%s] not found in sink field list"),
     PARTITION_FIELD_NO_SOURCE_FIELD(1414, "Sink partition field [%s] must have a related source field name"),
+    SINK_TYPE_NOT_SAME(1415, "Expected sink type is %s, but found %s"),
+    SINK_NAME_IS_NULL(1416, "Sink name is null"),
 
+    TRANSFORM_TYPE_IS_NULL(1500, "Transform type is null"),
+    TRANSFORM_NAME_IS_NULL(1501, "Transform name is null"),
 
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
 

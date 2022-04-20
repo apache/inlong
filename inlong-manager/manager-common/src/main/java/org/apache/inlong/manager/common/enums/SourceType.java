@@ -39,9 +39,6 @@ public enum SourceType {
     public static final String SOURCE_BINLOG = "BINLOG";
     public static final String SOURCE_KAFKA = "KAFKA";
 
-    public static final String SOURCE_TYPE_IS_EMPTY = "Source type is empty";
-    public static final String SOURCE_TYPE_NOT_SAME = "Expected source type is %s, but found %s";
-
     @Getter
     private final String type;
 

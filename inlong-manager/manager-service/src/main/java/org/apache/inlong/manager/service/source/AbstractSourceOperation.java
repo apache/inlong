@@ -18,18 +18,20 @@
 package org.apache.inlong.manager.service.source;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.SourceState;
-import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.dao.entity.StreamSourceFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceFieldEntityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -49,6 +52,8 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSourceOperation.class);
     @Autowired
     protected StreamSourceEntityMapper sourceMapper;
+    @Autowired
+    protected StreamSourceFieldEntityMapper sourceFieldMapper;
 
     /**
      * Setting the parameters of the latest entity.
@@ -91,15 +96,16 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         } else {
             entity.setStatus(SourceState.SOURCE_NEW.getCode());
         }
-        entity.setIsDeleted(Constant.UN_DELETED);
         entity.setCreator(operator);
         entity.setModifier(operator);
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
+        entity.setIsDeleted(0);
         // get the ext params
         setTargetEntity(request, entity);
         sourceMapper.insert(entity);
+        saveFieldOpt(entity, request.getFieldList());
         return entity.getId();
     }
 
@@ -110,8 +116,14 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
-                String.format(SourceType.SOURCE_TYPE_NOT_SAME, getSourceType(), existType));
-        return this.getFromEntity(entity, this::getResponse);
+                String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
+
+        SourceResponse sourceResponse = this.getFromEntity(entity, this::getResponse);
+        List<StreamSourceFieldEntity> sourceFieldEntities = sourceFieldMapper.selectBySourceId(id);
+        List<InlongStreamFieldInfo> fieldInfos = CommonBeanUtils.copyListProperties(sourceFieldEntities,
+                InlongStreamFieldInfo::new);
+        sourceResponse.setFieldList(fieldInfos);
+        return sourceResponse;
     }
 
     @Override
@@ -129,6 +141,7 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
         sourceMapper.updateByPrimaryKeySelective(entity);
+        updateFieldOpt(entity, request.getFieldList());
         LOGGER.info("success to update source of type={}", request.getSourceType());
     }
 
@@ -189,5 +202,50 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         curEntity.setIsDeleted(id);
         curEntity.setModifyTime(new Date());
         sourceMapper.updateByPrimaryKeySelective(curEntity);
+        sourceFieldMapper.deleteAll(id);
+        LOGGER.info("success to delete source={}", request);
+    }
+
+    private void updateFieldOpt(StreamSourceEntity entity, List<InlongStreamFieldInfo> fieldInfos) {
+        Integer sourceId = entity.getId();
+        if (CollectionUtils.isEmpty(fieldInfos)) {
+            return;
+        }
+
+        // First physically delete the existing fields
+        sourceFieldMapper.deleteAll(sourceId);
+        // Then batch save the source fields
+        this.saveFieldOpt(entity, fieldInfos);
+
+        LOGGER.info("success to update field");
+    }
+
+    private void saveFieldOpt(StreamSourceEntity entity, List<InlongStreamFieldInfo> fieldInfos) {
+        LOGGER.info("begin to save field={}", fieldInfos);
+        if (CollectionUtils.isEmpty(fieldInfos)) {
+            return;
+        }
+
+        int size = fieldInfos.size();
+        List<StreamSourceFieldEntity> entityList = new ArrayList<>(size);
+        String groupId = entity.getInlongGroupId();
+        String streamId = entity.getInlongStreamId();
+        String sourceType = entity.getSourceType();
+        Integer sourceId = entity.getId();
+        for (InlongStreamFieldInfo fieldInfo : fieldInfos) {
+            StreamSourceFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo,
+                    StreamSourceFieldEntity::new);
+            if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
+                fieldEntity.setFieldComment(fieldEntity.getFieldName());
+            }
+            fieldEntity.setInlongGroupId(groupId);
+            fieldEntity.setInlongStreamId(streamId);
+            fieldEntity.setSourceId(sourceId);
+            fieldEntity.setSourceType(sourceType);
+            entityList.add(fieldEntity);
+        }
+
+        sourceFieldMapper.insertAll(entityList);
+        LOGGER.info("success to save source fields");
     }
 }

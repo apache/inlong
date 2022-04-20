@@ -90,7 +90,7 @@ public class FileSourceOperation extends AbstractSourceOperation {
         }
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
-                String.format(SourceType.SOURCE_TYPE_NOT_SAME, getSourceType(), existType));
+                String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
         FileSourceDTO dto = FileSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);

@@ -21,8 +21,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Response of the stream source
@@ -83,5 +85,8 @@ public class SourceResponse {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
+
+    @ApiModelProperty(value = "Field list")
+    private List<InlongStreamFieldInfo> fieldList;
 
 }

@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.FieldType;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

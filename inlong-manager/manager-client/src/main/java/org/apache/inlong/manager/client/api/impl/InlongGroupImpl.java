@@ -140,6 +140,11 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
+    public InlongGroupContext reInitOnUpdate(InlongGroupConf conf) throws Exception {
+        return initOnUpdate(conf);
+    }
+
+    @Override
     public InlongGroupContext initOnUpdate(InlongGroupConf conf) throws Exception {
         update(conf);
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(conf);
