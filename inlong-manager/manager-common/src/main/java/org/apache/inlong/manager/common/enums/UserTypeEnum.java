@@ -18,16 +18,17 @@
 package org.apache.inlong.manager.common.enums;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.Arrays;
 import lombok.Getter;
+
+import java.util.Arrays;
 
 /**
  * User type enum
  */
 public enum UserTypeEnum {
 
-    MANAGER(0), // has all privilege
-    OPERATOR(1), // No privilege to manage the system
+    Admin(0), // has all privilege
+    Operator(1), // No privilege to manage the system
     ;
 
     @Getter

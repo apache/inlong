@@ -45,7 +45,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseBody
     public Response<String> handleConstraintViolationException(HttpServletRequest request,
-                                                               ConstraintViolationException e) {
+            ConstraintViolationException e) {
         Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
         StringBuilder stringBuilder = new StringBuilder(64);
         for (ConstraintViolation<?> violation : violations) {
@@ -60,7 +60,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
     public Response<String> handleMethodArgumentNotValidException(HttpServletRequest request,
-                                                                  MethodArgumentNotValidException e) {
+            MethodArgumentNotValidException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
         log.error("Failed to handle request on path:" + request.getRequestURI()
                 + (userDetail != null ? ", user:" + userDetail.getUserName() : ""), e);
@@ -88,7 +88,7 @@ public class ControllerExceptionHandler {
     @ResponseBody
     @ExceptionHandler(value = HttpMessageConversionException.class)
     public Response<String> handleHttpMessageConversionExceptionHandler(HttpServletRequest request,
-                                                                        HttpMessageConversionException e) {
+            HttpMessageConversionException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
         log.error("Failed to handle request on path:" + request.getRequestURI()
                 + (userDetail != null ? ", user:" + userDetail.getUserName() : ""), e);
