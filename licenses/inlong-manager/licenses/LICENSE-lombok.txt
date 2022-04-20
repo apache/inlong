@@ -55,8 +55,8 @@ ASM: a very small and fast Java bytecode manipulation framework
  THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------------------------------------------------
-rzwitserloot/com.zwitserloot.cmdreader
-
+rzwitserloot/com.zwitserloot.cmdreader 
+ 
  Copyright © 2010 Reinier Zwitserloot.
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -82,7 +82,7 @@ rzwitserloot/com.zwitserloot.cmdreader
 projectlombok/lombok.patcher
 
  Copyright (C) 2009-2021 The Project Lombok Authors.
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
