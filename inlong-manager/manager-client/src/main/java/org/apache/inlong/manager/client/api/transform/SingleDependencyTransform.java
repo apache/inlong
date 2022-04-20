@@ -22,7 +22,7 @@ import org.apache.inlong.manager.client.api.StreamTransform;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 
-@ApiModel("StreamTransform with one pre streamNode, such as filter,splitter etc")
+@ApiModel("StreamTransform with one pre stream node, such as filter, splitter, etc")
 public class SingleDependencyTransform extends StreamTransform {
 
     /**
