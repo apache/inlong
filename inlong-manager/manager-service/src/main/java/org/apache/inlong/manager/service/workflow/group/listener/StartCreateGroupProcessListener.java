@@ -63,7 +63,7 @@ public class StartCreateGroupProcessListener implements ProcessEventListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         NewGroupProcessForm form = (NewGroupProcessForm) context.getProcessForm();
-
+        //todo if light weight
         String groupId = form.getInlongGroupId();
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
         processForm.setGroupInfo(groupService.get(groupId));

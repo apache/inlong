@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.inlong.manager.common.enums.OperateType;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -69,12 +70,4 @@ public class UpdateGroupProcessForm extends BaseProcessForm {
         show.put("operateType", operateType.name().toLowerCase(Locale.ROOT));
         return show;
     }
-
-    /**
-     * Used to control the operation to update inlong group workflow
-     */
-    public enum OperateType {
-        INIT, SUSPEND, RESTART, DELETE
-    }
-
 }

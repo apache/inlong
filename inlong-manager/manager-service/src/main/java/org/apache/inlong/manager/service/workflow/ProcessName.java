@@ -48,6 +48,26 @@ public enum ProcessName {
     DELETE_GROUP_PROCESS("Delete-Group"),
 
     /**
+     * Startup lightweight inlong group application process
+     */
+    STARTUP_LIGHTWEIGHT_GROUP_PROCESS("Startup-Lightweight-Group"),
+
+    /**
+     * Suspend lightweight inlong group application process
+     */
+    SUSPEND_LIGHTWEIGHT_GROUP_PROCESS("Suspend-Lightweight-Group"),
+
+    /**
+     * Restart lightweight inlong group application process
+     */
+    RESTART_LIGHTWEIGHT_GROUP_PROCESS("Restart-Lightweight-Group"),
+
+    /**
+     * Delete lightweight inlong group application process
+     */
+    DELETE_LIGHTWEIGHT_GROUP_PROCESS("Delete-Lightweight-Group"),
+
+    /**
      * New consumption application process
      */
     NEW_CONSUMPTION_PROCESS("New-Consumption"),
