@@ -386,7 +386,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.commons:commons-lang3:3.11 - Apache Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
   commons-logging:commons-logging:1.2 - Apache Commons Logging (https://commons.apache.org/proper/commons-logging/), (The Apache Software License, Version 2.0)
   commons-pool:commons-pool:1.5.4 - Commons Pool (https://commons.apache.org/proper/commons-pool/), (The Apache Software License, Version 2.0)
-  com.typesafe:config:1.3.3 - config (https://github.com/lightbend/config), (Apache License, Version 2.0)
+  com.typesafe:config:1.3.3 - config (https://github.com/lightbend/config/tree/v1.3.3), (Apache License, Version 2.0)
   org.apache.kafka:connect-api:3.0.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
   org.apache.kafka:connect-file:3.0.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
   org.apache.kafka:connect-json:3.0.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
@@ -583,7 +583,7 @@ The following components are provided under CDDL license. See project link for d
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
   javax.activation:activation:1.1.1 - JavaBeans(TM) Activation Framework (http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp), (COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0)
-  com.sun.activation:javax.activation:1.2.0 - JavaBeans Activation Framework (http://java.net/all/javax.activation/), (CDDL/GPLv2+CE)
+  com.sun.activation:javax.activation:1.2.0 - JavaBeans Activation Framework (https://github.com/javaee/activation/tree/JAF-1_2_0), (CDDL/GPLv2+CE)
   javax.annotation:javax.annotation-api:1.3.2 - javax.annotation API (http://jcp.org/en/jsr/detail?id=250), (CDDL + GPLv2 with classpath exception)
   javax.servlet:javax.servlet-api:4.0.1 - Java Servlet API (https://javaee.github.io/servlet-spec/), (CDDL + GPLv2 with classpath exception)
   javax.ws.rs:javax.ws.rs-api:2.1 - javax.ws.rs-api (https://github.com/javaee/jax-rs-api/tree/2.1/jaxrs-api), (CDDL 1.1;  GPL2 w/ CPE)
