@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.thirdparty.sort.SerializationInfoGenerator;
 import org.apache.inlong.sort.protocol.deserialization.AvroDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.CanalDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.CsvDeserializationInfo;
@@ -37,18 +38,25 @@ import org.apache.inlong.sort.protocol.serialization.CanalSerializationInfo;
 import org.apache.inlong.sort.protocol.serialization.DebeziumSerializationInfo;
 import org.apache.inlong.sort.protocol.serialization.JsonSerializationInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+
+import java.util.Map;
 
 /**
  * Utils for Serialization and Deserialization info
  */
-public class SerializationUtils {
+@ConditionalOnProperty(name = "type", prefix = "inlong.sort.serialinfo", havingValue = "default")
+@Component
+public class SerializationUtils implements SerializationInfoGenerator {
 
     /**
      * Create deserialization info
      */
-    public static DeserializationInfo createDeserialInfo(SourceResponse sourceResponse,
-            InlongStreamInfo streamInfo) {
+    @Override
+    public DeserializationInfo createDeserialInfo(SourceResponse sourceResponse,
+            InlongStreamInfo streamInfo, Map<String, Object> properties) {
         SourceType sourceType = SourceType.forType(sourceResponse.getSourceType());
         switch (sourceType) {
             case BINLOG:
@@ -67,7 +75,8 @@ public class SerializationUtils {
     /**
      * Create serialization info
      */
-    public static SerializationInfo createSerialInfo(SourceResponse sourceResponse, SinkResponse sinkResponse) {
+    @Override
+    public SerializationInfo createSerialInfo(SourceResponse sourceResponse, SinkResponse sinkResponse) {
         SinkType sinkType = SinkType.forType(sinkResponse.getSinkType());
         switch (sinkType) {
             case HIVE:
@@ -82,14 +91,14 @@ public class SerializationUtils {
     /**
      * Get serialization info for Binlog
      */
-    private static DeserializationInfo deserializeForBinlog(BinlogSourceResponse sourceResponse) {
+    private DeserializationInfo deserializeForBinlog(BinlogSourceResponse sourceResponse) {
         return new DebeziumDeserializationInfo(true, sourceResponse.getTimestampFormatStandard());
     }
 
     /**
      * Get deserialization info for Kafka
      */
-    private static DeserializationInfo deserializeForKafka(KafkaSourceResponse source, InlongStreamInfo stream) {
+    private DeserializationInfo deserializeForKafka(KafkaSourceResponse source, InlongStreamInfo stream) {
         String serializationType = source.getSerializationType();
         DataTypeEnum dataType = DataTypeEnum.forName(serializationType);
         switch (dataType) {
@@ -112,7 +121,7 @@ public class SerializationUtils {
     /**
      * Get serialization info for Kafka
      */
-    private static SerializationInfo serializeForKafka(SourceResponse sourceResponse, KafkaSinkResponse sinkResponse) {
+    private SerializationInfo serializeForKafka(SourceResponse sourceResponse, KafkaSinkResponse sinkResponse) {
         String serializationType = sinkResponse.getSerializationType();
         DataTypeEnum dataType = DataTypeEnum.forName(serializationType);
         switch (dataType) {
@@ -137,7 +146,7 @@ public class SerializationUtils {
     /**
      * Get deserialization info for File
      */
-    private static DeserializationInfo deserializeForFile(InlongStreamInfo streamInfo) {
+    private DeserializationInfo deserializeForFile(InlongStreamInfo streamInfo) {
         String dataType = streamInfo.getDataType();
         DataTypeEnum typeEnum = DataTypeEnum.forName(dataType);
         switch (typeEnum) {
@@ -157,7 +166,7 @@ public class SerializationUtils {
     /**
      * Get deserialization info for DataProxy SDK source
      */
-    private static DeserializationInfo deserializeForAutoPush(InlongStreamInfo streamInfo) {
+    private DeserializationInfo deserializeForAutoPush(InlongStreamInfo streamInfo) {
         String dataType = streamInfo.getDataType();
         DataTypeEnum typeEnum = DataTypeEnum.forName(dataType);
         switch (typeEnum) {

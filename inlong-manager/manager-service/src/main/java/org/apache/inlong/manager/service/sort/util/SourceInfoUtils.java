@@ -28,6 +28,8 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.thirdparty.sort.SerializationInfoGenerator;
+import org.apache.inlong.manager.common.thirdparty.sort.SourceInfoGenerator;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
@@ -35,18 +37,28 @@ import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.protocol.source.TDMQPulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Utils for source info
  */
-public class SourceInfoUtils {
+@ConditionalOnProperty(name = "type", prefix = "inlong.sort.sourceinfo", havingValue = "default")
+@Component
+public class SourceInfoUtils implements SourceInfoGenerator {
+
+    @Autowired
+    private SerializationInfoGenerator serializationInfoGenerator;
 
     /**
      * Whether the source is all binlog migration.
      */
-    public static boolean isBinlogAllMigration(SourceResponse sourceResponse) {
+    @Override
+    public boolean isBinlogAllMigration(SourceResponse sourceResponse) {
         if (sourceResponse == null) {
             return false;
         }
@@ -60,12 +72,14 @@ public class SourceInfoUtils {
     /**
      * Create source info for DataFlowInfo.
      */
-    public static SourceInfo createSourceInfo(PulsarClusterInfo pulsarCluster, String masterAddress,
+    @Override
+    public SourceInfo createSourceInfo(PulsarClusterInfo pulsarCluster, String masterAddress,
             ClusterBean clusterBean, InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            SourceResponse sourceResponse, List<FieldInfo> sourceFields) {
+            SourceResponse sourceResponse, List<FieldInfo> sourceFields, Map<String, Object> properties) {
 
         MQType mqType = MQType.forType(groupInfo.getMiddlewareType());
-        DeserializationInfo deserializationInfo = SerializationUtils.createDeserialInfo(sourceResponse, streamInfo);
+        DeserializationInfo deserializationInfo =
+                serializationInfoGenerator.createDeserialInfo(sourceResponse, streamInfo, properties);
         SourceInfo sourceInfo;
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             sourceInfo = createPulsarSourceInfo(pulsarCluster, clusterBean, groupInfo, streamInfo, deserializationInfo,
@@ -83,7 +97,7 @@ public class SourceInfoUtils {
     /**
      * Create source info for Pulsar
      */
-    private static SourceInfo createPulsarSourceInfo(PulsarClusterInfo pulsarCluster, ClusterBean clusterBean,
+    private SourceInfo createPulsarSourceInfo(PulsarClusterInfo pulsarCluster, ClusterBean clusterBean,
             InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             DeserializationInfo deserializationInfo, List<FieldInfo> fieldInfos) {
         String topicName = streamInfo.getMqResourceObj();
@@ -112,7 +126,7 @@ public class SourceInfoUtils {
     /**
      * Create source info TubeMQ
      */
-    private static TubeSourceInfo createTubeSourceInfo(InlongGroupInfo groupInfo, String masterAddress,
+    private TubeSourceInfo createTubeSourceInfo(InlongGroupInfo groupInfo, String masterAddress,
             ClusterBean clusterBean, DeserializationInfo deserializationInfo, List<FieldInfo> fieldInfos) {
         Preconditions.checkNotNull(masterAddress, "tube cluster address cannot be empty");
         String topic = groupInfo.getMqResourceObj();

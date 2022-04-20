@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.MetaFieldType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
+import org.apache.inlong.manager.common.thirdparty.sort.FieldInfoGenerator;
 import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
 import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
 import org.apache.inlong.sort.formats.common.ByteFormatInfo;
@@ -41,6 +42,8 @@ import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.FieldMappingRule.FieldMappingUnit;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +53,9 @@ import java.util.Map;
 /**
  * Util for sort field info.
  */
-public class FieldInfoUtils {
+@ConditionalOnProperty(name = "type", prefix = "inlong.sort.fieldinfo", havingValue = "default")
+@Component
+public class FieldInfoUtils implements FieldInfoGenerator {
 
     /**
      * Built in field map, key is field name, value is built in field name
@@ -70,7 +75,8 @@ public class FieldInfoUtils {
      * Get field info list.
      * TODO 1. Support partition field(not need to add index at 0), 2. Add is_metadata field in StreamSinkFieldEntity
      */
-    public static List<FieldMappingUnit> createFieldInfo(
+    @Override
+    public List<FieldMappingUnit> createFieldInfo(
             List<InlongStreamFieldInfo> streamFieldList, List<SinkFieldResponse> fieldList,
             List<FieldInfo> sourceFields, List<FieldInfo> sinkFields) {
 
@@ -102,7 +108,7 @@ public class FieldInfoUtils {
      *
      * @apiNote If the field name equals to build-in field, new a build-in field info
      */
-    private static FieldInfo getFieldInfo(String fieldName, String fieldType, boolean isBuiltin, String format) {
+    private FieldInfo getFieldInfo(String fieldName, String fieldType, boolean isBuiltin, String format) {
         FieldInfo fieldInfo;
         BuiltInField builtInField = BUILT_IN_FIELD_MAP.get(fieldName);
         FormatInfo formatInfo = convertFieldFormat(fieldType.toLowerCase(), format);
@@ -117,7 +123,8 @@ public class FieldInfoUtils {
     /**
      * Get all migration field mapping unit list for binlog source.
      */
-    public static List<FieldMappingUnit> setAllMigrationFieldMapping(List<FieldInfo> sourceFields,
+    @Override
+    public List<FieldMappingUnit> setAllMigrationFieldMapping(List<FieldInfo> sourceFields,
             List<FieldInfo> sinkFields) {
         List<FieldMappingUnit> mappingUnitList = new ArrayList<>();
         BuiltInFieldInfo dataField = new BuiltInFieldInfo("data", StringFormatInfo.INSTANCE,
@@ -146,7 +153,7 @@ public class FieldInfoUtils {
      * @param type type string
      * @return Sort field format instance
      */
-    public static FormatInfo convertFieldFormat(String type) {
+    public FormatInfo convertFieldFormat(String type) {
         return convertFieldFormat(type, null);
     }
 
@@ -156,7 +163,7 @@ public class FieldInfoUtils {
      * @param type type string
      * @return Sort field format instance
      */
-    public static FormatInfo convertFieldFormat(String type, String format) {
+    public FormatInfo convertFieldFormat(String type, String format) {
         FormatInfo formatInfo;
         FieldType fieldType = FieldType.forName(type);
         switch (fieldType) {
@@ -225,7 +232,7 @@ public class FieldInfoUtils {
      * @param format The format
      * @return The sort format
      */
-    private static String convertToSortFormat(String format) {
+    private String convertToSortFormat(String format) {
         String sortFormat = format;
         switch (format) {
             case "MICROSECONDS":
