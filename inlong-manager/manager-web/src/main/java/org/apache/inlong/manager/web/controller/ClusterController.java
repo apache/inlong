@@ -26,10 +26,11 @@ import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterResponse;
+import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,12 +51,11 @@ public class ClusterController {
 
     @Autowired
     private ThirdPartyClusterService thirdPartyClusterService;
-    @Autowired
-    private DataProxyClusterService dataProxyClusterService;
 
     @PostMapping(value = "/save")
     @ApiOperation(value = "Save cluster info")
     @OperationLog(operation = OperationType.CREATE)
+    @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Integer> save(@RequestBody ClusterRequest request) {
         String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
         return Response.success(thirdPartyClusterService.save(request, currentUser));
@@ -86,6 +86,7 @@ public class ClusterController {
     @ApiOperation(value = "Delete cluster info by id")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
         return Response.success(thirdPartyClusterService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName()));
     }

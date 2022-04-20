@@ -15,35 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.common.pojo.user;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.Getter;
+public class UserRoleCode {
 
-import java.util.Arrays;
-
-/**
- * User type enum
- */
-public enum UserTypeEnum {
-
-    Admin(0), // has all privilege
-    Operator(1), // No privilege to manage the system
-    ;
-
-    @Getter
-    @JsonValue
-    private final Integer code;
-
-    UserTypeEnum(Integer code) {
-        this.code = code;
-    }
-
-    public static UserTypeEnum parse(Integer value) {
-        return Arrays.stream(UserTypeEnum.class.getEnumConstants())
-                .filter(x -> x.getCode().equals(value))
-                .findAny()
-                .orElse(null);
-    }
-
+    public static final String ADMIN = "Admin";
+    public static final String OPERATOR = "Operator";
 }
