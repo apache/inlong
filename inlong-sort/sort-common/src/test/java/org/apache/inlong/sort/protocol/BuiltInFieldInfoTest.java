@@ -27,10 +27,10 @@ public class BuiltInFieldInfoTest extends ProtocolBaseTest {
         expectedJson = "{\n"
                 + "    \"type\":\"builtin\",\n"
                 + "    \"name\":\"f1\",\n"
-                + "    \"format_info\":{\n"
+                + "    \"formatInfo\":{\n"
                 + "        \"type\":\"string\"\n"
                 + "    },\n"
-                + "    \"builtin_field\":\"DATA_TIME\"\n"
+                + "    \"builtinField\":\"DATA_TIME\"\n"
                 + "}";
 
         equalObj1 = expectedObject;
