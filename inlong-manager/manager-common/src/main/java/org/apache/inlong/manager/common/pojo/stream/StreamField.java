@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.manager.common.pojo.stream;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -30,12 +30,21 @@ import org.apache.inlong.manager.common.enums.FieldType;
 @ApiModel("Stream field configuration")
 public class StreamField {
 
+    public static final StreamField PROCESSING_TIME = new StreamField(100, FieldType.BIGINT, "PROCESSING_TIME",
+            null, null, 1);
+
     public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue) {
         this.id = index;
         this.fieldType = fieldType;
         this.fieldName = fieldName;
         this.fieldComment = fieldComment;
         this.fieldValue = fieldValue;
+    }
+
+    public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue,
+            Integer isMetaField) {
+        this(index, fieldType, fieldName, fieldComment, fieldValue);
+        this.isMetaField = isMetaField;
     }
 
     @ApiModelProperty("Field index")

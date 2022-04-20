@@ -142,7 +142,7 @@ public class ClickHouseSinkOperation implements StreamSinkOperation {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_CLICKHOUSE.equals(existType),
-                String.format(SinkType.SINK_TYPE_NOT_SAME, SinkType.SINK_CLICKHOUSE, existType));
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_CLICKHOUSE, existType));
 
         SinkResponse response = this.getFromEntity(entity, ClickHouseSinkResponse::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(id);
@@ -162,7 +162,7 @@ public class ClickHouseSinkOperation implements StreamSinkOperation {
 
         String existType = entity.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_CLICKHOUSE.equals(existType),
-                String.format(SinkType.SINK_TYPE_NOT_SAME, SinkType.SINK_CLICKHOUSE, existType));
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_CLICKHOUSE, existType));
 
         ClickHouseSinkDTO dto = ClickHouseSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
@@ -183,7 +183,7 @@ public class ClickHouseSinkOperation implements StreamSinkOperation {
     public void updateOpt(SinkRequest request, String operator) {
         String sinkType = request.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_CLICKHOUSE.equals(sinkType),
-                String.format(SinkType.SINK_TYPE_NOT_SAME, SinkType.SINK_CLICKHOUSE, sinkType));
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_CLICKHOUSE, sinkType));
 
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());

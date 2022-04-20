@@ -28,9 +28,6 @@ public enum SinkType {
     public static final String SINK_ICEBERG = "ICEBERG";
     public static final String SINK_CLICKHOUSE = "CLICKHOUSE";
 
-    public static final String SINK_TYPE_IS_EMPTY = "Sink type is empty";
-    public static final String SINK_TYPE_NOT_SAME = "Expected sink type is %s, but found %s";
-
     /**
      * Get the SinkType enum via the given sinkType string
      */

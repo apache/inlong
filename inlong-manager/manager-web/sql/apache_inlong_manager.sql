@@ -503,6 +503,30 @@ CREATE TABLE `stream_source`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream source table';
 
 -- ----------------------------
+-- Table structure for stream_transform
+-- ----------------------------
+CREATE TABLE `stream_transform`
+(
+    `id`                   int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `inlong_group_id`      varchar(256) NOT NULL COMMENT 'Inlong group id',
+    `inlong_stream_id`     varchar(256) NOT NULL COMMENT 'Inlong stream id',
+    `transform_name`       varchar(128) NOT NULL COMMENT 'Transform name, unique in one stream',
+    `transform_type`       varchar(20)  NOT NULL COMMENT 'Transform type, including: splitter, filter, joiner, etc.',
+    `pre_node_names`       text         NOT NULL COMMENT 'Pre node names of transform in this stream',
+    `post_node_names`      text COMMENT 'Post node names of transform in this stream',
+    `transform_definition` text         NOT NULL COMMENT 'Transform definition in json type',
+    `version`              int(11)      NOT NULL DEFAULT '1' COMMENT 'Stream transform version',
+    `is_deleted`           int(11)      NOT NULL DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`              varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`             varchar(64)           DEFAULT '' COMMENT 'Modifier name',
+    `create_time`          timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`          timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_transform_name` (`inlong_group_id`, `inlong_stream_id`, `transform_name`, `is_deleted`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Stream transform table';
+
+-- ----------------------------
 -- Table structure for stream_sink
 -- ----------------------------
 DROP TABLE IF EXISTS `stream_sink`;
@@ -546,6 +570,31 @@ CREATE TABLE `stream_sink_ext`
     KEY `index_sink_id` (`sink_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream sink extension table';
+
+-- ----------------------------
+-- Table structure for stream_source_field
+-- ----------------------------
+DROP TABLE IF EXISTS `stream_source_field`;
+CREATE TABLE `stream_source_field`
+(
+    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Inlong group id',
+    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Inlong stream id',
+    `source_id`        int(11)      NOT NULL COMMENT 'Sink id',
+    `source_type`      varchar(15)  NOT NULL COMMENT 'Sink type',
+    `field_name`       varchar(20)  NOT NULL COMMENT 'field name',
+    `field_value`      varchar(128) DEFAULT NULL COMMENT 'Field value, required if it is a predefined field',
+    `pre_expression`   varchar(256) DEFAULT NULL COMMENT 'Pre-defined field value expression',
+    `field_type`       varchar(20)  NOT NULL COMMENT 'field type',
+    `field_comment`    varchar(50)  DEFAULT NULL COMMENT 'Field description',
+    `is_meta_field`    smallint(3)  DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
+    `field_format`     varchar(50)  DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
+    `rank_num`         smallint(6)  DEFAULT '0' COMMENT 'Field order (front-end display field order)',
+    `is_deleted`       int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    PRIMARY KEY (`id`),
+    KEY `index_source_id` (`source_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Stream source field table';
 
 -- ----------------------------
 -- Table structure for stream_sink_field

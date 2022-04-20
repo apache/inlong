@@ -20,7 +20,7 @@ package org.apache.inlong.manager.client.cli;
 import lombok.Data;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
-import org.apache.inlong.manager.client.api.StreamField;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.StreamSource;
 

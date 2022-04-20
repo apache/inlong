@@ -21,6 +21,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.DBCollectorDetailTaskEntity;
 import org.springframework.stereotype.Repository;
 
+@Deprecated
 @Repository
 public interface DBCollectorDetailTaskMapper {
 

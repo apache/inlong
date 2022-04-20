@@ -22,7 +22,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -35,10 +34,10 @@ import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -91,8 +90,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         Preconditions.checkNotNull(request, "inlong stream info is empty");
         String groupId = request.getInlongGroupId();
         String streamId = request.getInlongStreamId();
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be added
         checkBizIsTempStatus(groupId);
@@ -122,8 +121,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public InlongStreamInfo get(String groupId, String streamId) {
         LOGGER.debug("begin to get inlong stream by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
         if (streamEntity == null) {
@@ -141,7 +140,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     @Override
     public Boolean exist(String groupId, String streamId) {
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
         return streamEntity != null;
     }
@@ -199,9 +198,9 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         LOGGER.debug("begin to update inlong stream info={}", request);
         Preconditions.checkNotNull(request, "inlong stream request is empty");
         String groupId = request.getInlongGroupId();
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         String streamId = request.getInlongStreamId();
-        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be modified
         InlongGroupEntity inlongGroupEntity = this.checkBizIsTempStatus(groupId);
@@ -232,8 +231,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public Boolean delete(String groupId, String streamId, String operator) {
         LOGGER.debug("begin to delete inlong stream, groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be deleted
         this.checkBizIsTempStatus(groupId);
@@ -274,7 +273,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public Boolean logicDeleteAll(String groupId, String operator) {
         LOGGER.debug("begin to delete all inlong stream by groupId={}", groupId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         // Check if it can be deleted
         this.checkBizIsTempStatus(groupId);
@@ -304,7 +303,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public List<StreamBriefResponse> getBriefList(String groupId) {
         LOGGER.debug("begin to get inlong stream brief list by groupId={}", groupId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         List<InlongStreamEntity> entityList = streamMapper.selectByGroupId(groupId);
         List<StreamBriefResponse> briefInfoList = CommonBeanUtils
@@ -400,7 +399,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             LOGGER.debug("begin to list full inlong stream page by {}", request);
         }
         Preconditions.checkNotNull(request, "request is empty");
-        Preconditions.checkNotNull(request.getInlongGroupId(), Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         // 1. Query all valid data sources under groupId
         String groupId = request.getInlongGroupId();
@@ -459,7 +458,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public List<InlongStreamTopicResponse> getTopicList(String groupId) {
         LOGGER.debug("begin bo get topic list by group id={}", groupId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         List<InlongStreamTopicResponse> topicList = streamMapper.selectTopicList(groupId);
         LOGGER.debug("success to get topic list by groupId={}", groupId);
@@ -565,7 +564,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         for (InlongStreamFieldEntity entity : list) {
             entity.setInlongGroupId(groupId);
             entity.setInlongStreamId(streamId);
-            entity.setIsDeleted(Constant.UN_DELETED);
         }
         streamFieldMapper.insertAll(list);
     }

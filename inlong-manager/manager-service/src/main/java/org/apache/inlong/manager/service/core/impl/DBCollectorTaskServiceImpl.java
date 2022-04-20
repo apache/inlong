@@ -36,6 +36,7 @@ import java.util.Objects;
 
 @Service
 @Slf4j
+@Deprecated
 public class DBCollectorTaskServiceImpl implements DBCollectorTaskService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DBCollectorTaskServiceImpl.class);

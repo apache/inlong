@@ -21,13 +21,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
 import java.util.List;
 import java.util.Map;
 
 @Data
 @ApiModel("Stream sink configuration")
-public abstract class StreamSink {
+public abstract class StreamSink extends StreamNode {
 
     @ApiModelProperty(value = "DataSink name", required = true)
     private String sinkName;

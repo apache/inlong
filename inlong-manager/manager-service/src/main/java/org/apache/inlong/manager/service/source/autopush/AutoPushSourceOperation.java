@@ -79,7 +79,7 @@ public class AutoPushSourceOperation extends AbstractSourceOperation {
         }
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
-                String.format(SourceType.SOURCE_TYPE_NOT_SAME, getSourceType(), existType));
+                String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
         AutoPushSourceDTO dto = AutoPushSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);

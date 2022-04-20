@@ -42,6 +42,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -174,7 +175,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     public InlongGroupInfo get(String groupId) {
         LOGGER.debug("begin to get inlong group info by groupId={}", groupId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             LOGGER.error("inlong group not found by groupId={}", groupId);
@@ -200,7 +201,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // For approved inlong group, encapsulate the cluster address of the middleware
         if (GroupState.CONFIG_SUCCESSFUL == GroupState.forCode(groupInfo.getStatus())) {
             if (mqType == MQType.TUBE) {
-                groupInfo.setTubeMaster(commonOperateService.getSpecifiedParam(Constant.TUBE_MASTER_URL));
+                groupInfo.setTubeMaster(commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL));
             } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo(mqType.name());
                 groupInfo.setPulsarAdminUrl(pulsarCluster.getAdminUrl());
@@ -253,7 +254,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         LOGGER.debug("begin to update inlong group={}", groupRequest);
         Preconditions.checkNotNull(groupRequest, "inlong group is empty");
         String groupId = groupRequest.getInlongGroupId();
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
@@ -328,7 +329,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             propagation = Propagation.REQUIRES_NEW)
     public boolean updateStatus(String groupId, Integer status, String operator) {
         LOGGER.info("begin to update group status to [{}] by groupId={}, username={}", status, groupId, operator);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupIdForUpdate(groupId);
         if (entity == null) {
             LOGGER.error("inlong group not found by groupId={}", groupId);
@@ -352,7 +353,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     public boolean delete(String groupId, String operator) {
         LOGGER.debug("begin to delete inlong group, groupId={}", groupId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
@@ -401,7 +402,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     public boolean exist(String groupId) {
         LOGGER.debug("begin to check inlong group, groupId={}", groupId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         Integer count = groupMapper.selectIdentifierExist(groupId);
         LOGGER.info("success to check inlong group");
@@ -441,12 +442,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         if (mqType == MQType.TUBE) {
             // Tube Topic corresponds to inlong group one-to-one
             topicVO.setMqResourceObj(groupInfo.getMqResourceObj());
-            topicVO.setTubeMasterUrl(commonOperateService.getSpecifiedParam(Constant.TUBE_MASTER_URL));
+            topicVO.setTubeMasterUrl(commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL));
         } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             // Pulsar's topic corresponds to the inlong stream one-to-one
             topicVO.setDsTopicList(streamService.getTopicList(groupId));
-            topicVO.setPulsarAdminUrl(commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL));
-            topicVO.setPulsarServiceUrl(commonOperateService.getSpecifiedParam(Constant.PULSAR_SERVICEURL));
+            topicVO.setPulsarAdminUrl(commonOperateService.getSpecifiedParam(InlongGroupSettings.PULSAR_ADMIN_URL));
+            topicVO.setPulsarServiceUrl(commonOperateService.getSpecifiedParam(InlongGroupSettings.PULSAR_SERVICE_URL));
         } else {
             LOGGER.error("middleware type={} not supported", mqType);
             throw new BusinessException(ErrorCodeEnum.MIDDLEWARE_TYPE_NOT_SUPPORTED);
@@ -465,7 +466,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // Save the dataSchema, Topic and other information of the inlong group
         Preconditions.checkNotNull(approveInfo, "InlongGroupApproveRequest is empty");
         String groupId = approveInfo.getInlongGroupId();
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         String middlewareType = approveInfo.getMiddlewareType();
         Preconditions.checkNotNull(middlewareType, "Middleware type is empty");
 

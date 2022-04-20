@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.enums;
 /**
  * Operation type
  */
+@Deprecated
 public enum DBCollectorTaskReturnCode {
 
     SUCC(0, "success"),
