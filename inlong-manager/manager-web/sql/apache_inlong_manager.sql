@@ -1108,5 +1108,67 @@ CREATE TABLE `stream_config_log`
   DEFAULT CHARSET = utf8 COMMENT ='stream config log report information table';
 
 -- ----------------------------
+-- Table structure for inlong beat heart
+-- ----------------------------
+DROP TABLE IF EXISTS `component_heartbeat`;
+CREATE TABLE `component_heartbeat`
+(
+    `id`                      int(11)      NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `component`               varchar(64)  NOT NULL DEFAULT '' COMMENT 'component',
+    `instance`                varchar(64)  NOT NULL DEFAULT '' COMMENT 'component identifier ip or id',
+    `status_heartbeat`        text         NOT NULL COMMENT 'component status info',
+    `metric_heartbeat`        text         NOT NULL COMMENT 'component metric info',
+    `report_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'report time',
+    `modify_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `create_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `index_beat_heart` (`component`, `instance`),
+    KEY `index_report_time` (`report_time`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8 COMMENT ='inlong heartbeat';
+
+-- ----------------------------
+-- Table structure for inlong stream status info
+-- ----------------------------
+DROP TABLE IF EXISTS `group_heartbeat`;
+CREATE TABLE `group_heartbeat`
+(
+    `id`                      int(11)      NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `component`               varchar(64)  NOT NULL DEFAULT '' COMMENT 'component',
+    `instance`                varchar(64)  NOT NULL DEFAULT '' COMMENT 'component ip or id',
+    `inlong_group_id`         varchar(256) NOT NULL DEFAULT '' COMMENT 'Inlong group id',
+    `status_heartbeat`        text         NOT NULL COMMENT 'Inlong group status info',
+    `metric_heartbeat`        text         NOT NULL COMMENT 'Inlong group metric info',
+    `report_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'report time',
+    `modify_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `create_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `index_stream_status` (`component`, `instance`, `inlong_group_id`),
+    KEY `index_report_time` (`report_time`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8 COMMENT ='inlong group heartbeat';
+
+-- ----------------------------
+-- Table structure for inlong component static info
+-- ----------------------------
+DROP TABLE IF EXISTS `stream_heartbeat`;
+CREATE TABLE `stream_heartbeat`
+(
+    `id`                      int(11)      NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `component`               varchar(64)  NOT NULL DEFAULT '' COMMENT 'component',
+    `instance`                varchar(64)  NOT NULL DEFAULT '' COMMENT 'component ip or id',
+    `inlong_group_id`         varchar(256) NOT NULL DEFAULT '' COMMENT 'Inlong group id',
+    `inlong_stream_id`        varchar(256) NOT NULL DEFAULT '' COMMENT 'Inlong metric id',
+    `status_heartbeat`        text         NOT NULL COMMENT 'status info',
+    `metric_heartbeat`        text         NOT NULL COMMENT 'static info',
+    `report_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'report time',
+    `modify_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `create_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `index_component_static` (`component`, `instance`, `inlong_group_id`, `inlong_stream_id`),
+    KEY `index_report_time` (`report_time`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8 COMMENT ='inlong stream heartbeat';
+-- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;
