@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.util.Date;
@@ -31,9 +30,8 @@ import java.util.List;
  * Inlong stream info
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong stream info")
-public class InlongStreamInfo extends InlongStreamBaseInfo {
+public class InlongStreamInfo {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
@@ -43,6 +41,12 @@ public class InlongStreamInfo extends InlongStreamBaseInfo {
 
     @ApiModelProperty(value = "Inlong stream description")
     private String description;
+
+    @ApiModelProperty(value = "Inlong group id")
+    private String inlongGroupId;
+
+    @ApiModelProperty(value = "Inlong stream id")
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "MQ resource object, in inlong group",
             notes = "Tube corresponds to Topic, Pulsar corresponds to Namespace")

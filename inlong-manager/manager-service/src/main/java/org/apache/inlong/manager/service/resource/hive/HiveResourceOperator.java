@@ -18,23 +18,26 @@
 package org.apache.inlong.manager.service.resource.hive;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.enums.SinkStatus;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.pojo.query.ColumnInfoBean;
 import org.apache.inlong.manager.common.pojo.query.DatabaseQueryBean;
 import org.apache.inlong.manager.common.pojo.query.hive.HiveColumnQueryBean;
 import org.apache.inlong.manager.common.pojo.query.hive.HiveTableQueryBean;
-import org.apache.inlong.manager.common.pojo.sink.SinkForSortDTO;
+import org.apache.inlong.manager.common.pojo.sink.FullSinkInfo;
 import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkDTO;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.core.DataSourceService;
+import org.apache.inlong.manager.service.resource.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +45,12 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 /**
- * Create hive table operation
+ * Hive resource operator
  */
-public class DefaultHiveTableOperator implements IHiveTableOperator {
+@Service
+public class HiveResourceOperator implements SinkResourceOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHiveTableOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HiveResourceOperator.class);
 
     @Autowired
     private StreamSinkService sinkService;
@@ -55,27 +59,32 @@ public class DefaultHiveTableOperator implements IHiveTableOperator {
     @Autowired
     private DataSourceService<DatabaseQueryBean, HiveTableQueryBean> dataSourceService;
 
+    @Override
+    public Boolean accept(SinkType sinkType) {
+        return SinkType.HIVE == sinkType;
+    }
+
     /**
      * Create hive table according to the groupId and hive config
      */
-    public void createHiveResource(String groupId, List<SinkForSortDTO> configList) {
-        if (CollectionUtils.isEmpty(configList)) {
-            LOGGER.warn("no hive config, skip to create");
+    public void createSinkResource(String groupId, FullSinkInfo sinkInfo) {
+        if (sinkInfo == null) {
+            LOGGER.warn("sink info was null, skip to create resource");
             return;
         }
-        for (SinkForSortDTO config : configList) {
-            if (EntityStatus.SINK_CONFIG_SUCCESSFUL.getCode().equals(config.getStatus())) {
-                LOGGER.warn("hive [" + config.getId() + "] already success, skip to create");
-                continue;
-            } else if (Constant.DISABLE_CREATE_RESOURCE.equals(config.getEnableCreateResource())) {
-                LOGGER.warn("create table was disable, skip to create table for hive [" + config.getId() + "]");
-                continue;
-            }
-            this.createTable(groupId, config);
+
+        if (SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(sinkInfo.getStatus())) {
+            LOGGER.warn("sink resource [" + sinkInfo.getId() + "] already success, skip to create");
+            return;
+        } else if (GlobalConstants.DISABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource())) {
+            LOGGER.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
+            return;
         }
+
+        this.createTable(groupId, sinkInfo);
     }
 
-    private void createTable(String groupId, SinkForSortDTO config) {
+    private void createTable(String groupId, FullSinkInfo config) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("begin create hive table for inlong group={}, config={}", groupId, config);
         }
@@ -102,18 +111,17 @@ public class DefaultHiveTableOperator implements IHiveTableOperator {
                 }
             }
             sinkService.updateStatus(config.getId(),
-                    EntityStatus.SINK_CONFIG_SUCCESSFUL.getCode(), "create hive table success");
+                    SinkStatus.CONFIG_SUCCESSFUL.getCode(), "create hive table success");
         } catch (Throwable e) {
             LOGGER.error("create hive table error, ", e);
-            sinkService.updateStatus(config.getId(),
-                    EntityStatus.SINK_CONFIG_FAILED.getCode(), e.getMessage());
+            sinkService.updateStatus(config.getId(), SinkStatus.CONFIG_FAILED.getCode(), e.getMessage());
             throw new WorkflowException("create hive table failed, reason: " + e.getMessage());
         }
 
         LOGGER.info("success create hive table for data group [" + groupId + "]");
     }
 
-    protected HiveTableQueryBean getTableQueryBean(SinkForSortDTO config, HiveSinkDTO hiveInfo) {
+    protected HiveTableQueryBean getTableQueryBean(FullSinkInfo config, HiveSinkDTO hiveInfo) {
         String groupId = config.getInlongGroupId();
         String streamId = config.getInlongStreamId();
         LOGGER.info("begin to get table query bean for groupId={}, streamId={}", groupId, streamId);

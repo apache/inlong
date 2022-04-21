@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.beans.PageRequest;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel("Inlong stream paging query conditions")
+@ApiModel("Inlong stream paging query request")
 public class InlongStreamPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Inlong group id")

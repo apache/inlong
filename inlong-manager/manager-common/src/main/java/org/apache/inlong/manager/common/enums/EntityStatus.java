@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.common.enums;
 
 import com.google.common.collect.ImmutableSet;
+
 import java.util.Set;
 
 /**
@@ -53,27 +54,7 @@ public enum EntityStatus {
     STREAM_CONFIG_FAILED(120, "configuration failed"),
     STREAM_CONFIG_SUCCESSFUL(130, "configuration successful"),
 
-    // Stream source related status
-    SOURCE_NEW(100, "new"),
-    SOURCE_CONFIG_ING(110, "in configure"),
-    SOURCE_CONFIG_FAILED(120, "configuration failed"),
-    SOURCE_CONFIG_SUCCESSFUL(130, "configuration successful"),
-
-    // Stream sink related status
-    SINK_NEW(100, "new"),
-    SINK_CONFIG_ING(110, "in configure"),
-    SINK_CONFIG_FAILED(120, "configuration failed"),
-    SINK_CONFIG_SUCCESSFUL(130, "configuration successful"),
-
-    // Stream source (or Agent) related status
-    AGENT_DISABLE(99, "disable"),
-    AGENT_NORMAL(101, "normal"),
-    AGENT_FREEZE(102, "stopped"),
-    AGENT_FAILURE(103, "failed"),
-
-    // ADD(0), DEL(1), RETRY(2), BACKTRACK(3), FROZEN(4), ACTIVE(5), CHECK(6), REDOMETRIC(7), MAKEUP(8);
-    AGENT_ADD(200, "wait add"),
-    AGENT_DELETE(201, "wait delete");
+    ;
 
     /**
      * The status of the inlong group that can initiate the approval process:

@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.inlong.manager.common.pojo.sink.FullSinkInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
-import org.apache.inlong.manager.common.pojo.sink.SinkForSortDTO;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.springframework.stereotype.Repository;
@@ -95,13 +95,13 @@ public interface StreamSinkEntityMapper {
     List<String> selectSinkType(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * Select all config for Sort under the group id and stream id.
+     * Select all config for Sort under the group id and stream id
      *
-     * @param groupId Inlong group id.
-     * @param streamId Inlong stream id, if is null, get all configs under the group id.
-     * @return Sort config.
+     * @param groupId inlong group id
+     * @param streamIdList list of the inlong stream id, if is null, get all infos under the group id
+     * @return Sort config
      */
-    List<SinkForSortDTO> selectAllConfig(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    List<FullSinkInfo> selectAllConfig(@Param("groupId") String groupId, @Param("idList") List<String> streamIdList);
 
     int updateByPrimaryKeySelective(StreamSinkEntity record);
 

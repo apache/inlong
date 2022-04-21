@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.mq;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
@@ -40,7 +41,7 @@ public class PulsarEventSelector implements EventSelector {
         MQType mqType = MQType.forType(form.getGroupInfo().getMiddlewareType());
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) form.getGroupInfo().getMqExtInfo();
-            boolean enable = pulsarInfo.getEnableCreateResource() == 1;
+            boolean enable = GlobalConstants.ENABLE_CREATE_RESOURCE.equals(pulsarInfo.getEnableCreateResource());
             if (enable) {
                 log.info("need to create pulsar resource as the createResource was true for groupId [{}]", groupId);
                 return true;

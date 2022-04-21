@@ -44,11 +44,11 @@ import org.apache.inlong.manager.service.mocks.MockDeleteSortListener;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
 import org.apache.inlong.manager.service.mocks.MockRestartSortListener;
 import org.apache.inlong.manager.service.mocks.MockStopSortListener;
-import org.apache.inlong.manager.service.resource.hive.CreateHiveSinkListener;
 import org.apache.inlong.manager.service.mq.CreatePulsarGroupTaskListener;
 import org.apache.inlong.manager.service.mq.CreatePulsarResourceTaskListener;
 import org.apache.inlong.manager.service.mq.CreateTubeGroupTaskListener;
 import org.apache.inlong.manager.service.mq.CreateTubeTopicTaskListener;
+import org.apache.inlong.manager.service.resource.CreateSinkResourceListener;
 import org.apache.inlong.manager.service.sort.PushSortConfigListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.WorkflowEngine;
@@ -135,7 +135,6 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
         form = new GroupResourceProcessForm();
-        form.setInlongStreamId(STREAM_ID);
         form.setGroupInfo(groupInfo);
         return groupInfo;
     }
@@ -189,7 +188,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     public void mockTaskListenerFactory() {
         CreateTubeGroupTaskListener createTubeGroupTaskListener = mock(CreateTubeGroupTaskListener.class);
         when(createTubeGroupTaskListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
-        when(createTubeGroupTaskListener.name()).thenReturn(CreateHiveSinkListener.class.getSimpleName());
+        when(createTubeGroupTaskListener.name()).thenReturn(CreateSinkResourceListener.class.getSimpleName());
         when(createTubeGroupTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
         taskListenerFactory.setCreateTubeGroupTaskListener(createTubeGroupTaskListener);
 
@@ -213,11 +212,11 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         when(createPulsarGroupTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
         taskListenerFactory.setCreatePulsarGroupTaskListener(createPulsarGroupTaskListener);
 
-        CreateHiveSinkListener createHiveSinkListener = mock(CreateHiveSinkListener.class);
-        when(createHiveSinkListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
-        when(createHiveSinkListener.name()).thenReturn(CreateHiveSinkListener.class.getSimpleName());
-        when(createHiveSinkListener.event()).thenReturn(TaskEvent.COMPLETE);
-        taskListenerFactory.setCreateHiveSinkListener(createHiveSinkListener);
+        CreateSinkResourceListener createSinkResourceListener = mock(CreateSinkResourceListener.class);
+        when(createSinkResourceListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
+        when(createSinkResourceListener.name()).thenReturn(CreateSinkResourceListener.class.getSimpleName());
+        when(createSinkResourceListener.event()).thenReturn(TaskEvent.COMPLETE);
+        taskListenerFactory.setCreateSinkResourceListener(createSinkResourceListener);
 
         PushSortConfigListener pushSortConfigListener = mock(PushSortConfigListener.class);
         when(pushSortConfigListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());

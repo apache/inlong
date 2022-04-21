@@ -15,21 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.stream;
-
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+package org.apache.inlong.manager.common.enums;
 
 /**
- * Basic information of inlong stream
+ * Sink status enum
  */
-@Data
-public class InlongStreamBaseInfo {
+public enum SinkStatus {
 
-    @ApiModelProperty(value = "Inlong group id")
-    private String inlongGroupId;
+    DRAFT(0, "draft"),
+    DELETED(10, "deleted"),
 
-    @ApiModelProperty(value = "Inlong stream id")
-    private String inlongStreamId;
+    // Stream sink related status
+    NEW(100, "new"),
+    CONFIG_ING(110, "in configure"),
+    CONFIG_FAILED(120, "configuration failed"),
+    CONFIG_SUCCESSFUL(130, "configuration successful"),
+
+    ;
+
+    private final Integer code;
+    private final String description;
+
+    SinkStatus(Integer code, String description) {
+        this.code = code;
+        this.description = description;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 
 }

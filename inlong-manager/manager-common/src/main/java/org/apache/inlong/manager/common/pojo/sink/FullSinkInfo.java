@@ -21,11 +21,11 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 /**
- * Sink info for Sort
+ * Full sink info - with stream
  */
 @Data
-@ApiModel("Sink info for Sort")
-public class SinkForSortDTO {
+@ApiModel("Full sink info")
+public class FullSinkInfo {
 
     private Integer id;
     private String inlongGroupId;

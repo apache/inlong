@@ -15,14 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.resource.hive;
+package org.apache.inlong.manager.service.resource;
 
-import java.util.List;
-
-import org.apache.inlong.manager.common.pojo.sink.SinkForSortDTO;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.pojo.sink.FullSinkInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
-import org.apache.inlong.manager.service.utils.SpringContextUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
@@ -30,19 +32,22 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Event listener of create hive table for one inlong stream
  */
+@Deprecated
 @Service
 @Slf4j
-public class CreateHiveSinkForStreamListener implements SinkOperateListener {
+public class CreateSinkResourceForStreamListener implements SinkOperateListener {
 
     @Autowired
     private StreamSinkEntityMapper sinkMapper;
-
-    private IHiveTableOperator hiveTableOperator;
+    @Autowired
+    private SinkResourceOperatorFactory resourceOperatorFactory;
 
     @Override
     public TaskEvent event() {
@@ -56,14 +61,28 @@ public class CreateHiveSinkForStreamListener implements SinkOperateListener {
         String streamId = form.getInlongStreamId();
         log.info("begin create hive table for groupId={}, streamId={}", groupId, streamId);
 
-        List<SinkForSortDTO> configList = sinkMapper.selectAllConfig(groupId, streamId);
-        if (hiveTableOperator == null) {
-            hiveTableOperator = (IHiveTableOperator) SpringContextUtils.getBean(IHiveTableOperator.BEAN_NAME,
-                    DefaultHiveTableOperator.class.getName());
+        List<String> streamIdList = new ArrayList<>();
+        List<InlongStreamInfo> streamList = form.getStreamInfoList();
+        if (CollectionUtils.isNotEmpty(streamList)) {
+            streamIdList = streamList.stream().map(InlongStreamInfo::getInlongStreamId).collect(Collectors.toList());
         }
-        hiveTableOperator.createHiveResource(groupId, configList);
+        List<FullSinkInfo> configList = sinkMapper.selectAllConfig(groupId, streamIdList);
+        List<FullSinkInfo> needCreateList = configList.stream()
+                .filter(sinkInfo -> GlobalConstants.ENABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource()))
+                .collect(Collectors.toList());
 
-        String result = "success to create hive table for group [" + groupId + "], stream [" + streamId + "]";
+        if (CollectionUtils.isEmpty(needCreateList)) {
+            String result = "sink resources have been created for group [" + groupId + "] and stream " + streamIdList;
+            log.info(result);
+            return ListenerResult.success(result);
+        }
+
+        for (FullSinkInfo sinkConfig : needCreateList) {
+            String sinkType = sinkConfig.getSinkType();
+            SinkResourceOperator resourceOperator = resourceOperatorFactory.getInstance(SinkType.forType(sinkType));
+            resourceOperator.createSinkResource(groupId, sinkConfig);
+        }
+        String result = "success to create sink resources for group [" + groupId + "] and stream " + streamIdList;
         log.info(result);
         return ListenerResult.success(result);
     }
