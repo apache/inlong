@@ -33,5 +33,6 @@ import java.io.Serializable;
         @JsonSubTypes.Type(value = CanalJsonFormat.class, name = "canalJsonFormat")
 })
 public interface Format extends Serializable {
+
     String getFormat();
 }

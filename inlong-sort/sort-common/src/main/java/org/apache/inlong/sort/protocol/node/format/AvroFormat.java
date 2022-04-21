@@ -29,7 +29,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
  */
 @JsonTypeName("avroFormat")
 @Data
-public class AvroFormat implements Format{
+public class AvroFormat implements Format {
 
     private static final long serialVersionUID = 1L;
 

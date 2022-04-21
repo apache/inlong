@@ -45,7 +45,7 @@ public class CanalJsonFormat implements Format {
     private Boolean encodeDecimalAsPlainNumber;
 
     @JsonCreator
-    public CanalJsonFormat( @JsonProperty(value = "ignoreParseErrors", defaultValue = "true") Boolean ignoreParseErrors,
+    public CanalJsonFormat(@JsonProperty(value = "ignoreParseErrors", defaultValue = "true") Boolean ignoreParseErrors,
             @JsonProperty(value = "timestampFormatStandard", defaultValue = "SQL") String timestampFormatStandard,
             @JsonProperty(value = "mapNullKeyMode", defaultValue = "DROP") String mapNullKeyMode,
             @JsonProperty(value = "mapNullKeyLiteral", defaultValue = "null") String mapNullKeyLiteral,

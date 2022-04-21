@@ -32,7 +32,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 @JsonTypeName("jsonFormat")
 @Data
 @ToString
-public class JsonFormat implements Format{
+public class JsonFormat implements Format {
 
     private static final long serialVersionUID = 1L;
 

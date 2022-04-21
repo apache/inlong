@@ -128,8 +128,8 @@ public class KafkaLoadNode extends LoadNode implements Serializable {
             options.put("canal-json.timestamp-format.standard", canalJsonFormat.getTimestampFormatStandard());
             options.put("canal-json.map-null-key.mode", canalJsonFormat.getMapNullKeyMode());
             options.put("canal-json.map-null-key.literal", canalJsonFormat.getMapNullKeyLiteral());
-            options.put("canal-json.encode.decimal-as-plain-number", canalJsonFormat.getEncodeDecimalAsPlainNumber()
-                    + "");
+            options.put("canal-json.encode.decimal-as-plain-number",
+                    canalJsonFormat.getEncodeDecimalAsPlainNumber() + "");
         } else if (format instanceof DebeziumJsonFormat) {
             DebeziumJsonFormat debeziumJsonFormat = (DebeziumJsonFormat) format;
             options.put("connector", "kafka");
@@ -139,8 +139,8 @@ public class KafkaLoadNode extends LoadNode implements Serializable {
             options.put("debezium-json.timestamp-format.standard", debeziumJsonFormat.getTimestampFormatStandard());
             options.put("debezium-json.map-null-key.mode", debeziumJsonFormat.getMapNullKeyMode());
             options.put("debezium-json.map-null-key.literal", debeziumJsonFormat.getMapNullKeyLiteral());
-            options.put("debezium-json.encode.decimal-as-plain-number", debeziumJsonFormat.getEncodeDecimalAsPlainNumber()
-                    + "");
+            options.put("debezium-json.encode.decimal-as-plain-number",
+                    debeziumJsonFormat.getEncodeDecimalAsPlainNumber() + "");
         } else {
             throw new IllegalArgumentException("kafka load Node format is IllegalArgument");
         }
