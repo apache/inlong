@@ -193,8 +193,8 @@ public class GroupInfoTest {
                 + "\"topic\":\"topic\",\"bootstrapServers\":\"localhost:9092\",\"format\":{\"type\":\"jsonFormat\","
                 + "\"failOnMissingField\":false,\"ignoreParseErrors\":true,\"timestampFormatStandard\":\"SQL\","
                 + "\"mapNullKeyMode\":\"DROP\",\"mapNullKeyLiteral\":\"null\",\"encodeDecimalAsPlainNumber\":true},"
-                + "\"sinkParallelism\":1,\"primaryKey\":\"id\"}],\"relations\":[{\"type\":\"baseRelation\",\"inputs\":[\"1\"],"
-                + "\"outputs\":[\"2\"]}]}]}";
+                + "\"sinkParallelism\":1,\"primaryKey\":\"id\"}],\"relations\":[{\"type\":\"baseRelation\","
+                + "\"inputs\":[\"1\"],\"outputs\":[\"2\"]}]}]}";
         GroupInfo expected = objectMapper.readValue(groupInfoStr, GroupInfo.class);
         assertEquals(expected, groupInfo);
     }
