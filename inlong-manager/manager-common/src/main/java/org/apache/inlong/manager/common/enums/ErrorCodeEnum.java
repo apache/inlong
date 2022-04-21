@@ -41,6 +41,7 @@ public enum ErrorCodeEnum {
             "The current inlong group status does not support modifying the middleware type"),
     GROUP_NAME_UPDATE_NOT_ALLOWED(1012, "The current inlong group status does not support modifying the name"),
     GROUP_INFO_INCONSISTENT(1013, "The inlong group info is inconsistent, please contact the administrator"),
+    GROUP_MODE_UNSUPPORTED(1014, "The current inlong group mode only support light, normal"),
 
     OPT_NOT_ALLOWED_BY_STATUS(1021,
             "The current inlong group status does not allow adding/modifying/deleting related info"),

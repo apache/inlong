@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.source.listener;
 
 import org.apache.inlong.manager.common.enums.GroupState;
-import org.apache.inlong.manager.common.enums.OperateType;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.SourceState;
 import org.apache.inlong.manager.common.enums.SourceType;
@@ -71,7 +71,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
 
         form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
-        form.setOperateType(OperateType.SUSPEND);
+        form.setGroupOperateType(GroupOperateType.SUSPEND);
         WorkflowContext context = workflowEngine.processService()
                 .start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
@@ -100,7 +100,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
 
         form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
-        form.setOperateType(OperateType.RESTART);
+        form.setGroupOperateType(GroupOperateType.RESTART);
         WorkflowContext context = workflowEngine.processService()
                 .start(ProcessName.RESTART_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);

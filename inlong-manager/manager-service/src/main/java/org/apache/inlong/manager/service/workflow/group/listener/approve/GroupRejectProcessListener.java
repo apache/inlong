@@ -15,69 +15,57 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.group.listener;
+package org.apache.inlong.manager.service.workflow.group.listener.approve;
 
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
-import org.apache.inlong.manager.common.pojo.workflow.form.InlongGroupApproveForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
-import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
-import org.apache.inlong.manager.workflow.event.task.TaskEvent;
-import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
+import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
+import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Objects;
-
 /**
- * Approve pass listener for new inlong group
+ * Approve reject listener for new inlong group
  */
 @Slf4j
 @Component
-public class GroupPassTaskListener implements TaskEventListener {
+public class GroupRejectProcessListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
     @Autowired
     private InlongGroupEntityMapper groupMapper;
-    @Autowired
-    private InlongStreamService streamService;
 
     @Override
-    public TaskEvent event() {
-        return TaskEvent.APPROVE;
+    public ProcessEvent event() {
+        return ProcessEvent.REJECT;
     }
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        // Save the data format selected at the time of approval and the cluster information of the inlong stream
-        InlongGroupApproveForm form = (InlongGroupApproveForm) context.getActionContext().getForm();
+        NewGroupProcessForm form = (NewGroupProcessForm) context.getProcessForm();
 
-        InlongGroupApproveRequest approveInfo = form.getGroupApproveInfo();
-        // Only the [Wait approval] status allowed the passing operation
-        String groupId = approveInfo.getInlongGroupId();
+        // Only the [Wait approval] status allowed the rejecting operation
+        String groupId = form.getInlongGroupId();
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             throw new WorkflowListenerException("inlong group not found with group id=" + groupId);
         }
         if (!Objects.equals(GroupState.TO_BE_APPROVAL.getCode(), entity.getStatus())) {
-            throw new WorkflowListenerException("inlong group status is [wait_approval], not allowed to approve again");
+            throw new WorkflowListenerException("current status was not allowed to reject inlong group");
         }
 
-        // Save the inlong group information after approval
-        groupService.updateAfterApprove(approveInfo, context.getApplicant());
-
-        // Save inlong stream information after approval
-        List<InlongStreamApproveRequest> streamApproveInfoList = form.getStreamApproveInfoList();
-        streamService.updateAfterApprove(streamApproveInfoList, context.getApplicant());
+        // After reject, update inlong group status to [GROUP_APPROVE_REJECT]
+        String username = context.getApplicant();
+        groupService.updateStatus(groupId, GroupState.APPROVE_REJECTED.getCode(), username);
         return ListenerResult.success();
     }
 

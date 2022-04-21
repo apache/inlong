@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class UpdateGroupFailedListener implements ProcessEventListener {
+public class GroupUpdateFailedListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;

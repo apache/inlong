@@ -15,60 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.group.listener;
+package org.apache.inlong.manager.service.workflow.group.listener.light;
 
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupState;
-import org.apache.inlong.manager.common.enums.OperateType;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-/**
- * Update listener for inlong group
- */
-@Service
-public class UpdateGroupListener implements ProcessEventListener {
+@Slf4j
+@Component
+public class LightGroupUpdateFailedListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
 
     @Override
     public ProcessEvent event() {
-        return ProcessEvent.CREATE;
+        return ProcessEvent.FAIL;
     }
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
-        UpdateGroupProcessForm form = (UpdateGroupProcessForm) context.getProcessForm();
-        InlongGroupInfo groupInfo = groupService.get(context.getProcessForm().getInlongGroupId());
-        OperateType operateType = form.getOperateType();
-        String username = context.getApplicant();
-        if (groupInfo != null) {
-            switch (operateType) {
-                case SUSPEND:
-                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupState.SUSPENDING.getCode(), username);
-                    break;
-                case RESTART:
-                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupState.RESTARTING.getCode(), username);
-                    break;
-                case DELETE:
-                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupState.DELETING.getCode(), username);
-                    break;
-                default:
-                    break;
-            }
-            form.setGroupInfo(groupInfo);
-        } else {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
-        }
+        LightGroupResourceProcessForm form = (LightGroupResourceProcessForm) context.getProcessForm();
+        InlongGroupInfo groupInfo = form.getGroupInfo();
+        final String groupId = groupInfo.getInlongGroupId();
+        final String applicant = context.getApplicant();
+        // Update inlong group status
+        groupService.updateStatus(groupId, GroupState.CONFIG_FAILED.getCode(), applicant);
+        groupService.update(groupInfo.genRequest(), applicant);
         return ListenerResult.success();
     }
 
@@ -76,5 +57,4 @@ public class UpdateGroupListener implements ProcessEventListener {
     public boolean async() {
         return false;
     }
-
 }

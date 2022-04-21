@@ -15,11 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.common.util;
 
-/**
- * Operate Type for Inlong group
- */
-public enum OperateType {
-    INIT, SUSPEND, RESTART, DELETE
+import com.google.common.collect.Lists;
+import java.util.Map;
+import java.util.function.Function;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class InlongCollectionUtilsTest {
+
+    @Test
+    public void transformToImmutableMap() {
+        Map<String, String> emptyMap =
+                InlongCollectionUtils.transformToImmutableMap(null, Function.identity(), Function.identity());
+        Assert.assertTrue(emptyMap.isEmpty());
+
+        Map<String, Integer> stringIntegerMap =
+                InlongCollectionUtils.transformToImmutableMap(Lists.newArrayList("1", "2", "3"),
+                        Function.identity(), Integer::valueOf);
+        Assert.assertEquals(1, (int) stringIntegerMap.get("1"));
+
+    }
 }

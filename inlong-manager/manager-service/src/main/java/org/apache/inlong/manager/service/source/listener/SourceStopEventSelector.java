@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.source.listener;
 
-import org.apache.inlong.manager.common.enums.OperateType;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -32,6 +32,6 @@ public class SourceStopEventSelector implements EventSelector {
             return false;
         }
         UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
-        return updateGroupProcessForm.getOperateType() == OperateType.SUSPEND;
+        return updateGroupProcessForm.getGroupOperateType() == GroupOperateType.SUSPEND;
     }
 }

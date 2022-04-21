@@ -19,9 +19,17 @@ package org.apache.inlong.manager.common.settings;
 
 public class InlongGroupSettings {
 
+    /**
+     * config of group
+     */
     public static final String DATA_FLOW_GROUP_ID_KEY = "inlong.group.id";
 
     public static final String DATA_FLOW = "dataFlow";
+
+    /**
+     * Refer to{@link org.apache.inlong.manager.common.enums.GroupMode#getMode}
+     */
+    public static final String GROUP_MODE = "group.mode";
 
     /**
      * config of pulsar

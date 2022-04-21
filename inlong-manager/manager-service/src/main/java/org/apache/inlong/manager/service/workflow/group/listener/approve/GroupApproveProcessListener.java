@@ -15,17 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.group.listener;
+package org.apache.inlong.manager.service.workflow.group.listener.approve;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GroupMode;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
-import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -42,15 +44,14 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class StartCreateGroupProcessListener implements ProcessEventListener {
+public class GroupApproveProcessListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
     @Autowired
     private WorkflowService workflowService;
-
     @Autowired
-    private InlongStreamEntityMapper streamMapper;
+    private InlongStreamService streamService;
 
     @Override
     public ProcessEvent event() {
@@ -63,17 +64,41 @@ public class StartCreateGroupProcessListener implements ProcessEventListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         NewGroupProcessForm form = (NewGroupProcessForm) context.getProcessForm();
-        //todo if light weight
         String groupId = form.getInlongGroupId();
-        GroupResourceProcessForm processForm = new GroupResourceProcessForm();
-        processForm.setGroupInfo(groupService.get(groupId));
-        String username = context.getApplicant();
-        List<InlongStreamEntity> inlongStreamEntityList = streamMapper.selectByGroupId(groupId);
-        List<InlongStreamInfo> streamList = CommonBeanUtils.copyListProperties(inlongStreamEntityList,
-                InlongStreamInfo::new);
-        processForm.setInlongStreamInfoList(streamList);
-        workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm);
+        InlongGroupInfo groupInfo = groupService.get(groupId);
+        GroupMode mode = GroupMode.parseGroupMode(groupInfo);
+        switch (mode) {
+            case NORMAL:
+                createGroupResource(context, groupInfo);
+                break;
+            case LIGHT:
+                createLightGroupResource(context, groupInfo);
+                break;
+            default:
+                throw new WorkflowListenerException(ErrorCodeEnum.GROUP_MODE_UNSUPPORTED.getMessage());
+        }
+
         return ListenerResult.success();
+    }
+
+    private void createGroupResource(WorkflowContext context, InlongGroupInfo groupInfo) {
+        GroupResourceProcessForm processForm = new GroupResourceProcessForm();
+        processForm.setGroupInfo(groupInfo);
+        String username = context.getApplicant();
+        String groupId = groupInfo.getInlongGroupId();
+        List<InlongStreamInfo> streamList = streamService.list(groupId);
+        processForm.setStreamInfos(streamList);
+        workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm);
+    }
+
+    private void createLightGroupResource(WorkflowContext context, InlongGroupInfo groupInfo) {
+        LightGroupResourceProcessForm processForm = new LightGroupResourceProcessForm();
+        processForm.setGroupInfo(groupInfo);
+        String username = context.getApplicant();
+        String groupId = groupInfo.getInlongGroupId();
+        List<InlongStreamInfo> streamList = streamService.list(groupId);
+        processForm.setStreamInfos(streamList);
+        workflowService.start(ProcessName.CREATE_LIGHT_GROUP_PROCESS, username, processForm);
     }
 
     @Override

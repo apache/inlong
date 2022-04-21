@@ -22,7 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.inlong.manager.common.enums.OperateType;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -72,8 +72,8 @@ public class CreateSortConfigListener implements SortOperateListener {
         ProcessForm form = context.getProcessForm();
         if (form instanceof UpdateGroupProcessForm) {
             UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) form;
-            OperateType operateType = updateGroupProcessForm.getOperateType();
-            if (operateType == OperateType.SUSPEND || operateType == OperateType.DELETE) {
+            GroupOperateType groupOperateType = updateGroupProcessForm.getGroupOperateType();
+            if (groupOperateType == GroupOperateType.SUSPEND || groupOperateType == GroupOperateType.DELETE) {
                 return ListenerResult.success();
             }
         }

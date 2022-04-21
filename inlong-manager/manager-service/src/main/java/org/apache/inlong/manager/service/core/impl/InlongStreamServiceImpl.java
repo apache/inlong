@@ -61,7 +61,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -136,6 +138,25 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         LOGGER.info("success to get inlong stream for groupId={}", groupId);
         return response;
+    }
+
+    @Override
+    public List<InlongStreamInfo> list(String groupId) {
+        LOGGER.debug("begin to list inlong streams by groupId={}", groupId);
+        List<InlongStreamEntity> inlongStreamEntityList = streamMapper.selectByGroupId(groupId);
+        List<InlongStreamInfo> streamList = CommonBeanUtils.copyListProperties(inlongStreamEntityList,
+                InlongStreamInfo::new);
+        List<InlongStreamFieldInfo> streamFields = this.getStreamFields(groupId, null);
+        Map<String, List<InlongStreamFieldInfo>> streamFieldMap = streamFields.stream().collect(
+                Collectors.groupingBy(InlongStreamFieldInfo::getInlongStreamId,
+                        HashMap::new,
+                        Collectors.toCollection(ArrayList::new)));
+        streamList.stream().forEach(streamInfo -> {
+            String streamId = streamInfo.getInlongStreamId();
+            List<InlongStreamFieldInfo> fieldInfos = streamFieldMap.get(streamId);
+            streamInfo.setFieldList(fieldInfos);
+        });
+        return streamList;
     }
 
     @Override

@@ -30,7 +30,7 @@ public enum ProcessName {
     /**
      * Startup inlong group application process
      */
-    STARTUP_GROUP_PROCESS("Startup-Group"),
+    CREATE_GROUP_RESOURCE("Group-Resource"),
 
     /**
      * Suspend inlong group application process
@@ -50,32 +50,27 @@ public enum ProcessName {
     /**
      * Startup lightweight inlong group application process
      */
-    STARTUP_LIGHTWEIGHT_GROUP_PROCESS("Startup-Lightweight-Group"),
+    CREATE_LIGHT_GROUP_PROCESS("Create-Light-Group"),
 
     /**
      * Suspend lightweight inlong group application process
      */
-    SUSPEND_LIGHTWEIGHT_GROUP_PROCESS("Suspend-Lightweight-Group"),
+    SUSPEND_LIGHT_GROUP_PROCESS("Suspend-Light-Group"),
 
     /**
      * Restart lightweight inlong group application process
      */
-    RESTART_LIGHTWEIGHT_GROUP_PROCESS("Restart-Lightweight-Group"),
+    RESTART_LIGHT_GROUP_PROCESS("Restart-Light-Group"),
 
     /**
      * Delete lightweight inlong group application process
      */
-    DELETE_LIGHTWEIGHT_GROUP_PROCESS("Delete-Lightweight-Group"),
+    DELETE_LIGHT_GROUP_PROCESS("Delete-Light-Group"),
 
     /**
      * New consumption application process
      */
     NEW_CONSUMPTION_PROCESS("New-Consumption"),
-
-    /**
-     * New inlong group resource creation
-     */
-    CREATE_GROUP_RESOURCE("Group-Resource"),
 
     /**
      * Single inlong stream resource creation

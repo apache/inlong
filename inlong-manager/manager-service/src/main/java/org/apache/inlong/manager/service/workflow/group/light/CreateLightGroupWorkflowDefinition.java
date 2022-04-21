@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.group;
+package org.apache.inlong.manager.service.workflow.group.light;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateCompleteListener;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateFailedListener;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateListener;
+import org.apache.inlong.manager.service.workflow.group.listener.light.LightGroupCompleteListener;
+import org.apache.inlong.manager.service.workflow.group.listener.light.LightGroupFailedListener;
+import org.apache.inlong.manager.service.workflow.group.listener.light.LightGroupInitListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -34,21 +34,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Restart inlong group process definition
+ * Create light inlong group definition
  */
 @Slf4j
 @Component
-public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
+public class CreateLightGroupWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
-    private GroupUpdateListener groupUpdateListener;
-
+    private LightGroupInitListener lightGroupInitListener;
     @Autowired
-    private GroupUpdateCompleteListener groupUpdateCompleteListener;
-
+    private LightGroupCompleteListener lightGroupCompleteListener;
     @Autowired
-    private GroupUpdateFailedListener groupUpdateFailedListener;
-
+    private LightGroupFailedListener lightGroupFailedListener;
     @Autowired
     private ServiceTaskListenerFactory serviceTaskListenerFactory;
 
@@ -56,13 +53,14 @@ public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
     public WorkflowProcess defineProcess() {
         // Configuration process
         WorkflowProcess process = new WorkflowProcess();
-        process.addListener(groupUpdateListener);
-        process.addListener(groupUpdateCompleteListener);
-        process.addListener(groupUpdateFailedListener);
-        process.setType("Group Resource Restart");
+        process.addListener(lightGroupInitListener);
+        process.addListener(lightGroupCompleteListener);
+        process.addListener(lightGroupFailedListener);
+
+        process.setType("Group Resource Creation");
         process.setName(getProcessName().name());
         process.setDisplayName(getProcessName().getDisplayName());
-        process.setFormClass(UpdateGroupProcessForm.class);
+        process.setFormClass(LightGroupResourceProcessForm.class);
         process.setVersion(1);
         process.setHidden(1);
 
@@ -70,36 +68,26 @@ public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
         StartEvent startEvent = new StartEvent();
         process.setStartEvent(startEvent);
 
-        //restart sort
-        ServiceTask restartSortTask = new ServiceTask();
-        restartSortTask.setName("restartSort");
-        restartSortTask.setDisplayName("Group-RestartSort");
-        restartSortTask.addServiceTaskType(ServiceTaskType.RESTART_SORT);
-        restartSortTask.addListenerProvider(serviceTaskListenerFactory);
-        process.addTask(restartSortTask);
-
-        //restart datasource
-        ServiceTask restartDataSourceTask = new ServiceTask();
-        restartDataSourceTask.setName("restartSource");
-        restartDataSourceTask.setDisplayName("Group-RestartSource");
-        restartDataSourceTask.addServiceTaskType(ServiceTaskType.RESTART_SOURCE);
-        restartDataSourceTask.addListenerProvider(serviceTaskListenerFactory);
-        process.addTask(restartDataSourceTask);
+        // init Sort resource
+        ServiceTask initSortResourceTask = new ServiceTask();
+        initSortResourceTask.setName("initSort");
+        initSortResourceTask.setDisplayName("Group-InitSort");
+        initSortResourceTask.addServiceTaskType(ServiceTaskType.INIT_SORT);
+        initSortResourceTask.addListenerProvider(serviceTaskListenerFactory);
+        process.addTask(initSortResourceTask);
 
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
-        startEvent.addNext(restartSortTask);
-        restartSortTask.addNext(restartDataSourceTask);
-        restartDataSourceTask.addNext(endEvent);
+        startEvent.addNext(initSortResourceTask);
+        initSortResourceTask.addNext(endEvent);
 
         return process;
     }
 
     @Override
     public ProcessName getProcessName() {
-        return ProcessName.RESTART_GROUP_PROCESS;
+        return ProcessName.CREATE_LIGHT_GROUP_PROCESS;
     }
-
 }

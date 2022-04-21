@@ -19,7 +19,7 @@ package org.apache.inlong.manager.plugin.eventselect;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.OperateType;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -39,7 +39,7 @@ public class SuspendProcessSelector implements EventSelector {
         }
 
         UpdateGroupProcessForm updateProcessForm = (UpdateGroupProcessForm) processForm;
-        boolean flag = updateProcessForm.getOperateType() == OperateType.SUSPEND;
+        boolean flag = updateProcessForm.getGroupOperateType() == GroupOperateType.SUSPEND;
         if (!flag) {
             log.info("not add suspendProcess listener as the operate was not SUSPEND for groupId [{}]", groupId);
             return false;

@@ -17,41 +17,35 @@
 
 package org.apache.inlong.manager.common.pojo.workflow.form;
 
-import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * Form of create inlong group resource
+ * Form of create lightweight inlong group resource
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class GroupResourceProcessForm extends BaseProcessForm {
+public class LightGroupResourceProcessForm extends BaseProcessForm {
 
-    public static final String FORM_NAME = "GroupResourceProcessForm";
+    public static final String FORM_NAME = "LightGroupResourceProcessForm";
 
     private InlongGroupInfo groupInfo;
 
-    private String streamId;
-
     private List<InlongStreamInfo> streamInfos;
 
-    public InlongGroupInfo getGroupInfo() {
-        return groupInfo;
-    }
-
-    public void setGroupInfo(InlongGroupInfo groupInfo) {
-        this.groupInfo = groupInfo;
-    }
+    private GroupOperateType groupOperateType = GroupOperateType.INIT;
 
     @Override
     public void validate() throws FormValidateException {
+        Preconditions.checkNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
     }
 
     @Override
@@ -62,20 +56,5 @@ public class GroupResourceProcessForm extends BaseProcessForm {
     @Override
     public String getInlongGroupId() {
         return groupInfo.getInlongGroupId();
-    }
-
-    public String getInlongStreamId() {
-        return streamId;
-    }
-
-    public void setInlongStreamId(String streamId) {
-        this.streamId = streamId;
-    }
-
-    @Override
-    public Map<String, Object> showInList() {
-        Map<String, Object> show = Maps.newHashMap();
-        show.put("inlongGroupId", groupInfo.getInlongGroupId());
-        return show;
     }
 }

@@ -34,6 +34,7 @@ import org.apache.inlong.manager.client.api.auth.Authentication;
 import org.apache.inlong.manager.client.api.auth.Authentication.AuthType;
 import org.apache.inlong.manager.client.api.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.client.api.auth.TokenAuthentication;
+import org.apache.inlong.manager.common.enums.GroupMode;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -49,18 +50,33 @@ import java.util.Map;
 
 public class InlongGroupTransfer {
 
-    public static InlongGroupConf parseGroupResponse(InlongGroupResponse groupResponse) {
+    public static InlongGroupConf parseGroupResponse(InlongGroupResponse inlongGroupResponse) {
         InlongGroupConf inlongGroupConf = new InlongGroupConf();
-        inlongGroupConf.setGroupName(groupResponse.getName());
-        inlongGroupConf.setDescription(groupResponse.getDescription());
-        inlongGroupConf.setCnName(groupResponse.getCnName());
-        inlongGroupConf.setZookeeperEnabled(groupResponse.getZookeeperEnabled() == 1);
-        inlongGroupConf.setDailyRecords(Long.valueOf(groupResponse.getDailyRecords()));
-        inlongGroupConf.setPeakRecords(Long.valueOf(groupResponse.getPeakRecords()));
-        inlongGroupConf.setMqBaseConf(parseMqBaseConf(groupResponse));
-        inlongGroupConf.setSortBaseConf(parseSortBaseConf(groupResponse));
-        inlongGroupConf.setProxyClusterId(groupResponse.getProxyClusterId());
+        inlongGroupConf.setGroupName(inlongGroupResponse.getName());
+        inlongGroupConf.setDescription(inlongGroupResponse.getDescription());
+        inlongGroupConf.setCnName(inlongGroupResponse.getCnName());
+        inlongGroupConf.setLightWeight(isLightGroup(inlongGroupResponse));
+        inlongGroupConf.setZookeeperEnabled(inlongGroupResponse.getZookeeperEnabled() == 1);
+        inlongGroupConf.setDailyRecords(Long.valueOf(inlongGroupResponse.getDailyRecords()));
+        inlongGroupConf.setPeakRecords(Long.valueOf(inlongGroupResponse.getPeakRecords()));
+        inlongGroupConf.setMqBaseConf(parseMqBaseConf(inlongGroupResponse));
+        inlongGroupConf.setSortBaseConf(parseSortBaseConf(inlongGroupResponse));
+        inlongGroupConf.setProxyClusterId(inlongGroupResponse.getProxyClusterId());
         return inlongGroupConf;
+    }
+
+    public static boolean isLightGroup(InlongGroupResponse inlongGroupResponse) {
+        List<InlongGroupExtInfo> extInfos = inlongGroupResponse.getExtList();
+        if (CollectionUtils.isEmpty(extInfos)) {
+            return false;
+        }
+        for (InlongGroupExtInfo extInfo : extInfos) {
+            if (InlongGroupSettings.GROUP_MODE.equals(extInfo.getKeyName())){
+                GroupMode mode = GroupMode.forMode(extInfo.getKeyValue());
+                return mode == GroupMode.LIGHT;
+            }
+        }
+        return false;
     }
 
     public static MQBaseConf parseMqBaseConf(InlongGroupResponse inlongGroupResponse) {
@@ -206,6 +222,7 @@ public class InlongGroupTransfer {
         groupInfo.setInCharges(groupConf.getOperator());
         groupInfo.setExtList(Lists.newArrayList());
         groupInfo.setCreator(groupConf.getOperator());
+        setGroupMode(groupConf, groupInfo);
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             PulsarBaseConf pulsarBaseConf = (PulsarBaseConf) mqConf;
             groupInfo.setMqResourceObj(pulsarBaseConf.getNamespace());
@@ -235,6 +252,19 @@ public class InlongGroupTransfer {
             //todo local
         }
         return groupInfo;
+    }
+
+    public static void setGroupMode(InlongGroupConf inlongGroupConf, InlongGroupInfo inlongGroupInfo) {
+        String inlongGroupId = inlongGroupInfo.getInlongGroupId();
+        InlongGroupExtInfo modeInfo = new InlongGroupExtInfo();
+        modeInfo.setInlongGroupId(inlongGroupId);
+        modeInfo.setKeyName(InlongGroupSettings.GROUP_MODE);
+        if (inlongGroupConf.isLightWeight()) {
+            modeInfo.setKeyValue(GroupMode.LIGHT.getMode());
+        } else {
+            modeInfo.setKeyValue(GroupMode.NORMAL.getMode());
+        }
+        inlongGroupInfo.getExtList().add(modeInfo);
     }
 
     public static InlongGroupPulsarInfo createPulsarInfo(PulsarBaseConf pulsarBaseConf) {

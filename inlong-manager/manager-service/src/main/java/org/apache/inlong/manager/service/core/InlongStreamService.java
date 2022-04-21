@@ -57,6 +57,14 @@ public interface InlongStreamService {
     InlongStreamInfo get(String groupId, String streamId);
 
     /**
+     * List streams contained in one group
+     *
+     * @param groupId
+     * @return
+     */
+    List<InlongStreamInfo> list(String groupId);
+
+    /**
      * Query whether the inlong stream ID exists
      *
      * @param groupId inlong group id
