@@ -34,6 +34,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 @ToString
 public class JsonFormat implements Format{
 
+    private static final long serialVersionUID = 1L;
+
     @JsonProperty(value = "failOnMissingField", defaultValue = "false")
     private Boolean failOnMissingField;
     @JsonProperty(value = "ignoreParseErrors", defaultValue = "true")

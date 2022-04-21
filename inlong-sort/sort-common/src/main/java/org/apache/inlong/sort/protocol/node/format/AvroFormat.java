@@ -31,6 +31,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 @Data
 public class AvroFormat implements Format{
 
+    private static final long serialVersionUID = 1L;
 
     @JsonProperty(value = "codec")
     private String codec;

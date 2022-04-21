@@ -31,6 +31,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 @Data
 public class CanalJsonFormat implements Format {
 
+    private static final long serialVersionUID = 1L;
+
     @JsonProperty(value = "ignoreParseErrors", defaultValue = "true")
     private Boolean ignoreParseErrors;
     @JsonProperty(value = "timestampFormatStandard", defaultValue = "SQL")

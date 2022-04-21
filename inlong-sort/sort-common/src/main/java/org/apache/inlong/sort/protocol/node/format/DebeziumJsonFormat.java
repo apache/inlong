@@ -31,6 +31,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 @Data
 public class DebeziumJsonFormat implements Format {
 
+    private static final long serialVersionUID = 1L;
+
     @JsonProperty(value = "schemaInclude", defaultValue = "false")
     private Boolean schemaInclude;
     @JsonProperty(value = "ignoreParseErrors", defaultValue = "true")

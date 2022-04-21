@@ -20,6 +20,8 @@ package org.apache.inlong.sort.protocol.node.format;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.io.Serializable;
+
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
@@ -30,6 +32,6 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
         @JsonSubTypes.Type(value = DebeziumJsonFormat.class, name = "debeziumJsonFormat"),
         @JsonSubTypes.Type(value = CanalJsonFormat.class, name = "canalJsonFormat")
 })
-public interface Format {
+public interface Format extends Serializable {
     String getFormat();
 }
