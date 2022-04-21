@@ -27,6 +27,9 @@ import org.apache.inlong.manager.service.CommonOperateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * TUBE MQ middleware implementation.
+ */
 @Component
 @Slf4j
 public class InlongTubeMqMiddleware implements InlongMqMiddleware {

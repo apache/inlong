@@ -36,6 +36,9 @@ import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * Pulsar MQ middleware implementation.
+ */
 @Component
 @Slf4j
 public class InlongPulsarMqMiddleware implements InlongMqMiddleware {

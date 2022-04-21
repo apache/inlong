@@ -20,6 +20,9 @@ package org.apache.inlong.manager.service.core.mq;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.springframework.stereotype.Component;
 
+/**
+ * TDMQ_Pulsar MQ middleware implementation.
+ */
 @Component
 public class InlongTDMQPulsarMqMiddleware extends InlongPulsarMqMiddleware {
 

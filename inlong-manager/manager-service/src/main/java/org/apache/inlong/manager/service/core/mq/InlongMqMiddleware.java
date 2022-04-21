@@ -22,6 +22,9 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupMqExtBase;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
 
+/**
+ * Message queue middleware interface.
+ */
 public interface InlongMqMiddleware {
 
     /**
