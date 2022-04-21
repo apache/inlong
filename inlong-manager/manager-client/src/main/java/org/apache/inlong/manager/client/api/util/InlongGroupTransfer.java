@@ -71,7 +71,7 @@ public class InlongGroupTransfer {
             return false;
         }
         for (InlongGroupExtInfo extInfo : extInfos) {
-            if (InlongGroupSettings.GROUP_MODE.equals(extInfo.getKeyName())){
+            if (InlongGroupSettings.GROUP_MODE.equals(extInfo.getKeyName())) {
                 GroupMode mode = GroupMode.forMode(extInfo.getKeyValue());
                 return mode == GroupMode.LIGHT;
             }

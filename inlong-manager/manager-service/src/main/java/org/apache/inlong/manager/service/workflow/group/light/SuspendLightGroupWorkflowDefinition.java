@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.workflow.group.light;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
@@ -30,8 +31,10 @@ import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-
+@Slf4j
+@Component
 public class SuspendLightGroupWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
