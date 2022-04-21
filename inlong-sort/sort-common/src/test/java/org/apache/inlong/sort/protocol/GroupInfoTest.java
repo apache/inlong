@@ -74,8 +74,8 @@ public class GroupInfoTest {
                         new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
-        return new KafkaLoadNode("2", "kafka_output", fields, relations, null
-                , "topic", "localhost:9092", "json",
+        return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
+                "topic", "localhost:9092", "json",
                 1, null);
     }
 
@@ -103,12 +103,14 @@ public class GroupInfoTest {
                         + "\"formatInfo\":{\"type\":\"float\"}},{\"type\":\"base\",\"name\":\"ts\","
                         + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}}],"
                         + "\"watermarkField\":{\"type\":\"watermark\",\"timeAttr\":{\"type\":\"base\","
-                        + "\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}},"
-                        + "\"interval\":{\"type\":\"constant\",\"value\":\"1\"},\"timeUnit\":{\"type\":\"timeUnitConstant\","
-                        + "\"timeUnit\":\"MINUTE\",\"value\":\"MINUTE\"}},\"primaryKey\":\"id\",\"tableNames\":[\"table\"],"
-                        + "\"hostname\":\"localhost\",\"username\":\"username\",\"password\":\"username\","
-                        + "\"database\":\"test_database\",\"port\":3306,\"serverId\":123,\"incrementalSnapshotEnabled\":true},"
-                        + "{\"type\":\"kafkaLoad\",\"id\":\"2\",\"name\":\"kafka_output\",\"fields\":[{\"type\":\"base\","
+                        + "\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\","
+                        + "\"format\":\"yyyy-MM-dd HH:mm:ss\"}},\"interval\":{\"type\":\"constant\","
+                        + "\"value\":\"1\"},\"timeUnit\":{\"type\":\"timeUnitConstant\","
+                        + "\"timeUnit\":\"MINUTE\",\"value\":\"MINUTE\"}},\"primaryKey\":\"id\","
+                        + "\"tableNames\":[\"table\"],\"hostname\":\"localhost\",\"username\":\"username\","
+                        + "\"password\":\"username\",\"database\":\"test_database\",\"port\":3306,"
+                        + "\"serverId\":123,\"incrementalSnapshotEnabled\":true},{\"type\":\"kafkaLoad\","
+                        + "\"id\":\"2\",\"name\":\"kafka_output\",\"fields\":[{\"type\":\"base\","
                         + "\"name\":\"id\",\"formatInfo\":{\"type\":\"long\"}},{\"type\":\"base\",\"name\":\"name\","
                         + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"age\","
                         + "\"formatInfo\":{\"type\":\"int\"}},{\"type\":\"base\",\"name\":\"salary\","

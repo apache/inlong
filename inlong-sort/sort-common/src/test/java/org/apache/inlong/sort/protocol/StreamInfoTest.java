@@ -74,8 +74,8 @@ public class StreamInfoTest {
                         new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
-        return new KafkaLoadNode("2", "kafka_output", fields, relations, null
-                , "topic", "localhost:9092", "json",
+        return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
+                "topic", "localhost:9092", "json",
                 1, null);
     }
 
