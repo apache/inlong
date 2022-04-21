@@ -25,7 +25,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
 /**
  * Message queue middleware interface.
  */
-public interface InlongMqMiddleware {
+public interface Middleware {
 
     /**
      * Geting inlong group mq type.
@@ -39,7 +39,7 @@ public interface InlongMqMiddleware {
      *
      * @return groupId
      */
-    int saveMqInfo(InlongGroupMqExtBase mqExtBaseInfo);
+    int save(InlongGroupMqExtBase mqExtBaseInfo);
 
     /**
      * Getting MQ information by group identifier.
@@ -50,7 +50,7 @@ public interface InlongMqMiddleware {
     InlongGroupMqExtBase get(String groupId);
 
     /**
-     * Updating mq info.
+     * Updating inlong group mq info.
      *
      * @param mqExtBaseInfo mqExt info
      */
@@ -70,7 +70,7 @@ public interface InlongMqMiddleware {
      * @param groupInfo group info
      * @return result group info.
      */
-    InlongGroupInfo packMqSpecificInfo(InlongGroupInfo groupInfo);
+    InlongGroupInfo packSpecificInfo(InlongGroupInfo groupInfo);
 
     /**
      * Deleting middleware info

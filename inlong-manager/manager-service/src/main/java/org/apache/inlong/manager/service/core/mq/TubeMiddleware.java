@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class InlongTubeMqMiddleware implements InlongMqMiddleware {
+public class TubeMiddleware implements Middleware {
 
     @Autowired
     private CommonOperateService commonOperateService;
@@ -43,7 +43,7 @@ public class InlongTubeMqMiddleware implements InlongMqMiddleware {
     }
 
     @Override
-    public int saveMqInfo(InlongGroupMqExtBase mqExtBaseInfo) {
+    public int save(InlongGroupMqExtBase mqExtBaseInfo) {
         log.error("There is no implementation about this mq type:{}", type());
         return -1;
     }
@@ -71,7 +71,7 @@ public class InlongTubeMqMiddleware implements InlongMqMiddleware {
     }
 
     @Override
-    public InlongGroupInfo packMqSpecificInfo(InlongGroupInfo groupInfo) {
+    public InlongGroupInfo packSpecificInfo(InlongGroupInfo groupInfo) {
         log.debug("begin to packing specific information about tube mq middleware.");
         groupInfo.setTubeMaster(commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL));
         return groupInfo;
@@ -82,4 +82,5 @@ public class InlongTubeMqMiddleware implements InlongMqMiddleware {
         log.error("There is no implementation about this mq type:{}", type());
         return -1;
     }
+    
 }

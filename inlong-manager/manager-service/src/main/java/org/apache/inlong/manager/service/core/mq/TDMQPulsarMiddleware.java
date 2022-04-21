@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
  * TDMQ_Pulsar MQ middleware implementation.
  */
 @Component
-public class InlongTDMQPulsarMqMiddleware extends InlongPulsarMqMiddleware {
+public class TDMQPulsarMiddleware extends PulsarMiddleware {
 
     @Override
     public MQType type() {

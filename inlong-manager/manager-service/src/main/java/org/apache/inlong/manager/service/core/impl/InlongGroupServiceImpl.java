@@ -51,8 +51,8 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
-import org.apache.inlong.manager.service.core.mq.InlongGroupMqFactory;
-import org.apache.inlong.manager.service.core.mq.InlongMqMiddleware;
+import org.apache.inlong.manager.service.core.mq.Middleware;
+import org.apache.inlong.manager.service.core.mq.MiddlewareFactory;
 import org.apache.inlong.manager.service.source.SourceOperationFactory;
 import org.apache.inlong.manager.service.source.StreamSourceOperation;
 import org.slf4j.Logger;
@@ -89,7 +89,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Autowired
     private InlongStreamService streamService;
     @Autowired
-    private InlongGroupMqFactory groupMqFactory;
+    private MiddlewareFactory groupMqFactory;
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -129,14 +129,14 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         groupMapper.insertSelective(entity);
         this.saveOrUpdateExt(groupId, groupInfo.getExtList());
 
-        InlongMqMiddleware mqMiddleware = groupMqFactory.getMqMiddleware(MQType.forType(groupInfo.getMiddlewareType()));
+        Middleware mqMiddleware = groupMqFactory.getMqMiddleware(MQType.forType(groupInfo.getMiddlewareType()));
 
         if (StringUtils.isBlank(groupInfo.getMqExtInfo().getInlongGroupId())) {
             groupInfo.getMqExtInfo().setInlongGroupId(groupId);
         }
 
         // Saving MQ information.
-        mqMiddleware.saveMqInfo(groupInfo.getMqExtInfo());
+        mqMiddleware.save(groupInfo.getMqExtInfo());
         LOGGER.debug("success to save inlong group info for groupId={}", groupId);
         return groupId;
     }
@@ -159,12 +159,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // If the middleware is Pulsar, we need to encapsulate Pulsar related data
         MQType mqType = MQType.forType(entity.getMiddlewareType());
-        InlongMqMiddleware mq = groupMqFactory.getMqMiddleware(mqType);
+        Middleware mq = groupMqFactory.getMqMiddleware(mqType);
         groupInfo.setMqExtInfo(mq.get(groupId));
 
         // For approved inlong group, encapsulate the cluster address of the middleware
         if (GroupState.CONFIG_SUCCESSFUL == GroupState.forCode(groupInfo.getStatus())) {
-            groupInfo = mq.packMqSpecificInfo(groupInfo);
+            groupInfo = mq.packSpecificInfo(groupInfo);
         }
         LOGGER.debug("success to get inlong group for groupId={}", groupId);
         return groupInfo;
@@ -231,7 +231,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // Update the MQ info
         MQType mqType = MQType.forType(groupRequest.getMiddlewareType());
-        InlongMqMiddleware mqMiddleware = groupMqFactory.getMqMiddleware(mqType);
+        Middleware mqMiddleware = groupMqFactory.getMqMiddleware(mqType);
         InlongGroupMqExtBase mqExtInfo = groupRequest.getMqExtInfo();
         if (StringUtils.isBlank(mqExtInfo.getInlongGroupId())) {
             mqExtInfo.setInlongGroupId(groupId);
@@ -381,7 +381,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         LOGGER.debug("begin to get topic by groupId={}", groupId);
         InlongGroupInfo groupInfo = this.get(groupId);
         MQType mqType = MQType.forType(groupInfo.getMiddlewareType());
-        InlongMqMiddleware mqMiddleware = groupMqFactory.getMqMiddleware(mqType);
+        Middleware mqMiddleware = groupMqFactory.getMqMiddleware(mqType);
         return mqMiddleware.getTopic(groupInfo);
     }
 

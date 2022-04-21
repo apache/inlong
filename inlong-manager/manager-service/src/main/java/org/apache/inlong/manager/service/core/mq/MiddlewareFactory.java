@@ -30,10 +30,10 @@ import java.util.Objects;
  * Message queue middleware factory.
  */
 @Service
-public class InlongGroupMqFactory {
+public class MiddlewareFactory {
 
     @Autowired
-    private List<InlongMqMiddleware> inlongMqMiddlewares;
+    private List<Middleware> middlewares;
 
     /**
      * Getting InLong Group Mq middle ware implementation.
@@ -41,8 +41,8 @@ public class InlongGroupMqFactory {
      * @param type MQ TYPE.
      * @return
      */
-    public InlongMqMiddleware getMqMiddleware(MQType type) {
-        for (InlongMqMiddleware middleware : inlongMqMiddlewares) {
+    public Middleware getMqMiddleware(MQType type) {
+        for (Middleware middleware : middlewares) {
             if (Objects.equals(type, middleware.type())) {
                 return middleware;
             }

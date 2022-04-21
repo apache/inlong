@@ -41,7 +41,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class InlongPulsarMqMiddleware implements InlongMqMiddleware {
+public class PulsarMiddleware implements Middleware {
+
 
     @Autowired
     private InlongGroupPulsarEntityMapper groupPulsarMapper;
@@ -56,7 +57,7 @@ public class InlongPulsarMqMiddleware implements InlongMqMiddleware {
     }
 
     @Override
-    public int saveMqInfo(InlongGroupMqExtBase mqExtBaseInfo) {
+    public int save(InlongGroupMqExtBase mqExtBaseInfo) {
         Preconditions.checkNotEmpty(mqExtBaseInfo.getInlongGroupId(), "InLong group identifier can not be empty.");
         InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) mqExtBaseInfo;
         log.debug("begin to save inlong group MQ information.");
@@ -130,7 +131,7 @@ public class InlongPulsarMqMiddleware implements InlongMqMiddleware {
     }
 
     @Override
-    public InlongGroupInfo packMqSpecificInfo(InlongGroupInfo groupInfo) {
+    public InlongGroupInfo packSpecificInfo(InlongGroupInfo groupInfo) {
         PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo(type().name());
         groupInfo.setPulsarAdminUrl(pulsarCluster.getAdminUrl());
         groupInfo.setPulsarServiceUrl(pulsarCluster.getBrokerServiceUrl());
