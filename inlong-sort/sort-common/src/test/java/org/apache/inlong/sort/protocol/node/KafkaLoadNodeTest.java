@@ -44,7 +44,7 @@ public class KafkaLoadNodeTest extends NodeBaseTest {
                 + "\"formatInfo\":{\"type\":\"string\"}}],\"fieldRelationShips\":[{\"type\":\"fieldRelationShip\","
                 + "\"inputField\":{\"type\":\"base\",\"name\":\"field\",\"formatInfo\":{\"type\":\"string\"}},"
                 + "\"outputField\":{\"type\":\"base\",\"name\":\"field\",\"formatInfo\":{\"type\":\"string\"}}}],"
-                + "\"filters\":null,\"topic\":\"topic\",\"bootstrapServers\":\"localhost:9092\","
+                + "\"topic\":\"topic\",\"bootstrapServers\":\"localhost:9092\","
                 + "\"format\":{\"type\":\"canalJsonFormat\",\"ignoreParseErrors\":true,"
                 + "\"timestampFormatStandard\":\"SQL\",\"mapNullKeyMode\":\"DROP\",\"mapNullKeyLiteral\":\"null\","
                 + "\"encodeDecimalAsPlainNumber\":true},\"sinkParallelism\":1,"
