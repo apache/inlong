@@ -42,7 +42,7 @@ import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.sink.StreamSinkOperation;
-import org.apache.inlong.manager.service.thirdparty.sort.util.SinkInfoUtils;
+import org.apache.inlong.manager.service.sort.util.SinkInfoUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
