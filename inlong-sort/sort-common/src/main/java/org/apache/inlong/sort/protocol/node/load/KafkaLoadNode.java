@@ -21,10 +21,16 @@ import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.LoadNode;
+import org.apache.inlong.sort.protocol.node.format.AvroFormat;
+import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
+import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
+import org.apache.inlong.sort.protocol.node.format.Format;
+import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
@@ -51,7 +57,10 @@ public class KafkaLoadNode extends LoadNode implements Serializable {
     private String bootstrapServers;
     @Nonnull
     @JsonProperty("format")
-    private String format;
+    private Format format;
+
+    @JsonProperty("primaryKey")
+    private String primaryKey;
 
     public KafkaLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
@@ -60,13 +69,20 @@ public class KafkaLoadNode extends LoadNode implements Serializable {
             @JsonProperty("filters") List<FilterFunction> filters,
             @Nonnull @JsonProperty("topic") String topic,
             @Nonnull @JsonProperty("bootstrapServers") String bootstrapServers,
-            @Nonnull @JsonProperty("format") String format,
+            @Nonnull @JsonProperty("format") Format format,
             @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
-            @JsonProperty("properties") Map<String, String> properties) {
+            @JsonProperty("properties") Map<String, String> properties,
+            @JsonProperty("primaryKey") String primaryKey) {
         super(id, name, fields, fieldRelationShips, filters, sinkParallelism, properties);
         this.topic = Preconditions.checkNotNull(topic, "topic is null");
         this.bootstrapServers = Preconditions.checkNotNull(bootstrapServers, "bootstrapServers is null");
         this.format = Preconditions.checkNotNull(format, "format is null");
+        if (format instanceof JsonFormat && StringUtils.isEmpty(primaryKey)) {
+            throw new IllegalArgumentException("primaryKey is empty when format is json");
+        } else if (format instanceof AvroFormat && StringUtils.isEmpty(primaryKey)) {
+            throw new IllegalArgumentException("primaryKey is empty when format is avro");
+        }
+        this.primaryKey = primaryKey;
     }
 
     @Override
@@ -77,12 +93,56 @@ public class KafkaLoadNode extends LoadNode implements Serializable {
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options.put("connector", "kafka");
         options.put("topic", topic);
         options.put("properties.bootstrap.servers", bootstrapServers);
-        options.put("format", format);
         if (getSinkParallelism() != null) {
             options.put("sink.parallelism", getSinkParallelism().toString());
+        }
+        if (format instanceof JsonFormat) {
+            JsonFormat jsonFormat = (JsonFormat) format;
+            options.put("connector", "upsert-kafka");
+            options.put("key.format", jsonFormat.getFormat());
+            options.put("value.format", jsonFormat.getFormat());
+            options.put("value.json.fail-on-missing-field", jsonFormat.getFailOnMissingField() + "");
+            options.put("value.json.ignore-parse-errors", jsonFormat.getIgnoreParseErrors() + "");
+            options.put("value.json.timestamp-format.standard", jsonFormat.getTimestampFormatStandard());
+            options.put("value.json.map-null-key.mode", jsonFormat.getMapNullKeyMode());
+            options.put("value.json.map-null-key.literal", jsonFormat.getMapNullKeyLiteral());
+            options.put("value.json.encode.decimal-as-plain-number", jsonFormat.getEncodeDecimalAsPlainNumber() + "");
+            options.put("key.json.fail-on-missing-field", jsonFormat.getFailOnMissingField() + "");
+            options.put("key.json.ignore-parse-errors", jsonFormat.getIgnoreParseErrors() + "");
+            options.put("key.json.timestamp-format.standard", jsonFormat.getTimestampFormatStandard());
+            options.put("key.json.map-null-key.mode", jsonFormat.getMapNullKeyMode());
+            options.put("key.json.map-null-key.literal", jsonFormat.getMapNullKeyLiteral());
+            options.put("key.json.encode.decimal-as-plain-number", jsonFormat.getEncodeDecimalAsPlainNumber() + "");
+        } else if (format instanceof AvroFormat) {
+            AvroFormat avroFormat = (AvroFormat) format;
+            options.put("connector", "upsert-kafka");
+            options.put("key.format", avroFormat.getFormat());
+            options.put("value.format", avroFormat.getFormat());
+        } else if (format instanceof CanalJsonFormat) {
+            CanalJsonFormat canalJsonFormat = (CanalJsonFormat) format;
+            options.put("connector", "kafka");
+            options.put("format", canalJsonFormat.getFormat());
+            options.put("canal-json.ignore-parse-errors", canalJsonFormat.getIgnoreParseErrors() + "");
+            options.put("canal-json.timestamp-format.standard", canalJsonFormat.getTimestampFormatStandard());
+            options.put("canal-json.map-null-key.mode", canalJsonFormat.getMapNullKeyMode());
+            options.put("canal-json.map-null-key.literal", canalJsonFormat.getMapNullKeyLiteral());
+            options.put("canal-json.encode.decimal-as-plain-number", canalJsonFormat.getEncodeDecimalAsPlainNumber()
+                    + "");
+        } else if (format instanceof DebeziumJsonFormat) {
+            DebeziumJsonFormat debeziumJsonFormat = (DebeziumJsonFormat) format;
+            options.put("connector", "kafka");
+            options.put("format", debeziumJsonFormat.getFormat());
+            options.put("debezium-json.schema-include", debeziumJsonFormat.getSchemaInclude() + "");
+            options.put("debezium-json.ignore-parse-errors", debeziumJsonFormat.getIgnoreParseErrors() + "");
+            options.put("debezium-json.timestamp-format.standard", debeziumJsonFormat.getTimestampFormatStandard());
+            options.put("debezium-json.map-null-key.mode", debeziumJsonFormat.getMapNullKeyMode());
+            options.put("debezium-json.map-null-key.literal", debeziumJsonFormat.getMapNullKeyLiteral());
+            options.put("debezium-json.encode.decimal-as-plain-number", debeziumJsonFormat.getEncodeDecimalAsPlainNumber()
+                    + "");
+        } else {
+            throw new IllegalArgumentException("kafka load Node format is IllegalArgument");
         }
         return options;
     }

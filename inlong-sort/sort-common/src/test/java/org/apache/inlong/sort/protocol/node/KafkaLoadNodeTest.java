@@ -19,6 +19,7 @@ package org.apache.inlong.sort.protocol.node;
 
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 
@@ -33,8 +34,8 @@ public class KafkaLoadNodeTest extends NodeBaseTest {
                 Arrays.asList(new FieldInfo("field", new StringFormatInfo())),
                 Arrays.asList(new FieldRelationShip(new FieldInfo("field", new StringFormatInfo()),
                         new FieldInfo("field", new StringFormatInfo()))), null,
-                "topic", "localhost:9092", "json",
-                1, new TreeMap<>());
+                "topic", "localhost:9092", new CanalJsonFormat(),
+                1, new TreeMap<>(), null);
     }
 
     @Override
@@ -43,7 +44,10 @@ public class KafkaLoadNodeTest extends NodeBaseTest {
                 + "\"formatInfo\":{\"type\":\"string\"}}],\"fieldRelationShips\":[{\"type\":\"fieldRelationShip\","
                 + "\"inputField\":{\"type\":\"base\",\"name\":\"field\",\"formatInfo\":{\"type\":\"string\"}},"
                 + "\"outputField\":{\"type\":\"base\",\"name\":\"field\",\"formatInfo\":{\"type\":\"string\"}}}],"
-                + "\"topic\":\"topic\",\"bootstrapServers\":\"localhost:9092\","
-                + "\"format\":\"json\",\"sinkParallelism\":1,\"properties\":{}}";
+                + "\"filters\":null,\"topic\":\"topic\",\"bootstrapServers\":\"localhost:9092\","
+                + "\"format\":{\"type\":\"canalJsonFormat\",\"ignoreParseErrors\":true,"
+                + "\"timestampFormatStandard\":\"SQL\",\"mapNullKeyMode\":\"DROP\",\"mapNullKeyLiteral\":\"null\","
+                + "\"encodeDecimalAsPlainNumber\":true},\"sinkParallelism\":1,"
+                + "\"properties\":{}}";
     }
 }
