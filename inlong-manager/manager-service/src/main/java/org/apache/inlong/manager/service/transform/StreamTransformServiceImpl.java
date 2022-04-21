@@ -56,7 +56,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         log.info("begin to save transform info: {}", transformRequest);
         this.checkParams(transformRequest);
 
-        // Check if can be added
+        // Check whether the transform can be added
         final String groupId = transformRequest.getInlongGroupId();
         final String streamId = transformRequest.getInlongStreamId();
         final String transformName = transformRequest.getTransformName();
@@ -88,11 +88,9 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         if (CollectionUtils.isEmpty(transformEntities)) {
             return Collections.emptyList();
         }
-        List<TransformResponse> transformResponses = transformEntities.stream()
-                .map(transformEntity -> CommonBeanUtils.copyProperties(transformEntity,
-                        TransformResponse::new))
+        return transformEntities.stream()
+                .map(entity -> CommonBeanUtils.copyProperties(entity, TransformResponse::new))
                 .collect(Collectors.toList());
-        return transformResponses;
     }
 
     @Override
@@ -100,7 +98,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     public boolean update(TransformRequest transformRequest, String operator) {
         log.info("begin to update transform info: {}", transformRequest);
         this.checkParams(transformRequest);
-        // Check if can be modified
+        // Check whether the transform can be modified
         String groupId = transformRequest.getInlongGroupId();
         commonOperateService.checkGroupStatus(groupId, operator);
         Preconditions.checkNotNull(transformRequest.getId(), ErrorCodeEnum.ID_IS_EMPTY.getMessage());
