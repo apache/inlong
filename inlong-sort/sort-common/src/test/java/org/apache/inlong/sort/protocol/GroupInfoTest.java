@@ -26,6 +26,7 @@ import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
@@ -39,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -78,8 +80,8 @@ public class GroupInfoTest {
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
-                "topic", "localhost:9092", "json",
-                1, null);
+                "topic", "localhost:9092", new JsonFormat(),
+                1, null, "id");
     }
 
     private NodeRelationShip buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -135,9 +137,12 @@ public class GroupInfoTest {
                         + "\"inputField\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\","
                         + "\"format\":\"yyyy-MM-dd HH:mm:ss\"}},\"outputField\":{\"type\":\"base\",\"name\":\"ts\","
                         + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}}}],"
-                        + "\"topic\":\"topic\",\"bootstrapServers\":\"localhost:9092\",\"format\":\"json\","
-                        + "\"sinkParallelism\":1}],\"relations\":[{\"type\":\"baseRelation\",\"inputs\":[\"1\"],"
-                        + "\"outputs\":[\"2\"]}]}]}";
+                        + "\"topic\":\"topic\",\"bootstrapServers\":\"localhost:9092\","
+                        + "\"format\":{\"type\":\"jsonFormat\",\"failOnMissingField\":false,\"ignoreParseErrors\":true,"
+                        + "\"timestampFormatStandard\":\"SQL\",\"mapNullKeyMode\":\"DROP\","
+                        + "\"mapNullKeyLiteral\":\"null\",\"encodeDecimalAsPlainNumber\":true},"
+                        + "\"sinkParallelism\":1,\"primaryKey\":\"id\"}],\"relations\":[{\"type\":\"baseRelation\",\""
+                        + "inputs\":[\"1\"],\"outputs\":[\"2\"]}]}]}";
         assertEquals(expected, objectMapper.writeValueAsString(groupInfo));
     }
 
@@ -185,9 +190,11 @@ public class GroupInfoTest {
                 + "\"inputField\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\","
                 + "\"format\":\"yyyy-MM-dd HH:mm:ss\"}},\"outputField\":{\"type\":\"base\",\"name\":\"ts\","
                 + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}}}],"
-                + "\"topic\":\"topic\",\"bootstrapServers\":\"localhost:9092\",\"format\":\"json\","
-                + "\"sinkParallelism\":1}],\"relations\":[{\"type\":\"baseRelation\",\"inputs\":[\"1\"],"
-                + "\"outputs\":[\"2\"]}]}]}";
+                + "\"topic\":\"topic\",\"bootstrapServers\":\"localhost:9092\",\"format\":{\"type\":\"jsonFormat\","
+                + "\"failOnMissingField\":false,\"ignoreParseErrors\":true,\"timestampFormatStandard\":\"SQL\","
+                + "\"mapNullKeyMode\":\"DROP\",\"mapNullKeyLiteral\":\"null\",\"encodeDecimalAsPlainNumber\":true},"
+                + "\"sinkParallelism\":1,\"primaryKey\":\"id\"}],\"relations\":[{\"type\":\"baseRelation\","
+                + "\"inputs\":[\"1\"],\"outputs\":[\"2\"]}]}]}";
         GroupInfo expected = objectMapper.readValue(groupInfoStr, GroupInfo.class);
         assertEquals(expected, groupInfo);
     }
