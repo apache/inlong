@@ -23,9 +23,14 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgn
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * parameter reference
- * https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/canal/
+ * The Canal format.
+ *
+ * @see <a href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/canal/">
+ *         Canal Format</a>
  */
 @JsonTypeName("canalJsonFormat")
 @Data
@@ -60,13 +65,38 @@ public class CanalJsonFormat implements Format {
 
     @JsonCreator
     public CanalJsonFormat() {
-        this(true, "SQL", "DROP", "null",
-                true);
+        this(true, "SQL", "DROP", "null", true);
     }
 
+    /**
+     * Return canal-json
+     *
+     * @return format
+     */
     @JsonIgnore
     @Override
     public String getFormat() {
         return "canal-json";
+    }
+
+    /**
+     * Generate options for connector
+     *
+     * @return options
+     */
+    @Override
+    public Map<String, String> generateOptions() {
+        Map<String, String> options = new HashMap<>(16);
+        options.put("format", getFormat());
+        if (this.ignoreParseErrors != null) {
+            options.put("canal-json.ignore-parse-errors", this.ignoreParseErrors.toString());
+        }
+        options.put("canal-json.timestamp-format.standard", this.timestampFormatStandard);
+        options.put("canal-json.map-null-key.mode", this.mapNullKeyMode);
+        options.put("canal-json.map-null-key.literal", this.mapNullKeyLiteral);
+        if (this.encodeDecimalAsPlainNumber != null) {
+            options.put("canal-json.encode.decimal-as-plain-number", this.encodeDecimalAsPlainNumber.toString());
+        }
+        return options;
     }
 }

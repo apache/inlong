@@ -23,9 +23,14 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgn
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * parameter reference
- * https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/avro/
+ * The Avro format.
+ *
+ * @see <a href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/avro/">Avro
+ *         Format</a>
  */
 @JsonTypeName("avroFormat")
 @Data
@@ -45,9 +50,27 @@ public class AvroFormat implements Format {
     public AvroFormat() {
     }
 
+    /**
+     * Return avro
+     *
+     * @return format
+     */
     @JsonIgnore
     @Override
     public String getFormat() {
         return "avro";
+    }
+
+    /**
+     * generate options for connector
+     *
+     * @return options
+     */
+    @Override
+    public Map<String, String> generateOptions() {
+        Map<String, String> options = new HashMap<>(4);
+        options.put("key.format", getFormat());
+        options.put("value.format", getFormat());
+        return options;
     }
 }

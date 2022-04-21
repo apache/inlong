@@ -90,6 +90,11 @@ public class KafkaLoadNode extends LoadNode implements Serializable {
         return "node_" + super.getId() + "_" + topic;
     }
 
+    /**
+     * Generate options for kafka connector
+     *
+     * @return options
+     */
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
@@ -98,51 +103,15 @@ public class KafkaLoadNode extends LoadNode implements Serializable {
         if (getSinkParallelism() != null) {
             options.put("sink.parallelism", getSinkParallelism().toString());
         }
-        if (format instanceof JsonFormat) {
-            JsonFormat jsonFormat = (JsonFormat) format;
+        if (format instanceof JsonFormat || format instanceof AvroFormat) {
             options.put("connector", "upsert-kafka");
-            options.put("key.format", jsonFormat.getFormat());
-            options.put("value.format", jsonFormat.getFormat());
-            options.put("value.json.fail-on-missing-field", jsonFormat.getFailOnMissingField() + "");
-            options.put("value.json.ignore-parse-errors", jsonFormat.getIgnoreParseErrors() + "");
-            options.put("value.json.timestamp-format.standard", jsonFormat.getTimestampFormatStandard());
-            options.put("value.json.map-null-key.mode", jsonFormat.getMapNullKeyMode());
-            options.put("value.json.map-null-key.literal", jsonFormat.getMapNullKeyLiteral());
-            options.put("value.json.encode.decimal-as-plain-number", jsonFormat.getEncodeDecimalAsPlainNumber() + "");
-            options.put("key.json.fail-on-missing-field", jsonFormat.getFailOnMissingField() + "");
-            options.put("key.json.ignore-parse-errors", jsonFormat.getIgnoreParseErrors() + "");
-            options.put("key.json.timestamp-format.standard", jsonFormat.getTimestampFormatStandard());
-            options.put("key.json.map-null-key.mode", jsonFormat.getMapNullKeyMode());
-            options.put("key.json.map-null-key.literal", jsonFormat.getMapNullKeyLiteral());
-            options.put("key.json.encode.decimal-as-plain-number", jsonFormat.getEncodeDecimalAsPlainNumber() + "");
-        } else if (format instanceof AvroFormat) {
-            AvroFormat avroFormat = (AvroFormat) format;
-            options.put("connector", "upsert-kafka");
-            options.put("key.format", avroFormat.getFormat());
-            options.put("value.format", avroFormat.getFormat());
-        } else if (format instanceof CanalJsonFormat) {
-            CanalJsonFormat canalJsonFormat = (CanalJsonFormat) format;
+        } else if (format instanceof CanalJsonFormat || format instanceof DebeziumJsonFormat) {
             options.put("connector", "kafka");
-            options.put("format", canalJsonFormat.getFormat());
-            options.put("canal-json.ignore-parse-errors", canalJsonFormat.getIgnoreParseErrors() + "");
-            options.put("canal-json.timestamp-format.standard", canalJsonFormat.getTimestampFormatStandard());
-            options.put("canal-json.map-null-key.mode", canalJsonFormat.getMapNullKeyMode());
-            options.put("canal-json.map-null-key.literal", canalJsonFormat.getMapNullKeyLiteral());
-            options.put("canal-json.encode.decimal-as-plain-number",
-                    canalJsonFormat.getEncodeDecimalAsPlainNumber() + "");
-        } else if (format instanceof DebeziumJsonFormat) {
-            DebeziumJsonFormat debeziumJsonFormat = (DebeziumJsonFormat) format;
-            options.put("connector", "kafka");
-            options.put("format", debeziumJsonFormat.getFormat());
-            options.put("debezium-json.schema-include", debeziumJsonFormat.getSchemaInclude() + "");
-            options.put("debezium-json.ignore-parse-errors", debeziumJsonFormat.getIgnoreParseErrors() + "");
-            options.put("debezium-json.timestamp-format.standard", debeziumJsonFormat.getTimestampFormatStandard());
-            options.put("debezium-json.map-null-key.mode", debeziumJsonFormat.getMapNullKeyMode());
-            options.put("debezium-json.map-null-key.literal", debeziumJsonFormat.getMapNullKeyLiteral());
-            options.put("debezium-json.encode.decimal-as-plain-number",
-                    debeziumJsonFormat.getEncodeDecimalAsPlainNumber() + "");
         } else {
             throw new IllegalArgumentException("kafka load Node format is IllegalArgument");
+        }
+        if (format.generateOptions() != null && !format.generateOptions().isEmpty()) {
+            options.putAll(format.generateOptions());
         }
         return options;
     }

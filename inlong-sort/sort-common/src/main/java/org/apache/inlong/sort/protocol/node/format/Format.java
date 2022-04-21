@@ -21,6 +21,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSub
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
+import java.util.Map;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -34,5 +35,17 @@ import java.io.Serializable;
 })
 public interface Format extends Serializable {
 
+    /**
+     * return format for example json/avro/debezium-json/canal-json
+     *
+     * @return format
+     */
     String getFormat();
+
+    /**
+     * generate options for connector
+     *
+     * @return options
+     */
+    Map<String, String> generateOptions();
 }
