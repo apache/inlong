@@ -107,7 +107,7 @@
         from inlong_group
         <where>
             is_deleted = 0
-            <if test="currentUser != null and currentUser != ''">
+            <if test="isAdminRole == false">
                 and (
                 creator = #{currentUser, jdbcType=VARCHAR} or find_in_set(#{currentUser, jdbcType=VARCHAR}, in_charges)
                 )
