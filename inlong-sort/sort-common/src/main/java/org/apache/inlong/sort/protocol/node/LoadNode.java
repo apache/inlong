@@ -61,6 +61,7 @@ public abstract class LoadNode implements Node {
     @JsonProperty("sinkParallelism")
     private Integer sinkParallelism;
     @JsonProperty("filters")
+    @JsonInclude(Include.NON_NULL)
     private List<FilterFunction> filters = new ArrayList<>();
     @Nullable
     @JsonInclude(Include.NON_NULL)

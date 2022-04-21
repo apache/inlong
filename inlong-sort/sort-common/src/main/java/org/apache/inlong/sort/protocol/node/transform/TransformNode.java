@@ -21,6 +21,8 @@ import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -55,6 +57,7 @@ public class TransformNode implements Node, Serializable {
     @JsonProperty("fieldRelationShips")
     private List<FieldRelationShip> fieldRelationShips;
     @JsonProperty("filters")
+    @JsonInclude(Include.NON_NULL)
     private List<FilterFunction> filters = new ArrayList<>();
 
     @JsonCreator
