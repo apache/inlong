@@ -41,6 +41,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 
+/**
+ * StreamInfo unit test class
+ */
 public class StreamInfoTest {
 
     private MySqlExtractNode buildMySqlExtractNode() {
@@ -85,6 +88,11 @@ public class StreamInfoTest {
         return new NodeRelationShip(inputIds, outputIds);
     }
 
+    /**
+     * Test serialize for StreamInfo
+     *
+     * @throws JsonProcessingException The exception may throws when serialize the StreamInfo
+     */
     @Test
     public void testSerialize() throws JsonProcessingException {
         Node input = buildMySqlExtractNode();
@@ -128,6 +136,11 @@ public class StreamInfoTest {
         assertEquals(expected, objectMapper.writeValueAsString(streamInfo));
     }
 
+    /**
+     * Test deserialize for StreamInfo
+     *
+     * @throws JsonProcessingException The exception may throws when deserialize the StreamInfo
+     */
     @Test
     public void testDeserialize() throws JsonProcessingException {
         Node input = buildMySqlExtractNode();

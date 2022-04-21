@@ -41,6 +41,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 
+/**
+ * GroupInfo unit test class
+ */
 public class GroupInfoTest {
 
     private MySqlExtractNode buildMySqlExtractNode() {
@@ -85,6 +88,11 @@ public class GroupInfoTest {
         return new NodeRelationShip(inputIds, outputIds);
     }
 
+    /**
+     * Test serialize for GroupInfo
+     *
+     * @throws JsonProcessingException The exception may throws when serialize the GroupInfo
+     */
     @Test
     public void testSerialize() throws JsonProcessingException {
         Node input = buildMySqlExtractNode();
@@ -133,6 +141,11 @@ public class GroupInfoTest {
         assertEquals(expected, objectMapper.writeValueAsString(groupInfo));
     }
 
+    /**
+     * Test deserialize for GroupInfo
+     *
+     * @throws JsonProcessingException The exception may throws when deserialize the GroupInfo
+     */
     @Test
     public void testDeserialize() throws JsonProcessingException {
         Node input = buildMySqlExtractNode();

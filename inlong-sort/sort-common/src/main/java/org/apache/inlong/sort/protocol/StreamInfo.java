@@ -27,22 +27,32 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * The concept of StreamInfo is the same as that of inlong stream
+ * It belongs to a group, and a group can contain one or more stream
+ */
 @Data
 public class StreamInfo implements Serializable {
 
     private static final long serialVersionUID = 82342770067926123L;
 
     @JsonProperty("streamId")
-    private String id;
+    private String streamId;
     @JsonProperty("nodes")
     private List<Node> nodes;
     @JsonProperty("relations")
     private List<NodeRelationShip> relations;
 
+    /**
+     * @param streamId Uniquely identifies of GroupInfo
+     * @param nodes The node list that StreamInfo contains
+     * @param relations The relation list that StreamInfo contains,
+     *         it represents the relationship between nodes of StreamInfo
+     */
     @JsonCreator
-    public StreamInfo(@JsonProperty("streamId") String id, @JsonProperty("nodes") List<Node> nodes,
+    public StreamInfo(@JsonProperty("streamId") String streamId, @JsonProperty("nodes") List<Node> nodes,
             @JsonProperty("relations") List<NodeRelationShip> relations) {
-        this.id = Preconditions.checkNotNull(id, "streamId is null");
+        this.streamId = Preconditions.checkNotNull(streamId, "streamId is null");
         this.nodes = Preconditions.checkNotNull(nodes, "nodes is null");
         Preconditions.checkState(!nodes.isEmpty(), "nodes is empty");
         this.relations = Preconditions.checkNotNull(relations, "relations is null");

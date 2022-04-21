@@ -25,20 +25,28 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * The concept of Groupinfo is the same as that of inlong group,
+ * and it is the smallest unit of sort task execution.
+ */
 @Data
 public class GroupInfo implements Serializable {
 
     private static final long serialVersionUID = 6034630524669634079L;
 
     @JsonProperty("groupId")
-    private String id;
+    private String groupId;
     @JsonProperty("streams")
     private List<StreamInfo> streams;
 
+    /**
+     * @param groupId Uniquely identifies of GroupInfo
+     * @param streams The StreamInfo list that GroupInfo contains
+     */
     @JsonCreator
-    public GroupInfo(@JsonProperty("groupId") String id,
+    public GroupInfo(@JsonProperty("groupId") String groupId,
             @JsonProperty("streams") List<StreamInfo> streams) {
-        this.id = Preconditions.checkNotNull(id, "groupId is null");
+        this.groupId = Preconditions.checkNotNull(groupId, "groupId is null");
         this.streams = Preconditions.checkNotNull(streams, "streams is null");
         Preconditions.checkState(!streams.isEmpty(), "streams is empty");
     }
