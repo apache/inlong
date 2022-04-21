@@ -30,8 +30,8 @@ public interface StreamTransformService {
     /**
      * Save the transform information.
      *
-     * @param transformRequest
-     * @param operator
+     * @param transformRequest the transform request
+     * @param operator name of the operator
      * @return transform id after saving
      */
     Integer save(TransformRequest transformRequest, String operator);
@@ -39,17 +39,17 @@ public interface StreamTransformService {
     /**
      * Query transform information based on inlong group id and inlong stream id.
      *
-     * @param groupId
-     * @param streamId
-     * @return TransformResponse
+     * @param groupId the inlong group id
+     * @param streamId the inlong stream id
+     * @return the transform response
      */
     List<TransformResponse> listTransform(String groupId, String streamId);
 
     /**
      * Modify data transform information.
      *
-     * @param transformRequest
-     * @param operator
+     * @param transformRequest the transform request
+     * @param operator name of the operator
      * @return Whether succeed
      */
     boolean update(TransformRequest transformRequest, String operator);
@@ -57,8 +57,9 @@ public interface StreamTransformService {
     /**
      * Delete the stream transform by the given id.
      *
-     * @param id
-     * @param operator
+     * @param groupId the inlong group id
+     * @param streamId the inlong stream id
+     * @param operator name of the operator
      * @return Whether succeed
      */
     boolean delete(String groupId, String streamId, String transformName, String operator);
