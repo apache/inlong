@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.workflow.group.listener;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
@@ -54,13 +54,13 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
         Integer nextStatus;
         switch (operateType) {
             case RESTART:
-                nextStatus = GroupState.RESTARTED.getCode();
+                nextStatus = GroupStatus.RESTARTED.getCode();
                 break;
             case SUSPEND:
-                nextStatus = GroupState.SUSPENDED.getCode();
+                nextStatus = GroupStatus.SUSPENDED.getCode();
                 break;
             case DELETE:
-                nextStatus = GroupState.DELETED.getCode();
+                nextStatus = GroupStatus.DELETED.getCode();
                 break;
             default:
                 throw new RuntimeException(String.format("Unsupported operation=%s for Inlong group", operateType));

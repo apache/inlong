@@ -650,7 +650,6 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.springframework.plugin:spring-plugin-core:2.0.0.RELEASE - Spring Plugin - Core (https://github.com/spring-projects/spring-plugin/tree/2.0.0.RELEASE), (Apache License, Version 2.0)
   org.springframework.plugin:spring-plugin-metadata:2.0.0.RELEASE - Spring Plugin - Metadata Extension (https://github.com/spring-projects/spring-plugin/tree/2.0.0.RELEASE), (Apache License, Version 2.0)
   com.typesafe:ssl-config-core_2.11:0.3.7 - ssl-config-core (https://github.com/lightbend/ssl-config/tree/v0.3.7), (Apache-2.0)
-
   org.apache.tomcat.embed:tomcat-embed-core:9.0.60 - tomcat-embed-core (https://tomcat.apache.org/), (Apache License, Version 2.0)
 
 

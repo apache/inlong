@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.sink;
 
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkRequest;
@@ -48,7 +48,7 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
         sinkInfo.setSinkType(SinkType.SINK_ICEBERG);
-        sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
+        sinkInfo.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
         sinkInfo.setDataPath("hdfs://127.0.0.1:8020/data");
         sinkInfo.setSinkName(sinkName);
         return sinkService.save(sinkInfo, globalOperator);
@@ -77,7 +77,7 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         IcebergSinkResponse icebergSinkResponse = (IcebergSinkResponse) response;
-        icebergSinkResponse.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
+        icebergSinkResponse.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
 
         IcebergSinkRequest request = CommonBeanUtils.copyProperties(icebergSinkResponse,
                 IcebergSinkRequest::new);

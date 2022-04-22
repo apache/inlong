@@ -21,7 +21,7 @@ import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.SourceState;
+import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -102,23 +102,23 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
     public boolean checkIfOp(SourceResponse sourceResponse, List<SourceResponse> unOperatedSources) {
         for (int retry = 0; retry < 60; retry++) {
             int status = sourceResponse.getStatus();
-            SourceState sourceState = SourceState.forCode(status);
-            if (sourceState == SourceState.SOURCE_NORMAL || sourceState == SourceState.SOURCE_FROZEN) {
+            SourceStatus sourceStatus = SourceStatus.forCode(status);
+            if (sourceStatus == SourceStatus.SOURCE_NORMAL || sourceStatus == SourceStatus.SOURCE_FROZEN) {
                 return true;
-            } else if (sourceState == SourceState.SOURCE_FAILED || sourceState == SourceState.SOURCE_DISABLE) {
+            } else if (sourceStatus == SourceStatus.SOURCE_FAILED || sourceStatus == SourceStatus.SOURCE_DISABLE) {
                 return false;
             } else {
-                log.warn("StreamSource={} cannot be operated for state={}", sourceResponse, sourceState);
+                log.warn("StreamSource={} cannot be operated for state={}", sourceResponse, sourceStatus);
                 TimeUnit.SECONDS.sleep(5);
                 sourceResponse = streamSourceService.get(sourceResponse.getId(), sourceResponse.getSourceType());
             }
         }
-        SourceState sourceState = SourceState.forCode(sourceResponse.getStatus());
-        if (sourceState != SourceState.SOURCE_NORMAL
-                && sourceState != SourceState.SOURCE_FROZEN
-                && sourceState != SourceState.SOURCE_DISABLE
-                && sourceState != SourceState.SOURCE_FAILED) {
-            log.error("StreamSource={} cannot be operated for state={}", sourceResponse, sourceState);
+        SourceStatus sourceStatus = SourceStatus.forCode(sourceResponse.getStatus());
+        if (sourceStatus != SourceStatus.SOURCE_NORMAL
+                && sourceStatus != SourceStatus.SOURCE_FROZEN
+                && sourceStatus != SourceStatus.SOURCE_DISABLE
+                && sourceStatus != SourceStatus.SOURCE_FAILED) {
+            log.error("StreamSource={} cannot be operated for state={}", sourceResponse, sourceStatus);
             unOperatedSources.add(sourceResponse);
         }
         return false;

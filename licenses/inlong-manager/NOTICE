@@ -22,25 +22,6 @@ Copyright 2017-2019 The Apache Software Foundation
 
 ========================================================================
 
-aggs-matrix-stats NOTICE
-------------------------------------------------------
-lang-mustache NOTICE
-------------------------------------------------------
-parent-join NOTICE
-------------------------------------------------------
-rank-eval NOTICE
-========================================================================
-
-Elasticsearch
-Copyright 2009-2018 Elasticsearch
-
-This product includes software developed by The Apache Software
-Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
 Apache Ant Core NOTICE
 ------------------------------------------------------
 Apache Ant Launcher NOTICE
@@ -377,8 +358,8 @@ This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
 
 This product includes software developed for Orekit by
-CS Syst¨¨mes d'Information (http://www.c-s.fr/)
-Copyright 2010-2012 CS Syst¨¨mes d'Information
+CS Systï¿½ï¿½mes d'Information (http://www.c-s.fr/)
+Copyright 2010-2012 CS Systï¿½ï¿½mes d'Information
 
 
 
@@ -449,6 +430,14 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
+aggs-matrix-stats NOTICE
+------------------------------------------------------
+lang-mustache NOTICE
+------------------------------------------------------
+parent-join NOTICE
+------------------------------------------------------
+rank-eval NOTICE
+------------------------------------------------------
 server NOTICE
 ------------------------------------------------------
 cli NOTICE
@@ -1758,28 +1747,6 @@ Netty/Transport/Native/Unix/Common NOTICE
 Netty/TomcatNative [OpenSSL - Classes] NOTICE
 ------------------------------------------------------
 Sqlline NOTICE
-------------------------------------------------------
- NOTICE
-------------------------------------------------------
- NOTICE
-------------------------------------------------------
- NOTICE
-------------------------------------------------------
- NOTICE
-------------------------------------------------------
- NOTICE
-------------------------------------------------------
- NOTICE
-------------------------------------------------------
- NOTICE
-------------------------------------------------------
- NOTICE
-------------------------------------------------------
- NOTICE
-------------------------------------------------------
- NOTICE
-------------------------------------------------------
- NOTICE
 ========================================================================
 
 The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
