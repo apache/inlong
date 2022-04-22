@@ -38,7 +38,7 @@ import java.util.TreeMap;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for {@link InnerJoinNodeRelationTest}
+ * Tests for {@link InnerJoinNodeRelationShip}
  */
 public class InnerJoinNodeRelationTest {
 

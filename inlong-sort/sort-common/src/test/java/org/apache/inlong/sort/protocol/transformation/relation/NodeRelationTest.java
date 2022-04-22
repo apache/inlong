@@ -25,7 +25,7 @@ import java.util.Arrays;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for {@link NodeRelationTest}
+ * Tests for {@link NodeRelationShip}
  */
 public class NodeRelationTest {
 

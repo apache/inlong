@@ -37,7 +37,7 @@ import java.util.TreeMap;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for {@link RightOuterJoinNodeRelationTest}
+ * Tests for {@link RightOuterJoinNodeRelationShip}
  */
 public class RightOuterJoinNodeRelationTest {
 

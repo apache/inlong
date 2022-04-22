@@ -26,7 +26,7 @@ import java.util.Collections;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for {@link UnionNodeRelationTest}
+ * Tests for {@link UnionNodeRelationShip}
  */
 public class UnionNodeRelationTest {
 
