@@ -31,7 +31,8 @@ import java.util.Map;
         @JsonSubTypes.Type(value = JsonFormat.class, name = "jsonFormat"),
         @JsonSubTypes.Type(value = AvroFormat.class, name = "avroFormat"),
         @JsonSubTypes.Type(value = DebeziumJsonFormat.class, name = "debeziumJsonFormat"),
-        @JsonSubTypes.Type(value = CanalJsonFormat.class, name = "canalJsonFormat")
+        @JsonSubTypes.Type(value = CanalJsonFormat.class, name = "canalJsonFormat"),
+        @JsonSubTypes.Type(value = CsvFormat.class, name = "csvFormat")
 })
 public interface Format extends Serializable {
 
@@ -44,8 +45,8 @@ public interface Format extends Serializable {
 
     /**
      * generate options for connector
-     *
+     * @param includePrefix true will need append key and value when format is json avro csv
      * @return options
      */
-    Map<String, String> generateOptions();
+    Map<String, String> generateOptions(boolean includePrefix);
 }

@@ -63,14 +63,18 @@ public class AvroFormat implements Format {
 
     /**
      * generate options for connector
-     *
+     * @param includePrefix true will need append key and value when format is json avro csv
      * @return options
      */
     @Override
-    public Map<String, String> generateOptions() {
+    public Map<String, String> generateOptions(boolean includePrefix) {
         Map<String, String> options = new HashMap<>(4);
-        options.put("key.format", getFormat());
-        options.put("value.format", getFormat());
+        if (includePrefix) {
+            options.put("key.format", getFormat());
+            options.put("value.format", getFormat());
+        } else {
+            options.put("format", getFormat());
+        }
         return options;
     }
 }
