@@ -42,9 +42,9 @@ public class FullOuterJoinRelationShip extends JoinRelationShip {
     /**
      * FullOuterJoinRelationShip Constructor
      *
-     * @param inputs The inputs,a list of input node id
-     * @param outputs The outputs,a list of output node id
-     * @param joinConditionMap The joinConditionMap, a map of join conditions
+     * @param inputs The inputs is a list of input node id
+     * @param outputs The outputs is a list of output node id
+     * @param joinConditionMap The joinConditionMap is a map of join conditions
      *         the key of joinConditionMap is the node id of join node
      *         the value of joinConditionMap is a list of join contidition
      */

@@ -37,8 +37,8 @@ public class UnionNodeRelationShip extends NodeRelationShip {
     /**
      * UnionNodeRelationShip Constructor
      *
-     * @param inputs The inputs,a list of input node id
-     * @param outputs The outputs,a list of output node id
+     * @param inputs The inputs is a list of input node id
+     * @param outputs The outputs is a list of output node id
      */
     public UnionNodeRelationShip(@JsonProperty("inputs") List<String> inputs,
             @JsonProperty("outputs") List<String> outputs) {
