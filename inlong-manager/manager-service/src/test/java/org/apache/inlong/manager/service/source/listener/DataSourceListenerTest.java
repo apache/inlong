@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.source.listener;
 
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
-import org.apache.inlong.manager.common.enums.SourceState;
+import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
@@ -62,12 +62,12 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
     @Test
     public void testFrozenSource() {
         groupInfo = initGroupForm("PULSAR");
-        groupService.updateStatus(GROUP_ID, GroupState.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
+        groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
         final int sourceId = createBinlogSource(groupInfo);
         streamSourceService.updateStatus(groupInfo.getInlongGroupId(), null,
-                SourceState.SOURCE_NORMAL.getCode(), OPERATOR);
+                SourceStatus.SOURCE_NORMAL.getCode(), OPERATOR);
 
         form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
@@ -82,21 +82,21 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         WorkflowTask task = process.getTaskByName("stopSource");
         Assert.assertTrue(task instanceof ServiceTask);
         SourceResponse sourceResponse = streamSourceService.get(sourceId, SourceType.BINLOG.toString());
-        Assert.assertSame(SourceState.forCode(sourceResponse.getStatus()), SourceState.TO_BE_ISSUED_FROZEN);
+        Assert.assertSame(SourceStatus.forCode(sourceResponse.getStatus()), SourceStatus.TO_BE_ISSUED_FROZEN);
     }
 
     @Test
     public void testRestartSource() {
         // testFrozenSource();
         groupInfo = initGroupForm("PULSAR");
-        groupService.updateStatus(GROUP_ID, GroupState.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
+        groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
-        groupService.updateStatus(GROUP_ID, GroupState.SUSPENDED.getCode(), OPERATOR);
+        groupService.updateStatus(GROUP_ID, GroupStatus.SUSPENDED.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
         final int sourceId = createBinlogSource(groupInfo);
         streamSourceService.updateStatus(groupInfo.getInlongGroupId(), null,
-                SourceState.SOURCE_NORMAL.getCode(), OPERATOR);
+                SourceStatus.SOURCE_NORMAL.getCode(), OPERATOR);
 
         form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
@@ -111,7 +111,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         WorkflowTask task = process.getTaskByName("restartSource");
         Assert.assertTrue(task instanceof ServiceTask);
         SourceResponse sourceResponse = streamSourceService.get(sourceId, SourceType.BINLOG.toString());
-        Assert.assertSame(SourceState.forCode(sourceResponse.getStatus()), SourceState.TO_BE_ISSUED_ACTIVE);
+        Assert.assertSame(SourceStatus.forCode(sourceResponse.getStatus()), SourceStatus.TO_BE_ISSUED_ACTIVE);
     }
 
 }

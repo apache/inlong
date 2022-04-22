@@ -20,7 +20,7 @@ package org.apache.inlong.manager.client.api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.enums.SourceState;
+import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
@@ -32,8 +32,8 @@ public abstract class StreamSource extends StreamNode {
         INIT, NORMAL, FROZING, FROZEN, FAILED, DELETING, DELETE;
 
         public static State parseByStatus(int status) {
-            SourceState sourceState = SourceState.forCode(status);
-            switch (sourceState) {
+            SourceStatus sourceStatus = SourceStatus.forCode(status);
+            switch (sourceStatus) {
                 case SOURCE_NEW:
                 case TO_BE_ISSUED_ADD:
                 case BEEN_ISSUED_ADD:
@@ -56,7 +56,7 @@ public abstract class StreamSource extends StreamNode {
                     return DELETE;
                 default:
                     throw new IllegalStateException(
-                            String.format("Unsupported source state=%s for Inlong", sourceState));
+                            String.format("Unsupported source state=%s for Inlong", sourceStatus));
             }
         }
     }

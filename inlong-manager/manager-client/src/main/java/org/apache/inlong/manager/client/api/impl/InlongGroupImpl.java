@@ -35,7 +35,7 @@ import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
 import org.apache.inlong.manager.client.api.util.InlongParser;
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -202,7 +202,7 @@ public class InlongGroupImpl implements InlongGroup {
                 groupContext.getGroupId());
         boolean isDeleted = managerClient.deleteInlongGroup(groupResponse.getInlongGroupId(), async);
         if (isDeleted) {
-            groupResponse.setStatus(GroupState.DELETED.getCode());
+            groupResponse.setStatus(GroupStatus.DELETED.getCode());
         }
         return generateSnapshot();
     }
