@@ -166,6 +166,16 @@
             <artifactId>hadoop-minicluster</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-connector-mysql-cdc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-planner-blink_${flink.scala.binary.version}</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
