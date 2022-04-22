@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.sink;
 
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
@@ -62,7 +62,7 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setSerializationType(serializationType);
         sinkInfo.setBootstrapServers(bootstrapServers);
         sinkInfo.setTopicName(topicName);
-        sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
+        sinkInfo.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
         kafkaSinkId = sinkService.save(sinkInfo, globalOperator);
     }
 
@@ -84,7 +84,7 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         KafkaSinkResponse kafkaSinkResponse = (KafkaSinkResponse) response;
-        kafkaSinkResponse.setEnableCreateResource(Constant.ENABLE_CREATE_RESOURCE);
+        kafkaSinkResponse.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
 
         KafkaSinkRequest request = CommonBeanUtils.copyProperties(kafkaSinkResponse, KafkaSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);

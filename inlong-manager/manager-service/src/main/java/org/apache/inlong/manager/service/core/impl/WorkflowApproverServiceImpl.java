@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.pojo.workflow.FilterKey;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApprover;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
@@ -119,7 +119,7 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         Preconditions.checkEmpty(exist, "already exit the same config");
 
         WorkflowApproverEntity entity = CommonBeanUtils.copyProperties(approver, WorkflowApproverEntity::new);
-        entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
+        entity.setIsDeleted(GlobalConstants.UN_DELETED);
         int success = this.workflowApproverMapper.insert(entity);
         Preconditions.checkTrue(success == 1, "add failed");
     }

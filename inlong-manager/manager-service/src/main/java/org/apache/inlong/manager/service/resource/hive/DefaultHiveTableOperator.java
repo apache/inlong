@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.resource.hive;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.pojo.query.ColumnInfoBean;
 import org.apache.inlong.manager.common.pojo.query.DatabaseQueryBean;
@@ -64,10 +64,10 @@ public class DefaultHiveTableOperator implements IHiveTableOperator {
             return;
         }
         for (SinkForSortDTO config : configList) {
-            if (EntityStatus.SINK_CONFIG_SUCCESSFUL.getCode().equals(config.getStatus())) {
+            if (SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(config.getStatus())) {
                 LOGGER.warn("hive [" + config.getId() + "] already success, skip to create");
                 continue;
-            } else if (Constant.DISABLE_CREATE_RESOURCE.equals(config.getEnableCreateResource())) {
+            } else if (GlobalConstants.DISABLE_CREATE_RESOURCE.equals(config.getEnableCreateResource())) {
                 LOGGER.warn("create table was disable, skip to create table for hive [" + config.getId() + "]");
                 continue;
             }
@@ -102,11 +102,11 @@ public class DefaultHiveTableOperator implements IHiveTableOperator {
                 }
             }
             sinkService.updateStatus(config.getId(),
-                    EntityStatus.SINK_CONFIG_SUCCESSFUL.getCode(), "create hive table success");
+                    SinkStatus.CONFIG_SUCCESSFUL.getCode(), "create hive table success");
         } catch (Throwable e) {
             LOGGER.error("create hive table error, ", e);
             sinkService.updateStatus(config.getId(),
-                    EntityStatus.SINK_CONFIG_FAILED.getCode(), e.getMessage());
+                    SinkStatus.CONFIG_FAILED.getCode(), e.getMessage());
             throw new WorkflowException("create hive table failed, reason: " + e.getMessage());
         }
 

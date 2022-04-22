@@ -29,7 +29,7 @@ import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
-import org.apache.inlong.manager.common.enums.SourceState;
+import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.file.FileSourceDTO;
@@ -119,19 +119,19 @@ public class AgentServiceImpl implements AgentService {
 
         int result = command.getCommandResult();
         int previousStatus = current.getStatus();
-        int nextStatus = SourceState.SOURCE_NORMAL.getCode();
+        int nextStatus = SourceStatus.SOURCE_NORMAL.getCode();
 
         if (Constants.RESULT_FAIL == result) {
             logFailedStreamSource(current);
-            nextStatus = SourceState.SOURCE_FAILED.getCode();
+            nextStatus = SourceStatus.SOURCE_FAILED.getCode();
         } else if (previousStatus / MODULUS_100 == ISSUED_STATUS) {
             // Change the status from 30x to normal / disable / frozen
-            if (SourceState.TEMP_TO_NORMAL.contains(previousStatus)) {
-                nextStatus = SourceState.SOURCE_NORMAL.getCode();
-            } else if (SourceState.BEEN_ISSUED_DELETE.getCode() == previousStatus) {
-                nextStatus = SourceState.SOURCE_DISABLE.getCode();
-            } else if (SourceState.BEEN_ISSUED_FROZEN.getCode() == previousStatus) {
-                nextStatus = SourceState.SOURCE_FROZEN.getCode();
+            if (SourceStatus.TEMP_TO_NORMAL.contains(previousStatus)) {
+                nextStatus = SourceStatus.SOURCE_NORMAL.getCode();
+            } else if (SourceStatus.BEEN_ISSUED_DELETE.getCode() == previousStatus) {
+                nextStatus = SourceStatus.SOURCE_DISABLE.getCode();
+            } else if (SourceStatus.BEEN_ISSUED_FROZEN.getCode() == previousStatus) {
+                nextStatus = SourceStatus.SOURCE_FROZEN.getCode();
             }
         }
 
@@ -157,11 +157,11 @@ public class AgentServiceImpl implements AgentService {
         // Query the tasks that needed to add or active - without agentIp and uuid
         List<Integer> needAddStatusList;
         if (PullJobTypeEnum.NEVER != PullJobTypeEnum.getPullJobType(request.getPullJobType())) {
-            needAddStatusList = Arrays.asList(SourceState.TO_BE_ISSUED_ADD.getCode(),
-                    SourceState.TO_BE_ISSUED_ACTIVE.getCode());
+            needAddStatusList = Arrays.asList(SourceStatus.TO_BE_ISSUED_ADD.getCode(),
+                    SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
         } else {
             LOGGER.warn("agent pull job type is [NEVER], just pull to be active tasks");
-            needAddStatusList = Collections.singletonList(SourceState.TO_BE_ISSUED_ACTIVE.getCode());
+            needAddStatusList = Collections.singletonList(SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
         }
         List<String> sourceTypes = Lists.newArrayList(SourceType.BINLOG.getType(), SourceType.KAFKA.getType(),
                 SourceType.SQL.getType());
@@ -169,10 +169,10 @@ public class AgentServiceImpl implements AgentService {
                 TASK_FETCH_SIZE);
 
         // Query other tasks by agentIp and uuid - not included status with TO_BE_ISSUED_ADD and TO_BE_ISSUED_ACTIVE
-        List<Integer> statusList = Arrays.asList(SourceState.TO_BE_ISSUED_DELETE.getCode(),
-                SourceState.TO_BE_ISSUED_RETRY.getCode(), SourceState.TO_BE_ISSUED_BACKTRACK.getCode(),
-                SourceState.TO_BE_ISSUED_FROZEN.getCode(), SourceState.TO_BE_ISSUED_CHECK.getCode(),
-                SourceState.TO_BE_ISSUED_REDO_METRIC.getCode(), SourceState.TO_BE_ISSUED_MAKEUP.getCode());
+        List<Integer> statusList = Arrays.asList(SourceStatus.TO_BE_ISSUED_DELETE.getCode(),
+                SourceStatus.TO_BE_ISSUED_RETRY.getCode(), SourceStatus.TO_BE_ISSUED_BACKTRACK.getCode(),
+                SourceStatus.TO_BE_ISSUED_FROZEN.getCode(), SourceStatus.TO_BE_ISSUED_CHECK.getCode(),
+                SourceStatus.TO_BE_ISSUED_REDO_METRIC.getCode(), SourceStatus.TO_BE_ISSUED_MAKEUP.getCode());
         List<StreamSourceEntity> needIssuedList = sourceMapper.selectByStatusAndIp(statusList, agentIp, uuid);
         entityList.addAll(needIssuedList);
 

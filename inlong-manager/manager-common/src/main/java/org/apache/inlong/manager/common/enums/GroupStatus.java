@@ -27,7 +27,7 @@ import java.util.Set;
 /**
  * Inlong group related status
  */
-public enum GroupState {
+public enum GroupStatus {
 
     DRAFT(0, "draft"),
     TO_BE_SUBMIT(100, "waiting for submit"),
@@ -52,10 +52,10 @@ public enum GroupState {
     // GROUP_FINISH is used for batch task.
     FINISH(131, "finish");
 
-    private static final Map<GroupState, Set<GroupState>> GROUP_STATE_AUTOMATON = Maps.newHashMap();
+    private static final Map<GroupStatus, Set<GroupStatus>> GROUP_STATE_AUTOMATON = Maps.newHashMap();
 
     /*
-     * Init group finite state automaton
+     * Init group finite status automaton
      */
     static {
         GROUP_STATE_AUTOMATON.put(DRAFT, Sets.newHashSet(DRAFT, TO_BE_SUBMIT, DELETING));
@@ -86,33 +86,40 @@ public enum GroupState {
     private final Integer code;
     private final String description;
 
-    GroupState(Integer code, String description) {
+    GroupStatus(Integer code, String description) {
         this.code = code;
         this.description = description;
     }
 
-    public static GroupState forCode(int code) {
-        for (GroupState state : values()) {
-            if (state.getCode() == code) {
-                return state;
+    public static GroupStatus forCode(int code) {
+        for (GroupStatus status : values()) {
+            if (status.getCode() == code) {
+                return status;
             }
         }
         throw new IllegalStateException(String.format("Illegal code=%s for GroupState", code));
     }
 
-    public static boolean notAllowedTransition(GroupState pre, GroupState now) {
-        Set<GroupState> nextStates = GROUP_STATE_AUTOMATON.get(pre);
+    public static boolean notAllowedTransition(GroupStatus pre, GroupStatus now) {
+        Set<GroupStatus> nextStates = GROUP_STATE_AUTOMATON.get(pre);
         return nextStates == null || !nextStates.contains(now);
     }
 
-    public static boolean notAllowedUpdate(GroupState state) {
-        return state == GroupState.CONFIG_ING
-                || state == GroupState.TO_BE_APPROVAL;
+    public static boolean notAllowedUpdate(GroupStatus status) {
+        return status == GroupStatus.CONFIG_ING
+                || status == GroupStatus.TO_BE_APPROVAL;
     }
 
-    public static boolean isAllowedLogicDel(GroupState state) {
-        return state == GroupState.DRAFT || state == GroupState.TO_BE_SUBMIT
-                || state == GroupState.DELETED || state == GroupState.FINISH;
+    public static boolean isAllowedLogicDel(GroupStatus status) {
+        return status == GroupStatus.DRAFT || status == GroupStatus.TO_BE_SUBMIT
+                || status == GroupStatus.DELETED || status == GroupStatus.FINISH;
+    }
+
+    /**
+     * Temporary group status, adding, deleting and modifying operations are not allowed
+     */
+    public static boolean isTempStatus(GroupStatus status) {
+        return status == TO_BE_APPROVAL || status == CONFIG_ING;
     }
 
     public Integer getCode() {

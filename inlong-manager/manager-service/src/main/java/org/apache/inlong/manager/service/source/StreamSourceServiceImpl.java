@@ -25,8 +25,8 @@ import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupState;
-import org.apache.inlong.manager.common.enums.SourceState;
+import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
@@ -236,10 +236,10 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         // Check if it can be deleted
         InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
         Integer nextStatus;
-        if (GroupState.CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
-            nextStatus = SourceState.TO_BE_ISSUED_DELETE.getCode();
+        if (GroupStatus.CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
+            nextStatus = SourceStatus.TO_BE_ISSUED_DELETE.getCode();
         } else {
-            nextStatus = SourceState.SOURCE_DISABLE.getCode();
+            nextStatus = SourceStatus.SOURCE_DISABLE.getCode();
         }
         Date now = new Date();
         List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedId(groupId, streamId, null);

@@ -22,7 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
@@ -161,9 +161,9 @@ public class CommonOperateService {
         Preconditions.checkTrue(managers.contains(operator),
                 String.format(ErrorCodeEnum.USER_IS_NOT_MANAGER.getMessage(), operator, managers));
 
-        GroupState state = GroupState.forCode(inlongGroupEntity.getStatus());
+        GroupStatus state = GroupStatus.forCode(inlongGroupEntity.getStatus());
         // Add/modify/delete is not allowed under certain group state
-        if (GroupState.notAllowedUpdate(state)) {
+        if (GroupStatus.notAllowedUpdate(state)) {
             LOGGER.error("inlong group status was not allowed to add/update/delete related info");
             throw new BusinessException(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS);
         }
