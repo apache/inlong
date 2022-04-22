@@ -129,7 +129,7 @@
         <okhttp.version>3.14.9</okhttp.version>
 
         <spring.boot.version>2.6.6</spring.boot.version>
-        <spring.version>5.3.18</spring.version>
+        <spring.version>5.3.19</spring.version>
         <spring.autoconfigure.version>2.4.3</spring.autoconfigure.version>
         <spring.plugin.version>2.6.6</spring.plugin.version>
         <spring.fox.version>3.0.0</spring.fox.version>
