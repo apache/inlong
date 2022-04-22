@@ -20,7 +20,6 @@ package org.apache.inlong.manager.common.pojo.stream;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -28,12 +27,17 @@ import java.util.List;
  * Inlong stream request.
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@ApiModel("Inlong stream page update request")
-public class InlongStreamRequest extends InlongStreamBaseInfo {
+@ApiModel("Inlong stream request")
+public class InlongStreamRequest {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
+
+    @ApiModelProperty(value = "Inlong group id")
+    private String inlongGroupId;
+
+    @ApiModelProperty(value = "Inlong stream id")
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "Inlong stream name", required = true)
     private String name;

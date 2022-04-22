@@ -24,7 +24,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
-import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -200,7 +199,7 @@ public class HiveSinkOperation implements StreamSinkOperation {
         }
 
         entity.setPreviousStatus(entity.getStatus());
-        entity.setStatus(GroupStatus.CONFIG_ING.getCode());
+        entity.setStatus(SinkStatus.CONFIG_ING.getCode());
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
         sinkMapper.updateByPrimaryKeySelective(entity);
