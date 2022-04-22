@@ -164,7 +164,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // For approved inlong group, encapsulate the cluster address of the middleware
 
-        if (GroupState.CONFIG_SUCCESSFUL == GroupState.forCode(groupInfo.getStatus())) {
+        if (GroupStatus.CONFIG_SUCCESSFUL == GroupStatus.forCode(groupInfo.getStatus())) {
             groupInfo = mq.packSpecificInfo(groupInfo);
         }
         LOGGER.debug("success to get inlong group for groupId={}", groupId);
