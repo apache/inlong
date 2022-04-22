@@ -568,7 +568,7 @@ public class EsSinkContext extends SinkContext {
             }
         } catch (Throwable t) {
             LOG.error("Fail to init IEvent2IndexRequestHandler,handlerClass:{},error:{}",
-                    indexRequestHandlerClass, t.getMessage());
+                    indexRequestHandlerClass, t.getMessage(), t);
         }
         return null;
     }
