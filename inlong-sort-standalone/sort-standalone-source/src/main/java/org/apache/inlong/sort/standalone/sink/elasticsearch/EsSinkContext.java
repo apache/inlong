@@ -169,7 +169,7 @@ public class EsSinkContext extends SinkContext {
             // log
             LOG.info("end to get SortTaskConfig:taskName:{}:newIdConfigMap:{}", taskName,
                     new ObjectMapper().writeValueAsString(newIdConfigMap));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
     }
