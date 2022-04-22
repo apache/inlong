@@ -37,11 +37,14 @@ import java.util.Map;
 import java.util.TreeMap;
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Tests for{@link LeftOuterJoinNodeRelationTest}
+ */
 public class LeftOuterJoinNodeRelationTest {
 
     @Test
     public void testSerialize() throws JsonProcessingException {
-        Map<String, List<FilterFunction>> joinConditionMap =  new TreeMap<>();
+        Map<String, List<FilterFunction>> joinConditionMap = new TreeMap<>();
         joinConditionMap.put("2", Arrays.asList(
                 new SingleValueFilterFunction(EmptyOperator.getInstance(),
                         new FieldInfo("name", "1", new StringFormatInfo()),
@@ -83,7 +86,7 @@ public class LeftOuterJoinNodeRelationTest {
 
     @Test
     public void testDeserialize() throws JsonProcessingException {
-        Map<String, List<FilterFunction>> joinConditionMap =  new TreeMap<>();
+        Map<String, List<FilterFunction>> joinConditionMap = new TreeMap<>();
         joinConditionMap.put("2", Arrays.asList(
                 new SingleValueFilterFunction(EmptyOperator.getInstance(),
                         new FieldInfo("name", "1", new StringFormatInfo()),
