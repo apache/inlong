@@ -27,6 +27,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 
 import javax.annotation.Nonnull;
 
+/**
+ * TimeUnitConstantParam class is used for the definition and encapsulation of time unit constant param.
+ */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("timeUnitConstant")
 @Data
@@ -38,6 +41,11 @@ public class TimeUnitConstantParam extends ConstantParam {
     @JsonProperty("timeUnit")
     private TimeUnit timeUnit;
 
+    /**
+     * TimeUnitConstantParam constructor
+     *
+     * @param timeUnit It is used to store time unit constant value
+     */
     @JsonCreator
     public TimeUnitConstantParam(@JsonProperty("timeUnit") @Nonnull TimeUnit timeUnit) {
         super(Preconditions.checkNotNull(timeUnit, "timeUnit is null").name());
@@ -51,9 +59,12 @@ public class TimeUnitConstantParam extends ConstantParam {
 
     @Override
     public String format() {
-        return super.getValue();
+        return getValue().toString();
     }
 
+    /**
+     * The TimeUnit class defines an enumeration of time units
+     */
     public enum TimeUnit {
         /**
          * Time unit for second

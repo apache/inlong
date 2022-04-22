@@ -19,52 +19,50 @@ package org.apache.inlong.sort.protocol.transformation;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 /**
- * Test for {@link TimeUnitConstantParam}
+ * Test for {@link StringConstantParam}
  */
-public class TimeUnitConstantParamTest {
+public class StringConstantParamTest {
 
     /**
-     * Test for serialize of {@link TimeUnitConstantParam}
+     * Test for serialize of {@link StringConstantParam}
      *
      * @throws JsonProcessingException The exception may throws when serialize
      */
     @Test
     public void testSerialize() throws JsonProcessingException {
-        TimeUnitConstantParam constantParam = new TimeUnitConstantParam(TimeUnit.HOUR);
+        StringConstantParam constantParam = new StringConstantParam("constantparam");
         ObjectMapper objectMapper = new ObjectMapper();
-        String expected = "{\"type\":\"timeUnitConstant\",\"timeUnit\":\"HOUR\",\"value\":\"HOUR\"}";
+        String expected = "{\"type\":\"stringConstant\",\"value\":\"constantparam\"}";
         assertEquals(expected, objectMapper.writeValueAsString(constantParam));
     }
 
     /**
-     * Test for deserialize of {@link TimeUnitConstantParam}
+     * Test for serialize of {@link StringConstantParam}
      *
-     * @throws JsonProcessingException The exception may throws when deserialize
+     * @throws JsonProcessingException The exception may throws when serialize
      */
     @Test
     public void testDeserialize() throws JsonProcessingException {
-        TimeUnitConstantParam constantParam = new TimeUnitConstantParam(TimeUnit.HOUR);
+        StringConstantParam constantParam = new StringConstantParam("constantparam");
         ObjectMapper objectMapper = new ObjectMapper();
-        String constantParamStr = "{\"type\":\"timeUnitConstant\",\"timeUnit\":\"HOUR\",\"value\":\"HOUR\"}";
-        TimeUnitConstantParam expected = objectMapper.readValue(constantParamStr, TimeUnitConstantParam.class);
+        String constantParamStr = "{\"type\":\"stringConstant\",\"value\":\"constantparam\"}";
+        StringConstantParam expected = objectMapper.readValue(constantParamStr, StringConstantParam.class);
         assertEquals(expected, constantParam);
     }
 
     /**
      * Test for format
      *
-     * @see TimeUnitConstantParam#format()
+     * @see StringConstantParam#format()
      */
     @Test
     public void testFormat() {
-        TimeUnitConstantParam constantParam = new TimeUnitConstantParam(TimeUnit.HOUR);
-        assertEquals("HOUR", constantParam.format());
+        StringConstantParam constantParam = new StringConstantParam("constantparam");
+        assertEquals("'constantparam'", constantParam.format());
     }
-
 }
