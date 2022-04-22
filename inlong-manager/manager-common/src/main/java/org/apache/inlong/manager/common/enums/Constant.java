@@ -52,8 +52,5 @@ public class Constant {
 
     public static final String PREFIX_RLQ = "rlq"; // prefix of the Topic of the retry letter queue
 
-    public static final Integer ENABLE_CREATE_RESOURCE = 1; // Enable create resource
-
-    public static final Integer DISABLE_CREATE_RESOURCE = 0; // Disable create resource
 
 }

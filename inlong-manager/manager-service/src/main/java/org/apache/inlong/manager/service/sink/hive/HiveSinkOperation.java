@@ -22,8 +22,10 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
@@ -82,8 +84,8 @@ public class HiveSinkOperation implements StreamSinkOperation {
         HiveSinkRequest hiveRequest = (HiveSinkRequest) request;
         SinkInfoUtils.checkPartitionField(hiveRequest.getFieldList(), hiveRequest.getPartitionFieldList());
         StreamSinkEntity entity = CommonBeanUtils.copyProperties(hiveRequest, StreamSinkEntity::new);
-        entity.setStatus(EntityStatus.SINK_NEW.getCode());
-        entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
+        entity.setStatus(SinkStatus.NEW.getCode());
+        entity.setIsDeleted(GlobalConstants.UN_DELETED);
         entity.setCreator(operator);
         entity.setModifier(operator);
         Date now = new Date();
@@ -128,7 +130,7 @@ public class HiveSinkOperation implements StreamSinkOperation {
             fieldEntity.setInlongStreamId(streamId);
             fieldEntity.setSinkType(sinkType);
             fieldEntity.setSinkId(sinkId);
-            fieldEntity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
+            fieldEntity.setIsDeleted(GlobalConstants.UN_DELETED);
             entityList.add(fieldEntity);
         }
 
@@ -198,12 +200,12 @@ public class HiveSinkOperation implements StreamSinkOperation {
         }
 
         entity.setPreviousStatus(entity.getStatus());
-        entity.setStatus(EntityStatus.GROUP_CONFIG_ING.getCode());
+        entity.setStatus(GroupStatus.CONFIG_ING.getCode());
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
         sinkMapper.updateByPrimaryKeySelective(entity);
 
-        boolean onlyAdd = EntityStatus.SINK_CONFIG_SUCCESSFUL.getCode().equals(entity.getPreviousStatus());
+        boolean onlyAdd = SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(entity.getPreviousStatus());
         this.updateFieldOpt(onlyAdd, hiveRequest);
 
         LOGGER.info("success to update sink of type={}", sinkType);

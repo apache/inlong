@@ -27,7 +27,7 @@ import java.util.Set;
 /**
  * State of stream source
  */
-public enum SourceState {
+public enum SourceStatus {
 
     // if deleted
     SOURCE_DISABLE(99, "disable"),
@@ -80,12 +80,12 @@ public enum SourceState {
             TO_BE_ISSUED_BACKTRACK.getCode(), TO_BE_ISSUED_FROZEN.getCode(), TO_BE_ISSUED_ACTIVE.getCode(),
             TO_BE_ISSUED_CHECK.getCode(), TO_BE_ISSUED_REDO_METRIC.getCode(), TO_BE_ISSUED_MAKEUP.getCode());
 
-    public static final Set<SourceState> TOBE_ISSUED_SET = Sets.newHashSet(
+    public static final Set<SourceStatus> TOBE_ISSUED_SET = Sets.newHashSet(
             TO_BE_ISSUED_ADD, TO_BE_ISSUED_DELETE, TO_BE_ISSUED_RETRY,
             TO_BE_ISSUED_BACKTRACK, TO_BE_ISSUED_FROZEN, TO_BE_ISSUED_ACTIVE,
             TO_BE_ISSUED_CHECK, TO_BE_ISSUED_REDO_METRIC, TO_BE_ISSUED_MAKEUP);
 
-    private static final Map<SourceState, Set<SourceState>> SOURCE_STATE_AUTOMATON = Maps.newHashMap();
+    private static final Map<SourceStatus, Set<SourceStatus>> SOURCE_STATE_AUTOMATON = Maps.newHashMap();
 
     static {
         // new
@@ -104,31 +104,31 @@ public enum SourceState {
         SOURCE_STATE_AUTOMATON.put(SOURCE_FROZEN, Sets.newHashSet(SOURCE_DISABLE, SOURCE_FROZEN, TO_BE_ISSUED_ACTIVE));
 
         // [xxx] bo be issued
-        HashSet<SourceState> tobeAdd = Sets.newHashSet(BEEN_ISSUED_ADD);
+        HashSet<SourceStatus> tobeAdd = Sets.newHashSet(BEEN_ISSUED_ADD);
         tobeAdd.addAll(TOBE_ISSUED_SET);
         SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_ADD, tobeAdd);
-        HashSet<SourceState> tobeDelete = Sets.newHashSet(BEEN_ISSUED_DELETE);
+        HashSet<SourceStatus> tobeDelete = Sets.newHashSet(BEEN_ISSUED_DELETE);
         tobeDelete.addAll(TOBE_ISSUED_SET);
         SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_DELETE, Sets.newHashSet(tobeDelete));
-        HashSet<SourceState> tobeRetry = Sets.newHashSet(BEEN_ISSUED_RETRY);
+        HashSet<SourceStatus> tobeRetry = Sets.newHashSet(BEEN_ISSUED_RETRY);
         tobeRetry.addAll(TOBE_ISSUED_SET);
         SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_RETRY, Sets.newHashSet(tobeRetry));
-        HashSet<SourceState> tobeBacktrack = Sets.newHashSet(BEEN_ISSUED_BACKTRACK);
+        HashSet<SourceStatus> tobeBacktrack = Sets.newHashSet(BEEN_ISSUED_BACKTRACK);
         tobeBacktrack.addAll(TOBE_ISSUED_SET);
         SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_BACKTRACK, Sets.newHashSet(tobeBacktrack));
-        HashSet<SourceState> tobeFrozen = Sets.newHashSet(BEEN_ISSUED_FROZEN);
+        HashSet<SourceStatus> tobeFrozen = Sets.newHashSet(BEEN_ISSUED_FROZEN);
         tobeFrozen.addAll(TOBE_ISSUED_SET);
         SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_FROZEN, Sets.newHashSet(tobeFrozen));
-        HashSet<SourceState> tobeActive = Sets.newHashSet(BEEN_ISSUED_ACTIVE);
+        HashSet<SourceStatus> tobeActive = Sets.newHashSet(BEEN_ISSUED_ACTIVE);
         tobeActive.addAll(TOBE_ISSUED_SET);
         SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_ACTIVE, Sets.newHashSet(tobeActive));
-        HashSet<SourceState> tobeCheck = Sets.newHashSet(BEEN_ISSUED_CHECK);
+        HashSet<SourceStatus> tobeCheck = Sets.newHashSet(BEEN_ISSUED_CHECK);
         tobeCheck.addAll(TOBE_ISSUED_SET);
         SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_CHECK, Sets.newHashSet(tobeCheck));
-        HashSet<SourceState> tobeRedoMetric = Sets.newHashSet(BEEN_ISSUED_REDO_METRIC);
+        HashSet<SourceStatus> tobeRedoMetric = Sets.newHashSet(BEEN_ISSUED_REDO_METRIC);
         tobeRedoMetric.addAll(TOBE_ISSUED_SET);
         SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_REDO_METRIC, Sets.newHashSet(tobeRedoMetric));
-        HashSet<SourceState> tobeMakeup = Sets.newHashSet(BEEN_ISSUED_MAKEUP);
+        HashSet<SourceStatus> tobeMakeup = Sets.newHashSet(BEEN_ISSUED_MAKEUP);
         tobeMakeup.addAll(TOBE_ISSUED_SET);
         SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_MAKEUP, Sets.newHashSet(tobeMakeup));
 
@@ -147,7 +147,7 @@ public enum SourceState {
     private final Integer code;
     private final String description;
 
-    SourceState(Integer code, String description) {
+    SourceStatus(Integer code, String description) {
         this.code = code;
         this.description = description;
     }
@@ -155,8 +155,8 @@ public enum SourceState {
     /**
      * Get state from the given code
      */
-    public static SourceState forCode(int code) {
-        for (SourceState state : values()) {
+    public static SourceStatus forCode(int code) {
+        for (SourceStatus state : values()) {
             if (state.getCode() == code) {
                 return state;
             }
@@ -167,8 +167,8 @@ public enum SourceState {
     /**
      * Whether the `next` state is valid according to the `current` state.
      */
-    public static boolean isAllowedTransition(SourceState current, SourceState next) {
-        Set<SourceState> nextStates = SOURCE_STATE_AUTOMATON.get(current);
+    public static boolean isAllowedTransition(SourceStatus current, SourceStatus next) {
+        Set<SourceStatus> nextStates = SOURCE_STATE_AUTOMATON.get(current);
         return nextStates != null && nextStates.contains(next);
     }
 

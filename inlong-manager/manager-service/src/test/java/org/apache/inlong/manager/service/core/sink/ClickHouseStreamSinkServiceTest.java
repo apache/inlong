@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.sink;
 
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkRequest;
@@ -64,7 +64,7 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setUsername(ckUsername);
         sinkInfo.setDbName(ckDatabaseName);
         sinkInfo.setTableName(ckTableName);
-        sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
+        sinkInfo.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
         sinkId = sinkService.save(sinkInfo, globalOperator);
     }
 
@@ -86,7 +86,7 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         ClickHouseSinkResponse kafkaSinkResponse = (ClickHouseSinkResponse) response;
-        kafkaSinkResponse.setEnableCreateResource(Constant.ENABLE_CREATE_RESOURCE);
+        kafkaSinkResponse.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
 
         ClickHouseSinkRequest request = CommonBeanUtils
                 .copyProperties(kafkaSinkResponse, ClickHouseSinkRequest::new);
