@@ -55,7 +55,7 @@ public class InlongGroupTransfer {
         inlongGroupConf.setGroupName(inlongGroupResponse.getName());
         inlongGroupConf.setDescription(inlongGroupResponse.getDescription());
         inlongGroupConf.setCnName(inlongGroupResponse.getCnName());
-        inlongGroupConf.setLightWeight(isLightGroup(inlongGroupResponse));
+        inlongGroupConf.setLightweight(isLightGroup(inlongGroupResponse));
         inlongGroupConf.setZookeeperEnabled(inlongGroupResponse.getZookeeperEnabled() == 1);
         inlongGroupConf.setDailyRecords(Long.valueOf(inlongGroupResponse.getDailyRecords()));
         inlongGroupConf.setPeakRecords(Long.valueOf(inlongGroupResponse.getPeakRecords()));
@@ -259,7 +259,7 @@ public class InlongGroupTransfer {
         InlongGroupExtInfo modeInfo = new InlongGroupExtInfo();
         modeInfo.setInlongGroupId(inlongGroupId);
         modeInfo.setKeyName(InlongGroupSettings.GROUP_MODE);
-        if (inlongGroupConf.isLightWeight()) {
+        if (inlongGroupConf.isLightweight()) {
             modeInfo.setKeyValue(GroupMode.LIGHT.getMode());
         } else {
             modeInfo.setKeyValue(GroupMode.NORMAL.getMode());
