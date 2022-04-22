@@ -32,9 +32,15 @@ public interface ProxyServiceMBean {
     String METHOD_STOPSERVICE = "stopService";
     String KEY_SOURCENAME = "sourceName";
     String ALL_SOURCENAME = "*";
+    String METHOD_RECOVERSERVICE = "recoverService";
 
     /**
      * stopService
      */
     void stopService();
+
+    /**
+     * recoverService
+     */
+    void recoverService();
 }

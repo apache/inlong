@@ -105,7 +105,7 @@ public class InlongTcpSource extends SimpleTcpSource
                 this.pipelineFactoryConfigurable.configure(context);
             }
             // register
-            AdminServiceRegister.register(ProxyServiceMBean.MBEAN_TYPE, this.getClass().getSimpleName(), this);
+            AdminServiceRegister.register(ProxyServiceMBean.MBEAN_TYPE, this.getName(), this);
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
         }
@@ -159,5 +159,13 @@ public class InlongTcpSource extends SimpleTcpSource
     @Override
     public void stopService() {
         this.sourceContext.setRejectService(true);
+    }
+
+    /**
+     * recoverService
+     */
+    @Override
+    public void recoverService() {
+        this.sourceContext.setRejectService(false);
     }
 }

@@ -56,10 +56,11 @@ public class ProxyServiceAdminEventHandler extends AbstractAdminEventHandler {
      */
     @Override
     public void process(String cmd, Event event, HttpServletResponse response) {
-        LOG.info("start to process admin task:{}", cmd);
         String sourceName = event.getHeaders().get(ProxyServiceMBean.KEY_SOURCENAME);
+        LOG.info("start to process admin task:{},sourceName:{}", cmd, sourceName);
         switch (cmd) {
             case ProxyServiceMBean.METHOD_STOPSERVICE :
+            case ProxyServiceMBean.METHOD_RECOVERSERVICE :
                 if (sourceName == null) {
                     break;
                 }
@@ -72,7 +73,7 @@ public class ProxyServiceAdminEventHandler extends AbstractAdminEventHandler {
             default :
                 break;
         }
-        LOG.info("end to process admin task:{}", cmd);
+        LOG.info("end to process admin task:{},sourceName:{}", cmd, sourceName);
     }
 
     /**
