@@ -83,11 +83,6 @@ public class FlinkSqlParser implements Parser {
         return new FlinkSqlParser(tableEnv, groupInfo);
     }
 
-    /**
-     * GroupInfo parse,it accepts a Tableenv and GroupInfo, and outputs the parsed FlinkSqlParseResult
-     *
-     * @return FlinkSqlParseResult the result of flink sql parse
-     */
     @Override
     public FlinkSqlParseResult parse() {
         Preconditions.checkNotNull(groupInfo, "group info is null");
@@ -319,7 +314,7 @@ public class FlinkSqlParser implements Parser {
         return sb.toString();
     }
 
-    public String parseTransformNodeFields(List<FieldInfo> fields) {
+    private String parseTransformNodeFields(List<FieldInfo> fields) {
         StringBuilder sb = new StringBuilder();
         for (FieldInfo field : fields) {
             sb.append("    `").append(field.getName()).append("`,");
@@ -330,7 +325,7 @@ public class FlinkSqlParser implements Parser {
         return sb.toString();
     }
 
-    public String parseFields(List<FieldInfo> fields, boolean isLoad) {
+    private String parseFields(List<FieldInfo> fields, boolean isLoad) {
         StringBuilder sb = new StringBuilder();
         for (FieldInfo field : fields) {
             sb.append("    `").append(field.getName()).append("` ");

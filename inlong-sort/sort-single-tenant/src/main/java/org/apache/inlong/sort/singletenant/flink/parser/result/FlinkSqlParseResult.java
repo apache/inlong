@@ -55,23 +55,12 @@ public class FlinkSqlParseResult implements ParseResult, Serializable {
         Preconditions.checkState(!loadSqls.isEmpty(), "loadSqls is empty");
     }
 
-    /**
-     * Execute the parse result
-     *
-     * @throws Exception The exception may throws when executing
-     */
     @Override
     public void execute() throws Exception {
         executeCreateTableSqls(createTableSqls);
         executeLoadSqls(loadSqls).wait();
     }
 
-    /**
-     * Try to execute, it mostly for unit test and syntax error checking
-     *
-     * @return true if try execute success else false
-     * @throws Exception The exception may throws when executing
-     */
     @Override
     public boolean tryExecute() throws Exception {
         executeCreateTableSqls(createTableSqls);
