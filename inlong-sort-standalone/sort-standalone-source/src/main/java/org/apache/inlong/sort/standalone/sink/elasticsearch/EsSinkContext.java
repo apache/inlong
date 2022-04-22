@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
-import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
@@ -123,18 +123,19 @@ public class EsSinkContext extends SinkContext {
                 return;
             }
             LOG.info("get new SortTaskConfig:taskName:{}:config:{}", taskName,
-                    JSON.toJSONString(newSortTaskConfig));
+                    new ObjectMapper().writeValueAsString(newSortTaskConfig));
             this.sortTaskConfig = newSortTaskConfig;
             this.sinkContext = new Context(this.sortTaskConfig.getSinkParams());
             // parse the config of id and topic
             Map<String, EsIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
             List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
+            ObjectMapper objectMapper = new ObjectMapper();
             for (Map<String, String> idParam : idList) {
                 String inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
                 String inlongStreamId = idParam.get(Constants.INLONG_STREAM_ID);
                 String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
-                String jsonIdConfig = JSON.toJSONString(idParam);
-                EsIdConfig idConfig = JSON.parseObject(jsonIdConfig, EsIdConfig.class);
+                String jsonIdConfig = objectMapper.writeValueAsString(idParam);
+                EsIdConfig idConfig = objectMapper.readValue(jsonIdConfig, EsIdConfig.class);
                 idConfig.getFieldList();
                 newIdConfigMap.put(uid, idConfig);
             }
@@ -167,7 +168,7 @@ public class EsSinkContext extends SinkContext {
             }
             // log
             LOG.info("end to get SortTaskConfig:taskName:{}:newIdConfigMap:{}", taskName,
-                    JSON.toJSONString(newIdConfigMap));
+                    new ObjectMapper().writeValueAsString(newIdConfigMap));
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }

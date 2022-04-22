@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.standalone.config.loader;
 
-import java.io.UnsupportedEncodingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.flume.Context;
@@ -26,7 +26,7 @@ import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigType;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-import com.google.gson.Gson;
+import java.io.UnsupportedEncodingException;
 
 /**
  * 
@@ -51,8 +51,8 @@ public class ClassResourceSortClusterConfigLoader implements SortClusterConfigLo
                 fileName = context.getString(SortClusterConfigType.KEY_FILE, SortClusterConfigType.DEFAULT_FILE);
             }
             String confString = IOUtils.toString(getClass().getClassLoader().getResource(fileName));
-            Gson gson = new Gson();
-            SortClusterConfig config = gson.fromJson(confString, SortClusterConfig.class);
+            ObjectMapper objectMapper = new ObjectMapper();
+            SortClusterConfig config = objectMapper.readValue(confString, SortClusterConfig.class);
             return config;
         } catch (UnsupportedEncodingException e) {
             LOG.error("fail to load properties, file ={}, and e= {}", fileName, e);
