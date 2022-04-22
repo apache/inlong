@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,24 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.resource.hive;
+package org.apache.inlong.manager.service.resource;
 
-import java.util.List;
-
-import org.apache.inlong.manager.common.pojo.sink.SinkForSortDTO;
+import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
 
 /**
- * IHiveTableOperator
+ * Interface of the sink resource operator
  */
-public interface IHiveTableOperator {
-
-    String BEAN_NAME = "HiveTableOperator";
+public interface SinkResourceOperator {
 
     /**
-     * Create hive table according to the groupId and hive config createHiveResource
-     * 
-     * @param groupId
-     * @param configList
+     * Determines whether the current instance matches the specified type.
      */
-    public void createHiveResource(String groupId, List<SinkForSortDTO> configList);
+    Boolean accept(SinkType sinkType);
+
+    /**
+     * Create sink resource.
+     *
+     * @param groupId The inlong group id.
+     * @param sinkInfo The sink response info.
+     */
+    void createSinkResource(String groupId, SinkInfo sinkInfo);
+
 }

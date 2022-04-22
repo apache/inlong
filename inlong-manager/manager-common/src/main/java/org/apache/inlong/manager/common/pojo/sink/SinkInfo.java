@@ -18,32 +18,31 @@
 package org.apache.inlong.manager.common.pojo.sink;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * Ext fields of stream sink
+ * Sink info - with stream
  */
 @Data
-@ApiModel("Ext fields of stream sink")
-public class SinkExtInfo {
+@ApiModel("Sink info - with stream")
+public class SinkInfo {
 
-    @ApiModelProperty("key")
     private Integer id;
-
-    @ApiModelProperty("sink type, like: HDFS, HIVE")
+    private String inlongGroupId;
+    private String inlongStreamId;
     private String sinkType;
+    private String sinkName;
+    private String description;
+    private Integer enableCreateResource;
+    private String extParams;
+    private Integer status;
+    private String creator;
 
-    @ApiModelProperty("sink id")
-    private Integer sinkId;
-
-    @ApiModelProperty("property name")
-    private String keyName;
-
-    @ApiModelProperty("property value")
-    private String keyValue;
-
-    @ApiModelProperty("is deleted? 0: deleted, 1: not deleted")
-    private Integer isDeleted = 0;
+    // Inlong stream info
+    private String mqResourceObj;
+    private String dataSourceType;
+    private String dataType;
+    private String sourceSeparator; // Source separator configured in the stream info
+    private String dataEscapeChar;
 
 }

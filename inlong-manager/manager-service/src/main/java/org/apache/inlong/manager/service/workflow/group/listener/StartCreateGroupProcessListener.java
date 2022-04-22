@@ -68,10 +68,9 @@ public class StartCreateGroupProcessListener implements ProcessEventListener {
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
         processForm.setGroupInfo(groupService.get(groupId));
         String username = context.getApplicant();
-        List<InlongStreamEntity> inlongStreamEntityList = streamMapper.selectByGroupId(groupId);
-        List<InlongStreamInfo> streamList = CommonBeanUtils.copyListProperties(inlongStreamEntityList,
-                InlongStreamInfo::new);
-        processForm.setInlongStreamInfoList(streamList);
+        List<InlongStreamEntity> entityList = streamMapper.selectByGroupId(groupId);
+        List<InlongStreamInfo> streamList = CommonBeanUtils.copyListProperties(entityList, InlongStreamInfo::new);
+        processForm.setStreamInfoList(streamList);
         workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm);
         return ListenerResult.success();
     }
