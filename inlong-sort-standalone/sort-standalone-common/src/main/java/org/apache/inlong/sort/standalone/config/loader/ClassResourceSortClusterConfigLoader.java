@@ -27,6 +27,7 @@ import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 /**
  * 
@@ -50,7 +51,10 @@ public class ClassResourceSortClusterConfigLoader implements SortClusterConfigLo
             if (context != null) {
                 fileName = context.getString(SortClusterConfigType.KEY_FILE, SortClusterConfigType.DEFAULT_FILE);
             }
-            String confString = IOUtils.toString(getClass().getClassLoader().getResource(fileName));
+            String confString = IOUtils.toString(getClass().getClassLoader().getResource(fileName),
+                    Charset.defaultCharset());
+            int index = confString.indexOf('{');
+            confString = confString.substring(index);
             ObjectMapper objectMapper = new ObjectMapper();
             SortClusterConfig config = objectMapper.readValue(confString, SortClusterConfig.class);
             return config;
