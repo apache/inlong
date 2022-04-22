@@ -28,6 +28,9 @@ import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Right outer join relationship class which defines the right outer join relationship
+ */
 @JsonTypeName("rightOutJoin")
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -36,6 +39,15 @@ public class RightOuterJoinNodeRelationShip extends JoinRelationShip {
 
     private static final long serialVersionUID = 9202862229428483437L;
 
+    /**
+     * RightOuterJoinNodeRelationShip Constructor
+     *
+     * @param inputs The inputs,a list of input node id
+     * @param outputs The outputs,a list of output node id
+     * @param joinConditionMap The joinConditionMap, a map of join conditions
+     *         the key of joinConditionMap is the node id of join node
+     *         the value of joinConditionMap is a list of join contidition
+     */
     @JsonCreator
     public RightOuterJoinNodeRelationShip(@JsonProperty("inputs") List<String> inputs,
             @JsonProperty("outputs") List<String> outputs,

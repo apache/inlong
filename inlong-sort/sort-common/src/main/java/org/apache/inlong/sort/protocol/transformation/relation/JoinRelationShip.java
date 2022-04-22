@@ -29,6 +29,9 @@ import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Join relation abstract class
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
@@ -49,6 +52,15 @@ public abstract class JoinRelationShip extends NodeRelationShip {
     @JsonProperty("joinConditionMap")
     private Map<String, List<FilterFunction>> joinConditionMap;
 
+    /**
+     * JoinRelationShip Constructor
+     *
+     * @param inputs The inputs,a list of input node id
+     * @param outputs The outputs,a list of output node id
+     * @param joinConditionMap The joinConditionMap, a map of join conditions
+     *         the key of joinConditionMap is the node id of join node
+     *         the value of joinConditionMap is a list of join contidition
+     */
     public JoinRelationShip(@JsonProperty("inputs") List<String> inputs,
             @JsonProperty("outputs") List<String> outputs,
             @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
@@ -57,5 +69,11 @@ public abstract class JoinRelationShip extends NodeRelationShip {
         Preconditions.checkState(!joinConditionMap.isEmpty(), "joinConditionMap is empty");
     }
 
+    /**
+     * Node relationship format
+     * that is, the relationship is converted into a string representation of SQL
+     *
+     * @return a string representation of SQL
+     */
     public abstract String format();
 }

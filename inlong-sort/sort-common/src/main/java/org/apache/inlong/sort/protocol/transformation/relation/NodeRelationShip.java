@@ -28,6 +28,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * Node relationship base class which defines the simplest one-to-one relationship
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
@@ -51,6 +54,12 @@ public class NodeRelationShip implements Serializable {
     @JsonProperty("outputs")
     private List<String> outputs;
 
+    /**
+     * NodeRelationShip Constructor
+     *
+     * @param inputs The inputs,a list of input node id
+     * @param outputs The outputs,a list of output node id
+     */
     @JsonCreator
     public NodeRelationShip(@JsonProperty("inputs") List<String> inputs,
             @JsonProperty("outputs") List<String> outputs) {

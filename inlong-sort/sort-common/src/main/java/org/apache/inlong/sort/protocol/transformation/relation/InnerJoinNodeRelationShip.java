@@ -28,6 +28,9 @@ import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Inner join relationship class which defines the inner join relationship
+ */
 @JsonTypeName("innerJoin")
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -36,6 +39,15 @@ public class InnerJoinNodeRelationShip extends JoinRelationShip {
 
     private static final long serialVersionUID = -5446480979888656724L;
 
+    /**
+     * InnerJoinNodeRelationShip Constructor
+     *
+     * @param inputs The inputs,a list of input node id
+     * @param outputs The outputs,a list of output node id
+     * @param joinConditionMap The joinConditionMap, a map of join conditions
+     *         the key of joinConditionMap is the node id of join node
+     *         the value of joinConditionMap is a list of join contidition
+     */
     @JsonCreator
     public InnerJoinNodeRelationShip(@JsonProperty("inputs") List<String> inputs,
             @JsonProperty("outputs") List<String> outputs,

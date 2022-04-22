@@ -24,6 +24,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 
 import java.util.List;
 
+/**
+ * Union relationship class which defines the union relationship
+ */
 @JsonTypeName("union")
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -31,6 +34,12 @@ public class UnionNodeRelationShip extends NodeRelationShip {
 
     private static final long serialVersionUID = 6602357131254518291L;
 
+    /**
+     * UnionNodeRelationShip Constructor
+     *
+     * @param inputs The inputs,a list of input node id
+     * @param outputs The outputs,a list of output node id
+     */
     public UnionNodeRelationShip(@JsonProperty("inputs") List<String> inputs,
             @JsonProperty("outputs") List<String> outputs) {
         super(inputs, outputs);
