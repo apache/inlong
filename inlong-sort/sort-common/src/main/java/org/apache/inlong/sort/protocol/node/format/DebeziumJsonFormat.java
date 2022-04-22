@@ -85,11 +85,11 @@ public class DebeziumJsonFormat implements Format {
 
     /**
      * Generate options for connector
-     * @param includePrefix true will need append key and value when format is json avro csv
+     *
      * @return options
      */
     @Override
-    public Map<String, String> generateOptions(boolean includePrefix) {
+    public Map<String, String> generateOptions() {
         Map<String, String> options = new HashMap<>(16);
         options.put("format", getFormat());
         if (this.schemaInclude != null) {

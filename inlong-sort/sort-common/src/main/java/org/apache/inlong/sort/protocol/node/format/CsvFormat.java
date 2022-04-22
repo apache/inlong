@@ -87,61 +87,29 @@ public class CsvFormat implements Format {
 
     /**
      * Generate options for connector
-     * @param includePrefix true will need append key and value when format is json avro csv
+     *
      * @return options
      */
-    @Override
-    public Map<String, String> generateOptions(boolean includePrefix) {
+    public Map<String, String> generateOptions() {
         Map<String, String> options = new HashMap<>(16);
-        if (includePrefix) {
-            options.put("key.format", getFormat());
-            options.put("value.format", getFormat());
-            options.put("key.csv.field-delimiter", this.fieldDelimiter);
-            options.put("value.csv.field-delimiter", this.fieldDelimiter);
-            if (this.disableQuoteCharacter != null) {
-                options.put("key.csv.disable-quote-character", this.disableQuoteCharacter.toString());
-                options.put("value.csv.disable-quote-character", this.disableQuoteCharacter.toString());
-            }
-            options.put("key.csv.quote-character", this.quoteCharacter);
-            options.put("value.csv.quote-character", this.quoteCharacter);
-            if (this.allowComments != null) {
-                options.put("key.csv.allow-comments", this.allowComments.toString());
-                options.put("value.csv.allow-comments", this.allowComments.toString());
-            }
-            if (this.ignoreParseErrors != null) {
-                options.put("key.csv.ignore-parse-errors", this.ignoreParseErrors.toString());
-                options.put("value.csv.ignore-parse-errors", this.ignoreParseErrors.toString());
-            }
-            options.put("key.csv.array-element-delimiter", this.arrayElementDelimiter);
-            options.put("value.csv.array-element-delimiter", this.arrayElementDelimiter);
-            if (this.escapeCharacter != null) {
-                options.put("key.csv.escape-character", this.escapeCharacter);
-                options.put("value.csv.escape-character", this.escapeCharacter);
-            }
-            if (this.nullLiteral != null) {
-                options.put("key.csv.null-literal", this.nullLiteral);
-                options.put("value.csv.null-literal", this.nullLiteral);
-            }
-        } else {
-            options.put("format", getFormat());
-            options.put("csv.field-delimiter", this.fieldDelimiter);
-            if (this.disableQuoteCharacter != null) {
-                options.put("csv.disable-quote-character", this.disableQuoteCharacter.toString());
-            }
-            options.put("csv.quote-character", this.quoteCharacter);
-            if (this.allowComments != null) {
-                options.put("csv.allow-comments", this.allowComments.toString());
-            }
-            if (this.ignoreParseErrors != null) {
-                options.put("csv.ignore-parse-errors", this.ignoreParseErrors.toString());
-            }
-            options.put("csv.array-element-delimiter", this.arrayElementDelimiter);
-            if (this.escapeCharacter != null) {
-                options.put("csv.escape-character", this.escapeCharacter);
-            }
-            if (this.nullLiteral != null) {
-                options.put("csv.null-literal", this.nullLiteral);
-            }
+        options.put("format", getFormat());
+        options.put("csv.field-delimiter", this.fieldDelimiter);
+        if (this.disableQuoteCharacter != null) {
+            options.put("csv.disable-quote-character", this.disableQuoteCharacter.toString());
+        }
+        options.put("csv.quote-character", this.quoteCharacter);
+        if (this.allowComments != null) {
+            options.put("csv.allow-comments", this.allowComments.toString());
+        }
+        if (this.ignoreParseErrors != null) {
+            options.put("csv.ignore-parse-errors", this.ignoreParseErrors.toString());
+        }
+        options.put("csv.array-element-delimiter", this.arrayElementDelimiter);
+        if (this.escapeCharacter != null) {
+            options.put("csv.escape-character", this.escapeCharacter);
+        }
+        if (this.nullLiteral != null) {
+            options.put("csv.null-literal", this.nullLiteral);
         }
         return options;
     }
