@@ -24,8 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
-import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.common.CountInfo;
@@ -359,7 +359,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         entity.setFilterEnabled(0);
 
         entity.setStatus(ConsumptionStatus.APPROVED.getStatus());
-        entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
+        entity.setIsDeleted(GlobalConstants.UN_DELETED);
         entity.setCreator(bizInfo.getCreator());
         entity.setCreateTime(new Date());
 
@@ -370,7 +370,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
             pulsarEntity.setConsumptionId(entity.getId());
             pulsarEntity.setConsumerGroupId(consumerGroup);
             pulsarEntity.setInlongGroupId(groupId);
-            pulsarEntity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
+            pulsarEntity.setIsDeleted(GlobalConstants.UN_DELETED);
             consumptionPulsarMapper.insert(pulsarEntity);
         }
 

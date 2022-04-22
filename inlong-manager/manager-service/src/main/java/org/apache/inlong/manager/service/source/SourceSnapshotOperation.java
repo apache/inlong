@@ -25,7 +25,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
-import org.apache.inlong.manager.common.enums.SourceState;
+import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.slf4j.Logger;
@@ -146,9 +146,9 @@ public class SourceSnapshotOperation implements AutoCloseable {
 
                 // Update the status from temporary to normal
                 Integer status = idStatusMap.get(id);
-                if (SourceState.TEMP_TO_NORMAL.contains(status)) {
+                if (SourceStatus.TEMP_TO_NORMAL.contains(status)) {
                     isInvalid = true;
-                    sourceMapper.updateStatus(id, SourceState.SOURCE_NORMAL.getCode(), false);
+                    sourceMapper.updateStatus(id, SourceStatus.SOURCE_NORMAL.getCode(), false);
                 }
             }
 

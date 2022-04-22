@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
@@ -80,7 +80,7 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult startProcess(String groupId, String operator) {
         LOGGER.info("begin to start approve process, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.TO_BE_APPROVAL.getCode(), operator);
+        groupService.updateStatus(groupId, GroupStatus.TO_BE_APPROVAL.getCode(), operator);
         // Initiate the approval process
         NewGroupProcessForm form = genNewGroupProcessForm(groupId);
         return workflowService.start(ProcessName.NEW_GROUP_PROCESS, operator, form);
@@ -95,7 +95,7 @@ public class InlongGroupProcessOperation {
      */
     public String suspendProcessAsync(String groupId, String operator) {
         LOGGER.info("begin to suspend process asynchronously, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.SUSPENDING.getCode(), operator);
+        groupService.updateStatus(groupId, GroupStatus.SUSPENDING.getCode(), operator);
         UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.SUSPEND);
         executorService.execute(() -> workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form));
         return groupId;
@@ -110,7 +110,7 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult suspendProcess(String groupId, String operator) {
         LOGGER.info("begin to suspend process, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.SUSPENDING.getCode(), operator);
+        groupService.updateStatus(groupId, GroupStatus.SUSPENDING.getCode(), operator);
         UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.SUSPEND);
         return workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form);
     }
@@ -123,7 +123,7 @@ public class InlongGroupProcessOperation {
      */
     public String restartProcessAsync(String groupId, String operator) {
         LOGGER.info("begin to restart process asynchronously, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.RESTARTING.getCode(), operator);
+        groupService.updateStatus(groupId, GroupStatus.RESTARTING.getCode(), operator);
         UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.RESTART);
         executorService.execute(() -> workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form));
         return groupId;
@@ -137,7 +137,7 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult restartProcess(String groupId, String operator) {
         LOGGER.info("begin to restart process, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.RESTARTING.getCode(), operator);
+        groupService.updateStatus(groupId, GroupStatus.RESTARTING.getCode(), operator);
         UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.RESTART);
         return workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form);
     }

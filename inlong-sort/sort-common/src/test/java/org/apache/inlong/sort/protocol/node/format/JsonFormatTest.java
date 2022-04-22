@@ -15,21 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.sort.protocol.node.format;
 
-/**
- * Global constant for system
- */
-public class GlobalConstants {
+public class JsonFormatTest extends FormatBaseTest {
 
-    public static final Integer UN_DELETED = 0;
-
-    public static final Integer IS_DELETED = 1;
-
-    public static final Integer DELETED_STATUS = 10;
-
-    public static final Integer DISABLE_CREATE_RESOURCE = 0;
-
-    public static final Integer ENABLE_CREATE_RESOURCE = 1;
-
+    /**
+     * Test Serialize and Deserialize of json
+     *
+     * @return format
+     * @see Format
+     */
+    @Override
+    public Format getFormat() {
+        return new JsonFormat();
+    }
 }

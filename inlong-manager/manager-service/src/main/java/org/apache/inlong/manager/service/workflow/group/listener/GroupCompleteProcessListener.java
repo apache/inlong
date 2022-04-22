@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.service.workflow.group.listener;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.EntityStatus;
-import org.apache.inlong.manager.common.enums.GroupState;
-import org.apache.inlong.manager.common.enums.SourceState;
+import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.SourceStatus;
+import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
@@ -63,12 +63,12 @@ public class GroupCompleteProcessListener implements ProcessEventListener {
         String groupId = form.getInlongGroupId();
         String applicant = context.getApplicant();
         // Update inlong group status and other info
-        groupService.updateStatus(groupId, GroupState.CONFIG_SUCCESSFUL.getCode(), applicant);
+        groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), applicant);
         groupService.update(form.getGroupInfo().genRequest(), applicant);
 
         // Update status of other related configs
-        streamService.updateStatus(groupId, null, EntityStatus.STREAM_CONFIG_SUCCESSFUL.getCode(), applicant);
-        sourceService.updateStatus(groupId, null, SourceState.TO_BE_ISSUED_ADD.getCode(), applicant);
+        streamService.updateStatus(groupId, null, StreamStatus.CONFIG_SUCCESSFUL.getCode(), applicant);
+        sourceService.updateStatus(groupId, null, SourceStatus.TO_BE_ISSUED_ADD.getCode(), applicant);
 
         return ListenerResult.success();
     }

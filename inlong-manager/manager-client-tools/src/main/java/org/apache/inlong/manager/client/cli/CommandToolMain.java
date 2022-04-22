@@ -67,18 +67,17 @@ public class CommandToolMain {
     }
 
     boolean run(String[] args) {
-
-        if (help || args.length == 0) {
-            jcommander.usage();
-            return true;
-        }
-
         try {
             jcommander.parse(args);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             jcommander.usage();
             return false;
+        }
+
+        if (help || args.length == 0) {
+            jcommander.usage();
+            return true;
         }
 
         String cmd = args[0];

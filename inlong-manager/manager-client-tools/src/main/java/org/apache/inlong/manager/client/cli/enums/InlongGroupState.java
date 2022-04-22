@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.cli.enums;
 
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,36 +37,36 @@ public enum InlongGroupState {
         List<Integer> stateList = new ArrayList<>();
         switch (groupState) {
             case CREATE:
-                stateList.add(GroupState.DRAFT.getCode());
+                stateList.add(GroupStatus.DRAFT.getCode());
                 return stateList;
             case OPERATING:
-                stateList.add(GroupState.DELETING.getCode());
-                stateList.add(GroupState.SUSPENDING.getCode());
-                stateList.add(GroupState.RESTARTING.getCode());
+                stateList.add(GroupStatus.DELETING.getCode());
+                stateList.add(GroupStatus.SUSPENDING.getCode());
+                stateList.add(GroupStatus.RESTARTING.getCode());
                 return stateList;
             case REJECTED:
-                stateList.add(GroupState.APPROVE_REJECTED.getCode());
+                stateList.add(GroupStatus.APPROVE_REJECTED.getCode());
                 return stateList;
             case INITIALIZING:
-                stateList.add(GroupState.TO_BE_APPROVAL.getCode());
-                stateList.add(GroupState.APPROVE_PASSED.getCode());
-                stateList.add(GroupState.CONFIG_ING.getCode());
+                stateList.add(GroupStatus.TO_BE_APPROVAL.getCode());
+                stateList.add(GroupStatus.APPROVE_PASSED.getCode());
+                stateList.add(GroupStatus.CONFIG_ING.getCode());
                 return stateList;
             case FAILED:
-                stateList.add(GroupState.CONFIG_FAILED.getCode());
+                stateList.add(GroupStatus.CONFIG_FAILED.getCode());
                 return stateList;
             case STARTED:
-                stateList.add(GroupState.RESTARTED.getCode());
-                stateList.add(GroupState.CONFIG_SUCCESSFUL.getCode());
+                stateList.add(GroupStatus.RESTARTED.getCode());
+                stateList.add(GroupStatus.CONFIG_SUCCESSFUL.getCode());
                 return stateList;
             case STOPPED:
-                stateList.add(GroupState.SUSPENDED.getCode());
+                stateList.add(GroupStatus.SUSPENDED.getCode());
                 return stateList;
             case FINISHED:
-                stateList.add(GroupState.FINISH.getCode());
+                stateList.add(GroupStatus.FINISH.getCode());
                 return stateList;
             case DELETED:
-                stateList.add(GroupState.DELETED.getCode());
+                stateList.add(GroupStatus.DELETED.getCode());
                 return stateList;
             default:
                 throw new IllegalArgumentException(String.format("Unsupported status %s for group", state));

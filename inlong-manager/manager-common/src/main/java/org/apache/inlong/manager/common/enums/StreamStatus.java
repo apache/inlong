@@ -18,18 +18,35 @@
 package org.apache.inlong.manager.common.enums;
 
 /**
- * Global constant for system
+ * Stream status enum
  */
-public class GlobalConstants {
+public enum StreamStatus {
 
-    public static final Integer UN_DELETED = 0;
+    DRAFT(0, "draft"),
+    DELETED(10, "deleted"),
 
-    public static final Integer IS_DELETED = 1;
+    // Stream related status
+    NEW(100, "new"),
+    CONFIG_ING(110, "in configure"),
+    CONFIG_FAILED(120, "configuration failed"),
+    CONFIG_SUCCESSFUL(130, "configuration successful"),
 
-    public static final Integer DELETED_STATUS = 10;
+    ;
 
-    public static final Integer DISABLE_CREATE_RESOURCE = 0;
+    private final Integer code;
+    private final String description;
 
-    public static final Integer ENABLE_CREATE_RESOURCE = 1;
+    StreamStatus(Integer code, String description) {
+        this.code = code;
+        this.description = description;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 
 }
