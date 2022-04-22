@@ -37,10 +37,15 @@ import java.util.TreeMap;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for{@link RightOuterJoinNodeRelationTest}
+ * Tests for {@link RightOuterJoinNodeRelationTest}
  */
 public class RightOuterJoinNodeRelationTest {
 
+    /**
+     * Test serialize for RightOuterJoinNodeRelationShip
+     *
+     * @throws JsonProcessingException The exception may throws when execute the method
+     */
     @Test
     public void testSerialize() throws JsonProcessingException {
         Map<String, List<FilterFunction>> joinConditionMap = new TreeMap<>();
@@ -83,6 +88,11 @@ public class RightOuterJoinNodeRelationTest {
         assertEquals(expected, objectMapper.writeValueAsString(relationShip));
     }
 
+    /**
+     * Test deserialize for RightOuterJoinNodeRelationShip
+     *
+     * @throws JsonProcessingException The exception may throws when execute the method
+     */
     @Test
     public void testDeserialize() throws JsonProcessingException {
         Map<String, List<FilterFunction>> joinConditionMap = new TreeMap<>();

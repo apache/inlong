@@ -26,10 +26,15 @@ import java.util.Collections;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for{@link UnionNodeRelationTest}
+ * Tests for {@link UnionNodeRelationTest}
  */
 public class UnionNodeRelationTest {
 
+    /**
+     * Test serialize for UnionNodeRelationShip
+     *
+     * @throws JsonProcessingException The exception may throws when execute the method
+     */
     @Test
     public void testSerialize() throws JsonProcessingException {
         UnionNodeRelationShip relationShip = new UnionNodeRelationShip(Arrays.asList("1", "2"),
@@ -39,6 +44,11 @@ public class UnionNodeRelationTest {
         assertEquals(expected, objectMapper.writeValueAsString(relationShip));
     }
 
+    /**
+     * Test deserialize for UnionNodeRelationShip
+     *
+     * @throws JsonProcessingException The exception may throws when execute the method
+     */
     @Test
     public void testDeserialize() throws JsonProcessingException {
         UnionNodeRelationShip relationShip = new UnionNodeRelationShip(Arrays.asList("1", "2"),
