@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.pojo.query.ColumnInfoBean;
 import org.apache.inlong.manager.common.pojo.query.DatabaseQueryBean;
 import org.apache.inlong.manager.common.pojo.query.hive.HiveColumnQueryBean;
 import org.apache.inlong.manager.common.pojo.query.hive.HiveTableQueryBean;
-import org.apache.inlong.manager.common.pojo.sink.FullSinkInfo;
+import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkDTO;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
@@ -67,7 +67,7 @@ public class HiveResourceOperator implements SinkResourceOperator {
     /**
      * Create hive table according to the groupId and hive config
      */
-    public void createSinkResource(String groupId, FullSinkInfo sinkInfo) {
+    public void createSinkResource(String groupId, SinkInfo sinkInfo) {
         if (sinkInfo == null) {
             LOGGER.warn("sink info was null, skip to create resource");
             return;
@@ -84,7 +84,7 @@ public class HiveResourceOperator implements SinkResourceOperator {
         this.createTable(groupId, sinkInfo);
     }
 
-    private void createTable(String groupId, FullSinkInfo config) {
+    private void createTable(String groupId, SinkInfo config) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("begin create hive table for inlong group={}, config={}", groupId, config);
         }
@@ -121,7 +121,7 @@ public class HiveResourceOperator implements SinkResourceOperator {
         LOGGER.info("success create hive table for data group [" + groupId + "]");
     }
 
-    protected HiveTableQueryBean getTableQueryBean(FullSinkInfo config, HiveSinkDTO hiveInfo) {
+    protected HiveTableQueryBean getTableQueryBean(SinkInfo config, HiveSinkDTO hiveInfo) {
         String groupId = config.getInlongGroupId();
         String streamId = config.getInlongStreamId();
         LOGGER.info("begin to get table query bean for groupId={}, streamId={}", groupId, streamId);

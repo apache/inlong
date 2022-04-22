@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.resource;
 
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.FullSinkInfo;
+import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
 
 /**
  * Interface of the sink resource operator
@@ -36,6 +36,6 @@ public interface SinkResourceOperator {
      * @param groupId The inlong group id.
      * @param sinkInfo The sink response info.
      */
-    void createSinkResource(String groupId, FullSinkInfo sinkInfo);
+    void createSinkResource(String groupId, SinkInfo sinkInfo);
 
 }

@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.FullSinkInfo;
+import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
@@ -64,8 +64,8 @@ public class CreateSinkResourceListener implements SinkOperateListener {
         if (CollectionUtils.isNotEmpty(streamList)) {
             streamIdList = streamList.stream().map(InlongStreamInfo::getInlongStreamId).collect(Collectors.toList());
         }
-        List<FullSinkInfo> configList = sinkMapper.selectAllConfig(groupId, streamIdList);
-        List<FullSinkInfo> needCreateList = configList.stream()
+        List<SinkInfo> configList = sinkMapper.selectAllConfig(groupId, streamIdList);
+        List<SinkInfo> needCreateList = configList.stream()
                 .filter(sinkInfo -> GlobalConstants.ENABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource()))
                 .collect(Collectors.toList());
 
@@ -75,7 +75,7 @@ public class CreateSinkResourceListener implements SinkOperateListener {
             return ListenerResult.success(result);
         }
 
-        for (FullSinkInfo sinkConfig : needCreateList) {
+        for (SinkInfo sinkConfig : needCreateList) {
             String sinkType = sinkConfig.getSinkType();
             SinkResourceOperator resourceOperator = resourceOperatorFactory.getInstance(SinkType.forType(sinkType));
             resourceOperator.createSinkResource(groupId, sinkConfig);
