@@ -22,37 +22,40 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMap
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for {@link NodeRelationShip}
+ * Tests for {@link UnionNodeRelationShip}
  */
-public class NodeRelationTest {
+public class UnionNodeRelationTest {
 
     /**
-     * Test serialize for NodeRelationShip
+     * Test serialize for UnionNodeRelationShip
      *
      * @throws JsonProcessingException The exception may throws when execute the method
      */
     @Test
     public void testSerialize() throws JsonProcessingException {
-        NodeRelationShip relationShip = new NodeRelationShip(Arrays.asList("1", "2"), Arrays.asList("3", "4"));
+        UnionNodeRelationShip relationShip = new UnionNodeRelationShip(Arrays.asList("1", "2"),
+                Collections.singletonList("3"));
         ObjectMapper objectMapper = new ObjectMapper();
-        String expected = "{\"type\":\"baseRelation\",\"inputs\":[\"1\",\"2\"],\"outputs\":[\"3\",\"4\"]}";
+        String expected = "{\"type\":\"union\",\"inputs\":[\"1\",\"2\"],\"outputs\":[\"3\"]}";
         assertEquals(expected, objectMapper.writeValueAsString(relationShip));
     }
 
     /**
-     * Test deserialize for NodeRelationShip
+     * Test deserialize for UnionNodeRelationShip
      *
      * @throws JsonProcessingException The exception may throws when execute the method
      */
     @Test
     public void testDeserialize() throws JsonProcessingException {
-        NodeRelationShip relationShip = new NodeRelationShip(Arrays.asList("1", "2"), Arrays.asList("3", "4"));
+        UnionNodeRelationShip relationShip = new UnionNodeRelationShip(Arrays.asList("1", "2"),
+                Collections.singletonList("3"));
         ObjectMapper objectMapper = new ObjectMapper();
-        String relationShipStr = "{\"type\":\"baseRelation\",\"inputs\":[\"1\",\"2\"],\"outputs\":[\"3\",\"4\"]}";
-        NodeRelationShip expected = objectMapper.readValue(relationShipStr, NodeRelationShip.class);
+        String relationShipStr = "{\"type\":\"union\",\"inputs\":[\"1\",\"2\"],\"outputs\":[\"3\"]}";
+        UnionNodeRelationShip expected = objectMapper.readValue(relationShipStr, UnionNodeRelationShip.class);
         assertEquals(expected, relationShip);
     }
 
