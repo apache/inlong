@@ -27,7 +27,7 @@ base_dir=$(
 LOG_PATH="${base_dir}/logs"
 
 PID=$(ps -ef | grep "audit-store" | grep -v grep | awk '{ print $2}')
-LOG_DIR="${basedir}/logs"
+LOG_DIR="${base_dir}/logs"
 
 if [ -n "$PID" ]; then
  echo "Application has already started."
