@@ -27,13 +27,21 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 
 import java.io.Serializable;
 
+/**
+ * ConstantParam class is used for the definition and encapsulation of constant param.
+ * It can represent any constant, but it is simply implemented by toString() of {@link Object}
+ * in the format function used for sql.
+ * It contains two subclasses, one is {@link TimeUnitConstantParam} for the definition of time unit constant,
+ * and the other is {@link StringConstantParam} for the definition of string constant.
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ConstantParam.class, name = "constant"),
-        @JsonSubTypes.Type(value = TimeUnitConstantParam.class, name = "timeUnitConstant")
+        @JsonSubTypes.Type(value = TimeUnitConstantParam.class, name = "timeUnitConstant"),
+        @JsonSubTypes.Type(value = StringConstantParam.class, name = "stringConstant")
 })
 @NoArgsConstructor
 @Data
@@ -42,10 +50,15 @@ public class ConstantParam implements FunctionParam, Serializable {
     private static final long serialVersionUID = 7216146498324134122L;
 
     @JsonProperty("value")
-    private String value;
+    private Object value;
 
+    /**
+     * ConstantParam constructor
+     *
+     * @param value It is used to store constant value
+     */
     @JsonCreator
-    public ConstantParam(@JsonProperty("value") String value) {
+    public ConstantParam(@JsonProperty("value") Object value) {
         this.value = Preconditions.checkNotNull(value, "value is null");
     }
 
@@ -56,10 +69,7 @@ public class ConstantParam implements FunctionParam, Serializable {
 
     @Override
     public String format() {
-        if (!value.startsWith("'") && !value.startsWith("\"")) {
-            return String.format("'%s'", value);
-        }
-        return value;
+        return value.toString();
     }
 
 }
