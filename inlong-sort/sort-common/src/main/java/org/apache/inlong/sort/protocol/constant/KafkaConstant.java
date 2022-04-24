@@ -23,16 +23,16 @@ package org.apache.inlong.sort.protocol.constant;
  */
 public class KafkaConstant {
 
-    public final static String TOPIC = "topic";
+    public static final String TOPIC = "topic";
 
-    public final static String PROPERTIES_BOOTSTRAP_SERVERS = "properties.bootstrap.servers";
+    public static final String PROPERTIES_BOOTSTRAP_SERVERS = "properties.bootstrap.servers";
 
-    public final static String CONNECTOR = "connector";
+    public static final String CONNECTOR = "connector";
 
-    public final static String SCAN_STARTUP_MODE = "scan.startup.mode";
+    public static final String SCAN_STARTUP_MODE = "scan.startup.mode";
 
-    public final static String KAFKA = "kafka";
+    public static final String KAFKA = "kafka";
 
-    public final static String UPSERT_KAFKA = "upsert_kafka";
+    public static final String UPSERT_KAFKA = "upsert_kafka";
 
 }
