@@ -18,20 +18,20 @@
 package org.apache.inlong.manager.service.sort.light;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.common.util.StreamParseUtils;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.apache.inlong.manager.service.sort.util.NodeInfoUtils;
+import org.apache.inlong.manager.service.sort.util.ExtractNodeUtils;
+import org.apache.inlong.manager.service.sort.util.LoadNodeUtils;
+import org.apache.inlong.manager.service.sort.util.NodeRelationShipUtils;
+import org.apache.inlong.manager.service.sort.util.TransformNodeUtils;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.service.transform.StreamTransformService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -41,7 +41,6 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
-import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,7 +92,7 @@ public class LightGroupSortListener implements SortOperateListener {
         List<StreamInfo> streamInfos = inlongStreamInfos.stream()
                 .map(inlongStreamInfo -> new StreamInfo(inlongStreamInfo.getInlongStreamId(),
                         createNodesForStream(inlongStreamInfo),
-                        createNodeRelationShipsForStream(inlongStreamInfo)))
+                        NodeRelationShipUtils.createNodeRelationShipsForStream(inlongStreamInfo)))
                 .collect(Collectors.toList());
         return new GroupInfo(inlongGroupInfo.getInlongGroupId(), streamInfos);
     }
@@ -105,27 +104,10 @@ public class LightGroupSortListener implements SortOperateListener {
         List<SinkResponse> sinkResponses = sinkService.listSink(groupId, streamId);
         List<TransformResponse> transformResponses = transformService.listTransform(groupId, streamId);
         List<Node> nodes = Lists.newArrayList();
-        nodes.addAll(NodeInfoUtils.createExtractNodes(sourceResponses));
-        nodes.addAll(NodeInfoUtils.createTransformNodes(transformResponses));
-        nodes.addAll(NodeInfoUtils.createLoadNodes(sinkResponses));
+        nodes.addAll(ExtractNodeUtils.createExtractNodes(sourceResponses));
+        nodes.addAll(TransformNodeUtils.createTransformNodes(transformResponses));
+        nodes.addAll(LoadNodeUtils.createLoadNodes(sinkResponses));
         return nodes;
-    }
-
-    private List<NodeRelationShip> createNodeRelationShipsForStream(InlongStreamInfo streamInfo) {
-        String tempView = streamInfo.getTempView();
-        if (StringUtils.isEmpty(tempView)) {
-            LOGGER.warn("StreamNodeRelationShip is empty for Stream={}", streamInfo);
-            return Lists.newArrayList();
-        }
-        StreamPipeline pipeline = StreamParseUtils.parseStreamPipeline(streamInfo.getTempView(),
-                streamInfo.getInlongStreamId());
-        List<NodeRelationShip> nodeRelationShips = pipeline.getPipeline().stream()
-                .map(streamNodeRelationShip -> new NodeRelationShip(
-                        Lists.newArrayList(streamNodeRelationShip.getInputNodes()),
-                        Lists.newArrayList(streamNodeRelationShip.getOutputNodes())))
-                .collect(
-                        Collectors.toList());
-        return nodeRelationShips;
     }
 
     private void upsertDataFlow(InlongGroupInfo groupInfo, InlongGroupExtInfo extInfo) {

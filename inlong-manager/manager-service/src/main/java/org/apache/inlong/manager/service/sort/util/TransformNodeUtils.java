@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.util.StreamParseUtils;
+import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
@@ -32,23 +33,7 @@ import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class NodeInfoUtils {
-
-    public static List<ExtractNode> createExtractNodes(List<SourceResponse> sourceResponses) {
-        if (CollectionUtils.isEmpty(sourceResponses)) {
-            return Lists.newArrayList();
-        }
-        //todo transfer sourceResponse to extractNode
-        return Lists.newArrayList();
-    }
-
-    public static List<LoadNode> createLoadNodes(List<SinkResponse> sinkResponses) {
-        if (CollectionUtils.isEmpty(sinkResponses)) {
-            return Lists.newArrayList();
-        }
-        //todo transfer sinkResponse to LoadNode
-        return Lists.newArrayList();
-    }
+public class TransformNodeUtils {
 
     public static List<TransformNode> createTransformNodes(List<TransformResponse> transformResponses) {
         if (CollectionUtils.isEmpty(transformResponses)) {
@@ -61,12 +46,24 @@ public class NodeInfoUtils {
 
     public static TransformNode createTransformNode(TransformResponse transformResponse) {
         TransformType transformType = TransformType.forType(transformResponse.getTransformType());
-        TransformDefinition transformDefinition = StreamParseUtils.parseTransformDefinition(
-                transformResponse.getTransformDefinition(), transformType);
         TransformNode transformNode = new TransformNode();
         transformNode.setId(transformResponse.getTransformName());
         transformNode.setName(transformResponse.getTransformName());
-        //todo parse transformResponse
+        List<FieldInfo> fieldInfos = transformResponse.getFieldList().stream().map(streamFieldInfo -> {
+            String transformName = transformResponse.getTransformName();
+            String fieldType = streamFieldInfo.getFieldType();
+            String fieldFormat = streamFieldInfo.getFieldFormat();
+            FieldInfo fieldInfo = new FieldInfo(transformName, transformName,
+                    FieldInfoUtils.convertFieldFormat(fieldType, fieldFormat));
+            return fieldInfo;
+        }).collect(Collectors.toList());
+        transformNode.setFields(fieldInfos);
+        transformNode.setFieldRelationShips(FieldRelationShipUtils.createFieldRelationShips(transformResponse));
+        TransformDefinition transformDefinition = StreamParseUtils.parseTransformDefinition(
+                transformResponse.getTransformDefinition(), transformType);
+        transformNode.setFilters(
+                FilterFunctionUtils.createFilterFunctions(transformDefinition));
         return transformNode;
     }
+
 }
