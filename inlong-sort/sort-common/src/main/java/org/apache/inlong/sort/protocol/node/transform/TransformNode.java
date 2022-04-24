@@ -40,7 +40,8 @@ import java.util.List;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = TransformNode.class, name = "baseTransform")
+        @JsonSubTypes.Type(value = TransformNode.class, name = "baseTransform"),
+        @JsonSubTypes.Type(value = DistinctNode.class, name = "distinct")
 })
 @Data
 @NoArgsConstructor
