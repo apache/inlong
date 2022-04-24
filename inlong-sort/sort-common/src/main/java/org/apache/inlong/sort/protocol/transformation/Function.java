@@ -24,6 +24,8 @@ import org.apache.inlong.sort.protocol.transformation.function.HopEndFunction;
 import org.apache.inlong.sort.protocol.transformation.function.HopFunction;
 import org.apache.inlong.sort.protocol.transformation.function.HopStartFunction;
 import org.apache.inlong.sort.protocol.transformation.function.MultiValueFilterFunction;
+import org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction;
+import org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SessionEndFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SessionFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SessionStartFunction;
@@ -52,7 +54,9 @@ import java.util.List;
         @JsonSubTypes.Type(value = HopFunction.class, name = "hop"),
         @JsonSubTypes.Type(value = SingleValueFilterFunction.class, name = "singleValueFilter"),
         @JsonSubTypes.Type(value = MultiValueFilterFunction.class, name = "multiValueFilter"),
-        @JsonSubTypes.Type(value = SplitIndexFunction.class, name = "splitIndex")
+        @JsonSubTypes.Type(value = SplitIndexFunction.class, name = "splitIndex"),
+        @JsonSubTypes.Type(value = RegexpReplaceFunction.class, name = "regexpReplace"),
+        @JsonSubTypes.Type(value = RegexpReplaceFirstFunction.class, name = "regexpReplaceFirst")
 })
 public interface Function extends FunctionParam {
 
