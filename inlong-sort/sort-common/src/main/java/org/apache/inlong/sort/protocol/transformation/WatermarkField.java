@@ -36,13 +36,13 @@ public class WatermarkField implements TimeWindowFunction {
     @JsonProperty("timeAttr")
     private FieldInfo timeAttr;
     @JsonProperty("interval")
-    private ConstantParam interval;
+    private StringConstantParam interval;
     @JsonProperty("timeUnit")
     private TimeUnitConstantParam timeUnit;
 
     @JsonCreator
     public WatermarkField(@JsonProperty("timeAttr") FieldInfo timeAttr,
-            @JsonProperty("interval") ConstantParam interval,
+            @JsonProperty("interval") StringConstantParam interval,
             @JsonProperty("timeUnit") TimeUnitConstantParam timeUnit) {
         this.timeAttr = Preconditions.checkNotNull(timeAttr, "timeAttr is null");
         this.interval = Preconditions.checkNotNull(interval, "interval is null");
