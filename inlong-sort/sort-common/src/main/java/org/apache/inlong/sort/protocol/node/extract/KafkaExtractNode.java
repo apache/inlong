@@ -67,7 +67,6 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
     @JsonProperty("primaryKey")
     private String primaryKey;
 
-
     @JsonCreator
     public KafkaExtractNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
