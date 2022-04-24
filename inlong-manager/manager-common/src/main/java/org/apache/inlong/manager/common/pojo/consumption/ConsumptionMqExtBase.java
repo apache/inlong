@@ -42,11 +42,8 @@ public class ConsumptionMqExtBase {
     @ApiModelProperty(value = "Consumption ID")
     private Integer consumptionId;
 
-    @ApiModelProperty(value = "Consumer group id")
-    private String consumerGroupId;
-
-    @ApiModelProperty(value = "Consumer group name")
-    private String consumerGroupName;
+    @ApiModelProperty(value = "Consumer group")
+    private String consumerGroup;
 
     @ApiModelProperty(value = "Consumption target inlong group id")
     private String inlongGroupId;
