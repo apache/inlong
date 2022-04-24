@@ -19,6 +19,9 @@ package org.apache.inlong.tubemq.manager.service.tube;
 
 import lombok.Data;
 
+/**
+ * The relation of broker IP and broker id.
+ */
 @Data
 public class IpIdRelation {
     private Integer brokerId;
