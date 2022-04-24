@@ -50,6 +50,7 @@ public class RegexpReplaceFirstFunctionTest extends AbstractTestBase {
      */
     @Test
     public void testRegexpReplaceFirst() throws Exception {
+        // step 0. Initialize the execution environment
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
                 .useBlinkPlanner()
@@ -59,22 +60,27 @@ public class RegexpReplaceFirstFunctionTest extends AbstractTestBase {
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        // step 1. Register custom function of REGEXP_REPLACE_FIRST
         tableEnv.createTemporaryFunction("REGEXP_REPLACE_FIRST", RegexpReplaceFirstFunction.class);
+        // step 2. Generate test data and convert to DataStream
         List<Row> data = new ArrayList<>();
         data.add(Row.of("inlong is a data integration tool and inlong has been used by many companies"));
         TypeInformation<?>[] types = {
                 BasicTypeInfo.STRING_TYPE_INFO};
         String[] names = {"f1"};
         RowTypeInfo typeInfo = new RowTypeInfo(types, names);
-        org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction splitIndexFunction = new org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction(
-                new FieldInfo("f1",
-                        new StringFormatInfo()), new StringConstantParam("inlong*"),
-                new StringConstantParam("INLONG"));
         DataStream<Row> dataStream = env.fromCollection(data).returns(typeInfo);
+        // step 3. Convert from DataStream to Table and execute the REGEXP_REPLACE_FIRST function
         Table tempView = tableEnv.fromDataStream(dataStream).as("f1");
         tableEnv.createTemporaryView("temp_view", tempView);
-        String sqlQuery = String.format("SELECT %s as f1 FROM temp_view", splitIndexFunction.format());
+        org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction regexpReplaceFirstFunction =
+                new org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction(
+                        new FieldInfo("f1",
+                                new StringFormatInfo()), new StringConstantParam("inlong*"),
+                        new StringConstantParam("INLONG"));
+        String sqlQuery = String.format("SELECT %s as f1 FROM temp_view", regexpReplaceFirstFunction.format());
         Table outputTable = tableEnv.sqlQuery(sqlQuery);
+        // step 4. Get function execution result and parse it
         DataStream<Row> resultSet = tableEnv.toAppendStream(outputTable, Row.class);
         List<String> result = new ArrayList<>();
         for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
@@ -82,6 +88,7 @@ public class RegexpReplaceFirstFunctionTest extends AbstractTestBase {
             String next = it.next();
             result.add(next);
         }
+        // step 5. Whether the comparison results are as expected
         String expect = "INLONG is a data integration tool and inlong has been used by many companies";
         Assert.assertEquals(expect, result.get(0));
     }
