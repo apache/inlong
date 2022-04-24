@@ -44,8 +44,8 @@ public class SplitIndexFunction implements Function, Serializable {
 
     @JsonProperty("field")
     private FieldInfo field;
-    @JsonProperty("sep")
-    private StringConstantParam sep;
+    @JsonProperty("separator")
+    private StringConstantParam separator;
     @JsonProperty("index")
     private ConstantParam index;
 
@@ -53,14 +53,14 @@ public class SplitIndexFunction implements Function, Serializable {
      * SplitIndexFunction constructor
      *
      * @param field it is character to be splitted
-     * @param sep the delimiting expression
+     * @param separator the delimiting expression
      * @param index which value to take after delimitted
      */
     public SplitIndexFunction(@JsonProperty("field") FieldInfo field,
-            @JsonProperty("sep") StringConstantParam sep,
+            @JsonProperty("separator") StringConstantParam separator,
             @JsonProperty("index") ConstantParam index) {
         this.field = Preconditions.checkNotNull(field, "field is null");
-        this.sep = Preconditions.checkNotNull(sep, "sep is null");
+        this.separator = Preconditions.checkNotNull(separator, "separator is null");
         this.index = Preconditions.checkNotNull(index, "index is null");
     }
 
@@ -71,11 +71,11 @@ public class SplitIndexFunction implements Function, Serializable {
 
     @Override
     public List<FunctionParam> getParams() {
-        return Arrays.asList(field, sep, index);
+        return Arrays.asList(field, separator, index);
     }
 
     @Override
     public String format() {
-        return String.format("%s(%s, %s, %s)", getName(), field.format(), sep.format(), index.format());
+        return String.format("%s(%s, %s, %s)", getName(), field.format(), separator.format(), index.format());
     }
 }

@@ -43,7 +43,7 @@ public class SplitIndexFunctionTest extends FunctionBaseTest {
     @Override
     public String getExpectSerializeStr() {
         return "{\"type\":\"splitIndex\",\"field\":{\"type\":\"base\",\"name\":\"split_field\","
-                + "\"formatInfo\":{\"type\":\"string\"}},\"sep\":{\"type\":\"stringConstant\","
+                + "\"formatInfo\":{\"type\":\"string\"}},\"separator\":{\"type\":\"stringConstant\","
                 + "\"value\":\",\"},\"index\":{\"type\":\"constant\",\"value\":0}}";
 
     }
