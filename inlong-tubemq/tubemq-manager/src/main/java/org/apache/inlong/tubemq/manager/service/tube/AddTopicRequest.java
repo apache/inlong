@@ -20,10 +20,10 @@ package org.apache.inlong.tubemq.manager.service.tube;
 import lombok.Data;
 
 /**
- * topic add info
+ * Request of add topic
  */
 @Data
-public class TopicConf {
+public class AddTopicRequest {
     private Integer brokerId;
     private String topicName;
     private String deleteWhen;

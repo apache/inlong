@@ -22,7 +22,7 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.tubemq.manager.service.tube.TopicConf;
+import org.apache.inlong.tubemq.manager.service.tube.AddTopicRequest;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -32,5 +32,5 @@ public class BatchAddTopicReq extends BaseReq {
 
     private String createUser;
 
-    private List<TopicConf> topicJsonSet;
+    private List<AddTopicRequest> topicJsonSet;
 }
