@@ -19,26 +19,7 @@
 # under the License.
 #
 
-cd "$(dirname "$0")"/../
-export HOST_IP=`more conf/common.properties |grep "adminTask.host"|awk -F"=" '{print $2}'`
-export ADMIN_PORT=`more conf/common.properties |grep "adminTask.port"|awk -F"=" '{print $2}'`
-if [ ${HOST_IP} ] && [ ${ADMIN_PORT} ]; then
-    curl -X POST -d'[{"headers":{"cmd":"stopService"},"body":"body"}]' "http://${HOST_IP}:${ADMIN_PORT}"
-    echo "stop server and sleep."
-    sleep 61s
-fi
-
-#this program kills the sort
-pidInfo=$(ps -ef | grep java |grep org.apache.inlong.sort.standalone.SortStandaloneApplication| grep -v grep | awk '{print $2}')
-echo "`date` the pid info is $pidInfo">>$logFile
-
-for pid in $pidInfo;do
-	kill $pid
-done
-
-sleep 5s
-
-#force kill
+#kill
 pidInfo=$(ps -ef | grep java |grep org.apache.inlong.sort.standalone.SortStandaloneApplication| grep -v grep | awk '{print $2}')
 for pid in $pidInfo;do
 	kill -9 $pid

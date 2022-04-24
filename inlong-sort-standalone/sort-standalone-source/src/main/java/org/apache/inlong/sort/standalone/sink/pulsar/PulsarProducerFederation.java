@@ -23,6 +23,7 @@ import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -148,10 +149,12 @@ public class PulsarProducerFederation {
     /**
      * send
      * 
-     * @param profileEvent
-     * @param tx
+     * @param  profileEvent
+     * @param  tx
+     * @return              boolean
+     * @throws IOException
      */
-    public boolean send(ProfileEvent profileEvent, Transaction tx) {
+    public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
         int currentIndex = clusterIndex.getAndIncrement();
         if (currentIndex > Integer.MAX_VALUE / 2) {
             clusterIndex.set(0);

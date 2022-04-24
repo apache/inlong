@@ -114,7 +114,7 @@ public class TestEsOutputChannel {
         EsSinkContext context = TestEsSinkContext.mock(dispatchQueue);
         EsOutputChannel output = new EsOutputChannel(context);
         ProfileEvent event = TestEsSinkContext.mockProfileEvent();
-        EsIndexRequest indexRequest = context.getIndexRequestHandler().parse(context, event);
+        EsIndexRequest indexRequest = context.createIndexRequestHandler().parse(context, event);
         dispatchQueue.add(indexRequest);
         output.init();
         output.send();

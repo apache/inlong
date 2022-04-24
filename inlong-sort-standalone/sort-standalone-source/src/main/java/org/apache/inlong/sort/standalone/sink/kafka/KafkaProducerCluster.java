@@ -34,10 +34,12 @@ import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.util.Properties;
 
 /** wrapper of kafka producer */
 public class KafkaProducerCluster implements LifecycleAware {
+
     public static final Logger LOG = InlongLoggerFactory.getLogger(KafkaProducerCluster.class);
 
     private final String workerName;
@@ -47,14 +49,15 @@ public class KafkaProducerCluster implements LifecycleAware {
 
     private final String cacheClusterName;
     private LifecycleState state;
+    private IEvent2KafkaRecordHandler handler;
 
     private KafkaProducer<String, byte[]> producer;
 
     /**
      * constructor of KafkaProducerCluster
      *
-     * @param workerName workerName
-     * @param config config of cluster
+     * @param workerName                 workerName
+     * @param config                     config of cluster
      * @param kafkaFederationSinkContext producer context
      */
     public KafkaProducerCluster(
@@ -67,6 +70,7 @@ public class KafkaProducerCluster implements LifecycleAware {
         this.context = Preconditions.checkNotNull(kafkaFederationSinkContext.getProducerContext());
         this.state = LifecycleState.IDLE;
         this.cacheClusterName = Preconditions.checkNotNull(config.getClusterName());
+        this.handler = sinkContext.createEventHandler();
     }
 
     /** start and init kafka producer */
@@ -83,8 +87,7 @@ public class KafkaProducerCluster implements LifecycleAware {
                     ProducerConfig.CLIENT_ID_CONFIG,
                     context.getString(ProducerConfig.CLIENT_ID_CONFIG) + "-" + workerName);
             LOG.info("init kafka client info: " + props);
-            producer =
-                    new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
+            producer = new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
             Preconditions.checkNotNull(producer);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -116,12 +119,21 @@ public class KafkaProducerCluster implements LifecycleAware {
     /**
      * Send data
      *
-     * @param profileEvent data to send
+     * @param  profileEvent data to send
+     * @return              boolean
+     * @throws IOException
      */
-    public boolean send(ProfileEvent profileEvent, Transaction tx) {
+    public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
         String topic = profileEvent.getHeaders().get(Constants.TOPIC);
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, profileEvent.getBody());
+        ProducerRecord<String, byte[]> record = handler.parse(sinkContext, profileEvent);
         long sendTime = System.currentTimeMillis();
+        // check
+        if (record == null) {
+            tx.commit();
+            profileEvent.ack();
+            tx.close();
+            return true;
+        }
         try {
             producer.send(record,
                     (metadata, ex) -> {
@@ -131,7 +143,7 @@ public class KafkaProducerCluster implements LifecycleAware {
                             profileEvent.ack();
                         } else {
                             LOG.error(String.format("send failed, topic is %s, partition is %s",
-                                            metadata.topic(), metadata.partition()), ex);
+                                    metadata.topic(), metadata.partition()), ex);
                             tx.rollback();
                             sinkContext.addSendResultMetric(profileEvent, topic, true, sendTime);
                         }
