@@ -19,31 +19,35 @@ package org.apache.inlong.sort.protocol.transformation.function;
 
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.Function;
+import org.apache.inlong.sort.protocol.transformation.FunctionBaseTest;
+import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 
+/**
+ * Test for {@link HopStartFunction}
+ */
 public class HopStartFunctionTest extends FunctionBaseTest {
 
     @Override
     public Function getFunction() {
         return new HopStartFunction(new FieldInfo("time_field", new TimestampFormatInfo()),
-                new ConstantParam("1"),
+                new StringConstantParam("1"),
                 new TimeUnitConstantParam(TimeUnit.SECOND));
     }
 
     @Override
     public String getExpectFormat() {
-        return "HOP_START(`time_field`, INTERVAL 1 SECOND)";
+        return "HOP_START(`time_field`, INTERVAL '1' SECOND)";
     }
 
     @Override
     public String getExpectSerializeStr() {
         return "{\"type\":\"hopStart\",\"timeAttr\":{\"type\":\"base\",\"name\":\"time_field\","
                 + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}},"
-                + "\"interval\":{\"type\":\"constant\",\"value\":\"1\"},\"timeUnit\":{\"type\":\"timeUnitConstant\","
-                + "\"timeUnit\":\"SECOND\",\"value\":\"SECOND\"}}";
+                + "\"interval\":{\"type\":\"stringConstant\",\"value\":\"1\"},"
+                + "\"timeUnit\":{\"type\":\"timeUnitConstant\",\"timeUnit\":\"SECOND\",\"value\":\"SECOND\"}}";
 
     }
 }

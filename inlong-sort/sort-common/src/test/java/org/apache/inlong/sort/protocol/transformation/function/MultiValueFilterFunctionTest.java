@@ -19,31 +19,37 @@ package org.apache.inlong.sort.protocol.transformation.function;
 
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.Function;
-import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
-import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
+import org.apache.inlong.sort.protocol.transformation.FunctionBaseTest;
+import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
+import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.InOperator;
 
+import java.util.Arrays;
+
+/**
+ * Test for {@link MultiValueFilterFunction}
+ */
 public class MultiValueFilterFunctionTest extends FunctionBaseTest {
 
     @Override
     public Function getFunction() {
-        return new HopFunction(new FieldInfo("time_field", new TimestampFormatInfo()),
-                new ConstantParam("1"),
-                new TimeUnitConstantParam(TimeUnit.SECOND));
+        return new MultiValueFilterFunction(new FieldInfo("field", new TimestampFormatInfo()),
+                Arrays.asList(new StringConstantParam("1"), new StringConstantParam("2")),
+                InOperator.getInstance(), EmptyOperator.getInstance());
     }
 
     @Override
     public String getExpectFormat() {
-        return "HOP(`time_field`, INTERVAL 1 SECOND)";
+        return " `field` IN ('1','2')";
     }
 
     @Override
     public String getExpectSerializeStr() {
-        return "{\"type\":\"hop\",\"timeAttr\":{\"type\":\"base\",\"name\":\"time_field\","
+        return "{\"type\":\"multiValueFilter\",\"source\":{\"type\":\"base\",\"name\":\"field\","
                 + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}},"
-                + "\"interval\":{\"type\":\"constant\",\"value\":\"1\"},\"timeUnit\":{\"type\":\"timeUnitConstant\","
-                + "\"timeUnit\":\"SECOND\",\"value\":\"SECOND\"}}";
+                + "\"targets\":[{\"type\":\"stringConstant\",\"value\":\"1\"},{\"type\":\"stringConstant\","
+                + "\"value\":\"2\"}],\"compareOperator\":{\"type\":\"in\"},\"logicOperator\":{\"type\":\"empty\"}}";
 
     }
 }
