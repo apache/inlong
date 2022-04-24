@@ -130,7 +130,7 @@ public class InlongStreamSourceTransfer {
         kafkaSource.setTablePattern(response.getTablePattern());
         kafkaSource.setIgnoreParseErrors(response.isIgnoreParseErrors());
         kafkaSource.setTimestampFormatStandard(response.getTimestampFormatStandard());
-        kafkaSource.setFields(parseStreamFields(response.getFieldList()));
+        kafkaSource.setFields(InlongStreamTransfer.parseStreamFields(response.getFieldList()));
         return kafkaSource;
     }
 
@@ -161,6 +161,7 @@ public class InlongStreamSourceTransfer {
         binlogSource.setPort(response.getPort());
         binlogSource.setAgentIp(response.getAgentIp());
         binlogSource.setState(State.parseByStatus(response.getStatus()));
+        binlogSource.setServerId(response.getServerId());
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
                 response.getUser(),
                 response.getPassword());
@@ -177,7 +178,7 @@ public class InlongStreamSourceTransfer {
         if (StringUtils.isNotBlank(response.getTableWhiteList())) {
             binlogSource.setTableNames(Arrays.asList(response.getTableWhiteList().split(",")));
         }
-        binlogSource.setFields(parseStreamFields(response.getFieldList()));
+        binlogSource.setFields(InlongStreamTransfer.parseStreamFields(response.getFieldList()));
         return binlogSource;
     }
 
@@ -188,6 +189,7 @@ public class InlongStreamSourceTransfer {
         binlogSource.setDataFormat(DataFormat.NONE);
         binlogSource.setPort(response.getPort());
         binlogSource.setState(State.parseByStatus(response.getStatus()));
+        binlogSource.setServerId(response.getServerId());
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
                 response.getUser(),
                 response.getPassword());
@@ -215,7 +217,7 @@ public class InlongStreamSourceTransfer {
         fileSource.setPattern(response.getPattern());
         fileSource.setIp(response.getIp());
         fileSource.setTimeOffset(response.getTimeOffset());
-        fileSource.setFields(parseStreamFields(response.getFieldList()));
+        fileSource.setFields(InlongStreamTransfer.parseStreamFields(response.getFieldList()));
         return fileSource;
     }
 
@@ -236,7 +238,7 @@ public class InlongStreamSourceTransfer {
         autoPushSource.setState(State.parseByStatus(response.getStatus()));
         autoPushSource.setDataFormat(DataFormat.NONE);
         autoPushSource.setDataProxyGroup(response.getDataProxyGroup());
-        autoPushSource.setFields(parseStreamFields(response.getFieldList()));
+        autoPushSource.setFields(InlongStreamTransfer.parseStreamFields(response.getFieldList()));
         return autoPushSource;
     }
 
@@ -267,7 +269,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setTablePattern(kafkaSource.getTablePattern());
         sourceRequest.setIgnoreParseErrors(kafkaSource.isIgnoreParseErrors());
         sourceRequest.setTimestampFormatStandard(kafkaSource.getTimestampFormatStandard());
-        sourceRequest.setFieldList(createStreamFields(kafkaSource.getFields(), streamInfo));
+        sourceRequest.setFieldList(InlongStreamTransfer.createStreamFields(kafkaSource.getFields(), streamInfo));
         return sourceRequest;
     }
 
@@ -283,6 +285,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setPassword(authentication.getPassword());
         sourceRequest.setHostname(binlogSource.getHostname());
         sourceRequest.setPort(binlogSource.getPort());
+        binlogSource.setServerId(binlogSource.getServerId());
         sourceRequest.setIncludeSchema(binlogSource.getIncludeSchema());
         sourceRequest.setServerTimezone(binlogSource.getServerTimezone());
         sourceRequest.setMonitoredDdl(binlogSource.getMonitoredDdl());
@@ -298,7 +301,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setSnapshotMode("initial");
         sourceRequest.setIntervalMs("500");
         sourceRequest.setTimestampFormatStandard(binlogSource.getTimestampFormatStandard());
-        sourceRequest.setFieldList(createStreamFields(binlogSource.getFields(), streamInfo));
+        sourceRequest.setFieldList(InlongStreamTransfer.createStreamFields(binlogSource.getFields(), streamInfo));
         return sourceRequest;
     }
 
@@ -319,7 +322,7 @@ public class InlongStreamSourceTransfer {
         }
         sourceRequest.setPattern(fileSource.getPattern());
         sourceRequest.setTimeOffset(fileSource.getTimeOffset());
-        sourceRequest.setFieldList(createStreamFields(fileSource.getFields(), streamInfo));
+        sourceRequest.setFieldList(InlongStreamTransfer.createStreamFields(fileSource.getFields(), streamInfo));
         return sourceRequest;
     }
 
@@ -334,23 +337,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         sourceRequest.setSourceType(source.getSourceType().getType());
         sourceRequest.setDataProxyGroup(source.getDataProxyGroup());
-        sourceRequest.setFieldList(createStreamFields(source.getFields(), streamInfo));
+        sourceRequest.setFieldList(InlongStreamTransfer.createStreamFields(source.getFields(), streamInfo));
         return sourceRequest;
-    }
-
-    private static List<InlongStreamFieldInfo> createStreamFields(
-            List<StreamField> fields, InlongStreamInfo streamInfo) {
-        if (CollectionUtils.isEmpty(fields)) {
-            return null;
-        }
-        return InlongStreamTransfer.createStreamFields(fields, streamInfo);
-    }
-
-    private static List<StreamField> parseStreamFields(List<InlongStreamFieldInfo> fields) {
-        if (CollectionUtils.isEmpty(fields)) {
-            return null;
-        }
-        return fields.stream().map(fieldInfo -> CommonBeanUtils.copyProperties(fieldInfo, StreamField::new))
-                .collect(Collectors.toList());
     }
 }

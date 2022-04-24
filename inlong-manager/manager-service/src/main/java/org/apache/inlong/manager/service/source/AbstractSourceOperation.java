@@ -221,7 +221,7 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
     }
 
     private void saveFieldOpt(StreamSourceEntity entity, List<InlongStreamFieldInfo> fieldInfos) {
-        LOGGER.info("begin to save field={}", fieldInfos);
+        LOGGER.info("begin to save source field={}", fieldInfos);
         if (CollectionUtils.isEmpty(fieldInfos)) {
             return;
         }

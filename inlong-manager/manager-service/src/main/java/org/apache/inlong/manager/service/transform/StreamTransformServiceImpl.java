@@ -19,23 +19,30 @@ package org.apache.inlong.manager.service.transform;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamTransformEntity;
+import org.apache.inlong.manager.dao.entity.StreamTransformFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamTransformEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamTransformFieldEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +54,8 @@ public class StreamTransformServiceImpl implements StreamTransformService {
 
     @Autowired
     protected StreamTransformEntityMapper transformEntityMapper;
+    @Autowired
+    protected StreamTransformFieldEntityMapper transformFieldEntityMapper;
     @Autowired
     protected CommonOperateService commonOperateService;
 
@@ -76,6 +85,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         transformEntity.setCreateTime(now);
         transformEntity.setModifyTime(now);
         transformEntityMapper.insertSelective(transformEntity);
+        saveFieldOpt(transformEntity, transformRequest.getFieldList());
         return transformEntity.getId();
     }
 
@@ -88,9 +98,26 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         if (CollectionUtils.isEmpty(transformEntities)) {
             return Collections.emptyList();
         }
-        return transformEntities.stream()
+        List<Integer> transformIds = transformEntities.stream().map(transformEntity -> transformEntity.getId())
+                .collect(Collectors.toList());
+        List<StreamTransformFieldEntity> transformFieldEntities = transformFieldEntityMapper.selectByTransformIds(
+                transformIds);
+        Map<Integer, List<InlongStreamFieldInfo>> fieldInfoMap = transformFieldEntities.stream()
+                .map(transformFieldEntity -> {
+                    InlongStreamFieldInfo fieldInfo = CommonBeanUtils.copyProperties(transformFieldEntity,
+                            InlongStreamFieldInfo::new);
+                    return Pair.of(transformFieldEntity.getTransformId(), fieldInfo);
+                }).collect(Collectors.groupingBy(Pair::getLeft,
+                        Collectors.mapping(Pair::getRight, Collectors.toList())));
+        List<TransformResponse> transformResponses = transformEntities.stream()
                 .map(entity -> CommonBeanUtils.copyProperties(entity, TransformResponse::new))
                 .collect(Collectors.toList());
+        transformResponses.stream().forEach(transformResponse -> {
+            int transformId = transformResponse.getId();
+            List<InlongStreamFieldInfo> fieldInfos = fieldInfoMap.get(transformId);
+            transformResponse.setFieldList(fieldInfos);
+        });
+        return transformResponses;
     }
 
     @Override
@@ -108,7 +135,9 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         transformEntity.setVersion(transformEntity.getVersion() + 1);
         Date now = new Date();
         transformEntity.setModifyTime(now);
-        return transformEntityMapper.updateByIdSelective(transformEntity) == transformEntity.getId();
+        boolean isUpdate = transformEntityMapper.updateByIdSelective(transformEntity) == transformEntity.getId();
+        updateFieldOpt(transformEntity, transformRequest.getFieldList());
+        return isUpdate;
     }
 
     @Override
@@ -130,6 +159,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                 entity.setModifier(operator);
                 entity.setModifyTime(now);
                 transformEntityMapper.updateByIdSelective(entity);
+                transformFieldEntityMapper.deleteAll(id);
             }
         }
         log.info("success to logic delete transform by groupId={}, streamId={}, transformName={}", groupId, streamId,
@@ -147,5 +177,48 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         Preconditions.checkNotNull(transformType, ErrorCodeEnum.TRANSFORM_TYPE_IS_NULL.getMessage());
         String transformName = request.getTransformName();
         Preconditions.checkNotNull(transformName, ErrorCodeEnum.TRANSFORM_NAME_IS_NULL.getMessage());
+    }
+
+    private void updateFieldOpt(StreamTransformEntity entity, List<InlongStreamFieldInfo> fieldInfos) {
+        Integer transformId = entity.getId();
+        if (CollectionUtils.isEmpty(fieldInfos)) {
+            return;
+        }
+
+        // First physically delete the existing fields
+        transformFieldEntityMapper.deleteAll(transformId);
+        // Then batch save the source fields
+        this.saveFieldOpt(entity, fieldInfos);
+
+        log.info("success to update transform field");
+    }
+
+    private void saveFieldOpt(StreamTransformEntity entity, List<InlongStreamFieldInfo> fieldInfos) {
+        log.info("begin to save transform field={}", fieldInfos);
+        if (CollectionUtils.isEmpty(fieldInfos)) {
+            return;
+        }
+
+        int size = fieldInfos.size();
+        List<StreamTransformFieldEntity> entityList = new ArrayList<>(size);
+        String groupId = entity.getInlongGroupId();
+        String streamId = entity.getInlongStreamId();
+        String transformType = entity.getTransformType();
+        Integer transformId = entity.getId();
+        for (InlongStreamFieldInfo fieldInfo : fieldInfos) {
+            StreamTransformFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo,
+                    StreamTransformFieldEntity::new);
+            if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
+                fieldEntity.setFieldComment(fieldEntity.getFieldName());
+            }
+            fieldEntity.setInlongGroupId(groupId);
+            fieldEntity.setInlongStreamId(streamId);
+            fieldEntity.setTransformId(transformId);
+            fieldEntity.setTransformType(transformType);
+            entityList.add(fieldEntity);
+        }
+
+        transformFieldEntityMapper.insertAll(entityList);
+        log.info("success to save transform fields");
     }
 }

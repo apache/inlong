@@ -58,6 +58,9 @@ public class MySQLBinlogSource extends StreamSource {
     @ApiModelProperty("Exposed port of the DB server")
     private int port = 3306;
 
+    @ApiModelProperty("Id of physical node of MySQL Cluster, 0 if single node")
+    private int serverId;
+
     @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions, "
             + "separate them with commas, for example: db1,test_db*",
             notes = "DBs not in this list are excluded. If not set, all DBs are monitored")

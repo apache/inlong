@@ -31,7 +31,7 @@ import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.common.util.TransformDefinitionUtils;
+import org.apache.inlong.manager.common.util.StreamParseUtils;
 
 import java.util.List;
 
@@ -55,13 +55,17 @@ public class InlongStreamTransformTransfer {
         if (CollectionUtils.isNotEmpty(streamTransform.getPostNodes())) {
             transformRequest.setPostNodeNames(Joiner.on(",").join(streamTransform.getPostNodes()));
         }
+        if (CollectionUtils.isNotEmpty(streamTransform.getFields())) {
+            transformRequest.setFieldList(
+                    InlongStreamTransfer.createStreamFields(streamTransform.getFields(), streamInfo));
+        }
         return transformRequest;
     }
 
     public static StreamTransform parseStreamTransform(TransformResponse transformResponse) {
         TransformType transformType = TransformType.forType(transformResponse.getTransformType());
         String transformDefinitionStr = transformResponse.getTransformDefinition();
-        TransformDefinition transformDefinition = TransformDefinitionUtils.parseTransformDefinition(
+        TransformDefinition transformDefinition = StreamParseUtils.parseTransformDefinition(
                 transformDefinitionStr, transformType);
         String transformName = transformResponse.getTransformName();
         String preNodeNames = transformResponse.getPreNodeNames();
@@ -78,6 +82,9 @@ public class InlongStreamTransformTransfer {
         if (StringUtils.isNotEmpty(postNodeNames)) {
             List<String> postNodes = Splitter.on(",").splitToList(postNodeNames);
             streamTransform.setPostNodes(Sets.newHashSet(postNodes));
+        }
+        if (CollectionUtils.isNotEmpty(transformResponse.getFieldList())) {
+            streamTransform.setFields(InlongStreamTransfer.parseStreamFields(transformResponse.getFieldList()));
         }
         return streamTransform;
     }

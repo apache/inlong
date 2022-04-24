@@ -15,39 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.sort;
+package org.apache.inlong.manager.service.sort.light;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.MQType;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
-import org.springframework.stereotype.Component;
 
-/**
- * Event selector for whether ZooKeeper is enabled.
- */
+import java.util.List;
+
 @Slf4j
-@Component
-public class ZkEnabledEventSelector implements EventSelector {
+public class LightGroupSortSelector implements EventSelector {
 
     @Override
     public boolean accept(WorkflowContext context) {
         ProcessForm processForm = context.getProcessForm();
-        String groupId = processForm.getInlongGroupId();
-        if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("zookeeper enabled was [false] for groupId [{}]", groupId);
+        if (!(processForm instanceof LightGroupResourceProcessForm)) {
             return false;
         }
-
-        GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
-        InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
-        boolean enable =
-                groupInfo.getZookeeperEnabled() == 1 && MQType.forType(groupInfo.getMiddlewareType()) != MQType.NONE;
-        log.info("zookeeper enabled was [{}] for groupId [{}]", enable, groupId);
-        return enable;
+        LightGroupResourceProcessForm lightGroupResourceProcessForm = (LightGroupResourceProcessForm) processForm;
+        List<InlongStreamInfo> streamInfos = lightGroupResourceProcessForm.getStreamInfos();
+        if (CollectionUtils.isEmpty(streamInfos)) {
+            log.warn(ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
+            return false;
+        }
+        return true;
     }
-
 }
