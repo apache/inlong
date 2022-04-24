@@ -100,8 +100,5 @@ public class CascadeFunctionWrapperTest extends AbstractTestBase {
         // step 5. Whether the comparison results are as expected
         String expect = "apacheinlongetlaainlongetl";
         Assert.assertEquals(expect, r.get(0));
-
-
     }
-
 }
