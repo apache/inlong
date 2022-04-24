@@ -68,7 +68,7 @@ public class RegexpReplaceFunctionTest extends AbstractTestBase {
         String[] names = {"f1"};
         RowTypeInfo typeInfo = new RowTypeInfo(types, names);
         DataStream<Row> dataStream = env.fromCollection(data).returns(typeInfo);
-        // step 3. Convert from DataStream to Table and execute the REGEXP_REPLACE function
+        // step 2. Convert from DataStream to Table and execute the REGEXP_REPLACE function
         RegexpReplaceFunction regexpReplaceFunction = new RegexpReplaceFunction(new FieldInfo("f1",
                 new StringFormatInfo()), new StringConstantParam("inlong*"),
                 new StringConstantParam("INLONG"));
@@ -76,7 +76,7 @@ public class RegexpReplaceFunctionTest extends AbstractTestBase {
         tableEnv.createTemporaryView("temp_view", tempView);
         String sqlQuery = String.format("SELECT %s as f1 FROM temp_view", regexpReplaceFunction.format());
         Table outputTable = tableEnv.sqlQuery(sqlQuery);
-        // step 4. Get function execution result and parse it
+        // step 3. Get function execution result and parse it
         DataStream<Row> resultSet = tableEnv.toAppendStream(outputTable, Row.class);
         List<String> result = new ArrayList<>();
         for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
@@ -84,7 +84,7 @@ public class RegexpReplaceFunctionTest extends AbstractTestBase {
             String next = it.next();
             result.add(next);
         }
-        // step 5. Whether the comparison results are as expected
+        // step 4. Whether the comparison results are as expected
         String expect = "INLONG is a data integration tool and INLONG has been used by many companies";
         Assert.assertEquals(expect, result.get(0));
     }
