@@ -21,18 +21,18 @@ package org.apache.inlong.sort.protocol.constant;
 /**
  * kafka option constant
  */
-public interface KafkaConstant {
+public class KafkaConstant {
 
-    String TOPIC = "topic";
+    public final static String TOPIC = "topic";
 
-    String PROPERTIES_BOOTSTRAP_SERVERS = "properties.bootstrap.servers";
+    public final static String PROPERTIES_BOOTSTRAP_SERVERS = "properties.bootstrap.servers";
 
-    String CONNECTOR = "connector";
+    public final static String CONNECTOR = "connector";
 
-    String SCAN_STARTUP_MODE = "scan.startup.mode";
+    public final static String SCAN_STARTUP_MODE = "scan.startup.mode";
 
-    String KAFKA = "kafka";
+    public final static String KAFKA = "kafka";
 
-    String UPSERT_KAFKA = "upsert_kafka";
+    public final static String UPSERT_KAFKA = "upsert_kafka";
 
 }
