@@ -149,7 +149,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                     .subscriptionName(context.getConfig().getSortTaskId())
                     .subscriptionType(SubscriptionType.Shared)
                     .startMessageIdInclusive()
-                    .ackTimeout(10, TimeUnit.SECONDS)
+                    .ackTimeout(context.getConfig().getAckTimeoutSec(), TimeUnit.SECONDS)
                     .receiverQueueSize(context.getConfig().getPulsarReceiveQueueSize())
                     .subscribe();
 

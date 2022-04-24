@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -25,7 +26,6 @@ import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
-import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
@@ -46,9 +46,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PulsarFederationSinkContext extends SinkContext {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(PulsarFederationSinkContext.class);
+    public static final String KEY_EVENT_HANDLER = "eventHandler";
 
     private Context producerContext;
-    private Map<String, String> idTopicMap = new ConcurrentHashMap<>();
+    private Map<String, PulsarIdConfig> idConfigMap = new ConcurrentHashMap<>();
     private List<CacheClusterConfig> clusterConfigList = new ArrayList<>();
 
     /**
@@ -75,14 +76,11 @@ public class PulsarFederationSinkContext extends SinkContext {
             this.sortTaskConfig = newSortTaskConfig;
             this.producerContext = new Context(this.sortTaskConfig.getSinkParams());
             // parse the config of id and topic
-            Map<String, String> newIdTopicMap = new ConcurrentHashMap<>();
+            Map<String, PulsarIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
             List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
             for (Map<String, String> idParam : idList) {
-                String inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
-                String inlongStreamId = idParam.get(Constants.INLONG_STREAM_ID);
-                String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
-                String topic = idParam.getOrDefault(Constants.TOPIC, uid);
-                newIdTopicMap.put(uid, topic);
+                PulsarIdConfig idConfig = new PulsarIdConfig(idParam);
+                newIdConfigMap.put(idConfig.getUid(), idConfig);
             }
             // build cache cluster config
             CacheClusterConfig clusterConfig = new CacheClusterConfig();
@@ -91,7 +89,7 @@ public class PulsarFederationSinkContext extends SinkContext {
             List<CacheClusterConfig> newClusterConfigList = new ArrayList<>();
             newClusterConfigList.add(clusterConfig);
             // change current config
-            this.idTopicMap = newIdTopicMap;
+            this.idConfigMap = newIdConfigMap;
             this.clusterConfigList = newClusterConfigList;
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
@@ -108,13 +106,31 @@ public class PulsarFederationSinkContext extends SinkContext {
     }
 
     /**
-     * getTopic
-     * 
-     * @param  uid
-     * @return
+     * get Topic by uid
+     *
+     * @param  uid uid
+     * @return     topic
      */
     public String getTopic(String uid) {
-        return this.idTopicMap.get(uid);
+        PulsarIdConfig idConfig = this.idConfigMap.get(uid);
+        if (idConfig == null) {
+            throw new NullPointerException("uid " + uid + "got null topic");
+        }
+        return idConfig.getTopic();
+    }
+
+    /**
+     * get PulsarIdConfig by uid
+     *
+     * @param  uid uid
+     * @return     KafkaIdConfig
+     */
+    public PulsarIdConfig getIdConfig(String uid) {
+        PulsarIdConfig idConfig = this.idConfigMap.get(uid);
+        if (idConfig == null) {
+            throw new NullPointerException("uid " + uid + "got null PulsarIdConfig");
+        }
+        return idConfig;
     }
 
     /**
@@ -203,5 +219,28 @@ public class PulsarFederationSinkContext extends SinkContext {
             metricItem.sendFailCount.addAndGet(count);
             metricItem.sendFailSize.addAndGet(size);
         }
+    }
+
+    /**
+     * create IEvent2PulsarRecordHandler
+     * 
+     * @return IEvent2PulsarRecordHandler
+     */
+    public IEvent2PulsarRecordHandler createEventHandler() {
+        // IEvent2ProducerRecordHandler
+        String strHandlerClass = CommonPropertiesHolder.getString(KEY_EVENT_HANDLER,
+                DefaultEvent2PulsarRecordHandler.class.getName());
+        try {
+            Class<?> handlerClass = ClassUtils.getClass(strHandlerClass);
+            Object handlerObject = handlerClass.getDeclaredConstructor().newInstance();
+            if (handlerObject instanceof IEvent2PulsarRecordHandler) {
+                IEvent2PulsarRecordHandler handler = (IEvent2PulsarRecordHandler) handlerObject;
+                return handler;
+            }
+        } catch (Throwable t) {
+            LOG.error("Fail to init IEvent2PulsarRecordHandler,handlerClass:{},error:{}",
+                    strHandlerClass, t.getMessage(), t);
+        }
+        return null;
     }
 }

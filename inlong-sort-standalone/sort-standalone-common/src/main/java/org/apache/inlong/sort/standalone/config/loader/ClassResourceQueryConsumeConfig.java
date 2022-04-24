@@ -17,11 +17,7 @@
 
 package org.apache.inlong.sort.standalone.config.loader;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.inlong.common.pojo.sdk.CacheZone;
@@ -34,7 +30,12 @@ import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -54,9 +55,10 @@ public class ClassResourceQueryConsumeConfig implements QueryConsumeConfig {
     public ConsumeConfig queryCurrentConsumeConfig(String sortTaskId) {
         String fileName = sortTaskId + ".conf";
         try {
-            String confString = IOUtils.toString(getClass().getClassLoader().getResource(fileName));
-            Gson gson = new Gson();
-            CacheZoneConfig cacheZoneConfig = gson.fromJson(confString, CacheZoneConfig.class);
+            String confString = IOUtils.toString(getClass().getClassLoader().getResource(fileName),
+                    Charset.defaultCharset());
+            ObjectMapper objectMapper = new ObjectMapper();
+            CacheZoneConfig cacheZoneConfig = objectMapper.readValue(confString, CacheZoneConfig.class);
             //
             Map<String, List<InLongTopic>> newGroupTopicsMap = new HashMap<>();
             for (Map.Entry<String, CacheZone> entry : cacheZoneConfig.getCacheZones().entrySet()) {

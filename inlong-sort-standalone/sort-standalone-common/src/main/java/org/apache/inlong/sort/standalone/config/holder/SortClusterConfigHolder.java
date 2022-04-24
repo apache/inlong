@@ -149,7 +149,7 @@ public final class SortClusterConfigHolder {
      */
     public static SortTaskConfig getTaskConfig(String sortTaskName) {
         SortClusterConfig config = get().config;
-        if (config != null) {
+        if (config != null && config.getSortTasks() != null) {
             for (SortTaskConfig task : config.getSortTasks()) {
                 if (StringUtils.equals(sortTaskName, task.getName())) {
                     return task;

@@ -17,11 +17,7 @@
 
 package org.apache.inlong.sdk.sort.impl;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -43,8 +39,11 @@ import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSON;
-import com.google.gson.Gson;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class QueryConsumeConfigImpl implements QueryConsumeConfig {
 
@@ -85,7 +84,7 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
             String result = EntityUtils.toString(entity);
             logger.debug("response String result:{}", result);
             try {
-                managerResponse = new Gson().fromJson(result, SortSourceConfigResponse.class);
+                managerResponse = new ObjectMapper().readValue(result, SortSourceConfigResponse.class);
                 return managerResponse;
             } catch (Exception e) {
                 logger.error("parse json to ManagerResponse error:{}", e.getMessage(), e);
@@ -158,7 +157,7 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
                 break;
             default :
                 logger.error("return code error:{},request:{},response:{}",
-                        respCodeValue, getUrl, JSON.toJSONString(response));
+                        respCodeValue, getUrl, new ObjectMapper().writeValueAsString(response));
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
                         .addRequestManagerCommonErrorTimes(1);
                 return true;
