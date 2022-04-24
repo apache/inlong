@@ -22,11 +22,15 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.apache.inlong.tubemq.manager.service.tube.TopicConf;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class BatchAddTopicReq extends BaseReq {
-    private List<AddTopicReq> addTopicReqs;
-    private List<Integer> brokerIds;
+    private String confModAuthToken;
+
+    private String createUser;
+
+    private List<TopicConf> topicJsonSet;
 }

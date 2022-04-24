@@ -20,10 +20,21 @@ package org.apache.inlong.tubemq.manager.service.tube;
 import lombok.Data;
 
 @Data
-public class IpIdRelation {
+public class TopicConf {
     private Integer brokerId;
-    private String brokerIp;
-    private String success;
-    private Integer errCode;
-    private String errInfo;
+    private String topicName;
+    private String deleteWhen;
+    private String deletePolicy;
+    private Integer numPartitions;
+    private Integer unflushThreshold;
+    private Integer unflushInterval;
+    private Integer unflushDataHold;
+    private Integer numTopicStores;
+    private Integer memCacheMsgCntInK;
+    private Integer memCacheMsgSizeInMB;
+    private Integer memCacheFlushIntvl;
+    private Integer maxMsgSizeInMB;
+    private boolean acceptPublish;
+    private boolean acceptSubscribe;
+    private String createUser;
 }
