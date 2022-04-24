@@ -26,4 +26,4 @@ sed -i "s/audit.proxys=.*$/audit.proxys=${AUDIT_PROXY_URL}/g" "${common_conf_fil
 bash +x ${file_path}/bin/dataproxy-start.sh
 sleep 3
 # keep alive
-tail -F ${file_path}/logs/flume.log
+tail -F ${file_path}/logs/info.log

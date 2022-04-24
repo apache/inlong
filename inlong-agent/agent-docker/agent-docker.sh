@@ -38,4 +38,4 @@ EOF
 bash +x ${file_path}/bin/agent.sh start
 sleep 3
 # keep alive
-tail -F ${file_path}/logs/agent.log
+tail -F ${file_path}/logs/info.log
