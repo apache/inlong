@@ -19,10 +19,14 @@ package org.apache.inlong.manager.service.sort.util;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExtractNodeUtils {
 
@@ -30,7 +34,26 @@ public class ExtractNodeUtils {
         if (CollectionUtils.isEmpty(sourceResponses)) {
             return Lists.newArrayList();
         }
-        //todo transfer sourceResponse to extractNode
-        return Lists.newArrayList();
+        return sourceResponses.stream().map(sourceResponse -> createExtractNode(sourceResponse))
+                .collect(Collectors.toList());
+    }
+
+    public static ExtractNode createExtractNode(SourceResponse sourceResponse) {
+        SourceType sourceType = SourceType.forType(sourceResponse.getSourceType());
+        switch (sourceType) {
+            case BINLOG:
+                return createExtractNode((BinlogSourceResponse) sourceResponse);
+            default:
+                throw new IllegalArgumentException(
+                        String.format("Unsupported sourceType=%s to create extractNode", sourceType));
+        }
+    }
+
+    public static MySqlExtractNode createExtractNode(BinlogSourceResponse binlogSourceResponse) {
+        String id = binlogSourceResponse.getSourceName();
+        String name = binlogSourceResponse.getSourceName();
+        String database = binlogSourceResponse.getDatabaseWhiteList();
+        //todo
+        return null;
     }
 }

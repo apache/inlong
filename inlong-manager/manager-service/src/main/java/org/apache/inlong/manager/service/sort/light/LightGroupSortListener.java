@@ -46,7 +46,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -89,20 +92,38 @@ public class LightGroupSortListener implements SortOperateListener {
     }
 
     private GroupInfo createGroupInfo(InlongGroupInfo inlongGroupInfo, List<InlongStreamInfo> inlongStreamInfos) {
+        final String groupId = inlongGroupInfo.getInlongGroupId();
+        List<SourceResponse> sourceResponses = sourceService.listSource(groupId, null);
+        Map<String, List<SourceResponse>> sourceResponseMap = sourceResponses.stream()
+                .collect(Collectors.groupingBy(sourceResponse -> sourceResponse.getInlongStreamId(), HashMap::new,
+                        Collectors.toCollection(ArrayList::new)));
+        List<SinkResponse> sinkResponses = sinkService.listSink(groupId, null);
+        Map<String, List<SinkResponse>> sinkResponseMap = sinkResponses.stream()
+                .collect(Collectors.groupingBy(sinkResponse -> sinkResponse.getInlongStreamId(), HashMap::new,
+                        Collectors.toCollection(ArrayList::new)));
+        List<TransformResponse> transformResponses = transformService.listTransform(groupId, null);
+        Map<String, List<TransformResponse>> transformResponseMap = transformResponses.stream()
+                .collect(Collectors.groupingBy(transformResponse -> transformResponse.getInlongStreamId(), HashMap::new,
+                        Collectors.toCollection(ArrayList::new)));
         List<StreamInfo> streamInfos = inlongStreamInfos.stream()
                 .map(inlongStreamInfo -> new StreamInfo(inlongStreamInfo.getInlongStreamId(),
-                        createNodesForStream(inlongStreamInfo),
+                        createNodesForStream(
+                                sourceResponseMap.get(inlongStreamInfo.getInlongStreamId()),
+                                transformResponseMap.get(inlongStreamInfo.getInlongStreamId()),
+                                sinkResponseMap.get(inlongStreamInfo.getInlongStreamId())),
                         NodeRelationShipUtils.createNodeRelationShipsForStream(inlongStreamInfo)))
                 .collect(Collectors.toList());
+        streamInfos.stream().forEach(streamInfo -> {
+            List<TransformResponse> transformResponseList = transformResponseMap.get(streamInfo.getStreamId());
+            NodeRelationShipUtils.optimizeNodeRelationShips(streamInfo, transformResponseList);
+        });
         return new GroupInfo(inlongGroupInfo.getInlongGroupId(), streamInfos);
     }
 
-    private List<Node> createNodesForStream(InlongStreamInfo streamInfo) {
-        final String groupId = streamInfo.getInlongGroupId();
-        final String streamId = streamInfo.getInlongStreamId();
-        List<SourceResponse> sourceResponses = sourceService.listSource(groupId, streamId);
-        List<SinkResponse> sinkResponses = sinkService.listSink(groupId, streamId);
-        List<TransformResponse> transformResponses = transformService.listTransform(groupId, streamId);
+    private List<Node> createNodesForStream(
+            List<SourceResponse> sourceResponses,
+            List<TransformResponse> transformResponses,
+            List<SinkResponse> sinkResponses) {
         List<Node> nodes = Lists.newArrayList();
         nodes.addAll(ExtractNodeUtils.createExtractNodes(sourceResponses));
         nodes.addAll(TransformNodeUtils.createTransformNodes(transformResponses));

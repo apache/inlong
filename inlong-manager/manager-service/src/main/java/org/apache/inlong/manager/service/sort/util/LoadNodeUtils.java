@@ -19,10 +19,14 @@ package org.apache.inlong.manager.service.sort.util;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.sort.protocol.node.LoadNode;
+import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LoadNodeUtils {
 
@@ -30,7 +34,23 @@ public class LoadNodeUtils {
         if (CollectionUtils.isEmpty(sinkResponses)) {
             return Lists.newArrayList();
         }
-        //todo transfer sinkResponse to LoadNode
-        return Lists.newArrayList();
+        return sinkResponses.stream().map(sourceResponse -> createLoadNode(sourceResponse))
+                .collect(Collectors.toList());
+    }
+
+    public static LoadNode createLoadNode(SinkResponse sinkResponse) {
+        SinkType sinkType = SinkType.forType(sinkResponse.getSinkType());
+        switch (sinkType) {
+            case KAFKA:
+                return createLoadNode((KafkaSinkResponse) sinkResponse);
+            default:
+                throw new IllegalArgumentException(
+                        String.format("Unsupported sinkType=%s to create loadNode", sinkType));
+        }
+    }
+
+    public static KafkaLoadNode createLoadNode(KafkaSinkResponse kafkaSinkResponse) {
+        //todo
+        return null;
     }
 }

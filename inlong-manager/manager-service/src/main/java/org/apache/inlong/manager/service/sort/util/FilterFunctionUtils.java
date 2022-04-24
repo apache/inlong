@@ -19,20 +19,51 @@ package org.apache.inlong.manager.service.sort.util;
 
 import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.enums.TransformType;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
+import org.apache.inlong.manager.common.pojo.transform.TransformDefinition.OperationType;
+import org.apache.inlong.manager.common.pojo.transform.TransformDefinition.RuleRelation;
+import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
+import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition;
+import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition.FilterMode;
+import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition.FilterRule;
+import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition.TargetValue;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.common.util.StreamParseUtils;
+import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
+import org.apache.inlong.sort.protocol.transformation.FunctionParam;
+import org.apache.inlong.sort.protocol.transformation.LogicOperator;
+import org.apache.inlong.sort.protocol.transformation.SingleValueCompareOperator;
+import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
+import org.apache.inlong.sort.protocol.transformation.operator.AndOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.IsNotNullOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.IsNullOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.LessThanOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.LessThanOrEqualOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.MoreThanOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.MoreThanOrEqualOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.NotEqualOperator;
+import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FilterFunctionUtils {
 
-    public static List<FilterFunction> createFilterFunctions(TransformDefinition transformDefinition) {
-        TransformType transformType = transformDefinition.getTransformType();
+    public static List<FilterFunction> createFilterFunctions(TransformResponse transformResponse) {
+        TransformType transformType = TransformType.forType(transformResponse.getTransformType());
+        TransformDefinition transformDefinition = StreamParseUtils.parseTransformDefinition(
+                transformResponse.getTransformDefinition(), transformType);
+        String transformName = transformResponse.getTransformName();
         switch (transformType) {
-            case DE_DUPLICATION:
-                return Lists.newArrayList();
             case FILTER:
-
+                FilterDefinition filterDefinition = (FilterDefinition) transformDefinition;
+                return createFilterFunctions(filterDefinition, transformName);
+            case DE_DUPLICATION:
             case SPLITTER:
             case JOINER:
             case STRING_REPLACER:
@@ -43,4 +74,86 @@ public class FilterFunctionUtils {
         }
     }
 
+    public static List<FilterFunction> createFilterFunctions(FilterDefinition filterDefinition, String transformName) {
+        FilterMode filterMode = filterDefinition.getFilterMode();
+        Preconditions.checkFalse(filterMode == FilterMode.SCRIPT,
+                String.format("Unsupported filterMode=%s for inlong", filterMode));
+        List<FilterRule> filterRules = filterDefinition.getFilterRules();
+        List<FilterFunction> filterFunctions = filterRules.stream()
+                .map(filterRule -> createFilterFunction(filterRule, transformName)).collect(Collectors.toList());
+        // Move logicOperator to preFunction
+        for (int index = filterFunctions.size() - 1; index > 0; index--) {
+            SingleValueFilterFunction function = (SingleValueFilterFunction) filterFunctions.get(index);
+            SingleValueFilterFunction preFunction = (SingleValueFilterFunction) filterFunctions.get(index - 1);
+            function.setLogicOperator(preFunction.getLogicOperator());
+        }
+        ((SingleValueFilterFunction) filterFunctions.get(0)).setLogicOperator(EmptyOperator.getInstance());
+        return filterFunctions;
+    }
+
+    private static FilterFunction createFilterFunction(FilterRule filterRule, String transformName) {
+        StreamField streamField = filterRule.getSourceField();
+        String fieldType = streamField.getFieldType().name();
+        String fieldFormat = streamField.getFieldFormat();
+        String fieldName = streamField.getFieldName();
+        FieldInfo sourceFieldInfo = new FieldInfo(fieldName, transformName,
+                FieldInfoUtils.convertFieldFormat(fieldType, fieldFormat));
+        OperationType operationType = filterRule.getOperationType();
+        SingleValueCompareOperator compareOperator = parseCompareOperator(operationType);
+        TargetValue targetValue = filterRule.getTargetValue();
+        FunctionParam target = parseTargetValue(targetValue, transformName);
+        RuleRelation relationWithPost = filterRule.getRelationWithPost();
+        LogicOperator logicOperator = parseLogicOperator(relationWithPost);
+        return new SingleValueFilterFunction(logicOperator, sourceFieldInfo, compareOperator, target);
+    }
+
+    private static LogicOperator parseLogicOperator(RuleRelation relation) {
+        switch (relation) {
+            case OR:
+                return OrOperator.getInstance();
+            case AND:
+                return AndOperator.getInstance();
+            default:
+                return EmptyOperator.getInstance();
+        }
+    }
+
+    private static FunctionParam parseTargetValue(TargetValue value, String transformName) {
+        boolean isConstant = value.isConstant();
+        if (isConstant) {
+            String constant = value.getTargetConstant();
+            return new ConstantParam(constant);
+        } else {
+            StreamField targetField = value.getTargetField();
+            String fieldType = targetField.getFieldType().name();
+            String fieldFormat = targetField.getFieldFormat();
+            String fieldName = targetField.getFieldName();
+            return new FieldInfo(fieldName, transformName,
+                    FieldInfoUtils.convertFieldFormat(fieldType, fieldFormat));
+        }
+    }
+
+    private static SingleValueCompareOperator parseCompareOperator(OperationType operationType) {
+        switch (operationType) {
+            case eq:
+                return EqualOperator.getInstance();
+            case ge:
+                return MoreThanOrEqualOperator.getInstance();
+            case gt:
+                return MoreThanOperator.getInstance();
+            case le:
+                return LessThanOrEqualOperator.getInstance();
+            case lt:
+                return LessThanOperator.getInstance();
+            case ne:
+                return NotEqualOperator.getInstance();
+            case is_null:
+                return IsNullOperator.getInstance();
+            case not_null:
+                return IsNotNullOperator.getInstance();
+            default:
+                throw new IllegalArgumentException(
+                        String.format("Unsupported operateType=%s for inlong", operationType));
+        }
+    }
 }
