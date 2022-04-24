@@ -15,17 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol.node;
+package org.apache.inlong.sort.protocol.node.load;
 
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.node.Node;
+import org.apache.inlong.sort.protocol.node.NodeBaseTest;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
-import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 
 import java.util.Arrays;
 import java.util.TreeMap;
 
+/**
+ * Unit test for {@link KafkaLoadNode}
+ */
 public class KafkaLoadNodeTest extends NodeBaseTest {
 
     @Override

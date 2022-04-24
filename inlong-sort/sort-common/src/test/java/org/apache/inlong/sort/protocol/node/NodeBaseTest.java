@@ -43,12 +43,12 @@ public abstract class NodeBaseTest {
 
     @Test
     public void testSerialize() throws JsonProcessingException {
-        assertEquals(expectSerializeStr, objectMapper.writeValueAsString(node));
+        String actual = objectMapper.writeValueAsString(node);
+        assertEquals(expectSerializeStr, actual);
     }
 
     @Test
     public void testDeserialize() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
         Node expected = objectMapper.readValue(expectSerializeStr, Node.class);
         assertEquals(expected, node);
     }
