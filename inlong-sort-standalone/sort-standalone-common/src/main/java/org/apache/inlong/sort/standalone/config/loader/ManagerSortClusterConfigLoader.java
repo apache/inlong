@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.standalone.config.loader;
 
-import java.util.concurrent.TimeUnit;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Context;
@@ -32,10 +32,10 @@ import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.ManagerUrlHandler;
-import org.slf4j.Logger;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+import org.slf4j.Logger;
 
-import com.google.gson.Gson;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -47,7 +47,7 @@ public class ManagerSortClusterConfigLoader implements SortClusterConfigLoader {
 
     private Context context;
     private CloseableHttpClient httpClient;
-    private Gson gson = new Gson();
+    private ObjectMapper objectMapper = new ObjectMapper();
     private String md5;
 
     /**
@@ -101,7 +101,7 @@ public class ManagerSortClusterConfigLoader implements SortClusterConfigLoader {
             LOG.info("end to request {},result:{}", url, returnStr);
             // get groupId <-> topic and m value.
 
-            SortClusterResponse clusterResponse = gson.fromJson(returnStr, SortClusterResponse.class);
+            SortClusterResponse clusterResponse = objectMapper.readValue(returnStr, SortClusterResponse.class);
             int errCode = clusterResponse.getCode();
             if (errCode != SortClusterResponse.SUCC && errCode != SortClusterResponse.NOUPDATE) {
                 LOG.info("Fail to get config info from url:{}, error code is {}, msg is {}",
