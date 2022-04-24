@@ -27,6 +27,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
@@ -39,7 +40,8 @@ import java.util.Map;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = MySqlExtractNode.class, name = "mysqlExtract")
+        @JsonSubTypes.Type(value = MySqlExtractNode.class, name = "mysqlExtract"),
+        @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract")
 })
 @Data
 @NoArgsConstructor
