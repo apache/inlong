@@ -25,6 +25,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.KafkaConstant;
 import org.apache.inlong.sort.protocol.enums.ScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
@@ -94,20 +95,20 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options.put("topic", topic);
-        options.put("properties.bootstrap.servers", bootstrapServers);
+        options.put(KafkaConstant.TOPIC, topic);
+        options.put(KafkaConstant.PROPERTIES_BOOTSTRAP_SERVERS, bootstrapServers);
         if (format instanceof JsonFormat || format instanceof AvroFormat || format instanceof CsvFormat) {
             if (StringUtils.isEmpty(this.primaryKey)) {
-                options.put("connector", "kafka");
-                options.put("scan.startup.mode", scanStartupMode.getValue());
+                options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
+                options.put(KafkaConstant.SCAN_STARTUP_MODE, scanStartupMode.getValue());
                 options.putAll(format.generateOptions(false));
             } else {
-                options.put("connector", "upsert-kafka");
+                options.put(KafkaConstant.CONNECTOR, KafkaConstant.UPSERT_KAFKA);
                 options.putAll(format.generateOptions(true));
             }
         } else if (format instanceof CanalJsonFormat || format instanceof DebeziumJsonFormat) {
-            options.put("connector", "kafka");
-            options.put("scan.startup.mode", scanStartupMode.getValue());
+            options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
+            options.put(KafkaConstant.SCAN_STARTUP_MODE, scanStartupMode.getValue());
             options.putAll(format.generateOptions(false));
         } else {
             throw new IllegalArgumentException("kafka extract node format is IllegalArgument");
