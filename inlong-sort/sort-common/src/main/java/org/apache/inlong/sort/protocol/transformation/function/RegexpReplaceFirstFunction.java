@@ -23,7 +23,8 @@ import lombok.EqualsAndHashCode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
-import org.apache.inlong.sort.protocol.transformation.Function;
+import org.apache.inlong.sort.protocol.transformation.CascadeFunction;
+import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 
@@ -38,7 +39,7 @@ import java.util.List;
 @JsonTypeName("regexpReplaceFirst")
 @EqualsAndHashCode(callSuper = false)
 @Data
-public class RegexpReplaceFirstFunction implements Function, Serializable {
+public class RegexpReplaceFirstFunction implements CascadeFunction, Serializable {
 
     private static final long serialVersionUID = -2701547146694616429L;
 
@@ -78,5 +79,11 @@ public class RegexpReplaceFirstFunction implements Function, Serializable {
     @Override
     public String format() {
         return String.format("%s(%s, %s, %s)", getName(), field.format(), regex.format(), replacement.format());
+    }
+
+    @Override
+    public ConstantParam apply(ConstantParam constantParam) {
+        return new ConstantParam(String.format("%s(%s, %s, %s)", getName(),
+                constantParam.format(), regex.format(), replacement.format()));
     }
 }
