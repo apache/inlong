@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,24 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.resource.hive;
+package org.apache.inlong.sort.singletenant.flink.parser;
 
-import java.util.List;
-
-import org.apache.inlong.manager.common.pojo.sink.SinkForSortDTO;
+import org.apache.inlong.sort.singletenant.flink.parser.result.ParseResult;
 
 /**
- * IHiveTableOperator
+ * The parse handler interface,it is the top-level interface abstraction of parse
  */
-public interface IHiveTableOperator {
-
-    String BEAN_NAME = "HiveTableOperator";
+public interface Parser {
 
     /**
-     * Create hive table according to the groupId and hive config createHiveResource
-     * 
-     * @param groupId
-     * @param configList
+     * Parse data model to generate flink sql or flink stream api
+     *
+     * @return ParseResult the result of parsing
      */
-    public void createHiveResource(String groupId, List<SinkForSortDTO> configList);
+    ParseResult parse();
+
 }

@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.workflow.group.listener.light;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
@@ -48,7 +48,7 @@ public class LightGroupUpdateFailedListener implements ProcessEventListener {
         final String groupId = groupInfo.getInlongGroupId();
         final String applicant = context.getApplicant();
         // Update inlong group status
-        groupService.updateStatus(groupId, GroupState.CONFIG_FAILED.getCode(), applicant);
+        groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), applicant);
         groupService.update(groupInfo.genRequest(), applicant);
         return ListenerResult.success();
     }

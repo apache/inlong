@@ -48,9 +48,6 @@ public class BinlogSourceRequest extends SourceRequest {
     @ApiModelProperty("Exposed port of the DB server")
     private int port = 3306;
 
-    @ApiModelProperty("Id of physical node of MySQL Cluster, 0 if single node")
-    private int serverId;
-
     @ApiModelProperty("Whether include schema, default is 'false'")
     private String includeSchema;
 

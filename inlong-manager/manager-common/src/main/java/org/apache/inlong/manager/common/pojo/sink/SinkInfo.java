@@ -15,21 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.stream;
+package org.apache.inlong.manager.common.pojo.sink;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 /**
- * Basic information of inlong stream
+ * Sink info - with stream
  */
 @Data
-public class InlongStreamBaseInfo {
+@ApiModel("Sink info - with stream")
+public class SinkInfo {
 
-    @ApiModelProperty(value = "Inlong group id")
+    private Integer id;
     private String inlongGroupId;
-
-    @ApiModelProperty(value = "Inlong stream id")
     private String inlongStreamId;
+    private String sinkType;
+    private String sinkName;
+    private String description;
+    private Integer enableCreateResource;
+    private String extParams;
+    private Integer status;
+    private String creator;
+
+    // Inlong stream info
+    private String mqResourceObj;
+    private String dataSourceType;
+    private String dataType;
+    private String sourceSeparator; // Source separator configured in the stream info
+    private String dataEscapeChar;
 
 }

@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.sort;
 
 import com.google.common.collect.Lists;
-import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
@@ -109,7 +109,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
     @Test
     public void testCreateSortConfigInCreateWorkflow() {
         InlongGroupInfo groupInfo = initGroupForm("PULSAR");
-        groupInfo.setStatus(GroupState.CONFIG_SUCCESSFUL.getCode());
+        groupInfo.setStatus(GroupStatus.CONFIG_SUCCESSFUL.getCode());
         groupInfo.setZookeeperEnabled(0);
         groupService.update(groupInfo.genRequest(), OPERATOR);
         InlongStreamInfo streamInfo = createStreamInfo(groupInfo);
@@ -136,7 +136,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
     public void testCreateSortConfigInUpdateWorkflow() {
         InlongGroupInfo groupInfo = initGroupForm("PULSAR");
         groupInfo.setZookeeperEnabled(0);
-        groupService.updateStatus(GROUP_ID, GroupState.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
+        groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
         InlongStreamInfo streamInfo = createStreamInfo(groupInfo);

@@ -25,8 +25,9 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
@@ -226,7 +227,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
         entity.setPreviousStatus(entity.getStatus());
-        entity.setStatus(EntityStatus.DELETED.getCode());
+        entity.setStatus(GlobalConstants.DELETED_STATUS);
         entity.setIsDeleted(id);
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
@@ -253,7 +254,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             entityList.forEach(entity -> {
                 Integer id = entity.getId();
                 entity.setPreviousStatus(entity.getStatus());
-                entity.setStatus(EntityStatus.DELETED.getCode());
+                entity.setStatus(GlobalConstants.DELETED_STATUS);
                 entity.setIsDeleted(id);
                 entity.setModifier(operator);
                 entity.setModifyTime(now);
@@ -328,7 +329,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             StreamSinkEntity entity = new StreamSinkEntity();
             entity.setId(dto.getId());
 
-            int status = (dto.getStatus() == null) ? EntityStatus.SINK_CONFIG_ING.getCode() : dto.getStatus();
+            int status = (dto.getStatus() == null) ? SinkStatus.CONFIG_ING.getCode() : dto.getStatus();
             entity.setPreviousStatus(entity.getStatus());
             entity.setStatus(status);
             entity.setModifier(operator);

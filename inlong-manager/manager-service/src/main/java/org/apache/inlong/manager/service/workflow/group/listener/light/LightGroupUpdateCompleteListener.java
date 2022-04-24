@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.workflow.group.listener.light;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
@@ -57,13 +57,13 @@ public class LightGroupUpdateCompleteListener implements ProcessEventListener {
         GroupOperateType groupOperateType = form.getGroupOperateType();
         switch (groupOperateType) {
             case SUSPEND:
-                groupService.updateStatus(groupId, GroupState.SUSPENDING.getCode(), applicant);
+                groupService.updateStatus(groupId, GroupStatus.SUSPENDING.getCode(), applicant);
                 break;
             case RESTART:
-                groupService.updateStatus(groupId, GroupState.RESTARTING.getCode(), applicant);
+                groupService.updateStatus(groupId, GroupStatus.RESTARTING.getCode(), applicant);
                 break;
             case DELETE:
-                groupService.updateStatus(groupId, GroupState.DELETING.getCode(), applicant);
+                groupService.updateStatus(groupId, GroupStatus.DELETING.getCode(), applicant);
                 break;
             default:
                 break;

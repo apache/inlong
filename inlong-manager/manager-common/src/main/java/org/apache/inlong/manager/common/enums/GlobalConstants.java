@@ -15,35 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+package org.apache.inlong.manager.common.enums;
 
 /**
- * Ext fields of stream sink
+ * Global constant for system
  */
-@Data
-@ApiModel("Ext fields of stream sink")
-public class SinkExtInfo {
+public class GlobalConstants {
 
-    @ApiModelProperty("key")
-    private Integer id;
+    public static final Integer UN_DELETED = 0;
 
-    @ApiModelProperty("sink type, like: HDFS, HIVE")
-    private String sinkType;
+    public static final Integer IS_DELETED = 1;
 
-    @ApiModelProperty("sink id")
-    private Integer sinkId;
+    public static final Integer DELETED_STATUS = 10;
 
-    @ApiModelProperty("property name")
-    private String keyName;
+    public static final Integer DISABLE_CREATE_RESOURCE = 0;
 
-    @ApiModelProperty("property value")
-    private String keyValue;
-
-    @ApiModelProperty("is deleted? 0: deleted, 1: not deleted")
-    private Integer isDeleted = 0;
+    public static final Integer ENABLE_CREATE_RESOURCE = 1;
 
 }

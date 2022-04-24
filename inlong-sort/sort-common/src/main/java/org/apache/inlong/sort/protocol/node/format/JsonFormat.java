@@ -91,32 +91,24 @@ public class JsonFormat implements Format {
      *
      * @return options
      */
-    @Override
     public Map<String, String> generateOptions() {
-        Map<String, String> options = new HashMap<>(32);
-        options.put("key.format", getFormat());
-        options.put("value.format", getFormat());
+        Map<String, String> options = new HashMap<>(16);
+        options.put("format", getFormat());
         if (this.failOnMissingField != null) {
             String failOnMissingField = this.failOnMissingField.toString();
-            options.put("value.json.fail-on-missing-field", failOnMissingField);
-            options.put("key.json.fail-on-missing-field", failOnMissingField);
+            options.put("json.fail-on-missing-field", failOnMissingField);
         }
         if (this.ignoreParseErrors != null) {
             String ignoreParseErrors = this.ignoreParseErrors.toString();
-            options.put("value.json.ignore-parse-errors", ignoreParseErrors);
-            options.put("key.json.ignore-parse-errors", ignoreParseErrors);
+            options.put("json.ignore-parse-errors", ignoreParseErrors);
         }
-        options.put("value.json.timestamp-format.standard", this.timestampFormatStandard);
-        options.put("value.json.map-null-key.mode", this.mapNullKeyMode);
-        options.put("value.json.map-null-key.literal", this.mapNullKeyLiteral);
+        options.put("json.timestamp-format.standard", this.timestampFormatStandard);
+        options.put("json.map-null-key.mode", this.mapNullKeyMode);
+        options.put("json.map-null-key.literal", this.mapNullKeyLiteral);
         if (this.encodeDecimalAsPlainNumber != null) {
             String encodeDecimalAsPlainNumber = this.encodeDecimalAsPlainNumber.toString();
-            options.put("value.json.encode.decimal-as-plain-number", encodeDecimalAsPlainNumber);
-            options.put("key.json.encode.decimal-as-plain-number", encodeDecimalAsPlainNumber);
+            options.put("json.encode.decimal-as-plain-number", encodeDecimalAsPlainNumber);
         }
-        options.put("key.json.timestamp-format.standard", this.timestampFormatStandard);
-        options.put("key.json.map-null-key.mode", this.mapNullKeyMode);
-        options.put("key.json.map-null-key.literal", this.mapNullKeyLiteral);
         return options;
     }
 }

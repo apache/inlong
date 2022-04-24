@@ -26,9 +26,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -121,8 +121,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         entity.setSchemaName(Constant.SCHEMA_M0_DAY);
 
         // After saving, the status is set to [GROUP_WAIT_SUBMIT]
-        entity.setStatus(GroupState.TO_BE_SUBMIT.getCode());
-        entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
+        entity.setStatus(GroupStatus.TO_BE_SUBMIT.getCode());
+        entity.setIsDeleted(GlobalConstants.UN_DELETED);
         if (StringUtils.isEmpty(entity.getCreator())) {
             entity.setCreator(operator);
         }
@@ -199,7 +199,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
 
         // For approved inlong group, encapsulate the cluster address of the middleware
-        if (GroupState.CONFIG_SUCCESSFUL == GroupState.forCode(groupInfo.getStatus())) {
+        if (GroupStatus.CONFIG_SUCCESSFUL == GroupStatus.forCode(groupInfo.getStatus())) {
             if (mqType == MQType.TUBE) {
                 groupInfo.setTubeMaster(commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL));
             } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
@@ -316,8 +316,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
         }
         // Check whether the current state supports modification
-        GroupState curState = GroupState.forCode(entity.getStatus());
-        if (GroupState.notAllowedUpdate(curState)) {
+        GroupStatus curState = GroupStatus.forCode(entity.getStatus());
+        if (GroupStatus.notAllowedUpdate(curState)) {
             String errMsg = String.format("Current state=%s is not allowed to update", curState);
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
@@ -335,9 +335,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-        GroupState curState = GroupState.forCode(entity.getStatus());
-        GroupState nextState = GroupState.forCode(status);
-        if (GroupState.notAllowedTransition(curState, nextState)) {
+        GroupStatus curState = GroupStatus.forCode(entity.getStatus());
+        GroupStatus nextState = GroupStatus.forCode(status);
+        if (GroupStatus.notAllowedTransition(curState, nextState)) {
             String errorMsg = String.format("Current state=%s is not allowed to transfer to state=%s",
                     curState, nextState);
             LOGGER.error(errorMsg);
@@ -362,15 +362,15 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
 
         // Determine whether the current status can be deleted
-        GroupState curState = GroupState.forCode(entity.getStatus());
-        if (GroupState.notAllowedTransition(curState, GroupState.DELETED)) {
+        GroupStatus curState = GroupStatus.forCode(entity.getStatus());
+        if (GroupStatus.notAllowedTransition(curState, GroupStatus.DELETED)) {
             String errMsg = String.format("Current state=%s was not allowed to delete", curState);
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED, errMsg);
         }
 
         // [DRAFT] [GROUP_WAIT_SUBMIT] status, all associated data can be logically deleted directly
-        if (GroupState.isAllowedLogicDel(curState)) {
+        if (GroupStatus.isAllowedLogicDel(curState)) {
             // Logically delete inlong streams, data sources and data sink information
             streamService.logicDeleteAll(entity.getInlongGroupId(), operator);
         } else {
@@ -385,7 +385,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
 
         entity.setIsDeleted(entity.getId());
-        entity.setStatus(GroupState.DELETED.getCode());
+        entity.setStatus(GroupStatus.DELETED.getCode());
         entity.setModifier(operator);
         groupMapper.updateByIdentifierSelective(entity);
 
@@ -419,11 +419,11 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             int status = (Integer) map.get("status");
             long count = (Long) map.get("count");
             countVO.setTotalCount(countVO.getTotalCount() + count);
-            if (status == GroupState.CONFIG_ING.getCode()) {
+            if (status == GroupStatus.CONFIG_ING.getCode()) {
                 countVO.setWaitAssignCount(countVO.getWaitAssignCount() + count);
-            } else if (status == GroupState.TO_BE_APPROVAL.getCode()) {
+            } else if (status == GroupStatus.TO_BE_APPROVAL.getCode()) {
                 countVO.setWaitApproveCount(countVO.getWaitApproveCount() + count);
-            } else if (status == GroupState.APPROVE_REJECTED.getCode()) {
+            } else if (status == GroupStatus.APPROVE_REJECTED.getCode()) {
                 countVO.setRejectCount(countVO.getRejectCount() + count);
             }
         }
@@ -472,7 +472,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // Update status to [GROUP_APPROVE_PASSED]
         // If you need to change inlong group info after approve, just do in here
-        this.updateStatus(groupId, GroupState.APPROVE_PASSED.getCode(), operator);
+        this.updateStatus(groupId, GroupStatus.APPROVE_PASSED.getCode(), operator);
 
         LOGGER.info("success to update inlong group status after approve for groupId={}", groupId);
         return true;

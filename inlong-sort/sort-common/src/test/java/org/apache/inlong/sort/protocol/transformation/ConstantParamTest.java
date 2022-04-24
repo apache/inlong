@@ -23,8 +23,16 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Test for {@link ConstantParam}
+ */
 public class ConstantParamTest {
 
+    /**
+     * Test for serialize of {@link ConstantParam}
+     *
+     * @throws JsonProcessingException The exception may throws when serialize
+     */
     @Test
     public void testSerialize() throws JsonProcessingException {
         ConstantParam constantParam = new ConstantParam("constantparam");
@@ -33,6 +41,11 @@ public class ConstantParamTest {
         assertEquals(expected, objectMapper.writeValueAsString(constantParam));
     }
 
+    /**
+     * Test for serialize of {@link ConstantParam}
+     *
+     * @throws JsonProcessingException The exception may throws when serialize
+     */
     @Test
     public void testDeserialize() throws JsonProcessingException {
         ConstantParam constantParam = new ConstantParam("constantparam");
@@ -40,5 +53,16 @@ public class ConstantParamTest {
         String constantParamStr = "{\"type\":\"constant\",\"value\":\"constantparam\"}";
         ConstantParam expected = objectMapper.readValue(constantParamStr, ConstantParam.class);
         assertEquals(expected, constantParam);
+    }
+
+    /**
+     * Test for format
+     *
+     * @see ConstantParam#format()
+     */
+    @Test
+    public void testFormat() {
+        ConstantParam constantParam = new ConstantParam("constantparam");
+        assertEquals("constantparam", constantParam.format());
     }
 }

@@ -69,8 +69,7 @@ public class AvroFormat implements Format {
     @Override
     public Map<String, String> generateOptions() {
         Map<String, String> options = new HashMap<>(4);
-        options.put("key.format", getFormat());
-        options.put("value.format", getFormat());
+        options.put("format", getFormat());
         return options;
     }
 }

@@ -15,34 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink;
-
-import io.swagger.annotations.ApiModel;
-import lombok.Data;
+package org.apache.inlong.manager.common.enums;
 
 /**
- * Sink info for Sort
+ * Sink status enum
  */
-@Data
-@ApiModel("Sink info for Sort")
-public class SinkForSortDTO {
+public enum SinkStatus {
 
-    private Integer id;
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private String sinkType;
-    private String sinkName;
-    private String description;
-    private Integer enableCreateResource;
-    private String extParams;
-    private Integer status;
-    private String creator;
+    DRAFT(0, "draft"),
+    DELETED(10, "deleted"),
 
-    // Inlong stream info
-    private String mqResourceObj;
-    private String dataSourceType;
-    private String dataType;
-    private String sourceSeparator; // Source separator configured in the stream info
-    private String dataEscapeChar;
+    // Stream sink related status
+    NEW(100, "new"),
+    CONFIG_ING(110, "in configure"),
+    CONFIG_FAILED(120, "configuration failed"),
+    CONFIG_SUCCESSFUL(130, "configuration successful"),
+
+    ;
+
+    private final Integer code;
+    private final String description;
+
+    SinkStatus(Integer code, String description) {
+        this.code = code;
+        this.description = description;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 
 }

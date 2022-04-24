@@ -20,13 +20,19 @@ package org.apache.inlong.manager.common.pojo.stream;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong stream config log")
-public class InlongStreamConfigLogRequest
-        extends InlongStreamBaseInfo {
+public class InlongStreamConfigLogRequest {
+
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
+
+    @ApiModelProperty(value = "Inlong group id")
+    private String inlongGroupId;
+
+    @ApiModelProperty(value = "Inlong stream id")
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "ip")
     private String ip;

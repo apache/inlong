@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.workflow.group.listener;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupState;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
@@ -54,13 +54,13 @@ public class GroupUpdateListener implements ProcessEventListener {
         if (groupInfo != null) {
             switch (groupOperateType) {
                 case SUSPEND:
-                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupState.SUSPENDING.getCode(), username);
+                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.SUSPENDING.getCode(), username);
                     break;
                 case RESTART:
-                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupState.RESTARTING.getCode(), username);
+                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.RESTARTING.getCode(), username);
                     break;
                 case DELETE:
-                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupState.DELETING.getCode(), username);
+                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.DELETING.getCode(), username);
                     break;
                 default:
                     break;

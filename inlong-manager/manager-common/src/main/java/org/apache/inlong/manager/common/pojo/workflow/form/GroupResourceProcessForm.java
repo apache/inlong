@@ -38,9 +38,13 @@ public class GroupResourceProcessForm extends BaseProcessForm {
 
     private InlongGroupInfo groupInfo;
 
+    @Deprecated
     private String streamId;
 
+    @Deprecated
     private List<InlongStreamInfo> streamInfos;
+
+    private List<InlongStreamInfo> streamInfoList;
 
     public InlongGroupInfo getGroupInfo() {
         return groupInfo;
@@ -64,10 +68,12 @@ public class GroupResourceProcessForm extends BaseProcessForm {
         return groupInfo.getInlongGroupId();
     }
 
+    @Deprecated
     public String getInlongStreamId() {
         return streamId;
     }
 
+    @Deprecated
     public void setInlongStreamId(String streamId) {
         this.streamId = streamId;
     }

@@ -28,9 +28,9 @@ import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
 import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
@@ -170,7 +170,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
         entity.setIsDeleted(id);
-        entity.setStatus(EntityStatus.DELETED.getCode());
+        entity.setStatus(GlobalConstants.DELETED_STATUS);
         entity.setModifier(operator);
         thirdPartyClusterMapper.updateByPrimaryKey(entity);
         LOGGER.info("success to delete cluster by id={}", id);
@@ -247,7 +247,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
     public List<DataProxyConfig> getConfig() {
         // get all configs with inlong group status of 130, that is, config successful
         // TODO Optimize query conditions
-        List<InlongGroupEntity> groupEntityList = groupMapper.selectAll(GroupState.CONFIG_SUCCESSFUL.getCode());
+        List<InlongGroupEntity> groupEntityList = groupMapper.selectAll(GroupStatus.CONFIG_SUCCESSFUL.getCode());
         List<DataProxyConfig> configList = new ArrayList<>();
         for (InlongGroupEntity groupEntity : groupEntityList) {
             String groupId = groupEntity.getInlongGroupId();
@@ -286,7 +286,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
 
         // TODO Optimize query conditions use dataProxyClusterId
         ThirdPartyClusterDTO object = new ThirdPartyClusterDTO();
-        List<InlongGroupEntity> groupEntityList = groupMapper.selectAll(GroupState.CONFIG_SUCCESSFUL.getCode());
+        List<InlongGroupEntity> groupEntityList = groupMapper.selectAll(GroupStatus.CONFIG_SUCCESSFUL.getCode());
         if (CollectionUtils.isEmpty(groupEntityList)) {
             String msg = "not found any inlong group with success status for proxy cluster name = " + clusterName;
             LOGGER.warn(msg);

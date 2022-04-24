@@ -23,7 +23,7 @@ import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.apache.inlong.manager.service.resource.hive.CreateHiveSinkForStreamListener;
+import org.apache.inlong.manager.service.resource.CreateSinkResourceForStreamListener;
 import org.apache.inlong.manager.service.mq.CreatePulsarGroupForStreamTaskListener;
 import org.apache.inlong.manager.service.mq.CreatePulsarTopicForStreamTaskListener;
 import org.apache.inlong.manager.service.sort.PushSortConfigListener;
@@ -56,7 +56,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
     @Autowired
     private StreamCompleteProcessListener streamCompleteProcessListener;
     @Autowired
-    private CreateHiveSinkForStreamListener createHiveTableListener;
+    private CreateSinkResourceForStreamListener createHiveTableListener;
     @Autowired
     private PushSortConfigListener pushSortConfigListener;
     @Autowired

@@ -47,6 +47,11 @@ import org.apache.inlong.sort.protocol.transformation.operator.NotEqualOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.NotInOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
 
+/**
+ * FunctionParam is used to define and encapsulate function parameters
+ * and it is the top-level interface for function parameters.
+ * It mainly includes several categories such as fields, constants, functions, operators etc
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
@@ -56,6 +61,7 @@ import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
         @JsonSubTypes.Type(value = BuiltInFieldInfo.class, name = "builtin"),
         @JsonSubTypes.Type(value = ConstantParam.class, name = "constant"),
         @JsonSubTypes.Type(value = TimeUnitConstantParam.class, name = "timeUnitConstant"),
+        @JsonSubTypes.Type(value = StringConstantParam.class, name = "stringConstant"),
         @JsonSubTypes.Type(value = AndOperator.class, name = "and"),
         @JsonSubTypes.Type(value = OrOperator.class, name = "or"),
         @JsonSubTypes.Type(value = EmptyOperator.class, name = "empty"),
@@ -84,9 +90,19 @@ import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
 })
 public interface FunctionParam {
 
+    /**
+     * Function param name
+     *
+     * @return The name of this function param
+     */
     @JsonIgnore
     String getName();
 
+    /**
+     * Format used for sql
+     *
+     * @return The format value in sql
+     */
     String format();
 
 }

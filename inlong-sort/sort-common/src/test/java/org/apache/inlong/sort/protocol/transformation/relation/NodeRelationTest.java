@@ -24,8 +24,16 @@ import org.junit.Test;
 import java.util.Arrays;
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Tests for {@link NodeRelationShip}
+ */
 public class NodeRelationTest {
 
+    /**
+     * Test serialize for NodeRelationShip
+     *
+     * @throws JsonProcessingException The exception may throws when execute the method
+     */
     @Test
     public void testSerialize() throws JsonProcessingException {
         NodeRelationShip relationShip = new NodeRelationShip(Arrays.asList("1", "2"), Arrays.asList("3", "4"));
@@ -34,6 +42,11 @@ public class NodeRelationTest {
         assertEquals(expected, objectMapper.writeValueAsString(relationShip));
     }
 
+    /**
+     * Test deserialize for NodeRelationShip
+     *
+     * @throws JsonProcessingException The exception may throws when execute the method
+     */
     @Test
     public void testDeserialize() throws JsonProcessingException {
         NodeRelationShip relationShip = new NodeRelationShip(Arrays.asList("1", "2"), Arrays.asList("3", "4"));

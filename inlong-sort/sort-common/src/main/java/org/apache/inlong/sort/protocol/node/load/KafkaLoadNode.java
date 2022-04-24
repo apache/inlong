@@ -22,12 +22,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
+import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
@@ -62,6 +64,7 @@ public class KafkaLoadNode extends LoadNode implements Serializable {
     @JsonProperty("primaryKey")
     private String primaryKey;
 
+    @JsonCreator
     public KafkaLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
@@ -77,11 +80,6 @@ public class KafkaLoadNode extends LoadNode implements Serializable {
         this.topic = Preconditions.checkNotNull(topic, "topic is null");
         this.bootstrapServers = Preconditions.checkNotNull(bootstrapServers, "bootstrapServers is null");
         this.format = Preconditions.checkNotNull(format, "format is null");
-        if (format instanceof JsonFormat && StringUtils.isEmpty(primaryKey)) {
-            throw new IllegalArgumentException("primaryKey is empty when format is json");
-        } else if (format instanceof AvroFormat && StringUtils.isEmpty(primaryKey)) {
-            throw new IllegalArgumentException("primaryKey is empty when format is avro");
-        }
         this.primaryKey = primaryKey;
     }
 
@@ -103,15 +101,19 @@ public class KafkaLoadNode extends LoadNode implements Serializable {
         if (getSinkParallelism() != null) {
             options.put("sink.parallelism", getSinkParallelism().toString());
         }
-        if (format instanceof JsonFormat || format instanceof AvroFormat) {
-            options.put("connector", "upsert-kafka");
+        if (format instanceof JsonFormat || format instanceof AvroFormat || format instanceof CsvFormat) {
+            if (StringUtils.isEmpty(this.primaryKey)) {
+                options.put("connector", "kafka");
+                options.putAll(format.generateOptions(false));
+            } else {
+                options.put("connector", "upsert-kafka");
+                options.putAll(format.generateOptions(true));
+            }
         } else if (format instanceof CanalJsonFormat || format instanceof DebeziumJsonFormat) {
             options.put("connector", "kafka");
+            options.putAll(format.generateOptions(false));
         } else {
             throw new IllegalArgumentException("kafka load Node format is IllegalArgument");
-        }
-        if (format.generateOptions() != null && !format.generateOptions().isEmpty()) {
-            options.putAll(format.generateOptions());
         }
         return options;
     }

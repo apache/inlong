@@ -21,7 +21,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupMode;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -79,7 +79,7 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult startProcess(String groupId, String operator) {
         LOGGER.info("begin to start approve process, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.TO_BE_APPROVAL.getCode(), operator);
+        groupService.updateStatus(groupId, GroupStatus.TO_BE_APPROVAL.getCode(), operator);
         // Initiate the approval process
         NewGroupProcessForm form = genNewGroupProcessForm(groupId);
         return workflowService.start(ProcessName.NEW_GROUP_PROCESS, operator, form);
@@ -94,7 +94,7 @@ public class InlongGroupProcessOperation {
      */
     public String suspendProcessAsync(String groupId, String operator) {
         LOGGER.info("begin to suspend process asynchronously, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.SUSPENDING.getCode(), operator);
+        groupService.updateStatus(groupId, GroupStatus.SUSPENDING.getCode(), operator);
         InlongGroupInfo groupInfo = groupService.get(groupId);
         GroupMode mode = GroupMode.parseGroupMode(groupInfo);
         switch (mode) {
@@ -122,7 +122,7 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult suspendProcess(String groupId, String operator) {
         LOGGER.info("begin to suspend process, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.SUSPENDING.getCode(), operator);
+        groupService.updateStatus(groupId, GroupStatus.SUSPENDING.getCode(), operator);
         InlongGroupInfo groupInfo = groupService.get(groupId);
         GroupMode mode = GroupMode.parseGroupMode(groupInfo);
         WorkflowResult result;
@@ -149,7 +149,7 @@ public class InlongGroupProcessOperation {
      */
     public String restartProcessAsync(String groupId, String operator) {
         LOGGER.info("begin to restart process asynchronously, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.RESTARTING.getCode(), operator);
+        groupService.updateStatus(groupId, GroupStatus.RESTARTING.getCode(), operator);
         InlongGroupInfo groupInfo = groupService.get(groupId);
         GroupMode mode = GroupMode.parseGroupMode(groupInfo);
         switch (mode) {
@@ -176,7 +176,7 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult restartProcess(String groupId, String operator) {
         LOGGER.info("begin to restart process, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.RESTARTING.getCode(), operator);
+        groupService.updateStatus(groupId, GroupStatus.RESTARTING.getCode(), operator);
         InlongGroupInfo groupInfo = groupService.get(groupId);
         GroupMode mode = GroupMode.parseGroupMode(groupInfo);
         WorkflowResult result;

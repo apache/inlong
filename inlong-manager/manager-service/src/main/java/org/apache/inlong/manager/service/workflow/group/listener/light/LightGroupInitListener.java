@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.workflow.group.listener.light;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -59,7 +59,7 @@ public class LightGroupInitListener implements ProcessEventListener {
             throw new WorkflowListenerException(ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         }
         final String groupId = groupInfo.getInlongGroupId();
-        final int status = GroupState.CONFIG_ING.getCode();
+        final int status = GroupStatus.CONFIG_ING.getCode();
         final String username = context.getApplicant();
         groupService.updateStatus(groupInfo.getInlongGroupId(), status, username);
         if (CollectionUtils.isEmpty(form.getStreamInfos())) {

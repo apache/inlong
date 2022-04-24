@@ -28,11 +28,19 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * Node relationship base class which defines the simplest one-to-one relationship
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
+        @JsonSubTypes.Type(value = FullOuterJoinRelationShip.class, name = "fullOuterJoin"),
+        @JsonSubTypes.Type(value = InnerJoinNodeRelationShip.class, name = "innerJoin"),
+        @JsonSubTypes.Type(value = LeftOuterJoinNodeRelationShip.class, name = "leftOuterJoin"),
+        @JsonSubTypes.Type(value = RightOuterJoinNodeRelationShip.class, name = "rightOutJoin"),
+        @JsonSubTypes.Type(value = UnionNodeRelationShip.class, name = "union"),
         @JsonSubTypes.Type(value = NodeRelationShip.class, name = "baseRelation")
 })
 @Data
@@ -46,6 +54,12 @@ public class NodeRelationShip implements Serializable {
     @JsonProperty("outputs")
     private List<String> outputs;
 
+    /**
+     * NodeRelationShip Constructor
+     *
+     * @param inputs The inputs is a list of input node id
+     * @param outputs The outputs is a list of output node id
+     */
     @JsonCreator
     public NodeRelationShip(@JsonProperty("inputs") List<String> inputs,
             @JsonProperty("outputs") List<String> outputs) {

@@ -24,8 +24,16 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Test for {@link TimeUnitConstantParam}
+ */
 public class TimeUnitConstantParamTest {
 
+    /**
+     * Test for serialize of {@link TimeUnitConstantParam}
+     *
+     * @throws JsonProcessingException The exception may throws when serialize
+     */
     @Test
     public void testSerialize() throws JsonProcessingException {
         TimeUnitConstantParam constantParam = new TimeUnitConstantParam(TimeUnit.HOUR);
@@ -34,6 +42,11 @@ public class TimeUnitConstantParamTest {
         assertEquals(expected, objectMapper.writeValueAsString(constantParam));
     }
 
+    /**
+     * Test for deserialize of {@link TimeUnitConstantParam}
+     *
+     * @throws JsonProcessingException The exception may throws when deserialize
+     */
     @Test
     public void testDeserialize() throws JsonProcessingException {
         TimeUnitConstantParam constantParam = new TimeUnitConstantParam(TimeUnit.HOUR);
@@ -41,6 +54,17 @@ public class TimeUnitConstantParamTest {
         String constantParamStr = "{\"type\":\"timeUnitConstant\",\"timeUnit\":\"HOUR\",\"value\":\"HOUR\"}";
         TimeUnitConstantParam expected = objectMapper.readValue(constantParamStr, TimeUnitConstantParam.class);
         assertEquals(expected, constantParam);
+    }
+
+    /**
+     * Test for format
+     *
+     * @see TimeUnitConstantParam#format()
+     */
+    @Test
+    public void testFormat() {
+        TimeUnitConstantParam constantParam = new TimeUnitConstantParam(TimeUnit.HOUR);
+        assertEquals("HOUR", constantParam.format());
     }
 
 }
