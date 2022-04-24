@@ -425,6 +425,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.flink:flink-file-sink-common:1.13.5 - Flink : Connectors : File Sink Common (https://github.com/apache/flink/tree/release-1.13.5/flink-connectors/flink-file-sink-common), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-java:1.13.5 - Flink : Java (https://github.com/apache/flink/tree/release-1.13.5/flink-java), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-json:1.13.5 - Flink : Formats : Json (https://github.com/apache/flink/tree/release-1.13.5/flink-formats/flink-json), (The Apache Software License, Version 2.0)
+  org.apache.flink:flink-csv:1.13.5 - Flink : Formats : Csv (https://github.com/apache/flink/tree/release-1.13.5/flink-formats/flink-csv), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-parquet_2.11:1.13.5 - Flink : Formats : Parquet (https://github.com/apache/flink/tree/release-1.13.5/flink-formats/flink-parquet), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-table-api-java:1.13.5 - Flink : Table : API Java (https://github.com/apache/flink/tree/release-1.13.5/flink-table/flink-table-api-java), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-table-api-java-bridge_2.11:1.13.5 - Flink : Table : API Java bridge (https://flink.apache.org/flink-table/flink-table-api-java-bridge_2.11), (The Apache Software License, Version 2.0)
