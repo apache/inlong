@@ -82,4 +82,7 @@ public class BinlogSourceResponse extends SourceResponse {
 
     @ApiModelProperty("Need transfer total database")
     private boolean allMigration;
+
+    @ApiModelProperty(value = "Primary key must be shared by all tables", required = false)
+    private String primaryKey;
 }

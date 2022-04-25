@@ -26,6 +26,9 @@ import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Parse TransformResponse to TransformNode which sort needed
+ */
 public class TransformNodeUtils {
 
     public static List<TransformNode>  createTransformNodes(List<TransformResponse> transformResponses) {

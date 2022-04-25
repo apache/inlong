@@ -107,6 +107,9 @@ public class BinlogSourceDTO {
     @ApiModelProperty("Whether to migrate all databases")
     private boolean allMigration;
 
+    @ApiModelProperty(value = "Primary key must be shared by all tables", required = false)
+    private String primaryKey;
+
     /**
      * Get the dto instance from the request
      */
@@ -127,6 +130,7 @@ public class BinlogSourceDTO {
                 .historyFilename(request.getHistoryFilename())
                 .monitoredDdl(request.getMonitoredDdl())
                 .allMigration(request.isAllMigration())
+                .primaryKey(request.getPrimaryKey())
                 .build();
     }
 

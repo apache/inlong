@@ -21,7 +21,7 @@ import com.google.common.base.Joiner;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.DataFormat;
-import org.apache.inlong.manager.client.api.KafkaOffset;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamSource.State;
 import org.apache.inlong.manager.common.pojo.stream.StreamSource.SyncType;
@@ -166,7 +166,7 @@ public class InlongStreamSourceTransfer {
         binlogSource.setMonitoredDdl(response.getMonitoredDdl());
         binlogSource.setTimestampFormatStandard(response.getTimestampFormatStandard());
         binlogSource.setAllMigration(response.isAllMigration());
-
+        binlogSource.setPrimaryKey(response.getPrimaryKey());
         if (StringUtils.isNotBlank(response.getDatabaseWhiteList())) {
             binlogSource.setDbNames(Arrays.asList(response.getDatabaseWhiteList().split(",")));
         }
@@ -194,7 +194,7 @@ public class InlongStreamSourceTransfer {
         binlogSource.setMonitoredDdl(response.getMonitoredDdl());
         binlogSource.setTimestampFormatStandard(response.getTimestampFormatStandard());
         binlogSource.setAllMigration(response.isAllMigration());
-
+        binlogSource.setPrimaryKey(response.getPrimaryKey());
         if (StringUtils.isNotBlank(response.getDatabaseWhiteList())) {
             binlogSource.setDbNames(Arrays.asList(response.getDatabaseWhiteList().split(",")));
         }
@@ -285,6 +285,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setServerTimezone(binlogSource.getServerTimezone());
         sourceRequest.setMonitoredDdl(binlogSource.getMonitoredDdl());
         sourceRequest.setAllMigration(binlogSource.isAllMigration());
+        sourceRequest.setPrimaryKey(binlogSource.getPrimaryKey());
         if (CollectionUtils.isNotEmpty(binlogSource.getDbNames())) {
             String dbNames = Joiner.on(",").join(binlogSource.getDbNames());
             sourceRequest.setDatabaseWhiteList(dbNames);

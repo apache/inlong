@@ -17,17 +17,35 @@
 
 package org.apache.inlong.manager.service.sort.util;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaOffset;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
+import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.enums.ScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.format.AvroFormat;
+import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
+import org.apache.inlong.sort.protocol.node.format.CsvFormat;
+import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
+import org.apache.inlong.sort.protocol.node.format.Format;
+import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Parse SourceResponse to ExtractNode which sort needed
+ */
 public class ExtractNodeUtils {
 
     public static List<ExtractNode> createExtractNodes(List<SourceResponse> sourceResponses) {
@@ -43,17 +61,110 @@ public class ExtractNodeUtils {
         switch (sourceType) {
             case BINLOG:
                 return createExtractNode((BinlogSourceResponse) sourceResponse);
+            case KAFKA:
+                return createExtractNode((KafkaSourceResponse) sourceResponse);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
         }
     }
 
+    /**
+     * Create MySqlExtractNode based on BinlogSourceResponse
+     * @param binlogSourceResponse
+     * @return
+     */
     public static MySqlExtractNode createExtractNode(BinlogSourceResponse binlogSourceResponse) {
         String id = binlogSourceResponse.getSourceName();
         String name = binlogSourceResponse.getSourceName();
         String database = binlogSourceResponse.getDatabaseWhiteList();
-        //todo
-        return null;
+        String primaryKey = binlogSourceResponse.getPrimaryKey();
+        String hostName = binlogSourceResponse.getHostname();
+        String userName = binlogSourceResponse.getUser();
+        String password = binlogSourceResponse.getPassword();
+        Integer port = binlogSourceResponse.getPort();
+        Integer serverId = binlogSourceResponse.getServerId();
+        String tables = binlogSourceResponse.getTableWhiteList();
+        List<String> tableNames = Splitter.on(",").splitToList(tables);
+        List<InlongStreamFieldInfo> streamFieldInfos = binlogSourceResponse.getFieldList();
+        List<FieldInfo> fieldInfos = streamFieldInfos.stream()
+                .map(streamFieldInfo -> new FieldInfo(streamFieldInfo.getFieldName(), name,
+                        FieldInfoUtils.convertFieldFormat(streamFieldInfo.getFieldType(),
+                                streamFieldInfo.getFieldFormat()))).collect(Collectors.toList());
+        String serverTimeZone = binlogSourceResponse.getServerTimezone();
+        return new MySqlExtractNode(id,
+                name,
+                fieldInfos,
+                null,
+                Maps.newHashMap(),
+                primaryKey,
+                tableNames,
+                hostName,
+                userName,
+                password,
+                database,
+                port,
+                serverId,
+                true,
+                serverTimeZone);
+    }
+
+    /**
+     * Create KafkaExtractNode based KafkaSourceResponse
+     * @param kafkaSourceResponse
+     * @return
+     */
+    public static KafkaExtractNode createExtractNode(KafkaSourceResponse kafkaSourceResponse) {
+        String id = kafkaSourceResponse.getSourceName();
+        String name = kafkaSourceResponse.getSourceName();
+        List<InlongStreamFieldInfo> streamFieldInfos = kafkaSourceResponse.getFieldList();
+        List<FieldInfo> fieldInfos = streamFieldInfos.stream()
+                .map(streamFieldInfo -> new FieldInfo(streamFieldInfo.getFieldName(), name,
+                        FieldInfoUtils.convertFieldFormat(streamFieldInfo.getFieldType(),
+                                streamFieldInfo.getFieldFormat()))).collect(Collectors.toList());
+        String topic = kafkaSourceResponse.getTopic();
+        String bootstrapServers = kafkaSourceResponse.getBootstrapServers();
+        Format format = null;
+        DataTypeEnum dataType = DataTypeEnum.forName(kafkaSourceResponse.getSerializationType());
+        switch (dataType) {
+            case CSV:
+                format = new CsvFormat();
+                break;
+            case AVRO:
+                format = new AvroFormat();
+                break;
+            case JSON:
+                format = new JsonFormat();
+                break;
+            case CANAL:
+                format = new CanalJsonFormat();
+                break;
+            case DEBEZIUM_JSON:
+                format = new DebeziumJsonFormat();
+                break;
+            default:
+                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source", dataType));
+        }
+        KafkaOffset kafkaOffset = KafkaOffset.forName(kafkaSourceResponse.getAutoOffsetReset());
+        ScanStartupMode startupMode = null;
+        switch (kafkaOffset) {
+            case EARLIEST:
+                startupMode = ScanStartupMode.EARLIEST_OFFSET;
+                break;
+            case LATEST:
+            default:
+                startupMode = ScanStartupMode.LATEST_OFFSET;
+        }
+
+        return new KafkaExtractNode(id,
+                name,
+                fieldInfos,
+                null,
+                Maps.newHashMap(),
+                topic,
+                bootstrapServers,
+                format,
+                startupMode,
+                null);
     }
 }
