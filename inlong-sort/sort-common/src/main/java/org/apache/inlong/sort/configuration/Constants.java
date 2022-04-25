@@ -17,11 +17,11 @@
 
 package org.apache.inlong.sort.configuration;
 
+import java.time.Duration;
 import static org.apache.inlong.sort.configuration.ConfigOptions.key;
 
-import java.time.Duration;
-
 public class Constants {
+
     public static final long UNKNOWN_DATAFLOW_ID = -1L;
 
     public static final String SOURCE_TYPE_TUBE = "tubemq";
@@ -269,7 +269,7 @@ public class Constants {
             key("sink.hive.text.buffer.size")
                     .defaultValue(262144)
                     .withDescription("Buffer size of Hive/THive sink text format (with compression or not), "
-                                             + "default size is 256KB");
+                            + "default size is 256KB");
 
     // ------------------------------------------------------------------------
     //  Checkpoint related configs
@@ -284,40 +284,40 @@ public class Constants {
                     .defaultValue(500);
 
     public static final ConfigOption<Integer> CHECKPOINT_TIMEOUT_MS =
-        key("checkpoint.timeout.ms")
-            .defaultValue(600000);
+            key("checkpoint.timeout.ms")
+                    .defaultValue(600000);
 
     // ------------------------------------------------------------------------
     //  Metrics related
     // ------------------------------------------------------------------------
     public static final ConfigOption<Boolean> METRICS_ENABLE_OUTPUT =
-        key("metrics.enable.output")
-            .defaultValue(true);
+            key("metrics.enable.output")
+                    .defaultValue(true);
 
     public static final ConfigOption<Integer> METRICS_TIMESTAMP_WATERMARK_ASSIGNER_PARALLELISM =
-        key("metrics.timestamp.watermark.assigner.parallelism")
-            .defaultValue(1);
+            key("metrics.timestamp.watermark.assigner.parallelism")
+                    .defaultValue(1);
 
     public static final ConfigOption<Integer> METRICS_AGGREGATOR_PARALLELISM =
-        key("metrics.aggregator.parallelism")
-            .defaultValue(1);
+            key("metrics.aggregator.parallelism")
+                    .defaultValue(1);
 
     public static final ConfigOption<Integer> METRICS_SINK_PARALLELISM =
-        key("metrics.sink.parallelism")
-            .defaultValue(1)
-            .withDeprecatedKeys("metrics.mysql.sink.parallelism");
+            key("metrics.sink.parallelism")
+                    .defaultValue(1)
+                    .withDeprecatedKeys("metrics.mysql.sink.parallelism");
 
     public static final String METRICS_TIMESTAMP_AND_WATERMARK_ASSIGNER_UID
-        = "metrics_timestamp_and_watermark_assigner_uid";
+            = "metrics_timestamp_and_watermark_assigner_uid";
 
     public static final String METRICS_AGGREGATOR_UID = "metrics_aggregator_uid";
 
     public static final String METRICS_SINK_UID = "metrics_sink_uid";
 
     public static final ConfigOption<Integer> METRICS_AGGREGATOR_WINDOW_SIZE =
-        key("metrics.aggregator.window.size")
-            .defaultValue(5)
-            .withDescription("minutes");
+            key("metrics.aggregator.window.size")
+                    .defaultValue(5)
+                    .withDescription("minutes");
 
     public static final ConfigOption<String> METRICS_AUDIT_PROXY_HOSTS =
             key("metrics.audit.proxy.hosts")
@@ -337,6 +337,19 @@ public class Constants {
             key("job.orderly.output")
                     .defaultValue(false)
                     .withDescription("Whether to ensure orderly output or not");
+    public static final ConfigOption<Integer> ORC_SINK_BATCH_SIZE =
+            key(HIVE_SINK_PREFIX + "orc.row.batch.size")
+                    .defaultValue(64);
+    public static final String CHDFS_CONFIG_PREFIX = "fs.ofs.";
+
+    public static final ConfigOption<Boolean> LIGHTWEIGHT = key("lightweight")
+            .defaultValue(false)
+            .withDescription("Whether to lightweight or not");
+
+    public static final ConfigOption<String> GROUP_INFO_FILE =
+            key("group.info.file")
+                    .noDefaultValue()
+                    .withDescription("The file which contains group info for a single tenant job");
 
     // ------------------------------------------------------------------------
     //  File format and compression related
@@ -346,10 +359,4 @@ public class Constants {
         GZIP,
         LZO
     }
-
-    public static final ConfigOption<Integer> ORC_SINK_BATCH_SIZE =
-            key(HIVE_SINK_PREFIX + "orc.row.batch.size")
-                    .defaultValue(64);
-
-    public static final String CHDFS_CONFIG_PREFIX = "fs.ofs.";
 }
