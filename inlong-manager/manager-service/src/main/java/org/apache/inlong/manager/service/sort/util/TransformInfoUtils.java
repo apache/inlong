@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.inlong.manager.service.thirdparty.sort.util;
+package org.apache.inlong.manager.service.sort.util;
 
 import org.apache.inlong.manager.common.thirdparty.sort.TransformInfoGenerator;
 import org.apache.inlong.sort.protocol.transformation.FieldMappingRule;
