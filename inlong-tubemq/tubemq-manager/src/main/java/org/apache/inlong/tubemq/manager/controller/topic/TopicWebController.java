@@ -69,7 +69,7 @@ public class TopicWebController {
         TubeMQResult topicMethodProxy(@RequestParam String method, @RequestBody String req) throws Exception {
         switch (method) {
             case TubeConst.ADD:
-                return nodeService.batchAddTopic(gson.fromJson(req, BatchAddTopicReq.class));
+                return masterService.baseRequestMaster(gson.fromJson(req, BatchAddTopicReq.class));
             case TubeConst.CLONE:
                 return nodeService.cloneTopicToBrokers(gson.fromJson(req, CloneTopicReq.class));
             case TubeConst.AUTH_CONTROL:
