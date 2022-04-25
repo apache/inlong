@@ -19,9 +19,17 @@ package org.apache.inlong.manager.service.sort.util;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.common.enums.TransformType;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
+import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
+import org.apache.inlong.manager.common.pojo.transform.deduplication.DeDuplicationDefinition;
+import org.apache.inlong.manager.common.pojo.transform.deduplication.DeDuplicationDefinition.DeDuplicationStrategy;
+import org.apache.inlong.manager.common.util.StreamParseUtils;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
+import org.apache.inlong.sort.protocol.transformation.OrderDirection;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +39,7 @@ import java.util.stream.Collectors;
  */
 public class TransformNodeUtils {
 
-    public static List<TransformNode>  createTransformNodes(List<TransformResponse> transformResponses) {
+    public static List<TransformNode> createTransformNodes(List<TransformResponse> transformResponses) {
         if (CollectionUtils.isEmpty(transformResponses)) {
             return Lists.newArrayList();
         }
@@ -41,6 +49,67 @@ public class TransformNodeUtils {
     }
 
     public static TransformNode createTransformNode(TransformResponse transformResponse) {
+        TransformType transformType = TransformType.forType(transformResponse.getTransformType());
+        if (transformType == TransformType.DE_DUPLICATION) {
+            TransformDefinition transformDefinition = StreamParseUtils.parseTransformDefinition(
+                    transformResponse.getTransformDefinition(), transformType);
+            return createDistinctNode((DeDuplicationDefinition) transformDefinition, transformResponse);
+        } else {
+            return createNormalTransformNode(transformResponse);
+        }
+    }
+
+    /**
+     * Create distinct node based on deDuplicationDefinition
+     *
+     * @param deDuplicationDefinition
+     * @param transformResponse
+     * @return
+     */
+    public static DistinctNode createDistinctNode(DeDuplicationDefinition deDuplicationDefinition,
+            TransformResponse transformResponse) {
+        String transformName = transformResponse.getTransformName();
+        List<StreamField> streamFields = deDuplicationDefinition.getDupFields();
+        List<FieldInfo> distinctFields = streamFields.stream()
+                .map(streamField -> new FieldInfo(streamField.getFieldName(), transformName,
+                        FieldInfoUtils.convertFieldFormat(streamField.getFieldType().name(),
+                                streamField.getFieldFormat())))
+                .collect(Collectors.toList());
+        StreamField timingField = deDuplicationDefinition.getTimingField();
+        FieldInfo orderField = new FieldInfo(timingField.getFieldName(), transformName,
+                FieldInfoUtils.convertFieldFormat(timingField.getFieldType().name(), timingField.getFieldFormat()));
+        DeDuplicationStrategy deDuplicationStrategy = deDuplicationDefinition.getDeDuplicationStrategy();
+        OrderDirection orderDirection = null;
+        switch (deDuplicationStrategy) {
+            case RESERVE_LAST:
+                orderDirection = OrderDirection.DESC;
+                break;
+            case RESERVE_FIRST:
+                orderDirection = OrderDirection.ASC;
+                break;
+            default:
+                throw new UnsupportedOperationException(
+                        String.format("Unsupported deduplication strategy=%s for inlong", deDuplicationStrategy));
+        }
+        TransformNode transformNode = createTransformNode(transformResponse);
+        return new DistinctNode(transformNode.getId(),
+                transformNode.getName(),
+                transformNode.getFields(),
+                transformNode.getFieldRelationShips(),
+                transformNode.getFilters(),
+                distinctFields,
+                orderField,
+                orderDirection);
+
+    }
+
+    /**
+     * Create transform node based on transformResponse
+     *
+     * @param transformResponse
+     * @return
+     */
+    public static TransformNode createNormalTransformNode(TransformResponse transformResponse) {
         TransformNode transformNode = new TransformNode();
         transformNode.setId(transformResponse.getTransformName());
         transformNode.setName(transformResponse.getTransformName());
@@ -59,5 +128,4 @@ public class TransformNodeUtils {
                 FilterFunctionUtils.createFilterFunctions(transformResponse));
         return transformNode;
     }
-
 }
