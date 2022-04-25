@@ -22,8 +22,6 @@ package org.apache.inlong.manager.service.sort.util;
 import org.apache.inlong.sort.protocol.transformation.FieldMappingRule;
 import org.apache.inlong.sort.protocol.transformation.TransformationInfo;
 
-import java.util.Map;
-
 /**
  * Utils for transform info.
  */
