@@ -37,10 +37,10 @@ import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.protocol.source.TDMQPulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +51,7 @@ import java.util.Map;
 @Component
 public class SourceInfoUtils implements SourceInfoGenerator {
 
-    @Resource
+    @Autowired
     private SerializationInfoGenerator serializationInfoGenerator;
 
     /**

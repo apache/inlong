@@ -46,10 +46,10 @@ import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveTimePartitionInfo;
 import org.apache.inlong.sort.protocol.sink.IcebergSinkInfo;
 import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,7 +64,7 @@ public class SinkInfoUtils implements SinkInfoGenerator {
     private static final String TIME_FORMAT = "HHmmss";
     private static final String DATA_TIME_FORMAT = "yyyyMMddHHmmss";
 
-    @Resource
+    @Autowired
     private SerializationInfoGenerator serializationInfoGenerator;
 
     /**
