@@ -39,7 +39,6 @@ import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.node.dto.MasterDto;
 import org.apache.inlong.tubemq.manager.controller.node.request.AddBrokersReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.AddTopicReq;
-import org.apache.inlong.tubemq.manager.controller.node.request.BatchAddTopicReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneBrokersReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneTopicReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.QueryBrokerCfgReq;
@@ -125,8 +124,7 @@ public class NodeServiceImpl implements NodeService {
         int clusterId = req.getClusterId();
         // 1. query source broker config
         QueryBrokerCfgReq queryReq = QueryBrokerCfgReq.getReq(req.getSourceBrokerId());
-        MasterEntry masterEntry = masterRepository.findMasterEntryByClusterIdEquals(
-                clusterId);
+        MasterEntry masterEntry = masterService.getMasterNode(Long.valueOf(clusterId));
         BrokerStatusInfo brokerStatusInfo = getBrokerStatusInfo(queryReq, masterEntry);
 
         // 2. use source broker config to clone brokers
@@ -180,7 +178,7 @@ public class NodeServiceImpl implements NodeService {
         List<IpIdRelation> ipids = addBrokerResult.getData();
         List<Integer> brokerIds = Lists.newArrayList();
         for (IpIdRelation ipid : ipids) {
-            brokerIds.add(ipid.getId());
+            brokerIds.add(ipid.getBrokerId());
         }
         return brokerIds;
     }
@@ -345,21 +343,6 @@ public class NodeServiceImpl implements NodeService {
 
     }
 
-    /**
-     * add topic to brokers
-     *
-     * @param req
-     * @return
-     */
-    @Override
-    public TubeMQResult batchAddTopic(BatchAddTopicReq req) {
-        MasterEntry masterEntry = masterService.getMasterNode(req);
-        if (masterEntry == null) {
-            return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_CLUSTER);
-        }
-        return addTopicsToBrokers(masterEntry, req.getBrokerIds(), req.getAddTopicReqs());
-    }
-
     @Override
     public void addNode(MasterEntry masterEntry) {
         try {
@@ -373,7 +356,7 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public TubeMQResult modifyMasterNode(MasterDto masterDto) {
         try {
-            MasterEntry masterEntry = masterRepository.findMasterEntryByClusterIdEquals(masterDto.getClusterId());
+            MasterEntry masterEntry = masterService.getMasterNode(masterDto.getClusterId());
             masterEntry.setIp(masterDto.getIp());
             masterEntry.setStandby(masterDto.isStandBy());
             masterEntry.setToken(masterDto.getToken());

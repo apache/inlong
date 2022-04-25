@@ -25,6 +25,7 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
+import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 
 import java.util.List;
@@ -39,7 +40,8 @@ import java.util.TreeMap;
         @JsonSubTypes.Type(value = MySqlExtractNode.class, name = "mysqlExtract"),
         @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract"),
         @JsonSubTypes.Type(value = TransformNode.class, name = "baseTransform"),
-        @JsonSubTypes.Type(value = KafkaLoadNode.class, name = "kafkaLoad")
+        @JsonSubTypes.Type(value = KafkaLoadNode.class, name = "kafkaLoad"),
+        @JsonSubTypes.Type(value = DistinctNode.class, name = "distinct")
 })
 public interface Node {
 

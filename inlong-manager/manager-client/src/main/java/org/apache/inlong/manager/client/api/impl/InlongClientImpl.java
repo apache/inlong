@@ -30,7 +30,7 @@ import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupState;
-import org.apache.inlong.manager.client.api.StreamSource.State;
+import org.apache.inlong.manager.common.pojo.stream.StreamSource.State;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
 import org.apache.inlong.manager.common.beans.Response;

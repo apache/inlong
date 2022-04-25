@@ -19,12 +19,12 @@ package org.apache.inlong.manager.client.cli.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.client.api.DataSeparator;
 import org.apache.inlong.manager.client.api.MQBaseConf;
 import org.apache.inlong.manager.client.api.SortBaseConf;
-import org.apache.inlong.manager.client.api.StreamSink;
-import org.apache.inlong.manager.client.api.StreamSource;
+import org.apache.inlong.manager.common.pojo.stream.StreamSink;
+import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 
 import java.nio.charset.Charset;
 

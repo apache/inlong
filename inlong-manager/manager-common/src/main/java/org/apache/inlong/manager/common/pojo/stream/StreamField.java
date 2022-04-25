@@ -23,6 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.FieldType;
+import org.apache.inlong.manager.common.enums.MetaFieldType;
 
 @Data
 @NoArgsConstructor
@@ -30,7 +31,8 @@ import org.apache.inlong.manager.common.enums.FieldType;
 @ApiModel("Stream field configuration")
 public class StreamField {
 
-    public static final StreamField PROCESSING_TIME = new StreamField(100, FieldType.BIGINT, "PROCESSING_TIME",
+    public static final StreamField PROCESSING_TIME = new StreamField(100, FieldType.BIGINT,
+            MetaFieldType.PROCESSING_TIME.getName(),
             null, null, 1);
 
     public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue) {

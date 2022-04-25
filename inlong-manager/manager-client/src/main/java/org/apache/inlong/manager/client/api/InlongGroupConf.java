@@ -62,6 +62,6 @@ public class InlongGroupConf {
     @ApiModelProperty("Data proxy cluster id")
     private Integer proxyClusterId;
 
-    @ApiModelProperty("Use light weight group")
-    private boolean lightWeight = false;
+    @ApiModelProperty("Use lightweight group")
+    private boolean lightweight = false;
 }

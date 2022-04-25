@@ -29,7 +29,7 @@ import org.apache.inlong.manager.service.mq.CreatePulsarTopicForStreamTaskListen
 import org.apache.inlong.manager.service.sort.PushSortConfigListener;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.group.listener.InitGroupListener;
+import org.apache.inlong.manager.service.workflow.group.listener.GroupInitProcessListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
@@ -50,7 +50,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
-    private InitGroupListener initGroupListener;
+    private GroupInitProcessListener groupInitProcessListener;
     @Autowired
     private StreamFailedProcessListener streamFailedProcessListener;
     @Autowired
@@ -68,7 +68,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
     public WorkflowProcess defineProcess() {
         // Configuration process
         WorkflowProcess process = new WorkflowProcess();
-        process.addListener(initGroupListener);
+        process.addListener(groupInitProcessListener);
         process.addListener(streamFailedProcessListener);
         process.addListener(streamCompleteProcessListener);
 

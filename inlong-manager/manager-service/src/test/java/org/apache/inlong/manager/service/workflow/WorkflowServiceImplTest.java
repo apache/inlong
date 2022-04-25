@@ -21,6 +21,7 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
@@ -32,7 +33,6 @@ import org.apache.inlong.manager.common.pojo.workflow.TaskExecuteLogQuery;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
@@ -272,7 +272,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
         UpdateGroupProcessForm form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
-        form.setOperateType(OperateType.SUSPEND);
+        form.setGroupOperateType(GroupOperateType.SUSPEND);
         taskListenerFactory.acceptPlugin(new MockPlugin());
 
         WorkflowContext context = workflowEngine.processService()
@@ -302,7 +302,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
         UpdateGroupProcessForm form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
-        form.setOperateType(OperateType.RESTART);
+        form.setGroupOperateType(GroupOperateType.RESTART);
         taskListenerFactory.acceptPlugin(new MockPlugin());
 
         WorkflowContext context = workflowEngine.processService()
@@ -335,7 +335,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
         UpdateGroupProcessForm form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
-        form.setOperateType(OperateType.DELETE);
+        form.setGroupOperateType(GroupOperateType.DELETE);
         taskListenerFactory.acceptPlugin(new MockPlugin());
 
         WorkflowContext context = workflowEngine.processService()

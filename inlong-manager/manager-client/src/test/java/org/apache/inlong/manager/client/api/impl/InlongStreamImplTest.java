@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.client.api.impl;
 
 import org.apache.inlong.manager.client.api.InlongStream;
-import org.apache.inlong.manager.client.api.StreamTransform;
+import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.client.api.sink.ClickHouseSink;
 import org.apache.inlong.manager.client.api.sink.HiveSink;
 import org.apache.inlong.manager.client.api.sink.KafkaSink;

@@ -28,7 +28,7 @@ import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.client.api.PulsarBaseConf;
-import org.apache.inlong.manager.client.api.SinkField;
+import org.apache.inlong.manager.common.pojo.stream.SinkField;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.sink.HiveSink;

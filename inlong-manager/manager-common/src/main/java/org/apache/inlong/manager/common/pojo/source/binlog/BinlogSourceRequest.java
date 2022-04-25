@@ -52,12 +52,12 @@ public class BinlogSourceRequest extends SourceRequest {
     private String includeSchema;
 
     @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions, "
-            + "separate them with commas, for example: db1,test_db*",
+            + "separate them with ',', for example: db1,test_db*",
             notes = "DBs not in this list are excluded. If not set, all DBs are monitored")
     private String databaseWhiteList;
 
     @ApiModelProperty(value = "List of tables to be collected, supporting regular expressions, "
-            + "separate them with commas, for example: tb1,user*",
+            + "separate them with ',', for example: tb1,user*",
             notes = "Tables not in this list are excluded. By default, all tables are monitored")
     private String tableWhiteList;
 

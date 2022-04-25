@@ -52,16 +52,19 @@ public class BinlogSourceDTO {
     @ApiModelProperty("Exposed port of the DB server")
     private int port;
 
+    @ApiModelProperty("Id of physical node of MySQL Cluster, 0 if single node")
+    private int serverId;
+
     @ApiModelProperty("Whether include schema, default is 'false'")
     private String includeSchema;
 
     @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions, "
-            + "separate them with commas, for example: db1,test_db*",
+            + "seperated by ',', for example: db1,test_db*",
             notes = "DBs not in this list are excluded. If not set, all DBs are monitored")
     private String databaseWhiteList;
 
     @ApiModelProperty(value = "List of tables to be collected, supporting regular expressions, "
-            + "separate them with commas, for example: tb1,user*",
+            + "seperated by ',', for example: tb1,user*",
             notes = "Tables not in this list are excluded. By default, all tables are monitored")
     private String tableWhiteList;
 
@@ -113,6 +116,7 @@ public class BinlogSourceDTO {
                 .password(request.getPassword())
                 .hostname(request.getHostname())
                 .port(request.getPort())
+                .serverId(request.getServerId())
                 .includeSchema(request.getIncludeSchema())
                 .databaseWhiteList(request.getDatabaseWhiteList())
                 .tableWhiteList(request.getTableWhiteList())

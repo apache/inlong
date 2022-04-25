@@ -39,7 +39,7 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterResponse;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.InLongStringUtils;
+import org.apache.inlong.manager.common.util.InlongStringUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity;
@@ -96,6 +96,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         }
         Preconditions.checkNotNull(entity.getCreator(), "cluster creator is empty");
         entity.setCreateTime(new Date());
+        entity.setIsDeleted(GlobalConstants.UN_DELETED);
         thirdPartyClusterMapper.insert(entity);
         LOGGER.info("success to add a cluster");
         return entity.getId();
@@ -205,8 +206,8 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         String ipStr = entity.getIp();
         while (ipStr.startsWith(Constant.URL_SPLITTER) || ipStr.endsWith(Constant.URL_SPLITTER)
                 || ipStr.startsWith(Constant.HOST_SPLITTER) || ipStr.endsWith(Constant.HOST_SPLITTER)) {
-            ipStr = InLongStringUtils.trimFirstAndLastChar(ipStr, Constant.URL_SPLITTER);
-            ipStr = InLongStringUtils.trimFirstAndLastChar(ipStr, Constant.HOST_SPLITTER);
+            ipStr = InlongStringUtils.trimFirstAndLastChar(ipStr, Constant.URL_SPLITTER);
+            ipStr = InlongStringUtils.trimFirstAndLastChar(ipStr, Constant.HOST_SPLITTER);
         }
 
         List<DataProxyResponse> responseList = new ArrayList<>();
