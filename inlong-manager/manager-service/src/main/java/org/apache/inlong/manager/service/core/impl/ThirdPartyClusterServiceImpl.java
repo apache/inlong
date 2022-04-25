@@ -96,6 +96,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         }
         Preconditions.checkNotNull(entity.getCreator(), "cluster creator is empty");
         entity.setCreateTime(new Date());
+        entity.setIsDeleted(GlobalConstants.UN_DELETED);
         thirdPartyClusterMapper.insert(entity);
         LOGGER.info("success to add a cluster");
         return entity.getId();
