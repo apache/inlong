@@ -72,7 +72,6 @@ public class Entrance {
     public static void main(String[] args) throws Exception {
         final ParameterTool parameterTool = ParameterTool.fromArgs(args);
         final Configuration config = parameterTool.getConfiguration();
-        boolean lightweight = config.getBoolean(Constants.LIGHTWEIGHT);
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         // Checkpoint related
         env.enableCheckpointing(config.getInteger(Constants.CHECKPOINT_INTERVAL_MS));
@@ -80,6 +79,7 @@ public class Entrance {
                 config.getInteger(Constants.MIN_PAUSE_BETWEEN_CHECKPOINTS_MS));
         env.getCheckpointConfig().setCheckpointTimeout(config.getInteger(Constants.CHECKPOINT_TIMEOUT_MS));
         env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
+        boolean lightweight = config.getBoolean(Constants.LIGHTWEIGHT);
         if (lightweight) {
             EnvironmentSettings settings = EnvironmentSettings.newInstance().useBlinkPlanner()
                     .inStreamingMode().build();
