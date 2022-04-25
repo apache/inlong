@@ -147,7 +147,7 @@ public class RemoteConfigManager implements IRepository {
         }
         int managerIpSize = managerIpList.size();
         for (int i = 0; i < managerIpList.size(); i++) {
-            String host = managerIpList.get(managerIpListIndex.getAndIncrement() % managerIpSize);
+            String host = managerIpList.get(Math.abs(managerIpListIndex.getAndIncrement()) % managerIpSize);
             if (this.reloadDataProxyConfig(proxyClusterName, setName, host)) {
                 break;
             }
