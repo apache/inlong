@@ -271,7 +271,7 @@ public class FlinkSqlParser implements Parser {
         node.getFieldRelationShips().forEach(s -> {
             fieldRelationMap.put(s.getOutputField().getName(), s);
         });
-        genTableFields(node.getFields(), fieldRelationMap, sb);
+        parseFieldRelations(node.getFields(), fieldRelationMap, sb);
         if (node instanceof DistinctNode) {
             genDistinctSql((DistinctNode) node, sb);
         }
@@ -292,7 +292,7 @@ public class FlinkSqlParser implements Parser {
         }
     }
 
-    private void genTableFields(List<FieldInfo> fields,
+    private void parseFieldRelations(List<FieldInfo> fields,
             Map<String, FieldRelationShip> fieldRelationMap, StringBuilder sb) {
         for (FieldInfo field : fields) {
             FieldRelationShip fieldRelation = fieldRelationMap.get(field.getName());
@@ -318,7 +318,7 @@ public class FlinkSqlParser implements Parser {
         loadNode.getFieldRelationShips().forEach(s -> {
             fieldRelationMap.put(s.getOutputField().getName(), s);
         });
-        genTableFields(loadNode.getFields(), fieldRelationMap, sb);
+        parseFieldRelations(loadNode.getFields(), fieldRelationMap, sb);
         sb.append("\n    FROM `").append(inputNode.genTableName()).append("`");
         parseFilterFields(loadNode.getFilters(), sb);
         return sb.toString();
