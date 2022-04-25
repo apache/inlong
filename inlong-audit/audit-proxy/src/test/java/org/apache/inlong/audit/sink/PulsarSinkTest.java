@@ -29,11 +29,11 @@ import org.apache.flume.conf.Configurables;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.lifecycle.LifecycleController;
 import org.apache.flume.lifecycle.LifecycleState;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 public class PulsarSinkTest {
     private static final Logger logger = LoggerFactory
@@ -47,7 +47,7 @@ public class PulsarSinkTest {
     private PulsarSink sink;
     private Channel channel;
 
-    @BeforeClass
+    @Before
     public void setUp() {
         sink = new PulsarSink();
         channel = new MemoryChannel();
@@ -64,8 +64,7 @@ public class PulsarSinkTest {
     }
 
     @Test
-    public void testProcess() throws InterruptedException, EventDeliveryException,
-            InstantiationException, IllegalAccessException {
+    public void testProcess() throws InterruptedException, EventDeliveryException {
         setUp();
         Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
         sink.start();
