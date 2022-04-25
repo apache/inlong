@@ -277,6 +277,7 @@ public class FlinkSqlParser implements Parser {
 
     private String genJoinSelectSql(TransformNode node,
             JoinRelationShip relation, Map<String, Node> nodeMap) {
+        // Get tablename alias map by input nodes
         Map<String, String> tableNameAliasMap = new HashMap<>(relation.getInputs().size());
         relation.getInputs().forEach(s -> {
             Node inputNode = nodeMap.get(s);
@@ -286,6 +287,7 @@ public class FlinkSqlParser implements Parser {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT ");
         Map<String, FieldRelationShip> fieldRelationMap = new HashMap<>(node.getFieldRelationShips().size());
+        // Generate mapping for output field to FieldRelationShip
         node.getFieldRelationShips().forEach(s -> {
             fillOutTableNameAlias(Collections.singletonList(s.getInputField()), tableNameAliasMap);
             fieldRelationMap.put(s.getOutputField().getName(), s);
@@ -293,13 +295,16 @@ public class FlinkSqlParser implements Parser {
         parseFieldRelations(node.getFields(), fieldRelationMap, sb);
         if (node instanceof DistinctNode) {
             DistinctNode distinctNode = (DistinctNode) node;
+            // Fill out the tablename alias for param
             List<FunctionParam> params = new ArrayList<>(distinctNode.getDistinctFields());
             params.add(distinctNode.getOrderField());
             fillOutTableNameAlias(params, tableNameAliasMap);
+            // Generate distinct sql, such as ROW_NUMBER()...
             genDistinctSql(distinctNode, sb);
         }
         sb.append(" FROM `").append(nodeMap.get(relation.getInputs().get(0)).genTableName()).append("` ")
                 .append(tableNameAliasMap.get(relation.getInputs().get(0)));
+        // Parse condition map of join and format condition to sql, such as on 1 = 1...
         String relationFormat = relation.format();
         Map<String, List<FilterFunction>> conditionMap = relation.getJoinConditionMap();
         for (int i = 1; i < relation.getInputs().size(); i++) {
@@ -310,15 +315,19 @@ public class FlinkSqlParser implements Parser {
             List<FilterFunction> conditions = conditionMap.get(inputId);
             Preconditions.checkNotNull(conditions, String.format("join condition is null for node id:%s", inputId));
             for (FilterFunction filter : conditions) {
+                // Fill out the tablename alias for param
                 fillOutTableNameAlias(filter.getParams(), tableNameAliasMap);
                 sb.append(" ").append(filter.format());
             }
         }
         if (node.getFilters() != null && !node.getFilters().isEmpty()) {
+            // Fill out the tablename alias for param
             fillOutTableNameAlias(new ArrayList<>(node.getFilters()), tableNameAliasMap);
+            // Parse filter fields to generate filter sql like 'WHERE 1=1...'
             parseFilterFields(node.getFilters(), sb);
         }
         if (node instanceof DistinctNode) {
+            // Generate distinct filter sql like 'WHERE row_num = 1'
             sb = genDistinctFilterSql(node.getFields(), sb);
         }
         return sb.toString();
