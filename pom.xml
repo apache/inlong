@@ -228,6 +228,8 @@
         <jcommander.version>1.78</jcommander.version>
         <je.version>7.3.7</je.version>
         <tencentcloud.cls.version>1.0.5</tencentcloud.cls.version>
+        <esri-geometry-api.version>2.0.0</esri-geometry-api.version>
+        <HikariCP.version>4.0.3</HikariCP.version>
     </properties>
 
     <dependencyManagement>
@@ -262,6 +264,17 @@
                 <groupId>org.apache.flume</groupId>
                 <artifactId>flume-ng-configuration</artifactId>
                 <version>${flume.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${HikariCP.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.flume.flume-ng-sinks</groupId>
@@ -1281,7 +1294,11 @@
                 <artifactId>jcommander</artifactId>
                 <version>${jcommander.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.esri.geometry</groupId>
+                <artifactId>esri-geometry-api</artifactId>
+                <version>${esri-geometry-api.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.tencentcloudapi.cls</groupId>
                 <artifactId>tencentcloud-cls-sdk-java</artifactId>

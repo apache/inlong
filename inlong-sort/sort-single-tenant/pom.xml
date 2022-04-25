@@ -31,6 +31,11 @@
 
     <artifactId>sort-single-tenant</artifactId>
     <name>Apache InLong - Sort Single Tenant</name>
+    <properties>
+        <flink-connector-debezium.version>2.0.1</flink-connector-debezium.version>
+        <debezium-connector-mysql.version>1.5.4.Final</debezium-connector-mysql.version>
+        <debezium-core.version>1.5.4.Final</debezium-core.version>
+    </properties>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -185,7 +190,7 @@
         <dependency>
             <groupId>com.ververica</groupId>
             <artifactId>flink-connector-debezium</artifactId>
-            <version>2.0.1</version>
+            <version>${flink-connector-debezium.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>kafka-log4j-appender</artifactId>
@@ -195,38 +200,16 @@
         </dependency>
 
         <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>4.0.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-mysql</artifactId>
-            <version>1.5.4.Final</version>
+            <version>${debezium-connector-mysql.version}</version>
         </dependency>
-
 
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-core</artifactId>
-            <version>1.5.4.Final</version>
-            <type>test-jar</type>
-            <scope>test</scope>
+            <version>${debezium-core.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.esri.geometry</groupId>
-            <artifactId>esri-geometry-api</artifactId>
-            <version>2.0.0</version>
-            <scope>compile</scope>
-        </dependency>
-
 
     </dependencies>
 
