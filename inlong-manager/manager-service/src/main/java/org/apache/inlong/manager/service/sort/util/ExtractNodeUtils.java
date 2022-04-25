@@ -43,6 +43,9 @@ import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Parse SourceResponse to ExtractNode which sort needed
+ */
 public class ExtractNodeUtils {
 
     public static List<ExtractNode> createExtractNodes(List<SourceResponse> sourceResponses) {
@@ -66,6 +69,11 @@ public class ExtractNodeUtils {
         }
     }
 
+    /**
+     * Create MySqlExtractNode based on BinlogSourceResponse
+     * @param binlogSourceResponse
+     * @return
+     */
     public static MySqlExtractNode createExtractNode(BinlogSourceResponse binlogSourceResponse) {
         String id = binlogSourceResponse.getSourceName();
         String name = binlogSourceResponse.getSourceName();
@@ -101,6 +109,11 @@ public class ExtractNodeUtils {
                 serverTimeZone);
     }
 
+    /**
+     * Create KafkaExtractNode based KafkaSourceResponse
+     * @param kafkaSourceResponse
+     * @return
+     */
     public static KafkaExtractNode createExtractNode(KafkaSourceResponse kafkaSourceResponse) {
         String id = kafkaSourceResponse.getSourceName();
         String name = kafkaSourceResponse.getSourceName();
