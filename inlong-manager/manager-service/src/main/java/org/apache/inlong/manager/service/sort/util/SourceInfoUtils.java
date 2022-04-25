@@ -28,8 +28,6 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.thirdparty.sort.SerializationInfoGenerator;
-import org.apache.inlong.manager.common.thirdparty.sort.SourceInfoGenerator;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
@@ -37,28 +35,18 @@ import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.protocol.source.TDMQPulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Utils for source info
  */
-@ConditionalOnProperty(name = "type", prefix = "inlong.sort.sourceinfo", havingValue = "default")
-@Component
-public class SourceInfoUtils implements SourceInfoGenerator {
-
-    @Autowired
-    private SerializationInfoGenerator serializationInfoGenerator;
+public class SourceInfoUtils {
 
     /**
      * Whether the source is all binlog migration.
      */
-    @Override
-    public boolean isBinlogAllMigration(SourceResponse sourceResponse) {
+    public static boolean isBinlogAllMigration(SourceResponse sourceResponse) {
         if (sourceResponse == null) {
             return false;
         }
@@ -72,14 +60,12 @@ public class SourceInfoUtils implements SourceInfoGenerator {
     /**
      * Create source info for DataFlowInfo.
      */
-    @Override
-    public SourceInfo createSourceInfo(PulsarClusterInfo pulsarCluster, String masterAddress,
+    public static SourceInfo createSourceInfo(PulsarClusterInfo pulsarCluster, String masterAddress,
             ClusterBean clusterBean, InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            SourceResponse sourceResponse, List<FieldInfo> sourceFields, Map<String, Object> properties) {
+            SourceResponse sourceResponse, List<FieldInfo> sourceFields) {
 
         MQType mqType = MQType.forType(groupInfo.getMiddlewareType());
-        DeserializationInfo deserializationInfo =
-                serializationInfoGenerator.createDeserialInfo(sourceResponse, streamInfo, properties);
+        DeserializationInfo deserializationInfo = SerializationUtils.createDeserialInfo(sourceResponse, streamInfo);
         SourceInfo sourceInfo;
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             sourceInfo = createPulsarSourceInfo(pulsarCluster, clusterBean, groupInfo, streamInfo, deserializationInfo,
@@ -97,7 +83,7 @@ public class SourceInfoUtils implements SourceInfoGenerator {
     /**
      * Create source info for Pulsar
      */
-    private SourceInfo createPulsarSourceInfo(PulsarClusterInfo pulsarCluster, ClusterBean clusterBean,
+    private static SourceInfo createPulsarSourceInfo(PulsarClusterInfo pulsarCluster, ClusterBean clusterBean,
             InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             DeserializationInfo deserializationInfo, List<FieldInfo> fieldInfos) {
         String topicName = streamInfo.getMqResourceObj();
@@ -126,7 +112,7 @@ public class SourceInfoUtils implements SourceInfoGenerator {
     /**
      * Create source info TubeMQ
      */
-    private TubeSourceInfo createTubeSourceInfo(InlongGroupInfo groupInfo, String masterAddress,
+    private static TubeSourceInfo createTubeSourceInfo(InlongGroupInfo groupInfo, String masterAddress,
             ClusterBean clusterBean, DeserializationInfo deserializationInfo, List<FieldInfo> fieldInfos) {
         Preconditions.checkNotNull(masterAddress, "tube cluster address cannot be empty");
         String topic = groupInfo.getMqResourceObj();

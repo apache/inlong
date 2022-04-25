@@ -53,9 +53,7 @@ import java.util.Map;
 /**
  * Util for sort field info.
  */
-@ConditionalOnProperty(name = "type", prefix = "inlong.sort.fieldinfo", havingValue = "default")
-@Component
-public class FieldInfoUtils implements FieldInfoGenerator {
+public class FieldInfoUtils {
 
     /**
      * Built in field map, key is field name, value is built in field name
@@ -75,8 +73,7 @@ public class FieldInfoUtils implements FieldInfoGenerator {
      * Get field info list.
      * TODO 1. Support partition field(not need to add index at 0), 2. Add is_metadata field in StreamSinkFieldEntity
      */
-    @Override
-    public List<FieldMappingUnit> createFieldInfo(
+    public static List<FieldMappingUnit> createFieldInfo(
             List<InlongStreamFieldInfo> streamFieldList, List<SinkFieldResponse> fieldList,
             List<FieldInfo> sourceFields, List<FieldInfo> sinkFields) {
 
@@ -108,7 +105,7 @@ public class FieldInfoUtils implements FieldInfoGenerator {
      *
      * @apiNote If the field name equals to build-in field, new a build-in field info
      */
-    private FieldInfo getFieldInfo(String fieldName, String fieldType, boolean isBuiltin, String format) {
+    private static FieldInfo getFieldInfo(String fieldName, String fieldType, boolean isBuiltin, String format) {
         FieldInfo fieldInfo;
         BuiltInField builtInField = BUILT_IN_FIELD_MAP.get(fieldName);
         FormatInfo formatInfo = convertFieldFormat(fieldType.toLowerCase(), format);
@@ -123,8 +120,7 @@ public class FieldInfoUtils implements FieldInfoGenerator {
     /**
      * Get all migration field mapping unit list for binlog source.
      */
-    @Override
-    public List<FieldMappingUnit> setAllMigrationFieldMapping(List<FieldInfo> sourceFields,
+    public static List<FieldMappingUnit> setAllMigrationFieldMapping(List<FieldInfo> sourceFields,
             List<FieldInfo> sinkFields) {
         List<FieldMappingUnit> mappingUnitList = new ArrayList<>();
         BuiltInFieldInfo dataField = new BuiltInFieldInfo("data", StringFormatInfo.INSTANCE,
@@ -153,7 +149,7 @@ public class FieldInfoUtils implements FieldInfoGenerator {
      * @param type type string
      * @return Sort field format instance
      */
-    public FormatInfo convertFieldFormat(String type) {
+    public static FormatInfo convertFieldFormat(String type) {
         return convertFieldFormat(type, null);
     }
 
@@ -163,7 +159,7 @@ public class FieldInfoUtils implements FieldInfoGenerator {
      * @param type type string
      * @return Sort field format instance
      */
-    public FormatInfo convertFieldFormat(String type, String format) {
+    public static FormatInfo convertFieldFormat(String type, String format) {
         FormatInfo formatInfo;
         FieldType fieldType = FieldType.forName(type);
         switch (fieldType) {
@@ -232,7 +228,7 @@ public class FieldInfoUtils implements FieldInfoGenerator {
      * @param format The format
      * @return The sort format
      */
-    private String convertToSortFormat(String format) {
+    private static String convertToSortFormat(String format) {
         String sortFormat = format;
         switch (format) {
             case "MICROSECONDS":

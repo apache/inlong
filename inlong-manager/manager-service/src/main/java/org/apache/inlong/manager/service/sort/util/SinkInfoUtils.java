@@ -32,8 +32,6 @@ import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.thirdparty.sort.SerializationInfoGenerator;
-import org.apache.inlong.manager.common.thirdparty.sort.SinkInfoGenerator;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
@@ -46,9 +44,6 @@ import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveTimePartitionInfo;
 import org.apache.inlong.sort.protocol.sink.IcebergSinkInfo;
 import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,22 +51,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@ConditionalOnProperty(name = "type", prefix = "inlong.sort.sinkinfo", havingValue = "default")
-@Component
-public class SinkInfoUtils implements SinkInfoGenerator {
+public class SinkInfoUtils {
 
     private static final String DATA_FORMAT = "yyyyMMddHH";
     private static final String TIME_FORMAT = "HHmmss";
     private static final String DATA_TIME_FORMAT = "yyyyMMddHHmmss";
 
-    @Autowired
-    private SerializationInfoGenerator serializationInfoGenerator;
-
     /**
      * Create sink info for DataFlowInfo.
      */
-    @Override
-    public SinkInfo createSinkInfo(SourceResponse sourceResponse, SinkResponse sinkResponse,
+    public static SinkInfo createSinkInfo(SourceResponse sourceResponse, SinkResponse sinkResponse,
             List<FieldInfo> sinkFields) {
         String sinkType = sinkResponse.getSinkType();
         SinkInfo sinkInfo;
@@ -89,7 +78,7 @@ public class SinkInfoUtils implements SinkInfoGenerator {
         return sinkInfo;
     }
 
-    private ClickHouseSinkInfo createClickhouseSinkInfo(ClickHouseSinkResponse sinkResponse,
+    private static ClickHouseSinkInfo createClickhouseSinkInfo(ClickHouseSinkResponse sinkResponse,
             List<FieldInfo> sinkFields) {
         if (StringUtils.isEmpty(sinkResponse.getJdbcUrl())) {
             throw new BusinessException(String.format("ClickHouse={%s} server url cannot be empty", sinkResponse));
@@ -127,7 +116,7 @@ public class SinkInfoUtils implements SinkInfoGenerator {
     }
 
     // TODO Need set more configs for IcebergSinkInfo
-    private IcebergSinkInfo createIcebergSinkInfo(IcebergSinkResponse sinkResponse, List<FieldInfo> sinkFields) {
+    private static IcebergSinkInfo createIcebergSinkInfo(IcebergSinkResponse sinkResponse, List<FieldInfo> sinkFields) {
         if (StringUtils.isEmpty(sinkResponse.getDataPath())) {
             throw new BusinessException(String.format("Iceberg={%s} data path cannot be empty", sinkResponse));
         }
@@ -135,11 +124,11 @@ public class SinkInfoUtils implements SinkInfoGenerator {
         return new IcebergSinkInfo(sinkFields.toArray(new FieldInfo[0]), sinkResponse.getDataPath());
     }
 
-    private KafkaSinkInfo createKafkaSinkInfo(SourceResponse sourceResponse, KafkaSinkResponse sinkResponse,
+    private static KafkaSinkInfo createKafkaSinkInfo(SourceResponse sourceResponse, KafkaSinkResponse sinkResponse,
             List<FieldInfo> sinkFields) {
         String addressUrl = sinkResponse.getBootstrapServers();
         String topicName = sinkResponse.getTopicName();
-        SerializationInfo serializationInfo = serializationInfoGenerator.createSerialInfo(sourceResponse,
+        SerializationInfo serializationInfo = SerializationUtils.createSerialInfo(sourceResponse,
                 sinkResponse);
         return new KafkaSinkInfo(sinkFields.toArray(new FieldInfo[0]), addressUrl, topicName, serializationInfo);
     }
@@ -147,7 +136,7 @@ public class SinkInfoUtils implements SinkInfoGenerator {
     /**
      * Create Hive sink info.
      */
-    private HiveSinkInfo createHiveSinkInfo(HiveSinkResponse hiveInfo, List<FieldInfo> sinkFields) {
+    private static HiveSinkInfo createHiveSinkInfo(HiveSinkResponse hiveInfo, List<FieldInfo> sinkFields) {
         if (hiveInfo.getJdbcUrl() == null) {
             throw new BusinessException(String.format("HiveSink={%s} server url cannot be empty", hiveInfo));
         }
