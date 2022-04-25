@@ -19,6 +19,7 @@ package org.apache.inlong.manager.common.util;
 
 import com.google.gson.Gson;
 import org.apache.inlong.manager.common.enums.TransformType;
+import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.common.pojo.transform.deduplication.DeDuplicationDefinition;
 import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition;
@@ -26,7 +27,7 @@ import org.apache.inlong.manager.common.pojo.transform.joiner.JoinerDefinition;
 import org.apache.inlong.manager.common.pojo.transform.replacer.StringReplacerDefinition;
 import org.apache.inlong.manager.common.pojo.transform.splitter.SplitterDefinition;
 
-public class TransformDefinitionUtils {
+public class StreamParseUtils {
 
     private static Gson gson = new Gson();
 
@@ -46,6 +47,12 @@ public class TransformDefinitionUtils {
             default:
                 throw new IllegalArgumentException(String.format("Unsupported transformType for %s", transformType));
         }
+    }
+
+    public static StreamPipeline parseStreamPipeline(String tempView, String inlongStreamId) {
+        Preconditions.checkNotEmpty(tempView,
+                String.format(" should not be null for streamId=%s", inlongStreamId));
+        return gson.fromJson(tempView, StreamPipeline.class);
     }
 
 }

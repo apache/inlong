@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.service.mocks;
 
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.workflow.event.EventSelector;
@@ -39,7 +39,7 @@ public class MockPlugin implements ProcessPlugin {
                 return false;
             }
             UpdateGroupProcessForm form = (UpdateGroupProcessForm) processForm;
-            return form.getOperateType() == OperateType.SUSPEND;
+            return form.getGroupOperateType() == GroupOperateType.SUSPEND;
         }
     };
 
@@ -51,7 +51,7 @@ public class MockPlugin implements ProcessPlugin {
                 return false;
             }
             UpdateGroupProcessForm form = (UpdateGroupProcessForm) processForm;
-            return form.getOperateType() == OperateType.RESTART;
+            return form.getGroupOperateType() == GroupOperateType.RESTART;
         }
     };
 
@@ -63,7 +63,7 @@ public class MockPlugin implements ProcessPlugin {
                 return false;
             }
             UpdateGroupProcessForm form = (UpdateGroupProcessForm) processForm;
-            return form.getOperateType() == OperateType.DELETE;
+            return form.getGroupOperateType() == GroupOperateType.DELETE;
         }
     };
 

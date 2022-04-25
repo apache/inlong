@@ -28,6 +28,11 @@ public enum MetaFieldType {
     DATABASE("database", "meta field database used in canal json or mysql binlong and so on"),
 
     /**
+     * processing_time
+     */
+    PROCESSING_TIME("processing_time", "meta field processing_time describe such moment the record be processed"),
+
+    /**
      * data_time
      */
     DATA_TIME("data_time", "meta field data_time used in canal json or mysql binlong and so on"),

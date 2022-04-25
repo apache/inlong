@@ -23,16 +23,16 @@ import java.util.function.Function;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class InLongCollectionUtilsTest {
+public class InlongCollectionUtilsTest {
 
     @Test
     public void transformToImmutableMap() {
         Map<String, String> emptyMap =
-                InLongCollectionUtils.transformToImmutableMap(null, Function.identity(), Function.identity());
+                InlongCollectionUtils.transformToImmutableMap(null, Function.identity(), Function.identity());
         Assert.assertTrue(emptyMap.isEmpty());
 
         Map<String, Integer> stringIntegerMap =
-                InLongCollectionUtils.transformToImmutableMap(Lists.newArrayList("1", "2", "3"),
+                InlongCollectionUtils.transformToImmutableMap(Lists.newArrayList("1", "2", "3"),
                         Function.identity(), Integer::valueOf);
         Assert.assertEquals(1, (int) stringIntegerMap.get("1"));
 

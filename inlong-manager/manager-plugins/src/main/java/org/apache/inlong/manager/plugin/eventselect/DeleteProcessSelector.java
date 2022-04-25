@@ -19,6 +19,7 @@ package org.apache.inlong.manager.plugin.eventselect;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -38,7 +39,7 @@ public class DeleteProcessSelector implements EventSelector {
         }
 
         UpdateGroupProcessForm updateProcessForm = (UpdateGroupProcessForm) processForm;
-        boolean flag = updateProcessForm.getOperateType() == UpdateGroupProcessForm.OperateType.DELETE;
+        boolean flag = updateProcessForm.getGroupOperateType() == GroupOperateType.DELETE;
         if (!flag) {
             log.info("not add deleteProcess listener as the operate was not DELETE for groupId [{}]", groupId);
             return false;

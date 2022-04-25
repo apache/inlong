@@ -67,7 +67,7 @@
         </javaClientGenerator>
 
         <!-- Which entities to generate -->
-        <table tableName="stream_source_field" domainObjectName="StreamSourceFieldEntity"
+        <table tableName="stream_transform_field" domainObjectName="StreamTransformFieldEntity"
                 enableSelectByPrimaryKey="true" enableUpdateByPrimaryKey="true"
                 enableDeleteByPrimaryKey="true" enableInsert="true"
                 enableCountByExample="false" enableDeleteByExample="false"

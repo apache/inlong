@@ -15,21 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.manager.common.enums;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import org.apache.inlong.manager.common.pojo.stream.StreamNode;
-import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
+import lombok.Getter;
 
-@Data
-@ApiModel("Stream Transform configuration")
-public abstract class StreamTransform extends StreamNode {
+import java.util.Locale;
 
-    @ApiModelProperty(value = "Transform name", required = true)
-    protected String transformName;
+/**
+ * Enum of data format.
+ */
+public enum DataFormat {
 
-    @ApiModelProperty(value = "Transform name", required = true)
-    protected TransformDefinition transformDefinition;
+    CSV("csv"),
+    AVRO("avro"),
+    CANAL("canal"),
+    JSON("json"),
+    NONE("none");
+
+    @Getter
+    private final String name;
+
+    DataFormat(String name) {
+        this.name = name;
+    }
+
+    public static DataFormat forName(String name) {
+        for (DataFormat dataFormat : values()) {
+            if (dataFormat.getName().equals(name.toLowerCase(Locale.ROOT))) {
+                return dataFormat;
+            }
+        }
+        throw new IllegalArgumentException(String.format("Unsupported DataFormat=%s for Inlong", name));
+    }
 }

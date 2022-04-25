@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import org.apache.inlong.manager.common.util.InLongCollectionUtils;
+import org.apache.inlong.manager.common.util.InlongCollectionUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 /**
@@ -53,7 +53,7 @@ public enum ConsumptionStatus {
 
     public static final Set<ConsumptionStatus> ALLOW_START_WORKFLOW_STATUS = ImmutableSet.of(WAIT_ASSIGN);
 
-    private static final Map<Integer, ConsumptionStatus> STATUS_MAP = InLongCollectionUtils.transformToImmutableMap(
+    private static final Map<Integer, ConsumptionStatus> STATUS_MAP = InlongCollectionUtils.transformToImmutableMap(
             Lists.newArrayList(ConsumptionStatus.values()),
             ConsumptionStatus::getStatus,
             Function.identity()

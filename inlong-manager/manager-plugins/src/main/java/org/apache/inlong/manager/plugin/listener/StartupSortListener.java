@@ -104,7 +104,7 @@ public class StartupSortListener implements SortOperateListener {
         flinkInfo.setJobName(jobName);
         String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
         flinkInfo.setEndpoint(sortUrl);
-        flinkInfo.setInlongStreamInfoList(groupResourceForm.getInlongStreamInfoList());
+        flinkInfo.setInlongStreamInfoList(groupResourceForm.getStreamInfos());
         parseDataflow(dataFlow, flinkInfo);
 
         FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());

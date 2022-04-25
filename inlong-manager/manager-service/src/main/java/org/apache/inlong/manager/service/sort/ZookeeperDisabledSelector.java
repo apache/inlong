@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class ZkDisabledEventSelector implements EventSelector {
+public class ZookeeperDisabledSelector implements EventSelector {
 
     @Override
     public boolean accept(WorkflowContext context) {

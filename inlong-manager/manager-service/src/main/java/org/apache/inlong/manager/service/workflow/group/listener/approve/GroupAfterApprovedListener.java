@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.group.listener;
+package org.apache.inlong.manager.service.workflow.group.listener.approve;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupStatus;
@@ -42,7 +42,7 @@ import java.util.Objects;
  */
 @Slf4j
 @Component
-public class GroupPassTaskListener implements TaskEventListener {
+public class GroupAfterApprovedListener implements TaskEventListener {
 
     @Autowired
     private InlongGroupService groupService;

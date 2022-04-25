@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.function.Function;
 import org.apache.commons.collections.CollectionUtils;
 
-public class InLongCollectionUtils {
+public class InlongCollectionUtils {
 
     /**
      * Transform input collection to ImmutableMap, if input collection is null, then return empty map

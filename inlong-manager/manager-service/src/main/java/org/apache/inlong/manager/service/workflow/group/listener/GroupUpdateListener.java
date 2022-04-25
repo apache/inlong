@@ -18,11 +18,11 @@
 package org.apache.inlong.manager.service.workflow.group.listener;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -32,10 +32,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Initialize the listener for inlong group information
+ * Update listener for inlong group
  */
 @Service
-public class InitGroupListener implements ProcessEventListener {
+public class GroupUpdateListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
@@ -46,13 +46,25 @@ public class InitGroupListener implements ProcessEventListener {
     }
 
     @Override
-    public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
+    public ListenerResult listen(WorkflowContext context) throws Exception {
+        UpdateGroupProcessForm form = (UpdateGroupProcessForm) context.getProcessForm();
         InlongGroupInfo groupInfo = groupService.get(context.getProcessForm().getInlongGroupId());
+        GroupOperateType groupOperateType = form.getGroupOperateType();
+        String username = context.getApplicant();
         if (groupInfo != null) {
-            final int status = GroupStatus.CONFIG_ING.getCode();
-            final String username = context.getApplicant();
-            groupService.updateStatus(groupInfo.getInlongGroupId(), status, username);
+            switch (groupOperateType) {
+                case SUSPEND:
+                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.SUSPENDING.getCode(), username);
+                    break;
+                case RESTART:
+                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.RESTARTING.getCode(), username);
+                    break;
+                case DELETE:
+                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.DELETING.getCode(), username);
+                    break;
+                default:
+                    break;
+            }
             form.setGroupInfo(groupInfo);
         } else {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
