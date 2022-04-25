@@ -359,11 +359,9 @@
 =======================================================================
 Apache InLong(Incubating) Subcomponents:
 
-The Apache InLong(Incubating) project contains subcomponents with separate copyright
-notices and license terms.
-
-Your use of the source code for the these subcomponents is subject to
-the terms and conditions of the following licenses.
+The compiled Apache InLong(Incubating) distribution includes the following
+sources/binaries. The use of these sources/binaries is subject to the
+terms and conditions of their respective licenses.
 
 
 ========================================================================
@@ -371,9 +369,9 @@ Apache 2.0 License
 ========================================================================
 
 The following components are provided under the Apache License. See project link for details.
-The text of each license is the standard Apache 2.0 license.
+The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  echarts:5.2.2 - echarts (https://github.com/apache/echarts), (The Apache Software License, Version 2.0)
+  echarts:5.2.2 - echarts (https://github.com/apache/echarts/tree/5.2.2), (The Apache Software License, Version 2.0)
   
 
 ========================================================================
@@ -383,9 +381,9 @@ BSD licenses
 The following components are provided under BSD license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  qs:6.7.0 - qs (https://github.com/pillarjs/qs), (BSD-3-Clause)
-  zrender:5.2.1 - zrender (https://github.com/ecomfe/zrender), (BSD-3-Clause)
-  tslib:2.3.0 - tslib (https://github.com/Microsoft/tslib), (0BSD)
+  qs:6.7.0 - qs (https://github.com/ljharb/qs/releases/tag/v6.7.0), (BSD-3-Clause)
+  zrender:5.2.1 - zrender (https://github.com/ecomfe/zrender/tree/5.2.1), (BSD-3-Clause)
+  tslib:2.3.0 - tslib (https://github.com/microsoft/tslib/tree/2.3.0), (0BSD)
 
 
 ========================================================================
@@ -395,20 +393,20 @@ MIT licenses
 The following components are provided under MIT license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  ant-design/ant-design-icons:4.5.0 - @ant-design/icons (https://github.com/ant-design/ant-design-icons), (MIT)
-  ant-design/pro-components:6.15.0 - @ant-design/pro-layout (https://github.com/ant-design/pro-components), (MIT)
-  ahooks:2.10.0 - ahooks (https://github.com/alibaba/hooks), (MIT)
-  antd:4.15.1 - antd (https://github.com/ant-design/ant-design), (MIT)
-  dayjs:1.10.4 - dayjs (https://github.com/iamkun/dayjs), (MIT)
-  i18next:20.3.1 - i18next (https://github.com/i18next/i18next), (MIT)
-  lodash:20.3.1 - lodash (https://github.com/lodash/lodash), (MIT)
-  nprogress:0.2.0 - nprogress (https://github.com/rstacruz/nprogress), (MIT)
-  path-to-regexp:6.2.0 - path-to-regexp (https://github.com/pillarjs/path-to-regexp), (MIT)
-  react:17.0.1 - react (https://github.com/facebook/react), (MIT)
-  react-i18next:11.10.0 - react-i18next (https://github.com/i18next/react-i18next), (MIT)
-  react-redux:7.2.0 - react-redux (https://github.com/reduxjs/react-redux), (MIT)
-  react-router-dom:5.2.0 - react-router-dom (https://github.com/remix-run/react-router), (MIT)
-  redux:4.0.5 - redux (https://github.com/reduxjs/redux), (MIT)
-  umi-request:1.3.5 - umi-request (https://github.com/umijs/umi-request), (MIT)
-  classnames:2.2.6 - classnames (https://github.com/JedWatson/classnames), (MIT)
+  ant-design/ant-design-icons:4.5.0 - @ant-design/icons (https://github.com/ant-design/ant-design-icons/commit/e4c3364e7a83fe581af634b1702fd3297fa104c4), (MIT)
+  ant-design/pro-components:6.15.0 - @ant-design/pro-layout (https://github.com/ant-design/pro-components/tree/%40ant-design/pro-layout%406.16.0), (MIT)
+  ahooks:2.10.0 - ahooks (https://github.com/alibaba/hooks/tree/v2.10.0), (MIT)
+  antd:4.15.1 - antd (https://github.com/ant-design/ant-design/tree/4.15.1), (MIT)
+  dayjs:1.10.4 - dayjs (https://github.com/iamkun/dayjs/tree/v1.10.4), (MIT)
+  i18next:20.3.1 - i18next (https://github.com/i18next/i18next/tree/v20.3.1), (MIT)
+  lodash:4.17.21 - lodash (https://github.com/lodash/lodash/releases/tag/4.17.21), (MIT)
+  nprogress:0.2.0 - nprogress (https://github.com/rstacruz/nprogress/tree/v0.2.0), (MIT)
+  path-to-regexp:6.2.0 - path-to-regexp (https://github.com/pillarjs/path-to-regexp/tree/v6.2.0), (MIT)
+  react:17.0.1 - react (https://github.com/facebook/react/tree/v17.0.1), (MIT)
+  react-i18next:11.10.0 - react-i18next (https://github.com/i18next/react-i18next/tree/v11.10.0), (MIT)
+  react-redux:7.2.0 - react-redux (https://github.com/reduxjs/react-redux/tree/v7.2.0), (MIT)
+  react-router-dom:5.2.0 - react-router-dom (https://github.com/remix-run/react-router/tree/v5.2.0), (MIT)
+  redux:4.0.5 - redux (https://github.com/reduxjs/redux/tree/v4.0.5), (MIT)
+  umi-request:1.3.5 - umi-request (https://github.com/umijs/umi-request/tree/v1.3.5), (MIT)
+  classnames:2.2.6 - classnames (https://github.com/JedWatson/classnames/tree/v2.2.6), (MIT)
 

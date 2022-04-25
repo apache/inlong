@@ -22,7 +22,6 @@ Copyright 2017-2019 The Apache Software Foundation
 ========================================================================
 
 Apache Yetus - Audience Annotations NOTICE
-
 ========================================================================
 
 Apache Yetus - Audience Annotations
@@ -36,7 +35,6 @@ The Apache Software Foundation (http://www.apache.org/).
 ========================================================================
 
 Apache Commons BeanUtils NOTICE
-
 ========================================================================
 
 Apache Commons BeanUtils
@@ -50,7 +48,6 @@ The Apache Software Foundation (http://www.apache.org/).
 ========================================================================
 
 Apache Commons CLI NOTICE
-
 ========================================================================
 
 Apache Commons CLI
@@ -64,14 +61,13 @@ The Apache Software Foundation (http://www.apache.org/).
 ========================================================================
 
 Apache Commons Codec NOTICE
-
 ========================================================================
 
 Apache Commons Codec
-Copyright 2002-2014 The Apache Software Foundation
+Copyright 2002-2020 The Apache Software Foundation
 
 This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
+The Apache Software Foundation (https://www.apache.org/).
 
 src/test/org/apache/commons/codec/language/DoubleMetaphoneTest.java
 contains test data from http://aspell.net/test/orig/batch0.tab.
@@ -90,7 +86,6 @@ Copyright (c) 2008 Alexander Beider & Stephen P. Morse.
 ========================================================================
 
 Apache Commons Collections NOTICE
-
 ========================================================================
 
 Apache Commons Collections
@@ -104,7 +99,6 @@ The Apache Software Foundation (http://www.apache.org/).
 ========================================================================
 
 Apache Commons Digester NOTICE
-
 ========================================================================
 
 Apache Commons Digester
@@ -118,7 +112,6 @@ The Apache Software Foundation (http://www.apache.org/).
 ========================================================================
 
 Apache Commons IO NOTICE
-
 ========================================================================
 
 Apache Commons IO
@@ -132,7 +125,6 @@ The Apache Software Foundation (https://www.apache.org/).
 ========================================================================
 
 commons-lang NOTICE
-
 ========================================================================
 
 Apache Commons Lang
@@ -146,7 +138,6 @@ The Apache Software Foundation (http://www.apache.org/).
 ========================================================================
 
 commons-lang3 NOTICE
-
 ========================================================================
 
 Apache Commons Lang
@@ -160,7 +151,6 @@ The Apache Software Foundation (https://www.apache.org/).
 ========================================================================
 
 Apache Commons Logging NOTICE
-
 ========================================================================
 
 Apache Commons Logging
@@ -174,7 +164,6 @@ The Apache Software Foundation (http://www.apache.org/).
 ========================================================================
 
 Apache HttpClient NOTICE
-
 ========================================================================
 
 Apache HttpClient
@@ -188,7 +177,6 @@ The Apache Software Foundation (http://www.apache.org/).
 ========================================================================
 
 Apache HttpCore NOTICE
-
 ========================================================================
 
 Apache HttpCore
@@ -202,7 +190,6 @@ The Apache Software Foundation (http://www.apache.org/).
 ========================================================================
 
 ini4j NOTICE
-
 ========================================================================
 
 Copyright 2005,2009 Ivan SZKIBA
@@ -223,147 +210,7 @@ limitations under the License.
 
 ========================================================================
 
-Jetty :: Http Utility NOTICE
---------------------------------------------------------------
-Jetty :: IO Utility NOTICE
---------------------------------------------------------------
-Jetty :: Security NOTICE
---------------------------------------------------------------
-Jetty :: Server Core NOTICE
---------------------------------------------------------------
-Jetty :: Servlet Handling NOTICE
---------------------------------------------------------------
-Jetty :: Utilities NOTICE
---------------------------------------------------------------
-Jetty :: Utilities :: Ajax(JSON) NOTICE
-
-========================================================================
-
-==============================================================
- Jetty Web Container
- Copyright 1995-2018 Mort Bay Consulting Pty Ltd.
-==============================================================
-
-The Jetty Web Container is Copyright Mort Bay Consulting Pty Ltd
-unless otherwise noted.
-
-Jetty is dual licensed under both
-
-  * The Apache 2.0 License
-    http://www.apache.org/licenses/LICENSE-2.0.html
-
-      and
-
-  * The Eclipse Public 1.0 License
-    http://www.eclipse.org/legal/epl-v10.html
-
-Jetty may be distributed under either license.
-
-------
-Eclipse
-
-The following artifacts are EPL.
- * org.eclipse.jetty.orbit:org.eclipse.jdt.core
-
-The following artifacts are EPL and ASL2.
- * org.eclipse.jetty.orbit:javax.security.auth.message
-
-
-The following artifacts are EPL and CDDL 1.0.
- * org.eclipse.jetty.orbit:javax.mail.glassfish
-
-
-------
-Oracle
-
-The following artifacts are CDDL + GPLv2 with classpath exception.
-https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html
-
- * javax.servlet:javax.servlet-api
- * javax.annotation:javax.annotation-api
- * javax.transaction:javax.transaction-api
- * javax.websocket:javax.websocket-api
-
-------
-Oracle OpenJDK
-
-If ALPN is used to negotiate HTTP/2 connections, then the following
-artifacts may be included in the distribution or downloaded when ALPN 
-module is selected. 
-
- * java.sun.security.ssl
-
-These artifacts replace/modify OpenJDK classes.  The modififications
-are hosted at github and both modified and original are under GPL v2 with 
-classpath exceptions.
-http://openjdk.java.net/legal/gplv2+ce.html
-
-
-------
-OW2
-
-The following artifacts are licensed by the OW2 Foundation according to the
-terms of http://asm.ow2.org/license.html
-
-org.ow2.asm:asm-commons
-org.ow2.asm:asm
-
-
-------
-Apache
-
-The following artifacts are ASL2 licensed.
-
-org.apache.taglibs:taglibs-standard-spec
-org.apache.taglibs:taglibs-standard-impl
-
-
-------
-MortBay
-
-The following artifacts are ASL2 licensed.  Based on selected classes from 
-following Apache Tomcat jars, all ASL2 licensed.
-
-org.mortbay.jasper:apache-jsp
-  org.apache.tomcat:tomcat-jasper
-  org.apache.tomcat:tomcat-juli
-  org.apache.tomcat:tomcat-jsp-api
-  org.apache.tomcat:tomcat-el-api
-  org.apache.tomcat:tomcat-jasper-el
-  org.apache.tomcat:tomcat-api
-  org.apache.tomcat:tomcat-util-scan
-  org.apache.tomcat:tomcat-util
-
-org.mortbay.jasper:apache-el
-  org.apache.tomcat:tomcat-jasper-el
-  org.apache.tomcat:tomcat-el-api
-
-
-------
-Mortbay
-
-The following artifacts are CDDL + GPLv2 with classpath exception.
-
-https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html
-
-org.eclipse.jetty.toolchain:jetty-schemas
-
-------
-Assorted
-
-The UnixCrypt.java code implements the one way cryptography used by
-Unix systems for simple password protection.  Copyright 1996 Aki Yoshida,
-modified April 2001  by Iris Van den Broeke, Daniel Deville.
-Permission to use, copy, modify and distribute UnixCrypt
-for non-commercial or commercial purposes and without fee is
-granted provided that the copyright notice appears in all copies.
-
-
-
-========================================================================
-
 Apache Log4j NOTICE
-
 ========================================================================
 
 Apache log4j
@@ -376,137 +223,53 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Netty NOTICE
-
+Apache Log4j API NOTICE
 ========================================================================
 
-                            The Netty Project
-                            =================
+Apache Log4j API
+Copyright 1999-2022 The Apache Software Foundation
 
-Please visit the Netty web site for more information:
-
-  * http://netty.io/
-
-Copyright 2011 The Netty Project
-
-The Netty Project licenses this file to you under the Apache License,
-version 2.0 (the "License"); you may not use this file except in compliance
-with the License. You may obtain a copy of the License at:
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-License for the specific language governing permissions and limitations
-under the License.
-
-Also, please refer to each LICENSE.<component>.txt file, which is located in
-the 'license' directory of the distribution file, for the license terms of the
-components that this product depends on.
-
--------------------------------------------------------------------------------
-This product contains the extensions to Java Collections Framework which has
-been derived from the works by JSR-166 EG, Doug Lea, and Jason T. Greene:
-
-  * LICENSE:
-    * license/LICENSE.jsr166y.txt (Public Domain)
-  * HOMEPAGE:
-    * http://gee.cs.oswego.edu/cgi-bin/viewcvs.cgi/jsr166/
-    * http://viewvc.jboss.org/cgi-bin/viewvc.cgi/jbosscache/experimental/jsr166/
-
-This product contains a modified version of Robert Harder's Public Domain
-Base64 Encoder and Decoder, which can be obtained at:
-
-  * LICENSE:
-    * license/LICENSE.base64.txt (Public Domain)
-  * HOMEPAGE:
-    * http://iharder.sourceforge.net/current/java/base64/
-
-This product contains a modified version of 'JZlib', a re-implementation of
-zlib in pure Java, which can be obtained at:
-
-  * LICENSE:
-    * license/LICENSE.jzlib.txt (BSD Style License)
-  * HOMEPAGE:
-    * http://www.jcraft.com/jzlib/
-
-This product contains a modified version of 'Webbit', a Java event based
-WebSocket and HTTP server:
-
-  * LICENSE:
-    * license/LICENSE.webbit.txt (BSD License)
-  * HOMEPAGE:
-    * https://github.com/joewalnes/webbit
-
-This product optionally depends on 'Protocol Buffers', Google's data
-interchange format, which can be obtained at:
-
-  * LICENSE:
-    * license/LICENSE.protobuf.txt (New BSD License)
-  * HOMEPAGE:
-    * http://code.google.com/p/protobuf/
-
-This product optionally depends on 'Bouncy Castle Crypto APIs' to generate
-a temporary self-signed X.509 certificate when the JVM does not provide the
-equivalent functionality.  It can be obtained at:
-
-  * LICENSE:
-    * license/LICENSE.bouncycastle.txt (MIT License)
-  * HOMEPAGE:
-    * http://www.bouncycastle.org/
-
-This product optionally depends on 'SLF4J', a simple logging facade for Java,
-which can be obtained at:
-
-  * LICENSE:
-    * license/LICENSE.slf4j.txt (MIT License)
-  * HOMEPAGE:
-    * http://www.slf4j.org/
-
-This product optionally depends on 'Apache Commons Logging', a logging
-framework, which can be obtained at:
-
-  * LICENSE:
-    * license/LICENSE.commons-logging.txt (Apache License 2.0)
-  * HOMEPAGE:
-    * http://commons.apache.org/logging/
-
-This product optionally depends on 'Apache Log4J', a logging framework,
-which can be obtained at:
-
-  * LICENSE:
-    * license/LICENSE.log4j.txt (Apache License 2.0)
-  * HOMEPAGE:
-    * http://logging.apache.org/log4j/
-
-This product optionally depends on 'JBoss Logging', a logging framework,
-which can be obtained at:
-
-  * LICENSE:
-    * license/LICENSE.jboss-logging.txt (GNU LGPL 2.1)
-  * HOMEPAGE:
-    * http://anonsvn.jboss.org/repos/common/common-logging-spi/
-
-This product optionally depends on 'Apache Felix', an open source OSGi
-framework implementation, which can be obtained at:
-
-  * LICENSE:
-    * license/LICENSE.felix.txt (Apache License 2.0)
-  * HOMEPAGE:
-    * http://felix.apache.org/
-
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
 
 
 
 ========================================================================
 
-reload4j NOTICE
+Apache Log4j Core NOTICE
+========================================================================
+
+Apache Log4j Core
+Copyright 1999-2012 Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+ResolverUtil.java
+Copyright 2005-2006 Tim Fennell
+
+
 
 ========================================================================
 
-Apache log4j
-Copyright 2007 The Apache Software Foundation
+Apache Log4j Commons Logging Bridge NOTICE
+========================================================================
+
+Apache Log4j Commons Logging Bridge
+Copyright 1999-2022 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Log4j SLF4J Binding NOTICE
+========================================================================
+
+Apache Log4j SLF4J Binding
+Copyright 1999-2022 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -532,7 +295,6 @@ Spring JDBC NOTICE
 Spring Object/Relational Mapping NOTICE
 --------------------------------------------------------------
 Spring Transaction NOTICE
-
 ========================================================================
 
 Spring Framework 5.3.18
@@ -552,7 +314,6 @@ subcomponent's license, as noted in the license.txt file.
 ========================================================================
 
 Apache Velocity - Engine NOTICE
-
 ========================================================================
 
 Apache Velocity - Engine
@@ -566,7 +327,6 @@ The Apache Software Foundation (http://www.apache.org/).
 ========================================================================
 
 Apache Velocity Tools - Generic tools NOTICE
-
 ========================================================================
 
 Apache Velocity Tools - Generic tools
@@ -579,15 +339,62 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-ZooKeeper NOTICE
-
+Apache ZooKeeper - Server NOTICE
+------------------------------------------------------
+Apache ZooKeeper - Jute NOTICE
 ========================================================================
 
 Apache ZooKeeper
-Copyright 2009-2012 The Apache Software Foundation
+Copyright 2009-2021 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
 
+This product includes software components originally
+developed for Airlift (https://github.com/airlift/airlift),
+licensed under the Apache 2.0 license. The licensing terms
+for Airlift code can be found at:
+https://github.com/airlift/airlift/blob/master/LICENSE
+
+
+
+========================================================================
+
+Jetty :: Http Utility NOTICE
+------------------------------------------------------
+Jetty :: IO Utility NOTICE
+------------------------------------------------------
+Jetty :: Security NOTICE
+------------------------------------------------------
+Jetty :: Server Core NOTICE
+------------------------------------------------------
+Jetty :: Servlet Handling NOTICE
+------------------------------------------------------
+Jetty :: Utilities NOTICE
+------------------------------------------------------
+Jetty :: Utilities :: Ajax(JSON) NOTICE
+------------------------------------------------------
+Netty/Buffer NOTICE
+------------------------------------------------------
+Netty/Codec NOTICE
+------------------------------------------------------
+Netty/Common NOTICE
+------------------------------------------------------
+Netty/Handler NOTICE
+------------------------------------------------------
+Netty/Resolver NOTICE
+------------------------------------------------------
+Netty/Transport NOTICE
+------------------------------------------------------
+Netty/Transport/Classes/Epoll NOTICE
+------------------------------------------------------
+Netty/Transport/Native/Epoll NOTICE
+------------------------------------------------------
+Netty/Transport/Native/Unix/Common NOTICE
+------------------------------------------------------
+Netty/TomcatNative [OpenSSL - Classes] NOTICE
+========================================================================
+
+The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
 
 

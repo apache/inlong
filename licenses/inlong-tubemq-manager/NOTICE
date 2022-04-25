@@ -21,8 +21,28 @@ Copyright 2017-2019 The Apache Software Foundation
 
 ========================================================================
 
-ClassMate NOTICE
+Byte Buddy (without dependencies) NOTICE
+========================================================================
 
+Copyright 2014 - ${current.year} Rafael Winterhalter
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
+
+========================================================================
+
+ClassMate NOTICE
 ========================================================================
 
 Java ClassMate library was originally written by Tatu Saloranta (tatu.saloranta@iki.fi)
@@ -36,14 +56,13 @@ Other developers who have contributed code are:
 ========================================================================
 
 Apache Commons Codec NOTICE
-
 ========================================================================
 
 Apache Commons Codec
-Copyright 2002-2014 The Apache Software Foundation
+Copyright 2002-2020 The Apache Software Foundation
 
 This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
+The Apache Software Foundation (https://www.apache.org/).
 
 src/test/org/apache/commons/codec/language/DoubleMetaphoneTest.java
 contains test data from http://aspell.net/test/orig/batch0.tab.
@@ -62,7 +81,6 @@ Copyright (c) 2008 Alexander Beider & Stephen P. Morse.
 ========================================================================
 
 Apache Commons Collections NOTICE
-
 ========================================================================
 
 Apache Commons Collections
@@ -76,7 +94,6 @@ The Apache Software Foundation (http://www.apache.org/).
 ========================================================================
 
 Apache Commons Lang NOTICE
-
 ========================================================================
 
 Apache Commons Lang
@@ -90,7 +107,6 @@ The Apache Software Foundation (https://www.apache.org/).
 ========================================================================
 
 Apache Commons Logging NOTICE
-
 ========================================================================
 
 Apache Commons Logging
@@ -104,7 +120,6 @@ The Apache Software Foundation (http://www.apache.org/).
 ========================================================================
 
 Apache HttpClient NOTICE
-
 ========================================================================
 
 Apache HttpClient
@@ -118,7 +133,6 @@ The Apache Software Foundation (http://www.apache.org/).
 ========================================================================
 
 Apache HttpCore NOTICE
-
 ========================================================================
 
 Apache HttpCore
@@ -134,7 +148,6 @@ The Apache Software Foundation (http://www.apache.org/).
 Jackson-core NOTICE
 ------------------------------------------------------
 jackson-databind NOTICE
-
 ========================================================================
 
 # Jackson JSON processor
@@ -159,32 +172,11 @@ from the source code management (SCM) system project uses.
 
 ========================================================================
 
-Jakarta Annotations API NOTICE
-
-========================================================================
-
-The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
-
-
-
-========================================================================
-
-javax.transaction API NOTICE
-
-========================================================================
-
-The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
-
-
-
-========================================================================
-
 Apache Log4j API NOTICE
-
 ========================================================================
 
 Apache Log4j API
-Copyright 1999-1969 The Apache Software Foundation
+Copyright 1999-2022 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -194,10 +186,22 @@ The Apache Software Foundation (http://www.apache.org/).
 ========================================================================
 
 Apache Log4j to SLF4J Adapter NOTICE
-
 ========================================================================
 
 Apache Log4j to SLF4J Adapter
+Copyright 1999-2022 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Log4j SLF4J Binding NOTICE
+========================================================================
+
+Apache Log4j SLF4J Binding
 Copyright 1999-2022 The Apache Software Foundation
 
 This product includes software developed at
@@ -228,7 +232,6 @@ Spring Object/Relational Mapping NOTICE
 Spring Web NOTICE
 ------------------------------------------------------
 Spring Web MVC NOTICE
-
 ========================================================================
 
 Spring Framework 5.3.18
@@ -248,7 +251,6 @@ subcomponent's license, as noted in the license.txt file.
 ========================================================================
 
 Spring Transaction NOTICE
-
 ========================================================================
 
 Spring Framework 5.3.17
@@ -283,14 +285,13 @@ spring-boot-starter-jdbc NOTICE
 ------------------------------------------------------
 spring-boot-starter-json NOTICE
 ------------------------------------------------------
-spring-boot-starter-logging NOTICE
+spring-boot-starter-log4j2 NOTICE
 ------------------------------------------------------
 spring-boot-starter-tomcat NOTICE
 ------------------------------------------------------
 spring-boot-starter-validation NOTICE
 ------------------------------------------------------
 spring-boot-starter-web NOTICE
-
 ========================================================================
 
 Spring Boot 2.6.6
@@ -305,7 +306,6 @@ the License.
 ========================================================================
 
 Spring Data Core NOTICE
-
 ========================================================================
 
 Spring Data Commons 2.6.3 (2021.1.3)
@@ -324,7 +324,6 @@ conditions of the subcomponent's license, as noted in the LICENSE file.
 ========================================================================
 
 Spring Data JPA NOTICE
-
 ========================================================================
 
 Spring Data JPA 2.6.3 (2021.1.3)
@@ -343,7 +342,6 @@ conditions of the subcomponent's license, as noted in the LICENSE file.
 ========================================================================
 
 Spring HATEOAS NOTICE
-
 ========================================================================
 
 Spring HATEOAS 0.22
@@ -362,7 +360,6 @@ conditions of the subcomponent's license, as noted in the LICENSE file.
 ========================================================================
 
 Spring Plugin - Core NOTICE
-
 ========================================================================
 
 Spring Plugin - Core 2.0.0.RELEASE
@@ -381,7 +378,6 @@ conditions of the subcomponent's license, as noted in the LICENSE file.
 ========================================================================
 
 Spring Plugin - Metadata Extension NOTICE
-
 ========================================================================
 
 Spring Plugin - Metadata Extension 2.0.0.RELEASE
@@ -400,7 +396,6 @@ conditions of the subcomponent's license, as noted in the LICENSE file.
 ========================================================================
 
 tomcat-embed-core NOTICE
-
 ========================================================================
 
 Apache Tomcat
@@ -442,7 +437,6 @@ http://www.oracle.com/webfolder/technetwork/jsc/xml/ns/javaee/index.html
 tomcat-embed-el NOTICE
 ------------------------------------------------------
 tomcat-embed-websocket NOTICE
-
 ========================================================================
 
 Apache Tomcat
@@ -450,4 +444,28 @@ Copyright 1999-2022 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Jakarta Annotations API NOTICE
+------------------------------------------------------
+Jakarta Persistence API NOTICE
+------------------------------------------------------
+javax.transaction API NOTICE
+========================================================================
+
+The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
+
+
+
+
+
+
+
+
+
+
+
 

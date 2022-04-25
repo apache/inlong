@@ -359,11 +359,9 @@
 =======================================================================
 Apache InLong(Incubating) Subcomponents:
 
-The Apache InLong(Incubating) project contains subcomponents with separate copyright
-notices and license terms.
-
-Your use of the source code for the these subcomponents is subject to
-the terms and conditions of the following licenses.
+The compiled Apache InLong(Incubating) distribution includes the following
+sources/binaries. The use of these sources/binaries is subject to the
+terms and conditions of their respective licenses.
 
 
 ========================================================================
@@ -373,23 +371,23 @@ Apache 2.0 License
 The following components are provided under the Apache License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
 
-  org.apache.avro:avro:1.7.4 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.avro:avro-ipc:1.7.4 - Apache Avro IPC (https://avro.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.yetus:audience-annotations:0.5.0 - Apache Yetus - Audience Annotations (https://yetus.apache.org/), (Apache License, Version 2.0)
+  org.apache.avro:avro:1.11.0 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.avro:avro-ipc:1.11.0 - Apache Avro IPC (https://avro.apache.org), (The Apache Software License, Version 2.0)
   org.apache.pulsar:bouncy-castle-bc:2.8.1 - Apache Pulsar :: Bouncy Castle :: BC (https://github.com/apache/pulsar/tree/master/bouncy-castle/bc), (Apache License, Version 2.0)
-  org.apache-extras.beanshell:bsh:2.0b6 - BeanShell (https://github.com/beanshell/beanshell), (Apache License, Version 2.0)
-  commons-cli:commons-cli:1.2 - Commons CLI (http://commons.apache.org/proper/commons-cli), (The Apache Software License, Version 2.0)
+  commons-cli:commons-cli:1.4 - Apache Commons CLI (http://commons.apache.org/proper/commons-cli), (The Apache Software License, Version 2.0)
   commons-codec:commons-codec:1.15 - Apache Commons Codec (https://commons.apache.org/proper/commons-codec), (The Apache Software License, Version 2.0)
   commons-collections:commons-collections:3.2.2 - Apache Commons Collections (https://commons.apache.org/proper/commons-collections), (The Apache Software License, Version 2.0)
-  org.apache.commons:commons-compress:1.4.1 - Commons Compress (https://commons.apache.org/proper/commons-compress), (The Apache Software License, Version 2.0)
+  org.apache.commons:commons-compress:1.21 - Apache Commons Compress (https://commons.apache.org/proper/commons-compress), (The Apache Software License, Version 2.0)
   commons-dbcp:commons-dbcp:1.4 - Commons DBCP (https://commons.apache.org/proper/commons-dbcp), (The Apache Software License, Version 2.0)
-  commons-io:commons-io:2.1 - Commons IO (https://commons.apache.org/proper/commons-io), (The Apache Software License, Version 2.0)
-  commons-lang:commons-lang:2.5 - Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
-  org.apache.commons:commons-lang3:3.3.2 - Apache Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
+  commons-io:commons-io:2.11.0 - Apache Commons IO (https://commons.apache.org/proper/commons-io), (The Apache Software License, Version 2.0)
+  commons-lang:commons-lang:2.6 - Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
+  org.apache.commons:commons-lang3:3.11 - Apache Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
   commons-logging:commons-logging:1.2 - Apache Commons Logging (https://commons.apache.org/proper/commons-logging), (The Apache Software License, Version 2.0)
   commons-pool:commons-pool:1.5.4 - Commons Pool (https://commons.apache.org/proper/commons-pool), (The Apache Software License, Version 2.0)
-  org.apache.curator:curator-client:2.6.0 - Curator Client (https://curator.apache.org/curator-client), (The Apache Software License, Version 2.0)
-  org.apache.curator:curator-framework:2.6.0 - Curator Framework (https://curator.apache.org/curator-framework), (The Apache Software License, Version 2.0)
-  org.apache.curator:curator-recipes:2.6.0 - Curator Recipes (https://curator.apache.org/curator-recipes), (The Apache Software License, Version 2.0)
+  org.apache.curator:curator-client:2.12.0 - Curator Client (https://curator.apache.org/curator-client), (The Apache Software License, Version 2.0)
+  org.apache.curator:curator-framework:2.12.0 - Curator Framework (https://curator.apache.org/curator-framework), (The Apache Software License, Version 2.0)
+  org.apache.curator:curator-recipes:2.12.0 - Curator Recipes (https://curator.apache.org/curator-recipes), (The Apache Software License, Version 2.0)
   org.apache.derby:derby:10.14.1.0 - Apache Derby Database Engine and Embedded JDBC Driver (http://db.apache.org/derby), (Apache 2)
   com.alibaba:fastjson:1.2.79 - fastjson (https://github.com/alibaba/fastjson), (Apache 2)
   org.apache.flume.flume-ng-channels:flume-file-channel:1.9.0 - Flume NG file-based channel (https://github.com/apache/flume/tree/flume-1.9/flume-ng-channels/flume-file-channel), (The Apache Software License, Version 2.0)
@@ -403,45 +401,33 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.flume:flume-ng-node:1.9.0 - Flume NG Node (https://github.com/apache/flume/tree/flume-1.9/flume-ng-node), (The Apache Software License, Version 2.0)
   org.apache.flume:flume-ng-sdk:1.9.0 - Flume NG SDK (https://github.com/apache/flume/tree/flume-1.9/flume-ng-sdk), (The Apache Software License, Version 2.0)
   org.apache.flume.flume-ng-channels:flume-spillable-memory-channel:1.9.0 - Flume NG Spillable Memory channel (https://github.com/apache/flume/tree/flume-1.9/flume-ng-channels/flume-spillable-memory-channel), (The Apache Software License, Version 2.0)
-  com.google.code.gson:gson:2.8.5 - Gson (https://github.com/google/gson/gson), (Apache 2.0)
+  com.google.code.gson:gson:2.8.6 - Gson (https://github.com/google/gson/gson), (Apache 2.0)
   com.google.guava:guava:19.0 - Guava: Google Core Libraries for Java (http://code.google.com/p/guava-libraries/guava), (The Apache Software License, Version 2.0)
   org.apache.httpcomponents:httpclient:4.5.13 - Apache HttpClient (https://hc.apache.org/httpcomponents-client-4.5.x), (Apache License, Version 2.0)
   org.apache.httpcomponents:httpcore:4.4.14 - Apache HttpCore (https://hc.apache.org/httpcomponents-core-4.4.x), (Apache License, Version 2.0)
   org.schwering:irclib:1.10 - IRC client library (http://moepii.sourceforge.net), (The Apache Software License, Version 2.0), (Apache 2.0 and EPL 1.0 and LGPL 2.1)
-  com.fasterxml.jackson.core:jackson-annotations:2.13.1 - Jackson-annotations (https://github.com/FasterXML/jackson-annotations), (The Apache Software License, Version 2.0)
-  org.codehaus.jackson:jackson-core-asl:1.8.8 - Jackson (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-core-asl/1.8.8), (The Apache Software License, Version 2.0)
-  org.codehaus.jackson:jackson-mapper-asl:1.8.8 - Data Mapper for Jackson (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-mapper-asl/1.8.8), (The Apache Software License, Version 2.0)
-  com.beust:jcommander:1.72 - jcommander (https://jcommander.org), (Apache 2.0)
-  org.mortbay.jetty:jetty:6.1.26 - Jetty Server (https://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.mortbay.jetty:jetty-util:6.1.26 - Jetty Utilities (https://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-http:9.4.6.v20170531 - Jetty :: Http Utility (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-io:9.4.6.v20170531 - Jetty :: IO Utility (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-jmx:9.4.6.v20170531 - Jetty :: JMX Management (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-security:9.4.6.v20170531 - Jetty :: Security (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-server:9.4.6.v20170531 - Jetty :: Server Core (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-servlet:9.4.6.v20170531 - Jetty :: Servlet Handling (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
-  org.eclipse.jetty:jetty-util:9.4.6.v20170531 - Jetty :: Utilities (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
+  com.fasterxml.jackson.core:jackson-annotations:2.13.2 - Jackson-annotations (https://github.com/FasterXML/jackson-annotations), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.core:jackson-core:2.13.2 - Jackson-core (https://github.com/FasterXML/jackson-core/tree/jackson-core-2.13.2), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.core:jackson-databind:2.13.2.2 - jackson-databind (https://github.com/FasterXML/jackson-databind/tree/jackson-databind-2.13.2.2), (The Apache Software License, Version 2.0)
   joda-time:joda-time:2.9.9 - Joda-Time (https://www.joda.org/joda-time/), (Apache 2)
-  org.apache.logging.log4j:log4j-api:2.17.1 - Apache Log4j API (https://logging.apache.org/log4j/2.x/log4j-api/), (Apache License, Version 2.0)
-  org.apache.logging.log4j:log4j-core:2.17.1 - Apache Log4j Core (https://logging.apache.org/log4j/2.x/log4j-core/), (Apache License, Version 2.0)
-  org.apache.logging.log4j:log4j-slf4j-impl:2.17.1 - Apache Log4j SLF4J Binding (https://logging.apache.org/log4j/2.x/log4j-slf4j-impl/), (Apache License, Version 2.0)
+  org.apache.logging.log4j:log4j-slf4j-impl:2.17.2 - Apache Log4j SLF4J Binding (https://logging.apache.org/log4j/2.x/log4j-slf4j-impl/), (Apache License, Version 2.0)
   org.lz4:lz4-java:1.6.0 - LZ4 and xxHash (https://github.com/lz4/lz4-java), (The Apache Software License, Version 2.0)
   org.mapdb:mapdb:0.9.9 - mapdb (http://www.mapdb.org), (The Apache Software License, Version 2.0)
   org.apache.mina:mina-core:2.0.4 - Apache MINA Core (https://github.com/apache/mina), (Apache 2.0 License)
   io.netty:netty:3.10.6.Final - Netty (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-buffer:4.1.72.Final - Netty/Buffer (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-codec:4.1.72.Final - Netty/Codec (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-common:4.1.72.Final - Netty/Common (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-handler:4.1.72.Final - Netty/Handler (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-resolver:4.1.72.Final - Netty/Resolver (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-transport:4.1.72.Final - Netty/Transport (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-transport-classes-epoll:4.1.72.Final - Netty/Transport/Classes/Epoll (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-transport-native-epoll:4.1.72.Final - Netty/Transport/Native/Epoll (http://netty.io/), (Apache License, Version 2.0)
-  io.netty:netty-transport-native-unix-common:4.1.72.Final - Netty/Transport/Native/Unix/Common (http://netty.io/), (Apache License, Version 2.0)
+  io.netty:netty-buffer:4.1.72.Final - Netty/Buffer (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-codec:4.1.72.Final - Netty/Codec (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-common:4.1.72.Final - Netty/Common (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-handler:4.1.72.Final - Netty/Handler (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-resolver:4.1.72.Final - Netty/Resolver (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-transport:4.1.72.Final - Netty/Transport (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-transport-classes-epoll:4.1.72.Final - Netty/Transport/Classes/Epoll (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-transport-native-epoll:4.1.72.Final - Netty/Transport/Native/Epoll (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-transport-native-unix-common:4.1.72.Final - Netty/Transport/Native/Unix/Common (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-tcnative-classes:2.0.46.Final - Netty/TomcatNative [OpenSSL - Classes] (https://github.com/netty/netty-tcnative/tree/netty-tcnative-parent-2.0.46.Final), (Apache 2.0)
   org.apache.pulsar:pulsar-client:2.8.1 - Pulsar Client Java (https://github.com/apache/pulsar), (Apache License, Version 2.0)
   org.apache.pulsar:pulsar-client-admin-api:2.8.1 - Pulsar Client Admin :: API (https://github.com/apache/pulsar), (Apache License, Version 2.0)
   org.apache.pulsar:pulsar-client-api:2.8.1 - Pulsar Client :: API (https://github.com/apache/pulsar), (Apache License, Version 2.0)
-  org.mortbay.jetty:servlet-api:2.5-20110124 - Servlet Specification API (https://mvnrepository.com/artifact/org.mortbay.jetty/servlet-api/2.5-20110124), (Apache Software License - Version 2.0), (Apache 2.0 and EPL 1.0)
   io.prometheus:simpleclient:0.14.1 - Prometheus Java Simpleclient (https://github.com/prometheus/client_java), (The Apache Software License, Version 2.0)
   io.prometheus:simpleclient_common:0.14.1 - Prometheus Java Simpleclient Common (https://github.com/prometheus/client_java), (The Apache Software License, Version 2.0)
   io.prometheus:simpleclient_httpserver:0.14.1 - Prometheus Java Simpleclient Httpserver (https://github.com/prometheus/client_java), (The Apache Software License, Version 2.0)
@@ -449,10 +435,10 @@ The text of each license is the standard Apache 2.0 license.
   io.prometheus:simpleclient_tracer_otel:0.14.1 - Prometheus Java Span Context Supplier - OpenTelemetry (https://github.com/prometheus/client_java), (The Apache Software License, Version 2.0)
   io.prometheus:simpleclient_tracer_otel_agent:0.14.1 - Prometheus Java Span Context Supplier - OpenTelemetry Agent (https://github.com/prometheus/client_java), (The Apache Software License, Version 2.0)
   org.xerial.snappy:snappy-java:1.1.8.4 - snappy-java (https://github.com/xerial/snappy-java), (Apache-2.0)
-  org.testng:testng:6.14.3 - testng (http://testng.org), (Apache 2.0)
   javax.validation:validation-api:1.1.0.Final - Bean Validation API (http://beanvalidation.org), (The Apache Software License, Version 2.0)
-  org.apache.velocity:velocity:1.7 - Apache Velocity (http://velocity.apache.org/engine/devel), (The Apache Software License, Version 2.0)
-  org.apache.zookeeper:zookeeper:3.4.6 - ZooKeeper (https://github.com/apache/zookeeper), (Apache License, Version 2.0)
+  org.apache.velocity:velocity-engine-core:2.3 - Apache Velocity - Engine (https://github.com/apache/velocity-engine/tree/2.3/velocity-engine-core), (Apache License, Version 2.0)
+  org.apache.zookeeper:zookeeper:3.6.3 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-server), (Apache License, Version 2.0)
+  org.apache.zookeeper:zookeeper-jute:3.6.3 - Apache ZooKeeper - Jute (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-jute), (Apache License, Version 2.0)
 
 
 ========================================================================
@@ -461,9 +447,19 @@ Apache 2.0 licenses
 
 The following components are provided under the Apache License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
-  
+
+  org.eclipse.jetty:jetty-http:9.4.44.v20210927 - Jetty :: Http Utility (https://eclipse.org/jetty/jetty-http), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-io:9.4.44.v20210927 - Jetty :: IO Utility (https://eclipse.org/jetty/jetty-io), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-jmx:9.4.6.v20170531 - Jetty :: JMX Management (https://github.com/eclipse/jetty.project/tree/jetty-9.4.6.v20170531), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-security:9.4.44.v20210927 - Jetty :: Security (https://eclipse.org/jetty/jetty-security), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-server:9.4.44.v20210927 - Jetty :: Server Core (https://eclipse.org/jetty/jetty-server), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-servlet:9.4.44.v20210927 - Jetty :: Servlet Handling (https://eclipse.org/jetty/jetty-servlet), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-util:9.4.44.v20210927 - Jetty :: Utilities (https://eclipse.org/jetty/jetty-util), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-util-ajax:9.4.44.v20210927 - Jetty :: Utilities :: Ajax(JSON) (https://eclipse.org/jetty/jetty-util-ajax), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.apache.kafka:kafka-clients:2.4.1 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
   org.apache.thrift:libthrift:0.9.3 - Apache Thrift (http://thrift.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.logging.log4j:log4j-api:2.17.2 - Apache Log4j API (https://logging.apache.org/log4j/2.x/log4j-api/), (Apache License, Version 2.0)
+  org.apache.logging.log4j:log4j-core:2.17.2 - Apache Log4j Core (https://logging.apache.org/log4j/2.x/log4j-core/), (Apache License, Version 2.0)
 
 
 ========================================================================
@@ -473,8 +469,6 @@ BSD licenses
 The following components are provided under BSD license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  jline:jline:0.9.94 - JLine (https://jline.github.io), (BSD)
-  com.thoughtworks.paranamer:paranamer:2.3 - ParaNamer Core (https://github.com/paul-hammant/paranamer), (BSD)
   com.google.protobuf:protobuf-java:2.5.0 - Protocol Buffer Java API (https://github.com/protocolbuffers/protobuf), (New BSD license)
   com.github.luben:zstd-jni:1.4.3-1 - zstd-jni (https://github.com/luben/zstd-jni), (BSD 2-Clause License)
 
@@ -502,8 +496,9 @@ The following components are provided under CDDL license. See project link for d
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
   com.sun.activation:javax.activation:1.2.0 - JavaBeans Activation Framework (https://github.com/javaee/activation/tree/JAF-1_2_0), (CDDL/GPLv2+CE)
-  javax.servlet:javax.servlet-api:3.1.0 - Java Servlet API (http://servlet-spec.java.net), (CDDL + GPLv2 with classpath exception)
-  javax.ws.rs:javax.ws.rs-api:2.1 - javax.ws.rs-api (http://jax-rs-spec.java.net), (CDDL 1.1), (CDDL 1.1 and GPL2 w/ CPE)
+  javax.annotation:javax.annotation-api:1.3.2 - javax.annotation API (http://jcp.org/en/jsr/detail?id=250), (CDDL + GPLv2 with classpath exception)
+  javax.servlet:javax.servlet-api:4.0.1 - Java Servlet API (http://servlet-spec.java.net), (CDDL + GPLv2 with classpath exception)
+  javax.ws.rs:javax.ws.rs-api:2.1 - javax.ws.rs-api (http://jax-rs-spec.java.net), (CDDL 1.1;  GPL2 w/ CPE)
 
 
 ========================================================================
@@ -514,5 +509,6 @@ The following components are provided under Public Domain license. See project l
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
   net.jcip:jcip-annotations:1.0 - "Java Concurrency in Practice" book annotations (http://jcip.net/), (Public Domain)
-  org.tukaani:xz:1.0 - XZ for Java (http://tukaani.org/xz/java.html), (Public Domain)
+  org.tukaani:xz:1.9 - XZ for Java (http://tukaani.org/xz/java.html), (Public Domain)
+
 
