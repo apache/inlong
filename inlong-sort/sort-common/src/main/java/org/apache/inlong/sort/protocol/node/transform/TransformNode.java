@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,6 +35,7 @@ import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -75,6 +77,12 @@ public class TransformNode implements Node, Serializable {
                 "fieldRelationShips is null");
         Preconditions.checkState(!fieldRelationShips.isEmpty(), "fieldRelationShips is empty");
         this.filters = filters;
+    }
+
+    @JsonIgnore
+    @Override
+    public Map<String, String> getProperties() {
+        return null;
     }
 
     @Override
