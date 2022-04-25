@@ -587,6 +587,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         for (InlongStreamFieldEntity entity : list) {
             entity.setInlongGroupId(groupId);
             entity.setInlongStreamId(streamId);
+            entity.setIsDeleted(GlobalConstants.UN_DELETED);
         }
         streamFieldMapper.insertAll(list);
     }
