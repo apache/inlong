@@ -50,6 +50,9 @@ public class KafkaSinkResponse extends SinkResponse {
             notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
 
+    @ApiModelProperty("Primary key is required when serializationType is json, avro")
+    private String primaryKey;
+
     public KafkaSinkResponse() {
         this.sinkType = SinkType.SINK_KAFKA;
     }

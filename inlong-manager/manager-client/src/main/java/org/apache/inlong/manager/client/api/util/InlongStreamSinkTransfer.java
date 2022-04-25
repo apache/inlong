@@ -174,6 +174,7 @@ public class InlongStreamSinkTransfer {
         kafkaSinkRequest.setSerializationType(kafkaSink.getDataFormat().name());
         kafkaSinkRequest.setEnableCreateResource(kafkaSink.isNeedCreated() ? 1 : 0);
         kafkaSinkRequest.setProperties(kafkaSink.getProperties());
+        kafkaSinkRequest.setPrimaryKey(kafkaSink.getPrimaryKey());
         if (CollectionUtils.isNotEmpty(kafkaSink.getSinkFields())) {
             List<SinkFieldRequest> fieldRequests = createSinkFieldRequests(kafkaSink.getSinkFields());
             kafkaSinkRequest.setFieldList(fieldRequests);
@@ -197,6 +198,7 @@ public class InlongStreamSinkTransfer {
             kafkaSink.setTopicName(sinkResponse.getTopicName());
             kafkaSink.setDataFormat(DataFormat.forName(sinkResponse.getSerializationType()));
         }
+        kafkaSink.setPrimaryKey(sinkResponse.getPrimaryKey());
         kafkaSink.setProperties(sinkResponse.getProperties());
         kafkaSink.setNeedCreated(GlobalConstants.ENABLE_CREATE_RESOURCE.equals(sinkResponse.getEnableCreateResource()));
         if (CollectionUtils.isNotEmpty(sinkResponse.getFieldList())) {

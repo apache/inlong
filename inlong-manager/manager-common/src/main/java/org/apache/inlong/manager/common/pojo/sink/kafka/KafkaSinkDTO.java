@@ -57,6 +57,9 @@ public class KafkaSinkDTO {
             notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
 
+    @ApiModelProperty("Primary key is required when serializationType is json, avro")
+    private String primaryKey;
+
     @ApiModelProperty("Properties for kafka")
     private Map<String, Object> properties;
 
@@ -68,6 +71,7 @@ public class KafkaSinkDTO {
                 .bootstrapServers(request.getBootstrapServers())
                 .topicName(request.getTopicName())
                 .serializationType(request.getSerializationType())
+                .primaryKey(request.getPrimaryKey())
                 .properties(request.getProperties())
                 .build();
     }
