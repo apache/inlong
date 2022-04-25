@@ -15,14 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol.node;
+package org.apache.inlong.sort.protocol.node.extract;
 
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.Node;
+import org.apache.inlong.sort.protocol.node.NodeBaseTest;
 
 import java.util.Arrays;
 
+/**
+ * Unit test for {@link MySqlExtractNode}
+ */
 public class MySqlExtractNodeTest extends NodeBaseTest {
 
     @Override

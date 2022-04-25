@@ -17,7 +17,8 @@
 
 package org.apache.inlong.sort.standalone.sink.hive;
 
-import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -92,7 +93,11 @@ public class HiveSink extends AbstractSink implements Configurable {
             this.scheduledPool.scheduleWithFixedDelay(new Runnable() {
 
                 public void run() {
-                    writeHdfsFile();
+                    try {
+                        writeHdfsFile();
+                    } catch (Exception e) {
+                        LOG.error(e.getMessage(), e);
+                    }
                 }
             }, this.context.getProcessInterval(), this.context.getProcessInterval(), TimeUnit.MILLISECONDS);
             // close overtime file
@@ -175,8 +180,10 @@ public class HiveSink extends AbstractSink implements Configurable {
 
     /**
      * writeHdfsFile
+     * 
+     * @throws JsonProcessingException
      */
-    private void writeHdfsFile() {
+    private void writeHdfsFile() throws JsonProcessingException {
         // write file
         DispatchProfile dispatchProfile = this.dispatchQueue.poll();
         while (dispatchProfile != null) {
@@ -184,7 +191,8 @@ public class HiveSink extends AbstractSink implements Configurable {
             HdfsIdConfig idConfig = context.getIdConfigMap().get(uid);
             if (idConfig == null) {
                 // monitor
-                LOG.error("can not find uid:{},idConfigMap:{}", uid, JSON.toJSONString(context.getIdConfigMap()));
+                LOG.error("can not find uid:{},idConfigMap:{}", uid,
+                        new ObjectMapper().writeValueAsString(context.getIdConfigMap()));
                 this.context.addSendResultMetric(dispatchProfile, uid, false, 0);
                 dispatchProfile.ack();
                 dispatchProfile = this.dispatchQueue.poll();

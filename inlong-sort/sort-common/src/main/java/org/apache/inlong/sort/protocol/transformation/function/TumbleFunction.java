@@ -24,9 +24,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.GroupTimeWindowFunction;
+import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 
 import java.util.Arrays;
@@ -40,13 +40,13 @@ public class TumbleFunction implements GroupTimeWindowFunction {
     @JsonProperty("timeAttr")
     private FieldInfo timeAttr;
     @JsonProperty("interval")
-    private ConstantParam interval;
+    private StringConstantParam interval;
     @JsonProperty("timeUnit")
     private TimeUnitConstantParam timeUnit;
 
     @JsonCreator
     public TumbleFunction(@JsonProperty("timeAttr") FieldInfo timeAttr,
-            @JsonProperty("interval") ConstantParam interval,
+            @JsonProperty("interval") StringConstantParam interval,
             @JsonProperty("timeUnit") TimeUnitConstantParam timeUnit) {
         this.timeAttr = Preconditions.checkNotNull(timeAttr, "timeAttr is null");
         this.interval = Preconditions.checkNotNull(interval, "interval is null");
@@ -56,7 +56,7 @@ public class TumbleFunction implements GroupTimeWindowFunction {
     @Override
     public String format() {
         return String.format("%s(%s, INTERVAL %s %s)", getName(),
-                timeAttr.format(), interval.getValue(), timeUnit.format());
+                timeAttr.format(), interval.format(), timeUnit.format());
     }
 
     @Override

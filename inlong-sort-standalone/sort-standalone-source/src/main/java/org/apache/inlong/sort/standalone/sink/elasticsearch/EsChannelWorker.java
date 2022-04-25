@@ -36,6 +36,7 @@ public class EsChannelWorker extends Thread {
     private final int workerIndex;
 
     private LifecycleState status;
+    private IEvent2IndexRequestHandler handler;
 
     /**
      * Constructor
@@ -47,6 +48,7 @@ public class EsChannelWorker extends Thread {
         this.context = context;
         this.workerIndex = workerIndex;
         this.status = LifecycleState.IDLE;
+        this.handler = context.createIndexRequestHandler();
     }
 
     /**
@@ -87,7 +89,7 @@ public class EsChannelWorker extends Thread {
             }
             // to profileEvent
             ProfileEvent profileEvent = (ProfileEvent) event;
-            EsIndexRequest indexRequest = context.getIndexRequestHandler().parse(context, profileEvent);
+            EsIndexRequest indexRequest = handler.parse(context, profileEvent);
             // offer queue
             if (indexRequest != null) {
                 context.offerDispatchQueue(indexRequest);
