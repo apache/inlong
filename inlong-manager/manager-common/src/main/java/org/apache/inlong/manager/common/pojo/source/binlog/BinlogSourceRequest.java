@@ -100,6 +100,9 @@ public class BinlogSourceRequest extends SourceRequest {
     @ApiModelProperty("Need transfer total database")
     private boolean allMigration = false;
 
+    @ApiModelProperty(value = "Primary key must be shared by all tables", required = false)
+    private String primaryKey;
+
     public BinlogSourceRequest() {
         this.setSourceType(SourceType.BINLOG.toString());
     }
