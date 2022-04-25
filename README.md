@@ -61,7 +61,10 @@ Apache InLong offers a variety of features:
 ## When should I use InLong?
 InLong is based on MQ and aims to provide a one-stop, practice-tested module pluggable integration framework for massive data, based on this system, users can easily build stream-based data applications. It is suitable for environments that need to quickly build a data reporting platform, as well as an ultra-large-scale data reporting environment that InLong is very suitable for, and an environment that needs to automatically sort and land the reported data.
 
-InLong is only a one-stop data reporting pipeline platform. It cannot be used as a persistent data storage, nor does it support complex business logic processing on data streams.
+You can use InLong in the following ways：
+- Integrate InLong, manage data streams through [SDK](https://inlong.apache.org/docs/next/sdk/manager-sdk/example).
+- Use [the InLong command-line tool](https://inlong.apache.org/docs/next/user_guide/command_line_tools) to view and create data streams.
+- Visualize your operations on [InLong dashboard](https://inlong.apache.org/docs/next/user_guide/dashboard_usage).
 
 ## Supported Data Nodes (Updating)
 | Type         | Name             | Version      | Other                                                                                                             |
@@ -96,7 +99,16 @@ $ docker run -v `pwd`:/inlong  -w /inlong maven:3.6-openjdk-8 mvn clean install 
 after compile successfully, you could find distribution file at `inlong-distribution/target`.
 
 ## Deploy InLong
-InLong integrates a complete component chain for data reporting in big data scenarios, and does not support automatic installation of modules now, so we need to choose manually to install all or some modules according to actual needs. Please refer to [Quick Start](https://inlong.apache.org/docs/next/deployment/standalone) in our project documentation.
+- [Standalone for InLong](https://inlong.apache.org/docs/next/deployment/standalone)
+- [Docker Compose](https://inlong.apache.org/docs/next/deployment/docker)
+- [InLong on Kubernetes](https://inlong.apache.org/docs/next/deployment/k8s)
+- [Bare Metal](https://inlong.apache.org/docs/next/deployment/bare_metal)
+
+## Develop InLong
+- [Agent Plugin extends a new Extract Data Node](https://inlong.apache.org/docs/next/design_and_concept/how_to_write_plugin_agent)
+- [Sort Plugin extends a new Load Data Node](https://inlong.apache.org/docs/next/design_and_concept/how_to_write_plugin_sort)
+- [Manger Plugin extends an Operator](https://inlong.apache.org/docs/next/design_and_concept/how_to_write_plugin_manager)
+- [Dashboard Plugin extends new data stream page](https://inlong.apache.org/docs/next/design_and_concept/how_to_write_plugin_dashboard)
 
 ## Contribute to InLong
 - Report any issue on [GitHub Issue](https://github.com/apache/incubator-inlong/issues)
