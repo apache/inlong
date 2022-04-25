@@ -264,6 +264,7 @@
                         <artifactId>commons-io</artifactId>
                     </exclusion>
                     <exclusion>
+                        <!-- spotbugs-annotations is LGPL license and needs to be excluded -->
                         <groupId>com.github.spotbugs</groupId>
                         <artifactId>spotbugs-annotations</artifactId>
                     </exclusion>
@@ -1027,6 +1028,17 @@
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
                 <version>${zookeeper.version}</version>
+                <exclusions>
+                    <!-- jsr305 and spotbugs-annotations are LGPL license and needs to be excluded -->
+                    <exclusion>
+                        <groupId>com.google.code.findbugs</groupId>
+                        <artifactId>jsr305</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-annotations</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.curator</groupId>

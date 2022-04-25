@@ -8,6 +8,26 @@ The initial codebase was donated to the ASF by Tencent, copyright 2012-2019.
 
 =======================================================================
 
-Apache ECharts
+Apache HBase
 Copyright 2007-2020 The Apache Software Foundation
+
+Apache Avro
+Copyright 2010-2019 The Apache Software Foundation
+
+Apache Pulsar
+Copyright 2017-2019 The Apache Software Foundation
+
+
+
+========================================================================
+
+Apache ECharts NOTICE
+========================================================================
+
+Apache ECharts
+Copyright 2017-2021 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
 
