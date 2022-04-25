@@ -72,6 +72,7 @@ public class BuiltInFieldInfo extends FieldInfo {
 
     public enum BuiltInField {
         DATA_TIME,
+        PROCCESS_TIME,
         MYSQL_METADATA_DATABASE,
         MYSQL_METADATA_TABLE,
         MYSQL_METADATA_EVENT_TIME,
