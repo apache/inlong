@@ -252,7 +252,7 @@ public class ClusterController {
         String queryMaster = masterService.queryMaster(url);
         JsonObject jsonObject = gson.fromJson(queryMaster, JsonObject.class);
         JsonElement data = jsonObject.get("data");
-        JsonElement dataCount = jsonObject.get("dataCount");
+        JsonElement dataCount = jsonObject.get("count");
         Integer topicSize = gson.fromJson(dataCount, Integer.class);
         JsonArray jsonData = gson.fromJson(data, JsonArray.class);
         int partitionCount = 0;

@@ -58,7 +58,7 @@ public class FlinkSqlParseResult implements ParseResult, Serializable {
     @Override
     public void execute() throws Exception {
         executeCreateTableSqls(createTableSqls);
-        executeLoadSqls(loadSqls).wait();
+        executeLoadSqls(loadSqls).await();
     }
 
     @Override
@@ -70,7 +70,7 @@ public class FlinkSqlParseResult implements ParseResult, Serializable {
     private TableResult executeLoadSqls(List<String> sqls) {
         StatementSet st = tableEnv.createStatementSet();
         for (String sql : sqls) {
-            log.info("execute loadSql => {}", sql);
+            log.info("execute loadSql:\n{}", sql);
             st.addInsertSql(sql);
         }
         return st.execute();
@@ -78,7 +78,7 @@ public class FlinkSqlParseResult implements ParseResult, Serializable {
 
     private void executeCreateTableSqls(List<String> sqls) {
         for (String sql : sqls) {
-            log.info("execute createSql => {}", sql);
+            log.info("execute createSql:\n{}", sql);
             tableEnv.executeSql(sql);
         }
     }

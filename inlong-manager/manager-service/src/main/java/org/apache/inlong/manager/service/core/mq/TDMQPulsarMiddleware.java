@@ -15,18 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.manager.service.tube;
+package org.apache.inlong.manager.service.core.mq;
 
-import lombok.Data;
+import org.apache.inlong.manager.common.enums.MQType;
+import org.springframework.stereotype.Component;
 
 /**
- * The relation of broker IP and broker id.
+ * TDMQ_Pulsar MQ middleware implementation.
  */
-@Data
-public class IpIdRelation {
-    private Integer brokerId;
-    private String brokerIp;
-    private String success;
-    private Integer errCode;
-    private String errInfo;
+@Component
+public class TDMQPulsarMiddleware extends PulsarMiddleware {
+
+    @Override
+    public MQType type() {
+        return MQType.TDMQ_PULSAR;
+    }
 }

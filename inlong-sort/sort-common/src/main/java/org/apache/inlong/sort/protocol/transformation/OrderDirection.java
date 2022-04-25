@@ -15,18 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.manager.service.tube;
-
-import lombok.Data;
+package org.apache.inlong.sort.protocol.transformation;
 
 /**
- * The relation of broker IP and broker id.
+ * OrderDirection class defines whether the sorting direction is ascending or descending
  */
-@Data
-public class IpIdRelation {
-    private Integer brokerId;
-    private String brokerIp;
-    private String success;
-    private Integer errCode;
-    private String errInfo;
+public enum OrderDirection {
+    /**
+     * Asc for order direction
+     */
+    ASC,
+    /**
+     * Desc for order direction
+     */
+    DESC
 }
