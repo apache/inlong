@@ -23,7 +23,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import org.apache.inlong.manager.client.api.StreamSink;
+import org.apache.inlong.manager.common.pojo.stream.StreamSink;
 import org.apache.inlong.manager.client.api.sink.ClickHouseSink;
 import org.apache.inlong.manager.client.api.sink.HiveSink;
 import org.apache.inlong.manager.client.api.sink.KafkaSink;

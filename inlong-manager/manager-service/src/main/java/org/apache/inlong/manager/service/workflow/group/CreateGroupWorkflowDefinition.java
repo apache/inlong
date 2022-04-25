@@ -24,7 +24,7 @@ import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.group.listener.GroupCompleteProcessListener;
 import org.apache.inlong.manager.service.workflow.group.listener.GroupFailedProcessListener;
-import org.apache.inlong.manager.service.workflow.group.listener.InitGroupListener;
+import org.apache.inlong.manager.service.workflow.group.listener.GroupInitProcessListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -41,7 +41,7 @@ import org.springframework.stereotype.Component;
 public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
-    private InitGroupListener initGroupListener;
+    private GroupInitProcessListener groupInitProcessListener;
     @Autowired
     private GroupCompleteProcessListener groupCompleteProcessListener;
     @Autowired
@@ -54,7 +54,7 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
 
         // Configuration process
         WorkflowProcess process = new WorkflowProcess();
-        process.addListener(initGroupListener);
+        process.addListener(groupInitProcessListener);
         process.addListener(groupCompleteProcessListener);
         process.addListener(groupFailedProcessListener);
 

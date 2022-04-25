@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.sort;
 
 import com.google.common.collect.Lists;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -30,7 +31,6 @@ import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
@@ -144,7 +144,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         createKafkaSource(streamInfo);
         UpdateGroupProcessForm form = new UpdateGroupProcessForm();
         form.setGroupInfo(groupInfo);
-        form.setOperateType(OperateType.SUSPEND);
+        form.setGroupOperateType(GroupOperateType.SUSPEND);
         taskListenerFactory.acceptPlugin(new MockPlugin());
 
         WorkflowContext context = workflowEngine.processService()

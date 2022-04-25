@@ -15,30 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.group.listener;
+package org.apache.inlong.manager.service.workflow.group.listener.light;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-/**
- * Update listener for inlong group
- */
-@Service
-public class UpdateGroupListener implements ProcessEventListener {
+import java.util.List;
+
+@Slf4j
+@Component
+public class LightGroupInitListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
+
+    @Autowired
+    private InlongStreamService streamService;
 
     @Override
     public ProcessEvent event() {
@@ -47,27 +53,18 @@ public class UpdateGroupListener implements ProcessEventListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
-        UpdateGroupProcessForm form = (UpdateGroupProcessForm) context.getProcessForm();
-        InlongGroupInfo groupInfo = groupService.get(context.getProcessForm().getInlongGroupId());
-        OperateType operateType = form.getOperateType();
-        String username = context.getApplicant();
-        if (groupInfo != null) {
-            switch (operateType) {
-                case SUSPEND:
-                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.SUSPENDING.getCode(), username);
-                    break;
-                case RESTART:
-                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.RESTARTING.getCode(), username);
-                    break;
-                case DELETE:
-                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.DELETING.getCode(), username);
-                    break;
-                default:
-                    break;
-            }
-            form.setGroupInfo(groupInfo);
-        } else {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        LightGroupResourceProcessForm form = (LightGroupResourceProcessForm) context.getProcessForm();
+        InlongGroupInfo groupInfo = form.getGroupInfo();
+        if (groupInfo == null) {
+            throw new WorkflowListenerException(ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
+        }
+        final String groupId = groupInfo.getInlongGroupId();
+        final int status = GroupStatus.CONFIG_ING.getCode();
+        final String username = context.getApplicant();
+        groupService.updateStatus(groupInfo.getInlongGroupId(), status, username);
+        if (CollectionUtils.isEmpty(form.getStreamInfos())) {
+            List<InlongStreamInfo> streamInfos = streamService.list(groupId);
+            form.setStreamInfos(streamInfos);
         }
         return ListenerResult.success();
     }
@@ -76,5 +73,4 @@ public class UpdateGroupListener implements ProcessEventListener {
     public boolean async() {
         return false;
     }
-
 }

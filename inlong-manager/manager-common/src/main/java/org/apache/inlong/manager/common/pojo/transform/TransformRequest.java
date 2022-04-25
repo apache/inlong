@@ -20,8 +20,10 @@ package org.apache.inlong.manager.common.pojo.transform;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Request of transform
@@ -62,5 +64,8 @@ public class TransformRequest {
 
     @ApiModelProperty("Version of transform")
     private Integer version;
+
+    @ApiModelProperty(value = "Field list")
+    private List<InlongStreamFieldInfo> fieldList;
 }
 

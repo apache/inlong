@@ -15,36 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.manager.dao.entity;
 
-import lombok.Getter;
+import lombok.Data;
 
-import java.util.Locale;
+import java.io.Serializable;
 
-/**
- * Enum of data format.
- */
-public enum DataFormat {
+@Data
+public class StreamTransformFieldEntity implements Serializable {
 
-    CSV("csv"),
-    AVRO("avro"),
-    CANAL("canal"),
-    JSON("json"),
-    NONE("none");
+    private Integer id;
 
-    @Getter
-    private final String name;
+    private String inlongGroupId;
 
-    DataFormat(String name) {
-        this.name = name;
-    }
+    private String inlongStreamId;
 
-    public static DataFormat forName(String name) {
-        for (DataFormat dataFormat : values()) {
-            if (dataFormat.getName().equals(name.toLowerCase(Locale.ROOT))) {
-                return dataFormat;
-            }
-        }
-        throw new IllegalArgumentException(String.format("Unsupported DataFormat=%s for Inlong", name));
-    }
+    private Integer transformId;
+
+    private String transformType;
+
+    private String fieldName;
+
+    private String fieldValue;
+
+    private String preExpression;
+
+    private String fieldType;
+
+    private String fieldComment;
+
+    private Short isMetaField;
+
+    private String fieldFormat;
+
+    private Short rankNum;
+
+    private Integer isDeleted;
 }

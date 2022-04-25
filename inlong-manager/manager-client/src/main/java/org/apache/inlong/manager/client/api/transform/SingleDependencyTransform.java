@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.client.api.transform;
 
 import io.swagger.annotations.ApiModel;
-import org.apache.inlong.manager.client.api.StreamTransform;
+import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 

@@ -15,31 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.manager.common.pojo.stream;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.stream.StreamNode;
-
-import java.util.List;
-import java.util.Map;
+import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 
 @Data
-@ApiModel("Stream sink configuration")
-public abstract class StreamSink extends StreamNode {
+@ApiModel("Stream Transform configuration")
+public abstract class StreamTransform extends StreamNode {
 
-    @ApiModelProperty(value = "DataSink name", required = true)
-    private String sinkName;
+    @ApiModelProperty(value = "Transform name", required = true)
+    protected String transformName;
 
-    @ApiModelProperty("Other properties if need")
-    private Map<String, Object> properties;
-
-    public abstract SinkType getSinkType();
-
-    public abstract List<SinkField> getSinkFields();
-
-    public abstract DataFormat getDataFormat();
-
+    @ApiModelProperty(value = "Transform name", required = true)
+    protected TransformDefinition transformDefinition;
 }

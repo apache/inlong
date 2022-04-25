@@ -15,13 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.group.listener;
+package org.apache.inlong.manager.service.workflow.group.listener.light;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
+import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -30,12 +28,9 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * Update completed listener for inlong group
- */
 @Slf4j
 @Component
-public class UpdateGroupCompleteListener implements ProcessEventListener {
+public class LightGroupCompleteListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
@@ -47,27 +42,12 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
-        UpdateGroupProcessForm form = (UpdateGroupProcessForm) context.getProcessForm();
-        String username = context.getApplicant();
-        OperateType operateType = form.getOperateType();
-        InlongGroupInfo groupInfo = form.getGroupInfo();
-        Integer nextStatus;
-        switch (operateType) {
-            case RESTART:
-                nextStatus = GroupStatus.RESTARTED.getCode();
-                break;
-            case SUSPEND:
-                nextStatus = GroupStatus.SUSPENDED.getCode();
-                break;
-            case DELETE:
-                nextStatus = GroupStatus.DELETED.getCode();
-                break;
-            default:
-                throw new RuntimeException(String.format("Unsupported operation=%s for Inlong group", operateType));
-        }
+        LightGroupResourceProcessForm form = (LightGroupResourceProcessForm) context.getProcessForm();
+        final String groupId = form.getGroupInfo().getInlongGroupId();
+        final String applicant = context.getApplicant();
         // Update inlong group status and other info
-        groupService.updateStatus(groupInfo.getInlongGroupId(), nextStatus, username);
-        groupService.update(groupInfo.genRequest(), username);
+        groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), applicant);
+        groupService.update(form.getGroupInfo().genRequest(), applicant);
         return ListenerResult.success();
     }
 
@@ -75,5 +55,4 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
     public boolean async() {
         return false;
     }
-
 }

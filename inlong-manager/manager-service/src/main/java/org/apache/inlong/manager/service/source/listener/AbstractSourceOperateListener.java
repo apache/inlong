@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -35,7 +36,6 @@ import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
@@ -75,8 +75,8 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
                 operateStreamSources(groupId, streamBriefResponse.getInlongStreamId(), context.getApplicant(),
                         unOperatedSources));
         if (CollectionUtils.isNotEmpty(unOperatedSources)) {
-            OperateType operateType = getOperateType(context.getProcessForm());
-            StringBuilder builder = new StringBuilder("Unsupported operate ").append(operateType).append(" for (");
+            GroupOperateType groupOperateType = getOperateType(context.getProcessForm());
+            StringBuilder builder = new StringBuilder("Unsupported operate ").append(groupOperateType).append(" for (");
             unOperatedSources.stream()
                     .forEach(source -> builder.append(" ").append(source.getSourceName()).append(" "));
             String errMsg = builder.append(")").toString();
@@ -140,12 +140,12 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
 
     public abstract void operateStreamSource(SourceRequest sourceRequest, String operator);
 
-    private OperateType getOperateType(ProcessForm processForm) {
+    private GroupOperateType getOperateType(ProcessForm processForm) {
         if (processForm instanceof GroupResourceProcessForm) {
-            return OperateType.INIT;
+            return GroupOperateType.INIT;
         } else if (processForm instanceof UpdateGroupProcessForm) {
             UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
-            return updateGroupProcessForm.getOperateType();
+            return updateGroupProcessForm.getGroupOperateType();
         } else {
             log.error("Illegal ProcessForm {} to get inlong group info", processForm.getFormName());
             throw new RuntimeException(String.format("Unsupported ProcessForm {%s} in CreateSortConfigListener",

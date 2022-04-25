@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * String utils for inlong.
  */
-public class InLongStringUtils {
+public class InlongStringUtils {
 
     /**
      * Trim the first and last char if its equals to the given element.

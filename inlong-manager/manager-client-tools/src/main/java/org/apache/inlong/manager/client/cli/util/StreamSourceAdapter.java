@@ -23,7 +23,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import org.apache.inlong.manager.client.api.StreamSource;
+import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import org.apache.inlong.manager.client.api.source.AgentFileSource;
 import org.apache.inlong.manager.client.api.source.KafkaSource;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;

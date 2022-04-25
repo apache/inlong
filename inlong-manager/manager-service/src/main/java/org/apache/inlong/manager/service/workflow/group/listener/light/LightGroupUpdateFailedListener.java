@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.group.listener;
+package org.apache.inlong.manager.service.workflow.group.listener.light;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -29,12 +29,9 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * Update failed listener for inlong group
- */
 @Slf4j
 @Component
-public class UpdateGroupFailedListener implements ProcessEventListener {
+public class LightGroupUpdateFailedListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
@@ -46,12 +43,13 @@ public class UpdateGroupFailedListener implements ProcessEventListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
-        UpdateGroupProcessForm form = (UpdateGroupProcessForm) context.getProcessForm();
-        String username = context.getApplicant();
+        LightGroupResourceProcessForm form = (LightGroupResourceProcessForm) context.getProcessForm();
         InlongGroupInfo groupInfo = form.getGroupInfo();
-        // Update inlong group status and other info
-        groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.CONFIG_FAILED.getCode(), username);
-        groupService.update(groupInfo.genRequest(), username);
+        final String groupId = groupInfo.getInlongGroupId();
+        final String applicant = context.getApplicant();
+        // Update inlong group status
+        groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), applicant);
+        groupService.update(groupInfo.genRequest(), applicant);
         return ListenerResult.success();
     }
 

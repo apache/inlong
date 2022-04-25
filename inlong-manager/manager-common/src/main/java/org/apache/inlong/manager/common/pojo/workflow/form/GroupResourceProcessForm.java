@@ -42,7 +42,7 @@ public class GroupResourceProcessForm extends BaseProcessForm {
     private String streamId;
 
     @Deprecated
-    private List<InlongStreamInfo> inlongStreamInfoList;
+    private List<InlongStreamInfo> streamInfos;
 
     private List<InlongStreamInfo> streamInfoList;
 
