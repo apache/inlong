@@ -44,7 +44,6 @@ import org.apache.inlong.sort.protocol.transformation.TransformationInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -102,7 +101,6 @@ public class DataFlowUtils {
                     sinkResponse.getFieldList(), sourceFields, sinkFields);
         }
         FieldMappingRule fieldMappingRule = new FieldMappingRule(mappingUnitList.toArray(new FieldMappingUnit[0]));
-
 
         // Get properties
         Map<String, Object> properties = new HashMap<>();
