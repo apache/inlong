@@ -64,7 +64,7 @@ InLong is based on MQ and aims to provide a one-stop, practice-tested module plu
 You can use InLong in the following ways：
 - Integrate InLong, manage data streams through [SDK](https://inlong.apache.org/docs/next/sdk/manager-sdk/example).
 - Use [the InLong command-line tool](https://inlong.apache.org/docs/next/user_guide/command_line_tools) to view and create data streams.
-- Visualization operations on [InLong dashboard](https://inlong.apache.org/docs/next/user_guide/dashboard_usage).
+- Visualize your operations on [InLong dashboard](https://inlong.apache.org/docs/next/user_guide/dashboard_usage).
 
 ## Supported Data Nodes (Updating)
 | Type         | Name             | Version      | Other                                                                                                             |
