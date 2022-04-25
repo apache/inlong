@@ -42,4 +42,4 @@ curl --header "Content-Type: application/json" --request POST --data \
 http://localhost:8089/v1/cluster?method=add
 
 # keep alive
-tail -F ${file_path}/../logs/tubemq-manager.out
+tail -F ${file_path}/../logs/info.log
