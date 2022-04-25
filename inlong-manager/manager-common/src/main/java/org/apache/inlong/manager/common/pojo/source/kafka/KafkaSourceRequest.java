@@ -73,6 +73,9 @@ public class KafkaSourceRequest extends SourceRequest {
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
     private String timestampFormatStandard = "SQL";
 
+    @ApiModelProperty("Primary key is required when the type is json, csv, avro in lightweight model")
+    private String primaryKey;
+
     public KafkaSourceRequest() {
         this.setSourceType(SourceType.KAFKA.toString());
     }
