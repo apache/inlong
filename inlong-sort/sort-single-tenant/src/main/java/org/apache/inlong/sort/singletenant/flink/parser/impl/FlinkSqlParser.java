@@ -32,6 +32,8 @@ import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
+import org.apache.inlong.sort.protocol.transformation.Function;
+import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.relation.JoinRelationShip;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
 import org.apache.inlong.sort.protocol.transformation.relation.UnionNodeRelationShip;
@@ -41,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -235,7 +238,68 @@ public class FlinkSqlParser implements Parser {
 
     private String genJoinSelectSql(TransformNode node,
             JoinRelationShip relation, Map<String, Node> nodeMap) {
-        throw new UnsupportedOperationException("Join is not currently supported");
+        Map<String, String> tableNameAliasMap = new HashMap<>(relation.getInputs().size());
+        relation.getInputs().forEach(s -> {
+            Node inputNode = nodeMap.get(s);
+            Preconditions.checkNotNull(inputNode, String.format("input node is not found by id:%s", s));
+            tableNameAliasMap.put(s, String.format("t%s", s));
+        });
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT ");
+        Map<String, FieldRelationShip> fieldRelationMap = new HashMap<>(node.getFieldRelationShips().size());
+        node.getFieldRelationShips().forEach(s -> {
+            fillOutTableNameAlias(Collections.singletonList(s.getInputField()), tableNameAliasMap);
+            fieldRelationMap.put(s.getOutputField().getName(), s);
+        });
+        parseFieldRelations(node.getFields(), fieldRelationMap, sb);
+        if (node instanceof DistinctNode) {
+            DistinctNode distinctNode = (DistinctNode) node;
+            List<FunctionParam> params = new ArrayList<>(distinctNode.getDistinctFields());
+            params.add(distinctNode.getOrderField());
+            fillOutTableNameAlias(params, tableNameAliasMap);
+            genDistinctSql(distinctNode, sb);
+        }
+        sb.append(" FROM `").append(nodeMap.get(relation.getInputs().get(0)).genTableName()).append("` ")
+                .append(tableNameAliasMap.get(relation.getInputs().get(0)));
+        String relationFormat = relation.format();
+        Map<String, List<FilterFunction>> conditionMap = relation.getJoinConditionMap();
+        for (int i = 1; i < relation.getInputs().size(); i++) {
+            String inputId = relation.getInputs().get(i);
+            sb.append("\n      ").append(relationFormat).append(" ")
+                    .append(nodeMap.get(inputId).genTableName()).append(" ")
+                    .append(tableNameAliasMap.get(inputId)).append("\n    ON ");
+            List<FilterFunction> conditions = conditionMap.get(inputId);
+            Preconditions.checkNotNull(conditions, String.format("join condition is null for node id:%s", inputId));
+            for (FilterFunction filter : conditions) {
+                fillOutTableNameAlias(filter.getParams(), tableNameAliasMap);
+                sb.append(" ").append(filter.format());
+            }
+        }
+        if (node.getFilters() != null && !node.getFilters().isEmpty()) {
+            fillOutTableNameAlias(new ArrayList<>(node.getFilters()), tableNameAliasMap);
+            parseFilterFields(node.getFilters(), sb);
+        }
+        if (node instanceof DistinctNode) {
+            sb = genDistinctFilterSql(node.getFields(), sb);
+        }
+        return sb.toString();
+    }
+
+    private void fillOutTableNameAlias(List<FunctionParam> params, Map<String, String> tableNameAliasMap) {
+        for (FunctionParam param : params) {
+            if (param instanceof Function) {
+                fillOutTableNameAlias(((Function) param).getParams(), tableNameAliasMap);
+            } else if (param instanceof FieldInfo) {
+                FieldInfo fieldParam = (FieldInfo) param;
+                Preconditions.checkNotNull(fieldParam.getNodeId(),
+                        "node id of field is null when exists more than two input nodes");
+                String tableNameAlias = tableNameAliasMap.get(fieldParam.getNodeId());
+                Preconditions.checkNotNull(tableNameAlias,
+                        String.format("can not find any node by node id:%s of field:%s",
+                                fieldParam.getNodeId(), fieldParam.getName()));
+                fieldParam.setTableNameAlias(tableNameAlias);
+            }
+        }
     }
 
     private StringBuilder genDistinctFilterSql(List<FieldInfo> fields, StringBuilder sb) {
