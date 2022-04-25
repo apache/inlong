@@ -27,6 +27,10 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
+import org.apache.inlong.manager.common.thirdparty.sort.FieldInfoGenerator;
+import org.apache.inlong.manager.common.thirdparty.sort.SinkInfoGenerator;
+import org.apache.inlong.manager.common.thirdparty.sort.SourceInfoGenerator;
+import org.apache.inlong.manager.common.thirdparty.sort.TransformInfoGenerator;
 import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
@@ -40,6 +44,7 @@ import org.apache.inlong.sort.protocol.transformation.TransformationInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +64,14 @@ public class DataFlowUtils {
     private StreamSourceService streamSourceService;
     @Autowired
     private InlongStreamService streamService;
+    @Autowired
+    private SourceInfoGenerator sourceInfoGenerator;
+    @Autowired
+    private SinkInfoGenerator sinkInfoGenerator;
+    @Autowired
+    private FieldInfoGenerator fieldInfoGenerator;
+    @Autowired
+    private TransformInfoGenerator transformInfoGenerator;
 
     /**
      * Create dataflow info for sort.
@@ -78,30 +91,18 @@ public class DataFlowUtils {
 
         // TODO Support more than one source and one sink
         final SourceResponse sourceResponse = sourceList.get(0);
-        boolean isAllMigration = SourceInfoUtils.isBinlogAllMigration(sourceResponse);
+        boolean isAllMigration = sourceInfoGenerator.isBinlogAllMigration(sourceResponse);
 
         List<FieldMappingUnit> mappingUnitList;
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
         if (isAllMigration) {
-            mappingUnitList = FieldInfoUtils.setAllMigrationFieldMapping(sourceFields, sinkFields);
+            mappingUnitList = fieldInfoGenerator.setAllMigrationFieldMapping(sourceFields, sinkFields);
         } else {
-            mappingUnitList = FieldInfoUtils.createFieldInfo(streamInfo.getFieldList(),
+            mappingUnitList = fieldInfoGenerator.createFieldInfo(streamInfo.getFieldList(),
                     sinkResponse.getFieldList(), sourceFields, sinkFields);
         }
-
         FieldMappingRule fieldMappingRule = new FieldMappingRule(mappingUnitList.toArray(new FieldMappingUnit[0]));
 
-        // Get source info
-        String masterAddress = commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL);
-        PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMiddlewareType());
-        SourceInfo sourceInfo = SourceInfoUtils.createSourceInfo(pulsarCluster, masterAddress, clusterBean,
-                groupInfo, streamInfo, sourceResponse, sourceFields);
-
-        // Get sink info
-        SinkInfo sinkInfo = SinkInfoUtils.createSinkInfo(sourceResponse, sinkResponse, sinkFields);
-
-        // Get transformation info
-        TransformationInfo transInfo = new TransformationInfo(fieldMappingRule);
 
         // Get properties
         Map<String, Object> properties = new HashMap<>();
@@ -109,6 +110,18 @@ public class DataFlowUtils {
             properties.putAll(sinkResponse.getProperties());
         }
         properties.put(InlongGroupSettings.DATA_FLOW_GROUP_ID_KEY, groupId);
+
+        // Get source info
+        String masterAddress = commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL);
+        PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMiddlewareType());
+        SourceInfo sourceInfo = sourceInfoGenerator.createSourceInfo(pulsarCluster, masterAddress, clusterBean,
+                groupInfo, streamInfo, sourceResponse, sourceFields, properties);
+
+        // Get transformation info
+        TransformationInfo transInfo = transformInfoGenerator.createTransformationInfo(fieldMappingRule, properties);
+
+        // Get sink info
+        SinkInfo sinkInfo = sinkInfoGenerator.createSinkInfo(sourceResponse, sinkResponse, sinkFields);
 
         return new DataFlowInfo(sinkResponse.getId(), sourceInfo, transInfo, sinkInfo, properties);
     }
