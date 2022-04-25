@@ -39,6 +39,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
+            <artifactId>manager-service</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
             <artifactId>manager-workflow</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
@@ -59,12 +65,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>manager-service</artifactId>
-            <version>1.2.0-incubating-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 

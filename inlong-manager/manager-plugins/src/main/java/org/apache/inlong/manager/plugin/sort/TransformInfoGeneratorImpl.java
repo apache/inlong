@@ -32,7 +32,9 @@ import java.util.Map;
 @Component
 public class TransformInfoGeneratorImpl implements TransformInfoGenerator {
     @Override
-    public TransformationInfo createTransformationInfo(FieldMappingRule fieldMappingRule, Map<String, Object> properties) {
+    public TransformationInfo createTransformationInfo(
+            FieldMappingRule fieldMappingRule,
+            Map<String, Object> properties) {
         return TransformInfoUtils.createTransformationInfo(fieldMappingRule);
     }
 }
