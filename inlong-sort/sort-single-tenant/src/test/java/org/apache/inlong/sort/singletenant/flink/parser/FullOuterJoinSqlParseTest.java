@@ -65,6 +65,11 @@ import java.util.stream.Collectors;
  */
 public class FullOuterJoinSqlParseTest extends AbstractTestBase {
 
+    /**
+     * Build the first kafka extract node
+     *
+     * @return A kafka extract node
+     */
     private KafkaExtractNode buildKafkaExtractNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()));
@@ -74,6 +79,11 @@ public class FullOuterJoinSqlParseTest extends AbstractTestBase {
                 null);
     }
 
+    /**
+     * Build the second kafka extract node
+     *
+     * @return A kafka extract node
+     */
     private KafkaExtractNode buildKafkaExtractNode2() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()));
@@ -83,6 +93,11 @@ public class FullOuterJoinSqlParseTest extends AbstractTestBase {
                 null);
     }
 
+    /**
+     * Build the third kafka extract node
+     *
+     * @return A kafka extract node
+     */
     private KafkaExtractNode buildKafkaExtractNode3() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()),
@@ -92,6 +107,11 @@ public class FullOuterJoinSqlParseTest extends AbstractTestBase {
                 new JsonFormat(), ScanStartupMode.EARLIEST_OFFSET, null);
     }
 
+    /**
+     * Build a kafka load node
+     *
+     * @return A kafka load node
+     */
     private KafkaLoadNode buildKafkaLoadNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()),
@@ -116,6 +136,11 @@ public class FullOuterJoinSqlParseTest extends AbstractTestBase {
                 null, "id");
     }
 
+    /**
+     * Build a transform node
+     *
+     * @return A transform node
+     */
     private Node buildTransformNode() {
         return new TransformNode("4", "transform_node",
                 Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
@@ -137,6 +162,11 @@ public class FullOuterJoinSqlParseTest extends AbstractTestBase {
         ), null);
     }
 
+    /**
+     * Build a distinct node
+     *
+     * @return A distinct node
+     */
     private Node buildDistinctNode() {
         List<FilterFunction> filters = Arrays.asList(
                 new SingleValueFilterFunction(EmptyOperator.getInstance(),
@@ -169,12 +199,26 @@ public class FullOuterJoinSqlParseTest extends AbstractTestBase {
                 new FieldInfo("ts", "3", new TimestampFormatInfo()), OrderDirection.ASC);
     }
 
+    /**
+     * Build the node relation
+     *
+     * @param inputs The inputs that is the id list of input nodes
+     * @param outputs The outputs that is the id list of output nodes
+     * @return A NodeRelationShip
+     */
     private NodeRelationShip buildNodeRelation(List<Node> inputs, List<Node> outputs) {
         List<String> inputIds = inputs.stream().map(Node::getId).collect(Collectors.toList());
         List<String> outputIds = outputs.stream().map(Node::getId).collect(Collectors.toList());
         return new NodeRelationShip(inputIds, outputIds);
     }
 
+    /**
+     * Build the full outer join node relation
+     *
+     * @param inputs The inputs that is the id list of input nodes
+     * @param outputs The outputs that is the id list of output nodes
+     * @return A FullOuterJoinRelationShip
+     */
     private NodeRelationShip buildFullOuterJoinRelation(List<Node> inputs, List<Node> outputs) {
         List<String> inputIds = inputs.stream().map(Node::getId).collect(Collectors.toList());
         List<String> outputIds = outputs.stream().map(Node::getId).collect(Collectors.toList());
@@ -190,6 +234,8 @@ public class FullOuterJoinSqlParseTest extends AbstractTestBase {
 
     /**
      * Test full outer join
+     * The use case is that three input nodes generate a transformation node through full outer join,
+     * and then another transformation node is synchronized to the output node
      *
      * @throws Exception The exception may throws when executing
      */
@@ -225,8 +271,11 @@ public class FullOuterJoinSqlParseTest extends AbstractTestBase {
 
     /**
      * Test full outer join with distinct and filter
+     * The same as {@link #testFullOuterJoin()} ,
+     * it's just the difference that the transform node is {@link DistinctNode} and have filters
      *
      * @throws Exception The exception may throws when executing
+     * @see #testFullOuterJoin()
      */
     @Test
     public void testFullOuterJoinWithDistinctAndFilter() throws Exception {
