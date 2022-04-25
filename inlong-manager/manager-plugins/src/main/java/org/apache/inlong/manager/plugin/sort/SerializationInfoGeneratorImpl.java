@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@ConditionalOnProperty(name = "type", prefix = "inlong.sort.serialinfo", havingValue = "default")
+@ConditionalOnProperty(name = "type", prefix = "inlong.sort.type", havingValue = "default")
 @Component
 public class SerializationInfoGeneratorImpl implements SerializationInfoGenerator {
     @Override

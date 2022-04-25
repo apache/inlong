@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 
-@ConditionalOnProperty(name = "type", prefix = "inlong.sort.sourceinfo", havingValue = "default")
+@ConditionalOnProperty(name = "type", prefix = "inlong.sort.type", havingValue = "default")
 @Component
 public class SourceInfoGeneratorImpl implements SourceInfoGenerator {
     @Override

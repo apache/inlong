@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@ConditionalOnProperty(name = "type", prefix = "inlong.sort.sinkinfo", havingValue = "default")
+@ConditionalOnProperty(name = "type", prefix = "inlong.sort.type", havingValue = "default")
 @Component
 public class SinkInfoGeneratorImpl implements SinkInfoGenerator {
     @Override

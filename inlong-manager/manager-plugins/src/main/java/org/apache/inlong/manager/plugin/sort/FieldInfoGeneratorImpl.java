@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@ConditionalOnProperty(name = "type", prefix = "inlong.sort.fieldinfo", havingValue = "default")
+@ConditionalOnProperty(name = "type", prefix = "inlong.sort.type", havingValue = "default")
 @Component
 public class FieldInfoGeneratorImpl implements FieldInfoGenerator {
     @Override
