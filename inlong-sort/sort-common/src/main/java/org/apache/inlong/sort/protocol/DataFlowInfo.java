@@ -55,7 +55,7 @@ public class DataFlowInfo implements Serializable {
     public DataFlowInfo(
             @JsonProperty("id") long id,
             @JsonProperty("source_info") SourceInfo sourceInfo,
-            @JsonProperty("transformation_info") @Nullable TransformationInfo transformationInfo,
+            @JsonProperty("transform_info") @Nullable TransformationInfo transformationInfo,
             @JsonProperty("sink_info") SinkInfo sinkInfo,
             @JsonProperty("properties") Map<String, Object> properties) {
         this.id = id;
@@ -88,7 +88,7 @@ public class DataFlowInfo implements Serializable {
     }
 
     @Nullable
-    @JsonProperty("transformation_info")
+    @JsonProperty("transform_info")
     public TransformationInfo getTransformationInfo() {
         return transformationInfo;
     }
