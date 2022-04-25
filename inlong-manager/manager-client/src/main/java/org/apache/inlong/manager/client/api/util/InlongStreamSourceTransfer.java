@@ -126,6 +126,7 @@ public class InlongStreamSourceTransfer {
         kafkaSource.setIgnoreParseErrors(response.isIgnoreParseErrors());
         kafkaSource.setTimestampFormatStandard(response.getTimestampFormatStandard());
         kafkaSource.setFields(InlongStreamTransfer.parseStreamFields(response.getFieldList()));
+        kafkaSource.setPrimaryKey(response.getPrimaryKey());
         return kafkaSource;
     }
 
@@ -145,6 +146,7 @@ public class InlongStreamSourceTransfer {
         kafkaSource.setAutoOffsetReset(offset);
         kafkaSource.setRecordSpeedLimit(response.getRecordSpeedLimit());
         kafkaSource.setSyncType(SyncType.FULL);
+        kafkaSource.setPrimaryKey(response.getPrimaryKey());
         return kafkaSource;
     }
 
@@ -265,6 +267,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setIgnoreParseErrors(kafkaSource.isIgnoreParseErrors());
         sourceRequest.setTimestampFormatStandard(kafkaSource.getTimestampFormatStandard());
         sourceRequest.setFieldList(InlongStreamTransfer.createStreamFields(kafkaSource.getFields(), streamInfo));
+        sourceRequest.setPrimaryKey(kafkaSource.getPrimaryKey());
         return sourceRequest;
     }
 

@@ -52,6 +52,9 @@ public class KafkaSink extends StreamSink {
     @ApiModelProperty("Create topic or not")
     private boolean needCreated;
 
+    @ApiModelProperty("Primary key is required when the type is json, avro in lightweight model")
+    private String primaryKey;
+
     @ApiModelProperty("Field definitions for kafka")
     private List<SinkField> sinkFields;
 }

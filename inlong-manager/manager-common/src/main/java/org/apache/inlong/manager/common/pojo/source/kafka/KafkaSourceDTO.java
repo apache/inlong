@@ -85,6 +85,9 @@ public class KafkaSourceDTO {
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
     private String timestampFormatStandard;
 
+    @ApiModelProperty("Primary key is required when the type is json, csv, avro in lightweight model")
+    private String primaryKey;
+
     /**
      * Get the dto instance from the request
      */
@@ -102,6 +105,7 @@ public class KafkaSourceDTO {
                 .tablePattern(request.getTablePattern())
                 .ignoreParseErrors(request.isIgnoreParseErrors())
                 .timestampFormatStandard(request.getTimestampFormatStandard())
+                .primaryKey(request.getPrimaryKey())
                 .build();
     }
 
