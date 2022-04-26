@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.singletenant.flink.hive;
+package org.apache.inlong.sort.singletenant.flink.connectors.hive;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -62,31 +62,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HiveSinkWithoutPartitionTestCase {
+
     private static final Logger LOG = LoggerFactory.getLogger(HiveSinkWithoutPartitionTestCase.class);
 
     private static final CountDownLatch verificationFinishedLatch = new CountDownLatch(1);
 
     private static final CountDownLatch jobFinishedLatch = new CountDownLatch(1);
-
+    private static final long dataflowId = 9527;
     @ClassRule
     public static TemporaryFolder tempFolder = new TemporaryFolder();
-
-    private static final long dataflowId = 9527;
-
     private final org.apache.inlong.sort.configuration.Configuration config =
             new org.apache.inlong.sort.configuration.Configuration();
-
-    private FileSystem dfs;
-
-    private String dfsSchema;
-
-    private MiniDFSCluster hdfsCluster;
-
-    private String hdfsDataDir;
-
     private final String hiveDb = "hive_db";
-
     private final String hiveTable = "hive_table";
+    private FileSystem dfs;
+    private String dfsSchema;
+    private MiniDFSCluster hdfsCluster;
+    private String hdfsDataDir;
 
     @Before
     public void setUp() throws Exception {

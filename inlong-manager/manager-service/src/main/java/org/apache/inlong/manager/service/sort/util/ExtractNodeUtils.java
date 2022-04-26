@@ -20,6 +20,8 @@ package org.apache.inlong.manager.service.sort.util;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
@@ -39,9 +41,6 @@ import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Parse SourceResponse to ExtractNode which sort needed
@@ -71,6 +70,7 @@ public class ExtractNodeUtils {
 
     /**
      * Create MySqlExtractNode based on BinlogSourceResponse
+     *
      * @param binlogSourceResponse
      * @return
      */
@@ -111,6 +111,7 @@ public class ExtractNodeUtils {
 
     /**
      * Create KafkaExtractNode based KafkaSourceResponse
+     *
      * @param kafkaSourceResponse
      * @return
      */
