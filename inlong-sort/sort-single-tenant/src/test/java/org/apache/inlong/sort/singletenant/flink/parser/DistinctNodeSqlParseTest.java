@@ -65,7 +65,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()),
                 new FieldInfo("ts", new TimestampFormatInfo()),
-                new BuiltInFieldInfo("proctime", new TimestampFormatInfo(), BuiltInField.PROCCESS_TIME));
+                new BuiltInFieldInfo("proctime", new TimestampFormatInfo(), BuiltInField.PROCESS_TIME));
         return new KafkaExtractNode("1", "kafka_input", fields, null,
                 null, "topic_input", "localhost:9092",
                 new JsonFormat(), ScanStartupMode.EARLIEST_OFFSET,
@@ -78,7 +78,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()),
                 new FieldInfo("ts", new TimestampFormatInfo()),
-                new BuiltInFieldInfo("proctime", new TimestampFormatInfo(), BuiltInField.PROCCESS_TIME));
+                new BuiltInFieldInfo("proctime", new TimestampFormatInfo(), BuiltInField.PROCESS_TIME));
         WatermarkField wk = new WatermarkField(new FieldInfo("ts", new TimestampFormatInfo()),
                 new StringConstantParam("1"),
                 new TimeUnitConstantParam(TimeUnit.SECOND));
