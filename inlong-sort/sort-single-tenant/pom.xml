@@ -31,6 +31,11 @@
 
     <artifactId>sort-single-tenant</artifactId>
     <name>Apache InLong - Sort Single Tenant</name>
+    <properties>
+        <flink-connector-debezium.version>2.0.1</flink-connector-debezium.version>
+        <debezium-connector-mysql.version>1.5.4.Final</debezium-connector-mysql.version>
+        <debezium-core.version>1.5.4.Final</debezium-core.version>
+    </properties>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -181,6 +186,31 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-planner-blink_${flink.scala.binary.version}</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-connector-debezium</artifactId>
+            <version>${flink-connector-debezium.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>kafka-log4j-appender</artifactId>
+                    <groupId>org.apache.kafka</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-connector-mysql</artifactId>
+            <version>${debezium-connector-mysql.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-core</artifactId>
+            <version>${debezium-core.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>

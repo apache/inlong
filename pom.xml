@@ -172,6 +172,9 @@
         <opencsv.version>5.4</opencsv.version>
         <javax.servlet.api.version>4.0.1</javax.servlet.api.version>
 
+        <flink-table-planner-blink_2.11.version>1.13.5</flink-table-planner-blink_2.11.version>
+        <flink-connector-mysql-cdc.version>2.0.2</flink-connector-mysql-cdc.version>
+
         <gson.version>2.8.6</gson.version>
         <jackson.version>2.13.2</jackson.version>
         <jackson.databind.version>2.13.2.2</jackson.databind.version>
@@ -224,6 +227,8 @@
         <jcommander.version>1.78</jcommander.version>
         <je.version>7.3.7</je.version>
         <tencentcloud.cls.version>1.0.5</tencentcloud.cls.version>
+        <esri-geometry-api.version>2.0.0</esri-geometry-api.version>
+        <HikariCP.version>4.0.3</HikariCP.version>
     </properties>
 
     <dependencyManagement>
@@ -240,6 +245,16 @@
                 <version>${flume.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.ververica</groupId>
+                <artifactId>flink-connector-mysql-cdc</artifactId>
+                <version>${flink-connector-mysql-cdc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-table-planner-blink_2.11</artifactId>
+                <version>${flink-table-planner-blink_2.11.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.flume</groupId>
                 <artifactId>flume-ng-sdk</artifactId>
                 <version>${flume.version}</version>
@@ -248,6 +263,17 @@
                 <groupId>org.apache.flume</groupId>
                 <artifactId>flume-ng-configuration</artifactId>
                 <version>${flume.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${HikariCP.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.flume.flume-ng-sinks</groupId>
@@ -1274,7 +1300,11 @@
                 <artifactId>jcommander</artifactId>
                 <version>${jcommander.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.esri.geometry</groupId>
+                <artifactId>esri-geometry-api</artifactId>
+                <version>${esri-geometry-api.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.tencentcloudapi.cls</groupId>
                 <artifactId>tencentcloud-cls-sdk-java</artifactId>
