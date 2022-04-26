@@ -19,13 +19,24 @@ package org.apache.inlong.manager.service.sort.util;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
+import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.LoadNode;
+import org.apache.inlong.sort.protocol.node.format.AvroFormat;
+import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
+import org.apache.inlong.sort.protocol.node.format.CsvFormat;
+import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
+import org.apache.inlong.sort.protocol.node.format.Format;
+import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
+import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class LoadNodeUtils {
@@ -50,7 +61,52 @@ public class LoadNodeUtils {
     }
 
     public static KafkaLoadNode createLoadNode(KafkaSinkResponse kafkaSinkResponse) {
-        //todo
-        return null;
+        String id = kafkaSinkResponse.getSinkName();
+        String name = kafkaSinkResponse.getSinkName();
+        String topicName = kafkaSinkResponse.getTopicName();
+        String bootstrapServers = kafkaSinkResponse.getBootstrapServers();
+        List<SinkFieldResponse> sinkFieldResponses = kafkaSinkResponse.getFieldList();
+        List<FieldInfo> fieldInfos = sinkFieldResponses.stream()
+                .map(sinkFieldResponse -> new FieldInfo(sinkFieldResponse.getFieldName(), name,
+                        FieldInfoUtils.convertFieldFormat(sinkFieldResponse.getFieldType(),
+                                sinkFieldResponse.getFieldFormat()))).collect(Collectors.toList());
+        List<FieldRelationShip> fieldRelationShips = fieldInfos.stream()
+                .map(fieldInfo -> new FieldRelationShip(fieldInfo, fieldInfo)).collect(Collectors.toList());
+        Map<String, String> properties = kafkaSinkResponse.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+        Integer sinkParallelism = Integer.parseInt(kafkaSinkResponse.getPartitionNum());
+        DataTypeEnum dataType = DataTypeEnum.forName(kafkaSinkResponse.getSerializationType());
+        Format format;
+        switch (dataType) {
+            case CSV:
+                format = new CsvFormat();
+                break;
+            case AVRO:
+                format = new AvroFormat();
+                break;
+            case JSON:
+                format = new JsonFormat();
+                break;
+            case CANAL:
+                format = new CanalJsonFormat();
+                break;
+            case DEBEZIUM_JSON:
+                format = new DebeziumJsonFormat();
+                break;
+            default:
+                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source", dataType));
+        }
+        String primaryKey = kafkaSinkResponse.getPrimaryKey();
+        return new KafkaLoadNode(id,
+                name,
+                fieldInfos,
+                fieldRelationShips,
+                Lists.newArrayList(),
+                topicName,
+                bootstrapServers,
+                format,
+                sinkParallelism,
+                properties,
+                primaryKey);
     }
 }

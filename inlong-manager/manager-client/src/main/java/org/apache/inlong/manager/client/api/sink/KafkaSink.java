@@ -54,4 +54,7 @@ public class KafkaSink extends StreamSink {
 
     @ApiModelProperty("Field definitions for kafka")
     private List<SinkField> sinkFields;
+
+    @ApiModelProperty("Primary key is required when dataFormat is json, avro")
+    private String primaryKey;
 }

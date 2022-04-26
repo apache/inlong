@@ -52,4 +52,7 @@ public class KafkaSinkRequest extends SinkRequest {
             notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
 
+    @ApiModelProperty("Primary key is required when serializationType is json, avro")
+    private String primaryKey;
+
 }
