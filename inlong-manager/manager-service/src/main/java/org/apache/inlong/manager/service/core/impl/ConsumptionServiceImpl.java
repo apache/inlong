@@ -38,9 +38,11 @@ import org.apache.inlong.manager.common.pojo.consumption.ConsumptionSummary;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
+import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.entity.ConsumptionPulsarEntity;
@@ -106,6 +108,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     @Override
     public PageInfo<ConsumptionListVo> list(ConsumptionQuery query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
+        query.setIsAdminRole(LoginUserUtils.getLoginUserDetail().getRoles().contains(UserRoleCode.ADMIN));
         Page<ConsumptionEntity> pageResult = (Page<ConsumptionEntity>) consumptionMapper.listByQuery(query);
         PageInfo<ConsumptionListVo> pageInfo = pageResult
                 .toPageInfo(entity -> CommonBeanUtils.copyProperties(entity, ConsumptionListVo::new));
@@ -138,6 +141,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     public boolean isConsumerGroupIdExists(String consumerGroup, Integer excludeSelfId) {
         ConsumptionQuery consumptionQuery = new ConsumptionQuery();
         consumptionQuery.setConsumerGroupId(consumerGroup);
+        consumptionQuery.setIsAdminRole(true);
         List<ConsumptionEntity> result = consumptionMapper.listByQuery(consumptionQuery);
         if (excludeSelfId != null) {
             result = result.stream().filter(consumer -> !excludeSelfId.equals(consumer.getId()))

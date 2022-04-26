@@ -72,8 +72,11 @@ public class ConsumptionQuery extends PageRequest {
 
     private String modifier;
 
-    @ApiModelProperty(value = "User")
+    @ApiModelProperty(value = "Current login user")
     private String userName;
+
+    @ApiModelProperty(value = "Weather current user have admin role", hidden = true)
+    private Boolean isAdminRole;
 
     @ApiModelProperty(value = "Fuzzy query keyword, fuzzy query topic, consumer group ID")
     private String keyword;
