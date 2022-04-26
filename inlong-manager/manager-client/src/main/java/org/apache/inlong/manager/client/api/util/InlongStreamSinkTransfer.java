@@ -47,7 +47,6 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class InlongStreamSinkTransfer {
 
