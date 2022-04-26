@@ -242,7 +242,6 @@
                 <artifactId>mybatis-generator-maven-plugin</artifactId>
                 <version>1.4.0</version>
                 <dependencies>
-                    <!-- If you are using MySQL, you can add its dependencies here -->
                     <dependency>
                         <groupId>org.postgresql</groupId>
                         <artifactId>postgresql</artifactId>
