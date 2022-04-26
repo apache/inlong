@@ -21,7 +21,6 @@ package org.apache.inlong.sort.singletenant.flink.cdc.debezium;
 import static org.apache.inlong.sort.singletenant.flink.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
 import static org.apache.inlong.sort.singletenant.flink.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
 
-
 import com.ververica.cdc.debezium.internal.DebeziumChangeConsumer;
 import com.ververica.cdc.debezium.internal.DebeziumChangeFetcher;
 import com.ververica.cdc.debezium.internal.DebeziumOffset;

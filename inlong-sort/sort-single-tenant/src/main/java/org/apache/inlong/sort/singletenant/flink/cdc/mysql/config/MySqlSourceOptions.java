@@ -23,7 +23,6 @@ import org.apache.flink.annotation.Experimental;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 
-
 public class MySqlSourceOptions {
 
     public static final ConfigOption<String> HOSTNAME =

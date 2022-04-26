@@ -33,7 +33,6 @@ import static org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumSou
 import static org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumSourceFunction.LEGACY_IMPLEMENTATION_VALUE;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
-
 @Deprecated
 public class MySqlSource {
 

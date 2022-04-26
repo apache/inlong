@@ -23,7 +23,6 @@ import java.io.Serializable;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
-import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.connect.source.SourceRecord;
 
