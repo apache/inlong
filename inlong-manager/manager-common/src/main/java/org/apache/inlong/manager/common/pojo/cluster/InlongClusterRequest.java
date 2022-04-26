@@ -17,67 +17,47 @@
 
 package org.apache.inlong.manager.common.pojo.cluster;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.Date;
+import javax.validation.constraints.NotBlank;
 
 /**
- * Cluster response
+ * Inlong cluster request
  */
-@Deprecated
 @Data
-@ApiModel("Cluster response")
-public class ClusterResponse {
+@ApiModel("Inlong cluster request")
+public class InlongClusterRequest {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
+    @NotBlank
     @ApiModelProperty(value = "Cluster name")
     private String name;
 
-    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, etc.")
+    @NotBlank
+    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
     private String type;
 
-    @ApiModelProperty(value = "Cluster IP")
-    private String ip;
-
-    @ApiModelProperty(value = "Cluster port")
-    private Integer port;
-
-    @ApiModelProperty(value = "Cluster token")
-    private String token;
-
-    @ApiModelProperty(value = "Cluster URL address")
+    @ApiModelProperty(value = "Cluster url")
     private String url;
 
-    @ApiModelProperty(value = "Whether it is a backup cluster, 0: no, 1: yes")
-    private Integer isBackup;
+    @NotBlank
+    @ApiModelProperty(value = "Cluster tag")
+    private String clusterTag;
 
-    @ApiModelProperty(value = "MQ set name")
-    private String mqSetName;
+    @ApiModelProperty(value = "Cluster zone tag")
+    private String zoneTag;
 
-    @ApiModelProperty(value = "MQ config info")
+    @ApiModelProperty(value = "Cluster heartbeat info")
+    private String heartbeat;
+
+    @ApiModelProperty(value = "Extended params")
     private String extParams;
 
-    @ApiModelProperty(value = "Name of in charges, separated by commas")
+    @ApiModelProperty(value = "Name of responsible person, separated by commas")
     private String inCharges;
-
-    @ApiModelProperty(value = "Cluster status")
-    private Integer status;
-
-    @ApiModelProperty(value = "Name of in creator")
-    private String creator;
-
-    @ApiModelProperty(value = "Name of in modifier")
-    private String modifier;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createTime;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date modifyTime;
 
 }

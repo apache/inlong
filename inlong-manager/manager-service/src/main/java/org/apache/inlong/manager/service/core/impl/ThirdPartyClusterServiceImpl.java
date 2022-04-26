@@ -65,6 +65,7 @@ import java.util.Map;
 /**
  * Implementation of cluster service
  */
+@Deprecated
 @Service
 public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
 

@@ -24,30 +24,32 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.beans.PageRequest;
 
 /**
- * Cluster paging query conditions
+ * Inlong cluster paging query conditions
  */
-@Deprecated
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel("Cluster paging query conditions")
-public class ClusterPageRequest extends PageRequest {
+@ApiModel("Inlong cluster paging query request")
+public class InlongClusterPageRequest extends PageRequest {
 
-    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, etc.")
+    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
     private String type;
 
-    @ApiModelProperty(value = "Cluster IP")
-    private String ip;
+    @ApiModelProperty(value = "Cluster URL")
+    private String url;
 
-    @ApiModelProperty(value = "Keywords, name, description, etc.")
-    private String keyWord;
+    @ApiModelProperty(value = "Keywords, name, cluster tag, etc.")
+    private String keyword;
+
+    @ApiModelProperty(value = "Cluster tag")
+    private String clusterTag;
+
+    @ApiModelProperty(value = "Cluster zone tag")
+    private String zoneTag;
 
     @ApiModelProperty(value = "Status")
     private Integer status;
 
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
-
-    @ApiModelProperty(value = "Set name of MQ cluster", hidden = true)
-    private String mqSetName;
 
 }

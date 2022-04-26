@@ -15,39 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.cluster;
+package org.apache.inlong.manager.dao.entity;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.beans.PageRequest;
 
-/**
- * Cluster paging query conditions
- */
-@Deprecated
+import java.io.Serializable;
+import java.util.Date;
+
 @Data
-@EqualsAndHashCode(callSuper = false)
-@ApiModel("Cluster paging query conditions")
-public class ClusterPageRequest extends PageRequest {
+public class InlongClusterNodeEntity implements Serializable {
 
-    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, etc.")
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private Integer parentId;
     private String type;
-
-    @ApiModelProperty(value = "Cluster IP")
     private String ip;
+    private Integer port;
+    private String extParams;
 
-    @ApiModelProperty(value = "Keywords, name, description, etc.")
-    private String keyWord;
-
-    @ApiModelProperty(value = "Status")
     private Integer status;
-
-    @ApiModelProperty(value = "Current user", hidden = true)
-    private String currentUser;
-
-    @ApiModelProperty(value = "Set name of MQ cluster", hidden = true)
-    private String mqSetName;
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime;
 
 }
