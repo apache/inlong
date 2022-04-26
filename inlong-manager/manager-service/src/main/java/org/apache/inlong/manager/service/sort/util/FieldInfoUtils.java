@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.sort.util;
 
 import lombok.extern.slf4j.Slf4j;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.MetaFieldType;
@@ -46,6 +47,7 @@ import org.apache.inlong.sort.protocol.transformation.FieldMappingRule.FieldMapp
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -188,7 +190,12 @@ public class FieldInfoUtils {
      */
     public static FormatInfo convertFieldFormat(String type, String format) {
         FormatInfo formatInfo;
-        FieldType fieldType = FieldType.forName(type);
+        String baseType = type.contains("<") ? type.substring(0,type.indexOf("<")) : type;
+        Map<String, String> complexType = Maps.newHashMap();
+        if (type.startsWith("array") || type.startsWith("map") ||  type.startsWith("row")) {
+            complexType.put(baseType, type.substring(type.indexOf("<")));
+        }
+        FieldType fieldType = FieldType.forName(baseType);
         switch (fieldType) {
             case BOOLEAN:
                 formatInfo = new BooleanFormatInfo();
@@ -242,10 +249,36 @@ public class FieldInfoUtils {
             case FIXED:
                 formatInfo = new ArrayFormatInfo(ByteTypeInfo::new);
                 break;
+            case ARRAY:
+            case MAP:
+            case ROW:
             default: // default is string
                 formatInfo = new StringFormatInfo();
         }
 
+        return formatInfo;
+    }
+
+    /**
+     * convert complexType to sort field format
+     *
+     * @param map
+     * @return
+     */
+    private FormatInfo transferComplexType(Map<String, String> map) {
+        FormatInfo formatInfo = new StringFormatInfo();
+        Iterator iter = map.keySet().iterator();
+        while (iter.hasNext()) {
+            switch (String.valueOf(iter.next())) {
+                case "array":
+                    break;
+                case "map":
+                    break;
+                case "row":
+                    break;
+                default:
+            }
+        }
         return formatInfo;
     }
 

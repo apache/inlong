@@ -38,7 +38,11 @@ public enum FieldType {
     BOOLEAN,
     DATE,
     TIME,
-    TIMESTAMP;
+    TIMESTAMP,
+
+    ARRAY,
+    MAP,
+    ROW;
 
     @Override
     public String toString() {

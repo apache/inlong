@@ -63,18 +63,24 @@ public class InlongStreamTransfer {
         if (CollectionUtils.isEmpty(fieldList)) {
             return Lists.newArrayList();
         }
-        return fieldList.stream().map(field -> {
+        List<InlongStreamFieldInfo> inlongStreamFieldInfos = Lists.newArrayList();
+        for (StreamField field : fieldList) {
             InlongStreamFieldInfo fieldInfo = new InlongStreamFieldInfo();
             fieldInfo.setInlongStreamId(streamInfo.getInlongStreamId());
             fieldInfo.setInlongGroupId(streamInfo.getInlongGroupId());
             fieldInfo.setFieldName(field.getFieldName());
-            fieldInfo.setFieldType(field.getFieldType().toString());
             fieldInfo.setFieldComment(field.getFieldComment());
             fieldInfo.setFieldValue(field.getFieldValue());
             fieldInfo.setIsMetaField(field.getIsMetaField());
             fieldInfo.setFieldFormat(field.getFieldFormat());
-            return fieldInfo;
-        }).collect(Collectors.toList());
+            if (StringUtils.isNotEmpty(field.getComplexSubType())) {
+                fieldInfo.setFieldType(field.getFieldType().toString() + field.getComplexSubType());
+            } else {
+                fieldInfo.setFieldType(field.getFieldType().toString());
+            }
+            inlongStreamFieldInfos.add(fieldInfo);
+        }
+        return inlongStreamFieldInfos;
     }
 
     public static List<StreamField> parseStreamFields(List<InlongStreamFieldInfo> fields) {
