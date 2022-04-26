@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.sort.util;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
@@ -46,6 +47,7 @@ import java.util.stream.Collectors;
 /**
  * Parse SourceResponse to ExtractNode which sort needed
  */
+@Slf4j
 public class ExtractNodeUtils {
 
     public static List<ExtractNode> createExtractNodes(List<SourceResponse> sourceResponses) {
@@ -111,6 +113,7 @@ public class ExtractNodeUtils {
 
     /**
      * Create KafkaExtractNode based KafkaSourceResponse
+     *
      * @param kafkaSourceResponse
      * @return
      */

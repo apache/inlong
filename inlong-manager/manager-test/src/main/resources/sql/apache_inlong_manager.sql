@@ -1165,8 +1165,7 @@ CREATE TABLE `group_heartbeat`
     `modify_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `create_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `index_stream_status` (`component`, `instance`, `inlong_group_id`),
-    KEY `index_report_time` (`report_time`)
+    UNIQUE KEY `index_stream_status` (`component`, `instance`, `inlong_group_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8 COMMENT ='inlong group heartbeat';
 
@@ -1187,8 +1186,7 @@ CREATE TABLE `stream_heartbeat`
     `modify_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `create_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `index_component_static` (`component`, `instance`, `inlong_group_id`, `inlong_stream_id`),
-    KEY `index_report_time` (`report_time`)
+    UNIQUE KEY `index_component_static` (`component`, `instance`, `inlong_group_id`, `inlong_stream_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8 COMMENT ='inlong stream heartbeat';
 -- ----------------------------

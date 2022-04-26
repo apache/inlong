@@ -22,6 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
@@ -215,6 +216,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
             fieldEntity.setInlongStreamId(streamId);
             fieldEntity.setTransformId(transformId);
             fieldEntity.setTransformType(transformType);
+            fieldEntity.setIsDeleted(GlobalConstants.UN_DELETED);
             entityList.add(fieldEntity);
         }
 

@@ -23,10 +23,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.DataFormat;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 
 import java.util.List;
 
@@ -59,7 +59,7 @@ public class MySQLBinlogSource extends StreamSource {
     private int port = 3306;
 
     @ApiModelProperty("Id of physical node of MySQL Cluster, 0 if single node")
-    private int serverId;
+    private int serverId = 0;
 
     @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions, "
             + "separate them with commas, for example: db1,test_db*",

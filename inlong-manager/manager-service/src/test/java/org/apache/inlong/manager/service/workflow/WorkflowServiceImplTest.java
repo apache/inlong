@@ -61,8 +61,11 @@ import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import springfox.boot.starter.autoconfigure.OpenApiAutoConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,7 +75,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@EnableAutoConfiguration
+@RunWith(SpringJUnit4ClassRunner.class)
+@EnableAutoConfiguration(exclude = OpenApiAutoConfiguration.class)
 public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     public static final String OPERATOR = "admin";

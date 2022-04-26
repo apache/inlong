@@ -245,11 +245,11 @@
         rank_num, is_deleted)
         values
         <foreach collection="list" index="index" item="item" separator=",">
-            (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
-            #{transformId,jdbcType=INTEGER}, #{transformType,jdbcType=VARCHAR}, #{fieldName,jdbcType=VARCHAR},
-            #{fieldValue,jdbcType=VARCHAR}, #{preExpression,jdbcType=VARCHAR}, #{fieldType,jdbcType=VARCHAR},
-            #{fieldComment,jdbcType=VARCHAR}, #{isMetaField,jdbcType=SMALLINT}, #{fieldFormat,jdbcType=VARCHAR},
-            #{rankNum,jdbcType=SMALLINT}, #{isDeleted,jdbcType=INTEGER})
+            (#{item.id,jdbcType=INTEGER}, #{item.inlongGroupId,jdbcType=VARCHAR}, #{item.inlongStreamId,jdbcType=VARCHAR},
+            #{item.transformId,jdbcType=INTEGER}, #{item.transformType,jdbcType=VARCHAR}, #{item.fieldName,jdbcType=VARCHAR},
+            #{item.fieldValue,jdbcType=VARCHAR}, #{item.preExpression,jdbcType=VARCHAR}, #{item.fieldType,jdbcType=VARCHAR},
+            #{item.fieldComment,jdbcType=VARCHAR}, #{item.isMetaField,jdbcType=SMALLINT}, #{item.fieldFormat,jdbcType=VARCHAR},
+            #{item.rankNum,jdbcType=SMALLINT}, #{item.isDeleted,jdbcType=INTEGER})
         </foreach>
     </insert>
 
