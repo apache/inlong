@@ -507,7 +507,7 @@ public class FlinkSqlParser implements Parser {
         sb.append(")");
         if (node.getPartitionFields() != null && !node.getPartitionFields().isEmpty()) {
             sb.append(String.format("\nPARTITIONED BY (%s)",
-                    StringUtils.joinWith(",", formatFields(node.getPartitionFields()))));
+                    StringUtils.join(formatFields(node.getPartitionFields()), ",")));
         }
         sb.append(parseOptions(node.tableOptions()));
         return sb.toString();
@@ -576,7 +576,7 @@ public class FlinkSqlParser implements Parser {
             if (field instanceof BuiltInFieldInfo) {
                 BuiltInFieldInfo builtInFieldInfo = (BuiltInFieldInfo) field;
                 switch (builtInFieldInfo.getBuiltInField()) {
-                    case PROCCESS_TIME:
+                    case PROCESS_TIME:
                         sb.append(" AS PROCTIME()");
                         break;
                     default:
