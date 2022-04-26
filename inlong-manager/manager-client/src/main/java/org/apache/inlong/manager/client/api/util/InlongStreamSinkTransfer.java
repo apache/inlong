@@ -243,7 +243,11 @@ public class InlongStreamSinkTransfer {
         for (SinkField sinkField : sinkFields) {
             SinkFieldRequest request = new SinkFieldRequest();
             request.setFieldName(sinkField.getFieldName());
-            request.setFieldType(sinkField.getFieldType().toString());
+            if (StringUtils.isNotEmpty(sinkField.getComplexSubType())) {
+                request.setFieldType(sinkField.getFieldType().toString() + sinkField.getComplexSubType());
+            } else {
+                request.setFieldType(sinkField.getFieldType().toString());
+            }
             request.setFieldComment(sinkField.getFieldComment());
             request.setSourceFieldName(sinkField.getSourceFieldName());
             request.setSourceFieldType(

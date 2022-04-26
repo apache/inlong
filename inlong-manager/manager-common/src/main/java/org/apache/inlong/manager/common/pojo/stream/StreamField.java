@@ -64,11 +64,26 @@ public class StreamField {
         this.originFieldName = originFieldName;
     }
 
+    public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue,
+            Integer isMetaField, String fieldFormat) {
+        this(index, fieldType, fieldName, fieldComment, fieldValue, isMetaField);
+        this.fieldFormat = fieldFormat;
+    }
+
+//    public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue,
+//            String ComplexSubType, Integer isMetaField) {
+//        this(index, fieldType, fieldName, fieldComment, fieldValue, ComplexSubType);
+//        this.isMetaField = isMetaField;
+//    }
+
     @ApiModelProperty("Field index")
     private Integer id;
 
     @ApiModelProperty(value = "Field type", required = true)
     private FieldType fieldType;
+
+    @ApiModelProperty(value = "Complex field subtype, such as <string>,<int,string>")
+    private String complexSubType;
 
     @ApiModelProperty(value = "Field name", required = true)
     private String fieldName;
