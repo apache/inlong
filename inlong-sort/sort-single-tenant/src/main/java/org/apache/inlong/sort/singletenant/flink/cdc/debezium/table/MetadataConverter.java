@@ -22,15 +22,23 @@ import io.debezium.relational.history.TableChanges;
 import java.io.Serializable;
 import javax.annotation.Nullable;
 import org.apache.flink.annotation.Internal;
+import org.apache.flink.table.data.RowData;
 import org.apache.kafka.connect.source.SourceRecord;
 
-/** A converter converts {@link SourceRecord} metadata into Flink internal data structures. */
+/**
+ * A converter converts {@link SourceRecord} metadata into Flink internal data structures.
+ */
 @FunctionalInterface
 @Internal
 public interface MetadataConverter extends Serializable {
+
     Object read(SourceRecord record);
 
     default Object read(SourceRecord record, @Nullable TableChanges.TableChange tableSchema) {
+        return read(record);
+    }
+
+    default Object read(SourceRecord record, @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
         return read(record);
     }
 }

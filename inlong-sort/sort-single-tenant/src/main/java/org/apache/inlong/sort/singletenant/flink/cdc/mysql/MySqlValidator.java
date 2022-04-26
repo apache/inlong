@@ -19,19 +19,18 @@
 package org.apache.inlong.sort.singletenant.flink.cdc.mysql;
 
 import io.debezium.config.Configuration;
-import org.apache.flink.table.api.TableException;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.util.FlinkRuntimeException;
-
-import org.apache.inlong.sort.singletenant.flink.cdc.mysql.config.MySqlSourceConfig;
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.Validator;
 import io.debezium.jdbc.JdbcConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Properties;
+import org.apache.flink.table.api.TableException;
+import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.inlong.sort.singletenant.flink.cdc.debezium.Validator;
+import org.apache.inlong.sort.singletenant.flink.cdc.mysql.debezium.DebeziumUtils;
+import org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.config.MySqlSourceConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The validator for MySql: it only cares about the version of the database is larger than or equal

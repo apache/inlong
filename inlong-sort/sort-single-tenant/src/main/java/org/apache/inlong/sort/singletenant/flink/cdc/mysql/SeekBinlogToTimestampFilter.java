@@ -18,12 +18,11 @@
 
 package org.apache.inlong.sort.singletenant.flink.cdc.mysql;
 
+import io.debezium.data.Envelope;
 import io.debezium.relational.history.TableChanges.TableChange;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.util.Collector;
-
 import org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumDeserializationSchema;
-import io.debezium.data.Envelope;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;

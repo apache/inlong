@@ -18,24 +18,7 @@
 
 package org.apache.inlong.sort.singletenant.flink.cdc.mysql.table;
 
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.table.catalog.ResolvedSchema;
-import org.apache.flink.table.connector.ChangelogMode;
-import org.apache.flink.table.connector.source.DynamicTableSource;
-import org.apache.flink.table.connector.source.ScanTableSource;
-import org.apache.flink.table.connector.source.SourceFunctionProvider;
-import org.apache.flink.table.connector.source.abilities.SupportsReadingMetadata;
-import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.types.DataType;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.flink.types.RowKind;
-
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.table.MetadataConverter;
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumSourceFunction;
-
-import javax.annotation.Nullable;
+import static org.apache.flink.util.Preconditions.checkNotNull;
 
 import java.time.Duration;
 import java.time.ZoneId;
@@ -47,8 +30,24 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import javax.annotation.Nullable;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.table.catalog.ResolvedSchema;
+import org.apache.flink.table.connector.ChangelogMode;
+import org.apache.flink.table.connector.source.DynamicTableSource;
+import org.apache.flink.table.connector.source.ScanTableSource;
+import org.apache.flink.table.connector.source.SourceFunctionProvider;
+import org.apache.flink.table.connector.source.SourceProvider;
+import org.apache.flink.table.connector.source.abilities.SupportsReadingMetadata;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumSourceFunction;
+import org.apache.inlong.sort.singletenant.flink.cdc.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.singletenant.flink.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
+import org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.MySqlSource;
 
 /**
  * A {@link DynamicTableSource} that describes how to create a MySQL binlog source from a logical
@@ -76,6 +75,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
     private final double distributionFactorUpper;
     private final double distributionFactorLower;
     private final StartupOptions startupOptions;
+    private final boolean appendSource;
     private final boolean scanNewlyAddedTableEnabled;
     private final Properties jdbcProperties;
     private final Duration heartbeatInterval;
@@ -84,10 +84,14 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
     // Mutable attributes
     // --------------------------------------------------------------------------------------------
 
-    /** Data type that describes the final output of the source. */
+    /**
+     * Data type that describes the final output of the source.
+     */
     protected DataType producedDataType;
 
-    /** Metadata that is appended at the end of a physical source row. */
+    /**
+     * Metadata that is appended at the end of a physical source row.
+     */
     protected List<String> metadataKeys;
 
     public MySqlTableSource(
@@ -110,6 +114,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             int connectionPoolSize,
             double distributionFactorUpper,
             double distributionFactorLower,
+            boolean appendSource,
             StartupOptions startupOptions,
             Duration heartbeatInterval) {
         this(
@@ -132,6 +137,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                 connectionPoolSize,
                 distributionFactorUpper,
                 distributionFactorLower,
+                appendSource,
                 startupOptions,
                 false,
                 new Properties(),
@@ -158,6 +164,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             int connectionPoolSize,
             double distributionFactorUpper,
             double distributionFactorLower,
+            boolean appendSource,
             StartupOptions startupOptions,
             boolean scanNewlyAddedTableEnabled,
             Properties jdbcProperties,
@@ -182,6 +189,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
         this.distributionFactorUpper = distributionFactorUpper;
         this.distributionFactorLower = distributionFactorLower;
         this.startupOptions = startupOptions;
+        this.appendSource = appendSource;
         this.scanNewlyAddedTableEnabled = scanNewlyAddedTableEnabled;
         this.jdbcProperties = jdbcProperties;
         // Mutable attributes
@@ -192,19 +200,21 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
 
     @Override
     public ChangelogMode getChangelogMode() {
-        return ChangelogMode.newBuilder()
-                .addContainedKind(RowKind.INSERT)
-                .addContainedKind(RowKind.UPDATE_BEFORE)
-                .addContainedKind(RowKind.UPDATE_AFTER)
-                .addContainedKind(RowKind.DELETE)
-                .build();
+        final ChangelogMode.Builder builder =
+                ChangelogMode.newBuilder().addContainedKind(RowKind.INSERT);
+        if (!appendSource) {
+            builder.addContainedKind(RowKind.UPDATE_BEFORE)
+                    .addContainedKind(RowKind.UPDATE_AFTER)
+                    .addContainedKind(RowKind.DELETE);
+        }
+        return builder.build();
     }
 
     @Override
     public ScanRuntimeProvider getScanRuntimeProvider(ScanContext scanContext) {
         RowType physicalDataType =
                 (RowType) physicalSchema.toPhysicalRowDataType().getLogicalType();
-        MetadataConverter[] metadataConverters = getMetadataConverters();
+        MetadataConverter[] metadataConverters = getMetadataConverters(physicalDataType);
         final TypeInformation<RowData> typeInfo =
                 scanContext.createTypeInformation(producedDataType);
 
@@ -214,11 +224,39 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                         .setMetadataConverters(metadataConverters)
                         .setResultTypeInfo(typeInfo)
                         .setServerTimeZone(serverTimeZone)
+                        .setAppendSource(appendSource)
                         .setUserDefinedConverterFactory(
                                 MySqlDeserializationConverterFactory.instance())
                         .build();
-
-            org.apache.inlong.sort.singletenant.flink.cdc.mysql.MySqlSource.Builder builder =
+        if (enableParallelRead) {
+            MySqlSource<RowData> parallelSource =
+                    MySqlSource.<RowData>builder()
+                            .hostname(hostname)
+                            .port(port)
+                            .databaseList(database)
+                            .tableList(database + "." + tableName)
+                            .username(username)
+                            .password(password)
+                            .serverTimeZone(serverTimeZone.toString())
+                            .serverId(serverId)
+                            .splitSize(splitSize)
+                            .splitMetaGroupSize(splitMetaGroupSize)
+                            .distributionFactorUpper(distributionFactorUpper)
+                            .distributionFactorLower(distributionFactorLower)
+                            .fetchSize(fetchSize)
+                            .connectTimeout(connectTimeout)
+                            .connectMaxRetries(connectMaxRetries)
+                            .connectionPoolSize(connectionPoolSize)
+                            .debeziumProperties(dbzProperties)
+                            .startupOptions(startupOptions)
+                            .deserializer(deserializer)
+                            .scanNewlyAddedTableEnabled(scanNewlyAddedTableEnabled)
+                            .jdbcProperties(jdbcProperties)
+                            .heartbeatInterval(heartbeatInterval)
+                            .build();
+            return SourceProvider.of(parallelSource);
+        } else {
+            org.apache.inlong.sort.singletenant.flink.cdc.mysql.MySqlSource.Builder<RowData> builder =
                     org.apache.inlong.sort.singletenant.flink.cdc.mysql.MySqlSource.<RowData>builder()
                             .hostname(hostname)
                             .port(port)
@@ -234,10 +272,10 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                     .ifPresent(serverId -> builder.serverId(Integer.parseInt(serverId)));
             DebeziumSourceFunction<RowData> sourceFunction = builder.build();
             return SourceFunctionProvider.of(sourceFunction, false);
-
+        }
     }
 
-    protected MetadataConverter[] getMetadataConverters() {
+    protected MetadataConverter[] getMetadataConverters(RowType physicalDataType) {
         if (metadataKeys.isEmpty()) {
             return new MetadataConverter[0];
         }
@@ -249,7 +287,12 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                                         .filter(m -> m.getKey().equals(key))
                                         .findFirst()
                                         .orElseThrow(IllegalStateException::new))
-                .map(MySqlReadableMetadata::getConverter)
+                .map(
+                        m ->
+                                m == MySqlReadableMetadata.OLD
+                                        ? new OldFieldMetadataConverter(
+                                        physicalDataType, serverTimeZone)
+                                        : m.getConverter())
                 .toArray(MetadataConverter[]::new);
     }
 
@@ -290,6 +333,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                         connectionPoolSize,
                         distributionFactorUpper,
                         distributionFactorLower,
+                        appendSource,
                         startupOptions,
                         scanNewlyAddedTableEnabled,
                         jdbcProperties,
