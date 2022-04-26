@@ -19,31 +19,26 @@ package org.apache.inlong.manager.common.pojo.cluster;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotBlank;
 
 /**
- * Cluster information query conditions
+ * Inlong cluster node request
  */
-@Deprecated
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-@ApiModel("Cluster Information Query Conditions")
-public class ClusterRequest {
+@ApiModel("Cluster node request")
+public class ClusterNodeRequest {
 
-    @ApiModelProperty(value = "Incremental primary key")
+    @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Cluster name")
-    private String name;
+    @NotBlank
+    @ApiModelProperty(value = "ID of the parent cluster")
+    private Integer clusterId;
 
-    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, etc.")
+    @NotBlank
+    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
     private String type;
 
     @ApiModelProperty(value = "Cluster IP")
@@ -52,28 +47,7 @@ public class ClusterRequest {
     @ApiModelProperty(value = "Cluster port")
     private Integer port;
 
-    @ApiModelProperty(value = "Cluster token")
-    private String token;
-
-    @ApiModelProperty(value = "Cluster URL address")
-    private String url;
-
-    @ApiModelProperty(value = "Whether it is a backup cluster, 0: no, 1: yes")
-    private Integer isBackup;
-
-    @ApiModelProperty(value = "MQ set name")
-    private String mqSetName;
-
-    @ApiModelProperty(value = "MQ config info")
+    @ApiModelProperty(value = "Extended params")
     private String extParams;
-
-    @ApiModelProperty(value = "Name of in charges, separated by commas")
-    private String inCharges;
-
-    @ApiModelProperty(value = "Name of in creator")
-    private String creator;
-
-    @ApiModelProperty(value = "Cluster status")
-    private Integer status;
 
 }

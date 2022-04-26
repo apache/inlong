@@ -105,6 +105,55 @@ CREATE TABLE `inlong_group_ext`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong group extension table';
 
 -- ----------------------------
+-- Table structure for inlong_cluster
+-- ----------------------------
+DROP TABLE IF EXISTS `inlong_cluster`;
+CREATE TABLE `inlong_cluster`
+(
+    `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `name`        varchar(128) NOT NULL COMMENT 'Cluster name',
+    `type`        varchar(20)       DEFAULT '' COMMENT 'Cluster type, such as: TUBE, PULSAR, DATA_PROXY, etc',
+    `url`         varchar(512)      DEFAULT NULL COMMENT 'Cluster URL',
+    `cluster_tag` varchar(128)      DEFAULT NULL COMMENT 'Cluster tag, the same tab indicates that cluster belongs to the same set',
+    `zone_tag`    varchar(128)      DEFAULT NULL COMMENT 'Cluster zone tag, such as: sz, sh, tj, etc',
+    `ext_params`  text              DEFAULT NULL COMMENT 'Extended params, will saved as JSON string',
+    `heartbeat`   text              DEFAULT NULL COMMENT 'Cluster heartbeat info',
+    `in_charges`  varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
+    `status`      int(4)            DEFAULT '0' COMMENT 'Cluster status',
+    `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
+    `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_cluster_index` (`name`, `type`, `cluster_tag`, `is_deleted`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong cluster table';
+
+-- ----------------------------
+-- Table structure for inlong_cluster_node
+-- ----------------------------
+DROP TABLE IF EXISTS `inlong_cluster_node`;
+CREATE TABLE `inlong_cluster_node`
+(
+    `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `parent_id`   int(11)      NOT NULL COMMENT 'Id of the parent cluster',
+    `type`        varchar(20)       DEFAULT '' COMMENT 'Cluster type, such as: DATA_PROXY, AGENT, etc',
+    `ip`          varchar(512) NULL COMMENT 'Cluster IP, separated by commas, such as: 127.0.0.1:8080,host2:8081',
+    `port`        int(6)       NULL COMMENT 'Cluster port',
+    `ext_params`  text              DEFAULT NULL COMMENT 'Another fields will saved as JSON string',
+    `status`      int(4)            DEFAULT '0' COMMENT 'Cluster status',
+    `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
+    `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_cluster_node` (`cluster_name`, `type`, `ip`, `port`, `is_deleted`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong cluster node table';
+
+-- ----------------------------
 -- Table structure for third_party_cluster
 -- ----------------------------
 DROP TABLE IF EXISTS `third_party_cluster`;

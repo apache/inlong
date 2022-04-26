@@ -23,12 +23,14 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterResponse;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterResponse;
 import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
+import org.apache.inlong.manager.service.core.InlongClusterService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,95 +44,95 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Cluster controller
+ * Inlong cluster controller
  */
 @RestController
 @RequestMapping("/cluster")
-@Api(tags = "Cluster Config")
-public class ClusterController {
+@Api(tags = "Inlong-Cluster-API")
+public class InlongClusterController {
 
     @Autowired
-    private ThirdPartyClusterService thirdPartyClusterService;
+    private InlongClusterService clusterService;
 
     @PostMapping(value = "/save")
-    @ApiOperation(value = "Save cluster info")
+    @ApiOperation(value = "Save cluster")
     @OperationLog(operation = OperationType.CREATE)
     @RequiresRoles(value = UserRoleCode.ADMIN)
-    public Response<Integer> save(@RequestBody ClusterRequest request) {
+    public Response<Integer> save(@RequestBody InlongClusterRequest request) {
         String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
-        return Response.success(thirdPartyClusterService.save(request, currentUser));
+        return Response.success(clusterService.save(request, currentUser));
     }
 
     @GetMapping(value = "/get/{id}")
-    @ApiOperation(value = "Get cluster info by id")
-    @ApiImplicitParam(name = "id", value = "common cluster ID", dataTypeClass = Integer.class, required = true)
-    public Response<ClusterResponse> get(@PathVariable Integer id) {
-        return Response.success(thirdPartyClusterService.get(id));
+    @ApiOperation(value = "Get cluster by id")
+    @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
+    public Response<InlongClusterResponse> get(@PathVariable Integer id) {
+        return Response.success(clusterService.get(id));
     }
 
     @PostMapping(value = "/list")
-    @ApiOperation(value = "Get clusters by paginating")
-    public Response<PageInfo<ClusterResponse>> list(@RequestBody ClusterPageRequest request) {
-        return Response.success(thirdPartyClusterService.list(request));
+    @ApiOperation(value = "List clusters by paginating")
+    public Response<PageInfo<InlongClusterResponse>> list(@RequestBody InlongClusterPageRequest request) {
+        return Response.success(clusterService.list(request));
     }
 
     @PostMapping(value = "/update")
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Update cluster info")
-    public Response<Boolean> update(@RequestBody ClusterRequest request) {
+    @ApiOperation(value = "Update cluster")
+    public Response<Boolean> update(@RequestBody InlongClusterRequest request) {
         String username = LoginUserUtils.getLoginUserDetail().getUserName();
-        return Response.success(thirdPartyClusterService.update(request, username));
+        return Response.success(clusterService.update(request, username));
     }
 
     @DeleteMapping(value = "/delete/{id}")
-    @ApiOperation(value = "Delete cluster info by id")
+    @ApiOperation(value = "Delete cluster by id")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        return Response.success(thirdPartyClusterService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName()));
+        return Response.success(clusterService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName()));
     }
 
     @Deprecated
-    @PostMapping(value = "/thirdparty/save")
-    @ApiOperation(value = "Add a cluster info")
+    @PostMapping(value = "/node/save")
+    @ApiOperation(value = "Save cluster node")
     @OperationLog(operation = OperationType.CREATE)
-    public Response<Integer> saveClusterV1(@RequestBody ClusterRequest request) {
+    public Response<Integer> saveNode(@RequestBody InlongClusterRequest request) {
         String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
-        return Response.success(thirdPartyClusterService.save(request, currentUser));
+        return Response.success(clusterService.saveNode(request, currentUser));
     }
 
     @Deprecated
-    @GetMapping(value = "/thirdparty/get/{id}")
-    @ApiOperation(value = "Query third party cluster information of the common")
-    @ApiImplicitParam(name = "id", value = "common cluster ID", dataTypeClass = Integer.class, required = true)
-    public Response<ClusterResponse> getClusterV1(@PathVariable Integer id) {
-        return Response.success(thirdPartyClusterService.get(id));
+    @GetMapping(value = "/node/get/{id}")
+    @ApiOperation(value = "Get cluster node by id")
+    @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
+    public Response<ClusterNodeResponse> getNode(@PathVariable Integer id) {
+        return Response.success(clusterService.getNode(id));
     }
 
     @Deprecated
-    @PostMapping(value = "/thirdparty/list")
-    @ApiOperation(value = "Query the list of general clusters based on conditions")
-    public Response<PageInfo<ClusterResponse>> listV1(@RequestBody ClusterPageRequest request) {
-        return Response.success(thirdPartyClusterService.list(request));
+    @PostMapping(value = "/node/list")
+    @ApiOperation(value = "List cluster nodes by paginating")
+    public Response<PageInfo<ClusterNodeResponse>> listNode(@RequestBody InlongClusterPageRequest request) {
+        return Response.success(clusterService.listNode(request));
     }
 
     @Deprecated
-    @RequestMapping(value = "/thirdparty/update", method = RequestMethod.POST)
+    @RequestMapping(value = "/node/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Modify third party cluster information of the common")
-    public Response<Boolean> updateClusterV1(@RequestBody ClusterRequest request) {
+    @ApiOperation(value = "Update cluster node")
+    public Response<Boolean> updateNode(@RequestBody ClusterNodeRequest request) {
         String username = LoginUserUtils.getLoginUserDetail().getUserName();
-        return Response.success(thirdPartyClusterService.update(request, username));
+        return Response.success(clusterService.updateNode(request, username));
     }
 
     @Deprecated
-    @RequestMapping(value = "/thirdparty/delete/{id}", method = RequestMethod.DELETE)
-    @ApiOperation(value = "Delete third party cluster information")
+    @RequestMapping(value = "/node/delete/{id}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Delete cluster node")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "DataProxy cluster id", dataTypeClass = Integer.class, required = true)
-    public Response<Boolean> deleteV1(@PathVariable Integer id) {
-        return Response.success(thirdPartyClusterService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName()));
+    public Response<Boolean> deleteNode(@PathVariable Integer id) {
+        return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUserDetail().getUserName()));
     }
 
 }

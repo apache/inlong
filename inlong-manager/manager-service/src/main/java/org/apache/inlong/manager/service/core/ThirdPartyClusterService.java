@@ -30,6 +30,7 @@ import java.util.List;
 /**
  * The third party cluster (such as kafka) information service layer interface
  */
+@Deprecated
 public interface ThirdPartyClusterService {
 
 

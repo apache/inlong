@@ -17,34 +17,31 @@
 
 package org.apache.inlong.manager.common.pojo.cluster;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 /**
- * Cluster information query conditions
+ * Inlong cluster node response
  */
-@Deprecated
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-@ApiModel("Cluster Information Query Conditions")
-public class ClusterRequest {
+@ApiModel("Cluster node response")
+public class ClusterNodeResponse {
 
-    @ApiModelProperty(value = "Incremental primary key")
+    @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Cluster name")
-    private String name;
+    @ApiModelProperty(value = "ID of the parent cluster")
+    private Integer parentId;
 
-    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, etc.")
+    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
     private String type;
+
+    @ApiModelProperty(value = "Extended params")
+    private String extParams;
 
     @ApiModelProperty(value = "Cluster IP")
     private String ip;
@@ -52,28 +49,19 @@ public class ClusterRequest {
     @ApiModelProperty(value = "Cluster port")
     private Integer port;
 
-    @ApiModelProperty(value = "Cluster token")
-    private String token;
-
-    @ApiModelProperty(value = "Cluster URL address")
-    private String url;
-
-    @ApiModelProperty(value = "Whether it is a backup cluster, 0: no, 1: yes")
-    private Integer isBackup;
-
-    @ApiModelProperty(value = "MQ set name")
-    private String mqSetName;
-
-    @ApiModelProperty(value = "MQ config info")
-    private String extParams;
-
-    @ApiModelProperty(value = "Name of in charges, separated by commas")
-    private String inCharges;
+    @ApiModelProperty(value = "Cluster status")
+    private Integer status;
 
     @ApiModelProperty(value = "Name of in creator")
     private String creator;
 
-    @ApiModelProperty(value = "Cluster status")
-    private Integer status;
+    @ApiModelProperty(value = "Name of in modifier")
+    private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
 
 }
