@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@ConditionalOnProperty(name = "type", prefix = "inlong.sort.type", havingValue = "default")
+@ConditionalOnProperty(name = "type", prefix = "inlong.sort.metadata.type", havingValue = "default")
 @Component
 public class TransformInfoGeneratorImpl implements TransformInfoGenerator {
     @Override
