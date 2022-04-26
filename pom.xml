@@ -215,7 +215,6 @@
         <junit.version>4.13.2</junit.version>
         <awaitility.version>4.0.3</awaitility.version>
         <mockito.version>3.12.4</mockito.version>
-        <testng.version>6.14.3</testng.version>
         <powermock.version>2.0.9</powermock.version>
         <assertj.version>3.4.1</assertj.version>
 
@@ -1212,11 +1211,6 @@
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.testng</groupId>
-                <artifactId>testng</artifactId>
-                <version>${testng.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>

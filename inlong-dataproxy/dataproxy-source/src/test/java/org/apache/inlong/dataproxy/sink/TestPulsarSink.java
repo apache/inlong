@@ -23,37 +23,16 @@ import org.apache.flume.Event;
 import org.apache.flume.Transaction;
 import org.apache.flume.channel.MemoryChannel;
 import org.apache.flume.event.EventBuilder;
-import org.apache.inlong.common.metric.MetricRegister;
-import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.ConfigManager.ReloadConfigWorker;
-import org.apache.inlong.dataproxy.utils.MockUtils;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.testng.PowerMockTestCase;
 
-import static org.apache.inlong.common.reporpter.StreamConfigLogMetric.CONFIG_LOG_REPORT_ENABLE;
-import static org.mockito.ArgumentMatchers.any;
-
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.management.*")
-@PrepareForTest({MetricRegister.class, ReloadConfigWorker.class})
-public class TestPulsarSink extends PowerMockTestCase {
+public class TestPulsarSink {
 
     private MemoryChannel channel;
 
+    @Before
     public void setUp() throws Exception {
-        // mock
-        MockUtils.mockMetricRegister();
-        PowerMockito.mockStatic(ReloadConfigWorker.class);
-        ReloadConfigWorker worker = PowerMockito.mock(ReloadConfigWorker.class);
-        PowerMockito.doNothing().when(worker, "start");
-        PowerMockito.when(ReloadConfigWorker.class, "create", any()).thenReturn(worker);
-        ConfigManager.getInstance().getCommonProperties().put(CONFIG_LOG_REPORT_ENABLE, "false");
-        // prepare
+
         PulsarSink sink = new PulsarSink();
         channel = new MemoryChannel();
         Context context = new Context();
@@ -65,7 +44,7 @@ public class TestPulsarSink extends PowerMockTestCase {
 
     @Test
     public void testProcess() throws Exception {
-        setUp();
+
         Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
 
         Transaction transaction = channel.getTransaction();
