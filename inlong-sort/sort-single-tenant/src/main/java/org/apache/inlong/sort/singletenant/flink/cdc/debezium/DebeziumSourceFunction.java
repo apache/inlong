@@ -21,15 +21,15 @@ package org.apache.inlong.sort.singletenant.flink.cdc.debezium;
 import static org.apache.inlong.sort.singletenant.flink.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
 import static org.apache.inlong.sort.singletenant.flink.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
 
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.internal.DebeziumChangeConsumer;
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.internal.DebeziumChangeFetcher;
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.internal.DebeziumOffset;
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.internal.DebeziumOffsetSerializer;
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.internal.FlinkDatabaseHistory;
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.internal.FlinkDatabaseSchemaHistory;
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.internal.FlinkOffsetBackingStore;
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.internal.Handover;
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.internal.SchemaRecord;
+import com.ververica.cdc.debezium.internal.DebeziumChangeConsumer;
+import com.ververica.cdc.debezium.internal.DebeziumChangeFetcher;
+import com.ververica.cdc.debezium.internal.DebeziumOffset;
+import com.ververica.cdc.debezium.internal.DebeziumOffsetSerializer;
+import com.ververica.cdc.debezium.internal.FlinkDatabaseHistory;
+import com.ververica.cdc.debezium.internal.FlinkDatabaseSchemaHistory;
+import com.ververica.cdc.debezium.internal.FlinkOffsetBackingStore;
+import com.ververica.cdc.debezium.internal.Handover;
+import com.ververica.cdc.debezium.internal.SchemaRecord;
 import io.debezium.document.DocumentReader;
 import io.debezium.document.DocumentWriter;
 import io.debezium.embedded.Connect;
@@ -165,12 +165,6 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     /** Accessor for state in the operator state backend. */
     private transient ListState<byte[]> offsetState;
 
-    /**
-     * State to store the history records, i.e. schema changes.
-     *
-     * @see FlinkDatabaseHistory
-     * @see FlinkDatabaseSchemaHistory
-     */
     private transient ListState<String> schemaRecordsState;
 
     // ---------------------------------------------------------------------------------------
@@ -179,10 +173,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     private transient ExecutorService executor;
     private transient DebeziumEngine<?> engine;
-    /**
-     * Unique name of this Debezium Engine instance across all the jobs. Currently we randomly
-     * generate a UUID for it. This is used for {@link FlinkDatabaseHistory}.
-     */
+
     private transient String engineInstanceName;
 
     /** Consume the events from the engine and commit the offset to the engine. */
@@ -393,9 +384,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                         Heartbeat.HEARTBEAT_TOPICS_PREFIX.name(),
                         Heartbeat.HEARTBEAT_TOPICS_PREFIX.defaultValueAsString());
         this.debeziumChangeFetcher =
-                new DebeziumChangeFetcher<>(
+                new DebeziumChangeFetcher<T>(
                         sourceContext,
-                        deserializer,
+                    deserializer,
                         restoredOffsetState == null, // DB snapshot phase if restore state is null
                         dbzHeartbeatPrefix,
                         handover);

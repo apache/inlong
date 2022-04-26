@@ -21,6 +21,7 @@ package org.apache.inlong.sort.singletenant.flink.cdc.debezium;
 import io.debezium.relational.history.TableChanges.TableChange;
 import java.io.Serializable;
 import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -32,11 +33,14 @@ import org.apache.kafka.connect.source.SourceRecord;
  * @param <T> The type created by the deserialization schema.
  */
 @PublicEvolving
-public interface DebeziumDeserializationSchema<T> extends Serializable, ResultTypeQueryable<T> {
+public interface DebeziumDeserializationSchema<T> extends Serializable, ResultTypeQueryable<T>,
+    com.ververica.cdc.debezium.DebeziumDeserializationSchema<T> {
 
-    /** Deserialize the Debezium record, it is represented in Kafka {@link SourceRecord}. */
-    void deserialize(SourceRecord record, Collector<T> out) throws Exception;
-    
     void deserialize(SourceRecord record, Collector<T> out, TableChange tableChange) throws Exception;
 
+    @Override
+    void deserialize(SourceRecord sourceRecord, Collector<T> collector) throws Exception;
+
+    @Override
+    TypeInformation<T> getProducedType();
 }

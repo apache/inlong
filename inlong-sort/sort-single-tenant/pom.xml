@@ -210,6 +210,10 @@
             <artifactId>debezium-core</artifactId>
             <version>${debezium-core.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
 
     </dependencies>
 
