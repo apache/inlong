@@ -22,24 +22,18 @@ import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupMqExtBase;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.service.CommonOperateService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * TUBE MQ middleware implementation.
+ * BlankMiddleware is used when no message queue is needed
  */
 @Component
 @Slf4j
-public class TubeMiddleware implements Middleware {
-
-    @Autowired
-    private CommonOperateService commonOperateService;
+public class BlankMiddleware implements Middleware {
 
     @Override
     public MQType type() {
-        return MQType.TUBE;
+        return MQType.NONE;
     }
 
     @Override
@@ -51,7 +45,7 @@ public class TubeMiddleware implements Middleware {
     @Override
     public InlongGroupMqExtBase get(String groupId) {
         InlongGroupMqExtBase mqExtBase = new InlongGroupMqExtBase();
-        mqExtBase.setMiddlewareType(MQType.TUBE.getType());
+        mqExtBase.setMiddlewareType(MQType.NONE.getType());
         mqExtBase.setInlongGroupId(groupId);
         return mqExtBase;
     }
@@ -64,18 +58,12 @@ public class TubeMiddleware implements Middleware {
 
     @Override
     public InlongGroupTopicResponse getTopic(InlongGroupInfo groupInfo) {
-        InlongGroupTopicResponse topicVO = new InlongGroupTopicResponse();
-        topicVO.setMqResourceObj(groupInfo.getMqResourceObj());
-        topicVO.setTubeMasterUrl(commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL));
-        topicVO.setInlongGroupId(groupInfo.getInlongGroupId());
-        topicVO.setMiddlewareType(type().name());
-        return topicVO;
+        log.error("There is no implementation about this mq type:{}", type());
+        return null;
     }
 
     @Override
     public InlongGroupInfo packSpecificInfo(InlongGroupInfo groupInfo) {
-        log.warn("begin to packing specific information about tube mq middleware.");
-        groupInfo.setTubeMaster(commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL));
         return groupInfo;
     }
 
@@ -84,5 +72,4 @@ public class TubeMiddleware implements Middleware {
         log.warn("There is no implementation about this mq type:{}", type());
         return -1;
     }
-
 }
