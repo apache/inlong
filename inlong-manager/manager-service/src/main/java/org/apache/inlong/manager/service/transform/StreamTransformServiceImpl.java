@@ -80,12 +80,14 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         }
         StreamTransformEntity transformEntity = CommonBeanUtils.copyProperties(transformRequest,
                 StreamTransformEntity::new);
+        transformEntity.setVersion(0);
         transformEntity.setCreator(operator);
         transformEntity.setModifier(operator);
         Date now = new Date();
         transformEntity.setCreateTime(now);
         transformEntity.setModifyTime(now);
-        transformEntityMapper.insertSelective(transformEntity);
+        transformEntity.setIsDeleted(GlobalConstants.UN_DELETED);
+        transformEntityMapper.insert(transformEntity);
         saveFieldOpt(transformEntity, transformRequest.getFieldList());
         return transformEntity.getId();
     }
