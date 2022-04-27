@@ -127,7 +127,7 @@ public class MySqlExtractNode extends ExtractNode implements Serializable {
             options.put("scan.incremental.snapshot.enabled", incrementalSnapshotEnabled.toString());
         }
         if (serverTimeZone != null) {
-            options.put("scan.incremental.snapshot.enabled", serverTimeZone.toString());
+            options.put("server-time-zone", serverTimeZone);
         }
         String formatTable = tableNames.size() == 1 ? tableNames.get(0) :
                 String.format("(%s)", StringUtils.join(tableNames, "|"));
