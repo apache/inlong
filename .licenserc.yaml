@@ -27,7 +27,7 @@ header:
     # Exclude generated content
     - 'LICENSE'
     - 'NOTICE'
-    - 'DISCLAIMER-WIP'
+    - 'DISCLAIMER'
     - 'codestyle/**'
 
     # Documents

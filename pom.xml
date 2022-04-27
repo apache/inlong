@@ -1419,7 +1419,7 @@
                         <!-- Generated content -->
                         <exclude>LICENSE</exclude>
                         <exclude>NOTICE</exclude>
-                        <exclude>DISCLAIMER-WIP</exclude>
+                        <exclude>DISCLAIMER</exclude>
                         <exclude>codestyle/checkstyle.xml</exclude>
 
                         <!-- Documents -->

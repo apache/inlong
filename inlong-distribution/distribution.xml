@@ -88,7 +88,7 @@
         <fileSet>
             <directory>../</directory>
             <includes>
-                <include>DISCLAIMER-WIP</include>
+                <include>DISCLAIMER</include>
             </includes>
             <outputDirectory>./</outputDirectory>
         </fileSet>
