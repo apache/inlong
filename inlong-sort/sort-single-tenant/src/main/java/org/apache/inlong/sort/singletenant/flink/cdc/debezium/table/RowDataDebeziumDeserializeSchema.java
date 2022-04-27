@@ -20,7 +20,6 @@ package org.apache.inlong.sort.singletenant.flink.cdc.debezium.table;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.utils.TemporalConversions;
 import io.debezium.data.Envelope;
 import io.debezium.data.SpecialValueDecimal;
 import io.debezium.data.VariableScaleDecimal;
@@ -49,6 +48,7 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.singletenant.flink.cdc.debezium.utils.TemporalConversions;
 import org.apache.kafka.connect.data.Decimal;
 import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Schema;
@@ -61,71 +61,33 @@ import org.apache.kafka.connect.source.SourceRecord;
  */
 public final class RowDataDebeziumDeserializeSchema
         implements DebeziumDeserializationSchema<RowData> {
+
     private static final long serialVersionUID = 2L;
-
-    @Override
-    public void deserialize(SourceRecord record, Collector<RowData> out) throws Exception {
-        deserialize(record, out, null);
-    }
-
-    @Override
-    public void deserialize(SourceRecord record, Collector<RowData> out, TableChange tableChange)
-        throws Exception {
-        Envelope.Operation op = Envelope.operationFor(record);
-        Struct value = (Struct) record.value();
-        Schema valueSchema = record.valueSchema();
-        if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
-            GenericRowData insert = extractAfterRow(value, valueSchema);
-            validator.validate(insert, RowKind.INSERT);
-            insert.setRowKind(RowKind.INSERT);
-            emit(record, insert, out, tableChange);
-        } else if (op == Envelope.Operation.DELETE) {
-            GenericRowData delete = extractBeforeRow(value, valueSchema);
-            validator.validate(delete, RowKind.DELETE);
-            delete.setRowKind(RowKind.DELETE);
-            emit(record, delete, out, tableChange);
-        } else {
-            GenericRowData before = extractBeforeRow(value, valueSchema);
-            validator.validate(before, RowKind.UPDATE_BEFORE);
-            before.setRowKind(RowKind.UPDATE_BEFORE);
-            emit(record, before, out, tableChange);
-
-            GenericRowData after = extractAfterRow(value, valueSchema);
-            validator.validate(after, RowKind.UPDATE_AFTER);
-            after.setRowKind(RowKind.UPDATE_AFTER);
-            emit(record, after, out, tableChange);
-        }
-    }
-
-    /** Custom validator to validate the row value. */
-    public interface ValueValidator extends Serializable {
-        void validate(RowData rowData, RowKind rowKind) throws Exception;
-    }
-
-    /** TypeInformation of the produced {@link RowData}. * */
+    /**
+     * TypeInformation of the produced {@link RowData}. *
+     */
     private final TypeInformation<RowData> resultTypeInfo;
-
     /**
      * Runtime converter that converts Kafka {@link SourceRecord}s into {@link RowData} consisted of
      * physical column values.
      */
     private final DeserializationRuntimeConverter physicalConverter;
-
-    /** Whether the deserializer needs to handle metadata columns. */
+    /**
+     * Whether the deserializer needs to handle metadata columns.
+     */
     private final boolean hasMetadata;
-
+    /**
+     * Whether works append source.
+     */
+    private final boolean appendSource;
     /**
      * A wrapped output collector which is used to append metadata columns after physical columns.
      */
     private final AppendMetadataCollector appendMetadataCollector;
-
-    /** Validator to validate the row value. */
+    /**
+     * Validator to validate the row value.
+     */
     private final ValueValidator validator;
-
-    /** Returns a builder to build {@link RowDataDebeziumDeserializeSchema}. */
-    public static Builder newBuilder() {
-        return new Builder();
-    }
 
     RowDataDebeziumDeserializeSchema(
             RowType physicalDataType,
@@ -133,6 +95,7 @@ public final class RowDataDebeziumDeserializeSchema
             TypeInformation<RowData> resultTypeInfo,
             ValueValidator validator,
             ZoneId serverTimeZone,
+            boolean appendSource,
             DeserializationRuntimeConverterFactory userDefinedConverterFactory) {
         this.hasMetadata = checkNotNull(metadataConverters).length > 0;
         this.appendMetadataCollector = new AppendMetadataCollector(metadataConverters);
@@ -143,98 +106,19 @@ public final class RowDataDebeziumDeserializeSchema
                         userDefinedConverterFactory);
         this.resultTypeInfo = checkNotNull(resultTypeInfo);
         this.validator = checkNotNull(validator);
+        this.appendSource = checkNotNull(appendSource);
     }
 
-    private GenericRowData extractAfterRow(Struct value, Schema valueSchema) throws Exception {
-        Schema afterSchema = valueSchema.field(Envelope.FieldName.AFTER).schema();
-        Struct after = value.getStruct(Envelope.FieldName.AFTER);
-        return (GenericRowData) physicalConverter.convert(after, afterSchema);
+    /**
+     * Returns a builder to build {@link RowDataDebeziumDeserializeSchema}.
+     */
+    public static Builder newBuilder() {
+        return new Builder();
     }
 
-    private GenericRowData extractBeforeRow(Struct value, Schema valueSchema) throws Exception {
-        Schema beforeSchema = valueSchema.field(Envelope.FieldName.BEFORE).schema();
-        Struct before = value.getStruct(Envelope.FieldName.BEFORE);
-        return (GenericRowData) physicalConverter.convert(before, beforeSchema);
-    }
-
-    private void emit(SourceRecord inRecord, RowData physicalRow, Collector<RowData> collector,
-        TableChange tableChange) {
-        if (!hasMetadata) {
-            collector.collect(physicalRow);
-            return;
-        }
-
-        appendMetadataCollector.inputRecord = inRecord;
-        appendMetadataCollector.outputCollector = collector;
-        appendMetadataCollector.collect(physicalRow, tableChange);
-    }
-
-    @Override
-    public TypeInformation<RowData> getProducedType() {
-        return resultTypeInfo;
-    }
-
-    // -------------------------------------------------------------------------------------
-    // Builder
-    // -------------------------------------------------------------------------------------
-
-    /** Builder of {@link RowDataDebeziumDeserializeSchema}. */
-    public static class Builder {
-        private RowType physicalRowType;
-        private TypeInformation<RowData> resultTypeInfo;
-        private MetadataConverter[] metadataConverters = new MetadataConverter[0];
-        private ValueValidator validator = (rowData, rowKind) -> {};
-        private ZoneId serverTimeZone = ZoneId.of("UTC");
-        private DeserializationRuntimeConverterFactory userDefinedConverterFactory =
-                DeserializationRuntimeConverterFactory.DEFAULT;
-
-        public Builder setPhysicalRowType(RowType physicalRowType) {
-            this.physicalRowType = physicalRowType;
-            return this;
-        }
-
-        public Builder setMetadataConverters(MetadataConverter[] metadataConverters) {
-            this.metadataConverters = metadataConverters;
-            return this;
-        }
-
-        public Builder setResultTypeInfo(TypeInformation<RowData> resultTypeInfo) {
-            this.resultTypeInfo = resultTypeInfo;
-            return this;
-        }
-
-        public Builder setValueValidator(ValueValidator validator) {
-            this.validator = validator;
-            return this;
-        }
-
-        public Builder setServerTimeZone(ZoneId serverTimeZone) {
-            this.serverTimeZone = serverTimeZone;
-            return this;
-        }
-
-        public Builder setUserDefinedConverterFactory(
-                DeserializationRuntimeConverterFactory userDefinedConverterFactory) {
-            this.userDefinedConverterFactory = userDefinedConverterFactory;
-            return this;
-        }
-
-        public RowDataDebeziumDeserializeSchema build() {
-            return new RowDataDebeziumDeserializeSchema(
-                    physicalRowType,
-                    metadataConverters,
-                    resultTypeInfo,
-                    validator,
-                    serverTimeZone,
-                    userDefinedConverterFactory);
-        }
-    }
-
-    // -------------------------------------------------------------------------------------
-    // Runtime Converters
-    // -------------------------------------------------------------------------------------
-
-    /** Creates a runtime converter which is null safe. */
+    /**
+     * Creates a runtime converter which is null safe.
+     */
     private static DeserializationRuntimeConverter createConverter(
             LogicalType type,
             ZoneId serverTimeZone,
@@ -243,13 +127,9 @@ public final class RowDataDebeziumDeserializeSchema
                 createNotNullConverter(type, serverTimeZone, userDefinedConverterFactory));
     }
 
-    // --------------------------------------------------------------------------------
-    // IMPORTANT! We use anonymous classes instead of lambdas for a reason here. It is
-    // necessary because the maven shade plugin cannot relocate classes in
-    // SerializedLambdas (MSHADE-260).
-    // --------------------------------------------------------------------------------
-
-    /** Creates a runtime converter which assuming input object is not null. */
+    /**
+     * Creates a runtime converter which assuming input object is not null.
+     */
     public static DeserializationRuntimeConverter createNotNullConverter(
             LogicalType type,
             ZoneId serverTimeZone,
@@ -425,6 +305,10 @@ public final class RowDataDebeziumDeserializeSchema
         };
     }
 
+    // -------------------------------------------------------------------------------------
+    // Builder
+    // -------------------------------------------------------------------------------------
+
     private static DeserializationRuntimeConverter convertToDate() {
         return new DeserializationRuntimeConverter() {
 
@@ -436,6 +320,10 @@ public final class RowDataDebeziumDeserializeSchema
             }
         };
     }
+
+    // -------------------------------------------------------------------------------------
+    // Runtime Converters
+    // -------------------------------------------------------------------------------------
 
     private static DeserializationRuntimeConverter convertToTime() {
         return new DeserializationRuntimeConverter() {
@@ -459,6 +347,12 @@ public final class RowDataDebeziumDeserializeSchema
             }
         };
     }
+
+    // --------------------------------------------------------------------------------
+    // IMPORTANT! We use anonymous classes instead of lambdas for a reason here. It is
+    // necessary because the maven shade plugin cannot relocate classes in
+    // SerializedLambdas (MSHADE-260).
+    // --------------------------------------------------------------------------------
 
     private static DeserializationRuntimeConverter convertToTimestamp(ZoneId serverTimeZone) {
         return new DeserializationRuntimeConverter() {
@@ -647,5 +541,145 @@ public final class RowDataDebeziumDeserializeSchema
                 return converter.convert(dbzObj, schema);
             }
         };
+    }
+
+    @Override
+    public void deserialize(SourceRecord record, Collector<RowData> out) throws Exception {
+        deserialize(record, out, null);
+    }
+
+    public void deserialize(SourceRecord record, Collector<RowData> out,
+            TableChange tableSchema)
+            throws Exception {
+        Envelope.Operation op = Envelope.operationFor(record);
+        Struct value = (Struct) record.value();
+        Schema valueSchema = record.valueSchema();
+        if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
+            GenericRowData insert = extractAfterRow(value, valueSchema);
+            validator.validate(insert, RowKind.INSERT);
+            insert.setRowKind(RowKind.INSERT);
+            emit(record, insert, tableSchema, out);
+        } else if (op == Envelope.Operation.DELETE) {
+            GenericRowData delete = extractBeforeRow(value, valueSchema);
+            validator.validate(delete, RowKind.DELETE);
+            delete.setRowKind(RowKind.DELETE);
+            emit(record, delete, tableSchema, out);
+        } else {
+            if (!appendSource) {
+                GenericRowData before = extractBeforeRow(value, valueSchema);
+                validator.validate(before, RowKind.UPDATE_BEFORE);
+                before.setRowKind(RowKind.UPDATE_BEFORE);
+                emit(record, before, tableSchema, out);
+            }
+
+            GenericRowData after = extractAfterRow(value, valueSchema);
+            validator.validate(after, RowKind.UPDATE_AFTER);
+            after.setRowKind(RowKind.UPDATE_AFTER);
+            emit(record, after, tableSchema, out);
+        }
+    }
+
+    private GenericRowData extractAfterRow(Struct value, Schema valueSchema) throws Exception {
+        Schema afterSchema = valueSchema.field(Envelope.FieldName.AFTER).schema();
+        Struct after = value.getStruct(Envelope.FieldName.AFTER);
+        return (GenericRowData) physicalConverter.convert(after, afterSchema);
+    }
+
+    private GenericRowData extractBeforeRow(Struct value, Schema valueSchema) throws Exception {
+        Schema beforeSchema = valueSchema.field(Envelope.FieldName.BEFORE).schema();
+        Struct before = value.getStruct(Envelope.FieldName.BEFORE);
+        return (GenericRowData) physicalConverter.convert(before, beforeSchema);
+    }
+
+    private void emit(SourceRecord inRecord, RowData physicalRow,
+            TableChange tableChange, Collector<RowData> collector
+    ) {
+        if (appendSource) {
+            physicalRow.setRowKind(RowKind.INSERT);
+        }
+        if (!hasMetadata) {
+            collector.collect(physicalRow);
+            return;
+        }
+
+        appendMetadataCollector.inputRecord = inRecord;
+        appendMetadataCollector.outputCollector = collector;
+        appendMetadataCollector.collect(physicalRow, tableChange);
+    }
+
+    @Override
+    public TypeInformation<RowData> getProducedType() {
+        return resultTypeInfo;
+    }
+
+    /**
+     * Custom validator to validate the row value.
+     */
+    public interface ValueValidator extends Serializable {
+
+        void validate(RowData rowData, RowKind rowKind) throws Exception;
+    }
+
+    /**
+     * Builder of {@link RowDataDebeziumDeserializeSchema}.
+     */
+    public static class Builder {
+
+        private RowType physicalRowType;
+        private TypeInformation<RowData> resultTypeInfo;
+        private MetadataConverter[] metadataConverters = new MetadataConverter[0];
+        private ValueValidator validator = (rowData, rowKind) -> {
+        };
+        private ZoneId serverTimeZone = ZoneId.of("UTC");
+        private boolean appendSource = false;
+        private DeserializationRuntimeConverterFactory userDefinedConverterFactory =
+                DeserializationRuntimeConverterFactory.DEFAULT;
+
+        public Builder setPhysicalRowType(RowType physicalRowType) {
+            this.physicalRowType = physicalRowType;
+            return this;
+        }
+
+        public Builder setMetadataConverters(MetadataConverter[] metadataConverters) {
+            this.metadataConverters = metadataConverters;
+            return this;
+        }
+
+        public Builder setResultTypeInfo(TypeInformation<RowData> resultTypeInfo) {
+            this.resultTypeInfo = resultTypeInfo;
+            return this;
+        }
+
+        public Builder setValueValidator(ValueValidator validator) {
+            this.validator = validator;
+            return this;
+        }
+
+        public Builder setServerTimeZone(ZoneId serverTimeZone) {
+            this.serverTimeZone = serverTimeZone;
+            return this;
+        }
+
+        public Builder setAppendSource(boolean appendSource) {
+            this.appendSource = appendSource;
+            return this;
+        }
+
+        public Builder setUserDefinedConverterFactory(
+                DeserializationRuntimeConverterFactory userDefinedConverterFactory) {
+            this.userDefinedConverterFactory = userDefinedConverterFactory;
+            return this;
+        }
+
+        public RowDataDebeziumDeserializeSchema build() {
+            return new RowDataDebeziumDeserializeSchema(
+                    physicalRowType,
+                    metadataConverters,
+                    resultTypeInfo,
+                    validator,
+                    serverTimeZone,
+                    appendSource,
+                    userDefinedConverterFactory);
+        }
     }
 }

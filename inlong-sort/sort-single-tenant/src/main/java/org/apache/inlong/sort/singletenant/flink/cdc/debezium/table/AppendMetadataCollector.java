@@ -27,9 +27,12 @@ import org.apache.flink.table.data.utils.JoinedRowData;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.connect.source.SourceRecord;
 
-/** Emits a row with physical fields and metadata fields. */
+/**
+ * Emits a row with physical fields and metadata fields.
+ */
 @Internal
 public final class AppendMetadataCollector implements Collector<RowData>, Serializable {
+
     private static final long serialVersionUID = 1L;
 
     private final MetadataConverter[] metadataConverters;
@@ -53,7 +56,7 @@ public final class AppendMetadataCollector implements Collector<RowData>, Serial
 
     @Override
     public void collect(RowData record) {
-
+        collect(record, null);
     }
 
     @Override

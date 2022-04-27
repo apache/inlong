@@ -18,10 +18,10 @@
 
 package org.apache.inlong.sort.singletenant.flink.cdc.mysql.table;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.Objects;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /** Debezium startup options. */
 public final class StartupOptions implements Serializable {

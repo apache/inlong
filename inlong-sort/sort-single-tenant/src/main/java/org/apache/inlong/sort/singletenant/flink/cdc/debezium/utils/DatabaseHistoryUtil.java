@@ -18,13 +18,13 @@
 
 package org.apache.inlong.sort.singletenant.flink.cdc.debezium.utils;
 
-import com.ververica.cdc.debezium.internal.SchemaRecord;
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumSourceFunction;
 import io.debezium.relational.history.DatabaseHistory;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumSourceFunction;
+import org.apache.inlong.sort.singletenant.flink.cdc.debezium.internal.SchemaRecord;
 
 /**
  * Util to safely visit schema history between {@link DatabaseHistory} and {@link

@@ -18,30 +18,28 @@
 
 package org.apache.inlong.sort.singletenant.flink.cdc.mysql.table;
 
+import com.esri.core.geometry.ogc.OGCGeometry;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import io.debezium.data.EnumSet;
+import io.debezium.data.geometry.Geometry;
+import io.debezium.data.geometry.Point;
+import java.nio.ByteBuffer;
+import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.flink.table.data.GenericArrayData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.types.logical.ArrayType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.LogicalTypeFamily;
 import org.apache.flink.table.types.logical.utils.LogicalTypeChecks;
-
-import com.esri.core.geometry.ogc.OGCGeometry;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import org.apache.inlong.sort.singletenant.flink.cdc.debezium.table.DeserializationRuntimeConverter;
 import org.apache.inlong.sort.singletenant.flink.cdc.debezium.table.DeserializationRuntimeConverterFactory;
-import io.debezium.data.EnumSet;
-import io.debezium.data.geometry.Geometry;
-import io.debezium.data.geometry.Point;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
-
-import java.nio.ByteBuffer;
-import java.time.ZoneId;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 /** Used to create {@link DeserializationRuntimeConverterFactory} specified to MySQL. */
 public class MySqlDeserializationConverterFactory {
