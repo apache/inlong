@@ -197,7 +197,10 @@
                 and `type` = #{type, jdbcType=VARCHAR}
             </if>
             <if test="keyword != null and keyword != ''">
-                and (ip like CONCAT('%',#{keyword},'%') or type like CONCAT('%',#{keyword},'%') or port like CONCAT('%',#{keyword},'%') or parent_id like CONCAT('%',#{keyword},'%'))
+                and (ip like CONCAT('%',#{keyword},'%')
+                or type like CONCAT('%',#{keyword},'%')
+                or port like CONCAT('%',#{keyword},'%')
+                or parent_id like CONCAT('%',#{keyword},'%'))
             </if>
         </where>
         order by modify_time desc
