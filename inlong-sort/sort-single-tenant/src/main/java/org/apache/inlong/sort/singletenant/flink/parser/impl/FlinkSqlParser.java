@@ -22,12 +22,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.Node;
+import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
@@ -497,7 +501,7 @@ public class FlinkSqlParser implements Parser {
         StringBuilder sb = new StringBuilder("CREATE TABLE `");
         sb.append(node.genTableName()).append("`(\n");
         sb.append(genPrimaryKey(node.getPrimaryKey()));
-        sb.append(parseFields(node.getFields(), node instanceof LoadNode));
+        sb.append(parseFields(node.getFields(), node));
         if (node instanceof ExtractNode) {
             ExtractNode extractNode = (ExtractNode) node;
             if (extractNode.getWatermarkField() != null) {
@@ -566,21 +570,16 @@ public class FlinkSqlParser implements Parser {
      * Parse fields
      *
      * @param fields The fields defined in node
-     * @param isLoad Where is load or not
+     * @param node The abstract of extract, transform, load
      * @return Field format in select sql
      */
-    private String parseFields(List<FieldInfo> fields, boolean isLoad) {
+    private String parseFields(List<FieldInfo> fields, Node node) {
         StringBuilder sb = new StringBuilder();
         for (FieldInfo field : fields) {
             sb.append("    `").append(field.getName()).append("` ");
             if (field instanceof BuiltInFieldInfo) {
                 BuiltInFieldInfo builtInFieldInfo = (BuiltInFieldInfo) field;
-                switch (builtInFieldInfo.getBuiltInField()) {
-                    case PROCESS_TIME:
-                        sb.append(" AS PROCTIME()");
-                        break;
-                    default:
-                }
+                parseMetaField(node, builtInFieldInfo, sb);
             } else {
                 sb.append(TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSerializableString());
             }
@@ -590,6 +589,159 @@ public class FlinkSqlParser implements Parser {
             sb.delete(sb.lastIndexOf(","), sb.length());
         }
         return sb.toString();
+    }
+
+    private void parseMetaField(Node node, BuiltInFieldInfo metaField, StringBuilder sb) {
+        if (metaField.getBuiltInField() == BuiltInField.PROCESS_TIME) {
+            sb.append(" AS PROCTIME()");
+            return;
+        }
+        if (node instanceof MySqlExtractNode) {
+            sb.append(parseMySqlExtractNodeMetaField(metaField));
+        } else if (node instanceof KafkaExtractNode) {
+            sb.append(parseKafkaExtractNodeMetaField(metaField));
+        } else if (node instanceof KafkaLoadNode) {
+            sb.append(parseKafkaLoadNodeMetaField(metaField));
+        } else {
+            throw new UnsupportedOperationException(
+                    String.format("This node:%s does not currently support metadata fields",
+                            node.getClass().getName()));
+        }
+    }
+
+    private String parseKafkaLoadNodeMetaField(BuiltInFieldInfo metaField) {
+        String metaType;
+        switch (metaField.getBuiltInField()) {
+            case MYSQL_METADATA_TABLE:
+                metaType = "STRING METADATA FROM 'value.table'";
+                break;
+            case MYSQL_METADATA_DATABASE:
+                metaType = "STRING METADATA FROM 'value.database'";
+                break;
+            case MYSQL_METADATA_EVENT_TIME:
+                metaType = "TIMESTAMP(3) METADATA FROM 'value.op_ts'";
+                break;
+            case MYSQL_METADATA_EVENT_TYPE:
+                metaType = "STRING METADATA FROM 'value.op_type'";
+                break;
+            case MYSQL_METADATA_DATA:
+                metaType = "STRING METADATA FROM 'value.data'";
+                break;
+            case MYSQL_METADATA_IS_DDL:
+                metaType = "BOOLEAN METADATA FROM 'value.is_ddl'";
+                break;
+            case METADATA_TS:
+                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.ts'";
+                break;
+            case METADATA_SQL_TYPE:
+                metaType = "MAP<STRING, INT> METADATA FROM 'value.sql_type'";
+                break;
+            case METADATA_MYSQL_TYPE:
+                metaType = "MAP<STRING, STRING> METADATA FROM 'value.mysql_type'";
+                break;
+            case METADATA_PK_NAMES:
+                metaType = "ARRAY<STRING> METADATA FROM 'value.pk_names'";
+                break;
+            case METADATA_BATCH_ID:
+                metaType = "BIGINT METADATA FROM 'value.batch_id'";
+                break;
+            case METADATA_UPDATE_BEFORE:
+                metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update_before'";
+                break;
+            default:
+                metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSerializableString();
+        }
+        return metaType;
+    }
+
+    private String parseKafkaExtractNodeMetaField(BuiltInFieldInfo metaField) {
+        String metaType;
+        switch (metaField.getBuiltInField()) {
+            case MYSQL_METADATA_TABLE:
+                metaType = "STRING METADATA FROM 'value.table'";
+                break;
+            case MYSQL_METADATA_DATABASE:
+                metaType = "STRING METADATA FROM 'value.database'";
+                break;
+            case MYSQL_METADATA_EVENT_TIME:
+                metaType = "TIMESTAMP(3) METADATA FROM 'value.op_ts'";
+                break;
+            case MYSQL_METADATA_EVENT_TYPE:
+                metaType = "STRING METADATA FROM 'value.op_type'";
+                break;
+            case MYSQL_METADATA_DATA:
+                metaType = "STRING METADATA FROM 'value.data'";
+                break;
+            case MYSQL_METADATA_IS_DDL:
+                metaType = "BOOLEAN METADATA FROM 'value.is_ddl'";
+                break;
+            case METADATA_TS:
+                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.ts'";
+                break;
+            case METADATA_SQL_TYPE:
+                metaType = "MAP<STRING, INT> METADATA FROM 'value.sql_type'";
+                break;
+            case METADATA_MYSQL_TYPE:
+                metaType = "MAP<STRING, STRING> METADATA FROM 'value.mysql_type'";
+                break;
+            case METADATA_PK_NAMES:
+                metaType = "ARRAY<STRING> METADATA FROM 'value.pk_names'";
+                break;
+            case METADATA_BATCH_ID:
+                metaType = "BIGINT METADATA FROM 'value.batch_id'";
+                break;
+            case METADATA_UPDATE_BEFORE:
+                metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update_before'";
+                break;
+            default:
+                metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSerializableString();
+        }
+        return metaType;
+    }
+
+    private String parseMySqlExtractNodeMetaField(BuiltInFieldInfo metaField) {
+        String metaType;
+        switch (metaField.getBuiltInField()) {
+            case MYSQL_METADATA_TABLE:
+                metaType = "STRING METADATA FROM 'meta.table_name' VIRTUAL";
+                break;
+            case MYSQL_METADATA_DATABASE:
+                metaType = "STRING METADATA FROM 'meta.database_name' VIRTUAL";
+                break;
+            case MYSQL_METADATA_EVENT_TIME:
+                metaType = "TIMESTAMP(3) METADATA FROM 'meta.op_ts' VIRTUAL";
+                break;
+            case MYSQL_METADATA_EVENT_TYPE:
+                metaType = "STRING METADATA FROM 'meta.op_type' VIRTUAL";
+                break;
+            case MYSQL_METADATA_DATA:
+                metaType = "STRING METADATA FROM 'meta.data' VIRTUAL";
+                break;
+            case MYSQL_METADATA_IS_DDL:
+                metaType = "BOOLEAN METADATA FROM 'meta.is_ddl' VIRTUAL";
+                break;
+            case METADATA_TS:
+                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'meta.ts' VIRTUAL";
+                break;
+            case METADATA_SQL_TYPE:
+                metaType = "MAP<STRING, INT> METADATA FROM 'meta.sql_type' VIRTUAL";
+                break;
+            case METADATA_MYSQL_TYPE:
+                metaType = "MAP<STRING, STRING> METADATA FROM 'meta.mysql_type' VIRTUAL";
+                break;
+            case METADATA_PK_NAMES:
+                metaType = "ARRAY<STRING> METADATA FROM 'meta.pk_names' VIRTUAL";
+                break;
+            case METADATA_BATCH_ID:
+                metaType = "BIGINT METADATA FROM 'meta.batch_id' VIRTUAL";
+                break;
+            case METADATA_UPDATE_BEFORE:
+                metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'meta.update_before' VIRTUAL";
+                break;
+            default:
+                metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSerializableString();
+        }
+        return metaType;
     }
 
     /**
