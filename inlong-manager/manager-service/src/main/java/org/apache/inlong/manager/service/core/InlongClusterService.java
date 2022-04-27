@@ -79,7 +79,7 @@ public interface InlongClusterService {
      * @param operator name of operator
      * @return cluster id after saving
      */
-    Integer saveNode(InlongClusterRequest request, String operator);
+    Integer saveNode(ClusterNodeRequest request, String operator);
 
     /**
      * Get cluster node info by id.

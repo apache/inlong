@@ -158,6 +158,12 @@
         from inlong_cluster
         where id = #{id,jdbcType=INTEGER}
     </select>
+    <select id="selectByIdNoDeleted" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster
+        where id = #{id,jdbcType=INTEGER} and is_deleted = 0
+    </select>
 
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         update inlong_cluster
@@ -177,12 +183,72 @@
             modify_time = #{modifyTime,jdbcType=TIMESTAMP}
         where id = #{id,jdbcType=INTEGER}
     </update>
+    <select id="selectByName" resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster
+        where is_deleted = 0
+        and name = #{name, jdbcType=VARCHAR}
+    </select>
+    <select id="selectByUniqueKey" parameterType="org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest"
+            resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster
+        <where>
+            is_deleted = 0
+            <if test="name != null and name != ''">
+                and name = #{name, jdbcType=VARCHAR}
+            </if>
+            <choose>
+                <when  test="clusterTag != null and clusterTag != ''">
+                    and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
+                </when>
+                <otherwise>
+                    and (cluster_tag is null or cluster_tag = '')
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="type != null and type != ''">
+                    and `type` = #{type, jdbcType=VARCHAR}
+                </when>
+                <otherwise>
+                    and (`type` is null or `type` = '')
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+    <select id="selectByCondition" parameterType="org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest"
+            resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster
+        <where>
+            is_deleted = 0
+            <if test="clusterTag != null and clusterTag != ''">
+                and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
+            </if>
+            <if test="type != null and type != ''">
+                and `type` = #{type, jdbcType=VARCHAR}
+            </if>
+            <if test="url != null and url != ''">
+                and url like CONCAT('%',#{url},'%')
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (name like CONCAT('%',#{keyword},'%')  or cluster_tag like CONCAT('%',#{keyword},'%') or url like CONCAT('%',#{keyword},'%'))
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status, jdbcType=INTEGER}
+            </if>
+            <if test="zoneTag != null and zoneTag != ''">
+                and zone_tag = #{zoneTag, jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by modify_time desc
+    </select>
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         update inlong_cluster
         <set>
-            <if test="name != null">
-                name = #{name,jdbcType=VARCHAR},
-            </if>
             <if test="type != null">
                 type = #{type,jdbcType=VARCHAR},
             </if>
