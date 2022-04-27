@@ -128,14 +128,11 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         entity.setCreateTime(new Date());
         groupMapper.insertSelective(entity);
         this.saveOrUpdateExt(groupId, groupInfo.getExtList());
-
+        // Saving MQ information.
         Middleware mqMiddleware = groupMqFactory.getMqMiddleware(MQType.forType(groupInfo.getMiddlewareType()));
-
-        if (StringUtils.isBlank(groupInfo.getMqExtInfo().getInlongGroupId())) {
+        if (groupInfo.getMqExtInfo() != null && StringUtils.isBlank(groupInfo.getMqExtInfo().getInlongGroupId())) {
             groupInfo.getMqExtInfo().setInlongGroupId(groupId);
         }
-
-        // Saving MQ information.
         mqMiddleware.save(groupInfo.getMqExtInfo());
         LOGGER.debug("success to save inlong group info for groupId={}", groupId);
         return groupId;
@@ -163,7 +160,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         groupInfo.setMqExtInfo(mq.get(groupId));
 
         // For approved inlong group, encapsulate the cluster address of the middleware
-
         if (GroupStatus.CONFIG_SUCCESSFUL == GroupStatus.forCode(groupInfo.getStatus())) {
             groupInfo = mq.packSpecificInfo(groupInfo);
         }
@@ -234,7 +230,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         MQType mqType = MQType.forType(groupRequest.getMiddlewareType());
         Middleware mqMiddleware = groupMqFactory.getMqMiddleware(mqType);
         InlongGroupMqExtBase mqExtInfo = groupRequest.getMqExtInfo();
-        if (StringUtils.isBlank(mqExtInfo.getInlongGroupId())) {
+        if (mqExtInfo != null && StringUtils.isBlank(mqExtInfo.getInlongGroupId())) {
             mqExtInfo.setInlongGroupId(groupId);
         }
         mqMiddleware.update(mqExtInfo);

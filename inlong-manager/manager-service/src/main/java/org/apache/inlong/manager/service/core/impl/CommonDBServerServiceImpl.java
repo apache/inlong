@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerInfo;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerListVo;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerPageRequest;
+import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -488,6 +489,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
     public PageInfo<CommonDbServerListVo> listByCondition(CommonDbServerPageRequest request)
             throws Exception {
         String username = LoginUserUtils.getLoginUserDetail().getUserName();
+        request.setIsAdminRole(LoginUserUtils.getLoginUserDetail().getRoles().contains(UserRoleCode.ADMIN));
         LOGGER.debug("{} begin to list CommonDbServer info by {}", username, request);
         request.setCurrentUser(username);
 

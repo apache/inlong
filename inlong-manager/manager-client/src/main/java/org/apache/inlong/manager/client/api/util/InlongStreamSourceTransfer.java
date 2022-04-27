@@ -280,7 +280,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setPassword(authentication.getPassword());
         sourceRequest.setHostname(binlogSource.getHostname());
         sourceRequest.setPort(binlogSource.getPort());
-        binlogSource.setServerId(binlogSource.getServerId());
+        sourceRequest.setServerId(binlogSource.getServerId());
         sourceRequest.setIncludeSchema(binlogSource.getIncludeSchema());
         sourceRequest.setServerTimezone(binlogSource.getServerTimezone());
         sourceRequest.setMonitoredDdl(binlogSource.getMonitoredDdl());

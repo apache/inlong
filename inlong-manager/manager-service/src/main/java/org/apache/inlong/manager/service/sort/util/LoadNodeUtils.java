@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.sort.util;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
@@ -61,6 +62,7 @@ public class LoadNodeUtils {
     }
 
     public static KafkaLoadNode createLoadNode(KafkaSinkResponse kafkaSinkResponse) {
+
         String id = kafkaSinkResponse.getSinkName();
         String name = kafkaSinkResponse.getSinkName();
         String topicName = kafkaSinkResponse.getTopicName();
@@ -74,7 +76,10 @@ public class LoadNodeUtils {
                 .map(fieldInfo -> new FieldRelationShip(fieldInfo, fieldInfo)).collect(Collectors.toList());
         Map<String, String> properties = kafkaSinkResponse.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
-        Integer sinkParallelism = Integer.parseInt(kafkaSinkResponse.getPartitionNum());
+        Integer sinkParallelism = null;
+        if (StringUtils.isNotEmpty(kafkaSinkResponse.getPartitionNum())) {
+            sinkParallelism = Integer.parseInt(kafkaSinkResponse.getPartitionNum());
+        }
         DataTypeEnum dataType = DataTypeEnum.forName(kafkaSinkResponse.getSerializationType());
         Format format;
         switch (dataType) {

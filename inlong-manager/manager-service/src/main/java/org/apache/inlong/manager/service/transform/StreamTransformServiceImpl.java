@@ -22,6 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
@@ -79,12 +80,14 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         }
         StreamTransformEntity transformEntity = CommonBeanUtils.copyProperties(transformRequest,
                 StreamTransformEntity::new);
+        transformEntity.setVersion(0);
         transformEntity.setCreator(operator);
         transformEntity.setModifier(operator);
         Date now = new Date();
         transformEntity.setCreateTime(now);
         transformEntity.setModifyTime(now);
-        transformEntityMapper.insertSelective(transformEntity);
+        transformEntity.setIsDeleted(GlobalConstants.UN_DELETED);
+        transformEntityMapper.insert(transformEntity);
         saveFieldOpt(transformEntity, transformRequest.getFieldList());
         return transformEntity.getId();
     }
@@ -115,7 +118,9 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         transformResponses.stream().forEach(transformResponse -> {
             int transformId = transformResponse.getId();
             List<InlongStreamFieldInfo> fieldInfos = fieldInfoMap.get(transformId);
-            transformResponse.setFieldList(fieldInfos);
+            if (CollectionUtils.isNotEmpty(fieldInfos)) {
+                transformResponse.setFieldList(fieldInfos);
+            }
         });
         return transformResponses;
     }
@@ -215,6 +220,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
             fieldEntity.setInlongStreamId(streamId);
             fieldEntity.setTransformId(transformId);
             fieldEntity.setTransformType(transformType);
+            fieldEntity.setIsDeleted(GlobalConstants.UN_DELETED);
             entityList.add(fieldEntity);
         }
 
