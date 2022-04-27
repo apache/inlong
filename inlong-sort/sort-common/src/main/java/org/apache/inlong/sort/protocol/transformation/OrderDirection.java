@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
-/**
- * OrderDirection class defines whether the sorting direction is ascending or descending
- */
 public enum OrderDirection {
     /**
      * Asc for order direction

@@ -18,30 +18,43 @@
 
 package org.apache.inlong.sort.singletenant.flink.cdc.mysql;
 
-import com.ververica.cdc.debezium.internal.DebeziumOffset;
-import org.apache.flink.table.data.RowData;
-import org.apache.inlong.sort.singletenant.flink.cdc.mysql.table.StartupOptions;
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumSourceFunction;
-import io.debezium.connector.mysql.MySqlConnector;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumSourceFunction.LEGACY_IMPLEMENTATION_KEY;
+import static org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumSourceFunction.LEGACY_IMPLEMENTATION_VALUE;
 
+import io.debezium.connector.mysql.MySqlConnector;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumSourceFunction;
+import org.apache.inlong.sort.singletenant.flink.cdc.debezium.internal.DebeziumOffset;
+import org.apache.inlong.sort.singletenant.flink.cdc.mysql.table.StartupOptions;
 
-import static org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumSourceFunction.LEGACY_IMPLEMENTATION_KEY;
-import static org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumSourceFunction.LEGACY_IMPLEMENTATION_VALUE;
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
+/**
+ * A builder to build a SourceFunction which can read snapshot and continue to consume binlog.
+ *
+ * @deprecated please use {@link org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.MySqlSource} instead
+ *     which supports more rich features, e.g. parallel reading from historical data. The {@link
+ *     MySqlSource} will be dropped in the future version.
+ */
 @Deprecated
 public class MySqlSource {
 
     private static final String DATABASE_SERVER_NAME = "mysql_binlog_source";
 
     public static <T> Builder<T> builder() {
-        return new Builder<T>();
+        return new Builder<>();
     }
 
+    /**
+     * Builder class of {@link MySqlSource}.
+     *
+     * @deprecated please use {@link
+     *     org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.MySqlSource#builder()} instead which supports
+     *     more rich features, e.g. parallel reading from historical data. The {@link
+     *     Builder} will be dropped in the future version.
+     */
     @Deprecated
     public static class Builder<T> {
 
@@ -55,7 +68,7 @@ public class MySqlSource {
         private String[] tableList;
         private Properties dbzProperties;
         private StartupOptions startupOptions = StartupOptions.initial();
-        private DebeziumDeserializationSchema<RowData> deserializer;
+        private DebeziumDeserializationSchema<T> deserializer;
 
         public Builder<T> hostname(String hostname) {
             this.hostname = hostname;
@@ -132,7 +145,7 @@ public class MySqlSource {
          * The deserializer used to convert from consumed {@link
          * org.apache.kafka.connect.source.SourceRecord}.
          */
-        public Builder<T> deserializer(DebeziumDeserializationSchema<RowData> deserializer) {
+        public Builder<T> deserializer(DebeziumDeserializationSchema<T> deserializer) {
             this.deserializer = deserializer;
             return this;
         }
@@ -143,7 +156,7 @@ public class MySqlSource {
             return this;
         }
 
-        public DebeziumSourceFunction<RowData> build() {
+        public DebeziumSourceFunction<T> build() {
             Properties props = new Properties();
             props.setProperty("connector.class", MySqlConnector.class.getCanonicalName());
             // hard code server name, because we don't need to distinguish it, docs:

@@ -18,6 +18,11 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
@@ -29,12 +34,6 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("mysqlExtract")
@@ -113,7 +112,7 @@ public class MySqlExtractNode extends ExtractNode implements Serializable {
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options.put("connector", "mysql-cdc");
+        options.put("connector", "mysql-cdc-inlong");
         options.put("hostname", hostname);
         options.put("username", username);
         options.put("password", password);
@@ -128,7 +127,7 @@ public class MySqlExtractNode extends ExtractNode implements Serializable {
             options.put("scan.incremental.snapshot.enabled", incrementalSnapshotEnabled.toString());
         }
         if (serverTimeZone != null) {
-            options.put("scan.incremental.snapshot.enabled", serverTimeZone.toString());
+            options.put("server-time-zone", serverTimeZone);
         }
         String formatTable = tableNames.size() == 1 ? tableNames.get(0) :
                 String.format("(%s)", StringUtils.join(tableNames, "|"));
