@@ -137,9 +137,8 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                         Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
-        parser.parse().tryExecute();
+        parser.parse();
     }
-
 
     /**
      * Test flink sql parse
