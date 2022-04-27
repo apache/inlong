@@ -47,7 +47,7 @@ public class SingleValueFilterFunctionTest extends FunctionBaseTest {
     public String getExpectSerializeStr() {
         return "{\"type\":\"singleValueFilter\",\"logicOperator\":{\"type\":\"empty\"},"
                 + "\"source\":{\"type\":\"base\",\"name\":\"single_value_field\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}},"
+                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}},"
                 + "\"compareOperator\":{\"type\":\"equal\"},"
                 + "\"target\":{\"type\":\"stringConstant\",\"value\":\"123\"}}";
 

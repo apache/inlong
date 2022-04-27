@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol.node;
+package org.apache.inlong.sort.protocol.node.load;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
+import org.apache.inlong.sort.protocol.node.Node;
+import org.apache.inlong.sort.protocol.node.NodeBaseTest;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class HiveLoadNodeTest extends NodeBaseTest {
 

@@ -45,7 +45,7 @@ public class SessionFunctionTest extends FunctionBaseTest {
     @Override
     public String getExpectSerializeStr() {
         return "{\"type\":\"session\",\"timeAttr\":{\"type\":\"base\",\"name\":\"time_field\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}},"
+                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}},"
                 + "\"interval\":{\"type\":\"stringConstant\",\"value\":\"1\"},"
                 + "\"timeUnit\":{\"type\":\"timeUnitConstant\",\"timeUnit\":\"SECOND\",\"value\":\"SECOND\"}}";
 

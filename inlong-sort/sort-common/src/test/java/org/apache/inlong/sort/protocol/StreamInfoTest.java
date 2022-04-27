@@ -17,12 +17,6 @@
 
 package org.apache.inlong.sort.protocol;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
@@ -42,6 +36,12 @@ import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.Time
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import static org.junit.Assert.assertEquals;
 
 /**
  * StreamInfo unit test class
@@ -130,9 +130,9 @@ public class StreamInfoTest {
                 + "base\",\"name\":\"age\",\"formatInfo\":{\"type\":\"int\"}},{\"type\":"
                 + "\"base\",\"name\":\"salary\",\"formatInfo\":{\"type\":\"float\"}},"
                 + "{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\","
-                + "\"format\":\"yyyy-MM-dd HH:mm:ss\"}}],\"watermarkField\":{\"type\":\"watermark\","
+                + "\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}}],\"watermarkField\":{\"type\":\"watermark\","
                 + "\"timeAttr\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":"
-                + "\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}},\"interval\":{\"type\":"
+                + "\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}},\"interval\":{\"type\":"
                 + "\"stringConstant\",\"value\":\"1\"},\"timeUnit\":{\"type\":\"timeUnitConstant\","
                 + "\"timeUnit\":\"MINUTE\",\"value\":\"MINUTE\"}},\"primaryKey\":\"id\","
                 + "\"tableNames\":[\"table\"],\"hostname\":\"localhost\",\"username\":\"username\","
@@ -143,7 +143,7 @@ public class StreamInfoTest {
                 + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"age\","
                 + "\"formatInfo\":{\"type\":\"int\"}},{\"type\":\"base\",\"name\":\"salary\","
                 + "\"formatInfo\":{\"type\":\"float\"}},{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}}],"
+                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":9}}],"
                 + "\"fieldRelationShips\":[{\"type\":\"fieldRelationShip\",\"inputField\":{"
                 + "\"type\":\"base\",\"name\":\"id\",\"formatInfo\":{\"type\":\"long\"}},"
                 + "\"outputField\":{\"type\":\"base\",\"name\":\"id\",\"formatInfo\":{\"type\":"
@@ -154,9 +154,9 @@ public class StreamInfoTest {
                 + "\"formatInfo\":{\"type\":\"int\"}},\"outputField\":{\"type\":\"base\","
                 + "\"name\":\"age\",\"formatInfo\":{\"type\":\"int\"}}},{\"type\":\"fieldRelationShip\","
                 + "\"inputField\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":"
-                + "\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}},\"outputField\":{\"type\":"
+                + "\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}},\"outputField\":{\"type\":"
                 + "\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\",\"format\":"
-                + "\"yyyy-MM-dd HH:mm:ss\"}}}],\"sinkParallelism\":1,\"catalogName\":\"myHive\","
+                + "\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}}}],\"sinkParallelism\":1,\"catalogName\":\"myHive\","
                 + "\"database\":\"default\",\"tableName\":\"test\",\"hiveConfDir\":\"/opt/hive-conf\","
                 + "\"hiveVersion\":\"3.1.2\",\"hadoopConfDir\":null,\"partitionFields\":[{\"type\":"
                 + "\"base\",\"name\":\"day\",\"formatInfo\":{\"type\":\"long\"}}]}],\"relations\":"
@@ -178,9 +178,9 @@ public class StreamInfoTest {
                 + "base\",\"name\":\"age\",\"formatInfo\":{\"type\":\"int\"}},{\"type\":"
                 + "\"base\",\"name\":\"salary\",\"formatInfo\":{\"type\":\"float\"}},"
                 + "{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\","
-                + "\"format\":\"yyyy-MM-dd HH:mm:ss\"}}],\"watermarkField\":{\"type\":\"watermark\","
+                + "\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":9}}],\"watermarkField\":{\"type\":\"watermark\","
                 + "\"timeAttr\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":"
-                + "\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}},\"interval\":{\"type\":"
+                + "\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":9}},\"interval\":{\"type\":"
                 + "\"stringConstant\",\"value\":\"1\"},\"timeUnit\":{\"type\":\"timeUnitConstant\","
                 + "\"timeUnit\":\"MINUTE\",\"value\":\"MINUTE\"}},\"primaryKey\":\"id\","
                 + "\"tableNames\":[\"table\"],\"hostname\":\"localhost\",\"username\":\"username\","
@@ -191,7 +191,7 @@ public class StreamInfoTest {
                 + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"age\","
                 + "\"formatInfo\":{\"type\":\"int\"}},{\"type\":\"base\",\"name\":\"salary\","
                 + "\"formatInfo\":{\"type\":\"float\"}},{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}}],"
+                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":9}}],"
                 + "\"fieldRelationShips\":[{\"type\":\"fieldRelationShip\",\"inputField\":{"
                 + "\"type\":\"base\",\"name\":\"id\",\"formatInfo\":{\"type\":\"long\"}},"
                 + "\"outputField\":{\"type\":\"base\",\"name\":\"id\",\"formatInfo\":{\"type\":"
@@ -202,9 +202,9 @@ public class StreamInfoTest {
                 + "\"formatInfo\":{\"type\":\"int\"}},\"outputField\":{\"type\":\"base\","
                 + "\"name\":\"age\",\"formatInfo\":{\"type\":\"int\"}}},{\"type\":\"fieldRelationShip\","
                 + "\"inputField\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":"
-                + "\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}},\"outputField\":{\"type\":"
+                + "\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":9}},\"outputField\":{\"type\":"
                 + "\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\",\"format\":"
-                + "\"yyyy-MM-dd HH:mm:ss\"}}}],\"sinkParallelism\":1,\"catalogName\":\"myHive\","
+                + "\"yyyy-MM-dd HH:mm:ss\",\"precision\":9}}}],\"sinkParallelism\":1,\"catalogName\":\"myHive\","
                 + "\"database\":\"default\",\"tableName\":\"test\",\"hiveConfDir\":\"/opt/hive-conf\","
                 + "\"hiveVersion\":\"3.1.2\",\"hadoopConfDir\":null,\"partitionFields\":[{\"type\":"
                 + "\"base\",\"name\":\"day\",\"formatInfo\":{\"type\":\"long\"}}]}],\"relations\":"
@@ -231,10 +231,10 @@ public class StreamInfoTest {
                 + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"age\","
                 + "\"formatInfo\":{\"type\":\"int\"}},{\"type\":\"base\",\"name\":\"salary\","
                 + "\"formatInfo\":{\"type\":\"float\"}},{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}}],"
+                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}}],"
                 + "\"watermarkField\":{\"type\":\"watermark\",\"timeAttr\":{\"type\":\"base\","
-                + "\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}},"
-                + "\"interval\":{\"type\":\"stringConstant\",\"value\":\"1\"},"
+                + "\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\","
+                + "\"precision\":2}},\"interval\":{\"type\":\"stringConstant\",\"value\":\"1\"},"
                 + "\"timeUnit\":{\"type\":\"timeUnitConstant\","
                 + "\"timeUnit\":\"MINUTE\",\"value\":\"MINUTE\"}},\"primaryKey\":\"id\",\"tableNames\":[\"table\"],"
                 + "\"hostname\":\"localhost\",\"username\":\"username\",\"password\":\"username\","
@@ -244,7 +244,7 @@ public class StreamInfoTest {
                 + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"age\","
                 + "\"formatInfo\":{\"type\":\"int\"}},{\"type\":\"base\",\"name\":\"salary\","
                 + "\"formatInfo\":{\"type\":\"float\"}},{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}}],"
+                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}}],"
                 + "\"fieldRelationShips\":[{\"type\":\"fieldRelationShip\",\"inputField\":{\"type\":\"base\","
                 + "\"name\":\"id\",\"formatInfo\":{\"type\":\"long\"}},\"outputField\":{\"type\":\"base\","
                 + "\"name\":\"id\",\"formatInfo\":{\"type\":\"long\"}}},{\"type\":\"fieldRelationShip\","
@@ -254,8 +254,9 @@ public class StreamInfoTest {
                 + "\"formatInfo\":{\"type\":\"int\"}},\"outputField\":{\"type\":\"base\",\"name\":\"age\","
                 + "\"formatInfo\":{\"type\":\"int\"}}},{\"type\":\"fieldRelationShip\","
                 + "\"inputField\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\","
-                + "\"format\":\"yyyy-MM-dd HH:mm:ss\"}},\"outputField\":{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}}}],"
+                + "\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}},"
+                + "\"outputField\":{\"type\":\"base\",\"name\":\"ts\","
+                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}}}],"
                 + "\"topic\":\"topic\",\"bootstrapServers\":\"localhost:9092\",\"format\":{\"type\":\"jsonFormat\","
                 + "\"failOnMissingField\":false,\"ignoreParseErrors\":true,\"timestampFormatStandard\":\"SQL\","
                 + "\"mapNullKeyMode\":\"DROP\",\"mapNullKeyLiteral\":\"null\",\"encodeDecimalAsPlainNumber\":true},"

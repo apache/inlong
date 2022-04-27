@@ -18,21 +18,24 @@
 package org.apache.inlong.sort.protocol.node.load;
 
 import com.google.common.base.Preconditions;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.inlong.sort.formats.common.LocalZonedTimestampFormatInfo;
+import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("hiveLoad")
@@ -96,6 +99,22 @@ public class HiveLoadNode extends LoadNode implements Serializable {
         this.hiveVersion = Preconditions.checkNotNull(hiveVersion, "version of hive is null");
         this.hadoopConfDir = hadoopConfDir;
         this.partitionFields = partitionFields;
+        handleTimestampField();
+    }
+
+    /**
+     * Dealing with problems caused by time precision in hive
+     * Hive connector requires the time precision of timestamp and localzoned timestamp  must be 9
+     */
+    private void handleTimestampField() {
+        getFields().forEach(f -> {
+            if (f.getFormatInfo() instanceof TimestampFormatInfo) {
+                ((TimestampFormatInfo) f.getFormatInfo()).setPrecision(9);
+            }
+            if (f.getFormatInfo() instanceof LocalZonedTimestampFormatInfo) {
+                ((LocalZonedTimestampFormatInfo) f.getFormatInfo()).setPrecision(9);
+            }
+        });
     }
 
     @Override

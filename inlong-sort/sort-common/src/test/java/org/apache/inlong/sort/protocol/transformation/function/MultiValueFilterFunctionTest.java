@@ -47,7 +47,7 @@ public class MultiValueFilterFunctionTest extends FunctionBaseTest {
     @Override
     public String getExpectSerializeStr() {
         return "{\"type\":\"multiValueFilter\",\"source\":{\"type\":\"base\",\"name\":\"field\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}},"
+                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}},"
                 + "\"targets\":[{\"type\":\"stringConstant\",\"value\":\"1\"},{\"type\":\"stringConstant\","
                 + "\"value\":\"2\"}],\"compareOperator\":{\"type\":\"in\"},\"logicOperator\":{\"type\":\"empty\"}}";
 
