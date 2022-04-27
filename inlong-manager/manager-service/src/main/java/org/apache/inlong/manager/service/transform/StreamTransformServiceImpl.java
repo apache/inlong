@@ -118,7 +118,9 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         transformResponses.stream().forEach(transformResponse -> {
             int transformId = transformResponse.getId();
             List<InlongStreamFieldInfo> fieldInfos = fieldInfoMap.get(transformId);
-            transformResponse.setFieldList(fieldInfos);
+            if (CollectionUtils.isNotEmpty(fieldInfos)) {
+                transformResponse.setFieldList(fieldInfos);
+            }
         });
         return transformResponses;
     }

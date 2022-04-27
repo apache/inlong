@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.sort.util;
 
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
@@ -25,6 +26,7 @@ import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.pojo.transform.deduplication.DeDuplicationDefinition;
 import org.apache.inlong.manager.common.pojo.transform.deduplication.DeDuplicationDefinition.DeDuplicationStrategy;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.StreamParseUtils;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
@@ -37,6 +39,7 @@ import java.util.stream.Collectors;
 /**
  * Parse TransformResponse to TransformNode which sort needed
  */
+@Slf4j
 public class TransformNodeUtils {
 
     public static List<TransformNode> createTransformNodes(List<TransformResponse> transformResponses) {

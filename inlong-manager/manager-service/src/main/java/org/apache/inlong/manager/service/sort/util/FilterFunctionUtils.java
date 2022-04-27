@@ -108,6 +108,9 @@ public class FilterFunctionUtils {
     }
 
     private static LogicOperator parseLogicOperator(RuleRelation relation) {
+        if (relation == null) {
+            return EmptyOperator.getInstance();
+        }
         switch (relation) {
             case OR:
                 return OrOperator.getInstance();
