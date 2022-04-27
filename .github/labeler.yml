@@ -44,3 +44,4 @@ inlong-sdk:
 
 ci:
   - .github/workflows/**/*
+  - .github/actions/**/*
