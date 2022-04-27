@@ -26,7 +26,6 @@ import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.pojo.transform.deduplication.DeDuplicationDefinition;
 import org.apache.inlong.manager.common.pojo.transform.deduplication.DeDuplicationDefinition.DeDuplicationStrategy;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.StreamParseUtils;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
