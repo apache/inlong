@@ -237,7 +237,7 @@ public class InlongGroupProcessOperation {
             case LIGHT:
                 LightGroupResourceProcessForm lightForm = genLightGroupProcessForm(groupInfo,
                         GroupOperateType.DELETE);
-                workflowService.start(ProcessName.DELETE_GROUP_PROCESS, operator, lightForm);
+                workflowService.start(ProcessName.DELETE_LIGHT_GROUP_PROCESS, operator, lightForm);
                 break;
             default:
                 throw new WorkflowListenerException(ErrorCodeEnum.GROUP_MODE_UNSUPPORTED.getMessage());
