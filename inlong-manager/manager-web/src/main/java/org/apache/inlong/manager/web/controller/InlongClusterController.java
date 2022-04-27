@@ -30,7 +30,6 @@ import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterResponse;
 import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.service.core.InlongClusterService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.apache.shiro.authz.annotation.RequiresRoles;
