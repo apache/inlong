@@ -22,7 +22,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * The format information for strings.
+ * The format information for varchar.
  */
 public class VarCharFormatInfo implements BasicFormatInfo<String> {
 
