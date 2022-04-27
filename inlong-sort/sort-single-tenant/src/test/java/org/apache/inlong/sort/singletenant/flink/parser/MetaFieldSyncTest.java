@@ -144,7 +144,6 @@ public class MetaFieldSyncTest extends AbstractTestBase {
         return node;
     }
 
-
     public NodeRelationShip buildNodeRelation(List<Node> inputs, List<Node> outputs) {
         List<String> inputIds = inputs.stream().map(Node::getId).collect(Collectors.toList());
         List<String> outputIds = outputs.stream().map(Node::getId).collect(Collectors.toList());
