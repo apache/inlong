@@ -39,16 +39,20 @@ public class HiveLoadNodeTest extends NodeBaseTest {
 
     @Override
     public String getExpectSerializeStr() {
-        return "{\"type\":\"hiveLoad\",\"id\":\"1\",\"name\":\"test_hive_node\","
-                + "\"fields\":[{\"type\":\"base\",\"name\":\"field\",\"formatInfo\":{\"type\":\"string\"}}],"
-                + "\"fieldRelationShips\":[{\"type\":\"fieldRelationShip\","
-                + "\"inputField\":{\"type\":\"base\",\"name\":\"field\",\"formatInfo\":{\"type\":\"string\"}},"
-                + "\"outputField\":{\"type\":\"base\",\"name\":\"field\",\"formatInfo\":{\"type\":\"string\"}}}],"
-                + "\"sinkParallelism\":1,"
-                + "\"properties\":{},"
-                + "\"catalogName\":\"myHive\","
-                + "\"database\":\"default\","
-                + "\"tableName\":\"test\","
-                + "\"hiveConfDir\":\"/opt/conf\"}";
+        return "{\"type\":\"hiveLoad\",\"id\":\"1\","
+                + "\"name\":\"test_hive_node\",\"fields\":"
+                + "[{\"type\":\"base\",\"name\":\"field\","
+                + "\"formatInfo\":{\"type\":\"string\"}}],"
+                + "\"fieldRelationShips\":[{\"type\":"
+                + "\"fieldRelationShip\",\"inputField\":"
+                + "{\"type\":\"base\",\"name\":\"field\","
+                + "\"formatInfo\":{\"type\":\"string\"}},"
+                + "\"outputField\":{\"type\":\"base\",\"name\":"
+                + "\"field\",\"formatInfo\":{\"type\":\"string\"}}}],"
+                + "\"sinkParallelism\":1,\"properties\":{},\"catalogName\":"
+                + "\"myHive\",\"database\":\"default\",\"tableName\":\"test\","
+                + "\"hiveConfDir\":\"/opt/hive-conf\",\"hiveVersion\":\"3.1.2\","
+                + "\"hadoopConfDir\":null,\"partitionFields\":[{\"type\":\"base\","
+                + "\"name\":\"day\",\"formatInfo\":{\"type\":\"long\"}}]}";
     }
 }
