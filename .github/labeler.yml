@@ -49,7 +49,14 @@ ci:
 docker:
   - '**/Dockerfile'
   - '**/*-docker.sh'
+  - 'inlong-agent/agent-docker/**/*'
+  - 'inlong-audit/audit-docker/**/*'
+  - 'inlong-dataproxy/dataproxy-docker/**/*'
+  - 'inlong-manager/manager-docker/**/*'
+  - 'inlong-tubemq/tubemq-docker/**/*'
+  - '!inlong-tubemq/tubemq-docker/tubemq-k8s/**/*'
   - 'docker/docker-compose/**/*'
 
 k8s:
   - 'docker/kubernetes/**/*'
+  - 'inlong-tubemq/tubemq-docker/tubemq-k8s/**/*'
