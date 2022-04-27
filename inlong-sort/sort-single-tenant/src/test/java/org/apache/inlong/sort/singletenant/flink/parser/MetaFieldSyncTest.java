@@ -52,9 +52,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -80,9 +78,7 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                 new BuiltInFieldInfo("meta_ts", new TimestampFormatInfo(), BuiltInField.METADATA_TS),
                 new BuiltInFieldInfo("up_before", new TimestampFormatInfo(), BuiltInField.METADATA_UPDATE_BEFORE)
         );
-        Map<String, String> map = new HashMap<>();
-//        map.put("append-mode", "true");
-        return new MySqlExtractNode("1", "mysql_input", fields, null, map, "id",
+        return new MySqlExtractNode("1", "mysql_input", fields, null, null, "id",
                 Arrays.asList("worker", "worker2"), "localhost", "root", "168998",
                 "wedata_datastudio", null, null, null, null);
     }
