@@ -40,7 +40,6 @@ public class LightGroupUpdateListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
-
     @Autowired
     private InlongStreamService streamService;
 
