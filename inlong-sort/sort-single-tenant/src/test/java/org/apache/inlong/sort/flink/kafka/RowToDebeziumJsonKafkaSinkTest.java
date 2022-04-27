@@ -16,72 +16,73 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.singletenant.flink.kafka;
+package org.apache.inlong.sort.flink.kafka;
 
 import org.apache.flink.types.Row;
-import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
-import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
+import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
-import org.apache.inlong.sort.formats.common.MapFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.serialization.JsonSerializationInfo;
+import org.apache.inlong.sort.protocol.serialization.DebeziumSerializationInfo;
 import org.apache.inlong.sort.singletenant.flink.serialization.SerializationSchemaFactory;
 import org.apache.kafka.common.utils.Bytes;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class RowToJsonKafkaSinkTest extends KafkaSinkTestBase {
+public class RowToDebeziumJsonKafkaSinkTest extends KafkaSinkTestBase {
+
     @Override
     protected void prepareData() throws IOException, ClassNotFoundException {
-        topic = "test_kafka_row_to_json";
+        topic = "test_kafka_row_to_debezium";
+        fieldInfos = new FieldInfo[]{
+                new FieldInfo("f1", new StringFormatInfo()),
+                new FieldInfo("f2", new IntFormatInfo())
+        };
+
         serializationSchema = SerializationSchemaFactory.build(
-                new FieldInfo[]{
-                        new FieldInfo("f1", new StringFormatInfo()),
-                        new FieldInfo("f2", new MapFormatInfo(new StringFormatInfo(), new DoubleFormatInfo())),
-                        new FieldInfo("f3", new ArrayFormatInfo(new IntFormatInfo()))
-                },
-                new JsonSerializationInfo()
+                fieldInfos, new DebeziumSerializationInfo("sql", "literal", "null", true)
         );
 
-        prepareTestRows();
+        prepareTestData();
     }
 
-    private void prepareTestRows() {
+    private void prepareTestData() {
         testRows = new ArrayList<>();
+        Row row1 = Row.of("Anna", 100);
+        row1.setKind(RowKind.INSERT);
+        testRows.add(row1);
 
-        Map<String, Double> map1 = new HashMap<>();
-        map1.put("high", 170.5);
-        testRows.add(Row.of("zhangsan", map1, new Integer[]{123}));
+        Row row2 = Row.of("Lisa", 90);
+        row2.setKind(RowKind.DELETE);
+        testRows.add(row2);
 
-        Map<String, Double> map2 = new HashMap<>();
-        map2.put("high", 180.5);
-        testRows.add(Row.of("lisi", map2, new Integer[]{1234}));
+        Row row3 = Row.of("Bob", 80);
+        row3.setKind(RowKind.UPDATE_BEFORE);
+        testRows.add(row3);
 
-        Map<String, Double> map3 = new HashMap<>();
-        map3.put("high", 190.5);
-        testRows.add(Row.of("wangwu", map3, new Integer[]{12345}));
+        Row row4 = Row.of("Tom", 70);
+        row4.setKind(RowKind.UPDATE_AFTER);
+        testRows.add(row4);
     }
 
     @Override
     protected void verifyData(List<Bytes> results) {
         List<String> actualData = new ArrayList<>();
-        results.forEach(value -> actualData.add(new String(value.get(), StandardCharsets.UTF_8)));
+        results.forEach(value -> actualData.add(new String(value.get())));
         actualData.sort(String::compareTo);
 
         List<String> expectedData = new ArrayList<>();
-        expectedData.add("{\"f1\":\"zhangsan\",\"f2\":{\"high\":170.5},\"f3\":[123]}");
-        expectedData.add("{\"f1\":\"lisi\",\"f2\":{\"high\":180.5},\"f3\":[1234]}");
-        expectedData.add("{\"f1\":\"wangwu\",\"f2\":{\"high\":190.5},\"f3\":[12345]}");
+        expectedData.add("{\"before\":null,\"after\":{\"f1\":\"Anna\",\"f2\":100},\"op\":\"c\"}");
+        expectedData.add("{\"before\":null,\"after\":{\"f1\":\"Tom\",\"f2\":70},\"op\":\"c\"}");
+        expectedData.add("{\"before\":{\"f1\":\"Bob\",\"f2\":80},\"after\":null,\"op\":\"d\"}");
+        expectedData.add("{\"before\":{\"f1\":\"Lisa\",\"f2\":90},\"after\":null,\"op\":\"d\"}");
         expectedData.sort(String::compareTo);
 
         assertEquals(expectedData, actualData);
     }
+
 }

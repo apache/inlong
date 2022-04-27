@@ -167,4 +167,61 @@ public class FlinkSqlParserTest extends AbstractTestBase {
         Assert.assertTrue(result.tryExecute());
     }
 
+
+    @Test
+    public void testCanalSinkMetadata() throws Exception {
+        EnvironmentSettings settings = EnvironmentSettings
+                .newInstance()
+                .useBlinkPlanner()
+                .inStreamingMode()
+                .build();
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        env.enableCheckpointing(10000);
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        tableEnv.executeSql("CREATE TABLE mysql_inlong (\n"
+                + "\t`database_name` VARCHAR(63) METADATA FROM 'database_name' VIRTUAL,\n"
+                + "\t`table_name` STRING  METADATA FROM 'table_name' VIRTUAL,\n"
+                + "\t`sql_type` MAP<STRING, INT> METADATA FROM 'meta.sql_type' VIRTUAL,\n"
+                + "\t`pk_names` ARRAY<STRING> METADATA FROM 'meta.pk_names' VIRTUAL,\n"
+                + "\t`ingestion_timestamp` TIMESTAMP_LTZ(3) METADATA FROM 'meta.ts' VIRTUAL,\n"
+                + "\t`event_timestamp` TIMESTAMP_LTZ(3) METADATA FROM 'meta.op_ts' VIRTUAL, \n"
+                + "\t`op_type` STRING METADATA FROM 'meta.op_type' VIRTUAL,\n"
+                + "\t`is_ddl` BOOLEAN METADATA FROM 'meta.is_ddl' VIRTUAL,\n"
+                + "\t`mysql_type` MAP<STRING. STRING> METADATA FROM 'meta.mysql_type' VIRTUAL,\n"
+                + "\t`batch_id` BIGINT METADATA FROM 'meta.batch_id' VIRTUAL,\n"
+                + "\t`update_before` ARRAY<MAP<STRING, STRING>> METADATA FROM 'meta.update_before' VIRTUAL\n"
+                + "\t`id` BIGINT,\n"
+                + "\t`name` STRING,\n"
+                + "\tPRIMARY KEY(`id`) NOT ENFORCED\n"
+                + ") with (\n"
+                + "\t'connector' = 'mysql-cdc-inlong',\n"
+                + "\t'hostname' = 'localhost',\n"
+                + "\t'username' = 'root',\n"
+                + "\t'password' = '123456',\n"
+                + "\t'database-name' = 'test',\n"
+                + "\t'table-name' = 'mysql_inlong'\n"
+                + ")");
+        tableEnv.executeSql("CREATE TABLE kafka_inlong (\n"
+                + "\t`database` STRING METADATA FROM 'value.database',\n"
+                + "\t`id` BIGINT,\n"
+                + "\t`name` VARCHAR(63),\n"
+                + "\t`table` STRING METADATA FROM 'value.table'\n"
+                + ") WITH (\n"
+                + "\t'topic' = 'idcard',\n"
+                + "\t'connector' = 'kafka-inlong',\n"
+                + "\t'properties.bootstrap.servers' = 'localhost:9092',\n"
+                + "\t'value.format' = 'canal-json-inlong',\n"
+                + "\t'scan.startup.mode' = 'earliest-offset'\n"
+                + ")\n");
+
+        tableEnv.executeSql("desc kafka_inlong").print();
+        tableEnv.executeSql("insert into kafka_inlong \n"
+                + "\tselect \n"
+                + "\t\tdatabase_name, id ,name, table_name\n"
+                + "\tfrom\n"
+                + "\t\tmysql_inlong").await();
+        /*tableEnv.executeSql("select * \n"
+                + "\tfrom kafka_inlong").print();*/
+    }
 }

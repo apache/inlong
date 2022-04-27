@@ -47,7 +47,7 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.ReadableMetadata;
+import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedDecodingFormat.ReadableMetadata;
 
 /**
  * Deserialization schema from Canal JSON to Flink Table/SQL internal data structure {@link
@@ -60,7 +60,7 @@ import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.Readabl
  *
  * @see <a href="https://github.com/alibaba/canal">Alibaba Canal</a>
  */
-public final class CanalJsonDeserializationSchema implements DeserializationSchema<RowData> {
+public final class CanalJsonEnhancedDeserializationSchema implements DeserializationSchema<RowData> {
     private static final long serialVersionUID = 1L;
 
     private static final String FIELD_OLD = "old";
@@ -101,7 +101,7 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
     /** Pattern of the specific table. */
     private final Pattern tablePattern;
 
-    private CanalJsonDeserializationSchema(
+    private CanalJsonEnhancedDeserializationSchema(
             DataType physicalDataType,
             List<ReadableMetadata> requestedMetadata,
             TypeInformation<RowData> producedTypeInfo,
@@ -137,7 +137,7 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
     // Builder
     // ------------------------------------------------------------------------------------------
 
-    /** Creates A builder for building a {@link CanalJsonDeserializationSchema}. */
+    /** Creates A builder for building a {@link CanalJsonEnhancedDeserializationSchema}. */
     public static Builder builder(
             DataType physicalDataType,
             List<ReadableMetadata> requestedMetadata,
@@ -145,7 +145,7 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
         return new Builder(physicalDataType, requestedMetadata, producedTypeInfo);
     }
 
-    /** A builder for creating a {@link CanalJsonDeserializationSchema}. */
+    /** A builder for creating a {@link CanalJsonEnhancedDeserializationSchema}. */
     @Internal
     public static final class Builder {
         private final DataType physicalDataType;
@@ -185,8 +185,8 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
             return this;
         }
 
-        public CanalJsonDeserializationSchema build() {
-            return new CanalJsonDeserializationSchema(
+        public CanalJsonEnhancedDeserializationSchema build() {
+            return new CanalJsonEnhancedDeserializationSchema(
                     physicalDataType,
                     requestedMetadata,
                     producedTypeInfo,
@@ -329,7 +329,7 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        CanalJsonDeserializationSchema that = (CanalJsonDeserializationSchema) o;
+        CanalJsonEnhancedDeserializationSchema that = (CanalJsonEnhancedDeserializationSchema) o;
         return Objects.equals(jsonDeserializer, that.jsonDeserializer)
                 && Objects.equals(producedTypeInfo, that.producedTypeInfo)
                 && Objects.equals(database, that.database)

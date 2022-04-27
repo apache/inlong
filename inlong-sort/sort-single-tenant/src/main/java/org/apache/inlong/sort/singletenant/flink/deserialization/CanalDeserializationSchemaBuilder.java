@@ -39,8 +39,8 @@ import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
-import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat;
-import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.ReadableMetadata;
+import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedDecodingFormat;
+import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedDecodingFormat.ReadableMetadata;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -54,7 +54,7 @@ public class CanalDeserializationSchemaBuilder {
             CanalDeserializationInfo deserializationInfo
     ) throws IOException, ClassNotFoundException {
         String timestampFormatStandard = deserializationInfo.getTimestampFormatStandard();
-        CanalJsonDecodingFormat canalJsonDecodingFormat = new CanalJsonDecodingFormat(
+        CanalJsonEnhancedDecodingFormat canalJsonEnhancedDecodingFormat = new CanalJsonEnhancedDecodingFormat(
                 deserializationInfo.getDatabase(),
                 deserializationInfo.getTable(),
                 deserializationInfo.isIgnoreParseErrors(),
@@ -66,11 +66,11 @@ public class CanalDeserializationSchemaBuilder {
         List<String> requiredMetadataKeys = Arrays.stream(metadataFieldInfos)
                 .map(FieldInfo::getName)
                 .collect(Collectors.toList());
-        canalJsonDecodingFormat.applyReadableMetadata(requiredMetadataKeys);
+        canalJsonEnhancedDecodingFormat.applyReadableMetadata(requiredMetadataKeys);
 
         FieldInfo[] originPhysicalFieldInfos = CommonUtils.extractNonBuiltInFieldInfos(fieldInfos, false);
         FieldInfo[] convertedPhysicalFieldInfos = convertDateToStringFormatInfo(originPhysicalFieldInfos);
-        DeserializationSchema<RowData> canalSchema = canalJsonDecodingFormat.createRuntimeDecoder(
+        DeserializationSchema<RowData> canalSchema = canalJsonEnhancedDecodingFormat.createRuntimeDecoder(
                 new DynamicTableSource.Context() {
                     @Override
                     public <T> TypeInformation<T> createTypeInformation(DataType dataType) {
