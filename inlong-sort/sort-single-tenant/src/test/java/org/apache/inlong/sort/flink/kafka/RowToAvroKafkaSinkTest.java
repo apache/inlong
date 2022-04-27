@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.singletenant.flink.kafka;
+package org.apache.inlong.sort.flink.kafka;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;

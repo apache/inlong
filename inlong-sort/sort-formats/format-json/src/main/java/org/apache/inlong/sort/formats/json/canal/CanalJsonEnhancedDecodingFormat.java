@@ -41,10 +41,13 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.formats.json.canal.CanalJsonDeserializationSchema.MetadataConverter;
+import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedDeserializationSchema.MetadataConverter;
 
-/** {@link DecodingFormat} for Canal using JSON encoding. */
-public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSchema<RowData>> {
+/**
+ * {@link DecodingFormat} for Canal using JSON encoding.
+ * different from flink:1.13.5. This support more metadata.
+ */
+public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<DeserializationSchema<RowData>> {
 
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
@@ -64,7 +67,7 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
 
     private final TimestampFormat timestampFormat;
 
-    public CanalJsonDecodingFormat(
+    public CanalJsonEnhancedDecodingFormat(
             String database,
             String table,
             boolean ignoreParseErrors,
@@ -96,7 +99,7 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
                 DataTypeUtils.appendRowFields(physicalDataType, metadataFields);
         final TypeInformation<RowData> producedTypeInfo =
                 context.createTypeInformation(producedDataType);
-        return CanalJsonDeserializationSchema.builder(
+        return CanalJsonEnhancedDeserializationSchema.builder(
                         physicalDataType, readableMetadata, producedTypeInfo)
                 .setDatabase(database)
                 .setTable(table)
@@ -231,7 +234,7 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
 
         EVENT_TIMESTAMP(
                 "event-timestamp",
-                DataTypes.BIGINT().nullable(),
+                DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE().nullable(),
                 DataTypes.FIELD("es", DataTypes.BIGINT()),
                 new MetadataConverter() {
                     private static final long serialVersionUID = 1L;
@@ -241,7 +244,7 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
                         if (row.isNullAt(pos)) {
                             return null;
                         }
-                        return row.getLong(pos);
+                        return TimestampData.fromEpochMillis(row.getLong(pos));
                     }
 
                     @Override
@@ -249,7 +252,27 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
                         return in;
                     }
                 }),
+        // additional metadata
+        OP_TYPE(
+                "op-type",
+                DataTypes.STRING().nullable(),
+                DataTypes.FIELD("opType", DataTypes.STRING()),
+                new MetadataConverter() {
+                    private static final long serialVersionUID = 1L;
 
+                    @Override
+                    public Object convert(GenericRowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
+                        return row.getString(pos);
+                    }
+
+                    @Override
+                    public Object convert(Object in) {
+                        return in;
+                    }
+                }),
         IS_DDL(
                 "is-ddl",
                 DataTypes.BOOLEAN().nullable(),
@@ -268,6 +291,73 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
                     @Override
                     public Object convert(Object in) {
                         return in;
+                    }
+                }),
+
+        MYSQL_TYPE(
+                "mysql-type",
+                DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.STRING().nullable()).nullable(),
+                DataTypes.FIELD("mysqlType", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
+                new MetadataConverter() {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Object convert(GenericRowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
+                        return row.getMap(pos);
+                    }
+
+                    @Override
+                    public Object convert(Object in) {
+                        return new GenericMapData((Map<String, Integer>) in);
+                    }
+                }),
+        BATCH_ID(
+                "batch-id",
+                DataTypes.BIGINT().nullable(),
+                DataTypes.FIELD("batchId", DataTypes.BIGINT()),
+                new MetadataConverter() {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Object convert(GenericRowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
+                        return row.getLong(pos);
+                    }
+
+                    @Override
+                    public Object convert(Object in) {
+                        return in;
+                    }
+                }),
+        UPDATE_BEFORE(
+                "update-before",
+                DataTypes.ARRAY(
+                        DataTypes.MAP(
+                                DataTypes.STRING().nullable(),
+                                DataTypes.STRING().nullable())
+                                .nullable())
+                        .nullable(),
+                DataTypes.FIELD("updateBefore", DataTypes.ARRAY(
+                        DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING()))),
+                new MetadataConverter() {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Object convert(GenericRowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
+                        return row.getArray(pos);
+                    }
+
+                    @Override
+                    public Object convert(Object in) {
+                        return new GenericArrayData((Object[]) in);
                     }
                 });
 

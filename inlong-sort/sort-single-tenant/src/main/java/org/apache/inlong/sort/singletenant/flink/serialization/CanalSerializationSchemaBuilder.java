@@ -28,7 +28,7 @@ import java.util.Map;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.Row;
-import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.ReadableMetadata;
+import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedDecodingFormat.ReadableMetadata;
 import org.apache.inlong.sort.formats.json.canal.CanalJsonSerializationSchema;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;

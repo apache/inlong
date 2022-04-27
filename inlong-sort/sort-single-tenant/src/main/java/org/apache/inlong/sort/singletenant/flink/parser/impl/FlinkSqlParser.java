@@ -663,29 +663,27 @@ public class FlinkSqlParser implements Parser {
             case MYSQL_METADATA_DATABASE:
                 metaType = "STRING METADATA FROM 'value.database'";
                 break;
-            case MYSQL_METADATA_EVENT_TIME:
-                metaType = "TIMESTAMP(3) METADATA FROM 'value.op_ts'";
+            case METADATA_SQL_TYPE:
+                metaType = "MAP<STRING, INT> METADATA FROM 'value.sql-type'";
                 break;
+            case METADATA_PK_NAMES:
+                metaType = "ARRAY<STRING> METADATA FROM 'value.pk-names'";
+                break;
+            case METADATA_TS:
+                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.ingestion-timestamp'";
+                break;
+            case MYSQL_METADATA_EVENT_TIME:
+                metaType = "TIMESTAMP(3) METADATA FROM 'value.event-timestamp'";
+                break;
+            // additional metadata
             case MYSQL_METADATA_EVENT_TYPE:
                 metaType = "STRING METADATA FROM 'value.op_type'";
-                break;
-            case MYSQL_METADATA_DATA:
-                metaType = "STRING METADATA FROM 'value.data'";
                 break;
             case MYSQL_METADATA_IS_DDL:
                 metaType = "BOOLEAN METADATA FROM 'value.is_ddl'";
                 break;
-            case METADATA_TS:
-                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.ts'";
-                break;
-            case METADATA_SQL_TYPE:
-                metaType = "MAP<STRING, INT> METADATA FROM 'value.sql_type'";
-                break;
             case METADATA_MYSQL_TYPE:
                 metaType = "MAP<STRING, STRING> METADATA FROM 'value.mysql_type'";
-                break;
-            case METADATA_PK_NAMES:
-                metaType = "ARRAY<STRING> METADATA FROM 'value.pk_names'";
                 break;
             case METADATA_BATCH_ID:
                 metaType = "BIGINT METADATA FROM 'value.batch_id'";

@@ -19,7 +19,7 @@
 package org.apache.inlong.sort.formats.json.canal;
 
 import org.apache.inlong.sort.formats.json.MysqlBinLogData;
-import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.ReadableMetadata;
+import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedDecodingFormat.ReadableMetadata;
 
 public class CanalUtils {
 
