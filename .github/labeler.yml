@@ -16,32 +16,40 @@
 #
 
 inlong-agent:
-  - inlong-agent/**/*
+  - 'inlong-agent/**/*'
 
 inlong-dataproxy:
-  - inlong-dataproxy/**/*
+  - 'inlong-dataproxy/**/*'
 
 inlong-manager:
-  - inlong-manager/**/*
+  - 'inlong-manager/**/*'
 
 inlong-sort:
-  - inlong-sort/**/*
+  - 'inlong-sort/**/*'
 
 inlong-sort-standalone:
-  - inlong-sort-standalone/**/*
+  - 'inlong-sort-standalone/**/*'
 
 inlong-tubemq:
-  - inlong-tubemq/**/*
+  - 'inlong-tubemq/**/*'
 
 inlong-dashboard:
-  - inlong-dashboard/**/*
+  - 'inlong-dashboard/**/*'
 
 inlong-audit:
-  - inlong-audit/**/*
+  - 'inlong-audit/**/*'
 
 inlong-sdk:
-  - inlong-sdk/**/*
+  - 'inlong-sdk/**/*'
 
 ci:
-  - .github/workflows/**/*
-  - .github/actions/**/*
+  - '.github/workflows/**/*'
+  - '.github/actions/**/*'
+
+docker:
+  - '**/Dockerfile'
+  - '**/*-docker.sh'
+  - 'docker/docker-compose/**/*'
+
+k8s:
+  - 'docker/kubernetes/**/*'
