@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.sort.util;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.shaded.com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.enums.TransformType;
@@ -75,6 +76,9 @@ public class NodeRelationShipUtils {
     }
 
     public static void optimizeNodeRelationShips(StreamInfo streamInfo, List<TransformResponse> transformResponses) {
+        if (CollectionUtils.isEmpty(transformResponses)) {
+            return;
+        }
         Map<String, TransformDefinition> transformTypeMap = transformResponses.stream().collect(
                 Collectors.toMap(transformResponse -> transformResponse.getTransformName(),
                         transformResponse -> {

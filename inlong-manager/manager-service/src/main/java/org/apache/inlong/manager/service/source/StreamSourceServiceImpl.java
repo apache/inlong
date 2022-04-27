@@ -110,6 +110,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         }
         List<SourceResponse> responseList = new ArrayList<>();
         entityList.forEach(entity -> responseList.add(this.get(entity.getId(), entity.getSourceType())));
+
         LOGGER.debug("success to list source by groupId={}, streamId={}", groupId, streamId);
         return responseList;
     }

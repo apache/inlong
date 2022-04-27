@@ -54,7 +54,8 @@
         from stream_source_field
         where id = #{id,jdbcType=INTEGER}
     </delete>
-    <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceFieldEntity">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.StreamSourceFieldEntity">
         insert into stream_source_field (id, inlong_group_id, inlong_stream_id,
                                          source_id, source_type, field_name,
                                          field_value, pre_expression, field_type,
@@ -66,7 +67,8 @@
                 #{fieldComment,jdbcType=VARCHAR}, #{isMetaField,jdbcType=SMALLINT}, #{fieldFormat,jdbcType=VARCHAR},
                 #{rankNum,jdbcType=SMALLINT}, #{isDeleted,jdbcType=INTEGER})
     </insert>
-    <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceFieldEntity">
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.StreamSourceFieldEntity">
         insert into stream_source_field
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -229,11 +231,14 @@
         rank_num, is_deleted)
         values
         <foreach collection="list" index="index" item="item" separator=",">
-            (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
-            #{sourceId,jdbcType=INTEGER}, #{sourceType,jdbcType=VARCHAR}, #{fieldName,jdbcType=VARCHAR},
-            #{fieldValue,jdbcType=VARCHAR}, #{preExpression,jdbcType=VARCHAR}, #{fieldType,jdbcType=VARCHAR},
-            #{fieldComment,jdbcType=VARCHAR}, #{isMetaField,jdbcType=SMALLINT}, #{fieldFormat,jdbcType=VARCHAR},
-            #{rankNum,jdbcType=SMALLINT}, #{isDeleted,jdbcType=INTEGER})
+            (#{item.id,jdbcType=INTEGER}, #{item.inlongGroupId,jdbcType=VARCHAR},
+            #{item.inlongStreamId,jdbcType=VARCHAR},
+            #{item.sourceId,jdbcType=INTEGER}, #{item.sourceType,jdbcType=VARCHAR}, #{item.fieldName,jdbcType=VARCHAR},
+            #{item.fieldValue,jdbcType=VARCHAR}, #{item.preExpression,jdbcType=VARCHAR},
+            #{item.fieldType,jdbcType=VARCHAR},
+            #{item.fieldComment,jdbcType=VARCHAR}, #{item.isMetaField,jdbcType=SMALLINT},
+            #{item.fieldFormat,jdbcType=VARCHAR},
+            #{item.rankNum,jdbcType=SMALLINT}, #{item.isDeleted,jdbcType=INTEGER})
         </foreach>
     </insert>
 
