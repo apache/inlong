@@ -41,7 +41,7 @@ images:
     tag: latest
   mysql:
     repository: mysql
-    tag: 5.7
+    tag: 8.0.28
   zookeeper:
     repository: zookeeper
     tag: latest
