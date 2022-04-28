@@ -180,19 +180,21 @@ helm template ./ --output-dir ./result
 
 Then, you can check the rendered templates in the `result` directory.
 
+#### Quick start with Chart Testing
+
 Also, you can use the [helm/chart-testing](https://github.com/helm/chart-testing) tool to test your Helm chart.
 You can follow the [installation](https://github.com/helm/chart-testing#installation) section in the official documentation to install it.
 But for simplicity, their [Docker image](https://quay.io/repository/helmpack/chart-testing?tab=tags) is recommended.
 
-To list changed charts, try:
+To list changed charts, in the project root, try:
 
 ```shell
 docker run -it --rm \
                --name ct \
                --workdir=/data \
-               --volume $(pwd):/data \
+               --volume "$(pwd)":/data \
                quay.io/helmpack/chart-testing \
-               ct list-changed --config .github/ct.yml --target-branch master
+               ct list-changed --chart-dirs docker --target-branch master
 ```
 
 To lint and validate the chart, try:
@@ -201,9 +203,9 @@ To lint and validate the chart, try:
 docker run -it --rm \
                --name ct \
                --workdir=/data \
-               --volume $(pwd):/data \
+               --volume "$(pwd)":/data \
                quay.io/helmpack/chart-testing \
-               ct lint --config .github/ct.yml
+               ct lint --chart-dirs docker
 ```
 
 To install and test the chart, try:
@@ -212,12 +214,10 @@ To install and test the chart, try:
 docker run -it --rm \
                --name ct \
                --workdir=/data \
-               --volume $(pwd):/data \
+               --volume "$(pwd)":/data \
                quay.io/helmpack/chart-testing \
-               ct install --config .github/ct.yml
+               ct install --chart-dirs docker
 ```
-
-Here is the [.github/ct.yml](../../.github/ct.yml) configuration file.
 
 > NOTE: If the charts have not changed, they will not be linted, validated, installed and tested.
 
