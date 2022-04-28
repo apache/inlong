@@ -18,10 +18,11 @@
 
 package org.apache.inlong.sort.formats.common;
 
-import java.io.Serializable;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import java.io.Serializable;
 
 /**
  * The format information for data types.
@@ -29,6 +30,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(name = "string", value = StringFormatInfo.class),
+        @JsonSubTypes.Type(name = "varchar", value = VarCharFormatInfo.class),
         @JsonSubTypes.Type(name = "boolean", value = BooleanFormatInfo.class),
         @JsonSubTypes.Type(name = "byte", value = ByteFormatInfo.class),
         @JsonSubTypes.Type(name = "short", value = ShortFormatInfo.class),

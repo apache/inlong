@@ -40,7 +40,7 @@ public class WatermarkFieldTest extends FunctionBaseTest {
     @Override
     public String getExpectSerializeStr() {
         return "{\"type\":\"watermark\",\"timeAttr\":{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}},"
+                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}},"
                 + "\"interval\":{\"type\":\"stringConstant\",\"value\":\"10\"},"
                 + "\"timeUnit\":{\"type\":\"timeUnitConstant\",\"timeUnit\":\"HOUR\",\"value\":\"HOUR\"}}";
     }

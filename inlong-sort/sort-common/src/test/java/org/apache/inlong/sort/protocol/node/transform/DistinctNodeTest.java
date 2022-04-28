@@ -61,7 +61,7 @@ public class DistinctNodeTest extends NodeBaseTest {
                 + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"f2\","
                 + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"f3\","
                 + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}}],"
+                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}}],"
                 + "\"fieldRelationShips\":[{\"type\":\"fieldRelationShip\",\"inputField\":{\"type\":\"base\","
                 + "\"name\":\"f1\",\"formatInfo\":{\"type\":\"string\"}},\"outputField\":{\"type\":\"base\","
                 + "\"name\":\"f1\",\"formatInfo\":{\"type\":\"string\"}}},{\"type\":\"fieldRelationShip\","
