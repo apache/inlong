@@ -17,21 +17,26 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.dao.entity.ComponentHeartbeatEntityWithBLOBs;
+import org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatPageRequest;
+import org.apache.inlong.manager.dao.entity.ComponentHeartbeatEntity;
+import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
+@Repository
 public interface ComponentHeartbeatEntityMapper {
+
+    int insert(ComponentHeartbeatEntity record);
+
+    int insertOrUpdateByKey(ComponentHeartbeatEntity record);
+
+    ComponentHeartbeatEntity selectByPrimaryKey(Integer id);
+
+    ComponentHeartbeatEntity selectByKey(@Param("component") String component, @Param("instance") String instance);
+
+    List<ComponentHeartbeatEntity> selectByCondition(@Param("request") HeartbeatPageRequest request);
+
     int deleteByPrimaryKey(Integer id);
 
-    int insert(ComponentHeartbeatEntityWithBLOBs record);
-
-    ComponentHeartbeatEntityWithBLOBs selectByPrimaryKey(Integer id);
-
-    ComponentHeartbeatEntityWithBLOBs selectByKey(@Param("component") String component,
-            @Param("instance") String instance);
-
-    List<ComponentHeartbeatEntityWithBLOBs> selectHeartbeats(@Param("component") String component);
-
-    int updateByKeyWithBLOBs(ComponentHeartbeatEntityWithBLOBs record);
 }

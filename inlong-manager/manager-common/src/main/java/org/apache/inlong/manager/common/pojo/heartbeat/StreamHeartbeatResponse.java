@@ -17,36 +17,45 @@
 
 package org.apache.inlong.manager.common.pojo.heartbeat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
+import java.util.Date;
+
+/**
+ * Inlong stream heartbeat response
+ */
 @Data
 @ApiModel("Inlong stream heartbeat response")
 public class StreamHeartbeatResponse {
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
+
+    @ApiModelProperty(value = "Component name, such as: Agent, Sort...")
     private String component;
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "Component instance, can be ip, name...")
     private String instance;
 
-    @ApiModelProperty
-    private long reportTime;
-
-    @ApiModelProperty
+    @ApiModelProperty(value = "Inlong group id")
     private String inlongGroupId;
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "Inlong stream id")
     private String inlongStreamId;
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "Stream status heartbeat")
     private String statusHeartbeat;
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "Stream metric heartbeat")
     private String metricHeartbeat;
+
+    @ApiModelProperty(value = "Report time of heartbeat")
+    private Long reportTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
+
 }

@@ -17,32 +17,38 @@
 
 package org.apache.inlong.manager.common.pojo.heartbeat;
 
-import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
-@Getter
-@Setter
+import javax.validation.constraints.NotBlank;
+import java.util.List;
+
+/**
+ * Request of heartbeat report
+ */
+@Data
+@ApiModel("Request of heartbeat report")
 public class HeartbeatReportRequest {
 
+    @NotBlank
+    @ApiModelProperty(value = "Component name, such as: Agent, Sort...", required = true)
     private String component;
 
+    @NotBlank
+    @ApiModelProperty(value = "Component instance, can be ip, name...", required = true)
     private String instance;
 
-    private long reportTimestamp;
+    @ApiModelProperty(value = "Report timestamp", required = true)
+    private Long reportTime;
 
-    /*
-     * component
-     */
+    @ApiModelProperty(value = "Component heartbeat info")
     private ComponentHeartbeat componentHeartbeat;
 
-    /*
-     * group
-     */
+    @ApiModelProperty(value = "Group heartbeat list")
     private List<GroupHeartbeat> groupHeartbeats;
 
-    /*
-     * stream
-     */
+    @ApiModelProperty(value = "Stream heartbeat list")
     private List<StreamHeartbeat> streamHeartbeats;
+
 }

@@ -17,18 +17,27 @@
 
 package org.apache.inlong.manager.common.pojo.heartbeat;
 
-import lombok.Getter;
-import lombok.Setter;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
-@Getter
-@Setter
+/**
+ * Inlong stream heartbeat info
+ */
+@Data
+@ApiModel("Inlong stream heartbeat info")
 public class StreamHeartbeat {
 
+    @ApiModelProperty(value = "Inlong group id")
     private String inlongGroupId;
 
+    @ApiModelProperty(value = "Inlong stream id")
     private String inlongStreamId;
 
+    @ApiModelProperty(value = "Status heartbeat info")
     private String statusHeartbeat;
 
+    @ApiModelProperty(value = "Metric heartbeat info")
     private String metricHeartbeat;
+
 }

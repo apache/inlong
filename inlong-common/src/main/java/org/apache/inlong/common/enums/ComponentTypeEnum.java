@@ -21,16 +21,16 @@ import lombok.Getter;
 
 public enum ComponentTypeEnum {
 
-    Agent("Inlong-Agent"),
+    Agent("Agent"),
 
-    DataProxy("Inlong-DataProxy"),
+    DataProxy("DataProxy"),
 
-    Cache("Inlong-Cache"),
+    Cache("Cache"),
 
-    Sort("Inlong-Sort");
+    Sort("Sort");
 
     @Getter
-    private String name;
+    private final String name;
 
     ComponentTypeEnum(String name) {
         this.name = name;
