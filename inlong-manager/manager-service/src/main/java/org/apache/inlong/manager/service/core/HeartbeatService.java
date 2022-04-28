@@ -20,7 +20,9 @@ package org.apache.inlong.manager.service.core;
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.pojo.heartbeat.ComponentHeartbeatResponse;
 import org.apache.inlong.manager.common.pojo.heartbeat.GroupHeartbeatResponse;
+import org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatPageRequest;
 import org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatReportRequest;
+import org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatQueryRequest;
 import org.apache.inlong.manager.common.pojo.heartbeat.StreamHeartbeatResponse;
 
 /**
@@ -29,73 +31,59 @@ import org.apache.inlong.manager.common.pojo.heartbeat.StreamHeartbeatResponse;
 public interface HeartbeatService {
 
     /**
-     * report Heartbeat
+     * Report heartbeat for inlong component, such as Agent, Sort, etc.
+     *
      * @param request request
-     * @return
+     * @return saved success or not
      */
-    String reportHeartbeatInfo(HeartbeatReportRequest request);
+    Boolean reportHeartbeat(HeartbeatReportRequest request);
 
     /**
-     * get Component HeartbeatInfo
-     * @param component component
-     * @param instance instance
-     * @return ComponentHeartBeatResponse
+     * Get component heartbeat
+     *
+     * @param request query request of heartbeat
+     * @return component heartbeat
      */
-    ComponentHeartbeatResponse getComponentHeartbeatInfo(String component,
-            String instance);
+    ComponentHeartbeatResponse getComponentHeartbeat(HeartbeatQueryRequest request);
 
     /**
-     * get Group HeartbeatInfo
-     * @param component component
-     * @param instance instance
-     * @param inlongGroupId inlongGroupId
-     * @return  GroupHeartbeatResponse
+     * Get inlong group heartbeat
+     *
+     * @param request query request of heartbeat
+     * @return group heartbeat
      */
-    GroupHeartbeatResponse getGroupHeartbeatInfo(String component,
-            String instance, String inlongGroupId);
+    GroupHeartbeatResponse getGroupHeartbeat(HeartbeatQueryRequest request);
 
     /**
-     * get Stream HeartbeatInfo
-     * @param component component
-     * @param instance instance
-     * @param inlongGroupId inlongGroupId
-     * @param inlongStreamId inlongStreamId
-     * @return StreamHeartBeatResponse
+     * Get inlong stream heartbeat
+     *
+     * @param request query request of heartbeat
+     * @return stream heartbeat
      */
-    StreamHeartbeatResponse getStreamHeartbeatInfo(String component,
-            String instance, String inlongGroupId, String inlongStreamId);
+    StreamHeartbeatResponse getStreamHeartbeat(HeartbeatQueryRequest request);
 
     /**
-     * get Component HeartbeatInfos by page
-     * @param component  component
-     * @param pageNum pageNum
-     * @param pageSize pageSize
-     * @return one page of ComponentHeartBeatResponse
+     * List component heartbeat by page
+     *
+     * @param request paging query request
+     * @return list of component heartbeat
      */
-    PageInfo<ComponentHeartbeatResponse> getComponentHeartbeatInfos(String component, int pageNum,
-            int pageSize);
+    PageInfo<ComponentHeartbeatResponse> listComponentHeartbeat(HeartbeatPageRequest request);
 
     /**
-     * get Group HeartbeatInfos by page
-     * @param component component
-     * @param instance instance
-     * @param pageNum pageNum
-     * @param pageSize pageSize
-     * @return one page of GroupHeartbeatResponse
+     * List group heartbeat by page
+     *
+     * @param request paging query request
+     * @return list of group heartbeat
      */
-    PageInfo<GroupHeartbeatResponse> getGroupHeartbeatInfos(String component,
-            String instance, int pageNum, int pageSize);
+    PageInfo<GroupHeartbeatResponse> listGroupHeartbeat(HeartbeatPageRequest request);
 
     /**
-     * get Stream HeartbeatInfos
-     * @param component component
-     * @param instance instance
-     * @param inlongGroupId inlongGroupId
-     * @param pageNum pageNum
-     * @param pageSize pageSize
-     * @return one page of GroupHeartbeatResponse
+     * List stream heartbeat by page
+     *
+     * @param request paging query request
+     * @return list of stream heartbeat
      */
-    PageInfo<StreamHeartbeatResponse> getStreamHeartbeatInfos(String component,
-            String instance, String inlongGroupId, int pageNum, int pageSize);
+    PageInfo<StreamHeartbeatResponse> listStreamHeartbeat(HeartbeatPageRequest request);
 
 }

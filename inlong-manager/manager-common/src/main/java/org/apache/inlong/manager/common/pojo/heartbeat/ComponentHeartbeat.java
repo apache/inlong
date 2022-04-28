@@ -17,14 +17,21 @@
 
 package org.apache.inlong.manager.common.pojo.heartbeat;
 
-import lombok.Getter;
-import lombok.Setter;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
-@Getter
-@Setter
+/**
+ * Component heartbeat info
+ */
+@Data
+@ApiModel("Component heartbeat info")
 public class ComponentHeartbeat {
 
+    @ApiModelProperty(value = "Status heartbeat info")
     private String statusHeartbeat;
 
+    @ApiModelProperty(value = "Metric heartbeat info")
     private String metricHeartbeat;
+
 }

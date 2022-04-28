@@ -17,23 +17,29 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.dao.entity.GroupHeartbeatEntityWithBLOBs;
+import org.apache.inlong.manager.common.pojo.heartbeat.GroupHeartbeat;
+import org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatPageRequest;
+import org.apache.inlong.manager.dao.entity.GroupHeartbeatEntity;
+import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
+@Repository
 public interface GroupHeartbeatEntityMapper {
-    int deleteByPrimaryKey(Integer id);
 
-    int insert(GroupHeartbeatEntityWithBLOBs record);
+    int insert(GroupHeartbeatEntity record);
 
-    GroupHeartbeatEntityWithBLOBs selectByPrimaryKey(Integer id);
+    int insertOrUpdateAll(@Param("component") String component, @Param("instance") String instance,
+            @Param("reportTime") Long reportTime, @Param("list") List<GroupHeartbeat> list);
 
-    GroupHeartbeatEntityWithBLOBs selectByKey(@Param("component") String component,
-            @Param("instance") String instance,
+    GroupHeartbeatEntity selectByPrimaryKey(Integer id);
+
+    GroupHeartbeatEntity selectByKey(@Param("component") String component, @Param("instance") String instance,
             @Param("inlongGroupId") String inlongGroupId);
 
-    List<GroupHeartbeatEntityWithBLOBs> selectHeartbeats(@Param("component") String component,
-            @Param("instance") String instance);
+    List<GroupHeartbeatEntity> selectByCondition(@Param("request") HeartbeatPageRequest request);
 
-    int updateByKeyWithBLOBs(GroupHeartbeatEntityWithBLOBs record);
+    int deleteByPrimaryKey(Integer id);
+
 }
