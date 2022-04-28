@@ -20,17 +20,24 @@ package org.apache.inlong.manager.common.pojo.heartbeat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.inlong.manager.common.beans.PageRequest;
 
-@Getter
-@Setter
+/**
+ * Heartbeat query request
+ */
 @Data
-@ApiModel("Inlong component heartbeats query request")
-public class ComponentHeartbeatPageRequest
-        extends PageRequest {
+@ApiModel("Heartbeat query request")
+public class HeartbeatQueryRequest {
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "Component name, such as: Agent, Sort...")
     private String component;
+
+    @ApiModelProperty(value = "Component instance, can be ip, name...")
+    private String instance;
+
+    @ApiModelProperty(value = "Inlong group id")
+    private String inlongGroupId;
+
+    @ApiModelProperty(value = "Inlong stream id")
+    private String inlongStreamId;
+
 }

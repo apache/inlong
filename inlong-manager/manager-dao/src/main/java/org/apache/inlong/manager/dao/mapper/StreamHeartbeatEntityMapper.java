@@ -17,25 +17,30 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.dao.entity.StreamHeartbeatEntityWithBLOBs;
+import org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatPageRequest;
+import org.apache.inlong.manager.common.pojo.heartbeat.StreamHeartbeat;
+import org.apache.inlong.manager.dao.entity.StreamHeartbeatEntity;
+import org.springframework.stereotype.Repository;
 
+import java.util.Date;
+import java.util.List;
+
+@Repository
 public interface StreamHeartbeatEntityMapper {
+
+    int insert(StreamHeartbeatEntity record);
+
+    int insertOrUpdateAll(@Param("component") String component, @Param("instance") String instance,
+            @Param("reportTime") Long reportTime, @Param("list") List<StreamHeartbeat> list);
+
+    StreamHeartbeatEntity selectByPrimaryKey(Integer id);
+
+    StreamHeartbeatEntity selectByKey(@Param("component") String component, @Param("instance") String instance,
+            @Param("inlongGroupId") String inlongGroupId, @Param("inlongStreamId") String inlongStreamId);
+
+    List<StreamHeartbeatEntity> selectByCondition(@Param("request") HeartbeatPageRequest request);
+
     int deleteByPrimaryKey(Integer id);
 
-    int insert(StreamHeartbeatEntityWithBLOBs record);
-
-    StreamHeartbeatEntityWithBLOBs selectByPrimaryKey(Integer id);
-
-    StreamHeartbeatEntityWithBLOBs selectByKey(@Param("component") String component,
-            @Param("instance") String instance,
-            @Param("inlongGroupId") String inlongGroupId,
-            @Param("inlongStreamId") String inlongStreamId);
-
-    List<StreamHeartbeatEntityWithBLOBs> selectHeartbeats(@Param("component") String component,
-            @Param("instance") String instance,
-            @Param("inlongGroupId") String inlongGroupId);
-
-    int updateByKeyWithBLOBs(StreamHeartbeatEntityWithBLOBs record);
 }

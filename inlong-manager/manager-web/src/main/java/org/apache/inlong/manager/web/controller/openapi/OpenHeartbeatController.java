@@ -23,7 +23,6 @@ import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatReportRequest;
 import org.apache.inlong.manager.service.core.HeartbeatService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,17 +30,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/openapi/heartbeat")
-@Api(tags = "Heartbeat")
-public class HeartbeatController {
+@Api(tags = "Open-Heartbeat-API")
+public class OpenHeartbeatController {
 
     @Autowired
-    private HeartbeatService heartBeatService;
+    private HeartbeatService heartbeatService;
 
-    @PostMapping(value = "/report",
-            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/report")
     @ApiOperation(value = "heartbeat report")
-    public Response<String> reportHeartbeat(@RequestBody HeartbeatReportRequest info) {
-        return Response.success(heartBeatService.reportHeartbeatInfo(info));
+    public Response<Boolean> reportHeartbeat(@RequestBody HeartbeatReportRequest info) {
+        return Response.success(heartbeatService.reportHeartbeat(info));
     }
+
 }
 
