@@ -42,6 +42,15 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
+import org.apache.inlong.manager.common.pojo.heartbeat.ComponentHeartbeatPageRequest;
+import org.apache.inlong.manager.common.pojo.heartbeat.ComponentHeartbeatRequest;
+import org.apache.inlong.manager.common.pojo.heartbeat.ComponentHeartbeatResponse;
+import org.apache.inlong.manager.common.pojo.heartbeat.GroupHeartbeatPageRequest;
+import org.apache.inlong.manager.common.pojo.heartbeat.GroupHeartbeatRequest;
+import org.apache.inlong.manager.common.pojo.heartbeat.GroupHeartbeatResponse;
+import org.apache.inlong.manager.common.pojo.heartbeat.StreamHeartbeatPageRequest;
+import org.apache.inlong.manager.common.pojo.heartbeat.StreamHeartbeatRequest;
+import org.apache.inlong.manager.common.pojo.heartbeat.StreamHeartbeatResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
@@ -918,6 +927,187 @@ public class InnerInlongManagerClient {
             return pageInfo.getList();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Get inlong stream log failed: %s", e.getMessage()), e);
+        }
+    }
+
+    /**
+     * get component heartbeat info response
+     *
+     * @param info
+     * @return
+     */
+    public ComponentHeartbeatResponse getComponentheartbeatInfo(ComponentHeartbeatRequest info) {
+        final String path = HTTP_PATH + "/heartbeat/component/info";
+        final String url = formatUrl(path);
+        String infoRequest = GsonUtil.toJson(info);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), infoRequest);
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", requestBody)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            okhttp3.Response response = call.execute();
+            assert response.body() != null;
+            String body = response.body().string();
+            assertHttpSuccess(response, body, path);
+            Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed: %s", responseBody.getErrMsg()));
+            return InlongParser.parseComponentHeartbeat(responseBody);
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Get component heartbeat info failed: %s", e.getMessage()),
+                    e);
+        }
+    }
+
+    /**
+     * get group heartbeat info response
+     *
+     * @param info
+     * @return
+     */
+    public GroupHeartbeatResponse getGroupheartbeatInfo(GroupHeartbeatRequest info) {
+        final String path = HTTP_PATH + "/heartbeat/group/info";
+        final String url = formatUrl(path);
+        String infoRequest = GsonUtil.toJson(info);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), infoRequest);
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", requestBody)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            okhttp3.Response response = call.execute();
+            assert response.body() != null;
+            String body = response.body().string();
+            assertHttpSuccess(response, body, path);
+            Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed: %s", responseBody.getErrMsg()));
+            return InlongParser.parseGroupHeartbeat(responseBody);
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Get group heartbeat info failed: %s", e.getMessage()),
+                    e);
+        }
+    }
+
+    /**
+     * get stream heartbeat info response
+     *
+     * @param info
+     * @return
+     */
+    public StreamHeartbeatResponse getStreamHeartbeatInfo(StreamHeartbeatRequest info) {
+        final String path = HTTP_PATH + "/heartbeat/stream/info";
+        final String url = formatUrl(path);
+        String infoRequest = GsonUtil.toJson(info);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), infoRequest);
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", requestBody)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            okhttp3.Response response = call.execute();
+            assert response.body() != null;
+            String body = response.body().string();
+            assertHttpSuccess(response, body, path);
+            Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed: %s", responseBody.getErrMsg()));
+            return InlongParser.parseStreamHeartbeat(responseBody);
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Get stream heartbeat info failed: %s", e.getMessage()),
+                    e);
+        }
+    }
+
+    /**
+     * list component heartbeat info
+     */
+    public List<ComponentHeartbeatResponse> listComponentHearbeat(ComponentHeartbeatPageRequest info) {
+        final String path = HTTP_PATH + "/heartbeat/component/list";
+        String url = formatUrl(path);
+        String infoRequest = GsonUtil.toJson(info);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), infoRequest);
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", requestBody)
+                .build();
+        Call call = httpClient.newCall(request);
+        try {
+            okhttp3.Response response = call.execute();
+            assert response.body() != null;
+            String body = response.body().string();
+            assertHttpSuccess(response, body, path);
+            Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed: %s", responseBody.getErrMsg()));
+            PageInfo<ComponentHeartbeatResponse> pageInfo = InlongParser.parseComponentHeartbeatList(responseBody);
+            return pageInfo.getList();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("get component heartbeat info list failed: %s",
+                    e.getMessage()), e);
+        }
+    }
+
+    /**
+     * list group heartbeat info
+     */
+    public List<GroupHeartbeatResponse> listGroupHearbeat(GroupHeartbeatPageRequest info) {
+        final String path = HTTP_PATH + "/heartbeat/group/list";
+        String url = formatUrl(path);
+        String infoRequest = GsonUtil.toJson(info);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), infoRequest);
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", requestBody)
+                .build();
+        Call call = httpClient.newCall(request);
+        try {
+            okhttp3.Response response = call.execute();
+            assert response.body() != null;
+            String body = response.body().string();
+            assertHttpSuccess(response, body, path);
+            Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed: %s", responseBody.getErrMsg()));
+            PageInfo<GroupHeartbeatResponse> pageInfo = InlongParser.parseGroupHeartbeatList(responseBody);
+            return pageInfo.getList();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("get group heartbeat info list failed: %s", e.getMessage()), e);
+        }
+    }
+
+    /**
+     * list stream heartbeat info
+     */
+    public List<StreamHeartbeatResponse> listStreamHearbeat(StreamHeartbeatPageRequest info) {
+        final String path = HTTP_PATH + "/heartbeat/stream/list";
+        String url = formatUrl(path);
+        String infoRequest = GsonUtil.toJson(info);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), infoRequest);
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", requestBody)
+                .build();
+        Call call = httpClient.newCall(request);
+        try {
+            okhttp3.Response response = call.execute();
+            assert response.body() != null;
+            String body = response.body().string();
+            assertHttpSuccess(response, body, path);
+            Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed: %s", responseBody.getErrMsg()));
+            PageInfo<StreamHeartbeatResponse> pageInfo = InlongParser.parseStreambeatList(responseBody);
+            return pageInfo.getList();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("get stream heartbeat info list failed: %s", e.getMessage()), e);
         }
     }
 

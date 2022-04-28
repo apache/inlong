@@ -31,6 +31,9 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
+import org.apache.inlong.manager.common.pojo.heartbeat.ComponentHeartbeatResponse;
+import org.apache.inlong.manager.common.pojo.heartbeat.GroupHeartbeatResponse;
+import org.apache.inlong.manager.common.pojo.heartbeat.StreamHeartbeatResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
@@ -80,6 +83,24 @@ public class InlongParser {
         Object data = response.getData();
         String resultData = GsonUtil.toJson(data);
         return GsonUtil.fromJson(resultData, WorkflowResult.class);
+    }
+
+    public static ComponentHeartbeatResponse parseComponentHeartbeat(Response response) {
+        Object data = response.getData();
+        String resultData = GsonUtil.toJson(data);
+        return GsonUtil.fromJson(resultData, ComponentHeartbeatResponse.class);
+    }
+
+    public static GroupHeartbeatResponse parseGroupHeartbeat(Response response) {
+        Object data = response.getData();
+        String resultData = GsonUtil.toJson(data);
+        return GsonUtil.fromJson(resultData, GroupHeartbeatResponse.class);
+    }
+
+    public static StreamHeartbeatResponse parseStreamHeartbeat(Response response) {
+        Object data = response.getData();
+        String resultData = GsonUtil.toJson(data);
+        return GsonUtil.fromJson(resultData, StreamHeartbeatResponse.class);
     }
 
     public static InlongGroupResponse parseGroupInfo(Response response) {
@@ -276,6 +297,30 @@ public class InlongParser {
         String pageInfoJson = GsonUtil.toJson(data);
         return GsonUtil.fromJson(pageInfoJson,
                 new TypeToken<PageInfo<EventLogView>>() {
+                }.getType());
+    }
+
+    public static PageInfo<ComponentHeartbeatResponse> parseComponentHeartbeatList(Response response) {
+        Object data = response.getData();
+        String pageInfoJson = GsonUtil.toJson(data);
+        return GsonUtil.fromJson(pageInfoJson,
+                new TypeToken<PageInfo<ComponentHeartbeatResponse>>() {
+                }.getType());
+    }
+
+    public static PageInfo<GroupHeartbeatResponse> parseGroupHeartbeatList(Response response) {
+        Object data = response.getData();
+        String pageInfoJson = GsonUtil.toJson(data);
+        return GsonUtil.fromJson(pageInfoJson,
+                new TypeToken<PageInfo<GroupHeartbeatResponse>>() {
+                }.getType());
+    }
+
+    public static PageInfo<StreamHeartbeatResponse> parseStreambeatList(Response response) {
+        Object data = response.getData();
+        String pageInfoJson = GsonUtil.toJson(data);
+        return GsonUtil.fromJson(pageInfoJson,
+                new TypeToken<PageInfo<StreamHeartbeatResponse>>() {
                 }.getType());
     }
 
