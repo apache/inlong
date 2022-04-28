@@ -24,7 +24,6 @@ import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
-import org.apache.inlong.manager.service.core.InlongClusterService;
 import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 
 @RestController
@@ -66,7 +64,6 @@ public class DataProxyController {
         }
         return Response.success(dto);
     }
-
 
     @GetMapping("/getAllConfig")
     @ApiOperation(value = "Get all proxy config")
