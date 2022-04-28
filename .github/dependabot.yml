@@ -46,7 +46,7 @@ updates:
       prefix: "[Dependabot]"
       include: "scope"
     open-pull-requests-limit: 2
-  
+
   # Maintain dependencies for Docker
   - package-ecosystem: "docker"
     directory: "/"
