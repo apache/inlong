@@ -40,7 +40,7 @@ public class CsvFormat implements Format {
 
     @JsonProperty(value = "fieldDelimiter", defaultValue = ",")
     private String fieldDelimiter;
-    @JsonProperty(value = "disableQuoteCharacter", defaultValue = "false")
+    @JsonProperty(value = "disableQuoteCharacter", defaultValue = "true")
     private Boolean disableQuoteCharacter;
     @JsonProperty(value = "quoteCharacter", defaultValue = "\"")
     private String quoteCharacter;
@@ -94,10 +94,11 @@ public class CsvFormat implements Format {
         Map<String, String> options = new HashMap<>(16);
         options.put("format", getFormat());
         options.put("csv.field-delimiter", this.fieldDelimiter);
-        if (this.disableQuoteCharacter != null) {
-            options.put("csv.disable-quote-character", this.disableQuoteCharacter.toString());
+        options.put("csv.disable-quote-character", this.disableQuoteCharacter.toString());
+        // disable quote and quote character cannot appear at the same time
+        if (!this.disableQuoteCharacter) {
+            options.put("csv.quote-character", this.quoteCharacter);
         }
-        options.put("csv.quote-character", this.quoteCharacter);
         if (this.allowComments != null) {
             options.put("csv.allow-comments", this.allowComments.toString());
         }

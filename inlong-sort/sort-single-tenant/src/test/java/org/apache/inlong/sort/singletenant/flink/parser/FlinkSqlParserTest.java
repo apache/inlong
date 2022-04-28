@@ -40,6 +40,7 @@ import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
@@ -55,28 +56,40 @@ import org.junit.Test;
  */
 public class FlinkSqlParserTest extends AbstractTestBase {
 
-    private MySqlExtractNode buildAllMigrateExtractNode() {
-        List<FieldInfo> fields = Arrays.asList(
-            new BuiltInFieldInfo("data", new StringFormatInfo(), MYSQL_METADATA_DATA));
-        Map<String, String> a = new HashMap<>();
-        a.put("append-mode", "true");
-        a.put("migrate-all", "true");
-        MySqlExtractNode node = new MySqlExtractNode("1", "mysql_input", fields,
-            null, a, null,
-            Arrays.asList("[\\s\\S]*.*"), "localhost", "root", "Eminem@123456",
-            "[\\s\\S]*.*", null, null, false, null);
-        return node;
+
+    private MySqlExtractNode buildMySQLExtractNode() {
+        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
+            new FieldInfo("name", new StringFormatInfo()),
+            new FieldInfo("age", new IntFormatInfo()),
+            new FieldInfo("salary", new FloatFormatInfo()),
+            new FieldInfo("ts", new TimestampFormatInfo()));
+        return new MySqlExtractNode("1", "mysql_input", fields,
+            null, null, "id",
+            Collections.singletonList("test"), "localhost", "username", "username",
+            "test_database", null, null,
+            null, null);
     }
 
-    private KafkaLoadNode buildAllMigrateKafkaNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("name", new StringFormatInfo()));
+    private KafkaLoadNode buildKafkaNode() {
+        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
+            new FieldInfo("name", new StringFormatInfo()),
+            new FieldInfo("age", new IntFormatInfo()),
+            new FieldInfo("salary", new FloatFormatInfo()),
+            new FieldInfo("ts", new TimestampFormatInfo()));
         List<FieldRelationShip> relations = Arrays
-                .asList(new FieldRelationShip(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo())));
+            .asList(new FieldRelationShip(new FieldInfo("id", new LongFormatInfo()),
+                    new FieldInfo("id", new LongFormatInfo())),
+                new FieldRelationShip(new FieldInfo("name", new StringFormatInfo()),
+                    new FieldInfo("name", new StringFormatInfo())),
+                new FieldRelationShip(new FieldInfo("age", new IntFormatInfo()),
+                    new FieldInfo("age", new IntFormatInfo())),
+                new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
+                    new FieldInfo("ts", new TimestampFormatInfo()))
+            );
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
-                "topic", "localhost:9092",
-                new CsvFormat(), null,
-                null, null);
+            "topic", "localhost:9092",
+            new CanalJsonFormat(), null,
+            null, null);
     }
 
     private NodeRelationShip buildNodeRelation(List<Node> inputs, List<Node> outputs) {
