@@ -24,6 +24,7 @@ import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.LoadNode;
@@ -33,6 +34,7 @@ import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
+import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 
@@ -55,6 +57,8 @@ public class LoadNodeUtils {
         switch (sinkType) {
             case KAFKA:
                 return createLoadNode((KafkaSinkResponse) sinkResponse);
+            case HIVE:
+                return createLoadNode((HiveSinkResponse) sinkResponse);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sinkType=%s to create loadNode", sinkType));
@@ -112,6 +116,46 @@ public class LoadNodeUtils {
                 sinkParallelism,
                 properties,
                 primaryKey);
+    }
+
+    public static HiveLoadNode createLoadNode(HiveSinkResponse hiveSinkResponse) {
+        String id = hiveSinkResponse.getSinkName();
+        String name = hiveSinkResponse.getSinkName();
+        String database = hiveSinkResponse.getDbName();
+        String tableName = hiveSinkResponse.getTableName();
+        String hiveConfDir = hiveSinkResponse.getHiveConfDir();
+        String hiveVersion = hiveSinkResponse.getHiveVersion();
+        List<SinkFieldResponse> sinkFieldResponses = hiveSinkResponse.getFieldList();
+        List<FieldInfo> fields = sinkFieldResponses.stream()
+                .map(sinkFieldResponse -> new FieldInfo(sinkFieldResponse.getFieldName(), name,
+                        FieldInfoUtils.convertFieldFormat(sinkFieldResponse.getFieldType(),
+                                sinkFieldResponse.getFieldFormat()))).collect(Collectors.toList());
+        List<FieldRelationShip> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
+        Map<String, String> properties = hiveSinkResponse.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+        List<FieldInfo> partitionFields = Lists.newArrayList();
+        if (CollectionUtils.isNotEmpty(hiveSinkResponse.getPartitionFieldList())) {
+            partitionFields = hiveSinkResponse.getPartitionFieldList().stream()
+                    .map(hivePartitionField -> new FieldInfo(hivePartitionField.getFieldName(), name,
+                            FieldInfoUtils.convertFieldFormat(hivePartitionField.getFieldType(),
+                                    hivePartitionField.getFieldFormat()))).collect(Collectors.toList());
+        }
+        return new HiveLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelationShips,
+                Lists.newArrayList(),
+                null,
+                properties,
+                null,
+                database,
+                tableName,
+                hiveConfDir,
+                hiveVersion,
+                null,
+                partitionFields
+        );
     }
 
     public static List<FieldRelationShip> parseSinkFields(List<SinkFieldResponse> sinkFieldResponses, String sinkName) {

@@ -49,6 +49,13 @@ public class StreamField {
         this.isMetaField = isMetaField;
     }
 
+    public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue,
+            Integer isMetaField, String originNodeName) {
+        this(index, fieldType, fieldName, fieldComment, fieldValue);
+        this.isMetaField = isMetaField;
+        this.originNodeName = originNodeName;
+    }
+
     @ApiModelProperty("Field index")
     private Integer id;
 
@@ -70,5 +77,8 @@ public class StreamField {
     @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
             + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
     private String fieldFormat;
+
+    @ApiModelProperty("Origin Node name which stream field belongs")
+    private String originNodeName;
 
 }

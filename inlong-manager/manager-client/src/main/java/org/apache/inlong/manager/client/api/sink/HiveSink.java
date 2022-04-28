@@ -23,14 +23,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.client.api.DataSeparator;
-import org.apache.inlong.manager.common.pojo.stream.SinkField;
-import org.apache.inlong.manager.common.pojo.stream.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.FileFormat;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
+import org.apache.inlong.manager.common.pojo.stream.SinkField;
+import org.apache.inlong.manager.common.pojo.stream.StreamSink;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -81,5 +81,11 @@ public class HiveSink extends StreamSink {
 
     @ApiModelProperty("Data format type for stream sink")
     private DataFormat dataFormat;
+
+    @ApiModelProperty("Version for hive")
+    private String hiveVersion;
+
+    @ApiModelProperty("Config directory of hive, needed by sort in light mode")
+    private String hiveConfDir;
 }
 

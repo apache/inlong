@@ -635,6 +635,7 @@ CREATE TABLE `stream_transform_field`
     `field_format`     varchar(50)   DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
     `rank_num`         smallint(6) DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`       int(11) DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `origin_node_name` varchar(256)  DEFAULT '' COMMENT 'Origin Node name which stream field belongs',
     PRIMARY KEY (`id`),
     KEY                `index_transform_id` (`transform_id`)
 ) ENGINE = InnoDB

@@ -81,6 +81,12 @@ public class HiveSinkDTO {
     @ApiModelProperty("Properties for hive")
     private Map<String, Object> properties;
 
+    @ApiModelProperty("Version for hive")
+    private String hiveVersion;
+
+    @ApiModelProperty("Config directory of hive, needed by sort in light mode")
+    private String hiveConfDir;
+
     /**
      * Get the dto instance from the request
      */
@@ -98,6 +104,8 @@ public class HiveSinkDTO {
                 .fileFormat(request.getFileFormat())
                 .dataEncoding(request.getDataEncoding())
                 .dataSeparator(request.getDataSeparator())
+                .hiveVersion(request.getHiveVersion())
+                .hiveConfDir(request.getHiveConfDir())
                 .properties(request.getProperties())
                 .build();
     }

@@ -51,4 +51,6 @@ public class StreamTransformFieldEntity implements Serializable {
     private Short rankNum;
 
     private Integer isDeleted;
+
+    private String originNodeName;
 }

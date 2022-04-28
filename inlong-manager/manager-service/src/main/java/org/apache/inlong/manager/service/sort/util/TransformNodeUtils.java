@@ -70,16 +70,12 @@ public class TransformNodeUtils {
      */
     public static DistinctNode createDistinctNode(DeDuplicationDefinition deDuplicationDefinition,
             TransformResponse transformResponse) {
-        String transformName = transformResponse.getTransformName();
         List<StreamField> streamFields = deDuplicationDefinition.getDupFields();
         List<FieldInfo> distinctFields = streamFields.stream()
-                .map(streamField -> new FieldInfo(streamField.getFieldName(), transformName,
-                        FieldInfoUtils.convertFieldFormat(streamField.getFieldType().name(),
-                                streamField.getFieldFormat())))
+                .map(streamField -> FieldInfoUtils.parseStreamField(streamField))
                 .collect(Collectors.toList());
         StreamField timingField = deDuplicationDefinition.getTimingField();
-        FieldInfo orderField = new FieldInfo(timingField.getFieldName(), transformName,
-                FieldInfoUtils.convertFieldFormat(timingField.getFieldType().name(), timingField.getFieldFormat()));
+        FieldInfo orderField = FieldInfoUtils.parseStreamField(timingField);
         DeDuplicationStrategy deDuplicationStrategy = deDuplicationDefinition.getDeDuplicationStrategy();
         OrderDirection orderDirection = null;
         switch (deDuplicationStrategy) {
@@ -115,15 +111,8 @@ public class TransformNodeUtils {
         TransformNode transformNode = new TransformNode();
         transformNode.setId(transformResponse.getTransformName());
         transformNode.setName(transformResponse.getTransformName());
-        List<FieldInfo> fieldInfos = transformResponse.getFieldList().stream().map(streamFieldInfo -> {
-            String transformName = transformResponse.getTransformName();
-            String fieldType = streamFieldInfo.getFieldType();
-            String fieldFormat = streamFieldInfo.getFieldFormat();
-            String fieldName = streamFieldInfo.getFieldName();
-            FieldInfo fieldInfo = new FieldInfo(fieldName, transformName,
-                    FieldInfoUtils.convertFieldFormat(fieldType, fieldFormat));
-            return fieldInfo;
-        }).collect(Collectors.toList());
+        List<FieldInfo> fieldInfos = transformResponse.getFieldList().stream()
+                .map(streamFieldInfo -> FieldInfoUtils.parseStreamField(streamFieldInfo)).collect(Collectors.toList());
         transformNode.setFields(fieldInfos);
         transformNode.setFieldRelationShips(FieldRelationShipUtils.createFieldRelationShips(transformResponse));
         transformNode.setFilters(
