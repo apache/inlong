@@ -17,10 +17,17 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterResponse;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.ServiceBaseTest;
+import org.apache.inlong.manager.service.core.InlongClusterService;
 import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,6 +46,9 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
 
     @Autowired
     private ThirdPartyClusterService clusterService;
+
+    @Autowired
+    private InlongClusterService inlongClusterService;
 
     public Integer saveOpt(String clusterName, String type, String ip, Integer port) {
         ClusterRequest request = new ClusterRequest();
@@ -94,4 +104,109 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         this.deleteOpt(id);
     }
 
+    public Integer saveCluster(String clusterName, String type, String clusterTag, String zoneTag) {
+        InlongClusterRequest request = new InlongClusterRequest();
+        request.setName(clusterName);
+        request.setType(type);
+        request.setClusterTag(clusterTag);
+        request.setZoneTag(zoneTag);
+        request.setInCharges(GLOBAL_OPERATOR);
+        return inlongClusterService.save(request, GLOBAL_OPERATOR);
+    }
+
+    public PageInfo<InlongClusterResponse> listCluster(String type, String clusterTag, String zoneTag) {
+        InlongClusterPageRequest request = new InlongClusterPageRequest();
+        request.setType(type);
+        request.setClusterTag(clusterTag);
+        request.setZoneTag(zoneTag);
+        return inlongClusterService.list(request);
+    }
+
+    public Boolean updateCluster(String clusterName, String type, String clusterTag, String zoneTag) {
+        InlongClusterRequest request = new InlongClusterRequest();
+        request.setName(clusterName);
+        request.setType(type);
+        request.setClusterTag(clusterTag);
+        request.setZoneTag(zoneTag);
+        request.setInCharges(GLOBAL_OPERATOR);
+        return inlongClusterService.update(request, GLOBAL_OPERATOR);
+    }
+
+
+    public Boolean deleteCluster(Integer id) {
+        return inlongClusterService.delete(id, GLOBAL_OPERATOR);
+    }
+
+    public Integer saveClusterNode(Integer parentId, String type, String ip, Integer port) {
+        ClusterNodeRequest request = new ClusterNodeRequest();
+        request.setParentId(parentId);
+        request.setType(type);
+        request.setIp(ip);
+        request.setPort(port);
+        return inlongClusterService.saveNode(request, GLOBAL_OPERATOR);
+    }
+
+    public Boolean updateClusterNode(Integer parentId, String type, String ip, Integer port) {
+        ClusterNodeRequest request = new ClusterNodeRequest();
+        request.setParentId(parentId);
+        request.setType(type);
+        request.setIp(ip);
+        request.setPort(port);
+        return inlongClusterService.updateNode(request, GLOBAL_OPERATOR);
+    }
+
+    public PageInfo<ClusterNodeResponse> listNode(String type, String keyWord) {
+        InlongClusterPageRequest request = new InlongClusterPageRequest();
+        request.setType(type);
+        request.setKeyword(keyWord);
+        return inlongClusterService.listNode(request);
+    }
+
+    public Boolean deleteClusterNode(Integer id) {
+        return inlongClusterService.deleteNode(id, GLOBAL_OPERATOR);
+    }
+
+    @Test
+    public void testClusterSaveAndDelete() {
+        InlongClusterRequest inlongClusterRequest = new InlongClusterRequest();
+
+        String type = "MQ";
+        String cluserTag = "TUBE";
+        String zoneTag = "china";
+        String ip = "127.0.0.1";
+        Integer port = 8080;
+
+        String typeUpdate = "DATA";
+        String cluserTagUpdate = "PULSAR";
+        String zoneTagUpdate = "japan";
+        String ipUpdate = "93.41.58.31";
+        Integer portUpdate = 8083;
+        //save cluster
+        Integer id = this.saveCluster(CLUSTER_NAME, InlongGroupSettings.CLUSTER_DATA_PROXY, cluserTag, zoneTag);
+        Assert.assertNotNull(id);
+        //list cluster
+        PageInfo<InlongClusterResponse> listCluster = this.listCluster(InlongGroupSettings.CLUSTER_DATA_PROXY,
+                cluserTag, zoneTag);
+        Assert.assertEquals(listCluster.getTotal(), 1);
+        //update cluster
+        Boolean updateSuccess = this.updateCluster(CLUSTER_NAME, InlongGroupSettings.CLUSTER_DATA_PROXY,
+                cluserTagUpdate, zoneTagUpdate);
+        Assert.assertTrue(updateSuccess);
+        //save cluster node
+        Integer nodeId = this.saveClusterNode(id, InlongGroupSettings.CLUSTER_DATA_PROXY, ip, port);
+        Assert.assertNotNull(nodeId);
+        //list cluster node
+        PageInfo<ClusterNodeResponse> listNode = this.listNode(InlongGroupSettings.CLUSTER_DATA_PROXY, ip);
+        Assert.assertEquals(listNode.getTotal(), 1);
+        //update cluster node
+        Boolean updateNodeSuccess = this.updateClusterNode(id, InlongGroupSettings.CLUSTER_DATA_PROXY,
+                ipUpdate, portUpdate);
+        Assert.assertTrue(updateNodeSuccess);
+        //delete cluster node
+        Boolean deleteClusterSuccess = this.deleteClusterNode(nodeId);
+        Assert.assertTrue(deleteClusterSuccess);
+        //delete Cluster
+        Boolean success = this.deleteCluster(id);
+        Assert.assertTrue(success);
+    }
 }

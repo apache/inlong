@@ -138,13 +138,6 @@
         from inlong_cluster_node
         where id = #{id,jdbcType=INTEGER}
     </select>
-    <select id="selectByType" resultType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
-        select
-        <include refid="Base_Column_List"/>
-        from inlong_cluster_node
-        where is_deleted = 0
-        and name = #{type, jdbcType=VARCHAR}
-    </select>
     <select id="selectByUniqueKey" parameterType="org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest"
             resultType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
         select
