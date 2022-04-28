@@ -71,13 +71,61 @@ public class BuiltInFieldInfo extends FieldInfo {
     }
 
     public enum BuiltInField {
+        /**
+         * The event time of flink
+         */
         DATA_TIME,
+        /**
+         * The process time of flink
+         */
         PROCESS_TIME,
+        /**
+         * The name of the database containing this Row
+         */
         MYSQL_METADATA_DATABASE,
+        /**
+         * The name of the table containing this Row
+         */
         MYSQL_METADATA_TABLE,
+        /**
+         * The time when the Row made changes in the database
+         */
         MYSQL_METADATA_EVENT_TIME,
+        /**
+         * Whether the DDL statement
+         */
         MYSQL_METADATA_IS_DDL,
+        /**
+         * Type of database operation, such as INSERT/DELETE, etc.
+         */
         MYSQL_METADATA_EVENT_TYPE,
-        MYSQL_METADATA_DATA
+        /**
+         * MySQL binlog data Row
+         */
+        MYSQL_METADATA_DATA,
+        /**
+         * The value of the field before update
+         */
+        METADATA_UPDATE_BEFORE,
+        /**
+         * Batch id of binlog
+         */
+        METADATA_BATCH_ID,
+        /**
+         * Mapping of sql_type table fields to java data type IDs
+         */
+        METADATA_SQL_TYPE,
+        /**
+         * The current time when the ROW was received and processed
+         */
+        METADATA_TS,
+        /**
+         * The table structure
+         */
+        METADATA_MYSQL_TYPE,
+        /**
+         * Primary key field name
+         */
+        METADATA_PK_NAMES
     }
 }
