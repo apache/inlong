@@ -72,8 +72,7 @@ public class LoadNodeUtils {
                 .map(sinkFieldResponse -> new FieldInfo(sinkFieldResponse.getFieldName(), name,
                         FieldInfoUtils.convertFieldFormat(sinkFieldResponse.getFieldType(),
                                 sinkFieldResponse.getFieldFormat()))).collect(Collectors.toList());
-        List<FieldRelationShip> fieldRelationShips = fieldInfos.stream()
-                .map(fieldInfo -> new FieldRelationShip(fieldInfo, fieldInfo)).collect(Collectors.toList());
+        List<FieldRelationShip> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
         Map<String, String> properties = kafkaSinkResponse.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         Integer sinkParallelism = null;
@@ -113,5 +112,23 @@ public class LoadNodeUtils {
                 sinkParallelism,
                 properties,
                 primaryKey);
+    }
+
+    public static List<FieldRelationShip> parseSinkFields(List<SinkFieldResponse> sinkFieldResponses, String sinkName) {
+        if (CollectionUtils.isEmpty(sinkFieldResponses)) {
+            return Lists.newArrayList();
+        }
+        return sinkFieldResponses.stream().map(sinkFieldResponse -> {
+            String fieldName = sinkFieldResponse.getFieldName();
+            String fieldType = sinkFieldResponse.getFieldType();
+            String fieldFormat = sinkFieldResponse.getFieldFormat();
+            FieldInfo sinkField = new FieldInfo(fieldName, sinkName,
+                    FieldInfoUtils.convertFieldFormat(fieldType, fieldFormat));
+            String sourceFieldName = sinkFieldResponse.getSourceFieldName();
+            String sourceFieldType = sinkFieldResponse.getSourceFieldType();
+            FieldInfo sourceField = new FieldInfo(sourceFieldName, sinkName,
+                    FieldInfoUtils.convertFieldFormat(sourceFieldType));
+            return new FieldRelationShip(sourceField, sinkField);
+        }).collect(Collectors.toList());
     }
 }
