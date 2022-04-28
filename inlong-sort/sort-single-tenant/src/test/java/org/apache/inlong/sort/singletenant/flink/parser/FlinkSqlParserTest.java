@@ -17,9 +17,13 @@
 
 package org.apache.inlong.sort.singletenant.flink.parser;
 
+import static org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField.MYSQL_METADATA_DATA;
+
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
@@ -30,12 +34,13 @@ import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
-import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
+import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
@@ -50,38 +55,27 @@ import org.junit.Test;
  */
 public class FlinkSqlParserTest extends AbstractTestBase {
 
-    private MySqlExtractNode buildMySQLExtractNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()));
-        return new MySqlExtractNode("1", "mysql_input", fields,
-                null, null, "id",
-                Collections.singletonList("test"), "localhost", "username", "username",
-                "test_database", null, null,
-                null, null);
+    private MySqlExtractNode buildAllMigrateExtractNode() {
+        List<FieldInfo> fields = Arrays.asList(
+            new BuiltInFieldInfo("data", new StringFormatInfo(), MYSQL_METADATA_DATA));
+        Map<String, String> a = new HashMap<>();
+        a.put("append-mode", "true");
+        a.put("migrate-all", "true");
+        MySqlExtractNode node = new MySqlExtractNode("1", "mysql_input", fields,
+            null, a, null,
+            Arrays.asList("[\\s\\S]*.*"), "localhost", "root", "Eminem@123456",
+            "[\\s\\S]*.*", null, null, false, null);
+        return node;
     }
 
-    private KafkaLoadNode buildKafkaNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()));
+    private KafkaLoadNode buildAllMigrateKafkaNode() {
+        List<FieldInfo> fields = Arrays.asList(new FieldInfo("name", new StringFormatInfo()));
         List<FieldRelationShip> relations = Arrays
-                .asList(new FieldRelationShip(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
+                .asList(new FieldRelationShip(new FieldInfo("name", new StringFormatInfo()),
+                                new FieldInfo("name", new StringFormatInfo())));
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
                 "topic", "localhost:9092",
-                new CanalJsonFormat(), null,
+                new CsvFormat(), null,
                 null, null);
     }
 

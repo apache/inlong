@@ -189,6 +189,12 @@ public class MySqlSourceOptions {
                     .defaultValue(false)
                     .withDescription("Whether works as append source.");
 
+    public static final ConfigOption<Boolean> MIGRATE_ALL =
+        ConfigOptions.key("migrate-all")
+            .booleanType()
+            .defaultValue(false)
+            .withDescription("Whether migrate all databases");
+
     // ----------------------------------------------------------------------------
     // experimental options, won't add them to documentation
     // ----------------------------------------------------------------------------
