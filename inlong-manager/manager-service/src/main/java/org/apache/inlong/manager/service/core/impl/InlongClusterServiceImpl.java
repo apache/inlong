@@ -23,7 +23,11 @@ import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.cluster.*;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
@@ -35,10 +39,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-
 import java.util.Date;
 import java.util.List;
+
 
 /**
  * Inlong cluster service layer implementation
@@ -64,7 +67,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         //check if cluster already exist
         InlongClusterEntity exist = clusterMapper.selectByUniqueKey(request);
         Preconditions.checkTrue(exist == null, "cluster already exist");
-        InlongClusterEntity entity = CommonBeanUtils.copyProperties(request, InlongClusterEntity::new);
+        InlongClusterEntity entity = CommonBeanUtils.copyProperties(request,
+                InlongClusterEntity::new);
         if (operator != null) {
             entity.setCreator(operator);
         }
@@ -87,7 +91,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             LOGGER.error("inlong cluster not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
-        InlongClusterResponse inlongClusterResponse = CommonBeanUtils.copyProperties(entity, InlongClusterResponse::new);
+        InlongClusterResponse inlongClusterResponse = CommonBeanUtils.copyProperties(entity,
+                InlongClusterResponse::new);
         LOGGER.info("success to get inlong cluster info");
         return inlongClusterResponse;
     }
@@ -150,7 +155,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         InlongClusterNodeEntity exist = clusterNodeMapper.selectByUniqueKey(request);
         Preconditions.checkTrue(exist == null, "inlong cluster node name already exist");
 
-        InlongClusterNodeEntity entity = CommonBeanUtils.copyProperties(request, InlongClusterNodeEntity::new);
+        InlongClusterNodeEntity entity = CommonBeanUtils.copyProperties(request,
+                InlongClusterNodeEntity::new);
         if (operator != null) {
             entity.setCreator(operator);
         }
@@ -172,7 +178,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             LOGGER.error("inlong cluster node not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
-        ClusterNodeResponse clusterNodeResponse = CommonBeanUtils.copyProperties(entity, ClusterNodeResponse::new);
+        ClusterNodeResponse clusterNodeResponse = CommonBeanUtils.copyProperties(entity,
+                ClusterNodeResponse::new);
         LOGGER.info("success to get inlong cluster node info");
         return clusterNodeResponse;
     }
