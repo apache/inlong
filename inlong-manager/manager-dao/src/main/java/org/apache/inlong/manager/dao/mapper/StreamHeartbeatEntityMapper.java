@@ -23,7 +23,6 @@ import org.apache.inlong.manager.common.pojo.heartbeat.StreamHeartbeat;
 import org.apache.inlong.manager.dao.entity.StreamHeartbeatEntity;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
 import java.util.List;
 
 @Repository
