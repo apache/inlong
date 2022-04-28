@@ -93,7 +93,7 @@ public class TransformNodeUtils {
                 throw new UnsupportedOperationException(
                         String.format("Unsupported deduplication strategy=%s for inlong", deDuplicationStrategy));
         }
-        TransformNode transformNode = createTransformNode(transformResponse);
+        TransformNode transformNode = createNormalTransformNode(transformResponse);
         return new DistinctNode(transformNode.getId(),
                 transformNode.getName(),
                 transformNode.getFields(),

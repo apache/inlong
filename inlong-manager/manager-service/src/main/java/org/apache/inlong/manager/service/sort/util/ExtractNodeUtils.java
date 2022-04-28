@@ -85,7 +85,10 @@ public class ExtractNodeUtils {
         String userName = binlogSourceResponse.getUser();
         String password = binlogSourceResponse.getPassword();
         Integer port = binlogSourceResponse.getPort();
-        Integer serverId = binlogSourceResponse.getServerId();
+        Integer serverId = null;
+        if (binlogSourceResponse.getServerId() != null && binlogSourceResponse.getServerId() > 0) {
+            serverId = binlogSourceResponse.getServerId();
+        }
         String tables = binlogSourceResponse.getTableWhiteList();
         List<String> tableNames = Splitter.on(",").splitToList(tables);
         List<InlongStreamFieldInfo> streamFieldInfos = binlogSourceResponse.getFieldList();

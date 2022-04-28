@@ -21,10 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -40,9 +42,10 @@ public class LightGroupUpdateCompleteListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
-
     @Autowired
     private InlongStreamService streamService;
+    @Autowired
+    private StreamSourceService sourceService;
 
     @Override
     public ProcessEvent event() {
@@ -57,13 +60,16 @@ public class LightGroupUpdateCompleteListener implements ProcessEventListener {
         GroupOperateType groupOperateType = form.getGroupOperateType();
         switch (groupOperateType) {
             case SUSPEND:
-                groupService.updateStatus(groupId, GroupStatus.SUSPENDING.getCode(), applicant);
+                groupService.updateStatus(groupId, GroupStatus.SUSPENDED.getCode(), applicant);
+                sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_FROZEN.getCode(), applicant);
                 break;
             case RESTART:
-                groupService.updateStatus(groupId, GroupStatus.RESTARTING.getCode(), applicant);
+                groupService.updateStatus(groupId, GroupStatus.RESTARTED.getCode(), applicant);
+                sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), applicant);
                 break;
             case DELETE:
-                groupService.updateStatus(groupId, GroupStatus.DELETING.getCode(), applicant);
+                groupService.updateStatus(groupId, GroupStatus.DELETED.getCode(), applicant);
+                sourceService.logicDeleteAll(groupId, null, applicant);
                 break;
             default:
                 break;
