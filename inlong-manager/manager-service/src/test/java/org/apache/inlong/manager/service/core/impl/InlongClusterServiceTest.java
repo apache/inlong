@@ -132,7 +132,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return inlongClusterService.update(request, GLOBAL_OPERATOR);
     }
 
-
     public Boolean deleteCluster(Integer id) {
         return inlongClusterService.delete(id, GLOBAL_OPERATOR);
     }
