@@ -98,7 +98,7 @@ public class InlongClusterController {
     @OperationLog(operation = OperationType.CREATE)
     public Response<Integer> saveNode(@RequestBody ClusterNodeRequest request) {
         String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
-        return Response.success(clusterService.saveNode(request,currentUser));
+        return Response.success(clusterService.saveNode(request, currentUser));
     }
 
     @GetMapping(value = "/node/get/{id}")

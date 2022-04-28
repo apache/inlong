@@ -36,8 +36,6 @@ public interface InlongClusterNodeEntityMapper {
 
     InlongClusterNodeEntity selectById(Integer id);
 
-    InlongClusterNodeEntity selectByIdNoDeleted(Integer id);
-
     InlongClusterNodeEntity selectByUniqueKey(ClusterNodeRequest request);
 
     InlongClusterNodeEntity selectByType(@Param("type") String type);

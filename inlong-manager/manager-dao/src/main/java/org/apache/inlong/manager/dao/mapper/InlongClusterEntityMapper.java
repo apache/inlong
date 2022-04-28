@@ -38,8 +38,6 @@ public interface InlongClusterEntityMapper {
 
     InlongClusterEntity selectById(Integer id);
 
-    InlongClusterEntity selectByIdNoDeleted(Integer id);
-
     InlongClusterEntity selectByName(@Param("name") String name);
 
     int updateByIdSelective(InlongClusterEntity record);
