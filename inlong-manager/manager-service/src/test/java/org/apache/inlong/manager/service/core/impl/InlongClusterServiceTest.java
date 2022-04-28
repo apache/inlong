@@ -104,6 +104,10 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         this.deleteOpt(id);
     }
 
+    /**
+     * save cluster info.
+     */
+
     public Integer saveCluster(String clusterName, String type, String clusterTag, String zoneTag) {
         InlongClusterRequest request = new InlongClusterRequest();
         request.setName(clusterName);
@@ -114,6 +118,10 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return inlongClusterService.save(request, GLOBAL_OPERATOR);
     }
 
+    /**
+     * get cluster list info.
+     */
+
     public PageInfo<InlongClusterResponse> listCluster(String type, String clusterTag, String zoneTag) {
         InlongClusterPageRequest request = new InlongClusterPageRequest();
         request.setType(type);
@@ -121,6 +129,10 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         request.setZoneTag(zoneTag);
         return inlongClusterService.list(request);
     }
+
+    /**
+     * update cluster info.
+     */
 
     public Boolean updateCluster(String clusterName, String type, String clusterTag, String zoneTag) {
         InlongClusterRequest request = new InlongClusterRequest();
@@ -132,9 +144,17 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return inlongClusterService.update(request, GLOBAL_OPERATOR);
     }
 
+    /**
+     * delete cluster info by id.
+     */
+
     public Boolean deleteCluster(Integer id) {
         return inlongClusterService.delete(id, GLOBAL_OPERATOR);
     }
+
+    /**
+     * save cluster node info.
+     */
 
     public Integer saveClusterNode(Integer parentId, String type, String ip, Integer port) {
         ClusterNodeRequest request = new ClusterNodeRequest();
@@ -145,6 +165,10 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return inlongClusterService.saveNode(request, GLOBAL_OPERATOR);
     }
 
+    /**
+     * update cluster node info.
+     */
+
     public Boolean updateClusterNode(Integer parentId, String type, String ip, Integer port) {
         ClusterNodeRequest request = new ClusterNodeRequest();
         request.setParentId(parentId);
@@ -154,6 +178,10 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return inlongClusterService.updateNode(request, GLOBAL_OPERATOR);
     }
 
+    /**
+     * get cluster node list info.
+     */
+
     public PageInfo<ClusterNodeResponse> listNode(String type, String keyWord) {
         InlongClusterPageRequest request = new InlongClusterPageRequest();
         request.setType(type);
@@ -161,50 +189,63 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return inlongClusterService.listNode(request);
     }
 
+    /**
+     * delete cluster node info.
+     */
+
     public Boolean deleteClusterNode(Integer id) {
         return inlongClusterService.deleteNode(id, GLOBAL_OPERATOR);
     }
+
+    /**
+     * test cluster interface.
+     */
 
     @Test
     public void testClusterSaveAndDelete() {
         InlongClusterRequest inlongClusterRequest = new InlongClusterRequest();
 
-        String type = "MQ";
+        String type = "PULSAR";
         String cluserTag = "TUBE";
         String zoneTag = "china";
         String ip = "127.0.0.1";
         Integer port = 8080;
 
-        String typeUpdate = "DATA";
+        String typeUpdate = "DATAPROXY";
         String cluserTagUpdate = "PULSAR";
         String zoneTagUpdate = "japan";
         String ipUpdate = "93.41.58.31";
         Integer portUpdate = 8083;
-        //save cluster
-        Integer id = this.saveCluster(CLUSTER_NAME, InlongGroupSettings.CLUSTER_DATA_PROXY, cluserTag, zoneTag);
+
+        // save cluster
+        Integer id = this.saveCluster(CLUSTER_NAME, type, cluserTag, zoneTag);
         Assert.assertNotNull(id);
-        //list cluster
-        PageInfo<InlongClusterResponse> listCluster = this.listCluster(InlongGroupSettings.CLUSTER_DATA_PROXY,
-                cluserTag, zoneTag);
+
+        // list cluster
+        PageInfo<InlongClusterResponse> listCluster = this.listCluster(type, cluserTag, zoneTag);
         Assert.assertEquals(listCluster.getTotal(), 1);
-        //update cluster
-        Boolean updateSuccess = this.updateCluster(CLUSTER_NAME, InlongGroupSettings.CLUSTER_DATA_PROXY,
-                cluserTagUpdate, zoneTagUpdate);
+
+        // update cluster
+        Boolean updateSuccess = this.updateCluster(CLUSTER_NAME, typeUpdate, cluserTagUpdate, zoneTagUpdate);
         Assert.assertTrue(updateSuccess);
-        //save cluster node
-        Integer nodeId = this.saveClusterNode(id, InlongGroupSettings.CLUSTER_DATA_PROXY, ip, port);
+
+        // save cluster node
+        Integer nodeId = this.saveClusterNode(id, type, ip, port);
         Assert.assertNotNull(nodeId);
-        //list cluster node
-        PageInfo<ClusterNodeResponse> listNode = this.listNode(InlongGroupSettings.CLUSTER_DATA_PROXY, ip);
+
+        // list cluster node
+        PageInfo<ClusterNodeResponse> listNode = this.listNode(type, ip);
         Assert.assertEquals(listNode.getTotal(), 1);
-        //update cluster node
-        Boolean updateNodeSuccess = this.updateClusterNode(id, InlongGroupSettings.CLUSTER_DATA_PROXY,
-                ipUpdate, portUpdate);
+
+        // update cluster node
+        Boolean updateNodeSuccess = this.updateClusterNode(id, typeUpdate, ipUpdate, portUpdate);
         Assert.assertTrue(updateNodeSuccess);
-        //delete cluster node
+
+        // delete cluster node
         Boolean deleteClusterSuccess = this.deleteClusterNode(nodeId);
         Assert.assertTrue(deleteClusterSuccess);
-        //delete Cluster
+
+        // delete Cluster
         Boolean success = this.deleteCluster(id);
         Assert.assertTrue(success);
     }
