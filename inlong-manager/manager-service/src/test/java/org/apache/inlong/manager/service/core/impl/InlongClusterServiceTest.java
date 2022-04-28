@@ -107,7 +107,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * save cluster info.
      */
-
     public Integer saveCluster(String clusterName, String type, String clusterTag, String zoneTag) {
         InlongClusterRequest request = new InlongClusterRequest();
         request.setName(clusterName);
@@ -121,7 +120,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * get cluster list info.
      */
-
     public PageInfo<InlongClusterResponse> listCluster(String type, String clusterTag, String zoneTag) {
         InlongClusterPageRequest request = new InlongClusterPageRequest();
         request.setType(type);
@@ -133,7 +131,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * update cluster info.
      */
-
     public Boolean updateCluster(String clusterName, String type, String clusterTag, String zoneTag) {
         InlongClusterRequest request = new InlongClusterRequest();
         request.setName(clusterName);
@@ -147,7 +144,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * delete cluster info by id.
      */
-
     public Boolean deleteCluster(Integer id) {
         return inlongClusterService.delete(id, GLOBAL_OPERATOR);
     }
@@ -155,7 +151,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * save cluster node info.
      */
-
     public Integer saveClusterNode(Integer parentId, String type, String ip, Integer port) {
         ClusterNodeRequest request = new ClusterNodeRequest();
         request.setParentId(parentId);
@@ -168,7 +163,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * update cluster node info.
      */
-
     public Boolean updateClusterNode(Integer parentId, String type, String ip, Integer port) {
         ClusterNodeRequest request = new ClusterNodeRequest();
         request.setParentId(parentId);
@@ -181,7 +175,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * get cluster node list info.
      */
-
     public PageInfo<ClusterNodeResponse> listNode(String type, String keyWord) {
         InlongClusterPageRequest request = new InlongClusterPageRequest();
         request.setType(type);
@@ -192,7 +185,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * delete cluster node info.
      */
-
     public Boolean deleteClusterNode(Integer id) {
         return inlongClusterService.deleteNode(id, GLOBAL_OPERATOR);
     }
@@ -200,7 +192,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * test cluster interface.
      */
-
     @Test
     public void testClusterSaveAndDelete() {
         InlongClusterRequest inlongClusterRequest = new InlongClusterRequest();

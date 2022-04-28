@@ -60,7 +60,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     /**
      * save cluster info.
      */
-
     @Override
     public Integer save(InlongClusterRequest request, String operator) {
         LOGGER.debug("begin to save inlong cluster info={}", request);
@@ -90,7 +89,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     /**
      * get cluster info by id.
      */
-
     @Override
     public InlongClusterResponse get(Integer id) {
         Preconditions.checkNotNull(id, "inlong cluster id is empty");
@@ -107,7 +105,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     /**
      * get cluster list info.
      */
-
     @Override
     public PageInfo<InlongClusterResponse> list(InlongClusterPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
@@ -124,7 +121,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     /**
      * update cluster info.
      */
-
     @Override
     public Boolean update(InlongClusterRequest request, String operator) {
         Preconditions.checkNotNull(request, "inlong cluster info is empty");
@@ -156,7 +152,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     /**
      * delete cluster info.
      */
-
     @Override
     public Boolean delete(Integer id, String operator) {
         Preconditions.checkNotNull(id, "cluster id is empty");
@@ -175,7 +170,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     /**
      * save cluster node info.
      */
-
     @Override
     public Integer saveNode(ClusterNodeRequest request, String operator) {
         LOGGER.info("begin to insert a inlong cluster node info cluster={}", request);
@@ -209,7 +203,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     /**
      * get cluster node info by id.
      */
-
     @Override
     public ClusterNodeResponse getNode(Integer id) {
         LOGGER.info("begin to get inlong cluster node by id={}", id);
@@ -228,7 +221,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     /**
      * get cluster node list info.
      */
-
     @Override
     public PageInfo<ClusterNodeResponse> listNode(InlongClusterPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
@@ -246,7 +238,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     /**
      * update cluster node info.
      */
-
     @Override
     public Boolean updateNode(ClusterNodeRequest request, String operator) {
         Preconditions.checkNotNull(request, "inlong cluster node info is empty");
@@ -283,7 +274,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     /**
      * delete cluster node info.
      */
-
     @Override
     public Boolean deleteNode(Integer id, String operator) {
         Preconditions.checkNotNull(id, "inlong cluster node id is empty");
