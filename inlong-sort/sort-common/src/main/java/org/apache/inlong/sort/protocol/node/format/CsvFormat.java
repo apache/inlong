@@ -76,7 +76,7 @@ public class CsvFormat implements Format {
 
     @JsonCreator
     public CsvFormat() {
-        this(",", false, "\"", false, true, ";", null, null);
+        this(",", true, null, false, true, ";", null, null);
     }
 
     @JsonIgnore
@@ -90,6 +90,7 @@ public class CsvFormat implements Format {
      *
      * @return options
      */
+    @Override
     public Map<String, String> generateOptions() {
         Map<String, String> options = new HashMap<>(16);
         options.put("format", getFormat());
