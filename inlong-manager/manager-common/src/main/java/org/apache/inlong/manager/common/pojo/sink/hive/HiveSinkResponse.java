@@ -72,6 +72,12 @@ public class HiveSinkResponse extends SinkResponse {
     @ApiModelProperty("Data field separator")
     private String dataSeparator;
 
+    @ApiModelProperty("Version for hive")
+    private String hiveVersion;
+
+    @ApiModelProperty("Config directory of hive, needed by sort in light mode")
+    private String hiveConfDir;
+
     public HiveSinkResponse() {
         this.sinkType = SinkType.SINK_HIVE;
     }
