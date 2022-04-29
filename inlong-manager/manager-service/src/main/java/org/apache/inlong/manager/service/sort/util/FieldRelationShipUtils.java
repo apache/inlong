@@ -31,6 +31,7 @@ import org.apache.inlong.manager.common.pojo.transform.splitter.SplitterDefiniti
 import org.apache.inlong.manager.common.pojo.transform.splitter.SplitterDefinition.SplitRule;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.util.StreamParseUtils;
+import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
@@ -61,8 +62,9 @@ public class FieldRelationShipUtils {
                 return createReplacerFieldRelationShips(fieldList, transformName, replacerDefinition, preNodes);
             case DE_DUPLICATION:
             case FILTER:
-            case JOINER:
                 return createFieldRelationShips(fieldList, transformName);
+            case JOINER:
+                return createJoinerFieldRelationShips(fieldList, transformName);
             default:
                 throw new UnsupportedOperationException(
                         String.format("Unsupported transformType=%s for Inlong", transformType));
@@ -77,6 +79,21 @@ public class FieldRelationShipUtils {
                             fieldInfo.getFormatInfo());
                     FieldInfo outputField = new FieldInfo(fieldInfo.getName(), transformName,
                             fieldInfo.getFormatInfo());
+                    return new FieldRelationShip(inputField, outputField);
+                }).collect(Collectors.toList());
+    }
+
+    private static List<FieldRelationShip> createJoinerFieldRelationShips(List<StreamField> fieldList,
+            String transformName) {
+        return fieldList.stream()
+                .map(streamFieldInfo -> {
+                    FormatInfo formatInfo = FieldInfoUtils.convertFieldFormat(
+                            streamFieldInfo.getFieldType().name(),
+                            streamFieldInfo.getFieldFormat());
+                    FieldInfo inputField = new FieldInfo(streamFieldInfo.getOriginFieldName(),
+                            streamFieldInfo.getOriginNodeName(), formatInfo);
+                    FieldInfo outputField = new FieldInfo(streamFieldInfo.getFieldName(),
+                            transformName, formatInfo);
                     return new FieldRelationShip(inputField, outputField);
                 }).collect(Collectors.toList());
     }
