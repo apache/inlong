@@ -17,24 +17,16 @@
 
 package org.apache.inlong.sort.protocol;
 
+import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 
-public class BuiltInFieldInfoTest extends ProtocolBaseTest {
+/**
+ * Test for {@link BuiltInFieldInfo}
+ */
+public class BuiltInFieldInfoTest extends SerializeBaseTest<BuiltInFieldInfo> {
 
     @Override
-    public void init() {
-        expectedObject = new BuiltInFieldInfo("f1", StringFormatInfo.INSTANCE, BuiltInFieldInfo.BuiltInField.DATA_TIME);
-        expectedJson = "{\n"
-                + "    \"type\":\"builtin\",\n"
-                + "    \"name\":\"f1\",\n"
-                + "    \"formatInfo\":{\n"
-                + "        \"type\":\"string\"\n"
-                + "    },\n"
-                + "    \"builtinField\":\"DATA_TIME\"\n"
-                + "}";
-
-        equalObj1 = expectedObject;
-        equalObj2 = new BuiltInFieldInfo("f1", StringFormatInfo.INSTANCE, BuiltInFieldInfo.BuiltInField.DATA_TIME);
-        unequalObj = new BuiltInFieldInfo("f2", StringFormatInfo.INSTANCE, BuiltInFieldInfo.BuiltInField.DATA_TIME);
+    public BuiltInFieldInfo getTestObject() {
+        return new BuiltInFieldInfo("f1", StringFormatInfo.INSTANCE, BuiltInFieldInfo.BuiltInField.DATA_TIME);
     }
 }

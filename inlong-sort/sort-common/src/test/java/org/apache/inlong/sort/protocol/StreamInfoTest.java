@@ -17,8 +17,7 @@
 
 package org.apache.inlong.sort.protocol;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
@@ -35,18 +34,16 @@ import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
-import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import static org.junit.Assert.assertEquals;
 
 /**
  * StreamInfo unit test class
  */
-public class StreamInfoTest {
+public class StreamInfoTest extends SerializeBaseTest<StreamInfo> {
 
     private MySqlExtractNode buildMySqlExtractNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
@@ -112,208 +109,15 @@ public class StreamInfoTest {
     }
 
     /**
-     * Test serialize for streamInfo,when data from mysql to hive.
+     * Get test object
      *
-     * @throws JsonProcessingException
+     * @return The test object
      */
-    @Test
-    public void testMysqlToHiveSerialize() throws JsonProcessingException {
-        Node input = buildMySqlExtractNode();
-        Node output = buildHiveNode();
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(input, output), Collections.singletonList(
-                buildNodeRelation(Collections.singletonList(input), Collections.singletonList(output))));
-        ObjectMapper objectMapper = new ObjectMapper();
-        String expected = "{\"streamId\":\"1\",\"nodes\":[{\"type\":\"mysqlExtract\","
-                + "\"id\":\"1\",\"name\":\"mysql_input\",\"fields\":[{\"type\":\"base\","
-                + "\"name\":\"id\",\"formatInfo\":{\"type\":\"long\"}},{\"type\":\"base\","
-                + "\"name\":\"name\",\"formatInfo\":{\"type\":\"string\"}},{\"type\":\""
-                + "base\",\"name\":\"age\",\"formatInfo\":{\"type\":\"int\"}},{\"type\":"
-                + "\"base\",\"name\":\"salary\",\"formatInfo\":{\"type\":\"float\"}},"
-                + "{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\","
-                + "\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}}],\"watermarkField\":{\"type\":\"watermark\","
-                + "\"timeAttr\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":"
-                + "\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}},\"interval\":{\"type\":"
-                + "\"stringConstant\",\"value\":\"1\"},\"timeUnit\":{\"type\":\"timeUnitConstant\","
-                + "\"timeUnit\":\"MINUTE\",\"value\":\"MINUTE\"}},\"primaryKey\":\"id\","
-                + "\"tableNames\":[\"table\"],\"hostname\":\"localhost\",\"username\":\"username\","
-                + "\"password\":\"username\",\"database\":\"test_database\",\"port\":3306,\"serverId\":123,"
-                + "\"incrementalSnapshotEnabled\":true},{\"type\":\"hiveLoad\",\"id\":\"2\","
-                + "\"name\":\"hive_output\",\"fields\":[{\"type\":\"base\",\"name\":\"id\","
-                + "\"formatInfo\":{\"type\":\"long\"}},{\"type\":\"base\",\"name\":\"name\","
-                + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"age\","
-                + "\"formatInfo\":{\"type\":\"int\"}},{\"type\":\"base\",\"name\":\"salary\","
-                + "\"formatInfo\":{\"type\":\"float\"}},{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":9}}],"
-                + "\"fieldRelationShips\":[{\"type\":\"fieldRelationShip\",\"inputField\":{"
-                + "\"type\":\"base\",\"name\":\"id\",\"formatInfo\":{\"type\":\"long\"}},"
-                + "\"outputField\":{\"type\":\"base\",\"name\":\"id\",\"formatInfo\":{\"type\":"
-                + "\"long\"}}},{\"type\":\"fieldRelationShip\",\"inputField\":{\"type\":\"base\","
-                + "\"name\":\"name\",\"formatInfo\":{\"type\":\"string\"}},\"outputField\":{\"type\":"
-                + "\"base\",\"name\":\"name\",\"formatInfo\":{\"type\":\"string\"}}},{\"type\":"
-                + "\"fieldRelationShip\",\"inputField\":{\"type\":\"base\",\"name\":\"age\","
-                + "\"formatInfo\":{\"type\":\"int\"}},\"outputField\":{\"type\":\"base\","
-                + "\"name\":\"age\",\"formatInfo\":{\"type\":\"int\"}}},{\"type\":\"fieldRelationShip\","
-                + "\"inputField\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":"
-                + "\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}},\"outputField\":{\"type\":"
-                + "\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\",\"format\":"
-                + "\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}}}],\"sinkParallelism\":1,\"catalogName\":\"myHive\","
-                + "\"database\":\"default\",\"tableName\":\"test\",\"hiveConfDir\":\"/opt/hive-conf\","
-                + "\"hiveVersion\":\"3.1.2\",\"hadoopConfDir\":null,\"partitionFields\":[{\"type\":"
-                + "\"base\",\"name\":\"day\",\"formatInfo\":{\"type\":\"long\"}}]}],\"relations\":"
-                + "[{\"type\":\"baseRelation\",\"inputs\":[\"1\"],\"outputs\":[\"2\"]}]}";
-        assertEquals(expected, objectMapper.writeValueAsString(streamInfo));
-    }
-
-    @Test
-    public void testMysqlToHiveDeserialize() throws JsonProcessingException {
-        Node input = buildMySqlExtractNode();
-        Node output = buildHiveNode();
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(input, output), Collections.singletonList(
-                buildNodeRelation(Collections.singletonList(input), Collections.singletonList(output))));
-        ObjectMapper objectMapper = new ObjectMapper();
-        String streamInfoStr = "{\"streamId\":\"1\",\"nodes\":[{\"type\":\"mysqlExtract\","
-                + "\"id\":\"1\",\"name\":\"mysql_input\",\"fields\":[{\"type\":\"base\","
-                + "\"name\":\"id\",\"formatInfo\":{\"type\":\"long\"}},{\"type\":\"base\","
-                + "\"name\":\"name\",\"formatInfo\":{\"type\":\"string\"}},{\"type\":\""
-                + "base\",\"name\":\"age\",\"formatInfo\":{\"type\":\"int\"}},{\"type\":"
-                + "\"base\",\"name\":\"salary\",\"formatInfo\":{\"type\":\"float\"}},"
-                + "{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\","
-                + "\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":9}}],\"watermarkField\":{\"type\":\"watermark\","
-                + "\"timeAttr\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":"
-                + "\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":9}},\"interval\":{\"type\":"
-                + "\"stringConstant\",\"value\":\"1\"},\"timeUnit\":{\"type\":\"timeUnitConstant\","
-                + "\"timeUnit\":\"MINUTE\",\"value\":\"MINUTE\"}},\"primaryKey\":\"id\","
-                + "\"tableNames\":[\"table\"],\"hostname\":\"localhost\",\"username\":\"username\","
-                + "\"password\":\"username\",\"database\":\"test_database\",\"port\":3306,\"serverId\":123,"
-                + "\"incrementalSnapshotEnabled\":true},{\"type\":\"hiveLoad\",\"id\":\"2\","
-                + "\"name\":\"hive_output\",\"fields\":[{\"type\":\"base\",\"name\":\"id\","
-                + "\"formatInfo\":{\"type\":\"long\"}},{\"type\":\"base\",\"name\":\"name\","
-                + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"age\","
-                + "\"formatInfo\":{\"type\":\"int\"}},{\"type\":\"base\",\"name\":\"salary\","
-                + "\"formatInfo\":{\"type\":\"float\"}},{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":9}}],"
-                + "\"fieldRelationShips\":[{\"type\":\"fieldRelationShip\",\"inputField\":{"
-                + "\"type\":\"base\",\"name\":\"id\",\"formatInfo\":{\"type\":\"long\"}},"
-                + "\"outputField\":{\"type\":\"base\",\"name\":\"id\",\"formatInfo\":{\"type\":"
-                + "\"long\"}}},{\"type\":\"fieldRelationShip\",\"inputField\":{\"type\":\"base\","
-                + "\"name\":\"name\",\"formatInfo\":{\"type\":\"string\"}},\"outputField\":{\"type\":"
-                + "\"base\",\"name\":\"name\",\"formatInfo\":{\"type\":\"string\"}}},{\"type\":"
-                + "\"fieldRelationShip\",\"inputField\":{\"type\":\"base\",\"name\":\"age\","
-                + "\"formatInfo\":{\"type\":\"int\"}},\"outputField\":{\"type\":\"base\","
-                + "\"name\":\"age\",\"formatInfo\":{\"type\":\"int\"}}},{\"type\":\"fieldRelationShip\","
-                + "\"inputField\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":"
-                + "\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":9}},\"outputField\":{\"type\":"
-                + "\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\",\"format\":"
-                + "\"yyyy-MM-dd HH:mm:ss\",\"precision\":9}}}],\"sinkParallelism\":1,\"catalogName\":\"myHive\","
-                + "\"database\":\"default\",\"tableName\":\"test\",\"hiveConfDir\":\"/opt/hive-conf\","
-                + "\"hiveVersion\":\"3.1.2\",\"hadoopConfDir\":null,\"partitionFields\":[{\"type\":"
-                + "\"base\",\"name\":\"day\",\"formatInfo\":{\"type\":\"long\"}}]}],\"relations\":"
-                + "[{\"type\":\"baseRelation\",\"inputs\":[\"1\"],\"outputs\":[\"2\"]}]}";
-        StreamInfo expected = objectMapper.readValue(streamInfoStr, StreamInfo.class);
-        assertEquals(expected, streamInfo);
-    }
-
-    /**
-     * Test serialize for StreamInfo
-     *
-     * @throws JsonProcessingException The exception may throws when serialize the StreamInfo
-     */
-    @Test
-    public void testSerialize() throws JsonProcessingException {
+    @Override
+    public StreamInfo getTestObject() {
         Node input = buildMySqlExtractNode();
         Node output = buildKafkaNode();
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(input, output), Collections.singletonList(
+        return new StreamInfo("1", Arrays.asList(input, output), Collections.singletonList(
                 buildNodeRelation(Collections.singletonList(input), Collections.singletonList(output))));
-        ObjectMapper objectMapper = new ObjectMapper();
-        String expected = "{\"streamId\":\"1\",\"nodes\":[{\"type\":\"mysqlExtract\",\"id\":\"1\","
-                + "\"name\":\"mysql_input\",\"fields\":[{\"type\":\"base\",\"name\":\"id\","
-                + "\"formatInfo\":{\"type\":\"long\"}},{\"type\":\"base\",\"name\":\"name\","
-                + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"age\","
-                + "\"formatInfo\":{\"type\":\"int\"}},{\"type\":\"base\",\"name\":\"salary\","
-                + "\"formatInfo\":{\"type\":\"float\"}},{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}}],"
-                + "\"watermarkField\":{\"type\":\"watermark\",\"timeAttr\":{\"type\":\"base\","
-                + "\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\","
-                + "\"precision\":2}},\"interval\":{\"type\":\"stringConstant\",\"value\":\"1\"},"
-                + "\"timeUnit\":{\"type\":\"timeUnitConstant\","
-                + "\"timeUnit\":\"MINUTE\",\"value\":\"MINUTE\"}},\"primaryKey\":\"id\",\"tableNames\":[\"table\"],"
-                + "\"hostname\":\"localhost\",\"username\":\"username\",\"password\":\"username\","
-                + "\"database\":\"test_database\",\"port\":3306,\"serverId\":123,\"incrementalSnapshotEnabled\":true},"
-                + "{\"type\":\"kafkaLoad\",\"id\":\"2\",\"name\":\"kafka_output\",\"fields\":[{\"type\":\"base\","
-                + "\"name\":\"id\",\"formatInfo\":{\"type\":\"long\"}},{\"type\":\"base\",\"name\":\"name\","
-                + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"age\","
-                + "\"formatInfo\":{\"type\":\"int\"}},{\"type\":\"base\",\"name\":\"salary\","
-                + "\"formatInfo\":{\"type\":\"float\"}},{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}}],"
-                + "\"fieldRelationShips\":[{\"type\":\"fieldRelationShip\",\"inputField\":{\"type\":\"base\","
-                + "\"name\":\"id\",\"formatInfo\":{\"type\":\"long\"}},\"outputField\":{\"type\":\"base\","
-                + "\"name\":\"id\",\"formatInfo\":{\"type\":\"long\"}}},{\"type\":\"fieldRelationShip\","
-                + "\"inputField\":{\"type\":\"base\",\"name\":\"name\",\"formatInfo\":{\"type\":\"string\"}},"
-                + "\"outputField\":{\"type\":\"base\",\"name\":\"name\",\"formatInfo\":{\"type\":\"string\"}}},"
-                + "{\"type\":\"fieldRelationShip\",\"inputField\":{\"type\":\"base\",\"name\":\"age\","
-                + "\"formatInfo\":{\"type\":\"int\"}},\"outputField\":{\"type\":\"base\",\"name\":\"age\","
-                + "\"formatInfo\":{\"type\":\"int\"}}},{\"type\":\"fieldRelationShip\","
-                + "\"inputField\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\","
-                + "\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}},"
-                + "\"outputField\":{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}}}],"
-                + "\"topic\":\"topic\",\"bootstrapServers\":\"localhost:9092\",\"format\":{\"type\":\"jsonFormat\","
-                + "\"failOnMissingField\":false,\"ignoreParseErrors\":true,\"timestampFormatStandard\":\"SQL\","
-                + "\"mapNullKeyMode\":\"DROP\",\"mapNullKeyLiteral\":\"null\",\"encodeDecimalAsPlainNumber\":true},"
-                + "\"sinkParallelism\":1,\"primaryKey\":\"id\"}],\"relations\":[{\"type\":\"baseRelation\","
-                + "\"inputs\":[\"1\"],\"outputs\":[\"2\"]}]}";
-        assertEquals(expected, objectMapper.writeValueAsString(streamInfo));
-    }
-
-    /**
-     * Test deserialize for StreamInfo
-     *
-     * @throws JsonProcessingException The exception may throws when deserialize the StreamInfo
-     */
-    @Test
-    public void testDeserialize() throws JsonProcessingException {
-        Node input = buildMySqlExtractNode();
-        Node output = buildKafkaNode();
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(input, output), Collections.singletonList(
-                buildNodeRelation(Collections.singletonList(input), Collections.singletonList(output))));
-        ObjectMapper objectMapper = new ObjectMapper();
-        String streamInfoStr = "{\"streamId\":\"1\",\"nodes\":[{\"type\":\"mysqlExtract\",\"id\":\"1\","
-                + "\"name\":\"mysql_input\",\"fields\":[{\"type\":\"base\",\"name\":\"id\","
-                + "\"formatInfo\":{\"type\":\"long\"}},{\"type\":\"base\",\"name\":\"name\","
-                + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"age\","
-                + "\"formatInfo\":{\"type\":\"int\"}},{\"type\":\"base\",\"name\":\"salary\","
-                + "\"formatInfo\":{\"type\":\"float\"}},{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}}],"
-                + "\"watermarkField\":{\"type\":\"watermark\",\"timeAttr\":{\"type\":\"base\","
-                + "\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}},"
-                + "\"interval\":{\"type\":\"stringConstant\",\"value\":\"1\"},"
-                + "\"timeUnit\":{\"type\":\"timeUnitConstant\","
-                + "\"timeUnit\":\"MINUTE\",\"value\":\"MINUTE\"}},\"primaryKey\":\"id\",\"tableNames\":[\"table\"],"
-                + "\"hostname\":\"localhost\",\"username\":\"username\",\"password\":\"username\","
-                + "\"database\":\"test_database\",\"port\":3306,\"serverId\":123,\"incrementalSnapshotEnabled\":true},"
-                + "{\"type\":\"kafkaLoad\",\"id\":\"2\",\"name\":\"kafka_output\",\"fields\":[{\"type\":\"base\","
-                + "\"name\":\"id\",\"formatInfo\":{\"type\":\"long\"}},{\"type\":\"base\",\"name\":\"name\","
-                + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"age\","
-                + "\"formatInfo\":{\"type\":\"int\"}},{\"type\":\"base\",\"name\":\"salary\","
-                + "\"formatInfo\":{\"type\":\"float\"}},{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}}],"
-                + "\"fieldRelationShips\":[{\"type\":\"fieldRelationShip\",\"inputField\":{\"type\":\"base\","
-                + "\"name\":\"id\",\"formatInfo\":{\"type\":\"long\"}},\"outputField\":{\"type\":\"base\","
-                + "\"name\":\"id\",\"formatInfo\":{\"type\":\"long\"}}},{\"type\":\"fieldRelationShip\","
-                + "\"inputField\":{\"type\":\"base\",\"name\":\"name\",\"formatInfo\":{\"type\":\"string\"}},"
-                + "\"outputField\":{\"type\":\"base\",\"name\":\"name\",\"formatInfo\":{\"type\":\"string\"}}},"
-                + "{\"type\":\"fieldRelationShip\",\"inputField\":{\"type\":\"base\",\"name\":\"age\","
-                + "\"formatInfo\":{\"type\":\"int\"}},\"outputField\":{\"type\":\"base\",\"name\":\"age\","
-                + "\"formatInfo\":{\"type\":\"int\"}}},{\"type\":\"fieldRelationShip\","
-                + "\"inputField\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"timestamp\","
-                + "\"format\":\"yyyy-MM-dd HH:mm:ss\"}},\"outputField\":{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\"}}}],"
-                + "\"topic\":\"topic\",\"bootstrapServers\":\"localhost:9092\",\"format\":{\"type\":\"jsonFormat\","
-                + "\"failOnMissingField\":false,\"ignoreParseErrors\":true,\"timestampFormatStandard\":\"SQL\","
-                + "\"mapNullKeyMode\":\"DROP\",\"mapNullKeyLiteral\":\"null\",\"encodeDecimalAsPlainNumber\":true},"
-                + "\"sinkParallelism\":1,\"primaryKey\":\"id\"}],\"relations\":[{\"type\":\"baseRelation\","
-                + "\"inputs\":[\"1\"],\"outputs\":[\"2\"]}]}";
-        StreamInfo expected = objectMapper.readValue(streamInfoStr, StreamInfo.class);
-        assertEquals(expected, streamInfo);
     }
 }

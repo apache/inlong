@@ -17,8 +17,7 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 import org.junit.Test;
 
@@ -27,33 +26,11 @@ import static org.junit.Assert.assertEquals;
 /**
  * Test for {@link TimeUnitConstantParam}
  */
-public class TimeUnitConstantParamTest {
+public class TimeUnitConstantParamTest extends SerializeBaseTest<TimeUnitConstantParam> {
 
-    /**
-     * Test for serialize of {@link TimeUnitConstantParam}
-     *
-     * @throws JsonProcessingException The exception may throws when serialize
-     */
-    @Test
-    public void testSerialize() throws JsonProcessingException {
-        TimeUnitConstantParam constantParam = new TimeUnitConstantParam(TimeUnit.HOUR);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String expected = "{\"type\":\"timeUnitConstant\",\"timeUnit\":\"HOUR\",\"value\":\"HOUR\"}";
-        assertEquals(expected, objectMapper.writeValueAsString(constantParam));
-    }
-
-    /**
-     * Test for deserialize of {@link TimeUnitConstantParam}
-     *
-     * @throws JsonProcessingException The exception may throws when deserialize
-     */
-    @Test
-    public void testDeserialize() throws JsonProcessingException {
-        TimeUnitConstantParam constantParam = new TimeUnitConstantParam(TimeUnit.HOUR);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String constantParamStr = "{\"type\":\"timeUnitConstant\",\"timeUnit\":\"HOUR\",\"value\":\"HOUR\"}";
-        TimeUnitConstantParam expected = objectMapper.readValue(constantParamStr, TimeUnitConstantParam.class);
-        assertEquals(expected, constantParam);
+    @Override
+    public TimeUnitConstantParam getTestObject() {
+        return new TimeUnitConstantParam(TimeUnit.HOUR);
     }
 
     /**
@@ -63,8 +40,7 @@ public class TimeUnitConstantParamTest {
      */
     @Test
     public void testFormat() {
-        TimeUnitConstantParam constantParam = new TimeUnitConstantParam(TimeUnit.HOUR);
-        assertEquals("HOUR", constantParam.format());
+        assertEquals("HOUR", getTestObject().format());
     }
 
 }

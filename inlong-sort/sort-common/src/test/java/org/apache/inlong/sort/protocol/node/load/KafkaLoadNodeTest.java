@@ -17,10 +17,9 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
+import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.node.Node;
-import org.apache.inlong.sort.protocol.node.NodeBaseTest;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 
@@ -28,30 +27,17 @@ import java.util.Arrays;
 import java.util.TreeMap;
 
 /**
- * Unit test for {@link KafkaLoadNode}
+ * Test for {@link KafkaLoadNode}
  */
-public class KafkaLoadNodeTest extends NodeBaseTest {
+public class KafkaLoadNodeTest extends SerializeBaseTest<KafkaLoadNode> {
 
     @Override
-    public Node getNode() {
+    public KafkaLoadNode getTestObject() {
         return new KafkaLoadNode("1", null,
                 Arrays.asList(new FieldInfo("field", new StringFormatInfo())),
                 Arrays.asList(new FieldRelationShip(new FieldInfo("field", new StringFormatInfo()),
                         new FieldInfo("field", new StringFormatInfo()))), null,
                 "topic", "localhost:9092", new CanalJsonFormat(),
                 1, new TreeMap<>(), null);
-    }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"kafkaLoad\",\"id\":\"1\",\"fields\":[{\"type\":\"base\",\"name\":\"field\","
-                + "\"formatInfo\":{\"type\":\"string\"}}],\"fieldRelationShips\":[{\"type\":\"fieldRelationShip\","
-                + "\"inputField\":{\"type\":\"base\",\"name\":\"field\",\"formatInfo\":{\"type\":\"string\"}},"
-                + "\"outputField\":{\"type\":\"base\",\"name\":\"field\",\"formatInfo\":{\"type\":\"string\"}}}],"
-                + "\"topic\":\"topic\",\"bootstrapServers\":\"localhost:9092\","
-                + "\"format\":{\"type\":\"canalJsonFormat\",\"ignoreParseErrors\":true,"
-                + "\"timestampFormatStandard\":\"SQL\",\"mapNullKeyMode\":\"DROP\",\"mapNullKeyLiteral\":\"null\","
-                + "\"encodeDecimalAsPlainNumber\":true},\"sinkParallelism\":1,"
-                + "\"properties\":{}}";
     }
 }

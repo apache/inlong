@@ -30,7 +30,7 @@ import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 public class SplitIndexFunctionTest extends FunctionBaseTest {
 
     @Override
-    public Function getFunction() {
+    public Function getTestObject() {
         return new SplitIndexFunction(new FieldInfo("split_field", new StringFormatInfo()),
                 new StringConstantParam(","),
                 new ConstantParam(0));
@@ -39,13 +39,5 @@ public class SplitIndexFunctionTest extends FunctionBaseTest {
     @Override
     public String getExpectFormat() {
         return "SPLIT_INDEX(`split_field`, ',', 0)";
-    }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"splitIndex\",\"field\":{\"type\":\"base\",\"name\":\"split_field\","
-                + "\"formatInfo\":{\"type\":\"string\"}},\"separator\":{\"type\":\"stringConstant\","
-                + "\"value\":\",\"},\"index\":{\"type\":\"constant\",\"value\":0}}";
-
     }
 }

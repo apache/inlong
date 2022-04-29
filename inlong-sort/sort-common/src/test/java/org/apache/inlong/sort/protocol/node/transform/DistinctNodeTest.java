@@ -17,11 +17,10 @@
 
 package org.apache.inlong.sort.protocol.node.transform;
 
+import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.node.Node;
-import org.apache.inlong.sort.protocol.node.NodeBaseTest;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.OrderDirection;
 
@@ -30,10 +29,10 @@ import java.util.Arrays;
 /**
  * Test for {@link DistinctNode}
  */
-public class DistinctNodeTest extends NodeBaseTest {
+public class DistinctNodeTest extends SerializeBaseTest<DistinctNode> {
 
     @Override
-    public Node getNode() {
+    public DistinctNode getTestObject() {
         return new DistinctNode("1", null,
                 Arrays.asList(new FieldInfo("f1", new StringFormatInfo()),
                         new FieldInfo("f2", new StringFormatInfo()),
@@ -53,28 +52,5 @@ public class DistinctNodeTest extends NodeBaseTest {
                 Arrays.asList(new FieldInfo("f1", new StringFormatInfo()),
                         new FieldInfo("f2", new StringFormatInfo())),
                 new FieldInfo("ts", new StringFormatInfo()), OrderDirection.ASC);
-    }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"distinct\",\"id\":\"1\",\"fields\":[{\"type\":\"base\",\"name\":\"f1\","
-                + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"f2\","
-                + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"f3\","
-                + "\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}}],"
-                + "\"fieldRelationShips\":[{\"type\":\"fieldRelationShip\",\"inputField\":{\"type\":\"base\","
-                + "\"name\":\"f1\",\"formatInfo\":{\"type\":\"string\"}},\"outputField\":{\"type\":\"base\","
-                + "\"name\":\"f1\",\"formatInfo\":{\"type\":\"string\"}}},{\"type\":\"fieldRelationShip\","
-                + "\"inputField\":{\"type\":\"base\",\"name\":\"f2\",\"formatInfo\":{\"type\":\"string\"}},"
-                + "\"outputField\":{\"type\":\"base\",\"name\":\"f2\",\"formatInfo\":{\"type\":\"string\"}}},"
-                + "{\"type\":\"fieldRelationShip\",\"inputField\":{\"type\":\"base\",\"name\":\"f3\","
-                + "\"formatInfo\":{\"type\":\"string\"}},\"outputField\":{\"type\":\"base\",\"name\":\"f3\","
-                + "\"formatInfo\":{\"type\":\"string\"}}},{\"type\":\"fieldRelationShip\","
-                + "\"inputField\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"string\"}},"
-                + "\"outputField\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"string\"}}}],"
-                + "\"distinctFields\":[{\"type\":\"base\",\"name\":\"f1\",\"formatInfo\":{\"type\":\"string\"}},"
-                + "{\"type\":\"base\",\"name\":\"f2\",\"formatInfo\":{\"type\":\"string\"}}],"
-                + "\"orderField\":{\"type\":\"base\",\"name\":\"ts\",\"formatInfo\":{\"type\":\"string\"}},"
-                + "\"orderDirection\":\"ASC\"}";
     }
 }

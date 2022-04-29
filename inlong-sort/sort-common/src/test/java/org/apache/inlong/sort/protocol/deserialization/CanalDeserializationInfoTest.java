@@ -18,22 +18,16 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
-import org.apache.inlong.sort.protocol.ProtocolBaseTest;
+import org.apache.inlong.sort.SerializeBaseTest;
 
-public class CanalDeserializationInfoTest extends ProtocolBaseTest {
+/**
+ * Test for {@link CanalDeserializationInfo}
+ */
+public class CanalDeserializationInfoTest extends SerializeBaseTest<CanalDeserializationInfo> {
 
     @Override
-    public void init() {
-        expectedObject = new CanalDeserializationInfo(null, null, false, "SQL", true);
-        expectedJson = "{\n"
-                + "  \"type\" : \"canal\",\n"
-                + "  \"ignore_parse_errors\" : false,\n"
-                + "  \"timestamp_format_standard\" : \"SQL\",\n"
-                + "  \"include_metadata\" : true\n"
-                + "}";
-        equalObj1 = expectedObject;
-        equalObj2 = new CanalDeserializationInfo(null, null, false, "SQL", true);
-        unequalObj = new CanalDeserializationInfo(null, null, false, "SQL", false);
+    public CanalDeserializationInfo getTestObject() {
+        return new CanalDeserializationInfo(null, null,
+                false, "SQL", true);
     }
-
 }

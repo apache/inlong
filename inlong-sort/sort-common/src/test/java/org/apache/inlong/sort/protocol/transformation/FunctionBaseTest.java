@@ -18,59 +18,27 @@
 package org.apache.inlong.sort.protocol.transformation;
 
 import com.google.common.base.Preconditions;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.sort.SerializeBaseTest;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Function test base class
  */
-public abstract class FunctionBaseTest {
+public abstract class FunctionBaseTest extends SerializeBaseTest<Function> {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private String expectFormat;
-    private String expectSerializeStr;
-    private Function function;
-
-    public abstract Function getFunction();
 
     public abstract String getExpectFormat();
 
-    public abstract String getExpectSerializeStr();
-
     /**
-     * Init the expectFormat, function instance, expectSerializeStr
+     * Init the expectFormat, function instance
      */
     @Before
     public void init() {
+        super.init();
         this.expectFormat = Preconditions.checkNotNull(getExpectFormat());
-        this.function = Preconditions.checkNotNull(getFunction());
-        this.expectSerializeStr = getExpectSerializeStr();
-    }
-
-    /**
-     * Test serialize
-     *
-     * @throws JsonProcessingException The exception may throws when executing
-     */
-    @Test
-    public void testSerialize() throws JsonProcessingException {
-        assertEquals(expectSerializeStr, objectMapper.writeValueAsString(function));
-    }
-
-    /**
-     * Test deserialize
-     *
-     * @throws JsonProcessingException The exception may throws when executing
-     */
-    @Test
-    public void testDeserialize() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Function expected = objectMapper.readValue(expectSerializeStr, function.getClass());
-        assertEquals(expected, function);
     }
 
     /**
@@ -78,6 +46,6 @@ public abstract class FunctionBaseTest {
      */
     @Test
     public void testFormat() {
-        assertEquals(expectFormat, function.format());
+        Assert.assertEquals(expectFormat, getTestObject().format());
     }
 }
