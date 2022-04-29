@@ -71,7 +71,7 @@ public class FlinkSqlParserTest extends AbstractTestBase {
         map.put("append-mode", "true");
         return new MySqlExtractNode(id, "mysql_input", fields,
                 null, map, "id",
-                Collections.singletonList("work1"), "localhost", "root", "Hybris*123",
+                Collections.singletonList("work1"), "localhost", "root", "password",
                 "inlong", null, null,
                 null, null);
     }
