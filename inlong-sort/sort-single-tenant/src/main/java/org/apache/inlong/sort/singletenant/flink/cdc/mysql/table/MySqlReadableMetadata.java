@@ -121,8 +121,8 @@ public enum MySqlReadableMetadata {
                 String tableName = getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY);
                 // databaseName
                 String databaseName = getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY);
-                // op_ts
-                long op_ts = (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY);
+                // opTs
+                long opTs = (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY);
                 // ts
                 long ts = (Long) messageStruct.get(Envelope.FieldName.TIMESTAMP);
                 // actual data
@@ -134,7 +134,7 @@ public enum MySqlReadableMetadata {
                 CanalJson canalJson = CanalJson.builder().data(dataList)
                     .database(databaseName)
                     .sql("")
-                    .es(op_ts)
+                    .es(opTs)
                     .isDdl(false)
                     .pkNames(getPkNames(tableSchema))
                     .mysqlType(getMysqlType(tableSchema))
