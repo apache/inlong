@@ -42,7 +42,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
-
+import java.util.Objects;
 
 /**
  * Inlong cluster service layer implementation
@@ -57,38 +57,33 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
 
-    /**
-     * save cluster info.
-     */
     @Override
     public Integer save(InlongClusterRequest request, String operator) {
-        LOGGER.debug("begin to save inlong cluster info={}", request);
-        // Check request
+        LOGGER.debug("begin to save inlong cluster={}", request);
+        // check request
         Preconditions.checkNotNull(request, "inlong cluster info is empty");
         Preconditions.checkNotEmpty(request.getName(), "inlong cluster name is empty");
         Preconditions.checkNotEmpty(request.getClusterTag(), "inlong cluster tag is empty");
         Preconditions.checkNotEmpty(request.getType(), "inlong cluster type is empty");
-        //check if cluster already exist
+
+        // check if cluster already exist
         InlongClusterEntity exist = clusterMapper.selectByUniqueKey(request);
         if (exist != null) {
-            String errmsg = String.format("inlong cluster already exist for ( name = %s cluster tag = %s type = %s)",
+            String errmsg = String.format("inlong cluster already exist for name=%s, cluster tag=%s, type=%s)",
                     request.getName(), request.getClusterTag(), request.getType());
             LOGGER.error(errmsg);
             throw new BusinessException(errmsg);
         }
         InlongClusterEntity entity = CommonBeanUtils.copyProperties(request, InlongClusterEntity::new);
-        Preconditions.checkNotNull(entity.getCreator(), "inlong cluster creator is empty");
         entity.setCreator(operator);
         entity.setCreateTime(new Date());
         entity.setIsDeleted(GlobalConstants.UN_DELETED);
         clusterMapper.insert(entity);
-        LOGGER.info("success to add a inlong cluster");
+
+        LOGGER.info("success to save inlong cluster={}", request);
         return entity.getId();
     }
 
-    /**
-     * get cluster info by id.
-     */
     @Override
     public InlongClusterResponse get(Integer id) {
         Preconditions.checkNotNull(id, "inlong cluster id is empty");
@@ -102,9 +97,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         return response;
     }
 
-    /**
-     * get cluster list info.
-     */
     @Override
     public PageInfo<InlongClusterResponse> list(InlongClusterPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
@@ -113,29 +105,30 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         List<InlongClusterResponse> clusterList = CommonBeanUtils.copyListProperties(entityPage,
                 InlongClusterResponse::new);
         PageInfo<InlongClusterResponse> page = new PageInfo<>(clusterList);
-        page.setTotal(entityPage.getTotal());
+        page.setTotal(clusterList.size());
         LOGGER.debug("success to list inlong cluster by {}", request);
         return page;
     }
 
-    /**
-     * update cluster info.
-     */
     @Override
     public Boolean update(InlongClusterRequest request, String operator) {
+        LOGGER.debug("begin to update inlong cluster={}", request);
+
         Preconditions.checkNotNull(request, "inlong cluster info is empty");
         Preconditions.checkNotEmpty(request.getName(), "inlong cluster name is empty");
         Preconditions.checkNotEmpty(request.getClusterTag(), "inlong cluster tag is empty");
         Preconditions.checkNotEmpty(request.getType(), "inlong cluster type is empty");
+
         Integer id = request.getId();
         Preconditions.checkNotNull(id, "inlong cluster id is empty");
         InlongClusterEntity exist = clusterMapper.selectByUniqueKey(request);
-        if (exist != null && id != exist.getId()) {
-            String errmsg = String.format("inlong cluster already exist ( name = %s cluster tag = %s type = %s)",
+        if (exist != null && !Objects.equals(id, exist.getId())) {
+            String errmsg = String.format("inlong cluster already exist for name=%s, cluster tag=%s, type=%s",
                     request.getName(), request.getClusterTag(), request.getType());
             LOGGER.error(errmsg);
             throw new BusinessException(errmsg);
         }
+
         InlongClusterEntity entity = clusterMapper.selectById(id);
         if (entity == null) {
             LOGGER.error("inlong cluster not found by id={}", id);
@@ -149,117 +142,101 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         return true;
     }
 
-    /**
-     * delete cluster info.
-     */
     @Override
     public Boolean delete(Integer id, String operator) {
         Preconditions.checkNotNull(id, "cluster id is empty");
         InlongClusterEntity entity = clusterMapper.selectById(id);
-        if (entity == null || entity.getIsDeleted() == 1) {
-            LOGGER.error("inlong cluster not found by id={}", id);
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
+        if (entity == null || entity.getIsDeleted() > GlobalConstants.UN_DELETED) {
+            LOGGER.error("inlong cluster not found by id={}, or was already deleted", id);
+            return false;
         }
-        entity.setIsDeleted(entity.getIsDeleted());
+
+        entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
         clusterMapper.updateById(entity);
         LOGGER.info("success to delete inlong cluster by id={}", id);
         return true;
     }
 
-    /**
-     * save cluster node info.
-     */
     @Override
     public Integer saveNode(ClusterNodeRequest request, String operator) {
-        LOGGER.info("begin to insert a inlong cluster node info cluster={}", request);
+        LOGGER.debug("begin to insert inlong cluster node={}", request);
         Preconditions.checkNotNull(request, "cluster node info is empty");
         Preconditions.checkNotNull(request.getParentId(), "inlong cluster node parent_id is empty");
         Preconditions.checkNotNull(request.getType(), "inlong cluster node type is empty");
         Preconditions.checkNotNull(request.getIp(), "inlong cluster node ip is empty");
         Preconditions.checkNotNull(request.getPort(), "inlong cluster node port is empty");
 
-        //check cluster node if exist
+        // check cluster node if exist
         InlongClusterNodeEntity exist = clusterNodeMapper.selectByUniqueKey(request);
         if (exist != null) {
-            String errmsg = String.format(
-                    "inlong cluster node already exist for ( type = %s ip = %s port = %s)", request.getType(),
-                    request.getIp(), request.getPort());
+            String errmsg = String.format("inlong cluster node already exist for type=%s ip=%s port=%s",
+                    request.getType(), request.getIp(), request.getPort());
             LOGGER.error(errmsg);
             throw new BusinessException(errmsg);
         }
 
-        InlongClusterNodeEntity entity = CommonBeanUtils.copyProperties(request,
-                InlongClusterNodeEntity::new);
-        Preconditions.checkNotNull(entity.getCreator(), "inlong cluster node creator is empty");
+        InlongClusterNodeEntity entity = CommonBeanUtils.copyProperties(request, InlongClusterNodeEntity::new);
         entity.setCreator(operator);
         entity.setCreateTime(new Date());
         entity.setIsDeleted(GlobalConstants.UN_DELETED);
         clusterNodeMapper.insert(entity);
-        LOGGER.info("success to add a inlong cluster node");
+
+        LOGGER.info("success to add inlong cluster node={}", request);
         return entity.getId();
     }
 
-    /**
-     * get cluster node info by id.
-     */
     @Override
     public ClusterNodeResponse getNode(Integer id) {
-        LOGGER.info("begin to get inlong cluster node by id={}", id);
         Preconditions.checkNotNull(id, "cluster node id is empty");
         InlongClusterNodeEntity entity = clusterNodeMapper.selectById(id);
         if (entity == null) {
             LOGGER.error("inlong cluster node not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
-        ClusterNodeResponse clusterNodeResponse = CommonBeanUtils.copyProperties(entity,
-                ClusterNodeResponse::new);
-        LOGGER.info("success to get inlong cluster node info");
+        ClusterNodeResponse clusterNodeResponse = CommonBeanUtils.copyProperties(entity, ClusterNodeResponse::new);
+        LOGGER.debug("success to get inlong cluster node by id={}", id);
         return clusterNodeResponse;
     }
 
-    /**
-     * get cluster node list info.
-     */
     @Override
     public PageInfo<ClusterNodeResponse> listNode(InlongClusterPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongClusterNodeEntity> entityPage = (Page<InlongClusterNodeEntity>)
                 clusterNodeMapper.selectByCondition(request);
-        List<ClusterNodeResponse> clusterList = CommonBeanUtils.copyListProperties(entityPage,
-                ClusterNodeResponse::new);
-        PageInfo<ClusterNodeResponse> page = new PageInfo<>(clusterList);
-        page.setTotal(entityPage.getTotal());
+        List<ClusterNodeResponse> nodeList = CommonBeanUtils.copyListProperties(entityPage, ClusterNodeResponse::new);
+        PageInfo<ClusterNodeResponse> page = new PageInfo<>(nodeList);
+        page.setTotal(nodeList.size());
 
         LOGGER.debug("success to list inlong cluster node by {}", request);
         return page;
     }
 
-    /**
-     * update cluster node info.
-     */
     @Override
     public Boolean updateNode(ClusterNodeRequest request, String operator) {
+        LOGGER.debug("begin to update inlong cluster node={}", request);
+
         Preconditions.checkNotNull(request, "inlong cluster node info is empty");
         Preconditions.checkNotNull(request, "cluster is empty");
         Preconditions.checkNotNull(request.getParentId(), "inlong cluster node parent_id is empty");
         Preconditions.checkNotNull(request.getType(), "inlong cluster node type is empty");
         Preconditions.checkNotNull(request.getIp(), "inlong cluster node ip is empty");
         Preconditions.checkNotNull(request.getPort(), "inlong cluster node port is empty");
+
         Integer id = request.getId();
         Preconditions.checkNotNull(id, "inlong cluster node id is empty");
-        //check cluster node if exist
+        // check cluster node if exist
         InlongClusterNodeEntity exist = clusterNodeMapper.selectByUniqueKey(request);
-        if (exist != null && id != exist.getId()) {
-            String errmsg = String.format(
-                    "inlong cluster node already exist for ( type = %s ip = %s port = %s)", request.getType(),
-                    request.getIp(), request.getPort());
+        if (exist != null && !Objects.equals(id, exist.getId())) {
+            String errmsg = String.format("inlong cluster node already exist for type=%s ip=%s port=%s)",
+                    request.getType(), request.getIp(), request.getPort());
             LOGGER.error(errmsg);
             throw new BusinessException(errmsg);
         }
+
         InlongClusterNodeEntity entity = clusterNodeMapper.selectById(id);
         if (entity == null) {
-            LOGGER.error("cluster not found by id={}", id);
+            LOGGER.error("cluster node not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
         CommonBeanUtils.copyProperties(request, entity, true);
@@ -267,20 +244,17 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         entity.setModifier(operator);
         clusterNodeMapper.updateById(entity);
 
-        LOGGER.info("success to update inlong cluster node ={}", request);
+        LOGGER.info("success to update inlong cluster node={}", request);
         return true;
     }
 
-    /**
-     * delete cluster node info.
-     */
     @Override
     public Boolean deleteNode(Integer id, String operator) {
         Preconditions.checkNotNull(id, "inlong cluster node id is empty");
         InlongClusterNodeEntity entity = clusterNodeMapper.selectById(id);
-        if (entity == null || entity.getIsDeleted() == 1) {
+        if (entity == null || entity.getIsDeleted() > GlobalConstants.UN_DELETED) {
             LOGGER.error("inlong cluster node not found by id={}", id);
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
+            return false;
         }
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
@@ -288,4 +262,5 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         LOGGER.info("success to delete inlong cluster node by id={}", id);
         return true;
     }
+
 }

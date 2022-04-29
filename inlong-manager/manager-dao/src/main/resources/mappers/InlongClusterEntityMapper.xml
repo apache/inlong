@@ -192,7 +192,7 @@
                 and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
             </if>
             <if test="type != null and type != ''">
-                and `type` = #{type, jdbcType=VARCHAR}
+                and type = #{type, jdbcType=VARCHAR}
             </if>
         </where>
     </select>
@@ -208,7 +208,7 @@
                 and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
             </if>
             <if test="type != null and type != ''">
-                and `type` = #{type, jdbcType=VARCHAR}
+                and type = #{type, jdbcType=VARCHAR}
             </if>
             <if test="url != null and url != ''">
                 and url like CONCAT('%', #{url}, '%')

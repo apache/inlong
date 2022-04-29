@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 /**
- * Inlong cluster service test.
+ * Inlong cluster service test for {@link InlongClusterService}
  */
 public class InlongClusterServiceTest extends ServiceBaseTest {
 
@@ -194,30 +194,28 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
      */
     @Test
     public void testClusterSaveAndDelete() {
-        InlongClusterRequest inlongClusterRequest = new InlongClusterRequest();
-
         String type = "PULSAR";
-        String cluserTag = "TUBE";
-        String zoneTag = "china";
+        String clusterTag = "default_cluster";
+        String zoneTag = "china_1";
         String ip = "127.0.0.1";
         Integer port = 8080;
 
-        String typeUpdate = "DATAPROXY";
-        String cluserTagUpdate = "PULSAR";
-        String zoneTagUpdate = "japan";
-        String ipUpdate = "93.41.58.31";
+        String typeUpdate = "DATA_PROXY";
+        String clusterTagUpdate = "default_cluster_2";
+        String zoneTagUpdate = "china_2";
+        String ipUpdate = "localhost";
         Integer portUpdate = 8083;
 
         // save cluster
-        Integer id = this.saveCluster(CLUSTER_NAME, type, cluserTag, zoneTag);
+        Integer id = this.saveCluster(CLUSTER_NAME, type, clusterTag, zoneTag);
         Assert.assertNotNull(id);
 
         // list cluster
-        PageInfo<InlongClusterResponse> listCluster = this.listCluster(type, cluserTag, zoneTag);
+        PageInfo<InlongClusterResponse> listCluster = this.listCluster(type, clusterTag, zoneTag);
         Assert.assertEquals(listCluster.getTotal(), 1);
 
         // update cluster
-        Boolean updateSuccess = this.updateCluster(CLUSTER_NAME, typeUpdate, cluserTagUpdate, zoneTagUpdate);
+        Boolean updateSuccess = this.updateCluster(CLUSTER_NAME, typeUpdate, clusterTagUpdate, zoneTagUpdate);
         Assert.assertTrue(updateSuccess);
 
         // save cluster node
