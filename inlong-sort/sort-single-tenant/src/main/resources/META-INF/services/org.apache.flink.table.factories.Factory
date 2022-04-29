@@ -32,6 +32,3 @@
 
 org.apache.inlong.sort.singletenant.flink.cdc.mysql.table.MySqlTableInlongSourceFactory
 org.apache.inlong.sort.singletenant.flink.connectors.hive.table.catalog.factories.HiveTableInlongFactory
-# 调试考虑,后续考虑将其他的资源文件拷贝到一起
-org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedFormatFactory
-org.apache.inlong.sort.flink.kafka.KafkaDynamicTableFactory
