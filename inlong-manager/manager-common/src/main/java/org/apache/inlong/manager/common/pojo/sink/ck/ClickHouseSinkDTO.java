@@ -78,6 +78,9 @@ public class ClickHouseSinkDTO {
     @ApiModelProperty("Key field names, separate with commas")
     private String keyFieldNames;
 
+    @ApiModelProperty("Table engine, support MergeTree Mem and so on")
+    private String tableEngine;
+
     @ApiModelProperty("Properties for clickhouse")
     private Map<String, Object> properties;
 
@@ -98,6 +101,7 @@ public class ClickHouseSinkDTO {
                 .partitionStrategy(request.getPartitionStrategy())
                 .partitionFields(request.getPartitionFields())
                 .keyFieldNames(request.getKeyFieldNames())
+                .tableEngine(request.getTableEngine())
                 .properties(request.getProperties())
                 .build();
     }

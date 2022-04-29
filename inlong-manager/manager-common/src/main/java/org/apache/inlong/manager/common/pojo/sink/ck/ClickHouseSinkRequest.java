@@ -73,4 +73,7 @@ public class ClickHouseSinkRequest extends SinkRequest {
     @ApiModelProperty("Key field names, separate with commas")
     private String keyFieldNames;
 
+    @ApiModelProperty("table engine, support MergeTree Mem and so on")
+    private String tableEngine;
+
 }

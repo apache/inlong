@@ -33,6 +33,7 @@ import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -50,7 +51,14 @@ public class HiveResourceOperator implements SinkResourceOperator {
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
+<<<<<<< HEAD
     private StreamSinkFieldEntityMapper sinkFieldMapper;
+=======
+    private StreamSinkFieldEntityMapper hiveFieldMapper;
+    @Autowired
+    @Qualifier("hiveSourceServiceImpl")
+    private DataSourceService<DatabaseQueryBean, HiveTableQueryBean> dataSourceService;
+>>>>>>> support create table with clickhouse
 
     @Override
     public Boolean accept(SinkType sinkType) {
