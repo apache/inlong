@@ -39,12 +39,6 @@ const clickhouseTargetTypes = [
   'Float64',
   'DateTime',
   'Date',
-  // 'time',
-  // 'date',
-  // 'timestamp',
-  // 'map<string,string>',
-  // 'map<string,map<string,string>>',
-  // 'map<string,map<string,map<string,string>>>',
 ].map(item => ({
   label: item,
   value: item,
