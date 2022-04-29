@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.sort.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.MetaFieldType;
@@ -51,6 +52,7 @@ import java.util.Map;
 /**
  * Util for sort field info.
  */
+@Slf4j
 public class FieldInfoUtils {
 
     /**
@@ -85,7 +87,7 @@ public class FieldInfoUtils {
 
     public static FieldInfo parseStreamField(StreamField streamField) {
         boolean isBuiltIn = streamField.getIsMetaField() == 1;
-        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType().toString(), isBuiltIn,
+        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType().name(), isBuiltIn,
                 streamField.getFieldFormat());
         fieldInfo.setNodeId(streamField.getOriginNodeName());
         return fieldInfo;
@@ -134,6 +136,9 @@ public class FieldInfoUtils {
         if (isBuiltin && builtInField != null) {
             fieldInfo = new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
         } else {
+            if (isBuiltin) {
+                log.warn("Unsupported metadata fieldName={} as the builtInField is null", fieldName);
+            }
             fieldInfo = new FieldInfo(fieldName, formatInfo);
         }
         return fieldInfo;
