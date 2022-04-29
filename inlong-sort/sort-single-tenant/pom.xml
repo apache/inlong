@@ -307,12 +307,6 @@
             <version>${debezium-core.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-csv</artifactId>
-            <version>1.13.0</version>
-        </dependency>
-
     </dependencies>
 
     <build>
