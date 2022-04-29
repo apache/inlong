@@ -101,6 +101,7 @@ public class ExtractNodeUtils {
         boolean incrementalSnapshotEnabled = true;
         Map<String, String> properties = Maps.newHashMap();
         if (binlogSourceResponse.isAllMigration()) {
+            // Unique properties when migrate all tables in database
             incrementalSnapshotEnabled = false;
             properties.put("append-mode", "true");
             properties.put("migrate-all", "true");
