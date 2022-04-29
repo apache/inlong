@@ -37,7 +37,7 @@ public class ClickHouseCreateTableSqlBuilder extends SqlBuilder<ClickHouseTableQ
         if (StringUtils.isNotEmpty(table.getTableEngine())) { // set table comment
             ddl.append(" ENGINE = ").append(table.getTableEngine());
         } else {
-            ddl.append(" ENGINE = MergeTree()");
+            ddl.append(" ENGINE = Log");
         }
         if (StringUtils.isNotEmpty(table.getPartitionBy())) {
             ddl.append(" PARTITION BY ").append(table.getPartitionBy());
