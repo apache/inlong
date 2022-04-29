@@ -48,7 +48,7 @@ public enum FieldType {
     public static FieldType forName(String name) {
         Preconditions.checkNotNull(name, "FieldType should not be null");
         for (FieldType value : values()) {
-            if (value.toString().equals(name) || value.toString().equals(name.toLowerCase(Locale.ROOT))) {
+            if (value.toString().equals(name) || value.toString().equals(name.toUpperCase(Locale.ROOT))) {
                 return value;
             }
         }

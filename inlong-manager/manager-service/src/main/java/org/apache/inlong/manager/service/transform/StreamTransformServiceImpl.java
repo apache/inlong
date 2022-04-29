@@ -22,6 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
@@ -109,6 +110,8 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                 .map(transformFieldEntity -> {
                     StreamField fieldInfo = CommonBeanUtils.copyProperties(transformFieldEntity,
                             StreamField::new);
+                    fieldInfo.setFieldType(FieldType.forName(transformFieldEntity.getFieldType()));
+                    fieldInfo.setId(Integer.valueOf(transformFieldEntity.getRankNum()));
                     return Pair.of(transformFieldEntity.getTransformId(), fieldInfo);
                 }).collect(Collectors.groupingBy(Pair::getLeft,
                         Collectors.mapping(Pair::getRight, Collectors.toList())));
@@ -216,12 +219,14 @@ public class StreamTransformServiceImpl implements StreamTransformService {
             if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
                 fieldEntity.setFieldComment(fieldEntity.getFieldName());
             }
+            fieldEntity.setId(null);
             fieldEntity.setInlongGroupId(groupId);
             fieldEntity.setInlongStreamId(streamId);
+            fieldEntity.setFieldType(fieldInfo.getFieldType().name());
+            fieldEntity.setRankNum(fieldInfo.getId());
             fieldEntity.setTransformId(transformId);
             fieldEntity.setTransformType(transformType);
             fieldEntity.setIsDeleted(GlobalConstants.UN_DELETED);
-            fieldEntity.setOriginNodeName(fieldInfo.getOriginNodeName());
             entityList.add(fieldEntity);
         }
 
