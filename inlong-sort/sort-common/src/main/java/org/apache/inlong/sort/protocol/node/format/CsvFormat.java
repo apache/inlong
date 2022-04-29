@@ -60,7 +60,7 @@ public class CsvFormat implements Format {
             @JsonProperty(value = "disableQuoteCharacter", defaultValue = "false") Boolean disableQuoteCharacter,
             @JsonProperty(value = "quoteCharacter", defaultValue = "\"") String quoteCharacter,
             @JsonProperty(value = "allowComments", defaultValue = "false") Boolean allowComments,
-            @JsonProperty(value = "ignoreParseErrors", defaultValue = "false") Boolean ignoreParseErrors,
+            @JsonProperty(value = "ignoreParseErrors", defaultValue = "true") Boolean ignoreParseErrors,
             @JsonProperty(value = "arrayElementDelimiter", defaultValue = ";") String arrayElementDelimiter,
             @JsonProperty(value = "escapeCharacter") String escapeCharacter,
             @JsonProperty(value = "nullLiteral") String nullLiteral) {
@@ -76,7 +76,7 @@ public class CsvFormat implements Format {
 
     @JsonCreator
     public CsvFormat() {
-        this(",", false, "\"", false, false, ";", null, null);
+        this(",", false, "\"", false, true, ";", null, null);
     }
 
     @JsonIgnore
