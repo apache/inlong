@@ -93,6 +93,7 @@ import org.apache.inlong.sort.formats.common.VarCharFormatInfo;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
 import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
 import static org.apache.flink.table.factories.TableFormatFactoryBase.deriveSchema;
 import static org.apache.flink.util.Preconditions.checkState;
@@ -102,6 +103,11 @@ import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SC
  * A utility class for table formats.
  */
 public class TableFormatUtils {
+
+    // to support hive load,hive catalog timestamp must default precision equal to 9
+    public static final int HIVE_CATALOG_PRECISION_FOR_TIMESTAMP = 9;
+    // to support avro format, precision must be less than 3
+    private static final int DEFAULT_PRECISION_FOR_TIMESTAMP = 2;
 
     /**
      * Returns the {@link DeserializationSchema} described by the given

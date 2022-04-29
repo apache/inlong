@@ -18,19 +18,6 @@
 
 package org.apache.inlong.sort.singletenant.flink.cdc.mysql.table;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
-import java.time.Duration;
-import java.time.ZoneId;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -48,6 +35,20 @@ import org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumSourceFunc
 import org.apache.inlong.sort.singletenant.flink.cdc.debezium.table.MetadataConverter;
 import org.apache.inlong.sort.singletenant.flink.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
 import org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.MySqlSource;
+
+import javax.annotation.Nullable;
+import java.time.Duration;
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * A {@link DynamicTableSource} that describes how to create a MySQL binlog source from a logical
