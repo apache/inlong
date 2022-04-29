@@ -24,6 +24,8 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
  */
 public interface EventSelector {
 
+    EventSelector SELECT_ANY = context -> true;
+
     boolean accept(WorkflowContext context);
 
 }

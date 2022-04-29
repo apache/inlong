@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Event listener of create sink resources, such as Hive table, ES indices
+ * Event listener of create sink resources, such as Hive table, kafka topics, ES indices
  */
 @Service
 @Slf4j
@@ -57,7 +57,7 @@ public class CreateSinkResourceListener implements SinkOperateListener {
     public ListenerResult listen(WorkflowContext context) {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
-        log.info("begin to create hive table for groupId={}", groupId);
+        log.info("begin to create sink resources for groupId={}", groupId);
 
         List<String> streamIdList = new ArrayList<>();
         List<InlongStreamInfo> streamList = form.getStreamInfoList();
