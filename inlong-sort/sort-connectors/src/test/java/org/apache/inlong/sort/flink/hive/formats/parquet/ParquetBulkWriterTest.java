@@ -56,7 +56,6 @@ import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
-import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFieldPartitionInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HivePartitionInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.ParquetFileFormat;
 import org.apache.parquet.example.data.Group;
@@ -95,7 +94,7 @@ public class ParquetBulkWriterTest {
                 (float) 1.1,
                 1.11,
                 new BigDecimal("123456789123456789"),
-                new Date(0),
+                new Date(24 * 60 * 60 * 1000),
                 new Time(0),
                 new Timestamp(0),
                 testArray,
@@ -120,9 +119,9 @@ public class ParquetBulkWriterTest {
         assertEquals(1.1, line.getFloat(6, 0), 0.01);
         assertEquals(1.11, line.getDouble(7, 0), 0.001);
         assertEquals("123456789123456789", line.getString(8, 0));
-        assertEquals(0, line.getInteger(9, 0));
+        assertEquals(1, line.getInteger(9, 0));
         assertEquals(0, line.getInteger(10, 0));
-        assertEquals(0, line.getLong(11, 0));
+        assertEquals(ParquetRowWriter.timestampToInt96(new Timestamp(0)), line.getInt96(11, 0));
 
         Group f13 = line.getGroup("f13", 0);
         assertEquals(1, f13.getGroup(ARRAY_FIELD_NAME, 0).getInteger(0, 0));
@@ -168,7 +167,6 @@ public class ParquetBulkWriterTest {
                 "testPassword",
                 "/path",
                 new HivePartitionInfo[] {
-                        new HiveFieldPartitionInfo("f13"),
                 },
                 new ParquetFileFormat()
         );

@@ -57,7 +57,13 @@ public interface StreamSourceEntityMapper {
     /**
      * Query the tasks by the given status list.
      */
-    List<StreamSourceEntity> selectByStatus(@Param("list") List<Integer> list);
+    List<StreamSourceEntity> selectByStatus(@Param("list") List<Integer> list, @Param("limit") int limit);
+
+    /**
+     * Query the tasks by the given status list and type List.
+     */
+    List<StreamSourceEntity> selectByStatusAndType(@Param("list") List<Integer> list,
+            @Param("sourceType") List<String> sourceTypes, @Param("limit") int limit);
 
     /**
      * Query the sources with status 20x by the given agent IP and agent UUID.
@@ -66,6 +72,11 @@ public interface StreamSourceEntityMapper {
      */
     List<StreamSourceEntity> selectByStatusAndIp(@Param("statusList") List<Integer> statusList,
             @Param("agentIp") String agentIp, @Param("uuid") String uuid);
+
+    /**
+     * Select all sources by groupIds
+     */
+    List<StreamSourceEntity> selectByGroupIds(@Param("groupIds") List<String> groupIds);
 
     /**
      * Get the distinct source type from the given groupId and streamId

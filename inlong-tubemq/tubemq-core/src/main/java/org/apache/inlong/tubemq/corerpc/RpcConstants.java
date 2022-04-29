@@ -43,7 +43,9 @@ public final class RpcConstants {
     public static final String NETTY_WRITE_HIGH_MARK = "rpc.netty.write.highmark";
     public static final String NETTY_WRITE_LOW_MARK = "rpc.netty.write.lowmark";
     public static final String NETTY_TCP_SENDBUF = "rpc.netty.send.buffer";
+    public static final String NETTY_TCP_MAX_MESSAGE_SIZE = "rpc.netty.max.message.size";
     public static final String NETTY_TCP_RECEIVEBUF = "rpc.netty.receive.buffer";
+    public static final String NETTY_TCP_ENABLEBUSYWAIT = "rpc.netty.enable.busy.wait";
 
     public static final String TCP_NODELAY = "rpc.tcp.nodelay";
     public static final String TCP_REUSEADDRESS = "rpc.tcp.reuseaddress";
@@ -131,5 +133,6 @@ public final class RpcConstants {
     public static final long CFG_UNAVAILABLE_FORBIDDEN_DURATION_MS = 50000;
     public static final long CFG_DEFAULT_NETTY_WRITEBUFFER_HIGH_MARK = 50 * 1024 * 1024;
     public static final long CFG_DEFAULT_NETTY_WRITEBUFFER_LOW_MARK = 5 * 1024 * 1024;
+    public static final int CFG_DEFAULT_NETTY_TCP_MAX_MESSAGE_SIZE = 5 * 1024 * 1024;
 
 }

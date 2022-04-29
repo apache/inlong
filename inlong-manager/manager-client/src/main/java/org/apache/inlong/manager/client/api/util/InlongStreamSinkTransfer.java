@@ -17,18 +17,18 @@
 
 package org.apache.inlong.manager.client.api.util;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.compress.utils.Lists;
-import org.apache.inlong.manager.client.api.DataFormat;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.DataSeparator;
-import org.apache.inlong.manager.client.api.SinkField;
-import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.sink.ClickHouseSink;
 import org.apache.inlong.manager.client.api.sink.HiveSink;
 import org.apache.inlong.manager.client.api.sink.KafkaSink;
+import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.FileFormat;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
@@ -41,6 +41,8 @@ import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.SinkField;
+import org.apache.inlong.manager.common.pojo.stream.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.nio.charset.Charset;
@@ -59,7 +61,7 @@ public class InlongStreamSinkTransfer {
         } else if (sinkType == SinkType.CLICKHOUSE) {
             sinkRequest = createClickHouseRequest(streamSink, streamInfo);
         } else {
-            throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
+            throw new IllegalArgumentException(String.format("Unsupported sink type : %s for Inlong", sinkType));
         }
         return sinkRequest;
     }
@@ -79,7 +81,7 @@ public class InlongStreamSinkTransfer {
         } else if (sinkType == SinkType.CLICKHOUSE) {
             streamSinkResult = parseClickHouseSink((ClickHouseSinkResponse) sinkResponse, streamSink);
         } else {
-            throw new IllegalArgumentException(String.format("Unsupport sink type : %s for Inlong", sinkType));
+            throw new IllegalArgumentException(String.format("Unsupported sink type : %s for Inlong", sinkType));
         }
         return streamSinkResult;
     }
@@ -88,22 +90,22 @@ public class InlongStreamSinkTransfer {
         ClickHouseSinkRequest clickHouseSinkRequest = new ClickHouseSinkRequest();
         ClickHouseSink clickHouseSink = (ClickHouseSink) streamSink;
         clickHouseSinkRequest.setSinkName(clickHouseSink.getSinkName());
-        clickHouseSinkRequest.setDatabaseName(clickHouseSink.getDatabaseName());
+        clickHouseSinkRequest.setDbName(clickHouseSink.getDbName());
         clickHouseSinkRequest.setSinkType(clickHouseSink.getSinkType().name());
         clickHouseSinkRequest.setJdbcUrl(clickHouseSink.getJdbcUrl());
         DefaultAuthentication defaultAuthentication = clickHouseSink.getAuthentication();
         AssertUtil.notNull(defaultAuthentication,
-                String.format("Clickhouse storage:%s must be authenticated", clickHouseSink.getDatabaseName()));
+                String.format("Clickhouse storage:%s must be authenticated", clickHouseSink.getDbName()));
         clickHouseSinkRequest.setUsername(defaultAuthentication.getUserName());
         clickHouseSinkRequest.setPassword(defaultAuthentication.getPassword());
         clickHouseSinkRequest.setTableName(clickHouseSink.getTableName());
-        clickHouseSinkRequest.setDistributedTable(clickHouseSink.getDistributedTable());
+        clickHouseSinkRequest.setIsDistributed(clickHouseSink.getIsDistributed());
         clickHouseSinkRequest.setFlushInterval(clickHouseSink.getFlushInterval());
-        clickHouseSinkRequest.setFlushRecordNumber(clickHouseSink.getFlushRecordNumber());
+        clickHouseSinkRequest.setFlushRecord(clickHouseSink.getFlushRecord());
         clickHouseSinkRequest.setKeyFieldNames(clickHouseSink.getKeyFieldNames());
-        clickHouseSinkRequest.setPartitionKey(clickHouseSink.getPartitionKey());
+        clickHouseSinkRequest.setPartitionFields(clickHouseSink.getPartitionFields());
         clickHouseSinkRequest.setPartitionStrategy(clickHouseSink.getPartitionStrategy());
-        clickHouseSinkRequest.setWriteMaxRetryTimes(clickHouseSink.getWriteMaxRetryTimes());
+        clickHouseSinkRequest.setRetryTimes(clickHouseSink.getRetryTimes());
         clickHouseSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         clickHouseSinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         clickHouseSinkRequest.setProperties(clickHouseSink.getProperties());
@@ -124,22 +126,23 @@ public class InlongStreamSinkTransfer {
             ClickHouseSink snapshot = (ClickHouseSink) streamSink;
             clickHouseSink = CommonBeanUtils.copyProperties(snapshot, ClickHouseSink::new);
         } else {
-            clickHouseSink.setDistributedTable(sinkResponse.getDistributedTable());
+            clickHouseSink.setIsDistributed(sinkResponse.getIsDistributed());
             clickHouseSink.setSinkName(sinkResponse.getSinkName());
             clickHouseSink.setFlushInterval(sinkResponse.getFlushInterval());
             clickHouseSink.setAuthentication(new DefaultAuthentication(sinkResponse.getSinkName(),
                     sinkResponse.getPassword()));
-            clickHouseSink.setDatabaseName(sinkResponse.getDatabaseName());
-            clickHouseSink.setFlushRecordNumber(sinkResponse.getFlushRecordNumber());
+            clickHouseSink.setDbName(sinkResponse.getDbName());
+            clickHouseSink.setFlushRecord(sinkResponse.getFlushRecord());
             clickHouseSink.setJdbcUrl(sinkResponse.getJdbcUrl());
-            clickHouseSink.setPartitionKey(sinkResponse.getPartitionKey());
+            clickHouseSink.setPartitionFields(sinkResponse.getPartitionFields());
             clickHouseSink.setKeyFieldNames(sinkResponse.getKeyFieldNames());
             clickHouseSink.setPartitionStrategy(sinkResponse.getPartitionStrategy());
-            clickHouseSink.setWriteMaxRetryTimes(sinkResponse.getWriteMaxRetryTimes());
-            clickHouseSink.setDistributedTable(sinkResponse.getDistributedTable());
+            clickHouseSink.setRetryTimes(sinkResponse.getRetryTimes());
+            clickHouseSink.setIsDistributed(sinkResponse.getIsDistributed());
         }
         clickHouseSink.setProperties(sinkResponse.getProperties());
-        clickHouseSink.setNeedCreated(sinkResponse.getEnableCreateResource() == 1);
+        clickHouseSink.setNeedCreated(
+                GlobalConstants.ENABLE_CREATE_RESOURCE.equals(sinkResponse.getEnableCreateResource()));
         if (CollectionUtils.isNotEmpty(sinkResponse.getFieldList())) {
             clickHouseSink.setSinkFields(convertToSinkFields(sinkResponse.getFieldList()));
         }
@@ -152,8 +155,10 @@ public class InlongStreamSinkTransfer {
                 sinkFieldResponse.getFieldName(),
                 sinkFieldResponse.getFieldComment(),
                 null, sinkFieldResponse.getSourceFieldName(),
-                sinkFieldResponse.getSourceFieldType(),
-                sinkFieldResponse.getIsSourceMetaField())).collect(Collectors.toList());
+                StringUtils.isBlank(sinkFieldResponse.getSourceFieldType()) ? null :
+                        FieldType.forName(sinkFieldResponse.getSourceFieldType()),
+                sinkFieldResponse.getIsMetaField(),
+                sinkFieldResponse.getFieldFormat())).collect(Collectors.toList());
 
     }
 
@@ -161,7 +166,7 @@ public class InlongStreamSinkTransfer {
         KafkaSinkRequest kafkaSinkRequest = new KafkaSinkRequest();
         KafkaSink kafkaSink = (KafkaSink) streamSink;
         kafkaSinkRequest.setSinkName(streamSink.getSinkName());
-        kafkaSinkRequest.setAddress(kafkaSink.getAddress());
+        kafkaSinkRequest.setBootstrapServers(kafkaSink.getBootstrapServers());
         kafkaSinkRequest.setTopicName(kafkaSink.getTopicName());
         kafkaSinkRequest.setSinkType(kafkaSink.getSinkType().name());
         kafkaSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
@@ -169,6 +174,7 @@ public class InlongStreamSinkTransfer {
         kafkaSinkRequest.setSerializationType(kafkaSink.getDataFormat().name());
         kafkaSinkRequest.setEnableCreateResource(kafkaSink.isNeedCreated() ? 1 : 0);
         kafkaSinkRequest.setProperties(kafkaSink.getProperties());
+        kafkaSinkRequest.setPrimaryKey(kafkaSink.getPrimaryKey());
         if (CollectionUtils.isNotEmpty(kafkaSink.getSinkFields())) {
             List<SinkFieldRequest> fieldRequests = createSinkFieldRequests(kafkaSink.getSinkFields());
             kafkaSinkRequest.setFieldList(fieldRequests);
@@ -183,17 +189,18 @@ public class InlongStreamSinkTransfer {
                     String.format("SinkName is not equal: %s != %s", sinkResponse, sink));
             KafkaSink snapshot = (KafkaSink) sink;
             kafkaSink.setSinkName(snapshot.getSinkName());
-            kafkaSink.setAddress(snapshot.getAddress());
+            kafkaSink.setBootstrapServers(snapshot.getBootstrapServers());
             kafkaSink.setTopicName(snapshot.getTopicName());
             kafkaSink.setDataFormat(snapshot.getDataFormat());
         } else {
             kafkaSink.setSinkName(sinkResponse.getSinkName());
-            kafkaSink.setAddress(sinkResponse.getAddress());
+            kafkaSink.setBootstrapServers(sinkResponse.getBootstrapServers());
             kafkaSink.setTopicName(sinkResponse.getTopicName());
             kafkaSink.setDataFormat(DataFormat.forName(sinkResponse.getSerializationType()));
         }
+        kafkaSink.setPrimaryKey(sinkResponse.getPrimaryKey());
         kafkaSink.setProperties(sinkResponse.getProperties());
-        kafkaSink.setNeedCreated(sinkResponse.getEnableCreateResource() == 1);
+        kafkaSink.setNeedCreated(GlobalConstants.ENABLE_CREATE_RESOURCE.equals(sinkResponse.getEnableCreateResource()));
         if (CollectionUtils.isNotEmpty(sinkResponse.getFieldList())) {
             kafkaSink.setSinkFields(convertToSinkFields(sinkResponse.getFieldList()));
         }
@@ -215,13 +222,14 @@ public class InlongStreamSinkTransfer {
         hiveSinkRequest.setJdbcUrl(hiveSink.getJdbcUrl());
         hiveSinkRequest.setFileFormat(hiveSink.getFileFormat().name());
         hiveSinkRequest.setSinkType(hiveSink.getSinkType().name());
+        hiveSinkRequest.setPartitionFieldList(hiveSink.getPartitionFieldList());
+        hiveSinkRequest.setHiveConfDir(hiveSink.getHiveConfDir());
+        hiveSinkRequest.setHiveVersion(hiveSink.getHiveVersion());
         DefaultAuthentication defaultAuthentication = hiveSink.getAuthentication();
         AssertUtil.notNull(defaultAuthentication,
                 String.format("Hive storage:%s must be authenticated", hiveSink.getDbName()));
         hiveSinkRequest.setUsername(defaultAuthentication.getUserName());
         hiveSinkRequest.setPassword(defaultAuthentication.getPassword());
-        hiveSinkRequest.setPrimaryPartition(hiveSink.getPrimaryPartition());
-        hiveSinkRequest.setSecondaryPartition(hiveSink.getSecondaryPartition());
         hiveSinkRequest.setProperties(hiveSink.getProperties());
         if (CollectionUtils.isNotEmpty(hiveSink.getSinkFields())) {
             List<SinkFieldRequest> fieldRequests = createSinkFieldRequests(streamSink.getSinkFields());
@@ -231,18 +239,20 @@ public class InlongStreamSinkTransfer {
     }
 
     private static List<SinkFieldRequest> createSinkFieldRequests(List<SinkField> sinkFields) {
-        List<SinkFieldRequest> sinkFieldRequests = Lists.newArrayList();
+        List<SinkFieldRequest> fieldRequestList = Lists.newArrayList();
         for (SinkField sinkField : sinkFields) {
-            SinkFieldRequest sinkFieldRequest = new SinkFieldRequest();
-            sinkFieldRequest.setFieldName(sinkField.getFieldName());
-            sinkFieldRequest.setFieldType(sinkField.getFieldType().toString());
-            sinkFieldRequest.setFieldComment(sinkField.getFieldComment());
-            sinkFieldRequest.setSourceFieldName(sinkField.getSourceFieldName());
-            sinkFieldRequest.setSourceFieldType(sinkField.getSourceFieldType());
-            sinkFieldRequest.setIsSourceMetaField(sinkField.getIsSourceMetaField());
-            sinkFieldRequests.add(sinkFieldRequest);
+            SinkFieldRequest request = new SinkFieldRequest();
+            request.setFieldName(sinkField.getFieldName());
+            request.setFieldType(sinkField.getFieldType().toString());
+            request.setFieldComment(sinkField.getFieldComment());
+            request.setSourceFieldName(sinkField.getSourceFieldName());
+            request.setSourceFieldType(
+                    sinkField.getSourceFieldType() == null ? null : sinkField.getSourceFieldType().toString());
+            request.setIsMetaField(sinkField.getIsMetaField());
+            request.setFieldFormat(sinkField.getFieldFormat());
+            fieldRequestList.add(request);
         }
-        return sinkFieldRequests;
+        return fieldRequestList;
     }
 
     private static HiveSink parseHiveSink(HiveSinkResponse sinkResponse, StreamSink sink) {
@@ -260,8 +270,9 @@ public class InlongStreamSinkTransfer {
             hiveSink.setTableName(snapshot.getTableName());
             hiveSink.setDbName(snapshot.getDbName());
             hiveSink.setDataPath(snapshot.getDataPath());
-            hiveSink.setSecondaryPartition(snapshot.getSecondaryPartition());
-            hiveSink.setPrimaryPartition(snapshot.getPrimaryPartition());
+            hiveSink.setHiveVersion(snapshot.getHiveVersion());
+            hiveSink.setHiveConfDir(snapshot.getHiveConfDir());
+            hiveSink.setPartitionFieldList(snapshot.getPartitionFieldList());
         } else {
             hiveSink.setSinkName(sinkResponse.getSinkName());
             hiveSink.setDataSeparator(DataSeparator.forAscii(Integer.parseInt(sinkResponse.getDataSeparator())));
@@ -274,12 +285,14 @@ public class InlongStreamSinkTransfer {
             hiveSink.setTableName(sinkResponse.getTableName());
             hiveSink.setDbName(sinkResponse.getDbName());
             hiveSink.setDataPath(sinkResponse.getDataPath());
-            hiveSink.setSecondaryPartition(sinkResponse.getSecondaryPartition());
-            hiveSink.setPrimaryPartition(sinkResponse.getPrimaryPartition());
+            hiveSink.setHiveConfDir(sinkResponse.getHiveConfDir());
+            hiveSink.setHiveVersion(sinkResponse.getHiveVersion());
+            hiveSink.setPartitionFieldList(sinkResponse.getPartitionFieldList());
         }
+
         hiveSink.setProperties(sinkResponse.getProperties());
         hiveSink.setSinkType(SinkType.HIVE);
-        hiveSink.setNeedCreated(sinkResponse.getEnableCreateResource() == 1);
+        hiveSink.setNeedCreated(GlobalConstants.ENABLE_CREATE_RESOURCE.equals(sinkResponse.getEnableCreateResource()));
         if (CollectionUtils.isNotEmpty(sinkResponse.getFieldList())) {
             hiveSink.setSinkFields(convertToSinkFields(sinkResponse.getFieldList()));
         }

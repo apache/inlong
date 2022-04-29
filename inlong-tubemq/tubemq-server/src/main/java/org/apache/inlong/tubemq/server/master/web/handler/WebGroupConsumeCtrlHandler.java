@@ -362,6 +362,12 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         Set<String> configuredTopicSet =
                 defMetaDataService.getTotalConfiguredTopicNames();
         for (Map<String, String> itemsMap : filterJsonArray) {
+            // check and get operation info
+            if (!WebParameterUtils.getAUDBaseInfo(itemsMap,
+                    isAddOp, defOpEntity, sBuffer, result)) {
+                return result.isSuccess();
+            }
+            final BaseEntity itemOpEntity = (BaseEntity) result.getRetData();
             if (!WebParameterUtils.getStringParamValue(itemsMap,
                     WebFieldDef.GROUPNAME, true, "", sBuffer, result)) {
                 return result.isSuccess();
@@ -407,8 +413,8 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
             }
             String filterCondStr = (String) result.getRetData();
             // add record object
-            itemConf = new GroupConsumeCtrlEntity(defOpEntity, groupName, topicName);
-            itemConf.updModifyInfo(defOpEntity.getDataVerId(),
+            itemConf = new GroupConsumeCtrlEntity(itemOpEntity, groupName, topicName);
+            itemConf.updModifyInfo(itemOpEntity.getDataVerId(),
                     consumeEnable, disableRsn, filterEnable, filterCondStr);
             addRecordMap.put(itemConf.getRecordKey(), itemConf);
         }

@@ -51,11 +51,29 @@ export const getDataSourcesBinLogFields = (
       _inTable: true,
     },
     {
+      name: 'user',
+      type: 'input',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.User'),
+      rules: [{ required: true }],
+      props: {
+        disabled: currentValues?.status === 101,
+      },
+    },
+    {
+      name: 'password',
+      type: 'password',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.Password'),
+      rules: [{ required: true }],
+      props: {
+        disabled: currentValues?.status === 101,
+      },
+    },
+    {
       name: 'historyFilename',
       type: 'input',
       label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.HistoryFilename'),
       rules: [{ required: true }],
-      initialValue: '/agentInstallPath/.history',
+      initialValue: '/data/inlong-agent/.history',
       props: {
         disabled: currentValues?.status === 101,
       },

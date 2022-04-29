@@ -54,11 +54,21 @@ public interface InlongGroup {
     void update(InlongGroupConf conf) throws Exception;
 
     /**
-     * Init inlong group on updated conf.
+     * ReInit inlong group after update configuration for group.
      * Must be invoked when group is rejected,failed or started
      *
      * @return inlong group info
      */
+    InlongGroupContext reInitOnUpdate(InlongGroupConf conf) throws Exception;
+
+    /**
+     * Init inlong group on updated conf.
+     * Must be invoked when group is rejected,failed or started
+     * This method is deprecated, recommend to use reInitOnUpdate
+     *
+     * @return inlong group info
+     */
+    @Deprecated
     InlongGroupContext initOnUpdate(InlongGroupConf conf) throws Exception;
 
     /**

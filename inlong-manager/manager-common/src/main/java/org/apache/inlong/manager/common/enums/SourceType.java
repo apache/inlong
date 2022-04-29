@@ -27,10 +27,17 @@ import java.util.Locale;
  */
 public enum SourceType {
 
+    AUTO_PUSH("AUTO_PUSH", null),
     FILE("FILE", TaskTypeEnum.FILE),
     SQL("SQL", TaskTypeEnum.SQL),
     BINLOG("BINLOG", TaskTypeEnum.BINLOG),
     KAFKA("KAFKA", TaskTypeEnum.KAFKA);
+
+    public static final String SOURCE_AUTO_PUSH = "AUTO_PUSH";
+    public static final String SOURCE_FILE = "FILE";
+    public static final String SOURCE_SQL = "SQL";
+    public static final String SOURCE_BINLOG = "BINLOG";
+    public static final String SOURCE_KAFKA = "KAFKA";
 
     @Getter
     private final String type;

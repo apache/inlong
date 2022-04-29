@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionPulsarInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
@@ -40,12 +40,12 @@ public class ConsumptionServiceTest extends ServiceBaseTest {
         consumptionInfo.setTopic(inlongGroup);
         consumptionInfo.setConsumerGroupName(consumerGroup);
         consumptionInfo.setInlongGroupId("b_" + inlongGroup);
-        consumptionInfo.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
+        consumptionInfo.setMiddlewareType(MQType.PULSAR.getType());
         consumptionInfo.setCreator(operator);
         consumptionInfo.setInCharges("admin");
 
         ConsumptionPulsarInfo pulsarInfo = new ConsumptionPulsarInfo();
-        pulsarInfo.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
+        pulsarInfo.setMiddlewareType(MQType.PULSAR.getType());
         pulsarInfo.setIsDlq(1);
         pulsarInfo.setDeadLetterTopic("test_dlq");
         pulsarInfo.setIsRlq(0);

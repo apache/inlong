@@ -17,6 +17,18 @@
 
 package org.apache.inlong.sort.standalone.metrics;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.apache.commons.lang.ClassUtils;
+import org.apache.inlong.common.metric.MetricItem;
+import org.apache.inlong.common.metric.MetricItemMBean;
+import org.apache.inlong.common.metric.MetricItemSetMBean;
+import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.metric.MetricUtils;
+import org.apache.inlong.common.metric.MetricValue;
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+import org.slf4j.Logger;
+
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,16 +43,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-
-import org.apache.commons.lang.ClassUtils;
-import org.apache.inlong.common.metric.MetricItem;
-import org.apache.inlong.common.metric.MetricItemMBean;
-import org.apache.inlong.common.metric.MetricItemSetMBean;
-import org.apache.inlong.common.metric.MetricRegister;
-import org.apache.inlong.common.metric.MetricUtils;
-import org.apache.inlong.common.metric.MetricValue;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
 
 /**
  * 
@@ -72,7 +74,8 @@ public class MetricListenerRunnable implements Runnable {
         LOG.info("begin to snapshot metric:{}", domain);
         try {
             List<MetricItemValue> itemValues = this.getItemValues();
-            LOG.info("snapshot metric:{},size:{}", domain, itemValues.size());
+            LOG.info("snapshot metric:{},size:{},content:{}", domain, itemValues.size(),
+                    new ObjectMapper().writeValueAsString(itemValues));
             this.listenerList.forEach((item) -> {
                 item.snapshot(domain, itemValues);
             });

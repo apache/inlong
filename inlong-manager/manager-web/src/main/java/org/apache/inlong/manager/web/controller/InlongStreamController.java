@@ -24,13 +24,14 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.stream.FullPageUpdateRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
+import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
@@ -58,8 +59,8 @@ public class InlongStreamController {
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save inlong stream info")
-    public Response<Integer> save(@RequestBody InlongStreamInfo streamInfo) {
-        int result = streamService.save(streamInfo, LoginUserUtils.getLoginUserDetail().getUserName());
+    public Response<Integer> save(@RequestBody InlongStreamRequest request) {
+        int result = streamService.save(request, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(result);
     }
 
@@ -84,14 +85,15 @@ public class InlongStreamController {
             @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
-    public Response<InlongStreamInfo> get(@RequestParam String groupId, @RequestParam String streamId) {
-        return Response.success(streamService.get(groupId, streamId));
+    public Response<InlongStreamResponse> get(@RequestParam String groupId, @RequestParam String streamId) {
+        return Response.success(streamService.get(groupId, streamId).genResponse());
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ApiOperation(value = "Get inlong stream by paginating")
     public Response<PageInfo<InlongStreamListResponse>> listByCondition(@RequestBody InlongStreamPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUserName());
+        request.setIsAdminRole(LoginUserUtils.getLoginUserDetail().getRoles().contains(UserRoleCode.ADMIN));
         return Response.success(streamService.listByCondition(request));
     }
 
@@ -99,23 +101,16 @@ public class InlongStreamController {
     @ApiOperation(value = "Get all inlong stream info by paginating")
     public Response<PageInfo<FullStreamResponse>> listAllWithGroupId(@RequestBody InlongStreamPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUserName());
+        request.setIsAdminRole(LoginUserUtils.getLoginUserDetail().getRoles().contains(UserRoleCode.ADMIN));
         return Response.success(streamService.listAllWithGroupId(request));
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update inlong stream info")
-    public Response<Boolean> update(@RequestBody InlongStreamInfo streamInfo) {
+    public Response<Boolean> update(@RequestBody InlongStreamRequest request) {
         String username = LoginUserUtils.getLoginUserDetail().getUserName();
-        return Response.success(streamService.update(streamInfo, username));
-    }
-
-    @RequestMapping(value = "/updateAll", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Update inlong stream page info")
-    public Response<Boolean> updateAll(@RequestBody FullPageUpdateRequest updateInfo) {
-        boolean result = streamService.updateAll(updateInfo, LoginUserUtils.getLoginUserDetail().getUserName());
-        return Response.success(result);
+        return Response.success(streamService.update(request, username));
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)

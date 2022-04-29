@@ -17,13 +17,15 @@
 
 package org.apache.inlong.manager.client.api.util;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
-import org.apache.inlong.manager.client.api.StreamField;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,18 +59,29 @@ public class InlongStreamTransfer {
     }
 
     public static List<InlongStreamFieldInfo> createStreamFields(
-            List<StreamField> fieldList,
-            InlongStreamInfo streamInfo) {
-        List<InlongStreamFieldInfo> fieldInfos = fieldList.stream().map(streamField -> {
+            List<StreamField> fieldList, InlongStreamInfo streamInfo) {
+        if (CollectionUtils.isEmpty(fieldList)) {
+            return Lists.newArrayList();
+        }
+        return fieldList.stream().map(field -> {
             InlongStreamFieldInfo fieldInfo = new InlongStreamFieldInfo();
             fieldInfo.setInlongStreamId(streamInfo.getInlongStreamId());
             fieldInfo.setInlongGroupId(streamInfo.getInlongGroupId());
-            fieldInfo.setFieldName(streamField.getFieldName());
-            fieldInfo.setFieldType(streamField.getFieldType().toString());
-            fieldInfo.setFieldComment(streamField.getFieldComment());
-            fieldInfo.setFieldValue(streamField.getFieldValue());
+            fieldInfo.setFieldName(field.getFieldName());
+            fieldInfo.setFieldType(field.getFieldType().toString());
+            fieldInfo.setFieldComment(field.getFieldComment());
+            fieldInfo.setFieldValue(field.getFieldValue());
+            fieldInfo.setIsMetaField(field.getIsMetaField());
+            fieldInfo.setFieldFormat(field.getFieldFormat());
             return fieldInfo;
         }).collect(Collectors.toList());
-        return fieldInfos;
+    }
+
+    public static List<StreamField> parseStreamFields(List<InlongStreamFieldInfo> fields) {
+        if (CollectionUtils.isEmpty(fields)) {
+            return null;
+        }
+        return fields.stream().map(fieldInfo -> CommonBeanUtils.copyProperties(fieldInfo, StreamField::new))
+                .collect(Collectors.toList());
     }
 }

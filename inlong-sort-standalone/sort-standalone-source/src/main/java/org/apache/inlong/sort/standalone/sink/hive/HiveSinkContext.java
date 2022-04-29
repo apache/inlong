@@ -17,16 +17,7 @@
 
 package org.apache.inlong.sort.standalone.sink.hive;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
@@ -34,6 +25,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
@@ -45,7 +37,16 @@ import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-import com.alibaba.fastjson.JSON;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 
@@ -109,7 +110,7 @@ public class HiveSinkContext extends SinkContext {
         super(sinkName, context, channel);
         this.parentContext = context;
         this.dispatchQueue = dispatchQueue;
-        this.nodeId = CommonPropertiesHolder.getString(KEY_NODE_ID);
+        this.nodeId = CommonPropertiesHolder.getString(KEY_NODE_ID, NetworkUtils.getLocalIp());
         this.outputPool = Executors.newFixedThreadPool(this.getMaxThreads());
         this.partitionCreatePool = Executors.newFixedThreadPool(this.getMaxThreads());
         String eventFormatHandlerClass = CommonPropertiesHolder.getString(KEY_EVENT_FORMAT_HANDLER,
@@ -133,7 +134,7 @@ public class HiveSinkContext extends SinkContext {
         try {
             SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
             LOG.info("start to get SortTaskConfig:taskName:{}:config:{}", taskName,
-                    JSON.toJSONString(newSortTaskConfig));
+                    new ObjectMapper().writeValueAsString(newSortTaskConfig));
             if (this.sortTaskConfig != null && this.sortTaskConfig.equals(newSortTaskConfig)) {
                 return;
             }
@@ -142,12 +143,13 @@ public class HiveSinkContext extends SinkContext {
             // parse the config of id and topic
             Map<String, HdfsIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
             List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
+            ObjectMapper objectMapper = new ObjectMapper();
             for (Map<String, String> idParam : idList) {
                 String inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
                 String inlongStreamId = idParam.get(Constants.INLONG_STREAM_ID);
                 String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
-                String jsonIdConfig = JSON.toJSONString(idParam);
-                HdfsIdConfig idConfig = JSON.parseObject(jsonIdConfig, HdfsIdConfig.class);
+                String jsonIdConfig = objectMapper.writeValueAsString(idParam);
+                HdfsIdConfig idConfig = objectMapper.readValue(jsonIdConfig, HdfsIdConfig.class);
                 newIdConfigMap.put(uid, idConfig);
             }
             // change current config
@@ -165,7 +167,7 @@ public class HiveSinkContext extends SinkContext {
             this.hivePassword = parentContext.getString(KEY_HIVE_PASSWORD);
             Class.forName("org.apache.hive.jdbc.HiveDriver");
             LOG.info("end to get SortTaskConfig:taskName:{}:newIdConfigMap:{}", taskName,
-                    JSON.toJSONString(newIdConfigMap));
+                    new ObjectMapper().writeValueAsString(newIdConfigMap));
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }

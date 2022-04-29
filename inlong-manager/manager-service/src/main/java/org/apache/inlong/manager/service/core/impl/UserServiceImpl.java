@@ -17,13 +17,9 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import static org.apache.inlong.manager.common.util.SmallTools.getOverDueDate;
-
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import java.util.Date;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.pojo.user.PasswordChangeRequest;
@@ -41,6 +37,11 @@ import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.service.core.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+
+import static org.apache.inlong.manager.common.util.SmallTools.getOverDueDate;
 
 /**
  * User service
@@ -103,7 +104,7 @@ public class UserServiceImpl implements UserService {
 
         // Whether the current user is an administrator
         UserEntity currentUserEntity = getByName(currentUser);
-        Preconditions.checkTrue(currentUserEntity.getAccountType().equals(UserTypeEnum.MANAGER.getCode()),
+        Preconditions.checkTrue(currentUserEntity.getAccountType().equals(UserTypeEnum.Admin.getCode()),
                 "The current user is not a manager and does not have permission to update users");
 
         UserEntity entity = userMapper.selectByPrimaryKey(userInfo.getId());
@@ -141,7 +142,7 @@ public class UserServiceImpl implements UserService {
 
         // Whether the current user is an administrator
         UserEntity entity = getByName(currentUser);
-        Preconditions.checkTrue(entity.getAccountType().equals(UserTypeEnum.MANAGER.getCode()),
+        Preconditions.checkTrue(entity.getAccountType().equals(UserTypeEnum.Admin.getCode()),
                 "The current user is not a manager and does not have permission to delete users");
 
         userMapper.deleteByPrimaryKey(userId);

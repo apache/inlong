@@ -47,7 +47,7 @@ public class SortClientConfig implements Serializable {
     private ConsumeStrategy consumeStrategy;
     private int reportStatisticIntervalSec = 60;
     private int updateMetaDataIntervalSec = 10;
-    private int ackTimeoutSec = 10;
+    private int ackTimeoutSec = 120;
     private volatile boolean stopConsume = false;
     private boolean isPrometheusEnabled = true;
     private int emptyPollSleepStepMs = 50;

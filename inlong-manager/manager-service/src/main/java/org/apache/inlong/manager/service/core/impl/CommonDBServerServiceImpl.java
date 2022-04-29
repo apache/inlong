@@ -22,15 +22,12 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerInfo;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerListVo;
 import org.apache.inlong.manager.common.pojo.commonserver.CommonDbServerPageRequest;
+import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -42,6 +39,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -112,7 +114,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
         Date now = new Date();
         record.setCreateTime(now);
         record.setModifyTime(now);
-        record.setIsDeleted(EntityStatus.UN_DELETED.getCode());
+        record.setIsDeleted(GlobalConstants.UN_DELETED);
 
         int success = commonDbServerMapper.insert(record);
         Preconditions.checkTrue(success == 1, "insert into db failed");
@@ -487,6 +489,7 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
     public PageInfo<CommonDbServerListVo> listByCondition(CommonDbServerPageRequest request)
             throws Exception {
         String username = LoginUserUtils.getLoginUserDetail().getUserName();
+        request.setIsAdminRole(LoginUserUtils.getLoginUserDetail().getRoles().contains(UserRoleCode.ADMIN));
         LOGGER.debug("{} begin to list CommonDbServer info by {}", username, request);
         request.setCurrentUser(username);
 

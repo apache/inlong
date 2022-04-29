@@ -32,8 +32,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 @Slf4j
+@Deprecated
 public class DBCollectorTaskServiceImpl implements DBCollectorTaskService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DBCollectorTaskServiceImpl.class);
@@ -43,28 +46,25 @@ public class DBCollectorTaskServiceImpl implements DBCollectorTaskService {
 
     @Override
     public DBCollectorTaskInfo getTask(DBCollectorTaskRequest req) {
-        LOGGER.warn("DBCollectorTaskInfo ", req.toString());
+        LOGGER.debug("db collector task request: {}", req);
         if (!DBCollectorTaskConstant.INTERFACE_VERSION.equals(req.getVersion())) {
-            DBCollectorTaskInfo taskInfo = DBCollectorTaskInfo.builder()
+            return DBCollectorTaskInfo.builder()
                     .version(DBCollectorTaskConstant.INTERFACE_VERSION)
                     .returnCode(DBCollectorTaskReturnCode.INVALID_VERSION.getCode()).build();
-            return taskInfo;
         }
         DBCollectorDetailTaskEntity entity = detailTaskMapper
                 .selectOneByState(DBCollectorDetailTaskEntityStatus.INIT.getCode());
         if (entity == null) {
-            DBCollectorTaskInfo taskInfo = DBCollectorTaskInfo.builder()
+            return DBCollectorTaskInfo.builder()
                     .version(DBCollectorTaskConstant.INTERFACE_VERSION)
                     .returnCode(DBCollectorTaskReturnCode.EMPTY.getCode()).build();
-            return taskInfo;
         }
         int ret = detailTaskMapper.changeState(entity.getId(), 0, DBCollectorDetailTaskEntityStatus.INIT.getCode(),
                 DBCollectorDetailTaskEntityStatus.DISPATCHED.getCode());
         if (ret == 0) {
-            DBCollectorTaskInfo taskInfo = DBCollectorTaskInfo.builder()
+            return DBCollectorTaskInfo.builder()
                     .version(DBCollectorTaskConstant.INTERFACE_VERSION)
                     .returnCode(DBCollectorTaskReturnCode.EMPTY.getCode()).build();
-            return taskInfo;
         } else {
             DBCollectorTaskInfo.TaskInfo task = new DBCollectorTaskInfo.TaskInfo();
             task.setId(entity.getId());
@@ -82,17 +82,16 @@ public class DBCollectorTaskServiceImpl implements DBCollectorTaskService {
             task.setRetryTimes(entity.getRetryTimes());
             task.setInlongGroupId(entity.getGroupId());
             task.setInlongStreamId(entity.getStreamId());
-            DBCollectorTaskInfo taskInfo = DBCollectorTaskInfo.builder()
+            return DBCollectorTaskInfo.builder()
                     .version(DBCollectorTaskConstant.INTERFACE_VERSION)
                     .returnCode(DBCollectorTaskReturnCode.SUCC.getCode())
                     .data(task).build();
-            return taskInfo;
         }
     }
 
     @Override
     public Integer reportTask(DBCollectorReportTaskRequest req) {
-        if (req.getVersion() != DBCollectorTaskConstant.INTERFACE_VERSION) {
+        if (!Objects.equals(req.getVersion(), DBCollectorTaskConstant.INTERFACE_VERSION)) {
             return DBCollectorTaskReturnCode.INVALID_VERSION.getCode();
         }
         DBCollectorDetailTaskEntity entity = detailTaskMapper

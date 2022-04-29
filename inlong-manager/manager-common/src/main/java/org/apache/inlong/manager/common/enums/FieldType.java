@@ -42,7 +42,7 @@ public enum FieldType {
 
     @Override
     public String toString() {
-        return name().toLowerCase(Locale.ROOT);
+        return name();
     }
 
     public static FieldType forName(String name) {

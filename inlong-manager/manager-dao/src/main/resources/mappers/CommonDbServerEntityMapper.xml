@@ -370,15 +370,17 @@
         from common_db_server
         <where>
             is_deleted = 0
-            and (creator = #{currentUser,jdbcType=VARCHAR}
-            or find_in_set(#{currentUser,jdbcType=VARCHAR},in_charges)
-            or find_in_set(#{currentUser,jdbcType=VARCHAR},visible_person)
-            <if test="userGroups!= null and userGroups.size() >0">
-                <foreach collection="userGroups" item="group">
-                    or find_in_set(#{group,jdbcType=VARCHAR},visible_group)
-                </foreach>
+            <if test="isAdminRole == false">
+                and (creator = #{currentUser,jdbcType=VARCHAR}
+                or find_in_set(#{currentUser,jdbcType=VARCHAR},in_charges)
+                or find_in_set(#{currentUser,jdbcType=VARCHAR},visible_person)
+                <if test="userGroups!= null and userGroups.size() >0">
+                    <foreach collection="userGroups" item="group">
+                        or find_in_set(#{group,jdbcType=VARCHAR},visible_group)
+                    </foreach>
+                </if>
+                )
             </if>
-            )
             <if test="dbServerIp != null and dbServerIp != ''">
                 and db_server_ip = #{dbServerIp, jdbcType=VARCHAR}
             </if>

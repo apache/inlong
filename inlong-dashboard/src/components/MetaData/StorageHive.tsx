@@ -24,6 +24,7 @@ import {
   GetStorageColumnsType,
   GetStorageFormFieldsType,
 } from '@/utils/metaData';
+import { ColumnsType } from 'antd/es/table';
 import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
 import request from '@/utils/request';
 import i18n from '@/i18n';
@@ -32,136 +33,90 @@ import { sourceDataFields } from './SourceDataFields';
 
 // hiveFieldTypes
 const hiveFieldTypes = [
+  'string',
+  'varchar',
+  'char',
   'tinyint',
   'smallint',
   'int',
   'bigint',
   'float',
   'double',
-  // 'decimal',
-  // 'numeric',
-  // 'timestamp',
-  // 'date',
-  'string',
-  // 'varchar',
-  // 'char',
+  'decimal',
+  'numeric',
   'boolean',
   'binary',
+  'timestamp',
+  'date',
+  // 'interval',
 ].map(item => ({
   label: item,
   value: item,
 }));
 
-export const hiveTableColumns = [
-  {
-    title: i18n.t('components.AccessHelper.StorageMetaData.Hive.TargetDb'),
-    dataIndex: 'dbName',
-  },
-  {
-    title: i18n.t('components.AccessHelper.StorageMetaData.Hive.TargetTable'),
-    dataIndex: 'tableName',
-  },
-  {
-    title: i18n.t('components.AccessHelper.StorageMetaData.Hive.Username'),
-    dataIndex: 'username',
-  },
-  {
-    title: 'JDBC URL',
-    dataIndex: 'jdbcUrl',
-  },
-  {
-    title: 'HDFS DefaultFS',
-    dataIndex: 'hdfsDefaultFs',
-  },
-];
-
-export const getHiveColumns: GetStorageColumnsType = (dataType, currentValues) => [
-  ...([
-    ...sourceDataFields,
-    {
-      title: `HIVE${i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldName')}`,
-      dataIndex: 'fieldName',
-      initialValue: '',
-      rules: [
-        { required: true },
-        {
-          pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-          message: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldNameRule'),
-        },
-      ],
-      props: (text, record, idx, isNew) => ({
-        // disabled: text && !isNew,
-        // disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
-      }),
-    },
-    {
-      title: `HIVE${i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldType')}`,
-      dataIndex: 'fieldType',
-      initialValue: hiveFieldTypes[0].value,
-      type: 'select',
-      props: (text, record, idx, isNew) => ({
-        options: hiveFieldTypes,
-        // disabled: text && !isNew,
-      }),
-      rules: [{ required: true }],
-    },
-    {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldDescription'),
-      dataIndex: 'fieldComment',
-      initialValue: '',
-    },
-  ] as ColumnsItemProps[]),
-];
-
-export const getHiveForm: GetStorageFormFieldsType = (
+const getForm: GetStorageFormFieldsType = (
   type,
   { currentValues, inlongGroupId, isEdit, dataType, form } = {} as any,
 ) => {
   const fileds = [
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.TargetDb'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.DbName'),
       name: 'dbName',
       rules: [{ required: true }],
       props: {
-        disabled: isEdit,
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
+      _inTable: true,
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.TargetTable'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.TableName'),
       name: 'tableName',
       rules: [{ required: true }],
       props: {
-        disabled: isEdit,
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
+      _inTable: true,
     },
     {
-      type: 'input',
-      name: 'primaryPartition',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.First-levelPartition'),
-      initialValue: 'dt',
+      type: 'radio',
+      label: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResource'),
+      name: 'enableCreateResource',
       rules: [{ required: true }],
+      initialValue: 1,
+      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
       props: {
-        disabled: isEdit,
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+        options: [
+          {
+            label: i18n.t('basic.Yes'),
+            value: 1,
+          },
+          {
+            label: i18n.t('basic.No'),
+            value: 0,
+          },
+        ],
       },
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.Username'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Username'),
       name: 'username',
       rules: [{ required: true }],
       props: {
-        disabled: isEdit,
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
+      _inTable: true,
     },
     {
       type: 'password',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.Password'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Password'),
       name: 'password',
       rules: [{ required: true }],
       props: {
-        disabled: isEdit,
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
         style: {
           maxWidth: 500,
         },
@@ -174,7 +129,7 @@ export const getHiveForm: GetStorageFormFieldsType = (
       rules: [{ required: true }],
       props: {
         placeholder: 'jdbc:hive2://127.0.0.1:10000',
-        disabled: isEdit,
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
         style: { width: 500 },
       },
       suffix: (
@@ -201,21 +156,12 @@ export const getHiveForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: 'HDFS DefaultFS',
-      name: 'hdfsDefaultFs',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.DataPath'),
+      name: 'dataPath',
       rules: [{ required: true }],
       props: {
-        placeholder: 'hdfs://127.0.0.1:9000',
-        disabled: isEdit,
-      },
-    },
-    {
-      type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.WarehousePath'),
-      name: 'warehouseDir',
-      initialValue: '/user/hive/warehouse',
-      props: {
-        disabled: isEdit,
+        placeholder: 'hdfs://127.0.0.1:9000/user/hive/warehouse',
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
     },
     {
@@ -251,19 +197,6 @@ export const getHiveForm: GetStorageFormFieldsType = (
             value: 'Avro',
           },
         ],
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-    },
-    {
-      name: 'storagePeriod',
-      type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.StoragePeriod'),
-      tooltip: 'Optional range: -1 ~ 3600, -1 means permanent storage',
-      rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.Hive.Day'),
-      props: {
-        min: -1,
-        max: 3600,
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
     },
@@ -342,15 +275,134 @@ export const getHiveForm: GetStorageFormFieldsType = (
       type: (
         <EditableTable
           size="small"
-          columns={getHiveColumns(dataType, currentValues)}
+          columns={getFieldListColumns(dataType, currentValues)}
           canDelete={(record, idx, isNew) => !isEdit || isNew}
         />
       ),
       name: 'fieldList',
     },
+    {
+      name: 'partitionFieldList',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.PartitionFieldList'),
+      type: EditableTable,
+      tooltip: i18n.t('components.AccessHelper.StorageMetaData.Hive.PartitionFieldListHelp'),
+      props: {
+        size: 'small',
+        required: false,
+        columns: [
+          {
+            title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldName'),
+            dataIndex: 'fieldName',
+            rules: [{ required: true }],
+          },
+          {
+            title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldType'),
+            dataIndex: 'fieldType',
+            type: 'select',
+            initialValue: 'string',
+            props: {
+              options: ['string', 'timestamp'].map(item => ({
+                label: item,
+                value: item,
+              })),
+            },
+          },
+          {
+            title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldFormat'),
+            dataIndex: 'fieldFormat',
+            type: 'autocomplete',
+            props: {
+              options: ['MICROSECONDS', 'MILLISECONDS', 'SECONDS', 'SQL', 'ISO_8601'].map(item => ({
+                label: item,
+                value: item,
+              })),
+            },
+            rules: [{ required: true }],
+            visible: (text, record) => record.fieldType === 'timestamp',
+          },
+        ],
+      },
+    },
   ];
 
   return type === 'col'
     ? getColsFromFields(fileds)
-    : fileds.map(item => excludeObject(['_col'], item));
+    : fileds.map(item => excludeObject(['_inTable'], item));
+};
+
+const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => {
+  return [
+    ...sourceDataFields,
+    {
+      title: `HIVE${i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldName')}`,
+      dataIndex: 'fieldName',
+      initialValue: '',
+      rules: [
+        { required: true },
+        {
+          pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
+          message: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldNameRule'),
+        },
+      ],
+      props: (text, record, idx, isNew) => ({
+        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+      }),
+    },
+    {
+      title: `HIVE${i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldType')}`,
+      dataIndex: 'fieldType',
+      initialValue: hiveFieldTypes[0].value,
+      type: 'select',
+      props: (text, record, idx, isNew) => ({
+        options: hiveFieldTypes,
+        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+      }),
+      rules: [{ required: true }],
+    },
+    {
+      title: i18n.t('components.AccessHelper.StorageMetaData.Hive.IsMetaField'),
+      dataIndex: 'isMetaField',
+      initialValue: 0,
+      type: 'select',
+      props: (text, record, idx, isNew) => ({
+        options: [
+          {
+            label: i18n.t('basic.Yes'),
+            value: 1,
+          },
+          {
+            label: i18n.t('basic.No'),
+            value: 0,
+          },
+        ],
+      }),
+    },
+    {
+      title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldFormat'),
+      dataIndex: 'fieldFormat',
+      initialValue: 0,
+      type: 'autocomplete',
+      props: (text, record, idx, isNew) => ({
+        options: ['MICROSECONDS', 'MILLISECONDS', 'SECONDS', 'SQL', 'ISO_8601'].map(item => ({
+          label: item,
+          value: item,
+        })),
+      }),
+      visible: (text, record) =>
+        ['bigint', 'date', 'timestamp'].includes(record.fieldType as string),
+    },
+    {
+      title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldDescription'),
+      dataIndex: 'fieldComment',
+      initialValue: '',
+    },
+  ] as ColumnsItemProps[];
+};
+
+const tableColumns = getForm('col') as ColumnsType;
+
+export const StorageHive = {
+  getForm,
+  getFieldListColumns,
+  tableColumns,
 };

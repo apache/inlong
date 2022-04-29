@@ -26,9 +26,6 @@ import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
  */
 public interface SortClusterConfigLoader extends Configurable {
 
-    String SORT_CLUSTER_CONFIG_TYPE = "sortClusterConfig.type";
-    String SORT_CLUSTER_CONFIG_MANAGER = "sortClusterConfig.managerUrl";
-
     /**
      * load
      * 

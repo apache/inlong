@@ -19,7 +19,13 @@ package org.apache.inlong.manager.common.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -43,6 +49,24 @@ public class HttpUtils {
     private static final Gson gson = new GsonBuilder().create(); // thread safe
     @Autowired
     private RestTemplate restTemplate;
+
+    public static boolean checkConnectivity(String host, int port, int connectTimeout, TimeUnit timeUnit) {
+        InetSocketAddress socketAddress = new InetSocketAddress(host, port);
+        Socket socket = new Socket();
+        try {
+            socket.connect(socketAddress, (int) timeUnit.toMillis(connectTimeout));
+            return socket.isConnected();
+        } catch (IOException e) {
+            log.error(String.format("%s:%s connected failed with err msg:%s", host, port, e.getMessage()));
+            return false;
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                log.warn("close connection from {}:{} failed", host, port, e);
+            }
+        }
+    }
 
     /**
      * Send an HTTP request

@@ -119,9 +119,10 @@ public class PluginClassLoader extends URLClassLoader {
         List<PluginDefinition> definitions = new ArrayList();
         for (File jarFile : pluginDirectory.listFiles()) {
             if (!jarFile.getName().endsWith(".jar")) {
-                log.warn("{}' is not plugin jar , please check", jarFile);
+                log.warn("{} is not valid plugin jar, skip to load", jarFile);
                 continue;
             }
+            log.info("{} is valid plugin jar, start to load", jarFile);
             JarFile pluginJar = new JarFile(jarFile);
             String pluginDef = readPluginDef(pluginJar);
             pluginDef = pluginDef.replaceAll("[\\x00]+", "");

@@ -23,9 +23,9 @@ import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
 import org.apache.pulsar.client.util.ExecutorProvider;
 import org.apache.pulsar.shade.io.netty.channel.EventLoop;
 import org.apache.pulsar.shade.io.netty.util.Timer;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -48,7 +48,7 @@ public class PulsarConsumeTest {
         return mockClient;
     }
 
-    @BeforeMethod
+    @Before
     public void setUp() throws Exception {
         client = createPulsarClientMock();
         ClientConfigurationData clientConf = client.getConfiguration();

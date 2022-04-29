@@ -26,10 +26,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(classes = ServiceBaseTest.class)
 public class ServiceBaseTest extends BaseTest {
 
-    public final String globalGroupId = "b_group1";
-    public final String globalStreamId = "stream1";
-    public final String globalStreamName = "streamName1";
-    public final String globalOperator = "admin";
+    public static final String globalStreamName = "streamName1";
+    public static final String GLOBAL_GROUP_ID = "b_group1";
+    public static final String GLOBAL_STREAM_ID = "stream1";
+    public static final String GLOBAL_OPERATOR = "admin";
 
     @Test
     public void test() {

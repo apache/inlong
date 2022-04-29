@@ -20,12 +20,12 @@
 import React from 'react';
 import { FormItemProps } from '@/components/FormGenerator';
 import { pickObjectArray } from '@/utils';
-import StaffSelect from '@/components/StaffSelect';
 import DataSourcesEditor from '../DataSourcesEditor';
 import DataStorageEditor from '../DataStorageEditor/Editor';
 import EditableTable from '@/components/EditableTable';
 import i18n from '@/i18n';
 import { fieldTypes as sourceFieldsTypes } from '@/components/MetaData/SourceDataFields';
+import { Storages } from '@/components/MetaData';
 
 type RestParams = {
   inlongGroupId?: string;
@@ -76,19 +76,6 @@ export default (
       label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamName'),
       name: 'name',
       initialValue: currentValues.name,
-      rules: [{ required: false }],
-    },
-    {
-      type: <StaffSelect mode="multiple" currentUserClosable={false} />,
-      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamOwners'),
-      name: 'inCharges',
-      initialValue: currentValues.inCharges,
-      extra: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamOwnerHelp'),
-      rules: [
-        {
-          required: true,
-        },
-      ],
     },
     {
       type: 'textarea',
@@ -99,7 +86,6 @@ export default (
         maxLength: 100,
       },
       initialValue: currentValues.desc,
-      rules: [{ required: false }],
     },
     {
       type: 'radio',
@@ -141,42 +127,32 @@ export default (
     },
     {
       type: 'radio',
-      label: '同步类型',
-      name: 'syncType',
-      initialValue: currentValues.syncType ?? 0,
-      props: {
-        options: [
-          {
-            label: '全量',
-            value: 0,
-          },
-          {
-            label: '增量',
-            value: 1,
-          },
-        ],
-      },
-      rules: [{ required: true }],
-      visible: values => currentValues.dataSourceType === 'BINLOG',
-    },
-    {
-      type: 'radio',
       label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataType'),
       name: 'dataType',
-      initialValue: currentValues.dataType ?? 'TEXT',
+      initialValue: currentValues.dataType ?? 'CSV',
+      tooltip: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataTypeCsvHelp'),
       props: {
         options: [
           {
-            label: 'TEXT',
-            value: 'TEXT',
+            label: 'CSV',
+            value: 'CSV',
           },
           {
             label: 'KEY-VALUE',
             value: 'KEY-VALUE',
           },
+          {
+            label: 'JSON',
+            value: 'JSON',
+          },
+          {
+            label: 'AVRO',
+            value: 'AVRO',
+          },
         ],
       },
       rules: [{ required: true }],
+      visible: values => values.dataSourceType !== 'BINLOG',
     },
     {
       type: 'radio',
@@ -207,6 +183,10 @@ export default (
         dropdownMatchSelectWidth: false,
         options: [
           {
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Space'),
+            value: '32',
+          },
+          {
             label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.VerticalLine'),
             value: '124',
           },
@@ -215,20 +195,16 @@ export default (
             value: '44',
           },
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DoubleQuotes'),
-            value: '34',
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Semicolon'),
+            value: '59',
           },
           {
             label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Asterisk'),
             value: '42',
           },
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Space'),
-            value: '32',
-          },
-          {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Semicolon'),
-            value: '59',
+            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DoubleQuotes'),
+            value: '34',
           },
         ],
         useInput: true,
@@ -246,7 +222,9 @@ export default (
           max: 127,
         },
       ],
-      visible: values => values.dataSourceType === 'FILE' || values.dataSourceType === 'AUTO_PUSH',
+      visible: values =>
+        (values.dataSourceType === 'FILE' || values.dataSourceType === 'AUTO_PUSH') &&
+        values.dataType === 'CSV',
     },
     {
       type: (
@@ -295,23 +273,18 @@ export default (
       label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataFlowDirection'),
       name: 'streamSink',
       props: {
-        options: [
-          {
-            label: 'HIVE',
-            value: 'HIVE',
-          },
-          {
-            label: 'CLICK_HOUSE',
-            value: 'CLICK_HOUSE',
-          },
-          {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.AutoConsumption'),
-            value: 'AUTO_CONSUMPTION',
-          },
-        ],
+        options: Storages.map(item => {
+          return {
+            label: item.label,
+            value: item.value,
+          };
+        }).concat({
+          label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.AutoConsumption'),
+          value: 'AUTO_CONSUMPTION',
+        }),
       },
     },
-    ...['HIVE', 'CLICK_HOUSE'].reduce(
+    ...Storages.map(item => item.value).reduce(
       (acc, item) =>
         acc.concat({
           type: (

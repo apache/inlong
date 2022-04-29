@@ -18,9 +18,19 @@
 package org.apache.inlong.audit.source;
 
 import com.google.common.base.Preconditions;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.util.concurrent.DefaultThreadFactory;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.ChannelSelector;
 import org.apache.flume.Context;
@@ -28,19 +38,10 @@ import org.apache.flume.EventDrivenSource;
 import org.apache.flume.FlumeException;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.source.AbstractSource;
-import org.apache.inlong.audit.base.NamedThreadFactory;
 import org.apache.inlong.audit.channel.FailoverChannelProcessor;
 import org.apache.inlong.audit.consts.ConfigConstants;
+import org.apache.inlong.audit.utils.EventLoopUtil;
 import org.apache.inlong.audit.utils.FailoverChannelProcessorHolder;
-import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.channel.group.DefaultChannelGroup;
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
-import org.jboss.netty.util.ThreadNameDeterminer;
-import org.jboss.netty.util.ThreadRenamingRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,8 +56,14 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
 
     protected int maxConnections = Integer.MAX_VALUE;
     protected Context context;
-    private ServerBootstrap serverBootstrap = null;
+
+    private ServerBootstrap bootstrap = null;
+    protected EventLoopGroup acceptorGroup;
+    protected EventLoopGroup workerGroup;
+    protected DefaultThreadFactory acceptorThreadFactory;
     protected ChannelGroup allChannels;
+    protected ChannelFuture channelFuture;
+
     protected int port;
     protected String host = null;
     protected String msgFactoryName;
@@ -94,11 +101,16 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
 
     private static int SEND_BUFFER_MAX_SIZE = 16 * 1024 * 1024;
 
+    protected boolean enableBusyWait = false;
+
+    protected int acceptorThreads = 1;
+
     private Channel nettyChannel = null;
 
     public SimpleTcpSource() {
         super();
-        allChannels = new DefaultChannelGroup();
+        allChannels = new DefaultChannelGroup("DefaultAuditChannelGroup",
+                GlobalEventExecutor.INSTANCE);
     }
 
     @Override
@@ -113,40 +125,42 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
         }
         super.start();
 
-        ThreadRenamingRunnable.setThreadNameDeterminer(ThreadNameDeterminer.CURRENT);
-        ChannelFactory factory = new NioServerSocketChannelFactory(Executors
-                .newCachedThreadPool(
-                        new NamedThreadFactory("tcpSource-nettyBoss-threadGroup")),
-                1,
-                Executors.newCachedThreadPool(
-                        new NamedThreadFactory("tcpSource-nettyWorker-threadGroup")),
-                maxThreads);
-        logger.info("Set max workers : {} ;", maxThreads);
-        ChannelPipelineFactory fac = null;
+        acceptorThreadFactory = new DefaultThreadFactory("tcpSource-nettyBoss-threadGroup");
 
-        serverBootstrap = new ServerBootstrap(factory);
-        serverBootstrap.setOption("child.tcpNoDelay", tcpNoDelay);
-        serverBootstrap.setOption("child.keepAlive", keepAlive);
-        serverBootstrap.setOption("child.receiveBufferSize", receiveBufferSize);
-        serverBootstrap.setOption("child.sendBufferSize", sendBufferSize);
-        serverBootstrap.setOption("child.writeBufferHighWaterMark", highWaterMark);
+        this.acceptorGroup = EventLoopUtil.newEventLoopGroup(
+                acceptorThreads, false, acceptorThreadFactory);
+
+        this.workerGroup = EventLoopUtil
+                .newEventLoopGroup(maxThreads, enableBusyWait,
+                        new DefaultThreadFactory("tcpSource-nettyWorker-threadGroup"));
+
+        bootstrap = new ServerBootstrap();
+        bootstrap.childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT);
+        bootstrap.childOption(ChannelOption.TCP_NODELAY, tcpNoDelay);
+        bootstrap.childOption(ChannelOption.SO_KEEPALIVE, keepAlive);
+        bootstrap.childOption(ChannelOption.SO_RCVBUF, receiveBufferSize);
+        bootstrap.childOption(ChannelOption.SO_SNDBUF, sendBufferSize);
+        bootstrap.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, highWaterMark);
+
+        bootstrap.channel(EventLoopUtil.getServerSocketChannelClass(workerGroup));
+        EventLoopUtil.enableTriggeredMode(bootstrap);
+        bootstrap.group(acceptorGroup, workerGroup);
+
         logger.info("load msgFactory=" + msgFactoryName + " and serviceDecoderName="
                 + serviceDecoderName);
-        try {
+        ChannelInitializer fac = null;
 
+        try {
             ServiceDecoder serviceDecoder =
                     (ServiceDecoder) Class.forName(serviceDecoderName).newInstance();
-
-            Class<? extends ChannelPipelineFactory> clazz =
-                    (Class<? extends ChannelPipelineFactory>) Class.forName(msgFactoryName);
-
+            Class<? extends ChannelInitializer> clazz =
+                    (Class<? extends ChannelInitializer>) Class.forName(msgFactoryName);
             Constructor ctor =
                     clazz.getConstructor(AbstractSource.class, ChannelGroup.class,
                             ServiceDecoder.class, String.class,
                             Integer.class, Integer.class, String.class);
-
             logger.info("Using channel processor:{}", this.getClass().getName());
-            fac = (ChannelPipelineFactory) ctor
+            fac = (ChannelInitializer) ctor
                     .newInstance(this, allChannels, serviceDecoder,
                             messageHandlerName, maxMsgLength, maxConnections, this.getName());
 
@@ -157,25 +171,20 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
             stop();
             throw new FlumeException(e.getMessage());
         }
-
-        serverBootstrap.setPipelineFactory(fac);
+        bootstrap.childHandler(fac);
 
         try {
             if (host == null) {
-                nettyChannel = serverBootstrap.bind(new InetSocketAddress(port));
+                channelFuture = bootstrap.bind(new InetSocketAddress(port)).sync();
             } else {
-                nettyChannel = serverBootstrap.bind(new InetSocketAddress(host, port));
+                channelFuture = bootstrap.bind(new InetSocketAddress(host, port)).sync();
             }
         } catch (Exception e) {
             logger.error("Simple TCP Source error bind host {} port {},program will exit!", host,
                     port);
             System.exit(-1);
         }
-
-        allChannels.add(nettyChannel);
-
         logger.info("Simple TCP Source started at host {}, port {}", host, port);
-
     }
 
     @Override
@@ -183,24 +192,12 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
         logger.info("[STOP SOURCE]{} stopping...", super.getName());
         if (allChannels != null && !allChannels.isEmpty()) {
             try {
-                allChannels.unbind().awaitUninterruptibly();
                 allChannels.close().awaitUninterruptibly();
             } catch (Exception e) {
                 logger.warn("Simple TCP Source netty server stop ex", e);
             } finally {
                 allChannels.clear();
                 // allChannels = null;
-            }
-        }
-
-        if (serverBootstrap != null) {
-            try {
-
-                serverBootstrap.releaseExternalResources();
-            } catch (Exception e) {
-                logger.warn("Simple TCP Source serverBootstrap stop ex ", e);
-            } finally {
-                serverBootstrap = null;
             }
         }
 

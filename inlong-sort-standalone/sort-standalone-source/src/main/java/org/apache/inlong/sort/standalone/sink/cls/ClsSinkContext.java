@@ -17,11 +17,13 @@
 
 package org.apache.inlong.sort.standalone.sink.cls;
 
-import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tencentcloudapi.cls.producer.AsyncProducerClient;
 import com.tencentcloudapi.cls.producer.AsyncProducerConfig;
 import com.tencentcloudapi.cls.producer.errors.ProducerException;
 import com.tencentcloudapi.cls.producer.util.NetworkUtils;
+
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.Channel;
@@ -38,11 +40,11 @@ import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -71,7 +73,7 @@ public class ClsSinkContext extends SinkContext {
     private int keywordMaxLength = DEFAULT_KEYWORD_MAX_LENGTH;
 
     private final Map<String, AsyncProducerClient> clientMap;
-    private List<AsyncProducerClient> deletingClients;
+    private List<AsyncProducerClient> deletingClients = new ArrayList<>();
     private Context sinkContext;
     private Map<String, ClsIdConfig> idConfigMap = new ConcurrentHashMap<>();
     private IEvent2LogItemHandler event2LogItemHandler;
@@ -80,8 +82,8 @@ public class ClsSinkContext extends SinkContext {
      * Constructor
      *
      * @param sinkName Name of sink.
-     * @param context Basic context.
-     * @param channel Channel which worker acquire profile event from.
+     * @param context  Basic context.
+     * @param channel  Channel which worker acquire profile event from.
      */
     public ClsSinkContext(String sinkName, Context context, Channel channel) {
         super(sinkName, context, channel);
@@ -90,29 +92,33 @@ public class ClsSinkContext extends SinkContext {
 
     @Override
     public void reload() {
-        // remove deleting clients.
-        deletingClients.forEach(client -> {
-            try {
-                client.close();
-            } catch (InterruptedException e) {
-                LOG.error("close client failed, got InterruptedException" + e.getMessage(), e);
-            } catch (ProducerException e) {
-                LOG.error("close client failed, got ProducerException" + e.getMessage(), e);
-            }
-        });
+        try {
+            // remove deleting clients.
+            deletingClients.forEach(client -> {
+                try {
+                    client.close();
+                } catch (InterruptedException e) {
+                    LOG.error("close client failed, got InterruptedException" + e.getMessage(), e);
+                } catch (ProducerException e) {
+                    LOG.error("close client failed, got ProducerException" + e.getMessage(), e);
+                }
+            });
 
-        SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
-        if (this.sortTaskConfig != null && this.sortTaskConfig.equals(newSortTaskConfig)) {
-            return;
+            SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
+            if (this.sortTaskConfig != null && this.sortTaskConfig.equals(newSortTaskConfig)) {
+                return;
+            }
+            LOG.info("get new SortTaskConfig:taskName:{}:config:{}", taskName,
+                    new ObjectMapper().writeValueAsString(newSortTaskConfig));
+            this.sortTaskConfig = newSortTaskConfig;
+            this.sinkContext = new Context(this.sortTaskConfig.getSinkParams());
+            this.reloadIdParams();
+            this.reloadClients();
+            this.reloadHandler();
+            this.keywordMaxLength = sinkContext.getInteger(KEY_MAX_KEYWORD_LENGTH, DEFAULT_KEYWORD_MAX_LENGTH);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
         }
-        LOG.info("get new SortTaskConfig:taskName:{}:config:{}", taskName,
-                JSON.toJSONString(newSortTaskConfig));
-        this.sortTaskConfig = newSortTaskConfig;
-        this.sinkContext = new Context(this.sortTaskConfig.getSinkParams());
-        this.reloadIdParams();
-        this.reloadClients();
-        this.reloadHandler();
-        this.keywordMaxLength = sinkContext.getInteger(KEY_MAX_KEYWORD_LENGTH, DEFAULT_KEYWORD_MAX_LENGTH);
     }
 
     /**
@@ -137,16 +143,20 @@ public class ClsSinkContext extends SinkContext {
 
     /**
      * Reload id params.
+     * 
+     * @throws JsonProcessingException
      */
-    private void reloadIdParams() {
+    private void reloadIdParams() throws JsonProcessingException {
         List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
         Map<String, ClsIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
+        ObjectMapper objectMapper = new ObjectMapper();
         for (Map<String, String> idParam : idList) {
             String inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
             String inlongStreamId = idParam.get(Constants.INLONG_STREAM_ID);
             String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
-            String jsonIdConfig = JSON.toJSONString(idParam);
-            ClsIdConfig idConfig = JSON.parseObject(jsonIdConfig, ClsIdConfig.class);
+            String jsonIdConfig = objectMapper.writeValueAsString(idParam);
+            ClsIdConfig idConfig = objectMapper.readValue(jsonIdConfig, ClsIdConfig.class);
+            idConfig.getFieldList();
             newIdConfigMap.put(uid, idConfig);
         }
         this.idConfigMap = newIdConfigMap;
@@ -155,45 +165,42 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Close expire clients and start new clients.
      * 
-     * <p>Each client response for data of one secretId.</p>
-     * <p>First, find all secretId that are in the active clientMap
-     * but not in the updated id config (or to say EXPIRE secretId), and put those clients into deletingClientsMap.
-     * The real close process will be done at the beginning of next period of reloading.
-     * Second, find all secretIds that in the updated id config
-     * but not in the active clientMap(or to say NEW secretId),
-     * and start new clients for these secretId and put them into the active clientMap.</p>
+     * <p>
+     * Each client response for data of one secretId.
+     * </p>
+     * <p>
+     * First, find all secretId that are in the active clientMap but not in the updated id config (or to say EXPIRE
+     * secretId), and put those clients into deletingClientsMap. The real close process will be done at the beginning of
+     * next period of reloading. Second, find all secretIds that in the updated id config but not in the active
+     * clientMap(or to say NEW secretId), and start new clients for these secretId and put them into the active
+     * clientMap.
+     * </p>
      */
     private void reloadClients() {
         // get update secretIds
-        Set<String> updateSecretIdSet = idConfigMap
-                .values()
+        Map<String, ClsIdConfig> updateConfigMap = idConfigMap.values()
                 .stream()
-                .map(ClsIdConfig::getSecretId)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toMap(ClsIdConfig::getSecretId, config -> config, (k1, k2) -> k1));
 
         // remove expire client
         clientMap.keySet()
                 .stream()
-                .filter(secretId -> !updateSecretIdSet.contains(secretId))
+                .filter(secretId -> !updateConfigMap.containsKey(secretId))
                 .forEach(this::removeExpireClient);
 
         // start new client
-        updateSecretIdSet.stream()
-                .filter(secretId -> !clientMap.containsKey(secretId))
+        updateConfigMap.values()
+                .stream()
+                .filter(config -> !clientMap.containsKey(config.getSecretId()))
                 .forEach(this::startNewClient);
     }
 
     /**
      * Start new cls client and put it to the active clientMap.
      *
-     * @param secretId SecretId of new client.
+     * @param idConfig idConfig of new client.
      */
-    private void startNewClient(String secretId) {
-        ClsIdConfig idConfig = idConfigMap.get(secretId);
-        if (idConfig == null) {
-            LOG.error("Start client failed, there is not cls config of {}", secretId);
-            return;
-        }
+    private void startNewClient(ClsIdConfig idConfig) {
         AsyncProducerConfig producerConfig = new AsyncProducerConfig(
                 idConfig.getEndpoint(),
                 idConfig.getSecretId(),
@@ -201,7 +208,7 @@ public class ClsSinkContext extends SinkContext {
                 NetworkUtils.getLocalMachineIP());
         this.setCommonClientConfig(producerConfig);
         AsyncProducerClient client = new AsyncProducerClient(producerConfig);
-        clientMap.put(secretId, client);
+        clientMap.put(idConfig.getSecretId(), client);
     }
 
     /**
@@ -234,9 +241,10 @@ public class ClsSinkContext extends SinkContext {
 
     /**
      * Remove expire client from active clientMap and into the deleting client list.
-     * <P>The reason why not close client when it remove from clientMap is to avoid <b>Race Condition</b>.
-     * Which will happen when worker thread get the client and ready to send msg,
-     * while the reload thread try to close it.</P>
+     * <P>
+     * The reason why not close client when it remove from clientMap is to avoid <b>Race Condition</b>. Which will
+     * happen when worker thread get the client and ready to send msg, while the reload thread try to close it.
+     * </P>
      *
      * @param secretId SecretId of expire client.
      */
@@ -253,9 +261,9 @@ public class ClsSinkContext extends SinkContext {
      * Add send result.
      *
      * @param currentRecord Event to be sent.
-     * @param bid Topic or dest ip of event.
-     * @param result Result of send.
-     * @param sendTime Time of sending.
+     * @param bid           Topic or dest ip of event.
+     * @param result        Result of send.
+     * @param sendTime      Time of sending.
      */
     public void addSendResultMetric(ProfileEvent currentRecord, String bid, boolean result, long sendTime) {
         Map<String, String> dimensions = this.getDimensions(currentRecord, bid);
@@ -285,9 +293,9 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Get report dimensions.
      *
-     * @param currentRecord Event.
-     * @param bid Topic or dest ip.
-     * @return Prepared dimensions map.
+     * @param  currentRecord Event.
+     * @param  bid           Topic or dest ip.
+     * @return               Prepared dimensions map.
      */
     private Map<String, String> getDimensions(ProfileEvent currentRecord, String bid) {
         Map<String, String> dimensions = new HashMap<>();
@@ -306,8 +314,8 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Get {@link ClsIdConfig} by uid.
      *
-     * @param uid Uid of event.
-     * @return Corresponding cls id config.
+     * @param  uid Uid of event.
+     * @return     Corresponding cls id config.
      */
     public ClsIdConfig getIdConfig(String uid) {
         return idConfigMap.get(uid);
@@ -315,6 +323,7 @@ public class ClsSinkContext extends SinkContext {
 
     /**
      * Get max length of single value.
+     * 
      * @return Max length of single value.
      */
     public int getKeywordMaxLength() {
@@ -333,8 +342,8 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Get cls client.
      *
-     * @param secretId ID of client.
-     * @return Client instance.
+     * @param  secretId ID of client.
+     * @return          Client instance.
      */
     public AsyncProducerClient getClient(String secretId) {
         return clientMap.get(secretId);

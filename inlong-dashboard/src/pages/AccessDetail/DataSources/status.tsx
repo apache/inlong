@@ -57,12 +57,12 @@ export const statusList: StatusProp[] = [
     icon: <ClockCircleFilled />,
   },
   {
-    label: 'TO_BE_ISSUED_ADD',
+    label: i18n.t('pages.AccessDetail.DataSources.status.TobeAdd'),
     value: 200,
     type: 'default',
   },
   {
-    label: 'TO_BE_ISSUED_DELETE',
+    label: i18n.t('pages.AccessDetail.DataSources.status.TobeDelete'),
     value: 201,
     type: 'default',
   },
@@ -77,12 +77,12 @@ export const statusList: StatusProp[] = [
     type: 'default',
   },
   {
-    label: 'TO_BE_ISSUED_FROZEN',
+    label: i18n.t('pages.AccessDetail.DataSources.status.TobeFrozen'),
     value: 204,
     type: 'default',
   },
   {
-    label: 'TO_BE_ISSUED_ACTIVE',
+    label: i18n.t('pages.AccessDetail.DataSources.status.TobeActive'),
     value: 205,
     type: 'default',
   },
@@ -102,12 +102,12 @@ export const statusList: StatusProp[] = [
     type: 'default',
   },
   {
-    label: 'BEEN_ISSUED_ADD',
+    label: i18n.t('pages.AccessDetail.DataSources.status.BeenAdd'),
     value: 300,
     type: 'default',
   },
   {
-    label: 'BEEN_ISSUED_DELETE',
+    label: i18n.t('pages.AccessDetail.DataSources.status.BeenDelete'),
     value: 301,
     type: 'default',
   },
@@ -122,12 +122,12 @@ export const statusList: StatusProp[] = [
     type: 'default',
   },
   {
-    label: 'BEEN_ISSUED_FROZEN',
+    label: i18n.t('pages.AccessDetail.DataSources.status.BeenFrozen'),
     value: 304,
     type: 'default',
   },
   {
-    label: 'BEEN_ISSUED_ACTIVE',
+    label: i18n.t('pages.AccessDetail.DataSources.status.BeenActive'),
     value: 305,
     type: 'default',
   },

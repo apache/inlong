@@ -48,8 +48,11 @@ public class DeserializationFunctionTest {
         FieldInfo[] fieldInfos = {new FieldInfo("content", StringFormatInfo.INSTANCE)};
         DeserializationFunction function = new DeserializationFunction(
                 DeserializationSchemaFactory.build(fieldInfos, null),
-                new FieldMappingTransformer(new Configuration(), fieldInfos)
-        );
+                new FieldMappingTransformer(new Configuration(), fieldInfos),
+                true,
+                new Configuration(),
+                "",
+                "");
 
         ListCollector<Row> collector = new ListCollector<>();
         function.processElement(serializedRecord,null, collector);
@@ -132,14 +135,17 @@ public class DeserializationFunctionTest {
                         fieldInfos,
                         new CanalDeserializationInfo(null, null, false, "ISO_8601", false)),
                 new FieldMappingTransformer(new Configuration(), fieldInfos),
-                false);
+                false,
+                new Configuration(),
+                "",
+                "");
 
         ListCollector<Row> collector = new ListCollector<>();
         function.processElement(serializedRecord,null, collector);
         Row row = collector.getInnerList().get(0);
 
         Row expected = Row.of(
-                101, "scooter", "Small 2-wheel scooter", 3.14f, "database", "table", 1589373515000L, false, "+I");
+                101, "scooter", "Small 2-wheel scooter", 3.14f, "database", "table", 1589373515000L, false, "INSERT");
         assertEquals(expected, row);
     }
 

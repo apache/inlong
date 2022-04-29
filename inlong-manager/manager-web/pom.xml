@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-manager</artifactId>
-        <version>1.1.0-incubating-SNAPSHOT</version>
+        <version>1.2.0-incubating-SNAPSHOT</version>
     </parent>
 
     <artifactId>manager-web</artifactId>
@@ -40,6 +40,16 @@
             <artifactId>manager-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>manager-client-tools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>manager-plugins</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -91,6 +101,10 @@
                     <artifactId>spring-context</artifactId>
                     <groupId>org.springframework</groupId>
                 </exclusion>
+                <exclusion>
+                    <groupId>javax.validation</groupId>
+                    <artifactId>validation-api</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -128,9 +142,6 @@
                 <directory>bin</directory>
                 <filtering>true</filtering>
                 <targetPath>bin</targetPath>
-                <includes>
-                    <include>*.sh</include>
-                </includes>
             </resource>
             <!-- Filter sql files to sql directory -->
             <resource>
@@ -144,6 +155,7 @@
         </resources>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${plugin.surefire.version}</version>
                 <configuration>
@@ -155,7 +167,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
                 <configuration>
                     <!-- Project startup jar package excluded directory -->
                     <excludes>
@@ -171,7 +182,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <phase>prepare-package</phase>
@@ -183,6 +193,8 @@
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>false</overWriteSnapshots>
                             <overWriteIfNewer>true</overWriteIfNewer>
+                            <excludeGroupIds>junit,org.powermock,org.junit.jupiter,org.opentest4j,org.junit.platform,org.xmlunit,org.hamcrest</excludeGroupIds>
+                            <excludeArtifactIds>spring-test,spring-boot-test,spring-boot-starter-test,spring-boot-test-autoconfigure,manager-test,assertj-core,jsonassert</excludeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
@@ -212,7 +224,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>dist</id>

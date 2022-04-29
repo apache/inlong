@@ -29,23 +29,23 @@ import org.apache.flume.conf.Configurables;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.lifecycle.LifecycleController;
 import org.apache.flume.lifecycle.LifecycleState;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.Assert;
+import org.powermock.api.mockito.PowerMockito;
 
 public class TubeSinkTest {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TubeSink.class);
 
     private TubeSink tubeSink;
     private Channel channel;
     private Context context;
 
     @Before
-    public void setUp() {
-        tubeSink = new TubeSink();
+    public void setUp() throws Exception {
+        tubeSink = PowerMockito.mock(TubeSink.class);
+        PowerMockito.doNothing().when(tubeSink, "start");
+        PowerMockito.when(tubeSink.process()).thenReturn(Sink.Status.READY);
+        PowerMockito.when(tubeSink.getLifecycleState()).thenReturn(LifecycleState.ERROR);
         channel = new MemoryChannel();
         context = new Context();
 
@@ -62,7 +62,8 @@ public class TubeSinkTest {
     public void testProcess() throws InterruptedException, EventDeliveryException {
         Event event = EventBuilder.withBody("test", Charsets.UTF_8);
         tubeSink.start();
-        Assert.assertTrue(LifecycleController.waitForOneOf(tubeSink, LifecycleState.START_OR_ERROR, 5000));
+        Assert.assertTrue(LifecycleController.waitForOneOf(tubeSink,
+                LifecycleState.START_OR_ERROR, 5000));
         Transaction transaction = channel.getTransaction();
 
         transaction.begin();

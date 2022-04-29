@@ -85,7 +85,7 @@ public class TestDefaultEvent2LogItemHandler {
         headers.put(Constants.INLONG_GROUP_ID, "testGroup");
         headers.put(Constants.INLONG_STREAM_ID, "testStream");
         headers.put(Constants.HEADER_KEY_MSG_TIME, "1234456");
-        return new ProfileEvent(body, headers);
+        return new ProfileEvent(body, headers, null);
     }
 
 }

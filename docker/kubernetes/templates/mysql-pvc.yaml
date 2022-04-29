@@ -26,7 +26,7 @@ metadata:
     {{- include "inlong.commonLabels" . | nindent 4 }}
     component: {{ .Values.mysql.component }}
 spec:
-  aaccessModes: [ "ReadWriteOnce" ]
+  accessModes: [ "ReadWriteOnce" ]
   resources:
     requests:
       storageClassName: {{ .Values.volumes.storageClassName | quote }}

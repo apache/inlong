@@ -17,10 +17,6 @@
 
 package org.apache.inlong.dataproxy.source.tcp;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.flume.Event;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
@@ -33,6 +29,10 @@ import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResponseInfo;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResultCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -129,6 +129,13 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
         cb.readBytes(msgBytes);
         // decode
         MessagePack packObject = MessagePack.parseFrom(msgBytes);
+        // reject service
+        if (sourceContext.isRejectService()) {
+            this.addMetric(false, 0, null);
+            this.responsePackage(ctx, ResultCode.ERR_REJECT, packObject);
+            return;
+        }
+        // uncompress
         List<ProxyEvent> events = EventUtils.decodeSdkPack(packObject);
         // topic
         for (ProxyEvent event : events) {

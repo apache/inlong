@@ -18,10 +18,13 @@
 
 package org.apache.inlong.sort.flink.hive.formats.parquet;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.sql.Date;
+import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.Map;
-
+import java.util.concurrent.TimeUnit;
 import org.apache.flink.table.types.logical.ArrayType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.MapType;
@@ -34,6 +37,10 @@ import org.apache.parquet.schema.Type;
 
 /** Writes a record to the Parquet API with the expected schema in order to be written to a file. */
 public class ParquetRowWriter {
+
+    public static final int JULIAN_EPOCH_OFFSET_DAYS = 2_440_588;
+    public static final long MILLIS_IN_DAY = TimeUnit.DAYS.toMillis(1);
+    public static final long NANOS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);
 
     static final String ARRAY_FIELD_NAME = "list";
 
@@ -106,10 +113,12 @@ public class ParquetRowWriter {
                 case DOUBLE:
                     return new DoubleWriter();
                 case DATE:
+                    return (row, ordinal) -> recordConsumer.addInteger(
+                            (int) ((Date) row.getField(ordinal)).toLocalDate().toEpochDay());
                 case TIME_WITHOUT_TIME_ZONE:
-                    return (row, ordinal) -> recordConsumer.addInteger((int) ((Date) row.getField(ordinal)).getTime());
+                    return (row, ordinal) -> recordConsumer.addInteger((int) ((Time) row.getField(ordinal)).getTime());
                 case TIMESTAMP_WITHOUT_TIME_ZONE:
-                    return (row, ordinal) -> recordConsumer.addLong(((Timestamp) row.getField(ordinal)).getTime());
+                    return new TimestampWriter();
                 default:
                     throw new UnsupportedOperationException("Unsupported type: " + type);
             }
@@ -201,6 +210,30 @@ public class ParquetRowWriter {
         public void write(Row row, int ordinal) {
             recordConsumer.addBinary(Binary.fromReusedByteArray((byte[]) row.getField(ordinal)));
         }
+    }
+
+    private class TimestampWriter implements FieldWriter {
+
+        @Override
+        public void write(Row row, int ordinal) {
+            recordConsumer.addBinary(timestampToInt96((Timestamp) row.getField(ordinal)));
+        }
+    }
+
+    public static Binary timestampToInt96(Timestamp timestamp) {
+        int julianDay;
+        long nanosOfDay;
+
+        long mills = timestamp.getTime();
+        julianDay = (int) ((mills / MILLIS_IN_DAY) + JULIAN_EPOCH_OFFSET_DAYS);
+        nanosOfDay = ((mills % MILLIS_IN_DAY) / 1000) * NANOS_PER_SECOND + timestamp.getNanos();
+
+        ByteBuffer buf = ByteBuffer.allocate(12);
+        buf.order(ByteOrder.LITTLE_ENDIAN);
+        buf.putLong(nanosOfDay);
+        buf.putInt(julianDay);
+        buf.flip();
+        return Binary.fromConstantByteBuffer(buf);
     }
 
     private class ArrayWriter implements FieldWriter {

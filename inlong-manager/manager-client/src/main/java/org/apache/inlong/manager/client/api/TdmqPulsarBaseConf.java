@@ -22,7 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.MqType;
+import org.apache.inlong.manager.common.enums.MQType;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -31,6 +31,6 @@ import org.apache.inlong.manager.common.enums.MqType;
 public class TdmqPulsarBaseConf extends PulsarBaseConf {
 
     @ApiModelProperty("Message queue type")
-    private MqType type = MqType.TDMQ_PULSAR;
+    private MQType type = MQType.TDMQ_PULSAR;
 
 }

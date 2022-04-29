@@ -17,6 +17,7 @@
 
 package org.apache.inlong.tubemq.corebase.utils;
 
+import io.netty.channel.Channel;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -25,7 +26,6 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 import org.apache.inlong.tubemq.corebase.exception.AddressException;
-import org.jboss.netty.channel.Channel;
 
 public class AddressUtils {
 
@@ -118,7 +118,7 @@ public class AddressUtils {
         if (channel == null) {
             return strRemoteIP;
         }
-        SocketAddress remoteSocketAddress = channel.getRemoteAddress();
+        SocketAddress remoteSocketAddress = channel.remoteAddress();
         if (null != remoteSocketAddress) {
             strRemoteIP = remoteSocketAddress.toString();
             try {

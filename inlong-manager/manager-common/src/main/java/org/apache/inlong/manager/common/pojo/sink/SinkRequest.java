@@ -22,11 +22,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Map;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Request of sink
@@ -54,8 +54,8 @@ public class SinkRequest {
     @NotNull
     private String sinkName;
 
-    @ApiModelProperty("Data storage period, unit: day")
-    private Integer storagePeriod;
+    @ApiModelProperty("Sink description")
+    private String description;
 
     @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. default is 1")
     private Integer enableCreateResource = 1;

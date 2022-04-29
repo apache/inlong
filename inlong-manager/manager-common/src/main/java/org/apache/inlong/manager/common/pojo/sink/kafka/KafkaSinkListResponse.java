@@ -32,12 +32,22 @@ import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 public class KafkaSinkListResponse extends SinkListResponse {
 
     @ApiModelProperty("Kafka bootstrap servers")
-    private String address;
+    private String bootstrapServers;
 
     @ApiModelProperty("Kafka topicName")
     private String topicName;
 
+    @ApiModelProperty("Partition number of the topic")
+    private String partitionNum;
+
     @ApiModelProperty("Data Serialization, support: json, canal, avro")
     private String serializationType;
+
+    @ApiModelProperty(value = "The strategy of auto offset reset",
+            notes = "including earliest, latest (the default), none")
+    private String autoOffsetReset;
+
+    @ApiModelProperty("Primary key is required when serializationType is json, avro")
+    private String primaryKey;
 
 }

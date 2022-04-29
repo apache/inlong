@@ -19,7 +19,7 @@ package org.apache.inlong.sort.standalone.config.holder;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.flume.Context;
-import org.apache.inlong.sort.standalone.config.loader.ClassResourceManagerUrlLoader;
+import org.apache.inlong.sort.standalone.config.loader.CommonPropertiesManagerUrlLoader;
 import org.apache.inlong.sort.standalone.config.loader.ManagerUrlLoader;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ import java.util.Optional;
  * Manager address get handler.
  *
  * <p> Used to acquire the ip and port of manager, which sort sdk and sort-standalone request config from. </p>
- * <p> The default implementation {@link ClassResourceManagerUrlLoader}
+ * <p> The default implementation {@link CommonPropertiesManagerUrlLoader}
  * is base on {@link CommonPropertiesHolder} to acquire properties. </p>
  */
 public class ManagerUrlHandler {
@@ -71,7 +71,7 @@ public class ManagerUrlHandler {
         }
         synchronized (ManagerUrlLoader.class) {
             String loaderType = CommonPropertiesHolder
-                    .getString(KEY_MANAGER_URL_LOADER_TYPE, ClassResourceManagerUrlLoader.class.getName());
+                    .getString(KEY_MANAGER_URL_LOADER_TYPE, CommonPropertiesManagerUrlLoader.class.getName());
             LOG.info("Start to load ManagerUrlLoader, type is {}.", loaderType);
             try {
                 Class<?> handlerClass = ClassUtils.getClass(loaderType);

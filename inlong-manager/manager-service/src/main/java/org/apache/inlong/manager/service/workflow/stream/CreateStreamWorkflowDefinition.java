@@ -19,16 +19,17 @@ package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveTableForStreamListener;
-import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarGroupForStreamTaskListener;
-import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarTopicForStreamTaskListener;
-import org.apache.inlong.manager.service.thirdparty.sort.PushSortConfigListener;
+import org.apache.inlong.manager.service.resource.CreateSinkResourceForStreamListener;
+import org.apache.inlong.manager.service.mq.CreatePulsarGroupForStreamTaskListener;
+import org.apache.inlong.manager.service.mq.CreatePulsarTopicForStreamTaskListener;
+import org.apache.inlong.manager.service.sort.PushSortConfigListener;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.group.listener.InitGroupListener;
+import org.apache.inlong.manager.service.workflow.group.listener.GroupInitProcessListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
@@ -49,13 +50,13 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
-    private InitGroupListener initGroupListener;
+    private GroupInitProcessListener groupInitProcessListener;
     @Autowired
     private StreamFailedProcessListener streamFailedProcessListener;
     @Autowired
     private StreamCompleteProcessListener streamCompleteProcessListener;
     @Autowired
-    private CreateHiveTableForStreamListener createHiveTableListener;
+    private CreateSinkResourceForStreamListener createHiveTableListener;
     @Autowired
     private PushSortConfigListener pushSortConfigListener;
     @Autowired
@@ -67,7 +68,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
     public WorkflowProcess defineProcess() {
         // Configuration process
         WorkflowProcess process = new WorkflowProcess();
-        process.addListener(initGroupListener);
+        process.addListener(groupInitProcessListener);
         process.addListener(streamFailedProcessListener);
         process.addListener(streamCompleteProcessListener);
 
@@ -89,8 +90,8 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask createPulsarTopicTask = new ServiceTask();
         createPulsarTopicTask.setSkipResolver(c -> {
             GroupResourceProcessForm form = (GroupResourceProcessForm) c.getProcessForm();
-            String mqType = form.getGroupInfo().getMiddlewareType();
-            if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
+            MQType mqType = MQType.forType(form.getGroupInfo().getMiddlewareType());
+            if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 return false;
             }
             log.warn("no need to create pulsar topic for groupId={}, streamId={}, as the middlewareType={}",
@@ -105,8 +106,8 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask createPulsarSubscriptionGroupTask = new ServiceTask();
         createPulsarSubscriptionGroupTask.setSkipResolver(c -> {
             GroupResourceProcessForm form = (GroupResourceProcessForm) c.getProcessForm();
-            String mqType = form.getGroupInfo().getMiddlewareType();
-            if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
+            MQType mqType = MQType.forType(form.getGroupInfo().getMiddlewareType());
+            if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 return false;
             }
             log.warn("no need to create pulsar subscription for groupId={}, streamId={}, as the middlewareType={}",
@@ -123,7 +124,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
             GroupResourceProcessForm form = (GroupResourceProcessForm) c.getProcessForm();
             String groupId = form.getInlongGroupId();
             String streamId = form.getInlongStreamId();
-            List<String> dsForHive = sinkService.getExistsStreamIdList(groupId, Constant.SINK_HIVE,
+            List<String> dsForHive = sinkService.getExistsStreamIdList(groupId, SinkType.SINK_HIVE,
                     Collections.singletonList(streamId));
             if (CollectionUtils.isEmpty(dsForHive)) {
                 log.warn("inlong group [{}] adn inlong stream [{}] does not have sink, skip create hive table", groupId,

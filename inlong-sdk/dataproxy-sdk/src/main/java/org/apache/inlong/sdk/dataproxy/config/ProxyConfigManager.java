@@ -18,14 +18,36 @@
 
 package org.apache.inlong.sdk.dataproxy.config;
 
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.REQUEST_HEADER_AUTHORIZATION;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import org.apache.commons.io.FileUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.ssl.SSLContexts;
+import org.apache.http.util.EntityUtils;
+import org.apache.inlong.sdk.dataproxy.ConfigConstants;
+import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
+import org.apache.inlong.sdk.dataproxy.network.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -48,52 +70,33 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import javax.net.ssl.SSLContext;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.ssl.SSLContexts;
-import org.apache.http.util.EntityUtils;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.ConfigConstants;
-import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.inlong.sdk.dataproxy.ConfigConstants.REQUEST_HEADER_AUTHORIZATION;
 
+/**
+ * This thread requests dataproxy-host list from manager, including these functions:
+ * 1. request dataproxy-host, support retry
+ * 2. local file disaster
+ * 3. based on request result, do update (including cache, local file, ClientMgr.proxyInfoList and ClientMgr.channels)
+ */
 public class ProxyConfigManager extends Thread {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProxyConfigManager.class);
     public static final String APPLICATION_JSON = "application/json";
-
+    private static final Logger logger = LoggerFactory.getLogger(ProxyConfigManager.class);
+    private final ProxyClientConfig clientConfig;
+    private final String localIP;
+    private final ClientMgr clientManager;
+    private final ReentrantReadWriteLock rw = new ReentrantReadWriteLock();
+    private final JsonParser jsonParser = new JsonParser();
+    private final Gson gson = new Gson();
     private List<HostInfo> proxyInfoList = new ArrayList<HostInfo>();
     /*the status of the cluster.if this value is changed,we need rechoose  three proxy*/
     private int oldStat = 0;
     private String groupId;
-    private final ProxyClientConfig clientConfig;
-    private final String localIP;
     private String localMd5;
-    private final ClientMgr clientManager;
     private boolean bShutDown = false;
     private long doworkTime = 0;
     private EncryptConfigEntry userEncryConfigEntry;
-    private final ReentrantReadWriteLock rw = new ReentrantReadWriteLock();
-
-    private final JsonParser jsonParser = new JsonParser();
-    private final Gson gson = new Gson();
 
     public ProxyConfigManager(final ProxyClientConfig configure, final String localIP, final ClientMgr clientManager) {
         this.clientConfig = configure;
@@ -199,7 +202,7 @@ public class ProxyConfigManager extends Thread {
     }
 
     /**
-     *  get groupId config
+     * get groupId config
      *
      * @return proxyConfigEntry
      * @throws Exception
@@ -236,6 +239,11 @@ public class ProxyConfigManager extends Thread {
         return proxyEntry;
     }
 
+    /**
+     * request proxyHost list from manager, update ClientMgr.proxyHostList and channels
+     *
+     * @throws Exception
+     */
     public void doProxyEntryQueryWork() throws Exception {
         /* Request the configuration from manager. */
         if (localMd5 == null) {
@@ -574,7 +582,7 @@ public class ProxyConfigManager extends Thread {
         boolean isInterVisit = checkValidProxy(filePath, localProxyAddrJson);
         proxyEntry.setInterVisit(isInterVisit);
         Map<String, HostInfo> hostMap = getHostInfoMap(
-            localProxyAddrJson);
+                localProxyAddrJson);
         proxyEntry.setHostMap(hostMap);
         proxyEntry.setSwitchStat(0);
         Map<String, Integer> streamIdMap = getStreamIdMap(localProxyAddrJson);
@@ -587,7 +595,7 @@ public class ProxyConfigManager extends Thread {
     }
 
     private Map<String, HostInfo> getHostInfoMap(JsonObject localProxyAddrJson)
-        throws Exception {
+            throws Exception {
         Map<String, HostInfo> hostMap = new HashMap<String, HostInfo>();
         JsonArray jsonHostList = localProxyAddrJson.get("address").getAsJsonArray();
         if (jsonHostList == null) {
@@ -598,21 +606,21 @@ public class ProxyConfigManager extends Thread {
             if (jsonItem != null) {
                 if (!jsonItem.has("port")) {
                     throw new Exception("Parse local proxyList failure: "
-                        + "port field is not exist in address(" + i + ")!");
+                            + "port field is not exist in address(" + i + ")!");
                 }
                 int port = jsonItem.get("port").getAsInt();
                 if (port <= 0) {
                     throw new Exception("Parse local proxyList failure: "
-                        + "port value <= 0 in address(" + i + ")!");
+                            + "port value <= 0 in address(" + i + ")!");
                 }
                 if (!jsonItem.has("host")) {
                     throw new Exception("Parse local proxyList failure: "
-                        + "host field is not exist in address(" + i + ")!");
+                            + "host field is not exist in address(" + i + ")!");
                 }
                 String hostItem = jsonItem.get("host").getAsString();
                 if (Utils.isBlank(hostItem)) {
                     throw new Exception("Parse local proxyList failure: "
-                        + "host value is blank in address(" + i + ")!");
+                            + "host value is blank in address(" + i + ")!");
                 }
                 String refId = hostItem + ":" + String.valueOf(port);
                 hostMap.put(refId, new HostInfo(refId, hostItem, port));
@@ -668,7 +676,7 @@ public class ProxyConfigManager extends Thread {
         }
 
         Map<String, HostInfo> hostMap = formatHostInfoMap(
-            jsonRes);
+                jsonRes);
 
         if (hostMap == null) {
             return null;
@@ -857,8 +865,7 @@ public class ProxyConfigManager extends Thread {
         }
     }
 
-    private StringEntity getEntity(List<BasicNameValuePair> params)
-        throws UnsupportedEncodingException {
+    private StringEntity getEntity(List<BasicNameValuePair> params) throws UnsupportedEncodingException {
         JsonObject jsonObject = new JsonObject();
         for (BasicNameValuePair pair : params) {
             jsonObject.addProperty(pair.getName(), pair.getValue());
@@ -869,7 +876,7 @@ public class ProxyConfigManager extends Thread {
     }
 
     private CloseableHttpClient getCloseableHttpClient(List<BasicNameValuePair> params)
-        throws NoSuchAlgorithmException, KeyManagementException {
+            throws NoSuchAlgorithmException, KeyManagementException {
         CloseableHttpClient httpClient;
         ArrayList<Header> headers = new ArrayList<Header>();
         for (BasicNameValuePair paramItem : params) {
@@ -895,7 +902,7 @@ public class ProxyConfigManager extends Thread {
                 serialized = FileUtils.readFileToByteArray(localManagerIpsFile);
                 if (serialized == null) {
                     logger.error("Local managerIp file is empty, file path : "
-                                + clientConfig.getManagerIpLocalPath());
+                            + clientConfig.getManagerIpLocalPath());
                     return null;
                 }
                 localManagerIps = new String(serialized, "UTF-8");
@@ -905,7 +912,7 @@ public class ProxyConfigManager extends Thread {
                 }
                 localManagerIps = "";
                 logger.error("Get local managerIpList not exist, file path : "
-                            + clientConfig.getManagerIpLocalPath());
+                        + clientConfig.getManagerIpLocalPath());
             }
         } catch (Throwable t) {
             localManagerIps = "";

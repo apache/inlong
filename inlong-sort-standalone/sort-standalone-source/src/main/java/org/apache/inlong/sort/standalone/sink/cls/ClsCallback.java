@@ -64,6 +64,7 @@ public class ClsCallback implements Callback {
      */
     private void onSuccess() {
         context.addSendResultMetric(event, topicId, true, System.currentTimeMillis());
+        event.ack();
         tx.commit();
         tx.close();
     }

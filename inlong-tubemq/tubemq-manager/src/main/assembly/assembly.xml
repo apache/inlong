@@ -34,7 +34,7 @@
     <fileSets>
         <fileSet>
             <directory>bin</directory>
-            <outputDirectory>/bin</outputDirectory>
+            <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>*.sh</include>
                 <include>*.bat</include>
@@ -43,15 +43,22 @@
         </fileSet>
         <fileSet>
             <directory>conf</directory>
-            <outputDirectory>/conf</outputDirectory>
+            <outputDirectory>conf</outputDirectory>
             <includes>
                 <include>*.xml</include>
                 <include>*.properties</include>
             </includes>
         </fileSet>
         <fileSet>
+            <directory>sql</directory>
+            <outputDirectory>sql</outputDirectory>
+            <includes>
+                <include>*.sql</include>
+            </includes>
+        </fileSet>
+        <fileSet>
             <directory>src/main/resources</directory>
-            <outputDirectory>/conf</outputDirectory>
+            <outputDirectory>conf</outputDirectory>
             <includes>
                 <include>*.xml</include>
                 <include>*.properties</include>
@@ -62,8 +69,7 @@
             <includes>
                 <include>tubemq-manager-*.jar</include>
             </includes>
-            <outputDirectory>/lib</outputDirectory>
+            <outputDirectory>lib</outputDirectory>
         </fileSet>
-
     </fileSets>
 </assembly>

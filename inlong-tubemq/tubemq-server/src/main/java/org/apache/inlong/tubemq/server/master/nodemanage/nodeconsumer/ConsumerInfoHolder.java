@@ -48,9 +48,12 @@ public class ConsumerInfoHolder {
             new ConcurrentHashSet<>();
     private final ConcurrentHashSet<String/* group */> clientBalanceGroupSet =
             new ConcurrentHashSet<>();
+    // topic-group map
+    private final ConcurrentHashMap<String/* topic */, ConcurrentHashSet<String>> topicGroupMap
+            = new ConcurrentHashMap<>();
 
-    public ConsumerInfoHolder(TMaster tMasterr) {
-        this.masterConfig = tMasterr.getMasterConfig();
+    public ConsumerInfoHolder(TMaster tMaster) {
+        this.masterConfig = tMaster.getMasterConfig();
         this.groupRowLock = new RowLock("Group-RowLock",
                 this.masterConfig.getRowLockWaitDurMs());
     }
@@ -229,10 +232,10 @@ public class ConsumerInfoHolder {
     }
 
     /**
-     * booked need rebalance consumer of group
+     * booked need re-balance consumer of group
      *
      * @param group group name
-     * @param consumerIdSet need rebalance consumerId
+     * @param consumerIdSet need re-balance consumerId
      * @param waitDuration wait duration
      */
     public void addRebConsumerInfo(String group, Set<String> consumerIdSet, int waitDuration) {
@@ -288,6 +291,15 @@ public class ConsumerInfoHolder {
     }
 
     /**
+     * get all registered topic-group map information
+     *
+     * @return the registered topic-group map
+     */
+    public ConcurrentHashMap<String, ConcurrentHashSet<String>> getRegTopicGroupMap() {
+        return topicGroupMap;
+    }
+
+    /**
      * get all server-balance group name
      *
      * @return the group name registered
@@ -312,7 +324,7 @@ public class ConsumerInfoHolder {
     }
 
     /**
-     * get all registerd group name
+     * get all registered group name
      *
      * @param consumerId  the consumer id
      * @return the consumer info
@@ -341,7 +353,7 @@ public class ConsumerInfoHolder {
      */
     public boolean addConsumer(ConsumerInfo consumer, boolean isNotAllocated,
                                StringBuilder sBuffer, ParamCheckResult result) {
-        ConsumeGroupInfo consumeGroupInfo = null;
+        ConsumeGroupInfo consumeGroupInfo;
         String group = consumer.getGroupName();
         Integer lid = null;
         try {
@@ -358,6 +370,20 @@ public class ConsumerInfoHolder {
                     } else {
                         serverBalanceGroupSet.add(group);
                     }
+                    // add topic-group map information
+                    ConcurrentHashSet<String> groupSet;
+                    for (String topicName: consumeGroupInfo.getTopicSet()) {
+                        groupSet = topicGroupMap.get(topicName);
+                        if (groupSet == null) {
+                            ConcurrentHashSet<String> tmpGroupSet = new ConcurrentHashSet<>();
+                            groupSet = topicGroupMap.putIfAbsent(topicName, tmpGroupSet);
+                            if (groupSet == null) {
+                                groupSet = tmpGroupSet;
+                            }
+                        }
+                        groupSet.add(group);
+                    }
+                    // statistic data
                     MasterSrvStatsHolder.incConsumerCnt(true,
                             consumeGroupInfo.isClientBalance());
                 }
@@ -396,8 +422,8 @@ public class ConsumerInfoHolder {
         if (group == null || consumerId == null) {
             return null;
         }
+        boolean rmvGroup;
         boolean isCltBal = false;
-        boolean rmvGroup = false;
         ConsumerInfo consumer = null;
         Integer lid = null;
         try {
@@ -414,6 +440,16 @@ public class ConsumerInfoHolder {
                     } else {
                         serverBalanceGroupSet.remove(group);
                     }
+                    // remove topic-group map information
+                    ConcurrentHashSet<String> groupSet;
+                    for (String topicName: consumeGroupInfo.getTopicSet()) {
+                        groupSet = topicGroupMap.get(topicName);
+                        if (groupSet == null) {
+                            continue;
+                        }
+                        groupSet.remove(group);
+                    }
+                    // statistic data
                     if (rmvGroup) {
                         if (consumer == null) {
                             MasterSrvStatsHolder.decConsumeGroupCnt(isTimeout, isCltBal);

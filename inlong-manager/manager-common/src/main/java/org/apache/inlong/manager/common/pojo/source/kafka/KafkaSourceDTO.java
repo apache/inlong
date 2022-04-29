@@ -32,10 +32,10 @@ import javax.validation.constraints.NotNull;
 /**
  * kafka source information data transfer object.
  */
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 public class KafkaSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -62,6 +62,8 @@ public class KafkaSourceDTO {
     private String topicPartitionOffset;
 
     /**
+     * The strategy of auto offset reset.
+     *
      * @see <a href="https://docs.confluent.io/platform/current/clients/consumer.html">Kafka_consumer_config</a>
      */
     @ApiModelProperty(value = "The strategy of auto offset reset",

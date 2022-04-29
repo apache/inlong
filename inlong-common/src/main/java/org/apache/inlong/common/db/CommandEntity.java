@@ -17,10 +17,6 @@
 
 package org.apache.inlong.common.db;
 
-import com.sleepycat.persist.model.Entity;
-import com.sleepycat.persist.model.PrimaryKey;
-import com.sleepycat.persist.model.Relationship;
-import com.sleepycat.persist.model.SecondaryKey;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,16 +24,13 @@ import lombok.NoArgsConstructor;
 /**
  * The entity of task command, used for Agent to interact with Manager and BDB.
  */
-@Entity(version = 1)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommandEntity {
 
-    @PrimaryKey
     private String id;
     private int commandResult;
-    @SecondaryKey(relate = Relationship.MANY_TO_ONE)
     private boolean isAcked;
     private Integer taskId;
     /**

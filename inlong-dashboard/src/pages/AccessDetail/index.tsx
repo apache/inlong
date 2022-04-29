@@ -50,7 +50,7 @@ const Comp: React.FC = () => {
           content: Info,
         },
         {
-          label: middlewareType === 'PULSAR' ? 'TOPIC' : t('pages.AccessDetail.DataStreams'),
+          label: t('pages.AccessDetail.DataStreams'),
           value: 'dataStream',
           content: DataStream,
         },
@@ -73,7 +73,7 @@ const Comp: React.FC = () => {
           hidden: isReadonly,
         },
       ].filter(item => !item.hidden),
-    [isReadonly, middlewareType, t],
+    [isReadonly, t],
   );
 
   const [actived, setActived] = useState(list[0].value);

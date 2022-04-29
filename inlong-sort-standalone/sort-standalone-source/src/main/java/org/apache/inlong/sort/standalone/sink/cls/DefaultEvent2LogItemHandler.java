@@ -62,11 +62,10 @@ public class DefaultEvent2LogItemHandler implements IEvent2LogItemHandler {
         listValues.forEach(value -> this.truncateSingleValue(value, context.getKeywordMaxLength()));
         // prepare keys
         List<String> listKeys = idConfig.getFieldList();
-        // prepare time and offset
-        int time = (int) event.getRawLogTime();
+        // prepare offset
         int fieldOffset = idConfig.getFieldOffset();
         // convert to LogItem format
-        LogItem item = this.parseToLogItem(listKeys, listValues, time, fieldOffset);
+        LogItem item = this.parseToLogItem(listKeys, listValues, event.getRawLogTime(), fieldOffset);
         // add ftime
         String ftime = dateFormat.format(new Date(event.getRawLogTime()));
         item.PushBack("ftime", ftime);
@@ -90,7 +89,7 @@ public class DefaultEvent2LogItemHandler implements IEvent2LogItemHandler {
         }
     }
 
-    private LogItem parseToLogItem(List<String> listKeys, List<String> listValues, int time, int fieldOffset) {
+    private LogItem parseToLogItem(List<String> listKeys, List<String> listValues, long time, int fieldOffset) {
         LogItem logItem = new LogItem(time);
         for (int i = fieldOffset; i < listKeys.size(); ++i) {
             String key = listKeys.get(i);

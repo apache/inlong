@@ -95,6 +95,7 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
                 hiveSinkInfo, configuration);
         final RowPartitionComputer rowPartitionComputer = new RowPartitionComputer("", hiveSinkInfo);
         final BulkFormatBuilder<Row, HivePartition> bulkFormatBuilder = new BulkFormatBuilder<>(
+                dataFlowId,
                 new Path(hiveSinkInfo.getDataPath()),
                 outputStream ->
                         new PartitionFilterBulkWriter(bulkWriterFactory.create(outputStream), rowPartitionComputer),
@@ -217,6 +218,7 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
 
         @Override
         public Bucket<Row, HivePartition> getNewBucket(
+                final long dataFlowId,
                 final RecoverableWriter fsWriter,
                 final int subtaskIndex,
                 final HivePartition bucketId,
@@ -225,6 +227,7 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
                 final PartFileWriter.PartFileFactory<Row, HivePartition> partFileWriterFactory,
                 final RollingPolicy<Row, HivePartition> rollingPolicy) {
             final Bucket<Row, HivePartition> newBucket = super.getNewBucket(
+                    dataFlowId,
                     fsWriter,
                     subtaskIndex,
                     bucketId,

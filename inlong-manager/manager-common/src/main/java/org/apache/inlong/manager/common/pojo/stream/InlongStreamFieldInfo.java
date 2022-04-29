@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * Inlong stream field info
+ * Inlong stream field info.
  */
 @Data
 @ApiModel("Inlong stream field info")
@@ -48,14 +48,20 @@ public class InlongStreamFieldInfo {
     @ApiModelProperty(value = "value expression of predefined field")
     private String preExpression;
 
+    @ApiModelProperty("Field type")
     private String fieldType;
 
+    @ApiModelProperty("Field comment")
     private String fieldComment;
+
+    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
+    private Integer isMetaField = 0;
+
+    @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
+            + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
+    private String fieldFormat;
 
     @ApiModelProperty(value = "field rank num")
     private Short rankNum;
-
-    @ApiModelProperty(value = "is deleted? 0: deleted, > 0: not deleted")
-    private Integer isDeleted = 0;
 
 }

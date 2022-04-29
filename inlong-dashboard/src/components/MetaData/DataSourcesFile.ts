@@ -32,35 +32,26 @@ export const getDataSourcesFileFields = (
       label: i18n.t('components.AccessHelper.DataSourceMetaData.File.DataSourceIP'),
       name: 'ip',
       rules: [
-        { required: true },
         {
           pattern: rulesPattern.ip,
           message: i18n.t('components.AccessHelper.DataSourceMetaData.File.IpRule'),
         },
       ],
-      _inTable: {
-        width: 120,
-      },
-    },
-    {
-      type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.File.Port'),
-      name: 'port',
-      props: {
-        min: 1,
-        max: 65535,
-      },
-      rules: [{ required: true }],
-      _inTable: {
-        width: 90,
-      },
+      _inTable: true,
     },
     {
       type: 'input',
       label: i18n.t('components.AccessHelper.DataSourceMetaData.File.FilePath'),
-      name: 'filePath',
+      name: 'pattern',
+      tooltip: i18n.t('components.AccessHelper.DataSourceMetaData.File.FilePathHelp'),
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.DataSourceMetaData.File.FillInTheAbsolutePath'),
+      _inTable: true,
+    },
+    {
+      type: 'input',
+      label: i18n.t('components.AccessHelper.DataSourceMetaData.File.TimeOffset'),
+      name: 'timeOffset',
+      tooltip: i18n.t('components.AccessHelper.DataSourceMetaData.File.TimeOffsetHelp'),
       _inTable: true,
     },
   ];

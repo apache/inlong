@@ -18,20 +18,22 @@
 package org.apache.inlong.sort.flink.hive.partition;
 
 import com.google.common.base.Preconditions;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 /**
  * Partition commit policy to create partitions in hive table.
  */
 public class JdbcHivePartitionCommitPolicy implements PartitionCommitPolicy {
+
     private static final Logger LOG = LoggerFactory.getLogger(JdbcHivePartitionCommitPolicy.class);
 
     private static final String driverClass = "org.apache.hive.jdbc.HiveDriver";
@@ -50,22 +52,23 @@ public class JdbcHivePartitionCommitPolicy implements PartitionCommitPolicy {
         connection = getHiveConnection();
     }
 
-    @Override
-    public void commit(Context context) throws Exception {
-        final String databaseName = context.databaseName();
-        final String tableName = context.tableName();
-        Statement statement = connection.createStatement();
-        String sql = generateCreatePartitionSql(databaseName, tableName, context.partition());
-        statement.execute(sql);
-    }
-
-    @Override
-    public void close() throws Exception {
-        connection.close();
-    }
-
     public static String getHiveConnStr(String hiveServerJdbcUrl, String databaseName) {
-        return hiveServerJdbcUrl + "/" + databaseName;
+        String firstPartOfJdbcUrl = hiveServerJdbcUrl;
+        String secondPartOfJdbcUrl = "";
+        if (hiveServerJdbcUrl.contains(";")) {
+            firstPartOfJdbcUrl = hiveServerJdbcUrl.substring(0, hiveServerJdbcUrl.indexOf(";"));
+            secondPartOfJdbcUrl = hiveServerJdbcUrl.substring(hiveServerJdbcUrl.indexOf(";"));
+        }
+        String[] firstPartOfJdbcUrlArr = firstPartOfJdbcUrl.split("//");
+        String hostAndPort = firstPartOfJdbcUrlArr[1];
+        if (hostAndPort.contains("/")) {
+            hostAndPort = hostAndPort.substring(0, hostAndPort.indexOf("/"));
+        }
+        String hiveConnStr = String.format("%s//%s/%s", firstPartOfJdbcUrlArr[0], hostAndPort, databaseName);
+        if (!"".equals(secondPartOfJdbcUrl)) {
+            hiveConnStr += "/" + secondPartOfJdbcUrl;
+        }
+        return hiveConnStr;
     }
 
     public static String generateCreatePartitionSql(
@@ -80,7 +83,7 @@ public class JdbcHivePartitionCommitPolicy implements PartitionCommitPolicy {
                 .append(tableName)
                 .append(" ADD IF NOT EXISTS PARTITION (");
 
-        for (Tuple2<String, String> partition: hivePartition.getPartitions()) {
+        for (Tuple2<String, String> partition : hivePartition.getPartitions()) {
             stringBuilder
                     .append(partition.f0)
                     .append(" = '")
@@ -93,6 +96,20 @@ public class JdbcHivePartitionCommitPolicy implements PartitionCommitPolicy {
         result = result.substring(0, result.length() - 1);
 
         return result + ")";
+    }
+
+    @Override
+    public void commit(Context context) throws Exception {
+        final String databaseName = context.databaseName();
+        final String tableName = context.tableName();
+        Statement statement = connection.createStatement();
+        String sql = generateCreatePartitionSql(databaseName, tableName, context.partition());
+        statement.execute(sql);
+    }
+
+    @Override
+    public void close() throws Exception {
+        connection.close();
     }
 
     private Connection getHiveConnection() throws SQLException, ClassNotFoundException {

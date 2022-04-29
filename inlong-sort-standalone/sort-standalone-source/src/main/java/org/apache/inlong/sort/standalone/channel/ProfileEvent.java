@@ -17,12 +17,12 @@
 
 package org.apache.inlong.sort.standalone.channel;
 
-import java.util.Map;
-
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.event.SimpleEvent;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.utils.Constants;
+
+import java.util.Map;
 
 /**
  * 
@@ -36,41 +36,24 @@ public class ProfileEvent extends SimpleEvent {
 
     private final long rawLogTime;
     private final long fetchTime;
-    private long sendTime;
+    private final CacheMessageRecord cacheRecord;
 
     /**
      * Constructor
      * 
      * @param body
      * @param headers
+     * @param cacheRecord
      */
-    public ProfileEvent(byte[] body, Map<String, String> headers) {
+    public ProfileEvent(byte[] body, Map<String, String> headers, CacheMessageRecord cacheRecord) {
         super.setBody(body);
         super.setHeaders(headers);
+        this.cacheRecord = cacheRecord;
         this.inlongGroupId = headers.get(Constants.INLONG_GROUP_ID);
         this.inlongStreamId = headers.get(Constants.INLONG_STREAM_ID);
         this.uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
         this.fetchTime = System.currentTimeMillis();
-        this.sendTime = fetchTime;
         this.rawLogTime = NumberUtils.toLong(headers.get(Constants.HEADER_KEY_MSG_TIME), fetchTime);
-    }
-
-    /**
-     * get sendTime
-     * 
-     * @return the sendTime
-     */
-    public long getSendTime() {
-        return sendTime;
-    }
-
-    /**
-     * set sendTime
-     * 
-     * @param sendTime the sendTime to set
-     */
-    public void setSendTime(long sendTime) {
-        this.sendTime = sendTime;
     }
 
     /**
@@ -118,4 +101,21 @@ public class ProfileEvent extends SimpleEvent {
         return uid;
     }
 
+    /**
+     * get cacheRecord
+     * 
+     * @return the cacheRecord
+     */
+    public CacheMessageRecord getCacheRecord() {
+        return cacheRecord;
+    }
+
+    /**
+     * ack
+     */
+    public void ack() {
+        if (cacheRecord != null) {
+            cacheRecord.ackMessage();
+        }
+    }
 }

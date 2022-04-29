@@ -107,7 +107,7 @@ public class WholeDBMigrationITCase {
                 FieldMappingTransformer fieldMappingTransformer = new FieldMappingTransformer(
                         new Configuration(), fieldInfos);
                 DeserializationFunction function = new DeserializationFunction(
-                        deserializationSchema, fieldMappingTransformer, false);
+                        deserializationSchema, fieldMappingTransformer, false, new Configuration(), "", "");
                 DataStream<Row> deserializedStream = sourceStream.process(function);
 
                 // Serialize and output

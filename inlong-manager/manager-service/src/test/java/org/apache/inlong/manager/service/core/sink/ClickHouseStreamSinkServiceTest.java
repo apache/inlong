@@ -17,7 +17,8 @@
 
 package org.apache.inlong.manager.service.core.sink;
 
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
@@ -25,7 +26,9 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -56,26 +59,26 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
         sinkInfo.setSinkName(sinkName);
-        sinkInfo.setSinkType(Constant.SINK_CLICKHOUSE);
+        sinkInfo.setSinkType(SinkType.SINK_CLICKHOUSE);
         sinkInfo.setJdbcUrl(ckJdbcUrl);
         sinkInfo.setUsername(ckUsername);
-        sinkInfo.setDatabaseName(ckDatabaseName);
+        sinkInfo.setDbName(ckDatabaseName);
         sinkInfo.setTableName(ckTableName);
-        sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
+        sinkInfo.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
         sinkInfo.setId((int) (Math.random() * 100000 + 1));
         return sinkService.save(sinkInfo, globalOperator);
     }
 
     //    @After
     public void deleteKafkaSink(Integer sinkId) {
-        boolean result = sinkService.delete(sinkId, Constant.SINK_CLICKHOUSE, globalOperator);
+        boolean result = sinkService.delete(sinkId, SinkType.SINK_CLICKHOUSE, globalOperator);
         Assert.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer sinkId = this.saveSink("default1");
-        SinkResponse sink = sinkService.get(sinkId, Constant.SINK_CLICKHOUSE);
+        SinkResponse sink = sinkService.get(sinkId, SinkType.SINK_CLICKHOUSE);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteKafkaSink(sinkId);
     }
@@ -83,11 +86,11 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testGetAndUpdate() {
         Integer sinkId = this.saveSink("default2");
-        SinkResponse response = sinkService.get(sinkId, Constant.SINK_CLICKHOUSE);
+        SinkResponse response = sinkService.get(sinkId, SinkType.SINK_CLICKHOUSE);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         ClickHouseSinkResponse kafkaSinkResponse = (ClickHouseSinkResponse) response;
-        kafkaSinkResponse.setEnableCreateResource(Constant.ENABLE_CREATE_RESOURCE);
+        kafkaSinkResponse.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
 
         ClickHouseSinkRequest request = CommonBeanUtils
                 .copyProperties(kafkaSinkResponse, ClickHouseSinkRequest::new);

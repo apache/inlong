@@ -48,8 +48,8 @@ public class SinkListResponse {
     @ApiModelProperty("Sink name, unique in one stream.")
     private String sinkName;
 
-    @ApiModelProperty("Sink period, unit: day")
-    private Integer storagePeriod;
+    @ApiModelProperty("Sink description")
+    private String description;
 
     @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. default is 1")
     private Integer enableCreateResource;

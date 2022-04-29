@@ -21,6 +21,7 @@ import React from 'react';
 import { Divider } from 'antd';
 import i18n from '@/i18n';
 import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
+import { Storages } from '@/components/MetaData';
 
 export const getFilterFormContent = (defaultValues = {} as any) => [
   {
@@ -99,7 +100,6 @@ export const genFormContent = (
           visible: middlewareType === 'PULSAR' && editingId !== true,
         },
         'name',
-        'inCharges',
         'description',
         {
           type: (
@@ -149,8 +149,7 @@ export const genFormContent = (
           ),
         },
         'streamSink',
-        'streamSinkHIVE',
-        'streamSinkCLICK_HOUSE',
+        ...Storages.map(item => `streamSink${item.value}`),
       ],
       currentValues,
       extraParams,
@@ -172,8 +171,6 @@ export const genFormContent = (
       if (typeof obj.type === 'string') {
         obj.type = 'text';
         obj.props = { options: obj.props?.options };
-      } else if (obj.name === 'inCharges') {
-        obj.type = <span>{currentValues?.inCharges?.join(', ')}</span>;
       }
 
       if ((obj.suffix as any)?.type) {

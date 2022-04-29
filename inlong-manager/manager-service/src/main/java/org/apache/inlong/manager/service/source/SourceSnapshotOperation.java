@@ -25,7 +25,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
-import org.apache.inlong.manager.common.enums.SourceState;
+import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.slf4j.Logger;
@@ -116,10 +116,14 @@ public class SourceSnapshotOperation implements AutoCloseable {
         String agentIp = request.getAgentIp();
         List<TaskSnapshotMessage> snapshotList = request.getSnapshotList();
         if (CollectionUtils.isEmpty(snapshotList)) {
-            LOGGER.info("receive snapshot from ip={}, but snapshot list is empty", agentIp);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("receive snapshot from ip={}, but snapshot list is empty", agentIp);
+            }
             return true;
         }
-        LOGGER.debug("receive snapshot from ip={}, msg size={}", agentIp, snapshotList.size());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("receive snapshot from ip={}, msg size={}", agentIp, snapshotList.size());
+        }
 
         try {
             // Offer the request of snapshot to the queue, and another thread will parse the data in the queue.
@@ -128,7 +132,9 @@ public class SourceSnapshotOperation implements AutoCloseable {
             // Modify the task status based on the tasks reported in the snapshot and the tasks in the cache.
             ConcurrentHashMap<Integer, Integer> idStatusMap = agentTaskCache.getIfPresent(agentIp);
             if (MapUtils.isEmpty(idStatusMap)) {
-                LOGGER.info("success report snapshot for ip={}, task status cache is null", agentIp);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("success report snapshot for ip={}, task status cache is null", agentIp);
+                }
                 return true;
             }
             boolean isInvalid = false;
@@ -140,9 +146,9 @@ public class SourceSnapshotOperation implements AutoCloseable {
 
                 // Update the status from temporary to normal
                 Integer status = idStatusMap.get(id);
-                if (SourceState.TEMP_TO_NORMAL.contains(status)) {
+                if (SourceStatus.TEMP_TO_NORMAL.contains(status)) {
                     isInvalid = true;
-                    sourceMapper.updateStatus(id, SourceState.SOURCE_NORMAL.getCode(), false);
+                    sourceMapper.updateStatus(id, SourceStatus.SOURCE_NORMAL.getCode(), false);
                 }
             }
 

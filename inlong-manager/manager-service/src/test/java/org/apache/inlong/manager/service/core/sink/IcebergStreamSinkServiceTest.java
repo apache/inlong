@@ -17,7 +17,8 @@
 
 package org.apache.inlong.manager.service.core.sink;
 
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
@@ -43,13 +44,12 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
 
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-
         IcebergSinkRequest sinkInfo = new IcebergSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(Constant.SINK_ICEBERG);
-        sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
-        sinkInfo.setTableLocation("hdfs://127.0.0.1:8020/data");
+        sinkInfo.setSinkType(SinkType.SINK_ICEBERG);
+        sinkInfo.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
+        sinkInfo.setDataPath("hdfs://127.0.0.1:8020/data");
         sinkInfo.setSinkName(sinkName);
         sinkInfo.setId((int) (Math.random() * 100000 + 1));
         return sinkService.save(sinkInfo, globalOperator);
@@ -59,26 +59,26 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
     public void testSaveAndDelete() {
         Integer id = this.saveSink("default1");
         Assert.assertNotNull(id);
-        boolean result = sinkService.delete(id, Constant.SINK_ICEBERG, globalOperator);
+        boolean result = sinkService.delete(id, SinkType.SINK_ICEBERG, globalOperator);
         Assert.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer id = this.saveSink("default2");
-        SinkResponse sink = sinkService.get(id, Constant.SINK_ICEBERG);
+        SinkResponse sink = sinkService.get(id, SinkType.SINK_ICEBERG);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
-        sinkService.delete(id, Constant.SINK_ICEBERG, globalOperator);
+        sinkService.delete(id, SinkType.SINK_ICEBERG, globalOperator);
     }
 
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSink("default3");
-        SinkResponse response = sinkService.get(id, Constant.SINK_ICEBERG);
+        SinkResponse response = sinkService.get(id, SinkType.SINK_ICEBERG);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         IcebergSinkResponse icebergSinkResponse = (IcebergSinkResponse) response;
-        icebergSinkResponse.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
+        icebergSinkResponse.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
 
         IcebergSinkRequest request = CommonBeanUtils.copyProperties(icebergSinkResponse,
                 IcebergSinkRequest::new);

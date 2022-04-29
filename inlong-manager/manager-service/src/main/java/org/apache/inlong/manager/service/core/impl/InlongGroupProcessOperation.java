@@ -18,17 +18,18 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GroupMode;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
+import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm.OperateType;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
-import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
@@ -68,8 +69,6 @@ public class InlongGroupProcessOperation {
     private WorkflowService workflowService;
     @Autowired
     private InlongStreamService streamService;
-    @Autowired
-    private InlongStreamEntityMapper streamMapper;
 
     /**
      * Allocate resource application groups for access services and initiate an approval process
@@ -80,7 +79,7 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult startProcess(String groupId, String operator) {
         LOGGER.info("begin to start approve process, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.TO_BE_APPROVAL.getCode(), operator);
+        groupService.updateStatus(groupId, GroupStatus.TO_BE_APPROVAL.getCode(), operator);
         // Initiate the approval process
         NewGroupProcessForm form = genNewGroupProcessForm(groupId);
         return workflowService.start(ProcessName.NEW_GROUP_PROCESS, operator, form);
@@ -95,9 +94,22 @@ public class InlongGroupProcessOperation {
      */
     public String suspendProcessAsync(String groupId, String operator) {
         LOGGER.info("begin to suspend process asynchronously, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.SUSPENDING.getCode(), operator);
-        UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.SUSPEND);
-        executorService.execute(() -> workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form));
+        groupService.updateStatus(groupId, GroupStatus.SUSPENDING.getCode(), operator);
+        InlongGroupInfo groupInfo = groupService.get(groupId);
+        GroupMode mode = GroupMode.parseGroupMode(groupInfo);
+        switch (mode) {
+            case NORMAL:
+                UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, GroupOperateType.SUSPEND);
+                executorService.execute(() -> workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form));
+                break;
+            case LIGHT:
+                LightGroupResourceProcessForm lightForm = genLightGroupProcessForm(groupInfo, GroupOperateType.SUSPEND);
+                executorService.execute(
+                        () -> workflowService.start(ProcessName.SUSPEND_LIGHT_GROUP_PROCESS, operator, lightForm));
+                break;
+            default:
+                throw new WorkflowListenerException(ErrorCodeEnum.GROUP_MODE_UNSUPPORTED.getMessage());
+        }
         return groupId;
     }
 
@@ -110,9 +122,23 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult suspendProcess(String groupId, String operator) {
         LOGGER.info("begin to suspend process, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.SUSPENDING.getCode(), operator);
-        UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.SUSPEND);
-        return workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form);
+        groupService.updateStatus(groupId, GroupStatus.SUSPENDING.getCode(), operator);
+        InlongGroupInfo groupInfo = groupService.get(groupId);
+        GroupMode mode = GroupMode.parseGroupMode(groupInfo);
+        WorkflowResult result;
+        switch (mode) {
+            case NORMAL:
+                UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, GroupOperateType.SUSPEND);
+                result = workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form);
+                break;
+            case LIGHT:
+                LightGroupResourceProcessForm lightForm = genLightGroupProcessForm(groupInfo, GroupOperateType.SUSPEND);
+                result = workflowService.start(ProcessName.SUSPEND_LIGHT_GROUP_PROCESS, operator, lightForm);
+                break;
+            default:
+                throw new WorkflowListenerException(ErrorCodeEnum.GROUP_MODE_UNSUPPORTED.getMessage());
+        }
+        return result;
     }
 
     /**
@@ -123,9 +149,22 @@ public class InlongGroupProcessOperation {
      */
     public String restartProcessAsync(String groupId, String operator) {
         LOGGER.info("begin to restart process asynchronously, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.RESTARTING.getCode(), operator);
-        UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.RESTART);
-        executorService.execute(() -> workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form));
+        groupService.updateStatus(groupId, GroupStatus.RESTARTING.getCode(), operator);
+        InlongGroupInfo groupInfo = groupService.get(groupId);
+        GroupMode mode = GroupMode.parseGroupMode(groupInfo);
+        switch (mode) {
+            case NORMAL:
+                UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, GroupOperateType.RESTART);
+                executorService.execute(() -> workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form));
+                break;
+            case LIGHT:
+                LightGroupResourceProcessForm lightForm = genLightGroupProcessForm(groupInfo, GroupOperateType.RESTART);
+                executorService.execute(
+                        () -> workflowService.start(ProcessName.RESTART_LIGHT_GROUP_PROCESS, operator, lightForm));
+                break;
+            default:
+                throw new WorkflowListenerException(ErrorCodeEnum.GROUP_MODE_UNSUPPORTED.getMessage());
+        }
         return groupId;
     }
 
@@ -137,9 +176,23 @@ public class InlongGroupProcessOperation {
      */
     public WorkflowResult restartProcess(String groupId, String operator) {
         LOGGER.info("begin to restart process, groupId = {}, operator = {}", groupId, operator);
-        groupService.updateStatus(groupId, GroupState.RESTARTING.getCode(), operator);
-        UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.RESTART);
-        return workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form);
+        groupService.updateStatus(groupId, GroupStatus.RESTARTING.getCode(), operator);
+        InlongGroupInfo groupInfo = groupService.get(groupId);
+        GroupMode mode = GroupMode.parseGroupMode(groupInfo);
+        WorkflowResult result;
+        switch (mode) {
+            case NORMAL:
+                UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, GroupOperateType.RESTART);
+                result = workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form);
+                break;
+            case LIGHT:
+                LightGroupResourceProcessForm lightForm = genLightGroupProcessForm(groupInfo, GroupOperateType.RESTART);
+                result = workflowService.start(ProcessName.RESTART_LIGHT_GROUP_PROCESS, operator, lightForm);
+                break;
+            default:
+                throw new WorkflowListenerException(ErrorCodeEnum.GROUP_MODE_UNSUPPORTED.getMessage());
+        }
+        return result;
     }
 
     /**
@@ -149,8 +202,7 @@ public class InlongGroupProcessOperation {
         LOGGER.info("begin to delete process asynchronously, groupId = {}, operator = {}", groupId, operator);
         executorService.execute(() -> {
             try {
-                UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.DELETE);
-                workflowService.start(ProcessName.DELETE_GROUP_PROCESS, operator, form);
+                invokeDeleteProcess(groupId, operator);
             } catch (Exception ex) {
                 LOGGER.error("exception while delete process, groupId = {}, operator = {}", groupId, operator, ex);
                 throw ex;
@@ -166,13 +218,30 @@ public class InlongGroupProcessOperation {
     public boolean deleteProcess(String groupId, String operator) {
         LOGGER.info("begin to delete process, groupId = {}, operator = {}", groupId, operator);
         try {
-            UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupId, OperateType.DELETE);
-            workflowService.start(ProcessName.DELETE_GROUP_PROCESS, operator, form);
+            invokeDeleteProcess(groupId, operator);
         } catch (Exception ex) {
             LOGGER.error("exception while delete process, groupId = {}, operator = {}", groupId, operator, ex);
             throw ex;
         }
         return groupService.delete(groupId, operator);
+    }
+
+    private void invokeDeleteProcess(String groupId, String operator) {
+        InlongGroupInfo groupInfo = groupService.get(groupId);
+        GroupMode mode = GroupMode.parseGroupMode(groupInfo);
+        switch (mode) {
+            case NORMAL:
+                UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, GroupOperateType.DELETE);
+                workflowService.start(ProcessName.DELETE_GROUP_PROCESS, operator, form);
+                break;
+            case LIGHT:
+                LightGroupResourceProcessForm lightForm = genLightGroupProcessForm(groupInfo,
+                        GroupOperateType.DELETE);
+                workflowService.start(ProcessName.DELETE_LIGHT_GROUP_PROCESS, operator, lightForm);
+                break;
+            default:
+                throw new WorkflowListenerException(ErrorCodeEnum.GROUP_MODE_UNSUPPORTED.getMessage());
+        }
     }
 
     /**
@@ -187,18 +256,26 @@ public class InlongGroupProcessOperation {
         return form;
     }
 
-    private UpdateGroupProcessForm genUpdateGroupProcessForm(String groupId, OperateType operateType) {
-        InlongGroupInfo groupInfo = groupService.get(groupId);
+    private UpdateGroupProcessForm genUpdateGroupProcessForm(InlongGroupInfo groupInfo, GroupOperateType operateType) {
         UpdateGroupProcessForm form = new UpdateGroupProcessForm();
-        if (OperateType.RESTART == operateType) {
-            List<InlongStreamEntity> inlongStreamEntityList =
-                    streamMapper.selectByGroupId(groupInfo.getInlongGroupId());
-            List<InlongStreamInfo> inlongStreamInfoList = CommonBeanUtils.copyListProperties(inlongStreamEntityList,
-                    InlongStreamInfo::new);
-            form.setInlongStreamInfoList(inlongStreamInfoList);
+        String groupId = groupInfo.getInlongGroupId();
+        if (GroupOperateType.RESTART == operateType) {
+            List<InlongStreamInfo> streamList = streamService.list(groupId);
+            form.setStreamInfos(streamList);
         }
         form.setGroupInfo(groupInfo);
-        form.setOperateType(operateType);
+        form.setGroupOperateType(operateType);
+        return form;
+    }
+
+    private LightGroupResourceProcessForm genLightGroupProcessForm(InlongGroupInfo groupInfo,
+            GroupOperateType operateType) {
+        LightGroupResourceProcessForm form = new LightGroupResourceProcessForm();
+        form.setGroupInfo(groupInfo);
+        String groupId = groupInfo.getInlongGroupId();
+        List<InlongStreamInfo> streamList = streamService.list(groupId);
+        form.setStreamInfos(streamList);
+        form.setGroupOperateType(operateType);
         return form;
     }
 

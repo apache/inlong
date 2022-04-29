@@ -28,6 +28,7 @@ import lombok.NoArgsConstructor;
 /**
  * Cluster information query conditions
  */
+@Deprecated
 @Data
 @Builder
 @NoArgsConstructor

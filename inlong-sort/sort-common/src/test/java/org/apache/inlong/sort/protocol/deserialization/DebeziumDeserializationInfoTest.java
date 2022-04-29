@@ -18,21 +18,15 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
-import org.apache.inlong.sort.protocol.ProtocolBaseTest;
+import org.apache.inlong.sort.SerializeBaseTest;
 
-public class DebeziumDeserializationInfoTest extends ProtocolBaseTest {
+/**
+ * Test for {@link DebeziumDeserializationInfo}
+ */
+public class DebeziumDeserializationInfoTest extends SerializeBaseTest<DebeziumDeserializationInfo> {
 
     @Override
-    public void init() {
-        expectedObject = new DebeziumDeserializationInfo(true, "SQL", true);
-        expectedJson = "{\n"
-                + "  \"type\" : \"debezium_json\",\n"
-                + "  \"ignore_parse_errors\" : true,\n"
-                + "  \"timestamp_format_standard\" : \"SQL\",\n"
-                + "  \"include_update_before\" : true\n"
-                + "}";
-        equalObj1 = expectedObject;
-        equalObj2 = new DebeziumDeserializationInfo(true, "SQL", true);
-        unequalObj = new DebeziumDeserializationInfo(true, "SQL", false);
+    public DebeziumDeserializationInfo getTestObject() {
+        return new DebeziumDeserializationInfo(true, "SQL", true);
     }
 }

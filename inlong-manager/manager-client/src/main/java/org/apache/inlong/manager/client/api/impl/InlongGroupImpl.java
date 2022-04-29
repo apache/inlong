@@ -35,7 +35,7 @@ import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
 import org.apache.inlong.manager.client.api.util.InlongParser;
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -68,7 +68,7 @@ public class InlongGroupImpl implements InlongGroup {
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(groupConf);
         this.groupContext.setGroupInfo(groupInfo);
         if (this.managerClient == null) {
-            this.managerClient = new InnerInlongManagerClient(inlongClient);
+            this.managerClient = new InnerInlongManagerClient(inlongClient.getConfiguration());
         }
         InlongGroupRequest inlongGroupRequest = groupInfo.genRequest();
         Pair<Boolean, InlongGroupResponse> existMsg = managerClient.isGroupExists(inlongGroupRequest);
@@ -134,8 +134,14 @@ public class InlongGroupImpl implements InlongGroup {
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(conf);
         InlongGroupRequest groupRequest = groupInfo.genRequest();
         Pair<String, String> idAndErr = managerClient.updateGroup(groupRequest);
+        this.groupContext.setGroupInfo(groupInfo);
         String errMsg = idAndErr.getValue();
         AssertUtil.isNull(errMsg, errMsg);
+    }
+
+    @Override
+    public InlongGroupContext reInitOnUpdate(InlongGroupConf conf) throws Exception {
+        return initOnUpdate(conf);
     }
 
     @Override
@@ -196,7 +202,7 @@ public class InlongGroupImpl implements InlongGroup {
                 groupContext.getGroupId());
         boolean isDeleted = managerClient.deleteInlongGroup(groupResponse.getInlongGroupId(), async);
         if (isDeleted) {
-            groupResponse.setStatus(GroupState.DELETED.getCode());
+            groupResponse.setStatus(GroupStatus.DELETED.getCode());
         }
         return generateSnapshot();
     }

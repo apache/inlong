@@ -18,7 +18,6 @@
 package org.apache.inlong.audit.send;
 
 import org.apache.inlong.audit.util.AuditConfig;
-import org.apache.inlong.audit.util.Decoder;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -28,7 +27,7 @@ public class SenderGroupTest {
     AuditConfig testConfig = new AuditConfig();
     SenderManager testManager = new SenderManager(testConfig);
     SenderHandler clientHandler = new org.apache.inlong.audit.send.SenderHandler(testManager);
-    SenderGroup sender = new org.apache.inlong.audit.send.SenderGroup(10, new Decoder(), clientHandler);
+    SenderGroup sender = new org.apache.inlong.audit.send.SenderGroup(10, clientHandler);
 
     @Test
     public void isHasSendError() {

@@ -20,41 +20,19 @@ package org.apache.inlong.manager.common.pojo.sink;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Sink field response
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @ApiModel("Sink field response")
-public class SinkFieldResponse {
+public class SinkFieldResponse extends SinkFieldBase {
 
     private Integer id;
 
-    @ApiModelProperty("Sink ID")
-    private Integer sinkId;
-
-    @ApiModelProperty("Field name")
-    private String fieldName;
-
-    @ApiModelProperty("Field type")
-    private String fieldType;
-
-    @ApiModelProperty("Field comment")
-    private String fieldComment;
-
-    @ApiModelProperty("Required or not, 0: no need, 1: required")
-    private Integer isRequired;
-
-    @ApiModelProperty("Source field name")
-    private String sourceFieldName;
-
-    @ApiModelProperty("Source field type")
-    private String sourceFieldType;
-
-    @ApiModelProperty("Is source meta field, 0: no, 1: yes")
-    private Integer isSourceMetaField = 0;
-
-    @ApiModelProperty("Field order")
-    private Short rankNum;
+    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
+    private Integer isMetaField;
 
 }

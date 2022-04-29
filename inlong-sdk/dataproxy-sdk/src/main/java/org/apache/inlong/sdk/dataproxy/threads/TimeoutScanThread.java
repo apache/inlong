@@ -19,12 +19,8 @@
 package org.apache.inlong.sdk.dataproxy.threads;
 
 import io.netty.channel.Channel;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.FileCallback;
+import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.network.QueueObject;
@@ -32,23 +28,26 @@ import org.apache.inlong.sdk.dataproxy.network.TimeScanObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Daemon threads to check timeout for asynchronous callback.
  */
 public class TimeoutScanThread extends Thread {
+    private static final int MAX_CHANNEL_TIMEOUT = 5 * 60 * 1000;
     private final Logger logger = LoggerFactory.getLogger(TimeoutScanThread.class);
-    private volatile boolean bShutDown = false;
-    private long printCount = 0;
-
     private final ConcurrentHashMap<Channel, ConcurrentHashMap<String, QueueObject>> callbacks;
     private final AtomicInteger currentBufferSize;
     private final ProxyClientConfig config;
     private final ClientMgr clientMgr;
     private final ConcurrentHashMap<Channel, TimeScanObject> timeoutChannelStat = new ConcurrentHashMap<>();
-    private static final int MAX_CHANNEL_TIMEOUT = 5 * 60 * 1000;
+    private volatile boolean bShutDown = false;
+    private long printCount = 0;
 
     public TimeoutScanThread(ConcurrentHashMap<Channel, ConcurrentHashMap<String, QueueObject>> callbacks,
-                             AtomicInteger currentBufferSize, ProxyClientConfig config, ClientMgr clientMgr) {
+            AtomicInteger currentBufferSize, ProxyClientConfig config, ClientMgr clientMgr) {
         bShutDown = false;
         printCount = 0;
         this.callbacks = callbacks;
@@ -108,6 +107,8 @@ public class TimeoutScanThread extends Thread {
                 continue;
             }
 
+            // If the channel exists in the list for more than 5 minutes,
+            // and does not reach the maximum number of timeouts, it will be removed
             if (System.currentTimeMillis() - timeScanObject.getTime() > MAX_CHANNEL_TIMEOUT) {
                 timeoutChannelStat.remove(tmpChannel);
             } else {
@@ -130,15 +131,14 @@ public class TimeoutScanThread extends Thread {
      * @param messageIdCallbacks
      */
     private void checkMessageIdBasedCallbacks(Channel channel,
-                                              ConcurrentHashMap<String, QueueObject> messageIdCallbacks) {
+            ConcurrentHashMap<String, QueueObject> messageIdCallbacks) {
         for (String messageId : messageIdCallbacks.keySet()) {
             QueueObject queueObject = messageId != null ? messageIdCallbacks.get(messageId) : null;
             if (queueObject == null) {
                 continue;
             }
             // if queueObject timeout
-            if (System.currentTimeMillis() - queueObject.getSendTimeInMillis()
-                    >= queueObject.getTimeoutInMillis()) {
+            if (System.currentTimeMillis() - queueObject.getSendTimeInMillis() >= queueObject.getTimeoutInMillis()) {
                 // remove it before callback
                 QueueObject queueObject1 = messageIdCallbacks.remove(messageId);
                 if (queueObject1 != null) {

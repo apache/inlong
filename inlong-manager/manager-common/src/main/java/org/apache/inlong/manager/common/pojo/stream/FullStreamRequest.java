@@ -21,10 +21,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceDbBasicInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceDbDetailInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceFileBasicInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceFileDetailInfo;
+import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 
 import java.util.List;
 
@@ -35,22 +32,13 @@ import java.util.List;
 @ApiModel("All request info on the inlong stream page")
 public class FullStreamRequest {
 
-    @ApiModelProperty("Inlong stream information")
-    private InlongStreamInfo streamInfo;
+    @ApiModelProperty("Inlong stream info")
+    private InlongStreamRequest streamInfo;
 
-    @ApiModelProperty("Basic information of file source")
-    private SourceFileBasicInfo fileBasicInfo;
+    @ApiModelProperty("Source info list")
+    private List<SourceRequest> sourceInfo;
 
-    @ApiModelProperty("File source details")
-    private List<SourceFileDetailInfo> fileDetailInfoList;
-
-    @ApiModelProperty("DB source basic information")
-    private SourceDbBasicInfo dbBasicInfo;
-
-    @ApiModelProperty("DB source details")
-    private List<SourceDbDetailInfo> dbDetailInfoList;
-
-    @ApiModelProperty("Sink information")
+    @ApiModelProperty("Sink info list")
     private List<SinkRequest> sinkInfo;
 
 }

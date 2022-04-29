@@ -73,8 +73,8 @@ public class InlongGroupRequest {
     @ApiModelProperty(value = "Pulsar service URL")
     private String pulsarServiceUrl;
 
-    @ApiModelProperty(value = "Need zookeeper support, 0 false 1 true")
-    private Integer zookeeperEnabled = 1;
+    @ApiModelProperty(value = "Whether zookeeper enabled? 0: disabled, 1: enabled")
+    private Integer zookeeperEnabled = 0;
 
     @ApiModelProperty(value = "Data type name")
     private String schemaName;

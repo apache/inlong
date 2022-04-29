@@ -90,8 +90,8 @@ const App = () => {
         /* webpackChunkName: 'antd-locales-[request]' */
         `antd/lib/locale/${antdPath}.js`
       ),
-      // import 'dayjs/locale/zh-cn';
       import(
+        /* webpackInclude: /(zh-cn|en)\.js$/ */
         /* webpackChunkName: 'dayjs-locales-[request]' */
         `dayjs/locale/${dayjsPath}.js`
       ),

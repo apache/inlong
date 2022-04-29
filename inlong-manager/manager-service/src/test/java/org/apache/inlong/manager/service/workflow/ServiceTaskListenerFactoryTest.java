@@ -18,13 +18,14 @@
 package org.apache.inlong.manager.service.workflow;
 
 import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarGroupTaskListener;
-import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarResourceTaskListener;
-import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeGroupTaskListener;
-import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeTopicTaskListener;
+import org.apache.inlong.manager.service.mq.CreatePulsarGroupTaskListener;
+import org.apache.inlong.manager.service.mq.CreatePulsarResourceTaskListener;
+import org.apache.inlong.manager.service.mq.CreateTubeGroupTaskListener;
+import org.apache.inlong.manager.service.mq.CreateTubeTopicTaskListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.junit.Assert;
@@ -44,7 +45,7 @@ public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
         InlongGroupInfo groupInfo = new InlongGroupInfo();
         //check pulsar listener
-        groupInfo.setMiddlewareType(Constant.MIDDLEWARE_PULSAR);
+        groupInfo.setMiddlewareType(MQType.PULSAR.getType());
         processForm.setGroupInfo(groupInfo);
         context.setProcessForm(processForm);
         List<QueueOperateListener> queueOperateListeners = serviceTaskListenerFactory.getQueueOperateListener(context);
@@ -56,7 +57,7 @@ public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
         Assert.assertTrue(queueOperateListeners.get(1) instanceof CreatePulsarGroupTaskListener);
 
         // check tube listener
-        groupInfo.setMiddlewareType(Constant.MIDDLEWARE_TUBE);
+        groupInfo.setMiddlewareType(MQType.TUBE.getType());
         queueOperateListeners = serviceTaskListenerFactory.getQueueOperateListener(context);
         Assert.assertEquals(2, queueOperateListeners.size());
         Assert.assertTrue(queueOperateListeners.get(0) instanceof CreateTubeTopicTaskListener);

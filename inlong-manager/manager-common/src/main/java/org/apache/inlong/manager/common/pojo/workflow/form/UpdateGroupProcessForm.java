@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -42,14 +43,14 @@ public class UpdateGroupProcessForm extends BaseProcessForm {
     @Getter
     @Setter
     @ApiModelProperty(value = "OperateType to define the update operation", required = true)
-    private OperateType operateType;
+    private GroupOperateType groupOperateType;
 
-    private List<InlongStreamInfo> inlongStreamInfoList;
+    private List<InlongStreamInfo> streamInfos;
 
     @Override
     public void validate() throws FormValidateException {
         Preconditions.checkNotNull(groupInfo, "inlong group info is empty");
-        Preconditions.checkNotNull(operateType, "operate type is empty");
+        Preconditions.checkNotNull(groupOperateType, "operate type is empty");
     }
 
     @Override
@@ -66,15 +67,7 @@ public class UpdateGroupProcessForm extends BaseProcessForm {
     public Map<String, Object> showInList() {
         Map<String, Object> show = Maps.newHashMap();
         show.put("inlongGroupId", groupInfo.getInlongGroupId());
-        show.put("operateType", operateType.name().toLowerCase(Locale.ROOT));
+        show.put("operateType", groupOperateType.name().toLowerCase(Locale.ROOT));
         return show;
     }
-
-    /**
-     * Used to control the operation to update inlong group workflow
-     */
-    public enum OperateType {
-        INIT, SUSPEND, RESTART, DELETE
-    }
-
 }

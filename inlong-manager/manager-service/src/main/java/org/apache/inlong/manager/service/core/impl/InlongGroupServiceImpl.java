@@ -20,39 +20,47 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupMqExtBase;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
-import org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity;
+import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongGroupPulsarEntityMapper;
-import org.apache.inlong.manager.service.CommonOperateService;
+import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.core.mq.Middleware;
+import org.apache.inlong.manager.service.core.mq.MiddlewareFactory;
+import org.apache.inlong.manager.service.source.SourceOperationFactory;
+import org.apache.inlong.manager.service.source.StreamSourceOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
@@ -60,6 +68,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Inlong group service layer implementation
@@ -68,16 +77,19 @@ import java.util.Map;
 public class InlongGroupServiceImpl implements InlongGroupService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupServiceImpl.class);
-    @Autowired
-    InlongGroupPulsarEntityMapper groupPulsarMapper;
+
     @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
     private InlongGroupExtEntityMapper groupExtMapper;
     @Autowired
-    private CommonOperateService commonOperateService;
+    private StreamSourceEntityMapper streamSourceEntityMapper;
+    @Autowired
+    private SourceOperationFactory operationFactory;
     @Autowired
     private InlongStreamService streamService;
+    @Autowired
+    private MiddlewareFactory groupMqFactory;
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -105,8 +117,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         entity.setSchemaName(Constant.SCHEMA_M0_DAY);
 
         // After saving, the status is set to [GROUP_WAIT_SUBMIT]
-        entity.setStatus(GroupState.TO_BE_SUBMIT.getCode());
-        entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
+        entity.setStatus(GroupStatus.TO_BE_SUBMIT.getCode());
+        entity.setIsDeleted(GlobalConstants.UN_DELETED);
         if (StringUtils.isEmpty(entity.getCreator())) {
             entity.setCreator(operator);
         }
@@ -116,42 +128,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         entity.setCreateTime(new Date());
         groupMapper.insertSelective(entity);
         this.saveOrUpdateExt(groupId, groupInfo.getExtList());
-
-        String mqType = groupInfo.getMiddlewareType();
-        if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
-            InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) groupInfo.getMqExtInfo();
-            Preconditions.checkNotNull(pulsarInfo, "Pulsar info cannot be empty, as the middleware is Pulsar");
-
-            // Pulsar params must meet: ackQuorum <= writeQuorum <= ensemble
-            Integer ackQuorum = pulsarInfo.getAckQuorum();
-            Integer writeQuorum = pulsarInfo.getWriteQuorum();
-
-            Preconditions.checkNotNull(ackQuorum, "Pulsar ackQuorum cannot be empty");
-            Preconditions.checkNotNull(writeQuorum, "Pulsar writeQuorum cannot be empty");
-
-            if (!(ackQuorum <= writeQuorum)) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED,
-                        "Pulsar params must meet: ackQuorum <= writeQuorum");
-            }
-            // The default value of ensemble is writeQuorum
-            pulsarInfo.setEnsemble(writeQuorum);
-
-            // Pulsar entity may already exist, such as unsuccessfully deleted, or modify the MQ type to Tube,
-            // need to delete and add the Pulsar entity with the same group id
-            InlongGroupPulsarEntity pulsarEntity = groupPulsarMapper.selectByGroupId(groupId);
-            if (pulsarEntity == null) {
-                pulsarEntity = CommonBeanUtils.copyProperties(pulsarInfo, InlongGroupPulsarEntity::new);
-                pulsarEntity.setIsDeleted(0);
-                pulsarEntity.setInlongGroupId(groupId);
-                groupPulsarMapper.insertSelective(pulsarEntity);
-            } else {
-                Integer id = pulsarEntity.getId();
-                pulsarEntity = CommonBeanUtils.copyProperties(pulsarInfo, InlongGroupPulsarEntity::new);
-                pulsarEntity.setId(id);
-                groupPulsarMapper.updateByPrimaryKeySelective(pulsarEntity);
-            }
+        // Saving MQ information.
+        Middleware mqMiddleware = groupMqFactory.getMqMiddleware(MQType.forType(groupInfo.getMiddlewareType()));
+        if (groupInfo.getMqExtInfo() != null && StringUtils.isBlank(groupInfo.getMqExtInfo().getInlongGroupId())) {
+            groupInfo.getMqExtInfo().setInlongGroupId(groupId);
         }
-
+        mqMiddleware.save(groupInfo.getMqExtInfo());
         LOGGER.debug("success to save inlong group info for groupId={}", groupId);
         return groupId;
     }
@@ -159,7 +141,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     public InlongGroupInfo get(String groupId) {
         LOGGER.debug("begin to get inlong group info by groupId={}", groupId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             LOGGER.error("inlong group not found by groupId={}", groupId);
@@ -173,26 +155,14 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         groupInfo.setExtList(extInfoList);
 
         // If the middleware is Pulsar, we need to encapsulate Pulsar related data
-        String mqType = entity.getMiddlewareType();
-        if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
-            InlongGroupPulsarEntity pulsarEntity = groupPulsarMapper.selectByGroupId(groupId);
-            Preconditions.checkNotNull(pulsarEntity, "Pulsar info not found by the groupId=" + groupId);
-            InlongGroupPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(pulsarEntity, InlongGroupPulsarInfo::new);
-            pulsarInfo.setMiddlewareType(mqType);
-            groupInfo.setMqExtInfo(pulsarInfo);
-        }
+        MQType mqType = MQType.forType(entity.getMiddlewareType());
+        Middleware mq = groupMqFactory.getMqMiddleware(mqType);
+        groupInfo.setMqExtInfo(mq.get(groupId));
 
         // For approved inlong group, encapsulate the cluster address of the middleware
-        if (GroupState.CONFIG_SUCCESSFUL == GroupState.forCode(groupInfo.getStatus())) {
-            if (Constant.MIDDLEWARE_TUBE.equalsIgnoreCase(mqType)) {
-                groupInfo.setTubeMaster(commonOperateService.getSpecifiedParam(Constant.TUBE_MASTER_URL));
-            } else if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
-                PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo(mqType);
-                groupInfo.setPulsarAdminUrl(pulsarCluster.getAdminUrl());
-                groupInfo.setPulsarServiceUrl(pulsarCluster.getBrokerServiceUrl());
-            }
+        if (GroupStatus.CONFIG_SUCCESSFUL == GroupStatus.forCode(groupInfo.getStatus())) {
+            groupInfo = mq.packSpecificInfo(groupInfo);
         }
-
         LOGGER.debug("success to get inlong group for groupId={}", groupId);
         return groupInfo;
     }
@@ -205,6 +175,24 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         Page<InlongGroupEntity> entityPage = (Page<InlongGroupEntity>) groupMapper.selectByCondition(request);
         List<InlongGroupListResponse> groupList = CommonBeanUtils.copyListProperties(entityPage,
                 InlongGroupListResponse::new);
+        if (request.isListSources() && CollectionUtils.isNotEmpty(groupList)) {
+            List<String> groupIds = groupList.stream().map(InlongGroupListResponse::getInlongGroupId)
+                    .collect(Collectors.toList());
+            List<StreamSourceEntity> sourceEntities = streamSourceEntityMapper.selectByGroupIds(groupIds);
+            Map<String, List<SourceListResponse>> sourceMap = Maps.newHashMap();
+            sourceEntities.forEach(sourceEntity -> {
+                SourceType sourceType = SourceType.forType(sourceEntity.getSourceType());
+                StreamSourceOperation operation = operationFactory.getInstance(sourceType);
+                SourceListResponse sourceListResponse = operation.getFromEntity(sourceEntity, SourceListResponse::new);
+                sourceMap.computeIfAbsent(sourceEntity.getInlongGroupId(), k -> Lists.newArrayList())
+                        .add(sourceListResponse);
+            });
+            groupList.forEach(group -> {
+                List<SourceListResponse> sourceListResponses = sourceMap.getOrDefault(group.getInlongGroupId(),
+                        Lists.newArrayList());
+                group.setSourceListResponses(sourceListResponses);
+            });
+        }
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
         PageInfo<InlongGroupListResponse> page = new PageInfo<>(groupList);
         page.setTotal(entityPage.getTotal());
@@ -213,13 +201,14 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         return page;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ,
+            propagation = Propagation.REQUIRES_NEW)
     public String update(InlongGroupRequest groupRequest, String operator) {
         LOGGER.debug("begin to update inlong group={}", groupRequest);
         Preconditions.checkNotNull(groupRequest, "inlong group is empty");
         String groupId = groupRequest.getInlongGroupId();
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
@@ -237,23 +226,14 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // Save extended information
         this.saveOrUpdateExt(groupId, groupRequest.getExtList());
 
-        // Update the Pulsar info
-        String mqType = groupRequest.getMiddlewareType();
-        if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
-            InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) groupRequest.getMqExtInfo();
-            Preconditions.checkNotNull(pulsarInfo, "Pulsar info cannot be empty, as the middleware is Pulsar");
-            Integer writeQuorum = pulsarInfo.getWriteQuorum();
-            Integer ackQuorum = pulsarInfo.getAckQuorum();
-            if (!(ackQuorum <= writeQuorum)) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED,
-                        "Pulsar params must meet: ackQuorum <= writeQuorum");
-            }
-            InlongGroupPulsarEntity pulsarEntity = CommonBeanUtils.copyProperties(pulsarInfo,
-                    InlongGroupPulsarEntity::new);
-            pulsarEntity.setInlongGroupId(groupId);
-            groupPulsarMapper.updateByIdentifierSelective(pulsarEntity);
+        // Update the MQ info
+        MQType mqType = MQType.forType(groupRequest.getMiddlewareType());
+        Middleware mqMiddleware = groupMqFactory.getMqMiddleware(mqType);
+        InlongGroupMqExtBase mqExtInfo = groupRequest.getMqExtInfo();
+        if (mqExtInfo != null && StringUtils.isBlank(mqExtInfo.getInlongGroupId())) {
+            mqExtInfo.setInlongGroupId(groupId);
         }
-
+        mqMiddleware.update(mqExtInfo);
         LOGGER.debug("success to update inlong group for groupId={}", groupId);
         return groupId;
     }
@@ -281,8 +261,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
         }
         // Check whether the current state supports modification
-        GroupState curState = GroupState.forCode(entity.getStatus());
-        if (GroupState.notAllowedUpdate(curState)) {
+        GroupStatus curState = GroupStatus.forCode(entity.getStatus());
+        if (GroupStatus.notAllowedUpdate(curState)) {
             String errMsg = String.format("Current state=%s is not allowed to update", curState);
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
@@ -290,18 +270,19 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ,
+            propagation = Propagation.REQUIRES_NEW)
     public boolean updateStatus(String groupId, Integer status, String operator) {
         LOGGER.info("begin to update group status to [{}] by groupId={}, username={}", status, groupId, operator);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupIdForUpdate(groupId);
         if (entity == null) {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-        GroupState curState = GroupState.forCode(entity.getStatus());
-        GroupState nextState = GroupState.forCode(status);
-        if (GroupState.notAllowedTransition(curState, nextState)) {
+        GroupStatus curState = GroupStatus.forCode(entity.getStatus());
+        GroupStatus nextState = GroupStatus.forCode(status);
+        if (GroupStatus.notAllowedTransition(curState, nextState)) {
             String errorMsg = String.format("Current state=%s is not allowed to transfer to state=%s",
                     curState, nextState);
             LOGGER.error(errorMsg);
@@ -317,7 +298,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     public boolean delete(String groupId, String operator) {
         LOGGER.debug("begin to delete inlong group, groupId={}", groupId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
@@ -326,15 +307,15 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
 
         // Determine whether the current status can be deleted
-        GroupState curState = GroupState.forCode(entity.getStatus());
-        if (GroupState.notAllowedTransition(curState, GroupState.DELETED)) {
+        GroupStatus curState = GroupStatus.forCode(entity.getStatus());
+        if (GroupStatus.notAllowedTransition(curState, GroupStatus.DELETED)) {
             String errMsg = String.format("Current state=%s was not allowed to delete", curState);
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED, errMsg);
         }
 
         // [DRAFT] [GROUP_WAIT_SUBMIT] status, all associated data can be logically deleted directly
-        if (GroupState.isAllowedLogicDel(curState)) {
+        if (GroupStatus.isAllowedLogicDel(curState)) {
             // Logically delete inlong streams, data sources and data sink information
             streamService.logicDeleteAll(entity.getInlongGroupId(), operator);
         } else {
@@ -349,16 +330,13 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
 
         entity.setIsDeleted(entity.getId());
-        entity.setStatus(GroupState.DELETED.getCode());
+        entity.setStatus(GroupStatus.DELETED.getCode());
         entity.setModifier(operator);
         groupMapper.updateByIdentifierSelective(entity);
 
         // To logically delete the associated extension table
         groupExtMapper.logicDeleteAllByGroupId(groupId);
-
-        // To logically delete the associated pulsar table
-        groupPulsarMapper.logicDeleteByGroupId(groupId);
-
+        groupMqFactory.getMqMiddleware(MQType.forType(entity.getMiddlewareType())).delete(groupId);
         LOGGER.info("success to delete inlong group and inlong group ext property for groupId={}", groupId);
         return true;
     }
@@ -366,7 +344,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     public boolean exist(String groupId) {
         LOGGER.debug("begin to check inlong group, groupId={}", groupId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         Integer count = groupMapper.selectIdentifierExist(groupId);
         LOGGER.info("success to check inlong group");
@@ -383,11 +361,11 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             int status = (Integer) map.get("status");
             long count = (Long) map.get("count");
             countVO.setTotalCount(countVO.getTotalCount() + count);
-            if (status == GroupState.CONFIG_ING.getCode()) {
+            if (status == GroupStatus.CONFIG_ING.getCode()) {
                 countVO.setWaitAssignCount(countVO.getWaitAssignCount() + count);
-            } else if (status == GroupState.TO_BE_APPROVAL.getCode()) {
+            } else if (status == GroupStatus.TO_BE_APPROVAL.getCode()) {
                 countVO.setWaitApproveCount(countVO.getWaitApproveCount() + count);
-            } else if (status == GroupState.APPROVE_REJECTED.getCode()) {
+            } else if (status == GroupStatus.APPROVE_REJECTED.getCode()) {
                 countVO.setRejectCount(countVO.getRejectCount() + count);
             }
         }
@@ -399,27 +377,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     public InlongGroupTopicResponse getTopic(String groupId) {
         LOGGER.debug("begin to get topic by groupId={}", groupId);
         InlongGroupInfo groupInfo = this.get(groupId);
-
-        String mqType = groupInfo.getMiddlewareType();
-        InlongGroupTopicResponse topicVO = new InlongGroupTopicResponse();
-
-        if (Constant.MIDDLEWARE_TUBE.equals(mqType)) {
-            // Tube Topic corresponds to inlong group one-to-one
-            topicVO.setMqResourceObj(groupInfo.getMqResourceObj());
-            topicVO.setTubeMasterUrl(commonOperateService.getSpecifiedParam(Constant.TUBE_MASTER_URL));
-        } else if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
-            // Pulsar's topic corresponds to the inlong stream one-to-one
-            topicVO.setDsTopicList(streamService.getTopicList(groupId));
-            topicVO.setPulsarAdminUrl(commonOperateService.getSpecifiedParam(Constant.PULSAR_ADMINURL));
-            topicVO.setPulsarServiceUrl(commonOperateService.getSpecifiedParam(Constant.PULSAR_SERVICEURL));
-        } else {
-            LOGGER.error("middleware type={} not supported", mqType);
-            throw new BusinessException(ErrorCodeEnum.MIDDLEWARE_TYPE_NOT_SUPPORTED);
-        }
-
-        topicVO.setInlongGroupId(groupId);
-        topicVO.setMiddlewareType(mqType);
-        return topicVO;
+        MQType mqType = MQType.forType(groupInfo.getMiddlewareType());
+        Middleware mqMiddleware = groupMqFactory.getMqMiddleware(mqType);
+        return mqMiddleware.getTopic(groupInfo);
     }
 
     @Transactional(rollbackFor = Throwable.class)
@@ -430,13 +390,13 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // Save the dataSchema, Topic and other information of the inlong group
         Preconditions.checkNotNull(approveInfo, "InlongGroupApproveRequest is empty");
         String groupId = approveInfo.getInlongGroupId();
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         String middlewareType = approveInfo.getMiddlewareType();
         Preconditions.checkNotNull(middlewareType, "Middleware type is empty");
 
         // Update status to [GROUP_APPROVE_PASSED]
         // If you need to change inlong group info after approve, just do in here
-        this.updateStatus(groupId, GroupState.APPROVE_PASSED.getCode(), operator);
+        this.updateStatus(groupId, GroupStatus.APPROVE_PASSED.getCode(), operator);
 
         LOGGER.info("success to update inlong group status after approve for groupId={}", groupId);
         return true;

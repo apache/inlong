@@ -23,7 +23,7 @@ import request from '@/utils/request';
 import isEqual from 'lodash/isEqual';
 import { useTranslation } from 'react-i18next';
 import DetailModal from './DetailModal';
-import { hiveTableColumns } from '@/components/MetaData/StorageHive';
+import { Storages } from '@/components/MetaData';
 
 export interface Props {
   value?: Record<string, any>[];
@@ -168,10 +168,14 @@ const Comp = ({
   };
 
   const tableColumns = useMemo(() => {
-    return {
-      HIVE: hiveTableColumns,
-    }[type];
-  }, [type]) as any;
+    return Storages.reduce(
+      (acc, cur) => ({
+        ...acc,
+        [cur.value]: cur.tableColumns,
+      }),
+      {},
+    )[type];
+  }, [type]);
 
   const columns = tableColumns.concat(
     readonly
@@ -180,7 +184,7 @@ const Comp = ({
           {
             title: t('basic.Operating'),
             dataIndex: 'actions',
-            render: (text, record) => (
+            render: (text, record: Record<string, unknown>) => (
               <>
                 <Button type="link" onClick={() => onEditRow(record)}>
                   {t('basic.Edit')}

@@ -18,15 +18,13 @@
 package org.apache.inlong.sort.standalone.sink.kafka;
 
 import com.google.common.base.Preconditions;
+
 import org.apache.flume.Context;
-import org.apache.flume.Event;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
-import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
-import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
-import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -34,32 +32,32 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 import java.util.Properties;
 
 /** wrapper of kafka producer */
 public class KafkaProducerCluster implements LifecycleAware {
+
     public static final Logger LOG = InlongLoggerFactory.getLogger(KafkaProducerCluster.class);
 
     private final String workerName;
-    private final CacheClusterConfig config;
+    protected final CacheClusterConfig config;
     private final KafkaFederationSinkContext sinkContext;
     private final Context context;
 
     private final String cacheClusterName;
     private LifecycleState state;
+    private IEvent2KafkaRecordHandler handler;
 
     private KafkaProducer<String, byte[]> producer;
 
     /**
      * constructor of KafkaProducerCluster
      *
-     * @param workerName workerName
-     * @param config config of cluster
+     * @param workerName                 workerName
+     * @param config                     config of cluster
      * @param kafkaFederationSinkContext producer context
      */
     public KafkaProducerCluster(
@@ -72,6 +70,7 @@ public class KafkaProducerCluster implements LifecycleAware {
         this.context = Preconditions.checkNotNull(kafkaFederationSinkContext.getProducerContext());
         this.state = LifecycleState.IDLE;
         this.cacheClusterName = Preconditions.checkNotNull(config.getClusterName());
+        this.handler = sinkContext.createEventHandler();
     }
 
     /** start and init kafka producer */
@@ -88,8 +87,7 @@ public class KafkaProducerCluster implements LifecycleAware {
                     ProducerConfig.CLIENT_ID_CONFIG,
                     context.getString(ProducerConfig.CLIENT_ID_CONFIG) + "-" + workerName);
             LOG.info("init kafka client info: " + props);
-            producer =
-                    new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
+            producer = new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
             Preconditions.checkNotNull(producer);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -121,23 +119,33 @@ public class KafkaProducerCluster implements LifecycleAware {
     /**
      * Send data
      *
-     * @param event data to send
+     * @param  profileEvent data to send
+     * @return              boolean
+     * @throws IOException
      */
-    public boolean send(Event event, Transaction tx) {
-        String topic = event.getHeaders().get(Constants.TOPIC);
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, event.getBody());
+    public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
+        String topic = profileEvent.getHeaders().get(Constants.TOPIC);
+        ProducerRecord<String, byte[]> record = handler.parse(sinkContext, profileEvent);
         long sendTime = System.currentTimeMillis();
+        // check
+        if (record == null) {
+            tx.commit();
+            profileEvent.ack();
+            tx.close();
+            return true;
+        }
         try {
             producer.send(record,
                     (metadata, ex) -> {
                         if (ex == null) {
                             tx.commit();
-                            addMetric(event, topic, true, sendTime);
+                            sinkContext.addSendResultMetric(profileEvent, topic, true, sendTime);
+                            profileEvent.ack();
                         } else {
                             LOG.error(String.format("send failed, topic is %s, partition is %s",
-                                            metadata.topic(), metadata.partition()), ex);
+                                    metadata.topic(), metadata.partition()), ex);
                             tx.rollback();
-                            addMetric(event, topic, false, 0);
+                            sinkContext.addSendResultMetric(profileEvent, topic, true, sendTime);
                         }
                         tx.close();
                     });
@@ -146,7 +154,7 @@ public class KafkaProducerCluster implements LifecycleAware {
             tx.rollback();
             tx.close();
             LOG.error(e.getMessage(), e);
-            addMetric(event, topic, false, 0);
+            sinkContext.addSendResultMetric(profileEvent, topic, true, sendTime);
             return false;
         }
     }
@@ -158,34 +166,5 @@ public class KafkaProducerCluster implements LifecycleAware {
      */
     public String getCacheClusterName() {
         return cacheClusterName;
-    }
-
-    /**
-     * Report metrics to monitor, including the count, size and duration of sending, sent
-     * successfully and sent failed packet.
-     *
-     * @param currentRecord event to be reported
-     * @param topic kafka topic of event sent to
-     * @param result send result, send successfully -> true, send failed -> false.
-     * @param sendTime the time event sent to kafka
-     */
-    private void addMetric(Event currentRecord, String topic, boolean result, long sendTime) {
-        Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.sinkContext.getClusterId());
-        // metric
-        SortMetricItem.fillInlongId(currentRecord, dimensions);
-        dimensions.put(SortMetricItem.KEY_SINK_ID, this.cacheClusterName);
-        dimensions.put(SortMetricItem.KEY_SINK_DATA_ID, topic);
-        long msgTime =
-                NumberUtils.toLong(currentRecord.getHeaders().get(Constants.HEADER_KEY_MSG_TIME), sendTime);
-        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
-        dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
-        String taskName = currentRecord.getHeaders().get(SortMetricItem.KEY_TASK_NAME);
-        dimensions.put(SortMetricItem.KEY_TASK_NAME, taskName);
-        SortMetricItem.reportDurations(currentRecord, result, sendTime, dimensions, msgTime,
-                this.sinkContext.getMetricItemSet());
-        if (result) {
-            AuditUtils.add(AuditUtils.AUDIT_ID_SEND_SUCCESS, currentRecord);
-        }
     }
 }

@@ -28,16 +28,18 @@ import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
 import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterResponse;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
+import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.InLongStringUtils;
+import org.apache.inlong.manager.common.util.InlongStringUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity;
@@ -63,6 +65,7 @@ import java.util.Map;
 /**
  * Implementation of cluster service
  */
+@Deprecated
 @Service
 public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
 
@@ -94,7 +97,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         }
         Preconditions.checkNotNull(entity.getCreator(), "cluster creator is empty");
         entity.setCreateTime(new Date());
-        entity.setIsDeleted(Constant.UN_DELETED);
+        entity.setIsDeleted(GlobalConstants.UN_DELETED);
         thirdPartyClusterMapper.insert(entity);
         LOGGER.info("success to add a cluster");
         return entity.getId();
@@ -169,7 +172,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
         entity.setIsDeleted(id);
-        entity.setStatus(EntityStatus.DELETED.getCode());
+        entity.setStatus(GlobalConstants.DELETED_STATUS);
         entity.setModifier(operator);
         thirdPartyClusterMapper.updateByPrimaryKey(entity);
         LOGGER.info("success to delete cluster by id={}", id);
@@ -183,9 +186,10 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         if (StringUtils.isNotBlank(clusterName)) {
             entity = thirdPartyClusterMapper.selectByName(clusterName);
         } else {
-            List<ThirdPartyClusterEntity> list = thirdPartyClusterMapper.selectByType(Constant.CLUSTER_DATA_PROXY);
+            List<ThirdPartyClusterEntity> list = thirdPartyClusterMapper.selectByType(
+                    InlongGroupSettings.CLUSTER_DATA_PROXY);
             if (CollectionUtils.isEmpty(list)) {
-                LOGGER.warn("data proxy cluster not found by type=" + Constant.CLUSTER_DATA_PROXY);
+                LOGGER.warn("data proxy cluster not found by type=" + InlongGroupSettings.CLUSTER_DATA_PROXY);
                 return null;
             }
             entity = list.get(0);
@@ -195,7 +199,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
             LOGGER.warn("data proxy cluster not found by name={}", clusterName);
             return null;
         }
-        if (!Constant.CLUSTER_DATA_PROXY.equals(entity.getType())) {
+        if (!InlongGroupSettings.CLUSTER_DATA_PROXY.equals(entity.getType())) {
             LOGGER.warn("expected cluster type is DATA_PROXY, but found {}", entity.getType());
             return null;
         }
@@ -203,8 +207,8 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         String ipStr = entity.getIp();
         while (ipStr.startsWith(Constant.URL_SPLITTER) || ipStr.endsWith(Constant.URL_SPLITTER)
                 || ipStr.startsWith(Constant.HOST_SPLITTER) || ipStr.endsWith(Constant.HOST_SPLITTER)) {
-            ipStr = InLongStringUtils.trimFirstAndLastChar(ipStr, Constant.URL_SPLITTER);
-            ipStr = InLongStringUtils.trimFirstAndLastChar(ipStr, Constant.HOST_SPLITTER);
+            ipStr = InlongStringUtils.trimFirstAndLastChar(ipStr, Constant.URL_SPLITTER);
+            ipStr = InlongStringUtils.trimFirstAndLastChar(ipStr, Constant.HOST_SPLITTER);
         }
 
         List<DataProxyResponse> responseList = new ArrayList<>();
@@ -245,7 +249,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
     public List<DataProxyConfig> getConfig() {
         // get all configs with inlong group status of 130, that is, config successful
         // TODO Optimize query conditions
-        List<InlongGroupEntity> groupEntityList = groupMapper.selectAll(GroupState.CONFIG_SUCCESSFUL.getCode());
+        List<InlongGroupEntity> groupEntityList = groupMapper.selectAll(GroupStatus.CONFIG_SUCCESSFUL.getCode());
         List<DataProxyConfig> configList = new ArrayList<>();
         for (InlongGroupEntity groupEntity : groupEntityList) {
             String groupId = groupEntity.getInlongGroupId();
@@ -253,11 +257,11 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
 
             DataProxyConfig config = new DataProxyConfig();
             config.setM(groupEntity.getSchemaName());
-            String mqType = groupEntity.getMiddlewareType();
-            if (Constant.MIDDLEWARE_TUBE.equals(mqType)) {
+            MQType mqType = MQType.forType(groupEntity.getMiddlewareType());
+            if (mqType == MQType.TUBE) {
                 config.setInlongGroupId(groupId);
                 config.setTopic(bizResource);
-            } else if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
+            } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
                 for (InlongStreamEntity stream : streamList) {
                     String topic = stream.getMqResourceObj();
@@ -283,11 +287,12 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         }
 
         // TODO Optimize query conditions use dataProxyClusterId
-        List<InlongGroupEntity> groupEntityList = groupMapper.selectAll(GroupState.CONFIG_SUCCESSFUL.getCode());
+        ThirdPartyClusterDTO object = new ThirdPartyClusterDTO();
+        List<InlongGroupEntity> groupEntityList = groupMapper.selectAll(GroupStatus.CONFIG_SUCCESSFUL.getCode());
         if (CollectionUtils.isEmpty(groupEntityList)) {
             String msg = "not found any inlong group with success status for proxy cluster name = " + clusterName;
             LOGGER.warn(msg);
-            throw new BusinessException(msg);
+            return object;
         }
 
         // third-party-cluster type
@@ -301,7 +306,8 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         for (InlongGroupEntity groupEntity : groupEntityList) {
             final String groupId = groupEntity.getInlongGroupId();
             final String mqResource = groupEntity.getMqResourceObj();
-            if (Constant.MIDDLEWARE_PULSAR.equals(mqType) || Constant.MIDDLEWARE_TDMQ_PULSAR.equals(mqType)) {
+            MQType type = MQType.forType(mqType);
+            if (type == MQType.PULSAR || type == MQType.TDMQ_PULSAR) {
                 List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
                 for (InlongStreamEntity stream : streamList) {
                     DataProxyConfig topicConfig = new DataProxyConfig();
@@ -316,7 +322,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
                     topicConfig.setTopic("persistent://" + tenant + "/" + mqResource + "/" + topic);
                     topicList.add(topicConfig);
                 }
-            } else if (Constant.MIDDLEWARE_TUBE.equals(mqType)) {
+            } else if (type == MQType.TUBE) {
                 DataProxyConfig topicConfig = new DataProxyConfig();
                 topicConfig.setInlongGroupId(groupId);
                 topicConfig.setTopic(mqResource);
@@ -340,7 +346,6 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
             mqSet.add(clusterInfo);
         }
 
-        ThirdPartyClusterDTO object = new ThirdPartyClusterDTO();
         object.setMqSet(mqSet);
         object.setTopicList(topicList);
 
