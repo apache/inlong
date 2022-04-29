@@ -53,7 +53,7 @@ public class AllMigrateTest {
         option.put("migrate-all", "true");
         MySqlExtractNode node = new MySqlExtractNode("1", "mysql_input", fields,
             null, option, null,
-            Arrays.asList("[\\s\\S]*.*"), "localhost", "root", "Eminem@123456",
+            Arrays.asList("[\\s\\S]*.*"), "localhost", "root", "password",
             "[\\s\\S]*.*", null, null, false, null);
         return node;
     }
