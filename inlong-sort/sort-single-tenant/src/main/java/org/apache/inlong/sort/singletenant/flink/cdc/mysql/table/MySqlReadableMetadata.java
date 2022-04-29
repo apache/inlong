@@ -387,7 +387,6 @@ public enum MySqlReadableMetadata {
                 }
             });
 
-
     private static String getOpType(SourceRecord record) {
         String opType;
         final Envelope.Operation op = Envelope.operationFor(record);
@@ -427,13 +426,11 @@ public enum MySqlReadableMetadata {
         return mysqlType;
     }
 
-
     private static String getMetaData(SourceRecord record, String tableNameKey) {
         Struct messageStruct = (Struct) record.value();
         Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
         return sourceStruct.getString(tableNameKey);
     }
-
 
     private final String key;
 

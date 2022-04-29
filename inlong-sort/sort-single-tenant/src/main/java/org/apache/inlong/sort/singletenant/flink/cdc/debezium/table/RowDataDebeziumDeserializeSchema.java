@@ -595,8 +595,8 @@ public final class RowDataDebeziumDeserializeSchema
                 break;
             case ZonedTimestamp.SCHEMA_NAME:
                 ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
-                fieldValue = timestampFormatter.format(zonedDateTime.
-                    withZoneSameInstant(serverTimeZone).toLocalDateTime());
+                fieldValue = timestampFormatter.format(zonedDateTime
+                    .withZoneSameInstant(serverTimeZone).toLocalDateTime());
                 break;
             case Timestamp.SCHEMA_NAME:
                 Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
