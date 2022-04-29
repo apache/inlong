@@ -42,6 +42,7 @@ import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -98,14 +99,18 @@ public class ExtractNodeUtils {
                 .collect(Collectors.toList());
         String serverTimeZone = binlogSourceResponse.getServerTimezone();
         boolean incrementalSnapshotEnabled = true;
+        Map<String, String> properties = Maps.newHashMap();
         if (binlogSourceResponse.isAllMigration()) {
+            // Unique properties when migrate all tables in database
             incrementalSnapshotEnabled = false;
+            properties.put("append-mode", "true");
+            properties.put("migrate-all", "true");
         }
         return new MySqlExtractNode(id,
                 name,
                 fieldInfos,
                 null,
-                Maps.newHashMap(),
+                properties,
                 primaryKey,
                 tableNames,
                 hostName,
