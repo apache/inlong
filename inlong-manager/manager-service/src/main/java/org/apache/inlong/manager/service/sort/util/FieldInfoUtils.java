@@ -137,7 +137,7 @@ public class FieldInfoUtils {
             fieldInfo = new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
         } else {
             if (isBuiltin) {
-                log.warn("Unsupported metadata fieldName={}", fieldName);
+                log.warn("Unsupported metadata fieldName={} as the builtInField is null", fieldName);
             }
             fieldInfo = new FieldInfo(fieldName, formatInfo);
         }
