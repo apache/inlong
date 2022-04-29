@@ -74,7 +74,7 @@ const getForm: GetStorageFormFieldsType = (
       _inTable: true,
     },
     {
-      name: 'partitionNum',
+      name: i18n.t('components.AccessHelper.StorageMetaData.Kafka.PartitionNum'),
       type: 'inputnumber',
       label: i18n.t('components.AccessHelper.StorageMetaData.Kafka.PartitionNum'),
       initialValue: 3,
