@@ -119,7 +119,7 @@ public class NodeRelationShipUtils {
         JoinMode joinMode = joinerDefinition.getJoinMode();
         String leftNode = getNodeName(joinerDefinition.getLeftNode());
         String rightNode = getNodeName(joinerDefinition.getRightNode());
-        List<String> preNodes = Lists.newArrayList(leftNode,rightNode);
+        List<String> preNodes = Lists.newArrayList(leftNode, rightNode);
         List<StreamField> leftJoinFields = joinerDefinition.getLeftJoinFields();
         List<StreamField> rightJoinFields = joinerDefinition.getRightJoinFields();
         List<FilterFunction> filterFunctions = Lists.newArrayList();
@@ -133,7 +133,7 @@ public class NodeRelationShipUtils {
                 operator = EmptyOperator.getInstance();
             }
             filterFunctions.add(
-                    createFilterFunction(leftField, rightField, leftNode, rightNode, AndOperator.getInstance()));
+                    createFilterFunction(leftField, rightField, leftNode, rightNode, operator));
         }
         Map<String, List<FilterFunction>> joinConditions = Maps.newHashMap();
         joinConditions.put(rightNode, filterFunctions);
