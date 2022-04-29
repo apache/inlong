@@ -53,7 +53,7 @@ public final class AppendMetadataCollector implements Collector<RowData>, Serial
             metaRow.setField(i, meta);
         }
         if (migrateAll) {
-            // all data are put into physicalRow
+            // all data are put into meta row, set physicalRow to empty
             physicalRow = new GenericRowData(0);
         }
         RowData outRow = new JoinedRowData(physicalRow.getRowKind(), physicalRow, metaRow);

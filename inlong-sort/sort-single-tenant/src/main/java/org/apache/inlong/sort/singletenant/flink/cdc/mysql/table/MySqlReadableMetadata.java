@@ -114,7 +114,7 @@ public enum MySqlReadableMetadata {
             @Override
             public Object read(SourceRecord record,
                 @org.jetbrains.annotations.Nullable TableChanges.TableChange tableSchema, RowData rowData) {
-
+                // construct canal json
                 Struct messageStruct = (Struct) record.value();
                 Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
                 // tableName
@@ -131,22 +131,17 @@ public enum MySqlReadableMetadata {
                 List<Map<String, Object>> dataList = new ArrayList<>();
                 dataList.add(field);
 
-                CanalJson canalJson = CanalJson.builder().data(dataList)
-                    .database(databaseName)
-                    .sql("")
-                    .es(opTs)
-                    .isDdl(false)
-                    .pkNames(getPkNames(tableSchema))
-                    .mysqlType(getMysqlType(tableSchema))
-                    .table(tableName)
-                    .ts(ts)
+                CanalJson canalJson = CanalJson.builder()
+                    .data(dataList).database(databaseName)
+                    .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
+                    .mysqlType(getMysqlType(tableSchema)).table(tableName).ts(ts)
                     .type(getOpType(record)).build();
 
                 try {
                     ObjectMapper objectMapper = new ObjectMapper();
                     return StringData.fromString(objectMapper.writeValueAsString(canalJson));
                 } catch (Exception e) {
-                    throw new IllegalStateException("exception occurs when get meta data");
+                    throw new IllegalStateException("exception occurs when get meta data", e);
                 }
             }
         }),

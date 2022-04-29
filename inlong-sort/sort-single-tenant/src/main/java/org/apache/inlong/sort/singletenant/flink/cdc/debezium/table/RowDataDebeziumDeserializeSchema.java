@@ -571,6 +571,8 @@ public final class RowDataDebeziumDeserializeSchema
                     Schema fieldSchema = schema.field(fieldName).schema();
                     String schemaName = fieldSchema.name();
                     if (schemaName != null) {
+                        // normal type doesn't have schema name
+                        // schema names are time schemas
                         fieldValue = getTimeValue(fieldValue, schemaName);
                     }
                     data.put(fieldName, fieldValue);
@@ -584,6 +586,12 @@ public final class RowDataDebeziumDeserializeSchema
         };
     }
 
+    /**
+     * transform debezium time format to database format
+     * @param fieldValue
+     * @param schemaName
+     * @return
+     */
     private Object getTimeValue(Object fieldValue, String schemaName) {
         switch (schemaName) {
             case MicroTime.SCHEMA_NAME:
