@@ -56,6 +56,7 @@ public class SinkInfoUtils {
     private static final String DATA_FORMAT = "yyyyMMddHH";
     private static final String TIME_FORMAT = "HHmmss";
     private static final String DATA_TIME_FORMAT = "yyyyMMddHHmmss";
+    private static final String HIVE_DB_SUFFIX = ".db";
 
     /**
      * Create sink info for DataFlowInfo.
@@ -182,13 +183,15 @@ public class SinkInfoUtils {
             }).collect(Collectors.toList());
         }
 
-        // dataPath = dataPath + / + tableName
-        StringBuilder dataPathBuilder = new StringBuilder();
+        // dataPath = dataPath + / + dbName + / + tableName
         String dataPath = hiveInfo.getDataPath();
+        StringBuilder dataPathBuilder = new StringBuilder(dataPath);
         if (!dataPath.endsWith("/")) {
             dataPathBuilder.append(dataPath).append("/");
         }
-        dataPath = dataPathBuilder.append(hiveInfo.getTableName()).toString();
+        dataPath = dataPathBuilder.append(hiveInfo.getDbName()).append(HIVE_DB_SUFFIX).append("/")
+                .append(hiveInfo.getTableName())
+                .toString();
 
         return new HiveSinkInfo(sinkFields.toArray(new FieldInfo[0]), hiveInfo.getJdbcUrl(),
                 hiveInfo.getDbName(), hiveInfo.getTableName(), hiveInfo.getUsername(), hiveInfo.getPassword(),
