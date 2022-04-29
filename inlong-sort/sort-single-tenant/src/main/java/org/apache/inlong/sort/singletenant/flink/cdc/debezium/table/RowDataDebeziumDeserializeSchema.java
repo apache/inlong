@@ -24,17 +24,25 @@ import io.debezium.data.Envelope;
 import io.debezium.data.SpecialValueDecimal;
 import io.debezium.data.VariableScaleDecimal;
 import io.debezium.relational.history.TableChanges.TableChange;
+import io.debezium.time.Date;
 import io.debezium.time.MicroTime;
 import io.debezium.time.MicroTimestamp;
 import io.debezium.time.NanoTime;
 import io.debezium.time.NanoTimestamp;
 import io.debezium.time.Timestamp;
+import io.debezium.time.ZonedTimestamp;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.DecimalData;
@@ -49,11 +57,15 @@ import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.singletenant.flink.cdc.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.singletenant.flink.cdc.debezium.utils.TemporalConversions;
+import org.apache.kafka.connect.data.ConnectSchema;
 import org.apache.kafka.connect.data.Decimal;
 import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Deserialization schema from Debezium object to Flink Table/SQL internal data structure {@link
@@ -62,7 +74,17 @@ import org.apache.kafka.connect.source.SourceRecord;
 public final class RowDataDebeziumDeserializeSchema
         implements DebeziumDeserializationSchema<RowData> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(RowDataDebeziumDeserializeSchema.class);
+
     private static final long serialVersionUID = 2L;
+
+    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_DATE;
+
+    private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_TIME;
+
+    private static final DateTimeFormatter timestampFormatter = DateTimeFormatter.ofPattern(
+        "yyyy-MM-dd HH:mm:ss");
+
     /**
      * TypeInformation of the produced {@link RowData}. *
      */
@@ -89,6 +111,10 @@ public final class RowDataDebeziumDeserializeSchema
      */
     private final ValueValidator validator;
 
+    private boolean migrateAll;
+
+    private ZoneId serverTimeZone;
+
     RowDataDebeziumDeserializeSchema(
             RowType physicalDataType,
             MetadataConverter[] metadataConverters,
@@ -96,9 +122,12 @@ public final class RowDataDebeziumDeserializeSchema
             ValueValidator validator,
             ZoneId serverTimeZone,
             boolean appendSource,
-            DeserializationRuntimeConverterFactory userDefinedConverterFactory) {
+            DeserializationRuntimeConverterFactory userDefinedConverterFactory,
+        boolean migrateAll) {
         this.hasMetadata = checkNotNull(metadataConverters).length > 0;
-        this.appendMetadataCollector = new AppendMetadataCollector(metadataConverters);
+        this.appendMetadataCollector = new AppendMetadataCollector(metadataConverters, migrateAll);
+        this.migrateAll = migrateAll;
+        this.serverTimeZone = serverTimeZone;
         this.physicalConverter =
                 createConverter(
                         checkNotNull(physicalDataType),
@@ -119,7 +148,7 @@ public final class RowDataDebeziumDeserializeSchema
     /**
      * Creates a runtime converter which is null safe.
      */
-    private static DeserializationRuntimeConverter createConverter(
+    private DeserializationRuntimeConverter createConverter(
             LogicalType type,
             ZoneId serverTimeZone,
             DeserializationRuntimeConverterFactory userDefinedConverterFactory) {
@@ -130,7 +159,7 @@ public final class RowDataDebeziumDeserializeSchema
     /**
      * Creates a runtime converter which assuming input object is not null.
      */
-    public static DeserializationRuntimeConverter createNotNullConverter(
+    public DeserializationRuntimeConverter createNotNullConverter(
             LogicalType type,
             ZoneId serverTimeZone,
             DeserializationRuntimeConverterFactory userDefinedConverterFactory) {
@@ -474,7 +503,7 @@ public final class RowDataDebeziumDeserializeSchema
         };
     }
 
-    private static DeserializationRuntimeConverter createRowConverter(
+    private DeserializationRuntimeConverter createRowConverter(
             RowType rowType,
             ZoneId serverTimeZone,
             DeserializationRuntimeConverterFactory userDefinedConverterFactory) {
@@ -490,31 +519,102 @@ public final class RowDataDebeziumDeserializeSchema
                         .toArray(DeserializationRuntimeConverter[]::new);
         final String[] fieldNames = rowType.getFieldNames().toArray(new String[0]);
 
+        if (!migrateAll) {
+            return new DeserializationRuntimeConverter() {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object convert(Object dbzObj, Schema schema) throws Exception {
+                    Struct struct = (Struct) dbzObj;
+                    int arity = fieldNames.length;
+                    GenericRowData row = new GenericRowData(arity);
+                    for (int i = 0; i < arity; i++) {
+                        String fieldName = fieldNames[i];
+                        Field field = schema.field(fieldName);
+                        if (field == null) {
+                            row.setField(i, null);
+                        } else {
+                            Object fieldValue = struct.getWithoutDefault(fieldName);
+                            Schema fieldSchema = schema.field(fieldName).schema();
+                            Object convertedField =
+                                convertField(fieldConverters[i], fieldValue, fieldSchema);
+                            row.setField(i, convertedField);
+                        }
+                    }
+                    return row;
+                }
+            };
+        } else {
+            return getAllMigrationConverter();
+        }
+    }
+
+    @NotNull
+    private DeserializationRuntimeConverter getAllMigrationConverter() {
         return new DeserializationRuntimeConverter() {
 
             private static final long serialVersionUID = 1L;
 
             @Override
-            public Object convert(Object dbzObj, Schema schema) throws Exception {
+            public Object convert(Object dbzObj, Schema schema)  {
+
+                ConnectSchema connectSchema = (ConnectSchema) schema;
+                List<Field> fields = connectSchema.fields();
+
+                Map<String, Object> data = new HashMap<>();
                 Struct struct = (Struct) dbzObj;
-                int arity = fieldNames.length;
-                GenericRowData row = new GenericRowData(arity);
-                for (int i = 0; i < arity; i++) {
-                    String fieldName = fieldNames[i];
-                    Field field = schema.field(fieldName);
-                    if (field == null) {
-                        row.setField(i, null);
-                    } else {
-                        Object fieldValue = struct.getWithoutDefault(fieldName);
-                        Schema fieldSchema = schema.field(fieldName).schema();
-                        Object convertedField =
-                                convertField(fieldConverters[i], fieldValue, fieldSchema);
-                        row.setField(i, convertedField);
+
+                for (Field field : fields) {
+                    String fieldName = field.name();
+                    Object fieldValue = struct.getWithoutDefault(fieldName);
+                    Schema fieldSchema = schema.field(fieldName).schema();
+                    String schemaName = fieldSchema.name();
+                    if (schemaName != null) {
+                        // normal type doesn't have schema name
+                        // schema names are time schemas
+                        fieldValue = getTimeValue(fieldValue, schemaName);
                     }
+                    data.put(fieldName, fieldValue);
                 }
+
+                GenericRowData row = new GenericRowData(1);
+                row.setField(0, data);
+
                 return row;
             }
         };
+    }
+
+    /**
+     * transform debezium time format to database format
+     * @param fieldValue
+     * @param schemaName
+     * @return
+     */
+    private Object getTimeValue(Object fieldValue, String schemaName) {
+        switch (schemaName) {
+            case MicroTime.SCHEMA_NAME:
+                Instant instant = Instant.ofEpochMilli((Long) fieldValue / 1000);
+                fieldValue = timeFormatter.format(LocalDateTime.ofInstant(instant,serverTimeZone));
+                break;
+            case Date.SCHEMA_NAME:
+                fieldValue = dateFormatter.format(LocalDate.ofEpochDay((Integer) fieldValue));
+                break;
+            case ZonedTimestamp.SCHEMA_NAME:
+                ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
+                fieldValue = timestampFormatter.format(zonedDateTime
+                    .withZoneSameInstant(serverTimeZone).toLocalDateTime());
+                break;
+            case Timestamp.SCHEMA_NAME:
+                Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
+                fieldValue = timestampFormatter.format(LocalDateTime.ofInstant(instantTime,
+                    serverTimeZone));
+                break;
+            default:
+                LOG.error("parse schema {} error", schemaName);
+        }
+        return fieldValue;
     }
 
     private static Object convertField(
@@ -548,6 +648,7 @@ public final class RowDataDebeziumDeserializeSchema
         deserialize(record, out, null);
     }
 
+    @Override
     public void deserialize(SourceRecord record, Collector<RowData> out,
             TableChange tableSchema)
             throws Exception {
@@ -632,11 +733,17 @@ public final class RowDataDebeziumDeserializeSchema
         };
         private ZoneId serverTimeZone = ZoneId.of("UTC");
         private boolean appendSource = false;
+        private boolean migrateAll = false;
         private DeserializationRuntimeConverterFactory userDefinedConverterFactory =
                 DeserializationRuntimeConverterFactory.DEFAULT;
 
         public Builder setPhysicalRowType(RowType physicalRowType) {
             this.physicalRowType = physicalRowType;
+            return this;
+        }
+
+        public Builder setMigrateAll(boolean migrateAll) {
+            this.migrateAll = migrateAll;
             return this;
         }
 
@@ -679,7 +786,8 @@ public final class RowDataDebeziumDeserializeSchema
                     validator,
                     serverTimeZone,
                     appendSource,
-                    userDefinedConverterFactory);
+                    userDefinedConverterFactory,
+                    migrateAll);
         }
     }
 }

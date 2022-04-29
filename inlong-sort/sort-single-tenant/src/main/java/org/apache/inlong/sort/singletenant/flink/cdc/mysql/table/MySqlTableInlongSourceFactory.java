@@ -28,6 +28,7 @@ import static org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.config.
 import static org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.config.MySqlSourceOptions.DATABASE_NAME;
 import static org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.config.MySqlSourceOptions.HEARTBEAT_INTERVAL;
 import static org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.config.MySqlSourceOptions.HOSTNAME;
+import static org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.config.MySqlSourceOptions.MIGRATE_ALL;
 import static org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.config.MySqlSourceOptions.PASSWORD;
 import static org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.config.MySqlSourceOptions.PORT;
 import static org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.config.MySqlSourceOptions.SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE;
@@ -137,6 +138,7 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
         int connectMaxRetries = config.get(CONNECT_MAX_RETRIES);
         int connectionPoolSize = config.get(CONNECTION_POOL_SIZE);
         final boolean appendSource = config.get(APPEND_MODE);
+        final boolean migrateAll = config.get(MIGRATE_ALL);
         double distributionFactorUpper = config.get(SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_UPPER_BOUND);
         double distributionFactorLower = config.get(SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_LOWER_BOUND);
         boolean scanNewlyAddedTableEnabled = config.get(SCAN_NEWLY_ADDED_TABLE_ENABLED);
@@ -179,7 +181,8 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
                 startupOptions,
                 scanNewlyAddedTableEnabled,
                 JdbcUrlUtils.getJdbcProperties(context.getCatalogTable().getOptions()),
-                heartbeatInterval);
+                heartbeatInterval,
+                migrateAll);
     }
 
     @Override
@@ -218,6 +221,7 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
         options.add(SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_LOWER_BOUND);
         options.add(CONNECT_MAX_RETRIES);
         options.add(APPEND_MODE);
+        options.add(MIGRATE_ALL);
         options.add(SCAN_NEWLY_ADDED_TABLE_ENABLED);
         options.add(HEARTBEAT_INTERVAL);
         return options;
