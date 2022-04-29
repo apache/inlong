@@ -24,16 +24,16 @@ import lombok.Builder;
 @Builder
 public class CanalJson {
 
-    public List<Map<String, Object>> data;
-    public long es;
-    public String table;
-    public String type;
-    public String database;
-    public long ts;
-    public String sql;
-    public Map<String, String> mysqlType;
-    public boolean isDdl;
-    public List<String> pkNames;
+    private List<Map<String, Object>> data;
+    private long es;
+    private String table;
+    private String type;
+    private String database;
+    private long ts;
+    private String sql;
+    private Map<String, String> mysqlType;
+    private boolean isDdl;
+    private List<String> pkNames;
 
     public List<Map<String, Object>> getData() {
         return data;
