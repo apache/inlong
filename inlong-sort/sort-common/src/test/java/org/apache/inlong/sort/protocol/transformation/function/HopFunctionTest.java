@@ -31,7 +31,7 @@ import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.Time
 public class HopFunctionTest extends FunctionBaseTest {
 
     @Override
-    public Function getFunction() {
+    public Function getTestObject() {
         return new HopFunction(new FieldInfo("time_field", new TimestampFormatInfo()),
                 new StringConstantParam("1"),
                 new TimeUnitConstantParam(TimeUnit.SECOND));
@@ -40,14 +40,5 @@ public class HopFunctionTest extends FunctionBaseTest {
     @Override
     public String getExpectFormat() {
         return "HOP(`time_field`, INTERVAL '1' SECOND)";
-    }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"hop\",\"timeAttr\":{\"type\":\"base\",\"name\":\"time_field\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}},"
-                + "\"interval\":{\"type\":\"stringConstant\",\"value\":\"1\"},"
-                + "\"timeUnit\":{\"type\":\"timeUnitConstant\",\"timeUnit\":\"SECOND\",\"value\":\"SECOND\"}}";
-
     }
 }

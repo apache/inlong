@@ -17,16 +17,15 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
-public class CanalJsonFormatTest extends FormatBaseTest {
+import org.apache.inlong.sort.SerializeBaseTest;
 
-    /**
-     * Test Serialize and Deserialize of canal-json
-     *
-     * @return format
-     * @see Format
-     */
+/**
+ * Test for {@link CanalJsonFormat}
+ */
+public class CanalJsonFormatTest extends SerializeBaseTest<CanalJsonFormat> {
+
     @Override
-    public Format getFormat() {
+    public CanalJsonFormat getTestObject() {
         return new CanalJsonFormat();
     }
 }

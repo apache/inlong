@@ -19,10 +19,13 @@ package org.apache.inlong.sort.protocol.transformation.operator;
 
 import org.apache.inlong.sort.protocol.transformation.Operator;
 
+/**
+ * Test for {@link NotInOperator}
+ */
 public class NotInOperatorTest extends OperatorBaseTest {
 
     @Override
-    public Operator getOperator() {
+    public Operator getTestObject() {
         return NotInOperator.getInstance();
     }
 
@@ -30,10 +33,4 @@ public class NotInOperatorTest extends OperatorBaseTest {
     public String getExpectFormat() {
         return "NOT IN";
     }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"notIn\"}";
-    }
-
 }

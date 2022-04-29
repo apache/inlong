@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol.node;
+package org.apache.inlong.sort;
 
 import com.google.common.base.Preconditions;
+import lombok.Getter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
@@ -25,32 +26,42 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public abstract class NodeBaseTest {
+/**
+ * Test serialize base class
+ *
+ * @param <T> The test object type
+ */
+@Getter
+public abstract class SerializeBaseTest<T> {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private String expectSerializeStr;
-    private Node node;
+    private T testObject;
 
-    public abstract Node getNode();
+    /**
+     * Get test object
+     *
+     * @return The test object
+     */
+    public abstract T getTestObject();
 
-    public abstract String getExpectSerializeStr();
-
+    /**
+     * Init the test object
+     */
     @Before
     public void init() {
-        this.node = Preconditions.checkNotNull(getNode());
-        this.expectSerializeStr = Preconditions.checkNotNull(getExpectSerializeStr());
+        this.testObject = Preconditions.checkNotNull(getTestObject());
     }
 
+    /**
+     * Test serialize
+     *
+     * @throws JsonProcessingException The exception may throws when execute the method
+     */
     @Test
+    @SuppressWarnings("unchecked")
     public void testSerialize() throws JsonProcessingException {
-        String actual = objectMapper.writeValueAsString(node);
-        assertEquals(expectSerializeStr, actual);
+        String serializeStr = objectMapper.writeValueAsString(testObject);
+        T expected = (T) objectMapper.readValue(serializeStr, testObject.getClass());
+        assertEquals(expected, testObject);
     }
-
-    @Test
-    public void testDeserialize() throws JsonProcessingException {
-        Node expected = objectMapper.readValue(expectSerializeStr, Node.class);
-        assertEquals(expected, node);
-    }
-
 }

@@ -19,10 +19,13 @@ package org.apache.inlong.sort.protocol.transformation.operator;
 
 import org.apache.inlong.sort.protocol.transformation.Operator;
 
+/**
+ * Test for {@link OrOperator}
+ */
 public class OrOperatorTest extends OperatorBaseTest {
 
     @Override
-    public Operator getOperator() {
+    public Operator getTestObject() {
         return OrOperator.getInstance();
     }
 
@@ -30,10 +33,4 @@ public class OrOperatorTest extends OperatorBaseTest {
     public String getExpectFormat() {
         return "OR";
     }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"or\"}";
-    }
-
 }

@@ -18,48 +18,32 @@
 package org.apache.inlong.sort.protocol.transformation.operator;
 
 import com.google.common.base.Preconditions;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.protocol.transformation.Operator;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+/**
+ * Test {@link Operator} base class
+ */
+public abstract class OperatorBaseTest extends SerializeBaseTest<Operator> {
 
-public abstract class OperatorBaseTest {
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private String expectFormat;
-    private String expectSerializeStr;
-    private Operator operator;
-
-    public abstract Operator getOperator();
 
     public abstract String getExpectFormat();
 
-    public abstract String getExpectSerializeStr();
-
     @Before
     public void init() {
+        super.init();
         this.expectFormat = Preconditions.checkNotNull(getExpectFormat());
-        this.operator = Preconditions.checkNotNull(getOperator());
-        this.expectSerializeStr = getExpectSerializeStr();
     }
 
+    /**
+     * Test format
+     */
     @Test
-    public void testSerialize() throws JsonProcessingException {
-        assertEquals(expectSerializeStr, objectMapper.writeValueAsString(operator));
-    }
-
-    @Test
-    public void testDeserialize() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Operator expected = objectMapper.readValue(expectSerializeStr, operator.getClass());
-        assertEquals(expected, operator);
-    }
-
-    @Test
-    public void testFormat() throws JsonProcessingException {
-        assertEquals(expectFormat, operator.format());
+    public void testFormat() {
+        Assert.assertEquals(expectFormat, getTestObject().format());
     }
 }

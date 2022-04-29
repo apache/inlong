@@ -18,17 +18,15 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
-import org.apache.inlong.sort.protocol.ProtocolBaseTest;
+import org.apache.inlong.sort.SerializeBaseTest;
 
-public class JsonDeserializationInfoTest extends ProtocolBaseTest {
+/**
+ * Test for {@link JsonDeserializationInfo}
+ */
+public class JsonDeserializationInfoTest extends SerializeBaseTest<JsonDeserializationInfo> {
 
     @Override
-    public void init() {
-        expectedObject = new JsonDeserializationInfo();
-        expectedJson = "{\"type\":\"json\"}";
-        equalObj1 = expectedObject;
-        equalObj2 = new JsonDeserializationInfo();
-        unequalObj = "";
+    public JsonDeserializationInfo getTestObject() {
+        return new JsonDeserializationInfo();
     }
-
 }

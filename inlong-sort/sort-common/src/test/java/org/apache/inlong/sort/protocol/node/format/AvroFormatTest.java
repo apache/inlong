@@ -17,16 +17,15 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
-public class AvroFormatTest extends FormatBaseTest {
+import org.apache.inlong.sort.SerializeBaseTest;
 
-    /**
-     * Test Serialize and Deserialize of avro
-     *
-     * @return format
-     * @see Format
-     */
+/**
+ * Test for {@link AvroFormat}
+ */
+public class AvroFormatTest extends SerializeBaseTest<AvroFormat> {
+
     @Override
-    public Format getFormat() {
+    public AvroFormat getTestObject() {
         return new AvroFormat();
     }
 }

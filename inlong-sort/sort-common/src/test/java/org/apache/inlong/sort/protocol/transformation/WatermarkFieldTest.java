@@ -27,7 +27,7 @@ import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.Time
 public class WatermarkFieldTest extends FunctionBaseTest {
 
     @Override
-    public Function getFunction() {
+    public Function getTestObject() {
         return new WatermarkField(new FieldInfo("ts", new TimestampFormatInfo()),
                 new StringConstantParam("10"), new TimeUnitConstantParam(TimeUnit.HOUR));
     }
@@ -36,13 +36,4 @@ public class WatermarkFieldTest extends FunctionBaseTest {
     public String getExpectFormat() {
         return "WATERMARK FOR `ts` AS `ts` - INTERVAL '10' HOUR";
     }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"watermark\",\"timeAttr\":{\"type\":\"base\",\"name\":\"ts\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}},"
-                + "\"interval\":{\"type\":\"stringConstant\",\"value\":\"10\"},"
-                + "\"timeUnit\":{\"type\":\"timeUnitConstant\",\"timeUnit\":\"HOUR\",\"value\":\"HOUR\"}}";
-    }
-
 }

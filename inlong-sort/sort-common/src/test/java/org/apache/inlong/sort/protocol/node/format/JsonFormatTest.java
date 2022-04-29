@@ -17,16 +17,20 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
-public class JsonFormatTest extends FormatBaseTest {
+import org.apache.inlong.sort.SerializeBaseTest;
+
+/**
+ * Test for {@link JsonFormat}
+ */
+public class JsonFormatTest extends SerializeBaseTest<JsonFormat> {
 
     /**
-     * Test Serialize and Deserialize of json
+     * Get test object
      *
-     * @return format
-     * @see Format
+     * @return The test object
      */
     @Override
-    public Format getFormat() {
+    public JsonFormat getTestObject() {
         return new JsonFormat();
     }
 }

@@ -17,16 +17,12 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
-public class CsvFormatTest extends FormatBaseTest {
+import org.apache.inlong.sort.SerializeBaseTest;
 
-    /**
-     * Test Serialize and Deserialize of csv
-     *
-     * @return format
-     * @see Format
-     */
+public class CsvFormatTest extends SerializeBaseTest<CsvFormat> {
+
     @Override
-    public Format getFormat() {
+    public CsvFormat getTestObject() {
         return new CsvFormat();
     }
 }

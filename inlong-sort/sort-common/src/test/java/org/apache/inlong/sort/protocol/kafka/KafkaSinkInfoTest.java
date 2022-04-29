@@ -18,53 +18,23 @@
 
 package org.apache.inlong.sort.protocol.kafka;
 
+import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.ProtocolBaseTest;
 import org.apache.inlong.sort.protocol.serialization.JsonSerializationInfo;
 import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
 
-public class KafkaSinkInfoTest extends ProtocolBaseTest {
+/**
+ * Test for {@link KafkaSinkInfo}
+ */
+public class KafkaSinkInfoTest extends SerializeBaseTest<KafkaSinkInfo> {
 
     @Override
-    public void init() {
-        expectedObject = new KafkaSinkInfo(
+    public KafkaSinkInfo getTestObject() {
+        return new KafkaSinkInfo(
                 new FieldInfo[]{new FieldInfo("field1", new StringFormatInfo())},
                 "testAddress",
                 "testTopic",
-                new JsonSerializationInfo()
-        );
-
-        expectedJson = "{\n"
-                + "    \"type\":\"kafka\",\n"
-                + "    \"fields\":[\n"
-                + "        {\n"
-                + "            \"type\":\"base\",\n"
-                + "            \"name\":\"field1\",\n"
-                + "            \"formatInfo\":{\n"
-                + "                \"type\":\"string\"\n"
-                + "            }\n"
-                + "        }\n"
-                + "    ],\n"
-                + "    \"address\":\"testAddress\",\n"
-                + "    \"topic\":\"testTopic\",\n"
-                + "    \"serialization_info\":{\n"
-                + "        \"type\":\"json\"\n"
-                + "    }\n"
-                + "}";
-
-        equalObj1 = expectedObject;
-        equalObj2 = new KafkaSinkInfo(
-                new FieldInfo[]{new FieldInfo("field1", new StringFormatInfo())},
-                "testAddress",
-                "testTopic",
-                new JsonSerializationInfo()
-        );
-        unequalObj = new KafkaSinkInfo(
-                new FieldInfo[]{new FieldInfo("field1", new StringFormatInfo())},
-                "testAddress",
-                "testTopic2",
-                new JsonSerializationInfo()
-        );
+                new JsonSerializationInfo());
     }
 }

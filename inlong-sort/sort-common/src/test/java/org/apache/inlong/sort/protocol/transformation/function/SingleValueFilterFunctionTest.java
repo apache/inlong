@@ -31,7 +31,7 @@ import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
 public class SingleValueFilterFunctionTest extends FunctionBaseTest {
 
     @Override
-    public Function getFunction() {
+    public Function getTestObject() {
         return new SingleValueFilterFunction(EmptyOperator.getInstance(),
                 new FieldInfo("single_value_field", new TimestampFormatInfo()),
                 EqualOperator.getInstance(),
@@ -41,15 +41,5 @@ public class SingleValueFilterFunctionTest extends FunctionBaseTest {
     @Override
     public String getExpectFormat() {
         return " `single_value_field` = '123'";
-    }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"singleValueFilter\",\"logicOperator\":{\"type\":\"empty\"},"
-                + "\"source\":{\"type\":\"base\",\"name\":\"single_value_field\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}},"
-                + "\"compareOperator\":{\"type\":\"equal\"},"
-                + "\"target\":{\"type\":\"stringConstant\",\"value\":\"123\"}}";
-
     }
 }

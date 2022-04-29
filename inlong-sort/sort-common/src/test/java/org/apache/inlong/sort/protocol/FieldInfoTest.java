@@ -19,39 +19,25 @@ package org.apache.inlong.sort.protocol;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class FieldInfoTest {
+public class FieldInfoTest extends SerializeBaseTest<FieldInfo> {
 
-    @Test
-    public void testSerialize() throws JsonProcessingException {
-        FieldInfo fieldInfo = new FieldInfo("field_name", StringFormatInfo.INSTANCE);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String expected = "{\"type\":\"base\",\"name\":\"field_name\",\"formatInfo\":{\"type\":\"string\"}}";
-        assertEquals(expected, objectMapper.writeValueAsString(fieldInfo));
+    @Override
+    public FieldInfo getTestObject() {
+        return new FieldInfo("field_name", StringFormatInfo.INSTANCE);
     }
 
-    @Test
-    public void testDeserialize() throws JsonProcessingException {
-        FieldInfo fieldInfo = new FieldInfo("field_name", StringFormatInfo.INSTANCE);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String fieldInfoStr = "{\"type\":\"base\",\"name\":\"field_name\",\"formatInfo\":{\"type\":\"string\"}}";
-        FieldInfo expected = objectMapper.readValue(fieldInfoStr, FieldInfo.class);
-        assertEquals(expected, fieldInfo);
-    }
 
-    @Test
-    public void testSerializeWithNodeId() throws JsonProcessingException {
-        FieldInfo fieldInfo = new FieldInfo("field_name", "1", StringFormatInfo.INSTANCE);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String expected = "{\"type\":\"base\",\"name\":\"field_name\","
-                + "\"formatInfo\":{\"type\":\"string\"},\"nodeId\":\"1\"}";
-        assertEquals(expected, objectMapper.writeValueAsString(fieldInfo));
-    }
-
+    /**
+     * Test deserialize with nodeId
+     *
+     * @throws JsonProcessingException The exception may throws when execute the method
+     */
     @Test
     public void testDeserializeWithNodeId() throws JsonProcessingException {
         FieldInfo fieldInfo = new FieldInfo("field_name", StringFormatInfo.INSTANCE);

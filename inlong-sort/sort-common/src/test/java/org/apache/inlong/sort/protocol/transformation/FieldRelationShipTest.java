@@ -17,37 +17,23 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+/**
+ * Test for {@link FieldRelationShip}
+ */
+public class FieldRelationShipTest extends SerializeBaseTest<FieldRelationShip> {
 
-public class FieldRelationShipTest {
-
-    @Test
-    public void testSerialize() throws JsonProcessingException {
-        FieldRelationShip source = new FieldRelationShip(new FieldInfo("f", StringFormatInfo.INSTANCE),
+    /**
+     * Get test object
+     *
+     * @return The test object
+     */
+    @Override
+    public FieldRelationShip getTestObject() {
+        return new FieldRelationShip(new FieldInfo("f", StringFormatInfo.INSTANCE),
                 new FieldInfo("f", StringFormatInfo.INSTANCE));
-        ObjectMapper objectMapper = new ObjectMapper();
-        String expected = "{\"type\":\"fieldRelationShip\",\"inputField\":"
-                + "{\"type\":\"base\",\"name\":\"f\",\"formatInfo\":{\"type\":\"string\"}},"
-                + "\"outputField\":{\"type\":\"base\",\"name\":\"f\",\"formatInfo\":{\"type\":\"string\"}}}";
-        assertEquals(expected, objectMapper.writeValueAsString(source));
     }
-
-    @Test
-    public void testDeserialize() throws JsonProcessingException {
-        FieldRelationShip source = new FieldRelationShip(new FieldInfo("f", StringFormatInfo.INSTANCE),
-                new FieldInfo("f", StringFormatInfo.INSTANCE));
-        ObjectMapper objectMapper = new ObjectMapper();
-        String str = "{\"type\":\"fieldRelationShip\",\"inputField\":"
-                + "{\"type\":\"base\",\"name\":\"f\",\"formatInfo\":{\"type\":\"string\"}},"
-                + "\"outputField\":{\"type\":\"base\",\"name\":\"f\",\"formatInfo\":{\"type\":\"string\"}}}";
-        FieldRelationShip expected = objectMapper.readValue(str, FieldRelationShip.class);
-        assertEquals(expected, source);
-    }
-
 }

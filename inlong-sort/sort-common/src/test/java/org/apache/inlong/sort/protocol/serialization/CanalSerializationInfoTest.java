@@ -18,19 +18,15 @@
 
 package org.apache.inlong.sort.protocol.serialization;
 
-import org.apache.inlong.sort.protocol.ProtocolBaseTest;
+import org.apache.inlong.sort.SerializeBaseTest;
 
-public class CanalSerializationInfoTest extends ProtocolBaseTest {
+/**
+ * Test for {@link CanalSerializationInfo}
+ */
+public class CanalSerializationInfoTest extends SerializeBaseTest<CanalSerializationInfo> {
 
     @Override
-    public void init() {
-        expectedObject = new CanalSerializationInfo();
-        expectedJson = "{\n"
-                + "  \"type\" : \"canal\""
-                + "}";
-        equalObj1 = expectedObject;
-        equalObj2 = new CanalSerializationInfo();
-        unequalObj = new JsonSerializationInfo();
+    public CanalSerializationInfo getTestObject() {
+        return new CanalSerializationInfo();
     }
-
 }

@@ -17,39 +17,28 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.ScanStartupMode;
 import org.apache.inlong.sort.protocol.node.Node;
-import org.apache.inlong.sort.protocol.node.NodeBaseTest;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Unit test for {@link KafkaExtractNode}
+ * Test for {@link KafkaExtractNode}
  */
-public class KafkaExtractNodeTest extends NodeBaseTest {
+public class KafkaExtractNodeTest extends SerializeBaseTest<Node> {
 
     @Override
-    public Node getNode() {
+    public Node getTestObject() {
         List<FieldInfo> fields = Arrays.asList(
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()));
         return new KafkaExtractNode("1", "kafka_input", fields, null, null, "workerCsv",
                 "localhost:9092", new CsvFormat(), ScanStartupMode.EARLIEST_OFFSET, null);
-    }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"kafkaExtract\",\"id\":\"1\",\"name\":\"kafka_input\",\"fields\":[{\"type\":\"base\","
-                + "\"name\":\"name\",\"formatInfo\":{\"type\":\"string\"}},{\"type\":\"base\",\"name\":\"age\","
-                + "\"formatInfo\":{\"type\":\"int\"}}],\"topic\":\"workerCsv\","
-                + "\"bootstrapServers\":\"localhost:9092\",\"format\":{\"type\":\"csvFormat\",\"fieldDelimiter\":\","
-                + "\",\"disableQuoteCharacter\":false,\"quoteCharacter\":\"\\\"\",\"allowComments\":false,"
-                + "\"ignoreParseErrors\":false,\"arrayElementDelimiter\":\";\",\"escapeCharacter\":null,"
-                + "\"nullLiteral\":null},\"scanStartupMode\":\"EARLIEST_OFFSET\"}";
     }
 }

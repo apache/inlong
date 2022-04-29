@@ -457,7 +457,7 @@ public class FlinkSqlParser implements Parser {
                 sb.append("\n    ").append(fieldRelation.getInputField().format())
                         .append(" AS ").append(field.format()).append(",");
             } else {
-                String targetType = TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSerializableString();
+                String targetType = TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSummaryString();
                 sb.append("\n    CAST(NULL as ").append(targetType).append(") AS ").append(field.format()).append(",");
             }
         }
@@ -581,7 +581,7 @@ public class FlinkSqlParser implements Parser {
                 BuiltInFieldInfo builtInFieldInfo = (BuiltInFieldInfo) field;
                 parseMetaField(node, builtInFieldInfo, sb);
             } else {
-                sb.append(TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSerializableString());
+                sb.append(TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSummaryString());
             }
             sb.append(",\n");
         }
@@ -649,7 +649,7 @@ public class FlinkSqlParser implements Parser {
                 metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update_before'";
                 break;
             default:
-                metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSerializableString();
+                metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSummaryString();
         }
         return metaType;
     }
@@ -694,7 +694,7 @@ public class FlinkSqlParser implements Parser {
                 metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update_before'";
                 break;
             default:
-                metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSerializableString();
+                metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSummaryString();
         }
         return metaType;
     }
@@ -739,7 +739,7 @@ public class FlinkSqlParser implements Parser {
                 metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'meta.update_before' VIRTUAL";
                 break;
             default:
-                metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSerializableString();
+                metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSummaryString();
         }
         return metaType;
     }
