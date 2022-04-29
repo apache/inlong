@@ -44,11 +44,11 @@ public class StreamTransformFieldEntity implements Serializable {
 
     private String fieldComment;
 
-    private Short isMetaField;
+    private Integer isMetaField;
 
     private String fieldFormat;
 
-    private Short rankNum;
+    private Integer rankNum;
 
     private Integer isDeleted;
 
