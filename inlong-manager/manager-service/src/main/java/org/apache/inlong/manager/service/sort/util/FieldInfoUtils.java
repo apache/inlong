@@ -85,7 +85,7 @@ public class FieldInfoUtils {
 
     public static FieldInfo parseStreamField(StreamField streamField) {
         boolean isBuiltIn = streamField.getIsMetaField() == 1;
-        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType().toString(), isBuiltIn,
+        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType().name(), isBuiltIn,
                 streamField.getFieldFormat());
         fieldInfo.setNodeId(streamField.getOriginNodeName());
         return fieldInfo;

@@ -94,7 +94,7 @@ public class FieldRelationShipUtils {
                     return list1;
                 });
         List<StreamField> filteredFieldList = fieldList.stream()
-                .filter(streamFieldInfo -> splitFields.contains(streamFieldInfo.getFieldName()))
+                .filter(streamFieldInfo -> !splitFields.contains(streamFieldInfo.getFieldName()))
                 .collect(Collectors.toList());
         fieldRelationShips.addAll(createFieldRelationShips(filteredFieldList, transformName));
         return fieldRelationShips;
@@ -110,7 +110,7 @@ public class FieldRelationShipUtils {
                 .map(replaceRule -> parseReplaceRule(replaceRule, replaceFields, transformName, preNode))
                 .collect(Collectors.toList());
         List<StreamField> filteredFieldList = fieldList.stream()
-                .filter(streamFieldInfo -> replaceFields.contains(streamFieldInfo.getFieldName()))
+                .filter(streamFieldInfo -> !replaceFields.contains(streamFieldInfo.getFieldName()))
                 .collect(Collectors.toList());
         fieldRelationShips.addAll(createFieldRelationShips(filteredFieldList, transformName));
         return fieldRelationShips;
