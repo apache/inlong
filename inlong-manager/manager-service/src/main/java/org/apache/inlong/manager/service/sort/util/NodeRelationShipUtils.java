@@ -119,6 +119,7 @@ public class NodeRelationShipUtils {
         JoinMode joinMode = joinerDefinition.getJoinMode();
         String leftNode = getNodeName(joinerDefinition.getLeftNode());
         String rightNode = getNodeName(joinerDefinition.getRightNode());
+        List<String> preNodes = Lists.newArrayList(leftNode,rightNode);
         List<StreamField> leftJoinFields = joinerDefinition.getLeftJoinFields();
         List<StreamField> rightJoinFields = joinerDefinition.getRightJoinFields();
         List<FilterFunction> filterFunctions = Lists.newArrayList();
@@ -138,13 +139,13 @@ public class NodeRelationShipUtils {
         joinConditions.put(rightNode, filterFunctions);
         switch (joinMode) {
             case LEFT_JOIN:
-                return new LeftOuterJoinNodeRelationShip(nodeRelationShip.getInputs(), nodeRelationShip.getOutputs(),
+                return new LeftOuterJoinNodeRelationShip(preNodes, nodeRelationShip.getOutputs(),
                         joinConditions);
             case INNER_JOIN:
-                return new RightOuterJoinNodeRelationShip(nodeRelationShip.getInputs(), nodeRelationShip.getOutputs(),
+                return new RightOuterJoinNodeRelationShip(preNodes, nodeRelationShip.getOutputs(),
                         joinConditions);
             case RIGHT_JOIN:
-                return new InnerJoinNodeRelationShip(nodeRelationShip.getInputs(), nodeRelationShip.getOutputs(),
+                return new InnerJoinNodeRelationShip(preNodes, nodeRelationShip.getOutputs(),
                         joinConditions);
             default:
                 throw new IllegalArgumentException(String.format("Unsupported join mode=%s for inlong", joinMode));
