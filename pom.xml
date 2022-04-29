@@ -182,7 +182,7 @@
         <fastjson.version>1.2.79</fastjson.version>
 
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
-        <hive.version>3.1.2</hive.version>
+        <hive.version>3.1.3</hive.version>
         <flume.version>1.9.0</flume.version>
 
         <velocity.tools.generic.version>3.1</velocity.tools.generic.version>
