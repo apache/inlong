@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.singletenant.flink.kafka;
+package org.apache.inlong.sort.flink.kafka;
 
 import org.apache.flink.types.Row;
 import org.apache.flink.types.RowKind;

@@ -166,5 +166,4 @@ public class FlinkSqlParserTest extends AbstractTestBase {
         FlinkSqlParseResult result = parser.parse();
         Assert.assertTrue(result.tryExecute());
     }
-
 }

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.singletenant.flink.kafka;
+package org.apache.inlong.sort.flink.kafka;
 
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServer;
@@ -64,7 +64,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
 import static org.apache.flink.util.NetUtils.hostAndPortToUrlString;
-import static org.apache.inlong.sort.singletenant.flink.kafka.KafkaSinkBuilder.buildKafkaSink;
+import static org.apache.inlong.sort.flink.kafka.KafkaSinkBuilder.buildKafkaSink;
 import static org.apache.inlong.sort.singletenant.flink.utils.NetUtils.getUnusedLocalPort;
 import static org.junit.Assert.assertNull;
 
