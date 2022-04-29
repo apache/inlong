@@ -30,7 +30,7 @@ jobs:
     name: Stable
     runs-on: ubuntu-latest
     steps:
-      - name: Close stale issues and PRs
+      - name: Mark issues and PRs
         uses: actions/stale@v5
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
@@ -42,6 +42,8 @@ jobs:
           days-before-pr-stale: 60          # the idle number of days before marking the pull requests as stale
           days-before-issue-close: 30       # the idle number of days before closing the stale issues
           days-before-pr-close: 30          # the idle number of days before closing the stale pull requests
+          operations-per-run: 500           # max number of operations per run
           exempt-issue-labels: 'WIP'        # labels on issues exempted from stale
           exempt-pr-labels: 'WIP'           # labels on PRs exempted from stale
-          operations-per-run: 500           # max number of operations per run
+          stale-issue-label: 'stable'       # label to apply on staled issues
+          stale-pr-label: 'stable'          # label to apply on staled PRs
