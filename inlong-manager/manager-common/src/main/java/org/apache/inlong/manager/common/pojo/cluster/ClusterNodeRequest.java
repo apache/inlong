@@ -35,7 +35,7 @@ public class ClusterNodeRequest {
 
     @NotBlank
     @ApiModelProperty(value = "ID of the parent cluster")
-    private Integer clusterId;
+    private Integer parentId;
 
     @NotBlank
     @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")

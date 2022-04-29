@@ -17,8 +17,12 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface InlongClusterEntityMapper {
@@ -26,6 +30,10 @@ public interface InlongClusterEntityMapper {
     int insert(InlongClusterEntity record);
 
     int insertSelective(InlongClusterEntity record);
+
+    List<InlongClusterEntity> selectByCondition(InlongClusterPageRequest request);
+
+    InlongClusterEntity selectByUniqueKey(InlongClusterRequest request);
 
     InlongClusterEntity selectById(Integer id);
 

@@ -71,7 +71,7 @@ public class InlongClusterController {
     }
 
     @PostMapping(value = "/list")
-    @ApiOperation(value = "List clusters by paginating")
+    @ApiOperation(value = "List clusters")
     public Response<PageInfo<InlongClusterResponse>> list(@RequestBody InlongClusterPageRequest request) {
         return Response.success(clusterService.list(request));
     }
@@ -93,16 +93,14 @@ public class InlongClusterController {
         return Response.success(clusterService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName()));
     }
 
-    @Deprecated
     @PostMapping(value = "/node/save")
     @ApiOperation(value = "Save cluster node")
     @OperationLog(operation = OperationType.CREATE)
-    public Response<Integer> saveNode(@RequestBody InlongClusterRequest request) {
+    public Response<Integer> saveNode(@RequestBody ClusterNodeRequest request) {
         String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
         return Response.success(clusterService.saveNode(request, currentUser));
     }
 
-    @Deprecated
     @GetMapping(value = "/node/get/{id}")
     @ApiOperation(value = "Get cluster node by id")
     @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
@@ -110,14 +108,12 @@ public class InlongClusterController {
         return Response.success(clusterService.getNode(id));
     }
 
-    @Deprecated
     @PostMapping(value = "/node/list")
-    @ApiOperation(value = "List cluster nodes by paginating")
+    @ApiOperation(value = "List cluster nodes")
     public Response<PageInfo<ClusterNodeResponse>> listNode(@RequestBody InlongClusterPageRequest request) {
         return Response.success(clusterService.listNode(request));
     }
 
-    @Deprecated
     @RequestMapping(value = "/node/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster node")
@@ -126,7 +122,6 @@ public class InlongClusterController {
         return Response.success(clusterService.updateNode(request, username));
     }
 
-    @Deprecated
     @RequestMapping(value = "/node/delete/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Delete cluster node")
     @OperationLog(operation = OperationType.DELETE)

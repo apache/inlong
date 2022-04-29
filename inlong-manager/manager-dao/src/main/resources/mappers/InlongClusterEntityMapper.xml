@@ -38,7 +38,8 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, type, url, cluster_tag, zone_tag, ext_params, heartbeat, in_charges,
+        id
+        , name, type, url, cluster_tag, zone_tag, ext_params, heartbeat, in_charges,
         status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
 
@@ -177,6 +178,57 @@
             modify_time = #{modifyTime,jdbcType=TIMESTAMP}
         where id = #{id,jdbcType=INTEGER}
     </update>
+    <select id="selectByUniqueKey" parameterType="org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest"
+            resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster
+        <where>
+            is_deleted = 0
+            <if test="name != null and name != ''">
+                and name = #{name, jdbcType=VARCHAR}
+            </if>
+            <if test="clusterTag != null and clusterTag != ''">
+                and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectByCondition"
+            parameterType="org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest"
+            resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster
+        <where>
+            is_deleted = 0
+            <if test="clusterTag != null and clusterTag != ''">
+                and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type, jdbcType=VARCHAR}
+            </if>
+            <if test="url != null and url != ''">
+                and url like CONCAT('%', #{url}, '%')
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (
+                name like CONCAT('%', #{keyword}, '%')
+                or cluster_tag like CONCAT('%', #{keyword}, '%')
+                or url like CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status, jdbcType=INTEGER}
+            </if>
+            <if test="zoneTag != null and zoneTag != ''">
+                and zone_tag = #{zoneTag, jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by modify_time desc
+    </select>
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         update inlong_cluster
         <set>
