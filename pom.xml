@@ -174,7 +174,7 @@
         <javax.servlet.api.version>4.0.1</javax.servlet.api.version>
 
         <flink-table-planner-blink_2.11.version>1.13.5</flink-table-planner-blink_2.11.version>
-        <flink-connector-mysql-cdc.version>2.0.2</flink-connector-mysql-cdc.version>
+        <flink-connector-mysql-cdc.version>2.2.1</flink-connector-mysql-cdc.version>
 
         <gson.version>2.8.6</gson.version>
         <jackson.version>2.13.2</jackson.version>
@@ -197,7 +197,7 @@
         <kafka.version>2.4.1</kafka.version>
         <iceberg.flink.version>0.12.1</iceberg.flink.version>
         <flink.version>1.13.5</flink.version>
-        <flink.connector.mysql.cdc.version>2.0.2</flink.connector.mysql.cdc.version>
+        <flink.connector.mysql.cdc.version>2.2.1</flink.connector.mysql.cdc.version>
         <flink.scala.binary.version>2.11</flink.scala.binary.version>
         <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
 
