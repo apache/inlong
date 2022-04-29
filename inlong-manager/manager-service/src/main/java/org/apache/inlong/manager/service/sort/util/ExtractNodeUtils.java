@@ -97,6 +97,10 @@ public class ExtractNodeUtils {
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
         String serverTimeZone = binlogSourceResponse.getServerTimezone();
+        boolean incrementalSnapshotEnabled = true;
+        if (binlogSourceResponse.isAllMigration()) {
+            incrementalSnapshotEnabled = false;
+        }
         return new MySqlExtractNode(id,
                 name,
                 fieldInfos,
@@ -110,7 +114,7 @@ public class ExtractNodeUtils {
                 database,
                 port,
                 serverId,
-                true,
+                incrementalSnapshotEnabled,
                 serverTimeZone);
     }
 
