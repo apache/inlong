@@ -17,8 +17,10 @@
 
 package org.apache.inlong.manager.service.sort.util;
 
-import lombok.extern.slf4j.Slf4j;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
+import javafx.util.Pair;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.MetaFieldType;
@@ -36,6 +38,8 @@ import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
+import org.apache.inlong.sort.formats.common.MapFormatInfo;
+import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.common.ShortFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
@@ -46,10 +50,14 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.FieldMappingRule.FieldMappingUnit;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Util for sort field info.
@@ -189,13 +197,26 @@ public class FieldInfoUtils {
      * @return Sort field format instance
      */
     public static FormatInfo convertFieldFormat(String type, String format) {
-        FormatInfo formatInfo;
         String baseType = type.contains("<") ? type.substring(0,type.indexOf("<")) : type;
-        Map<String, String> complexType = Maps.newHashMap();
-        if (type.startsWith("array") || type.startsWith("map") ||  type.startsWith("row")) {
-            complexType.put(baseType, type.substring(type.indexOf("<")));
+        if (isComplecType(baseType)) {
+            Map<String, String> complexType = Maps.newHashMap();
+            complexType.put(baseType, type.substring(type.indexOf("<") + 1, type.length() - 1));
+            return transferComplexType(complexType);
+        } else {
+            return transferSimpleType(baseType, format);
         }
-        FieldType fieldType = FieldType.forName(baseType);
+    }
+
+    /**
+     * Get the FieldFormat of Sort according to simple type string
+     *
+     * @param type
+     * @param format
+     * @return
+     */
+    public static FormatInfo transferSimpleType(String type, String format) {
+        FormatInfo formatInfo;
+        FieldType fieldType = FieldType.forName(type);
         switch (fieldType) {
             case BOOLEAN:
                 formatInfo = new BooleanFormatInfo();
@@ -249,37 +270,134 @@ public class FieldInfoUtils {
             case FIXED:
                 formatInfo = new ArrayFormatInfo(ByteTypeInfo::new);
                 break;
-            case ARRAY:
-            case MAP:
-            case ROW:
             default: // default is string
                 formatInfo = new StringFormatInfo();
         }
-
         return formatInfo;
     }
 
     /**
-     * convert complexType to sort field format
+     * Get the FieldFormat of Sort according to complex type string
      *
      * @param map
      * @return
      */
-    private FormatInfo transferComplexType(Map<String, String> map) {
-        FormatInfo formatInfo = new StringFormatInfo();
-        Iterator iter = map.keySet().iterator();
+    private static FormatInfo transferComplexType(Map<String, String> map) {
+        FormatInfo formatInfo = null;
+        Iterator iter = map.entrySet().iterator();
         while (iter.hasNext()) {
-            switch (String.valueOf(iter.next())) {
-                case "array":
+            Map.Entry entry = (Map.Entry) iter.next();
+            String subtype = (String) entry.getValue();
+            FieldType fieldType = FieldType.forName((String) entry.getKey());
+            switch (fieldType) {
+                case ARRAY:
+                    formatInfo = new ArrayFormatInfo(convertFieldFormat(subtype));
                     break;
-                case "map":
+                case MAP:
+                    if (findMapSeparation(subtype) != 0) {
+                        List<String> mapSubtypes = Lists.newArrayList();
+                        mapSubtypes.add(subtype.substring(0, findMapSeparation(subtype)));
+                        mapSubtypes.add(subtype.substring(findMapSeparation(subtype) + 1));
+                        List<FormatInfo> formatInfoList = mapSubtypes.stream()
+                                .map(m -> convertFieldFormat(m))
+                                .collect(Collectors.toList());
+                        formatInfo = new MapFormatInfo(formatInfoList.get(0), formatInfoList.get(1));
+                    }
                     break;
-                case "row":
+                case ROW:
+                    Pair<List<String>, List<String>> pair = parseRowType(subtype);
+                    formatInfo = new RowFormatInfo(pair.getKey().toArray(new String[0]),
+                            pair.getValue().stream()
+                                    .map(m -> convertFieldFormat(m))
+                                    .collect(Collectors.toList())
+                                    .toArray(new FormatInfo[0]));
                     break;
                 default:
             }
         }
         return formatInfo;
+    }
+
+    /**
+     * parse string of complex type : row
+     *
+     * @param str
+     * @return
+     */
+    private static Pair<List<String>, List<String>> parseRowType(String str) {
+        Deque<Pair<Character,Integer>> stack = new LinkedList<>();
+        for (int i = 0; i < str.length(); i++) {
+            char ch = str.charAt(i);
+            if (ch == ' ' || ch == ',' ||  ch == '<') {
+                stack.addFirst(new Pair<>(ch, i));
+            }
+            if (ch == '>' && !stack.isEmpty()) {
+                while (stack.peekFirst().getKey() != '<') {
+                    stack.pollFirst();
+                }
+                stack.pollFirst();
+            }
+        }
+        List<Integer> separationIndexs = stack.stream()
+                .map(pair -> pair.getValue())
+                .sorted()
+                .collect(Collectors.toList());
+
+        List<String> fieldNames = Lists.newArrayList();
+        List<String> fieldFormatInfos = Lists.newArrayList();
+
+        fieldNames.add(str.substring(0, separationIndexs.get(0)));
+        for (int j = 1; j < separationIndexs.size(); j++) {
+            if (j % 2 == 0) {
+                fieldNames.add(str.substring(separationIndexs.get(j - 1) + 1, separationIndexs.get(j)));
+            } else {
+                fieldFormatInfos.add(str.substring(separationIndexs.get(j - 1) + 1, separationIndexs.get(j)));
+            }
+        }
+        fieldFormatInfos.add(str.substring(separationIndexs.get(separationIndexs.size() - 1) + 1));
+       return  new Pair<>(fieldNames, fieldFormatInfos);
+    }
+
+    /**
+     *Judge whether complextype
+     *
+     * @param type
+     * @return
+     */
+    private static boolean isComplecType(String type) {
+        return type.toLowerCase(Locale.ROOT).startsWith("array")
+                || type.toLowerCase(Locale.ROOT).startsWith("map")
+                || type.toLowerCase(Locale.ROOT).startsWith("row");
+    }
+
+    /**
+     * find complex type: map Separation
+     *
+     * @param str
+     * @return
+     */
+    private static int findMapSeparation(String str) {
+        Deque<Character> stack = new LinkedList<Character>();
+        if (str.indexOf("<") == -1 || str.indexOf(">") == -1) {
+            return str.indexOf(",");
+        } else {
+            for (int i = 0; i < str.length(); i++) {
+                char ch = str.charAt(i);
+                if (ch == '<' || ch == ',') {
+                    stack.addFirst(ch);
+                }
+                if (ch == '>' && !stack.isEmpty()) {
+                    while (stack.peekFirst() != '<') {
+                        stack.pollFirst();
+                    }
+                    stack.pollFirst();
+                    if (stack.isEmpty()) {
+                        return i + 1;
+                    }
+                }
+            }
+        }
+        return 0;
     }
 
     /**

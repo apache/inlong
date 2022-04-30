@@ -52,10 +52,11 @@ public enum FieldType {
     public static FieldType forName(String name) {
         Preconditions.checkNotNull(name, "FieldType should not be null");
         for (FieldType value : values()) {
-            if (value.toString().equals(name) || value.toString().equals(name.toUpperCase(Locale.ROOT))) {
+            if (value.toString().equals(name) || value.toString().equals(name.toLowerCase(Locale.ROOT))) {
                 return value;
             }
         }
         throw new IllegalArgumentException(String.format("Unsupported FieldType : %s", name));
     }
+
 }
