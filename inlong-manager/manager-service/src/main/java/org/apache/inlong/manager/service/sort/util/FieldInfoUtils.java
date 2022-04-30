@@ -133,7 +133,7 @@ public class FieldInfoUtils {
         FieldInfo fieldInfo;
         BuiltInField builtInField = BUILT_IN_FIELD_MAP.get(fieldName);
         if (builtInField == null) {
-            //Check if fieldName contains buildInFieldName, such as left_database
+            // Check if fieldName contains buildInFieldName, such as left_database
             for (String buildInFieldName : BUILT_IN_FIELD_MAP.keySet()) {
                 if (fieldName.contains(buildInFieldName)) {
                     builtInField = BUILT_IN_FIELD_MAP.get(buildInFieldName);
