@@ -43,7 +43,16 @@
         <module>manager-client-tools</module>
     </modules>
 
+    <properties>
+        <plugin.surefire.manager.version>2.21.0</plugin.surefire.manager.version>
+    </properties>
+
     <dependencies>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-oas</artifactId>
+            <version>${spring.fox.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -126,7 +135,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${plugin.surefire.version}</version>
+                <version>${plugin.surefire.manager.version}</version>
 <!--                <dependencies>-->
 <!--                    <dependency>-->
 <!--                        <groupId>org.apache.maven.surefire</groupId>-->

@@ -21,12 +21,14 @@ import org.apache.inlong.manager.test.BaseTest;
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @SpringBootApplication
 @SpringBootTest(classes = ServiceBaseTest.class)
+@EnableWebMvc
 public class ServiceBaseTest extends BaseTest {
 
-    public static final String globalStreamName = "streamName1";
+    public static final String GLOBAL_STREAM_NAME = "streamName1";
     public static final String GLOBAL_GROUP_ID = "b_group1";
     public static final String GLOBAL_STREAM_ID = "stream1";
     public static final String GLOBAL_OPERATOR = "admin";

@@ -51,6 +51,10 @@ public class HiveSinkEventSelector implements EventSelector {
         }
 
         GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
+        if (form == null || form.getGroupInfo() == null) {
+            log.info("not add create hive table listener as the info was null");
+            return false;
+        }
         String groupId = form.getInlongGroupId();
         if (form.getGroupInfo() == null || StringUtils.isEmpty(form.getGroupInfo().getInlongGroupId())) {
             log.info("not add create hive table listener as the info was null for groupId [{}]", groupId);

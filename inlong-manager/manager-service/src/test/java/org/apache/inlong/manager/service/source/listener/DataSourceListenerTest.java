@@ -17,11 +17,7 @@
 
 package org.apache.inlong.manager.service.source.listener;
 
-import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.enums.ProcessStatus;
-import org.apache.inlong.manager.common.enums.SourceStatus;
-import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.enums.*;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
@@ -95,9 +91,11 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
     public void testRestartSource() {
         // testFrozenSource();
         groupInfo = initGroupForm("PULSAR", "test2");
-        groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
+        groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
-        groupService.updateStatus(GROUP_ID, GroupStatus.SUSPENDED.getCode(), OPERATOR);
+        groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.SUSPENDING.getCode(), OPERATOR);
+        groupService.update(groupInfo.genRequest(), OPERATOR);
+        groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.SUSPENDED.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
         final int sourceId = createBinlogSource(groupInfo);

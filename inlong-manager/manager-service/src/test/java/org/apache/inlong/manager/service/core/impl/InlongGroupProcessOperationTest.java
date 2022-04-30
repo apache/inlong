@@ -33,11 +33,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
+//import org.springframework.test.annotation.Rollback;
+//import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
-@Rollback
+//@Transactional
+//@Rollback
 @EnableAutoConfiguration
 public class InlongGroupProcessOperationTest extends ServiceBaseTest {
 
@@ -56,7 +56,8 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
     @Autowired
     private ServiceTaskListenerFactory serviceTaskListenerFactory;
 
-    public void before(int status) {
+    //    @Before
+    public void before() {
         MockPlugin mockPlugin = new MockPlugin();
         serviceTaskListenerFactory.acceptPlugin(mockPlugin);
         InlongGroupRequest groupInfo = new InlongGroupRequest();
@@ -68,12 +69,16 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
         pulsarInfo.setInlongGroupId(GROUP_ID);
         groupInfo.setMqExtInfo(pulsarInfo);
         groupService.save(groupInfo, OPERATOR);
-        groupService.update(groupInfo, OPERATOR);
+//        groupService.update(groupInfo, OPERATOR);
     }
 
+    //    @After
+//    public void after() {
+//        groupService.delete(GROUP_ID, OPERATOR);
+//    }
 //    @Test
     public void testStartProcess() {
-        before(GroupStatus.TO_BE_SUBMIT.getCode());
+        before();
         WorkflowResult result = groupProcessOperation.startProcess(GROUP_ID, OPERATOR);
         ProcessResponse response = result.getProcessInfo();
         Assert.assertSame(response.getStatus(), ProcessStatus.PROCESSING);

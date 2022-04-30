@@ -61,9 +61,6 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setBootstrapServers(bootstrapServers);
         sinkInfo.setTopicName(topicName);
         sinkInfo.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
-        kafkaSinkId = sinkService.save(sinkInfo, globalOperator);
-        sinkInfo.setEnableCreateResource(Constant.DISABLE_CREATE_RESOURCE);
-        sinkInfo.setId((int) (Math.random() * 100000 + 1));
         return sinkService.save(sinkInfo, globalOperator);
     }
 
@@ -76,7 +73,7 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testListByIdentifier() {
         Integer kafkaSinkId = this.saveSink("default1");
-        SinkResponse sink = sinkService.get(kafkaSinkId, Constant.SINK_KAFKA);
+        SinkResponse sink = sinkService.get(kafkaSinkId, SinkType.SINK_KAFKA);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteKafkaSink(kafkaSinkId);
     }

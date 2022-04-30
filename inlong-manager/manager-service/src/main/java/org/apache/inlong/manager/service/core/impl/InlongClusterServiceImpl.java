@@ -23,11 +23,7 @@ import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterResponse;
+import org.apache.inlong.manager.common.pojo.cluster.*;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
@@ -78,10 +74,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         entity.setCreator(operator);
         entity.setCreateTime(new Date());
         entity.setIsDeleted(GlobalConstants.UN_DELETED);
-        clusterMapper.insert(entity);
+        int entityId = clusterMapper.insert(entity);
 
         LOGGER.info("success to save inlong cluster={}", request);
-        return entity.getId();
+        return entityId;
     }
 
     @Override

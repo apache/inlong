@@ -18,12 +18,7 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterResponse;
+import org.apache.inlong.manager.common.pojo.cluster.*;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.ServiceBaseTest;
@@ -131,8 +126,10 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * update cluster info.
      */
-    public Boolean updateCluster(String clusterName, String type, String clusterTag, String zoneTag) {
+    public Boolean updateCluster(Integer clusterId, String clusterName, String type, String clusterTag,
+                                 String zoneTag) {
         InlongClusterRequest request = new InlongClusterRequest();
+        request.setId(clusterId);
         request.setName(clusterName);
         request.setType(type);
         request.setClusterTag(clusterTag);
@@ -163,8 +160,9 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * update cluster node info.
      */
-    public Boolean updateClusterNode(Integer parentId, String type, String ip, Integer port) {
+    public Boolean updateClusterNode(Integer id, Integer parentId, String type, String ip, Integer port) {
         ClusterNodeRequest request = new ClusterNodeRequest();
+        request.setId(id);
         request.setParentId(parentId);
         request.setType(type);
         request.setIp(ip);
@@ -215,7 +213,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assert.assertEquals(listCluster.getTotal(), 1);
 
         // update cluster
-        Boolean updateSuccess = this.updateCluster(CLUSTER_NAME, typeUpdate, clusterTagUpdate, zoneTagUpdate);
+        Boolean updateSuccess = this.updateCluster(id, CLUSTER_NAME, typeUpdate, clusterTagUpdate, zoneTagUpdate);
         Assert.assertTrue(updateSuccess);
 
         // save cluster node
@@ -227,7 +225,8 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assert.assertEquals(listNode.getTotal(), 1);
 
         // update cluster node
-        Boolean updateNodeSuccess = this.updateClusterNode(id, typeUpdate, ipUpdate, portUpdate);
+        Boolean updateNodeSuccess = this.updateClusterNode(id, listNode.getList().get(0).getParentId(), typeUpdate,
+                ipUpdate, portUpdate);
         Assert.assertTrue(updateNodeSuccess);
 
         // delete cluster node

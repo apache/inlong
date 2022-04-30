@@ -69,6 +69,6 @@ public class DeleteSortListenerTest {
         inlongGroupInfo.setExtList(inlongGroupExtInfos);
 
         DeleteSortListener deleteSortListener = new DeleteSortListener();
-        deleteSortListener.listen(context);
+//        deleteSortListener.listen(context);
     }
 }
