@@ -133,7 +133,7 @@ public class NodeRelationShipUtils {
                 operator = EmptyOperator.getInstance();
             }
             filterFunctions.add(
-                    createFilterFunction(leftField, rightField, leftNode, rightNode, operator));
+                    createFilterFunction(leftField, rightField, operator));
         }
         Map<String, List<FilterFunction>> joinConditions = Maps.newHashMap();
         joinConditions.put(rightNode, filterFunctions);
@@ -153,10 +153,10 @@ public class NodeRelationShipUtils {
     }
 
     private static SingleValueFilterFunction createFilterFunction(StreamField leftField, StreamField rightField,
-            String leftNode, String rightNode, LogicOperator operator) {
-        FieldInfo sourceField = new FieldInfo(leftField.getFieldName(), leftNode,
+            LogicOperator operator) {
+        FieldInfo sourceField = new FieldInfo(leftField.getOriginFieldName(), leftField.getOriginNodeName(),
                 FieldInfoUtils.convertFieldFormat(leftField.getFieldType().name(), leftField.getFieldFormat()));
-        FieldInfo targetField = new FieldInfo(rightField.getFieldName(), rightNode,
+        FieldInfo targetField = new FieldInfo(rightField.getOriginFieldName(), rightField.getOriginNodeName(),
                 FieldInfoUtils.convertFieldFormat(rightField.getFieldType().name(), rightField.getFieldFormat()));
         return new SingleValueFilterFunction(operator, sourceField, EqualOperator.getInstance(), targetField);
     }
