@@ -18,17 +18,15 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
-import org.apache.inlong.sort.protocol.ProtocolBaseTest;
+import org.apache.inlong.sort.SerializeBaseTest;
 
-public class AvroDeserializationInfoTest extends ProtocolBaseTest {
+/**
+ * Test for {@link AvroDeserializationInfo}
+ */
+public class AvroDeserializationInfoTest extends SerializeBaseTest<AvroDeserializationInfo> {
 
     @Override
-    public void init() {
-        expectedObject = new AvroDeserializationInfo();
-        expectedJson = "{\"type\":\"avro\"}";
-        equalObj1 = expectedObject;
-        equalObj2 = new AvroDeserializationInfo();
-        unequalObj = "";
+    public AvroDeserializationInfo getTestObject() {
+        return new AvroDeserializationInfo();
     }
-
 }

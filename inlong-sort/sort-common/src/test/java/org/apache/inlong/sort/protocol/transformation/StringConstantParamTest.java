@@ -17,8 +17,7 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.sort.SerializeBaseTest;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -26,33 +25,11 @@ import static org.junit.Assert.assertEquals;
 /**
  * Test for {@link StringConstantParam}
  */
-public class StringConstantParamTest {
+public class StringConstantParamTest extends SerializeBaseTest<StringConstantParam> {
 
-    /**
-     * Test for serialize of {@link StringConstantParam}
-     *
-     * @throws JsonProcessingException The exception may throws when serialize
-     */
-    @Test
-    public void testSerialize() throws JsonProcessingException {
-        StringConstantParam constantParam = new StringConstantParam("constantparam");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String expected = "{\"type\":\"stringConstant\",\"value\":\"constantparam\"}";
-        assertEquals(expected, objectMapper.writeValueAsString(constantParam));
-    }
-
-    /**
-     * Test for serialize of {@link StringConstantParam}
-     *
-     * @throws JsonProcessingException The exception may throws when serialize
-     */
-    @Test
-    public void testDeserialize() throws JsonProcessingException {
-        StringConstantParam constantParam = new StringConstantParam("constantparam");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String constantParamStr = "{\"type\":\"stringConstant\",\"value\":\"constantparam\"}";
-        StringConstantParam expected = objectMapper.readValue(constantParamStr, StringConstantParam.class);
-        assertEquals(expected, constantParam);
+    @Override
+    public StringConstantParam getTestObject() {
+        return new StringConstantParam("constantparam");
     }
 
     /**
@@ -62,7 +39,6 @@ public class StringConstantParamTest {
      */
     @Test
     public void testFormat() {
-        StringConstantParam constantParam = new StringConstantParam("constantparam");
-        assertEquals("'constantparam'", constantParam.format());
+        assertEquals("'constantparam'", getTestObject().format());
     }
 }

@@ -79,7 +79,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
     private final boolean scanNewlyAddedTableEnabled;
     private final Properties jdbcProperties;
     private final Duration heartbeatInterval;
-
+    private final boolean migrateAll;
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
     // --------------------------------------------------------------------------------------------
@@ -116,7 +116,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             double distributionFactorLower,
             boolean appendSource,
             StartupOptions startupOptions,
-            Duration heartbeatInterval) {
+            Duration heartbeatInterval,
+        boolean migrateAll) {
         this(
                 physicalSchema,
                 port,
@@ -141,7 +142,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                 startupOptions,
                 false,
                 new Properties(),
-                heartbeatInterval);
+                heartbeatInterval,
+            migrateAll);
     }
 
     public MySqlTableSource(
@@ -168,7 +170,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             StartupOptions startupOptions,
             boolean scanNewlyAddedTableEnabled,
             Properties jdbcProperties,
-            Duration heartbeatInterval) {
+            Duration heartbeatInterval,
+        boolean migrateAll) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -196,6 +199,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
         this.producedDataType = physicalSchema.toPhysicalRowDataType();
         this.metadataKeys = Collections.emptyList();
         this.heartbeatInterval = heartbeatInterval;
+        this.migrateAll = migrateAll;
     }
 
     @Override
@@ -227,6 +231,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                         .setAppendSource(appendSource)
                         .setUserDefinedConverterFactory(
                                 MySqlDeserializationConverterFactory.instance())
+                    .setMigrateAll(migrateAll)
                         .build();
         if (enableParallelRead) {
             MySqlSource<RowData> parallelSource =
@@ -337,7 +342,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                         startupOptions,
                         scanNewlyAddedTableEnabled,
                         jdbcProperties,
-                        heartbeatInterval);
+                        heartbeatInterval,
+                        migrateAll);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;

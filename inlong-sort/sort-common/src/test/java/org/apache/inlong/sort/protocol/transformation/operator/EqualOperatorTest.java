@@ -19,10 +19,13 @@ package org.apache.inlong.sort.protocol.transformation.operator;
 
 import org.apache.inlong.sort.protocol.transformation.Operator;
 
+/**
+ * Test for {@link EqualOperator}
+ */
 public class EqualOperatorTest extends OperatorBaseTest {
 
     @Override
-    public Operator getOperator() {
+    public Operator getTestObject() {
         return EqualOperator.getInstance();
     }
 
@@ -30,10 +33,4 @@ public class EqualOperatorTest extends OperatorBaseTest {
     public String getExpectFormat() {
         return "=";
     }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"equal\"}";
-    }
-
 }

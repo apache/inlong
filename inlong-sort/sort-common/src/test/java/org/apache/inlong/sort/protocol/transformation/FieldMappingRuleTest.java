@@ -17,55 +17,22 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
+import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.ProtocolBaseTest;
 
-public class FieldMappingRuleTest extends ProtocolBaseTest {
+/**
+ * Test for {@link FieldMappingRule}
+ */
+public class FieldMappingRuleTest extends SerializeBaseTest<FieldMappingRule> {
 
     @Override
-    public void init() {
-        expectedObject = new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[]{
+    public FieldMappingRule getTestObject() {
+        return new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[]{
                 new FieldMappingRule.FieldMappingUnit(
                         new FieldInfo("f1", StringFormatInfo.INSTANCE),
                         new FieldInfo("f2", DoubleFormatInfo.INSTANCE)
-                )
-        });
-
-        expectedJson = "{\n"
-                + "    \"type\":\"field_mapping\",\n"
-                + "    \"field_mapping_units\":[\n"
-                + "        {\n"
-                + "            \"source_field\":{\n"
-                + "                \"type\":\"base\",\n"
-                + "                \"name\":\"f1\",\n"
-                + "                \"formatInfo\":{\n"
-                + "                    \"type\":\"string\"\n"
-                + "                }\n"
-                + "            },\n"
-                + "            \"sink_field\":{\n"
-                + "                \"type\":\"base\",\n"
-                + "                \"name\":\"f2\",\n"
-                + "                \"formatInfo\":{\n"
-                + "                    \"type\":\"double\"\n"
-                + "                }\n"
-                + "            }\n"
-                + "        }\n"
-                + "    ]\n"
-                + "}";
-
-        equalObj1 = expectedObject;
-        equalObj2 = new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[]{
-                new FieldMappingRule.FieldMappingUnit(
-                        new FieldInfo("f1", StringFormatInfo.INSTANCE),
-                        new FieldInfo("f2", DoubleFormatInfo.INSTANCE)
-                )
-        });
-        unequalObj = new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[]{
-                new FieldMappingRule.FieldMappingUnit(
-                        new FieldInfo("f1", StringFormatInfo.INSTANCE),
-                        new FieldInfo("f3", DoubleFormatInfo.INSTANCE)
                 )
         });
     }

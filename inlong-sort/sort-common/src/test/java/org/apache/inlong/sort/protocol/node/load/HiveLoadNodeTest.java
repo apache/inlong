@@ -17,44 +17,28 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
+import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.node.Node;
-import org.apache.inlong.sort.protocol.node.NodeBaseTest;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class HiveLoadNodeTest extends NodeBaseTest {
+/**
+ * Test for {@link HiveLoadNode}
+ */
+public class HiveLoadNodeTest extends SerializeBaseTest<HiveLoadNode> {
 
     @Override
-    public Node getNode() {
+    public HiveLoadNode getTestObject() {
         return new HiveLoadNode("1", "test_hive_node",
                 Arrays.asList(new FieldInfo("field", new StringFormatInfo())),
                 Arrays.asList(new FieldRelationShip(new FieldInfo("field", new StringFormatInfo()),
                         new FieldInfo("field", new StringFormatInfo()))), null,
-                1, new HashMap<>(), "myHive", "default", "test", "/opt/hive-conf", "3.1.2",
+                1, new HashMap<>(), "myHive", "default",
+                "test", "/opt/hive-conf", "3.1.2",
                 null, Arrays.asList(new FieldInfo("day", new LongFormatInfo())));
-    }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"hiveLoad\",\"id\":\"1\","
-                + "\"name\":\"test_hive_node\",\"fields\":"
-                + "[{\"type\":\"base\",\"name\":\"field\","
-                + "\"formatInfo\":{\"type\":\"string\"}}],"
-                + "\"fieldRelationShips\":[{\"type\":"
-                + "\"fieldRelationShip\",\"inputField\":"
-                + "{\"type\":\"base\",\"name\":\"field\","
-                + "\"formatInfo\":{\"type\":\"string\"}},"
-                + "\"outputField\":{\"type\":\"base\",\"name\":"
-                + "\"field\",\"formatInfo\":{\"type\":\"string\"}}}],"
-                + "\"sinkParallelism\":1,\"properties\":{},\"catalogName\":"
-                + "\"myHive\",\"database\":\"default\",\"tableName\":\"test\","
-                + "\"hiveConfDir\":\"/opt/hive-conf\",\"hiveVersion\":\"3.1.2\","
-                + "\"hadoopConfDir\":null,\"partitionFields\":[{\"type\":\"base\","
-                + "\"name\":\"day\",\"formatInfo\":{\"type\":\"long\"}}]}";
     }
 }

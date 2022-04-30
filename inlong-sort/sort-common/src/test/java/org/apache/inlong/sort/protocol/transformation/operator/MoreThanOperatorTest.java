@@ -19,10 +19,13 @@ package org.apache.inlong.sort.protocol.transformation.operator;
 
 import org.apache.inlong.sort.protocol.transformation.Operator;
 
+/**
+ * Test for {@link MoreThanOperator}
+ */
 public class MoreThanOperatorTest extends OperatorBaseTest {
 
     @Override
-    public Operator getOperator() {
+    public Operator getTestObject() {
         return MoreThanOperator.getInstance();
     }
 
@@ -30,10 +33,4 @@ public class MoreThanOperatorTest extends OperatorBaseTest {
     public String getExpectFormat() {
         return ">";
     }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"moreThan\"}";
-    }
-
 }

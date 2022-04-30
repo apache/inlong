@@ -17,23 +17,22 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 @Data
 public class ComponentHeartbeatEntity implements Serializable {
-    private Integer id;
-
-    private String component;
-
-    private String instance;
-
-    private Date reportTime;
-
-    private Date modifyTime;
-
-    private Date createTime;
 
     private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String component;
+    private String instance;
+    private String statusHeartbeat;
+    private String metricHeartbeat;
+    private Long reportTime;
+    private Date createTime;
+    private Date modifyTime;
+
 }

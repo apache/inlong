@@ -55,7 +55,42 @@ public enum MetaFieldType {
     /**
      * event_type
      */
-    EVENT_TYPE("event_type", "meta field event_type used in canal json or mysql binlong and so on");
+    EVENT_TYPE("event_type", "meta field event_type used in canal json or mysql binlong and so on"),
+
+    /**
+     * data
+     */
+    MYSQL_DATA("data", "MySQL binlog data Row"),
+
+    /**
+     * update_before
+     */
+    UPDATE_BEFORE("update_before", "The value of the field before update"),
+
+    /**
+     * Batch id of binlog
+     */
+    BATCH_ID("batch_id", "Batch id of binlog"),
+
+    /**
+     * sql_type
+     */
+    SQL_TYPE("sql_type", "Mapping of sql_type table fields to java data type IDs"),
+
+    /**
+     * ts
+     */
+    TS("ts", "The current time when the ROW was received and processed"),
+
+    /**
+     * mysql_type
+     */
+    MYSQL_TYPE("mysql_type", "The table structure"),
+
+    /**
+     * pk_names
+     */
+    PK_NAMES("pk_names", "Primary key field name");
 
     private final String name;
 

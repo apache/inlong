@@ -17,11 +17,13 @@
 
 package org.apache.inlong.manager.service.sort.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.MetaFieldType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
 import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
 import org.apache.inlong.sort.formats.common.ByteFormatInfo;
@@ -50,6 +52,7 @@ import java.util.Map;
 /**
  * Util for sort field info.
  */
+@Slf4j
 public class FieldInfoUtils {
 
     /**
@@ -64,6 +67,30 @@ public class FieldInfoUtils {
         BUILT_IN_FIELD_MAP.put(MetaFieldType.EVENT_TIME.getName(), BuiltInField.MYSQL_METADATA_EVENT_TIME);
         BUILT_IN_FIELD_MAP.put(MetaFieldType.IS_DDL.getName(), BuiltInField.MYSQL_METADATA_IS_DDL);
         BUILT_IN_FIELD_MAP.put(MetaFieldType.EVENT_TYPE.getName(), BuiltInField.MYSQL_METADATA_EVENT_TYPE);
+        BUILT_IN_FIELD_MAP.put(MetaFieldType.PROCESSING_TIME.getName(), BuiltInField.PROCESS_TIME);
+        BUILT_IN_FIELD_MAP.put(MetaFieldType.MYSQL_DATA.getName(), BuiltInField.MYSQL_METADATA_DATA);
+        BUILT_IN_FIELD_MAP.put(MetaFieldType.UPDATE_BEFORE.getName(), BuiltInField.METADATA_UPDATE_BEFORE);
+        BUILT_IN_FIELD_MAP.put(MetaFieldType.BATCH_ID.getName(), BuiltInField.METADATA_BATCH_ID);
+        BUILT_IN_FIELD_MAP.put(MetaFieldType.SQL_TYPE.getName(), BuiltInField.METADATA_SQL_TYPE);
+        BUILT_IN_FIELD_MAP.put(MetaFieldType.TS.getName(), BuiltInField.METADATA_TS);
+        BUILT_IN_FIELD_MAP.put(MetaFieldType.MYSQL_TYPE.getName(), BuiltInField.METADATA_MYSQL_TYPE);
+        BUILT_IN_FIELD_MAP.put(MetaFieldType.PK_NAMES.getName(), BuiltInField.METADATA_PK_NAMES);
+    }
+
+    public static FieldInfo parseStreamFieldInfo(InlongStreamFieldInfo streamField, String name) {
+        boolean isBuiltIn = streamField.getIsMetaField() == 1;
+        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType(), isBuiltIn,
+                streamField.getFieldFormat());
+        fieldInfo.setNodeId(name);
+        return fieldInfo;
+    }
+
+    public static FieldInfo parseStreamField(StreamField streamField) {
+        boolean isBuiltIn = streamField.getIsMetaField() == 1;
+        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType().name(), isBuiltIn,
+                streamField.getFieldFormat());
+        fieldInfo.setNodeId(streamField.getOriginNodeName());
+        return fieldInfo;
     }
 
     /**
@@ -109,6 +136,9 @@ public class FieldInfoUtils {
         if (isBuiltin && builtInField != null) {
             fieldInfo = new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
         } else {
+            if (isBuiltin) {
+                log.warn("Unsupported metadata fieldName={} as the builtInField is null", fieldName);
+            }
             fieldInfo = new FieldInfo(fieldName, formatInfo);
         }
         return fieldInfo;

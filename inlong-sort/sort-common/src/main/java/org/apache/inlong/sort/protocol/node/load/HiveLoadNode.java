@@ -55,7 +55,6 @@ public class HiveLoadNode extends LoadNode implements Serializable {
     private String tableName;
 
     @JsonProperty("catalogName")
-    @Nonnull
     private String catalogName;
 
     @JsonProperty("database")
@@ -84,7 +83,7 @@ public class HiveLoadNode extends LoadNode implements Serializable {
             @JsonProperty("filters") List<FilterFunction> filters,
             @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
             @JsonProperty("properties") Map<String, String> properties,
-            @Nullable @JsonProperty("catalogName") String catalogName,
+            @JsonProperty("catalogName") String catalogName,
             @Nullable @JsonProperty("database") String database,
             @Nullable @JsonProperty("tableName") String tableName,
             @Nullable @JsonProperty("hiveConfDir") String hiveConfDir,
@@ -92,11 +91,11 @@ public class HiveLoadNode extends LoadNode implements Serializable {
             @JsonProperty("hadoopConfDir") String hadoopConfDir,
             @JsonProperty("parFields") List<FieldInfo> partitionFields) {
         super(id, name, fields, fieldRelationShips, filters, sinkParallelism, properties);
-        this.catalogName = Preconditions.checkNotNull(catalogName, "catalog of hive is null");
         this.database = Preconditions.checkNotNull(database, "database of hive is null");
         this.tableName = Preconditions.checkNotNull(tableName, "table of hive is null");
         this.hiveConfDir = Preconditions.checkNotNull(hiveConfDir, "hive config path is null");
         this.hiveVersion = Preconditions.checkNotNull(hiveVersion, "version of hive is null");
+        this.catalogName = catalogName;
         this.hadoopConfDir = hadoopConfDir;
         this.partitionFields = partitionFields;
         handleTimestampField();

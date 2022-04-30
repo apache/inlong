@@ -29,7 +29,7 @@ import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 public class RegexpReplaceFirstFunctionTest extends FunctionBaseTest {
 
     @Override
-    public Function getFunction() {
+    public Function getTestObject() {
         return new RegexpReplaceFirstFunction(new FieldInfo("replace_field", new StringFormatInfo()),
                 new StringConstantParam("replace_str"),
                 new StringConstantParam("target_str"));
@@ -38,14 +38,5 @@ public class RegexpReplaceFirstFunctionTest extends FunctionBaseTest {
     @Override
     public String getExpectFormat() {
         return "REGEXP_REPLACE_FIRST(`replace_field`, 'replace_str', 'target_str')";
-    }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"regexpReplaceFirst\",\"field\":{\"type\":\"base\",\"name\":\"replace_field\","
-                + "\"formatInfo\":{\"type\":\"string\"}},\"regex\":{\"type\":\"stringConstant\","
-                + "\"value\":\"replace_str\"},\"replacement\":{\"type\":\"stringConstant\","
-                + "\"value\":\"target_str\"}}";
-
     }
 }

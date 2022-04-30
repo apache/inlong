@@ -35,7 +35,8 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, parent_id, type, ip, port, ext_params, status, is_deleted, creator, modifier,
+        id
+        , parent_id, type, ip, port, ext_params, status, is_deleted, creator, modifier,
         create_time, modify_time
     </sql>
 
@@ -136,6 +137,49 @@
         <include refid="Base_Column_List"/>
         from inlong_cluster_node
         where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectByUniqueKey" parameterType="org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest"
+            resultType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster_node
+        <where>
+            is_deleted = 0
+            <if test="parentId != null and parentId != ''">
+                and parent_id = #{parentId,jdbcType=INTEGER}
+            </if>
+            <if test="ip != null and ip != ''">
+                and ip = #{ip, jdbcType=VARCHAR}
+            </if>
+            <if test="type != null and type != ''">
+                and `type` = #{type, jdbcType=VARCHAR}
+            </if>
+            <if test="port != null and port != ''">
+                and `port` = #{port, jdbcType=INTEGER}
+            </if>
+        </where>
+    </select>
+    <select id="selectByCondition"
+            parameterType="org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest"
+            resultType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster_node
+        <where>
+            is_deleted = 0
+            <if test="type != null and type != ''">
+                and `type` = #{type, jdbcType=VARCHAR}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (
+                ip like CONCAT('%',#{keyword},'%')
+                or type like CONCAT('%',#{keyword},'%')
+                or port like CONCAT('%',#{keyword},'%')
+                or parent_id like CONCAT('%',#{keyword},'%')
+                )
+            </if>
+        </where>
+        order by modify_time desc
     </select>
 
     <update id="updateByIdSelective"

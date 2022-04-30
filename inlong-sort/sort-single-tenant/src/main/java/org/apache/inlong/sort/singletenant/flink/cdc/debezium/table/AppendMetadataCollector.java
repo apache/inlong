@@ -39,16 +39,22 @@ public final class AppendMetadataCollector implements Collector<RowData>, Serial
 
     public transient SourceRecord inputRecord;
     public transient Collector<RowData> outputCollector;
+    private boolean migrateAll;
 
-    public AppendMetadataCollector(MetadataConverter[] metadataConverters) {
+    public AppendMetadataCollector(MetadataConverter[] metadataConverters, boolean migrateAll) {
         this.metadataConverters = metadataConverters;
+        this.migrateAll = migrateAll;
     }
 
     public void collect(RowData physicalRow, TableChange tableSchema) {
         GenericRowData metaRow = new GenericRowData(metadataConverters.length);
         for (int i = 0; i < metadataConverters.length; i++) {
-            Object meta = metadataConverters[i].read(inputRecord, tableSchema);
+            Object meta = metadataConverters[i].read(inputRecord, tableSchema, physicalRow);
             metaRow.setField(i, meta);
+        }
+        if (migrateAll) {
+            // all data are put into meta row, set physicalRow to empty
+            physicalRow = new GenericRowData(0);
         }
         RowData outRow = new JoinedRowData(physicalRow.getRowKind(), physicalRow, metaRow);
         outputCollector.collect(outRow);

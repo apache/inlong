@@ -56,7 +56,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Test for {@link FlinkSqlParser#parseMetaField(Node, BuiltInFieldInfo, StringBuilder)}
+ * Test for mysql meta field
  */
 public class MetaFieldSyncTest extends AbstractTestBase {
 
@@ -79,8 +79,8 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                 new BuiltInFieldInfo("up_before", new TimestampFormatInfo(), BuiltInField.METADATA_UPDATE_BEFORE)
         );
         return new MySqlExtractNode("1", "mysql_input", fields, null, null, "id",
-                Arrays.asList("worker", "worker2"), "localhost", "root", "168998",
-                "wedata_datastudio", null, null, null, null);
+                Arrays.asList("sort"), "localhost", "inlong", "password",
+                "test", null, null, null, null);
     }
 
     private KafkaLoadNode buildKafkaNode() {
@@ -136,7 +136,7 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                 );
         List<FilterFunction> filters = Arrays.asList(new SingleValueFilterFunction(EmptyOperator.getInstance(),
                 new FieldInfo("name", new StringFormatInfo()),
-                EqualOperator.getInstance(), new StringConstantParam("yunqingmo")));
+                EqualOperator.getInstance(), new StringConstantParam("test")));
         KafkaLoadNode node = new KafkaLoadNode("2", "kafka_output2", fields, relations,
                 null, "worker123", "localhost:9092",
                 new JsonFormat(), null,

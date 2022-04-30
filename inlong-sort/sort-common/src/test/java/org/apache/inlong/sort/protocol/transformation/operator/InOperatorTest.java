@@ -19,10 +19,13 @@ package org.apache.inlong.sort.protocol.transformation.operator;
 
 import org.apache.inlong.sort.protocol.transformation.Operator;
 
+/**
+ * Test for {@link InOperator}
+ */
 public class InOperatorTest extends OperatorBaseTest {
 
     @Override
-    public Operator getOperator() {
+    public Operator getTestObject() {
         return InOperator.getInstance();
     }
 
@@ -30,10 +33,4 @@ public class InOperatorTest extends OperatorBaseTest {
     public String getExpectFormat() {
         return "IN";
     }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"in\"}";
-    }
-
 }

@@ -20,14 +20,12 @@ package org.apache.inlong.manager.client.api.util;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.client.api.DataSeparator;
-import org.apache.inlong.manager.common.pojo.stream.SinkField;
-import org.apache.inlong.manager.common.pojo.stream.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.sink.ClickHouseSink;
 import org.apache.inlong.manager.client.api.sink.HiveSink;
 import org.apache.inlong.manager.client.api.sink.KafkaSink;
+import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.FileFormat;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
@@ -43,6 +41,8 @@ import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.SinkField;
+import org.apache.inlong.manager.common.pojo.stream.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.nio.charset.Charset;
@@ -223,6 +223,8 @@ public class InlongStreamSinkTransfer {
         hiveSinkRequest.setFileFormat(hiveSink.getFileFormat().name());
         hiveSinkRequest.setSinkType(hiveSink.getSinkType().name());
         hiveSinkRequest.setPartitionFieldList(hiveSink.getPartitionFieldList());
+        hiveSinkRequest.setHiveConfDir(hiveSink.getHiveConfDir());
+        hiveSinkRequest.setHiveVersion(hiveSink.getHiveVersion());
         DefaultAuthentication defaultAuthentication = hiveSink.getAuthentication();
         AssertUtil.notNull(defaultAuthentication,
                 String.format("Hive storage:%s must be authenticated", hiveSink.getDbName()));
@@ -268,6 +270,8 @@ public class InlongStreamSinkTransfer {
             hiveSink.setTableName(snapshot.getTableName());
             hiveSink.setDbName(snapshot.getDbName());
             hiveSink.setDataPath(snapshot.getDataPath());
+            hiveSink.setHiveVersion(snapshot.getHiveVersion());
+            hiveSink.setHiveConfDir(snapshot.getHiveConfDir());
             hiveSink.setPartitionFieldList(snapshot.getPartitionFieldList());
         } else {
             hiveSink.setSinkName(sinkResponse.getSinkName());
@@ -281,6 +285,8 @@ public class InlongStreamSinkTransfer {
             hiveSink.setTableName(sinkResponse.getTableName());
             hiveSink.setDbName(sinkResponse.getDbName());
             hiveSink.setDataPath(sinkResponse.getDataPath());
+            hiveSink.setHiveConfDir(sinkResponse.getHiveConfDir());
+            hiveSink.setHiveVersion(sinkResponse.getHiveVersion());
             hiveSink.setPartitionFieldList(sinkResponse.getPartitionFieldList());
         }
 

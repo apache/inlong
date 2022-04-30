@@ -17,46 +17,19 @@
 
 package org.apache.inlong.sort.protocol.transformation.relation;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.apache.inlong.sort.SerializeBaseTest;
 
 import java.util.Arrays;
 import java.util.Collections;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for {@link UnionNodeRelationShip}
  */
-public class UnionNodeRelationTest {
+public class UnionNodeRelationTest extends SerializeBaseTest<UnionNodeRelationShip> {
 
-    /**
-     * Test serialize for UnionNodeRelationShip
-     *
-     * @throws JsonProcessingException The exception may throws when execute the method
-     */
-    @Test
-    public void testSerialize() throws JsonProcessingException {
-        UnionNodeRelationShip relationShip = new UnionNodeRelationShip(Arrays.asList("1", "2"),
+    @Override
+    public UnionNodeRelationShip getTestObject() {
+        return new UnionNodeRelationShip(Arrays.asList("1", "2"),
                 Collections.singletonList("3"));
-        ObjectMapper objectMapper = new ObjectMapper();
-        String expected = "{\"type\":\"union\",\"inputs\":[\"1\",\"2\"],\"outputs\":[\"3\"]}";
-        assertEquals(expected, objectMapper.writeValueAsString(relationShip));
     }
-
-    /**
-     * Test deserialize for UnionNodeRelationShip
-     *
-     * @throws JsonProcessingException The exception may throws when execute the method
-     */
-    @Test
-    public void testDeserialize() throws JsonProcessingException {
-        UnionNodeRelationShip relationShip = new UnionNodeRelationShip(Arrays.asList("1", "2"),
-                Collections.singletonList("3"));
-        ObjectMapper objectMapper = new ObjectMapper();
-        String relationShipStr = "{\"type\":\"union\",\"inputs\":[\"1\",\"2\"],\"outputs\":[\"3\"]}";
-        UnionNodeRelationShip expected = objectMapper.readValue(relationShipStr, UnionNodeRelationShip.class);
-        assertEquals(expected, relationShip);
-    }
-
 }

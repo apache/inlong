@@ -20,18 +20,24 @@ package org.apache.inlong.sort.singletenant.flink.cdc.mysql.table;
 
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
+import io.debezium.data.Envelope.FieldName;
 import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.GenericArrayData;
 import org.apache.flink.table.data.GenericMapData;
+import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
+import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import org.apache.inlong.sort.singletenant.flink.cdc.debezium.table.MetadataConverter;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -51,10 +57,7 @@ public enum MySqlReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    Struct messageStruct = (Struct) record.value();
-                    Struct sourceStruct = messageStruct.getStruct(Envelope.FieldName.SOURCE);
-                    return StringData.fromString(
-                            sourceStruct.getString(AbstractSourceInfo.TABLE_NAME_KEY));
+                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY));
                 }
             }),
 
@@ -69,10 +72,7 @@ public enum MySqlReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    Struct messageStruct = (Struct) record.value();
-                    Struct sourceStruct = messageStruct.getStruct(Envelope.FieldName.SOURCE);
-                    return StringData.fromString(
-                            sourceStruct.getString(AbstractSourceInfo.DATABASE_NAME_KEY));
+                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY));
                 }
             }),
 
@@ -96,26 +96,55 @@ public enum MySqlReadableMetadata {
             }),
 
     DATA(
-            "meta.data",
-            DataTypes.BIGINT(),
-            new MetadataConverter() {
-                private static final long serialVersionUID = 1L;
+        "meta.data",
+        DataTypes.STRING(),
+        new MetadataConverter() {
+            private static final long serialVersionUID = 1L;
 
-                @Override
-                public Object read(SourceRecord record) {
-                    record.value().toString();
-                    Struct messageStruct = (Struct) record.value();
-                    Struct sourceStruct = messageStruct.getStruct(Envelope.FieldName.SOURCE);
-                    return TimestampData.fromEpochMillis(
-                            (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY));
-                }
+            @Override
+            public Object read(SourceRecord record) {
+                record.value().toString();
+                Struct messageStruct = (Struct) record.value();
+                Struct sourceStruct = messageStruct.getStruct(FieldName.TIMESTAMP);
+                sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY);
+                return TimestampData.fromEpochMillis(
+                    (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY));
+            }
 
-                @Override
-                public Object read(SourceRecord record,
-                        @org.jetbrains.annotations.Nullable TableChanges.TableChange tableSchema, RowData rowData) {
-                    return rowData.getLong(0);
+            @Override
+            public Object read(SourceRecord record,
+                @org.jetbrains.annotations.Nullable TableChanges.TableChange tableSchema, RowData rowData) {
+                // construct canal json
+                Struct messageStruct = (Struct) record.value();
+                Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
+                // tableName
+                String tableName = getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY);
+                // databaseName
+                String databaseName = getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY);
+                // opTs
+                long opTs = (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY);
+                // ts
+                long ts = (Long) messageStruct.get(Envelope.FieldName.TIMESTAMP);
+                // actual data
+                GenericRowData data = (GenericRowData) rowData;
+                Map<String, Object> field = (Map<String, Object>) data.getField(0);
+                List<Map<String, Object>> dataList = new ArrayList<>();
+                dataList.add(field);
+
+                CanalJson canalJson = CanalJson.builder()
+                    .data(dataList).database(databaseName)
+                    .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
+                    .mysqlType(getMysqlType(tableSchema)).table(tableName).ts(ts)
+                    .type(getOpType(record)).build();
+
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    return StringData.fromString(objectMapper.writeValueAsString(canalJson));
+                } catch (Exception e) {
+                    throw new IllegalStateException("exception occurs when get meta data", e);
                 }
-            }),
+            }
+        }),
 
     /**
      * Name of the table that contain the row. .
@@ -128,10 +157,7 @@ public enum MySqlReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    Struct messageStruct = (Struct) record.value();
-                    Struct sourceStruct = messageStruct.getStruct(Envelope.FieldName.SOURCE);
-                    return StringData.fromString(
-                            sourceStruct.getString(AbstractSourceInfo.TABLE_NAME_KEY));
+                    return getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY);
                 }
             }),
 
@@ -146,10 +172,7 @@ public enum MySqlReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    Struct messageStruct = (Struct) record.value();
-                    Struct sourceStruct = messageStruct.getStruct(Envelope.FieldName.SOURCE);
-                    return StringData.fromString(
-                            sourceStruct.getString(AbstractSourceInfo.DATABASE_NAME_KEY));
+                    return getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY);
                 }
             }),
 
@@ -183,14 +206,7 @@ public enum MySqlReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    final Envelope.Operation op = Envelope.operationFor(record);
-                    if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
-                        return StringData.fromString("INSERT");
-                    } else if (op == Envelope.Operation.DELETE) {
-                        return StringData.fromString("DELETE");
-                    } else {
-                        return StringData.fromString("UPDATE");
-                    }
+                    return StringData.fromString(getOpType(record));
                 }
             }),
 
@@ -362,10 +378,54 @@ public enum MySqlReadableMetadata {
                 public Object read(SourceRecord record) {
                     Struct messageStruct = (Struct) record.value();
                     return TimestampData.fromEpochMillis(
-                            (Long) messageStruct.get(Envelope.FieldName.TIMESTAMP));
+                        (Long) messageStruct.get(Envelope.FieldName.TIMESTAMP));
                 }
             });
 
+    private static String getOpType(SourceRecord record) {
+        String opType;
+        final Envelope.Operation op = Envelope.operationFor(record);
+        if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
+            opType = "INSERT";
+        } else if (op == Envelope.Operation.DELETE) {
+            opType = "DELETE";
+        } else {
+            opType = "UPDATE";
+        }
+        return opType;
+    }
+
+    private static List<String> getPkNames(@Nullable TableChanges.TableChange tableSchema) {
+        if (tableSchema == null) {
+            return null;
+        }
+        return tableSchema.getTable().primaryKeyColumnNames();
+    }
+
+    public static Map<String, String> getMysqlType(@Nullable TableChanges.TableChange tableSchema) {
+        if (tableSchema == null) {
+            return null;
+        }
+        Map<String, String> mysqlType = new HashMap<>();
+        final Table table = tableSchema.getTable();
+        table.columns()
+            .forEach(
+                column -> {
+                    mysqlType.put(
+                        column.name(),
+                        String.format(
+                                "%s(%d)",
+                                column.typeName(),
+                                column.length()));
+                });
+        return mysqlType;
+    }
+
+    private static String getMetaData(SourceRecord record, String tableNameKey) {
+        Struct messageStruct = (Struct) record.value();
+        Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
+        return sourceStruct.getString(tableNameKey);
+    }
 
     private final String key;
 

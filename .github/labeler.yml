@@ -44,7 +44,6 @@ inlong-sdk:
 
 ci:
   - '.github/workflows/**/*'
-  - '.github/actions/**/*'
 
 docker:
   - '**/Dockerfile'
@@ -54,9 +53,15 @@ docker:
   - 'inlong-dataproxy/dataproxy-docker/**/*'
   - 'inlong-manager/manager-docker/**/*'
   - 'inlong-tubemq/tubemq-docker/**/*'
-  - '!inlong-tubemq/tubemq-docker/tubemq-k8s/**/*'
   - 'docker/docker-compose/**/*'
 
 k8s:
+  - '.github/ct.yml'
+  - '.github/kind.yml'
   - 'docker/kubernetes/**/*'
   - 'inlong-tubemq/tubemq-docker/tubemq-k8s/**/*'
+
+github:
+  - '.github/labeler.yml'
+  - '.github/PULL_REQUEST_TEMPLATE.md'
+  - '.github/ISSUE_TEMPLATE/**/*'

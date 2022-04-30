@@ -52,37 +52,37 @@ public class FlinkSqlParserTest extends AbstractTestBase {
 
     private MySqlExtractNode buildMySQLExtractNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()));
+            new FieldInfo("name", new StringFormatInfo()),
+            new FieldInfo("age", new IntFormatInfo()),
+            new FieldInfo("salary", new FloatFormatInfo()),
+            new FieldInfo("ts", new TimestampFormatInfo()));
         return new MySqlExtractNode("1", "mysql_input", fields,
-                null, null, "id",
-                Collections.singletonList("test"), "localhost", "username", "username",
-                "test_database", null, null,
-                null, null);
+            null, null, "id",
+            Collections.singletonList("test"), "localhost", "username", "username",
+            "test_database", null, null,
+            null, null);
     }
 
     private KafkaLoadNode buildKafkaNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()));
+            new FieldInfo("name", new StringFormatInfo()),
+            new FieldInfo("age", new IntFormatInfo()),
+            new FieldInfo("salary", new FloatFormatInfo()),
+            new FieldInfo("ts", new TimestampFormatInfo()));
         List<FieldRelationShip> relations = Arrays
-                .asList(new FieldRelationShip(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
+            .asList(new FieldRelationShip(new FieldInfo("id", new LongFormatInfo()),
+                    new FieldInfo("id", new LongFormatInfo())),
+                new FieldRelationShip(new FieldInfo("name", new StringFormatInfo()),
+                    new FieldInfo("name", new StringFormatInfo())),
+                new FieldRelationShip(new FieldInfo("age", new IntFormatInfo()),
+                    new FieldInfo("age", new IntFormatInfo())),
+                new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
+                    new FieldInfo("ts", new TimestampFormatInfo()))
+            );
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
-                "topic", "localhost:9092",
-                new CanalJsonFormat(), null,
-                null, null);
+            "topic", "localhost:9092",
+            new CanalJsonFormat(), null,
+            null, null);
     }
 
     private NodeRelationShip buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -120,7 +120,7 @@ public class FlinkSqlParserTest extends AbstractTestBase {
      * @throws Exception The exception may throws when execute the case
      */
     @Test
-    public void testMysqlToHive() throws Exception {
+    public void testMysqlToHive() {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
                 .useBlinkPlanner()
@@ -166,5 +166,4 @@ public class FlinkSqlParserTest extends AbstractTestBase {
         FlinkSqlParseResult result = parser.parse();
         Assert.assertTrue(result.tryExecute());
     }
-
 }

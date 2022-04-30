@@ -17,16 +17,15 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
-public class DebeziumJsonFormatTest extends FormatBaseTest {
+import org.apache.inlong.sort.SerializeBaseTest;
 
-    /**
-     * Test Serialize and Deserialize of debezium-json
-     *
-     * @return format
-     * @see Format
-     */
+/**
+ * Test for {@link DebeziumJsonFormat}
+ */
+public class DebeziumJsonFormatTest extends SerializeBaseTest<DebeziumJsonFormat> {
+
     @Override
-    public Format getFormat() {
+    public DebeziumJsonFormat getTestObject() {
         return new DebeziumJsonFormat();
     }
 }

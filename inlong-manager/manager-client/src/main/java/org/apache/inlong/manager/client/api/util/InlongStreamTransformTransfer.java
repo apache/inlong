@@ -22,11 +22,11 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.client.api.transform.MultiDependencyTransform;
 import org.apache.inlong.manager.client.api.transform.SingleDependencyTransform;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
@@ -56,8 +56,7 @@ public class InlongStreamTransformTransfer {
             transformRequest.setPostNodeNames(Joiner.on(",").join(streamTransform.getPostNodes()));
         }
         if (CollectionUtils.isNotEmpty(streamTransform.getFields())) {
-            transformRequest.setFieldList(
-                    InlongStreamTransfer.createStreamFields(streamTransform.getFields(), streamInfo));
+            transformRequest.setFieldList(streamTransform.getFields());
         }
         return transformRequest;
     }
@@ -84,7 +83,7 @@ public class InlongStreamTransformTransfer {
             streamTransform.setPostNodes(Sets.newHashSet(postNodes));
         }
         if (CollectionUtils.isNotEmpty(transformResponse.getFieldList())) {
-            streamTransform.setFields(InlongStreamTransfer.parseStreamFields(transformResponse.getFieldList()));
+            streamTransform.setFields(transformResponse.getFieldList());
         }
         return streamTransform;
     }

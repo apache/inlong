@@ -17,25 +17,15 @@
 
 package org.apache.inlong.sort.protocol.serialization;
 
-import org.apache.inlong.sort.protocol.ProtocolBaseTest;
+import org.apache.inlong.sort.SerializeBaseTest;
 
-public class DebeziumSerializationInfoTest extends ProtocolBaseTest {
+/**
+ * Test for {@link DebeziumSerializationInfo}
+ */
+public class DebeziumSerializationInfoTest extends SerializeBaseTest<DebeziumSerializationInfo> {
 
     @Override
-    public void init() {
-        expectedObject = new DebeziumSerializationInfo("SQL", "LITERAL", "null", true);
-
-        expectedJson = "{\n"
-                + "    \"type\":\"debezium_json\",\n"
-                + "    \"timestamp_format_standard\":\"SQL\",\n"
-                + "    \"map_null_key_mod\":\"LITERAL\",\n"
-                + "    \"map_null_key_literal\":\"null\",\n"
-                + "    \"encode_decimal_as_plain_number\":true\n"
-                + "}";
-
-        equalObj1 = expectedObject;
-        equalObj2 = new DebeziumSerializationInfo("SQL", "LITERAL", "null", true);
-        unequalObj = new DebeziumSerializationInfo("SQL", "LITERAL", "null", false);
-
+    public DebeziumSerializationInfo getTestObject() {
+        return new DebeziumSerializationInfo("SQL", "LITERAL", "null", true);
     }
 }

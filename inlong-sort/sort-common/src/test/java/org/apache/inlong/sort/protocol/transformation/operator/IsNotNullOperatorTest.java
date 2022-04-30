@@ -19,10 +19,13 @@ package org.apache.inlong.sort.protocol.transformation.operator;
 
 import org.apache.inlong.sort.protocol.transformation.Operator;
 
+/**
+ * Test for {@link IsNotNullOperator}
+ */
 public class IsNotNullOperatorTest extends OperatorBaseTest {
 
     @Override
-    public Operator getOperator() {
+    public Operator getTestObject() {
         return IsNotNullOperator.getInstance();
     }
 
@@ -30,10 +33,4 @@ public class IsNotNullOperatorTest extends OperatorBaseTest {
     public String getExpectFormat() {
         return "IS NOT NULL";
     }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"isNotNull\"}";
-    }
-
 }

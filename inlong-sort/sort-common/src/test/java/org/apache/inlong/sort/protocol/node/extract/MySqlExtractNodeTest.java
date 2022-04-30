@@ -17,34 +17,25 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.Node;
-import org.apache.inlong.sort.protocol.node.NodeBaseTest;
 
 import java.util.Arrays;
 
 /**
- * Unit test for {@link MySqlExtractNode}
+ * Test for {@link MySqlExtractNode}
  */
-public class MySqlExtractNodeTest extends NodeBaseTest {
+public class MySqlExtractNodeTest extends SerializeBaseTest<Node> {
 
     @Override
-    public Node getNode() {
+    public Node getTestObject() {
         return new MySqlExtractNode("1", null,
                 Arrays.asList(new FieldInfo("field", new StringFormatInfo())), null, null,
                 "primary_key_field", Arrays.asList("table1", "table2"),
                 "localhost", "username",
                 "password", "dabasename", 3306, 123,
                 true, null);
-    }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"mysqlExtract\",\"id\":\"1\","
-                + "\"fields\":[{\"type\":\"base\",\"name\":\"field\",\"formatInfo\":{\"type\":\"string\"}}],"
-                + "\"primaryKey\":\"primary_key_field\",\"tableNames\":[\"table1\",\"table2\"],"
-                + "\"hostname\":\"localhost\",\"username\":\"username\",\"password\":\"password\","
-                + "\"database\":\"dabasename\",\"port\":3306,\"serverId\":123,\"incrementalSnapshotEnabled\":true}";
     }
 }

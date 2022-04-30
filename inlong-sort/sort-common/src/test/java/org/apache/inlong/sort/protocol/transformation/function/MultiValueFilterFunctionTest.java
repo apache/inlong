@@ -33,7 +33,7 @@ import java.util.Arrays;
 public class MultiValueFilterFunctionTest extends FunctionBaseTest {
 
     @Override
-    public Function getFunction() {
+    public Function getTestObject() {
         return new MultiValueFilterFunction(new FieldInfo("field", new TimestampFormatInfo()),
                 Arrays.asList(new StringConstantParam("1"), new StringConstantParam("2")),
                 InOperator.getInstance(), EmptyOperator.getInstance());
@@ -42,14 +42,5 @@ public class MultiValueFilterFunctionTest extends FunctionBaseTest {
     @Override
     public String getExpectFormat() {
         return " `field` IN ('1','2')";
-    }
-
-    @Override
-    public String getExpectSerializeStr() {
-        return "{\"type\":\"multiValueFilter\",\"source\":{\"type\":\"base\",\"name\":\"field\","
-                + "\"formatInfo\":{\"type\":\"timestamp\",\"format\":\"yyyy-MM-dd HH:mm:ss\",\"precision\":2}},"
-                + "\"targets\":[{\"type\":\"stringConstant\",\"value\":\"1\"},{\"type\":\"stringConstant\","
-                + "\"value\":\"2\"}],\"compareOperator\":{\"type\":\"in\"},\"logicOperator\":{\"type\":\"empty\"}}";
-
     }
 }
