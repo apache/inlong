@@ -18,7 +18,12 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.cluster.*;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterResponse;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.ServiceBaseTest;
