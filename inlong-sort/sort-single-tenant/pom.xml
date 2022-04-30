@@ -156,7 +156,6 @@
                     <artifactId>calcite-druid</artifactId>
                 </exclusion>
             </exclusions>
-            <scope>provided</scope>
         </dependency>
 
 
