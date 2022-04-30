@@ -132,20 +132,21 @@ public class FieldInfoUtils {
     private static FieldInfo getFieldInfo(String fieldName, String fieldType, boolean isBuiltin, String format) {
         FieldInfo fieldInfo;
         BuiltInField builtInField = BUILT_IN_FIELD_MAP.get(fieldName);
-        if (builtInField == null) {
-            // Check if fieldName contains buildInFieldName, such as left_database
-            for (String buildInFieldName : BUILT_IN_FIELD_MAP.keySet()) {
-                if (fieldName.contains(buildInFieldName)) {
-                    builtInField = BUILT_IN_FIELD_MAP.get(buildInFieldName);
-                    break;
-                }
-            }
-        }
         FormatInfo formatInfo = convertFieldFormat(fieldType.toLowerCase(), format);
         if (isBuiltin && builtInField != null) {
-            fieldInfo = new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
+            return new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
         } else {
             if (isBuiltin) {
+                // Check if fieldName contains buildInFieldName, such as left_database
+                for (String buildInFieldName : BUILT_IN_FIELD_MAP.keySet()) {
+                    if (fieldName.contains(buildInFieldName)) {
+                        builtInField = BUILT_IN_FIELD_MAP.get(buildInFieldName);
+                        break;
+                    }
+                }
+                if (builtInField != null) {
+                    return new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
+                }
                 log.warn("Unsupported metadata fieldName={} as the builtInField is null", fieldName);
             }
             fieldInfo = new FieldInfo(fieldName, formatInfo);
