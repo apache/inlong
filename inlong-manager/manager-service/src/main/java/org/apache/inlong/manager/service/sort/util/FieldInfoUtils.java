@@ -149,9 +149,8 @@ public class FieldInfoUtils {
                 }
                 log.warn("Unsupported metadata fieldName={} as the builtInField is null", fieldName);
             }
-            fieldInfo = new FieldInfo(fieldName, formatInfo);
+            return new FieldInfo(fieldName, formatInfo);
         }
-        return fieldInfo;
     }
 
     /**
