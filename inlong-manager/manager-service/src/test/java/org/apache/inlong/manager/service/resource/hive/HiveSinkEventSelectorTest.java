@@ -48,7 +48,7 @@ public class HiveSinkEventSelectorTest extends ServiceBaseTest {
         processForm.setGroupInfo(new InlongGroupInfo());
         Assert.assertFalse(hiveSinkEventSelector.accept(workflowContext));
         processForm.getGroupInfo().setInlongGroupId("test");
-        // This method temporarily fails the test, first comment
+        // This method temporarily fails the test, so comment it out first
         // Assert.assertTrue(hiveSinkEventSelector.accept(workflowContext));
     }
 

@@ -35,7 +35,7 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
     private final String globalGroupId = "b_group1";
     private final String globalStreamId = "stream1_iceberg";
     private final String globalOperator = "admin";
-//    private final String sinkName = "default";
+    // private final String sinkName = "default";
 
     @Autowired
     private StreamSinkService sinkService;

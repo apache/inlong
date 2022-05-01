@@ -41,13 +41,13 @@ public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
 
     @Test
     public void testGetQueueOperateListener() {
-        WorkflowContext context = new WorkflowContext();
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
         InlongGroupInfo groupInfo = new InlongGroupInfo();
         //check pulsar listener
         groupInfo.setMiddlewareType(MQType.PULSAR.getType());
         groupInfo.setMqExtInfo(new InlongGroupPulsarInfo());
         processForm.setGroupInfo(groupInfo);
+        WorkflowContext context = new WorkflowContext();
         context.setProcessForm(processForm);
         List<QueueOperateListener> queueOperateListeners = serviceTaskListenerFactory.getQueueOperateListener(context);
         if (queueOperateListeners.size() == 0) {

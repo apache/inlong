@@ -43,14 +43,13 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
     private static final String ckUsername = "ck_user";
     private static final String ckDatabaseName = "ck_db";
     private static final String ckTableName = "ck_tbl";
-    //    private static final String sinkName = "default";
-//    private static Integer sinkId;
+    // private static final String sinkName = "default";
+    // private static Integer sinkId;
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
-    //    @Before
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         ClickHouseSinkRequest sinkInfo = new ClickHouseSinkRequest();
@@ -67,7 +66,6 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
         return sinkService.save(sinkInfo, globalOperator);
     }
 
-    //    @After
     public void deleteKafkaSink(Integer sinkId) {
         boolean result = sinkService.delete(sinkId, SinkType.SINK_CLICKHOUSE, globalOperator);
         Assert.assertTrue(result);

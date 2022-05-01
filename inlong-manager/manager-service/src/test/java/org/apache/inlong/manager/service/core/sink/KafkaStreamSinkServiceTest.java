@@ -41,15 +41,14 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
     private static final String bootstrapServers = "127.0.0.1:9092";
     private static final String serializationType = "Json";
     private static final String topicName = "kafka_topic_name";
-//    private static final String sinkName = "default";
-//    private static Integer kafkaSinkId;
+    // private static final String sinkName = "default";
+    // private static Integer kafkaSinkId;
 
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
-    //    @Before
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         KafkaSinkRequest sinkInfo = new KafkaSinkRequest();
@@ -64,7 +63,6 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
         return sinkService.save(sinkInfo, globalOperator);
     }
 
-    //    @After
     public void deleteKafkaSink(Integer kafkaSinkId) {
         boolean result = sinkService.delete(kafkaSinkId, SinkType.SINK_KAFKA, globalOperator);
         Assert.assertTrue(result);

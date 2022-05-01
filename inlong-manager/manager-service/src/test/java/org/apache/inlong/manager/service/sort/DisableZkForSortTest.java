@@ -111,7 +111,8 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         return kafkaSourceRequest;
     }
 
-    //    @Test
+    // There will be concurrency problems in the overall operation,This method temporarily fails the test
+    // @Test
     public void testCreateSortConfigInCreateWorkflow() {
         InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test21");
         groupInfo.setStatus(GroupStatus.CONFIG_SUCCESSFUL.getCode());

@@ -121,7 +121,6 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     /**
      * Init inlong group form
      */
-//    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public InlongGroupInfo initGroupForm(String middlewareType, String inLongGroupName) {
         String inLongGroupId = "b_" + inLongGroupName;
         processName = ProcessName.CREATE_GROUP_RESOURCE;
@@ -144,11 +143,11 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         groupService.save(groupInfo.genRequest(), OPERATOR);
 
         groupService.updateStatus(inLongGroupId, GroupStatus.TO_BE_APPROVAL.getCode(), OPERATOR);
-//        groupService.update(groupInfo.genRequest(), OPERATOR);
+        // groupService.update(groupInfo.genRequest(), OPERATOR);
         groupService.updateStatus(inLongGroupId, GroupStatus.APPROVE_PASSED.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
         groupService.updateStatus(inLongGroupId, GroupStatus.CONFIG_ING.getCode(), OPERATOR);
-//        groupService.update(groupInfo.genRequest(), OPERATOR);
+        // groupService.update(groupInfo.genRequest(), OPERATOR);
 
         form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
@@ -250,7 +249,8 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         WorkflowContext context = workflowEngine.processService().start(processName.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse view = result.getProcessInfo();
-//        Assert.assertSame(view.getStatus(), ProcessStatus.COMPLETED);
+        // This method temporarily fails the test, so comment it out first
+        // Assert.assertSame(view.getStatus(), ProcessStatus.COMPLETED);
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("initMQ");
         Assert.assertTrue(task instanceof ServiceTask);
@@ -280,7 +280,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         Assert.assertTrue(listeners.get(1) instanceof CreateTubeGroupTaskListener);
     }
 
-    //    @Test
+    // @Test
     public void testSuspendProcess() {
         InlongGroupInfo groupInfo = initGroupForm(MQType.PULSAR.getType(), "test11" + subType);
         groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
@@ -393,7 +393,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
         // insert task instance
         WorkflowTaskEntity task = new WorkflowTaskEntity();
-//        task.setId(1);
+        // task.setId(1);
         task.setType("ServiceTask");
         task.setProcessId(1);
         task.setProcessName("PROCESS_NAME");
@@ -411,7 +411,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         query.setProcessNames(Collections.singletonList("CREATE_GROUP_RESOURCE"));
         PageInfo<WorkflowExecuteLog> logPageInfo = workflowService.listTaskExecuteLogs(query);
 
-//        Assert.assertEquals(1, logPageInfo.getTotal());
+        // Assert.assertEquals(1, logPageInfo.getTotal());
     }
 
 }

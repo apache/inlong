@@ -65,7 +65,8 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         return streamSourceService.save(sourceRequest, OPERATOR);
     }
 
-//    @Test
+    // There will be concurrency problems in the overall operation,This method temporarily fails the test
+    // @Test
     public void testFrozenSource() {
         groupInfo = initGroupForm("PULSAR", "test1");
         groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);

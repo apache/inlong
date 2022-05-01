@@ -55,7 +55,8 @@ public class ConsumptionServiceTest extends ServiceBaseTest {
         return consumptionService.save(consumptionInfo, operator);
     }
 
-//    @Test
+    // Online test will be BusinessException: Inlong group does not exist/no operation authority
+    // @Test
     public void testSave() {
         String inlongGroup = "inlong_group1";
         String consumerGroup = "test_save_consumer_group";
@@ -65,7 +66,8 @@ public class ConsumptionServiceTest extends ServiceBaseTest {
         Assert.assertNotNull(id);
     }
 
-    //    @Test
+    // Online test will be BusinessException: Inlong group does not exist/no operation authority
+    // @Test
     public void testDelete() {
         String inlongGroup = "inlong_group2";
         String operator = "admin";

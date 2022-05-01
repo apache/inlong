@@ -69,7 +69,7 @@ public class DeleteSortListenerTest {
         inlongGroupInfo.setExtList(inlongGroupExtInfos);
 
         DeleteSortListener deleteSortListener = new DeleteSortListener();
-        // This method temporarily fails the test, first comment
+        // This method temporarily fails the test, so comment it out first
         // deleteSortListener.listen(context);
     }
 }

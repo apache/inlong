@@ -33,11 +33,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-//import org.springframework.test.annotation.Rollback;
-//import org.springframework.transaction.annotation.Transactional;
 
-//@Transactional
-//@Rollback
 @EnableAutoConfiguration
 public class InlongGroupProcessOperationTest extends ServiceBaseTest {
 
@@ -56,7 +52,6 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
     @Autowired
     private ServiceTaskListenerFactory serviceTaskListenerFactory;
 
-    //    @Before
     public void before() {
         MockPlugin mockPlugin = new MockPlugin();
         serviceTaskListenerFactory.acceptPlugin(mockPlugin);
@@ -69,14 +64,10 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
         pulsarInfo.setInlongGroupId(GROUP_ID);
         groupInfo.setMqExtInfo(pulsarInfo);
         groupService.save(groupInfo, OPERATOR);
-//        groupService.update(groupInfo, OPERATOR);
     }
 
-    //    @After
-//    public void after() {
-//        groupService.delete(GROUP_ID, OPERATOR);
-//    }
-//    @Test
+    // There will be concurrency problems in the overall operation, and the testDeleteProcess() method will call
+    // @Test
     public void testStartProcess() {
         before();
         WorkflowResult result = groupProcessOperation.startProcess(GROUP_ID, OPERATOR);
@@ -86,7 +77,8 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
         Assert.assertEquals(groupInfo.getStatus(), GroupStatus.TO_BE_APPROVAL.getCode());
     }
 
-    //    @Test
+    // There will be concurrency problems in the overall operation, and the testDeleteProcess() method will call
+    // @Test
     public void testSuspendProcess() {
         testStartProcess();
         InlongGroupInfo groupInfo = groupService.get(GROUP_ID);
@@ -104,7 +96,8 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
         Assert.assertEquals(groupInfo.getStatus(), GroupStatus.SUSPENDED.getCode());
     }
 
-    //    @Test
+    // There will be concurrency problems in the overall operation, and the testDeleteProcess() method will call
+    // @Test
     public void testRestartProcess() {
         testSuspendProcess();
         WorkflowResult result = groupProcessOperation.restartProcess(GROUP_ID, OPERATOR);
@@ -117,9 +110,9 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
     @Test
     public void testDeleteProcess() {
         testStartProcess();
-//        testRestartProcess();
-//        boolean result = groupProcessOperation.deleteProcess(GROUP_ID, OPERATOR);
-//        Assert.assertTrue(result);
+        // testRestartProcess();
+        // boolean result = groupProcessOperation.deleteProcess(GROUP_ID, OPERATOR);
+        // Assert.assertTrue(result);
 
     }
 }

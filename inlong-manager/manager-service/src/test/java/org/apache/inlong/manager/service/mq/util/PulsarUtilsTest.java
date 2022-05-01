@@ -34,7 +34,8 @@ import java.util.ArrayList;
 
 public class PulsarUtilsTest {
 
-//    @Test
+    // There will be concurrency problems in the overall operation,This method temporarily fails the test
+    // @Test
     public void testGetPulsarAdmin() {
         InlongGroupExtInfo groupExtInfo1 = new InlongGroupExtInfo();
         groupExtInfo1.setId(1);
