@@ -32,4 +32,5 @@
 
 org.apache.inlong.sort.singletenant.flink.cdc.mysql.table.MySqlTableInlongSourceFactory
 org.apache.inlong.sort.singletenant.flink.connectors.hive.table.catalog.factories.HiveTableInlongFactory
+org.apache.inlong.sort.singletenant.flink.avro.AvroResolveConflictFormatFactory
 org.apache.inlong.sort.flink.kafka.KafkaDynamicTableFactory

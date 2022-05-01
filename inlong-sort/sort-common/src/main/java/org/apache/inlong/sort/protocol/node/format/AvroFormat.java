@@ -58,7 +58,7 @@ public class AvroFormat implements Format {
     @JsonIgnore
     @Override
     public String getFormat() {
-        return "avro";
+        return "avro-inlong";
     }
 
     /**
